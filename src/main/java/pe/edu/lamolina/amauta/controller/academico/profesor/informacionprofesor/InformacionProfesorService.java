@@ -46,4 +46,6 @@ public interface InformacionProfesorService {
 
     void activarCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
 
+    void updateDocentePersona(Persona persona, Long idDocente, DataSessionPivot ds);
+
 }

@@ -192,7 +192,7 @@ public class ProfesorServiceImp implements ProfesorService {
             ObjectUtil.eliminarAttrSinId(personaDoc, "tipoDocumento");
 
             Persona personaForm = docente.getPersona();
-            this.validarDNI(personaForm);
+            this.validarDNI(personaForm, false, null);
             if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
                 throw new PhobosException("El correo principal es obligatorio");
             }
@@ -256,7 +256,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     @Transactional
-    public void update(Docente docente, DataSessionPivot ds) {
+    public Persona update(Docente docente, DataSessionPivot ds) {
         logger.debug("Docente Actualizado -> {} ...", docente.getId());
         Usuario user = ds.getUsuario();
         logger.debug("Actualizado por usuario -> {}", user.getId());
@@ -270,8 +270,12 @@ public class ProfesorServiceImp implements ProfesorService {
         ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
 
         logger.debug("Actualizando persona -> {}", personaForm.getId());
-        this.validarDNI(personaForm);
-        logger.debug("-> DNI validado");
+        Persona personaDuplicada = null;
+        personaDuplicada = validarDNI(personaForm, true, personaDuplicada);
+        if (personaDuplicada != null) {
+            return personaDuplicada;
+        }
+        logger.debug("-> DNI validado. Duplicado: ", personaDuplicada != null);
         if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
             throw new PhobosException("El correo principal es obligatorio.");
         }
@@ -339,6 +343,8 @@ public class ProfesorServiceImp implements ProfesorService {
         } else {
             logger.debug("Rol Existente como docente.");
         }
+
+        return null;
     }
 
     private String getCodigo() {
@@ -358,16 +364,24 @@ public class ProfesorServiceImp implements ProfesorService {
         return codigo;
     }
 
-    private void validarDNI(Persona personaForm) {
+    private Persona validarDNI(Persona personaForm, Boolean isUpdate, Persona personaDuplicada) {
         TipoDocIdentidad doc = personaForm.getTipoDocumento();
 
-        Persona personaBD = personaDAO.findByDocIdentidad(doc, personaForm.getNumeroDocIdentidad());
-        if (personaForm.getId() != null && personaBD != null && personaBD.getId().longValue() != personaForm.getId()) {
-            throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaBD.getApellidosNombres());
-
-        } else if (personaForm.getId() == null && personaBD != null) {
-            throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaBD.getApellidosNombres());
+        personaDuplicada = personaDAO.findByDocIdentidad(doc, personaForm.getNumeroDocIdentidad());
+        if (personaForm.getId() != null && personaDuplicada != null && personaDuplicada.getId().longValue() != personaForm.getId()) {
+            if (!isUpdate) {
+                throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaDuplicada.getApellidosNombres(), personaDuplicada.getId());
+            } else {
+                return personaDuplicada;
+            }
+        } else if (personaForm.getId() == null && personaDuplicada != null) {
+            if (!isUpdate) {
+                throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaDuplicada.getApellidosNombres(), personaDuplicada.getId());
+            } else {
+                return personaDuplicada;
+            }
         }
+        return null;
     }
 
     private void validarEmailsinPersona(String email) {
@@ -477,7 +491,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
         Persona personaBD = personaDAO.find(persona.getId());
         boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("paterno", "materno", "nombres", "numeroDocIdentidad"));
-       
+
         if (sinCambios && personaBD.getTipoDocumento() != null) {
             sinCambios = sinCambios && (persona.getTipoDocumento().getId() == personaBD.getTipoDocumento().getId().longValue());
             if (sinCambios) {

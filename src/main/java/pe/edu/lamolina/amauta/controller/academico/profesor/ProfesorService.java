@@ -48,7 +48,7 @@ public interface ProfesorService {
 
     String getRutaFoto(String foto, String sexo);
 
-    void update(Docente docente, DataSessionPivot ds);
+    Persona update(Docente docente, DataSessionPivot ds);
 
     List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
 

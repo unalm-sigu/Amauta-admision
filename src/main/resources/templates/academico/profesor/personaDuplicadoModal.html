@@ -1,0 +1,11 @@
+<modal-vik ref="modalPersonaDuplicado"
+           v-bind="modalPersonaDuplicado"
+           v-bind:okaction="updatePersona">
+    <div slot="body">
+        <div v-if="personaDuplicado != null">
+
+            <span class="block"><span class="bold">Nombre Completo :</span> {{personaDuplicado.nombreCompleto}}</span>
+            <span><span class="bold">{{personaDuplicado.tipoDocumento.simbolo}} -</span>   {{personaDuplicado.numeroDocIdentidad}}</span>
+        </div>
+    </div>
+</modal-vik>

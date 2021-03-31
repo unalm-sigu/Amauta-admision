@@ -252,16 +252,26 @@ public class ProfesorController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
+            Boolean success = true;
             if (docente.getId() == null) {
                 service.save(docente, ds);
                 response.setMessage("Docente creado satisfactoriamente");
             } else {
-                service.update(docente, ds);
-                response.setMessage("Docente modificado satisfactoriamente");
+                Persona personaDuplicada = service.update(docente, ds);
+                if (personaDuplicada == null) {
+                    response.setMessage("Docente modificado satisfactoriamente");
+                } else {
+                    ObjectNode objectNode = JsonHelper.createJson(personaDuplicada, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "tipoDocumento.*"
+                    });
+                    node.put("personaDuplicado", objectNode);
+                    response.setMessage("DNI duplicado");
+                    success = false;
+                }
             }
 
-            response.setSuccess(true);
+            response.setSuccess(success);
             response.setData(node);
 
             node.put("personaId", docente.getId());

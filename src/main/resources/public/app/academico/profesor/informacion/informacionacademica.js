@@ -65,7 +65,16 @@ new Vue({
         configConfirmAction: VUE_MODAL.structConfirm({
             id: "id-modal-confirm"
         }),
-        itemSelect: {}
+        itemSelect: {},
+        modalPersonaDuplicado: {
+            id: 'modalPersonaDuplicado',
+            header: true,
+            title: 'Persona Duplicado',
+            okbtn: 'Aceptar',
+            showaccept: true
+        },
+        personaDuplicado: null,
+        idDocente: null
     },
     mounted: function () {
         let $vue = this;
@@ -197,6 +206,7 @@ new Vue({
             return seccion.tipoSeccionEnum.value.split(" ")[0];
         },
         submitForm: function (e) {
+            let $vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
             if (!$("#formDocente").parsley().validate() == true) {
@@ -214,6 +224,11 @@ new Vue({
                         notify(response.message, "info");
                         self.btnEnable();
                     } else {
+                        if (response.data != null) {
+                            $vue.personaDuplicado = response.data.personaDuplicado;
+                            $vue.idDocente = response.data.personaId;
+                            $vue.$refs.modalPersonaDuplicado.open();
+                        }
                         notify(response.message, "error");
                         self.btnEnable();
                     }
@@ -508,6 +523,41 @@ new Vue({
                 $vue.$refs.modalConfirmAction.confirmReaction(false);
                 notify(Messages.errorComunicacion, "error");
             });
+        },
+        updatePersona() {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: `¿Seguro que desea actualizar el dni al docente?`,
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/profesor/' + $vue.idDocente + '/updateDocentePersona'),
+                            type: 'POST',
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify($vue.personaDuplicado),
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                $vue.updateDocente($vue.idDocente);
+                                $vue.$refs.modalPersonaDuplicado.close();
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+
         }
     }
 });

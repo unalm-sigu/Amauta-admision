@@ -28,6 +28,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.academico.profesor.ProfesorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -47,6 +48,8 @@ public class InformacionProfesorController {
     InformacionProfesorService service;
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    ProfesorService profesorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
@@ -104,7 +107,7 @@ public class InformacionProfesorController {
         model.addAttribute("categorias", service.allCategorias());
         model.addAttribute("situaciones", service.allSituaciones());
         model.addAttribute("dedicaciones", service.allDedicaciones());
-         model.addAttribute("personaJson", personaJson);
+        model.addAttribute("personaJson", personaJson);
         model.addAttribute("bancos", createBancosJson(bancos));
         model.addAttribute("cuentasBancarias", createCtasBancariasJson(cuentasBancarias));
         model.addAttribute("ciclo", cicloJson.toString());
@@ -220,7 +223,27 @@ public class InformacionProfesorController {
 
         return response;
     }
-    
+
+    @ResponseBody
+    @RequestMapping("{idDocente}/updateDocentePersona")
+    public JsonResponse updateDocentePersona(@PathVariable("idDocente") Long idDocente, @RequestBody Persona persona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.updateDocentePersona(persona, idDocente, ds);
+
+            response.setMessage("Se actualizó el docente satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
     @ResponseBody
     @RequestMapping("{idPersona}/allCuentasBancarias")
     public JsonResponse allCuentasBancarias(@PathVariable Long idPersona, HttpSession session) {
