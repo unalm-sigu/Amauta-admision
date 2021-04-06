@@ -1035,7 +1035,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.INTES);
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.ING_HIS.name())) {
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
-            } 
+            }
             tramiteTraslado.setUserRegistro(ds.getUsuario());
             tramiteTraslado.setEstado(tramiteTraslado.getSeleccionado() ? ACEP.name() : RCHZ.name());
             tramiteTrasladoDAO.save(tramiteTraslado);
@@ -1448,7 +1448,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
                 Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
-                alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + creditos);
+
+                Integer sumaCreditos = alumnoCicloCurso.getCreditos() + creditos;
+                if (cursoCurricula.getCreditos() < sumaCreditos) {
+                    sumaCreditos = cursoCurricula.getCreditos();
+                }
+
+                alumnoCicloCurso.setCreditos(sumaCreditos);
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "creditos", "userModificacion", "fechaModificacion");
