@@ -134,7 +134,7 @@ public class TramiteReincorporacionController {
         try {
             Tramite tramite = tramitesTituloService.findByTramite(id);
             String fileName = reincorporacionService.reporte(tramite, ds);
-            String name = "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " - " + tramite.getNumero() + ".pdf";
+            String name = "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
             pdfResponse(fileName, name, response);
 
         } catch (PhobosException e) {

@@ -137,7 +137,7 @@ public class TramiteTrasladoController {
         try {
             Tramite tramite = tramitesTituloService.findByTramite(id);
             String fileName = service.reporte(tramite, ds);
-            String name = "Informe Traslado " + tramite.getAlumno().getPersona().getPaterno() + " - " + tramite.getNumero() + ".pdf";
+            String name = "Informe Traslado " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
             pdfResponse(fileName, name, response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
