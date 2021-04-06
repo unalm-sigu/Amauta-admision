@@ -65,7 +65,7 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                     </tr>
-                    <tr v-if="tipo == 'TRAS'">
+                    <tr v-if="tipo == 'TRAS' || tipo == 'ING_HIS' || tipo == 'INTES'">
                         <td>
                             <a class="block" v-text="alumnoTramiteTraslado.tramite.alumno.persona.nombreCompleto"></a>
                             <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>

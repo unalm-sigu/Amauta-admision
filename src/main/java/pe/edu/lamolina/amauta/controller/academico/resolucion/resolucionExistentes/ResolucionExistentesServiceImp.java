@@ -1035,49 +1035,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.INTES);
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.ING_HIS.name())) {
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
-            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS_INT.name())) {
-
-                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS_INT);
-
-                if (tramiteTraslado.getSeleccionado()) {
-
-                    tramiteTraslado.setCarreraOrigen(alumno.getCarrera());
-                    alumno.setCarrera(tramiteTraslado.getCarrera());
-
-                    OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
-                    List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarreraOrientacion(tramiteTraslado.getCarrera());
-                    Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planCurriculars);
-                    Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planCurriculars);
-                    String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
-
-                    List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
-
-                    Collections.sort(codigosCiclosPlanes);
-                    Collections.reverse(codigosCiclosPlanes);
-
-                    String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-                    List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-                    PlanCurricular planCurricularBD = null;
-                    for (PlanCurricular planCurricular : planesBD) {
-                        if (planCurricular.getOrientacionCarrera() == null) {
-                            planCurricularBD = planCurricular;
-                            alumno.setOrientacionCarrera(null);
-                            break;
-                        } else {
-                            if (orientacionCarrera != null && Objects.equals(planCurricular.getOrientacionCarrera().getId(), orientacionCarrera.getId())) {
-                                alumno.setOrientacionCarrera(planCurricular.getOrientacionCarrera());
-                                planCurricularBD = planCurricular;
-                            }
-                        }
-                    }
-//                    if (orientacionCarrera != null) {
-//                    } else {
-//                        planCurricularBD = planesBD.get(0);
-//                    }
-                    alumno.setPlanCurricular(planCurricularBD);
-                    alumnoDAO.updateColumns(alumno, "carrera", "planCurricular");
-                }
-            }
+            } 
             tramiteTraslado.setUserRegistro(ds.getUsuario());
             tramiteTraslado.setEstado(tramiteTraslado.getSeleccionado() ? ACEP.name() : RCHZ.name());
             tramiteTrasladoDAO.save(tramiteTraslado);

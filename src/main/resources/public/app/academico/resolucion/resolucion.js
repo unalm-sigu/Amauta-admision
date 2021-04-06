@@ -315,10 +315,10 @@ var app = new Vue({
                             $vue.alumnosCambioNota = response.data;
                         } else if ($vue.tipo == "CURDIR") {
                             $vue.alumnosCursoDirigido = response.data;
-                        } else if ($vue.tipo == "TRAS") {
+                        } else if ($vue.tipo == "TRAS" || $vue.tipo == "ING_HIS" || $vue.tipo == "INTES" ) {
                             $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
                         } else if ($vue.tipo == "BACHI") {
-                            $vue.alumnoTramiteBachiller = response.data; ///retorn solo 1 registro
+                            $vue.alumnoTramiteBachiller = response.data; 
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

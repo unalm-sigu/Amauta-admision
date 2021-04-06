@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -14,7 +13,6 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TrasladoInterno;
 
 @Repository
 public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implements TramiteTrasladoDAO {
@@ -28,10 +26,10 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
     public List<TramiteTraslado> allByResolucion(Resolucion resolucion) {
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
-                .join("tramite tra", "tra.tipoTramite")
+                .join("tramite tra", "tra.tipoTramite", "resolucion res")
                 .left("tra.cicloAcademico cic", "tra.alumno al", "al.persona per", "userRegistro ur", "ur.persona per1")
                 .left("carrera ", "carreraOrigen")
-                .join("al.carrera car", "car.facultad fa", "resolucion res")
+                .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "per1.tipoDocumento ", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("res.id", resolucion);

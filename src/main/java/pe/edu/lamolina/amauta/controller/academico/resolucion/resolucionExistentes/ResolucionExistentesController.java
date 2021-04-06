@@ -74,7 +74,7 @@ public class ResolucionExistentesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    static List<String> TIPO_RESOLUCION = Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name(), PRACTICAS.name());
+    static List<String> TIPO_RESOLUCION = Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name(), PRACTICAS.name());
 
     @Autowired
     ResolucionExistenteService service;
@@ -633,7 +633,7 @@ public class ResolucionExistentesController {
                 array.add(objectNode);
             }
 
-        } else if (Arrays.asList(TRAS, INTES, ING_HIS, TRAS_INT).contains(tipoEnum)) {
+        } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(tipoEnum.name())) {
             List<TramiteTraslado> trasladados = service.allTramiteTraslado(resolucion);
             for (TramiteTraslado traslado : trasladados) {
                 objectNode = JsonHelper.createJson(traslado, JsonNodeFactory.instance, new String[]{
@@ -643,7 +643,7 @@ public class ResolucionExistentesController {
                     "tramite.alumno.persona.*",
                     "tramite.alumno.persona.tipoDocumento.*"
                 });
-                objectNode.put("tipo", TRAS.name());
+                objectNode.put("tipo", tipoEnum.name());
                 array.add(objectNode);
             }
 
@@ -660,7 +660,7 @@ public class ResolucionExistentesController {
                     "alumno.persona.nombreCompleto",
                     "alumno.persona.tipoDocumento.simbolo"
                 });
-                objectNode.put("tipo", BACHI.name());
+                objectNode.put("tipo", tipoEnum.name());
                 array.add(objectNode);
             }
         }
