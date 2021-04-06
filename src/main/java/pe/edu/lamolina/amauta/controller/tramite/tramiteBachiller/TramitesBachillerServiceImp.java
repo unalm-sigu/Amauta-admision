@@ -148,7 +148,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     }
 
     private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
-        tramite = tramiteDAO.find(tramite.getId());
+        // tramite = tramiteDAO.find(tramite.getId());
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -157,10 +157,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        
+
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(alumno.getPlanCurricular());
         Map<Long, CursoCurricula> mapCursoCurricula = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
-        
+
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
         Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
 
@@ -357,6 +357,11 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 alumnoCicloCurso.setEsCaduco(1);
             }
         }
+    }
+
+    @Override
+    public Tramite findByTramite(Long id) {
+        return tramiteDAO.findById(new Tramite(id));
     }
 
 }

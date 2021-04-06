@@ -65,6 +65,17 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                     </tr>
+                    <tr v-for="item in alumnoTramitePracticas" v-if="tipo == 'PRACTICAS'"
+                        >
+                        <td>
+                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
+                            <span class="block" v-text="item.tramite.alumno.codigo"></span>
+                            <span > {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span v-text="item.curso.nombre"></span>
+                        </td>
+                    </tr>
                     <tr v-if="tipo == 'TRAS' || tipo == 'ING_HIS' || tipo == 'INTES'">
                         <td>
                             <a class="block" v-text="alumnoTramiteTraslado.tramite.alumno.persona.nombreCompleto"></a>

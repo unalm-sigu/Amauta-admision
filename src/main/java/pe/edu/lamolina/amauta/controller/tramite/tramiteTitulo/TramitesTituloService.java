@@ -16,4 +16,6 @@ public interface TramitesTituloService {
 
     public void anularTitulo(TramiteTitulo tramiteTitulo, DataSessionPivot ds);
 
+    public Tramite findByTramite(Long id);
+
 }

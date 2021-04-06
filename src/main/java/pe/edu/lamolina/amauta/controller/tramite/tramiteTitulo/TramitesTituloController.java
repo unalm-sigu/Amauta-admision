@@ -159,8 +159,10 @@ public class TramitesTituloController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            String fileName = tramitesTituloService.TituloReporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información Titulo.pdf", response);
+            Tramite tramite = tramitesTituloService.findByTramite(id);
+            String fileName = tramitesTituloService.TituloReporte(tramite, ds);
+            String name = "Información Titulo " + tramite.getAlumno().getPersona().getPaterno() + " - " + tramite.getNumero() + ".pdf";
+            pdfResponse(fileName, name, response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {

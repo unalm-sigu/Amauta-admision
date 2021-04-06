@@ -129,7 +129,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     }
 
     private List<String> createInfoTituloPDF(Tramite tramite, DataSessionPivot ds) {
-        tramite = tramiteDAO.find(tramite.getId());
+        // tramite = tramiteDAO.find(tramite.getId());
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -295,6 +295,11 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
         tramiteTitulo.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteTituloDAO.updateColumns(tramiteTitulo, "estado");
+    }
+
+    @Override
+    public Tramite findByTramite(Long id) {
+        return tramiteDAO.findById(new Tramite(id));
     }
 
 }

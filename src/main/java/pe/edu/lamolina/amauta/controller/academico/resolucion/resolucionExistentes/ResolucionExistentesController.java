@@ -663,6 +663,20 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", tipoEnum.name());
                 array.add(objectNode);
             }
+        } else if (tipoEnum == PRACTICAS) {
+            List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
+            for (PracticasPreProfesional prac : practicasPre) {
+                objectNode = JsonHelper.createJson(prac, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "curso.*",
+                    "tramite.alumno.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
+                });
+                objectNode.put("tipo", PRACTICAS.name());
+                array.add(objectNode);
+            }
+
         }
 
         return array;

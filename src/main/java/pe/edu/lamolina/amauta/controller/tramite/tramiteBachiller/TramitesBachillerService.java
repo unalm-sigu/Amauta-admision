@@ -16,4 +16,6 @@ public interface TramitesBachillerService {
 
     public void anular(TramiteBachiller tramiteBachiller, DataSessionPivot ds);
 
+    public Tramite findByTramite(Long id);
+
 }

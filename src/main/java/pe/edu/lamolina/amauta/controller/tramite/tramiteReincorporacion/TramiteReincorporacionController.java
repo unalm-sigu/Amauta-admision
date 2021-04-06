@@ -30,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.tramite.tramiteTitulo.TramitesTituloService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -44,6 +45,9 @@ public class TramiteReincorporacionController {
 
     @Autowired
     TramiteReincorporacionService reincorporacionService;
+
+    @Autowired
+    TramitesTituloService tramitesTituloService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -128,8 +132,11 @@ public class TramiteReincorporacionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            String fileName = reincorporacionService.reporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Informe Reincorporacion.pdf", response);
+            Tramite tramite = tramitesTituloService.findByTramite(id);
+            String fileName = reincorporacionService.reporte(tramite, ds);
+            String name = "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " - " + tramite.getNumero() + ".pdf";
+            pdfResponse(fileName, name, response);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
