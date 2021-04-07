@@ -154,8 +154,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-        TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
 
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(alumno.getPlanCurricular());
@@ -174,7 +174,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
                 TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
                 if (tipoCursoCurricula == null) {
-                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaCPRO);
                 } else {
                     alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
                 }
@@ -182,6 +182,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         }
 
         validadCaducos(mapCursoCurricula, alumnoCicloCursos);
+        alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
+        
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
                 .filter(x -> x.isAprobado() && x.getEsCaduco() == 0)

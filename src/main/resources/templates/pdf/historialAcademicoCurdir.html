@@ -74,8 +74,8 @@
             <thead>
                 <tr>
                     <td colspan="28" style="background-color: black; color: white" class="text-center">
-                        <b th:inline="text" th:if="${item.key.codigo != 'DEP'}"> Cursos [[${item.key.nombre}]]</b>
-                        <b th:inline="text" th:if="${item.key.codigo == 'DEP'}"> Curso talleres Propedéutico y Tópicos por Movilidad Estudiantil</b>
+                        <b th:inline="text" th:if="${item.key.codigo != 'DEP' &amp;&amp; item.key.codigo != 'CPRO'}"> Cursos [[${item.key.nombre}]]</b>
+                        <b th:inline="text" th:if="${item.key.codigo == 'DEP' || item.key.codigo == 'CPRO'}"> Curso talleres Propedéutico y Tópicos por Movilidad Estudiantil</b>
                     </td>
                 </tr>
                 <tr>

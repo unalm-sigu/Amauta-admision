@@ -135,36 +135,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-        TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
-        TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
-        Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
-
-        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-            if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
-                if (alumnoCicloCurso.getCreditos() > 0) {
-
-                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaGen);
-                }
-            }
-            if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
-                TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
-                if (tipoCursoCurricula == null) {
-                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
-                } else {
-                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
-                }
-            }
-        }
-        Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
-                .stream()
-                .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
-
-        Context ctx = new Context();
-
-        SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
-        historialSorted.putAll(historial);
 
         List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
 
@@ -202,10 +173,10 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
 
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+        Context ctx = new Context();
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("historial", historialSorted);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("titulo", tramiteTitulo);
         ctx.setVariable("obtencionGrado", obtencionGrado);

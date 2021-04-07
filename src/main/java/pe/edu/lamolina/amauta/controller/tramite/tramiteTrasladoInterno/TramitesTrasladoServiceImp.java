@@ -32,7 +32,6 @@ import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
@@ -45,9 +44,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCurricula;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -59,17 +56,14 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
-import pe.edu.lamolina.model.tramite.TrasladoInterno;
 
 @Service
 @Transactional(readOnly = true)
@@ -197,7 +191,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
         Context ctx = new Context();
 
-        TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
+        TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
 
@@ -217,7 +211,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
                 TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
                 if (tipoCursoCurricula == null) {
-                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaCPRO);
                 } else {
                     alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
                 }
@@ -225,6 +219,8 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         }
 
         validadCaducos(mapCursoCurricula, alumnoCicloCursos);
+        alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
+
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
                 .filter(x -> x.isAprobado() && x.getEsCaduco() == 0)
