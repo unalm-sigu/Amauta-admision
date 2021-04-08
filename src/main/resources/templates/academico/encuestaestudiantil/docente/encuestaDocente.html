@@ -73,7 +73,7 @@
                         <ul class="dropdown-menu">
                             <li v-if="encuesta.estado=='NCRE'"><a href="#" v-on:click="activarEncuesta"> Activar encuesta </a></li>
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
-                            <li v-if="encuesta.estado=='CFG'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <!--<li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>-->
                             <li><a v-if="encuesta.estado != 'CRE' " v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' "><a href="#" v-on:click="openSelectModalidad"> Generar encuestas </a></li>
