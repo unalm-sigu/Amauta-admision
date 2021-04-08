@@ -161,7 +161,7 @@ public class TramitesTituloController {
         try {
             Tramite tramite = tramitesTituloService.findByTramite(id);
             String fileName = tramitesTituloService.TituloReporte(tramite, ds);
-            String name = "Información Titulo " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
+            String name = "Informe Titulo " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
             pdfResponse(fileName, name, response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
