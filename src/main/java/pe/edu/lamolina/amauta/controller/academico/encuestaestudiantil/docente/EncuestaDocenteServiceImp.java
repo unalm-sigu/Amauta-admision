@@ -368,9 +368,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaModelo);
         Assert.isNotNull(encuestaTipoDocente, "Aún no se ha activado la encuesta");
 
-        boolean esSinConfig = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CRE;
-        boolean esSinData = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaTipoDocente.getObjetivosEncuesta() == 0;
-        Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
+//        boolean esSinConfig = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CRE;
+//        boolean esSinData = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaTipoDocente.getObjetivosEncuesta() == 0;
+//        Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
 
         updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
         updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getPeriodosEncuesta(), ciclo, ds);

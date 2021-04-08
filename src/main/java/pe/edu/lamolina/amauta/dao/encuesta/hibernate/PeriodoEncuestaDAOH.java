@@ -22,7 +22,7 @@ public class PeriodoEncuestaDAOH extends AbstractEasyDAO<PeriodoEncuesta> implem
         Octavia sql = Octavia.query()
                 .from(PeriodoEncuesta.class, "ec")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
-                .join("modalidadEstudio")
+                .left("modalidadEstudio")
                 .filter("ee.id", encuestaEstudiantil);
         return all(sql);
     }
