@@ -162,7 +162,7 @@ public class TramitesBachillerController {
             Tramite tramite = tramitesBachillerService.findByTramite(id);
             String fileName = tramitesBachillerService.bachillerReporte(tramite, ds);
 
-            String name = "Información Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
+            String name = "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
             pdfResponse(fileName, name, response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
