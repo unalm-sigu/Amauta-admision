@@ -32,22 +32,11 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
     @Override
     public List<Resolucion> allByDyna(DynatableFilter filter) {
 
-        Octavia subqueryRein = new Octavia()
-                .from(Reincorporacion.class, "rein")
-                .join("resolucion re")
-                .left("alumno alu", "alu.persona per1");
-
         DynatableSql sql = new DynatableSql(filter)
                 .from(Resolucion.class, "res")
-                .join("tipoResolucion", "oficina")
+                .join("tipoResolucion ti", "oficina")
                 .leftJoin("userRegistro ur", "ur.persona per")
-                .searchFields("serie", "numero")
-                .__().__()
-                .searchSubquery(subqueryRein)
-                .__().searchSubqueryComplexField("concat(coalesce(per1.paterno,''),' ',coalesce(per1.materno,''),' ',coalesce(per1.nombres,''))")
-                .__().searchSubqueryComplexField("concat(coalesce(per1.nombres,''),' ',coalesce(per1.paterno,''),' ',coalesce(per1.materno,''))")
-                .__().searchSubqueryFields("alu.codigo", "per1.numeroDocIdentidad")
-                .__().subqueryLinkedBy("res.id", "re.id")
+                .searchFields("serie", "numero", "ti.nombre")
                 .orderBy("res.id desc");
 
         return this.all(sql);

@@ -36,6 +36,7 @@
                         <td class="text-center v-middle" >
                             <span v-if="requisito.estadoMatricula != null &amp;&amp; (requisito.estado == 'SIM' || requisito.estado == 'HAB')" v-bind:class="styleEstadoCurr(requisito.estadoMatricula)" v-text="requisito.estadoMatricula"></span>
                             <span v-bind:class="styleEstadoCurr(requisito.estado)">{{requisito.estado}}</span>
+                            <span v-if="requisito.porEquivalencia" class="bold text-danger block">Por equivalencia</span>
                         </td>
                     </tr>                  
                 </tbody>
