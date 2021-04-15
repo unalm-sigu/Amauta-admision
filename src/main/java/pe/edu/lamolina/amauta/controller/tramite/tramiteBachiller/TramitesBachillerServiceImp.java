@@ -183,7 +183,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
         validadCaducos(mapCursoCurricula, alumnoCicloCursos);
         alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
-        
+
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
                 .filter(x -> x.isAprobado() && x.getEsCaduco() == 0)
@@ -355,7 +355,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     private void validadCaducos(Map<Long, CursoCurricula> mapCursoCurricula, List<AlumnoCicloCurso> alumnoCicloCursos) {
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-            if (mapCursoCurricula.get(alumnoCicloCurso.getCurso().getId()) != null) {
+            if (mapCursoCurricula.get(alumnoCicloCurso.getCurso().getId()) != null && !alumnoCicloCurso.isAprobado()) {
                 alumnoCicloCurso.setEsCaduco(1);
             }
         }

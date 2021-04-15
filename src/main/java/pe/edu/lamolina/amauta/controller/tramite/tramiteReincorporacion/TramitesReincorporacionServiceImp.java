@@ -215,12 +215,10 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
             }
         }
 
-        validadCaducos(mapCursoCurricula, alumnoCicloCursos);
         alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
 
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
-                .filter(x -> x.getEsCaduco() == 0)
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
