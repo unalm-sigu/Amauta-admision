@@ -96,4 +96,16 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         return all(sql);
     }
 
+    @Override
+    public List<TramiteTitulo> allBySolicitados() {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tt")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .filter("tt.estado", TramiteEstadoEnum.SOL)
+                .orderBy("per.paterno");
+
+        return all(sql);
+    }
+
 }

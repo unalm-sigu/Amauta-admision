@@ -1,4 +1,4 @@
-<tr v-if="isBachiller " v-for="(bachiller , index) in resolucion.tramiteBachiller">
+<tr v-if="isBachiller &amp;&amp; validFilter(filterFacultad, bachiller)" v-for="(bachiller , index) in resolucion.tramiteBachiller" >
     <td class="v-middle text-center">
         <div class="form-group">
             <div class="col-md-12">
@@ -15,7 +15,7 @@
                              v-bind:disabled="isEdicion &amp;&amp; bachiller.id != null">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
-                            <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
+                            <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} </span>
                             <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
                             <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
                         </div>

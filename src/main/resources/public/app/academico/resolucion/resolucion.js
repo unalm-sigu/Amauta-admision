@@ -320,6 +320,8 @@ var app = new Vue({
                             $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
                         } else if ($vue.tipo == "BACHI") {
                             $vue.alumnoTramiteBachiller = response.data;
+                        } else if ($vue.tipo == "TITUL") {
+                            $vue.alumnoTramiteBachiller = response.data;
                         } else if ($vue.tipo == "PRACTICAS") {
                             $vue.alumnoTramitePracticas = response.data;
                         }

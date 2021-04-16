@@ -96,4 +96,16 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         return all(sql);
     }
 
+    @Override
+    public List<TramiteBachiller> allBySolicitados() {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .filter("tb.estado", TramiteEstadoEnum.SOL)
+                .orderBy("per.paterno");
+
+        return all(sql);
+    }
+
 }

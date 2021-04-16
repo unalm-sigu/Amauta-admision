@@ -23,4 +23,6 @@ public interface TramiteTituloDAO extends EasyDAO<TramiteTitulo> {
 
     TramiteTitulo findByAlumnoACEP(Alumno alumno);
 
+    public List<TramiteTitulo> allBySolicitados();
+
 }

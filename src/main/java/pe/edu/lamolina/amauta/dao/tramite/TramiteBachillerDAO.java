@@ -23,4 +23,6 @@ public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
 
     TramiteBachiller findByAlumnoACEP(Alumno alumno);
 
+    public List<TramiteBachiller> allBySolicitados();
+
 }

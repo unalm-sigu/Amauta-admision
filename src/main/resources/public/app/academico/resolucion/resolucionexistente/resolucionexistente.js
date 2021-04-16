@@ -28,6 +28,7 @@ var app = new Vue({
         isBachiller: false,
         isTitulo: false,
         isPracticas: false,
+        filterFacultad: null,
         modalError: {
             id: 'modalError',
             header: true,
@@ -37,7 +38,8 @@ var app = new Vue({
             confirm: false
         },
         errores: [],
-        isEdicion: false
+        isEdicion: false,
+        visualizarSelect: false
     }, created: function () {
 
     }, mounted: function () {
@@ -65,7 +67,6 @@ var app = new Vue({
             } else if ($vue.resolucion.isTipoTramitePracticas) {
                 $vue.isPracticas = true;
             }
-            console.log($vue.isPracticas);
         }
 
     }, methods: {
@@ -97,17 +98,63 @@ var app = new Vue({
                 $vue.isNotaBaja = true;
             } else if (item.codigo == "BACHI") {
                 $vue.isBachiller = true;
+                $vue.allBachiller();
             } else if (item.codigo == "TITUL") {
                 $vue.isTitulo = true;
+                $vue.allTitulos();
             } else if (item.codigo == "PRACTICAS") {
                 $vue.isPracticas = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
         },
+        allPracticas() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+
+            $.ajax({
+                url: APP.url("academico/resolucion/allPracticas"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.tramitePracticasPreProfesionales = response.data;
+                    MODAL.hideWait();
+                }
+            });
+        },
+        allTitulos() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url("academico/resolucion/allTitulo"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.tramiteTitulos = response.data;
+                    MODAL.hideWait();
+                }
+            });
+
+        },
+        allBachiller() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url("academico/resolucion/allBachiller"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.tramiteBachiller = response.data;
+                    MODAL.hideWait();
+                }
+            });
+        },
         customLabel( {persona, codigo}){
             if (persona != null) {
-                return  codigo + " - " + persona.nombreCompleto;
+                return  codigo + " - " + persona.apellidosNombres;
             }
             return "";
         },
@@ -234,6 +281,15 @@ var app = new Vue({
             } else if ($vue.isPracticas) {
                 $vue.resolucion.tramitePracticasPreProfesionales.splice(index, 1);
             }
+        },
+        validFilter(ofi, item) {
+            let $vue = this;
+            if (!$vue.visualizarSelect && (ofi != null && ofi.instanciaOficina != item.alumno.carrera.facultad.id)) {
+                return false;
+            } else if ($vue.visualizarSelect && !item.seleccionado) {
+                return false;
+            }
+            return true;
         },
         oficinaSelect(ofi) {
             let $vue = this;

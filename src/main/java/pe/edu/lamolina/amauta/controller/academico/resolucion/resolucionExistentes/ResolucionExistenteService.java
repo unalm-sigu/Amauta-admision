@@ -76,4 +76,10 @@ public interface ResolucionExistenteService {
 
     public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB);
 
+    public List<TramiteBachiller> allBachiller(DataSessionPivot ds);
+
+    public List<TramiteTitulo> allTitulos(DataSessionPivot ds);
+
+    public List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
+
 }

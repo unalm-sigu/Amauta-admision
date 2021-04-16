@@ -716,4 +716,106 @@ public class ResolucionExistentesController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allBachiller")
+    public JsonResponse allBachiller(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<TramiteBachiller> tramitesBachillerBeans = service.allBachiller(ds);
+
+            for (TramiteBachiller tramiteBachiller : tramitesBachillerBeans) {
+                tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
+                tramiteBachiller.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(tramiteBachiller, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.simbolo"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allTitulo")
+    public JsonResponse allTitulo(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<TramiteTitulo> tramiteTitulos = service.allTitulos(ds);
+
+            for (TramiteTitulo tramiteTitulo : tramiteTitulos) {
+                tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
+                tramiteTitulo.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(tramiteTitulo, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.simbolo"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allPracticas")
+    public JsonResponse allPracticas(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<PracticasPreProfesional> practicasPreProfesionals = service.allPracticas(ds);
+
+            for (PracticasPreProfesional ppp : practicasPreProfesionals) {
+                ppp.setAlumno(ppp.getTramite().getAlumno());
+                ppp.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

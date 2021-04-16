@@ -294,7 +294,7 @@ public class OAuthController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
 
-        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_PSI);
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_GEN);
         Date today = LocalDate.now().toDate();
 
         if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
@@ -302,9 +302,10 @@ public class OAuthController {
             AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
 
             Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
-
-            ds.setEncuestaSunedu(true);
-            ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
+            if (!paramRutaEncuenta.getValor().isEmpty()) {
+                ds.setEncuestaSunedu(true);
+                ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
+            }
         }
 
         ds.setCicloAcademico(cicloAcademico);

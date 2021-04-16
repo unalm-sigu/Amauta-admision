@@ -1201,31 +1201,27 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     void saveTramiteBachiller(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
-        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
         EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(ds.getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
         Assert.isNotNull(eventoCicloAcademico, "No se ha configurado las fechas de inicio y fin de ciclo");
         List<Alumno> alumnos = resolucionForm.getTramiteBachiller().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
-        for (TramiteBachiller bachiller : resolucionForm.getTramiteBachiller()) {
-
-            if (bachiller.getId() != null) {
-                continue;
-            }
+        List<TramiteBachiller> tramiteBachillers = resolucionForm.getTramiteBachiller().stream().filter(x -> x.getSeleccionado()).collect(Collectors.toList());
+        for (TramiteBachiller bachiller : tramiteBachillers) {
 
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoAct(bachiller.getAlumno());
             Assert.isNotNull(tramiteBachiller, "El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
 
             tramiteBachiller.setResolucion(resolucionBD);
-            tramiteBachiller.setEstado(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
+            tramiteBachiller.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteBachiller.setFechaResolucion(new Date());
             tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
             tramiteBachillerDAO.update(tramiteBachiller);
 
             Tramite tramite = tramiteBachiller.getTramite();
-            tramite.setEstadoEnum(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
-            tramite.setEstadoTramite(bachiller.getSeleccionado() ? estadoTramite : estadoTramiteRech);
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
 
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
@@ -1314,24 +1310,21 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     private void saveTramiteTitulo(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
-        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
+        List<TramiteTitulo> tramiteTitulos = resolucionForm.getTramiteTitulos().stream().filter(x -> x.getSeleccionado()).collect(Collectors.toList());
+        for (TramiteTitulo titulo : tramiteTitulos) {
 
-        for (TramiteTitulo titulo : resolucionForm.getTramiteTitulos()) {
-            if (titulo.getId() != null) {
-                continue;
-            }
             TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
             Assert.isNotNull(tramiteTitulo, "El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
 
-            tramiteTitulo.setEstado(titulo.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
+            tramiteTitulo.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteTitulo.setFechaResolucion(new Date());
             tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
             tramiteTitulo.setResolucion(resolucionBD);
             tramiteTituloDAO.update(tramiteTitulo);
 
             Tramite tramite = tramiteTitulo.getTramite();
-            tramite.setEstadoEnum(titulo.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
-            tramite.setEstadoTramite(titulo.getSeleccionado() ? estadoTramite : estadoTramiteRech);
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
                 Alumno alumno = tramiteTitulo.getTramite().getAlumno();
@@ -1386,7 +1379,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = new ArrayList<>();
         for (PracticasPreProfesional practicasForm : resolucionForm.getTramitePracticasPreProfesionales()) {
 
-            if (practicasForm.getId() != null) {
+            if (practicasForm.getId() != null || !practicasForm.getSeleccionado()) {
                 continue;
             }
             DateTime today = new DateTime();
@@ -1549,6 +1542,22 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB) {
         return practicaPreProfesionalesDAO.allByResolucion(resolucionDB);
+    }
+
+    @Override
+    public List<TramiteBachiller> allBachiller(DataSessionPivot ds) {
+
+        return tramiteBachillerDAO.allBySolicitados();
+    }
+
+    @Override
+    public List<TramiteTitulo> allTitulos(DataSessionPivot ds) {
+        return tramiteTituloDAO.allBySolicitados();
+    }
+
+    @Override
+    public List<PracticasPreProfesional> allPracticas(DataSessionPivot ds) {
+        return practicaPreProfesionalesDAO.allBySolicitados();
     }
 
 }

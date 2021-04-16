@@ -9,4 +9,6 @@ public interface TramitePracticaPreProfesionalesDAO extends EasyDAO<PracticasPre
 
     public List<PracticasPreProfesional> allByResolucion(Resolucion resolucionDB);
 
+    public List<PracticasPreProfesional> allBySolicitados();
+
 }

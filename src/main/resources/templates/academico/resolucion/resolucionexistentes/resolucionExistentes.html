@@ -135,6 +135,27 @@
 
                         <section class="panel m-b-xs">
                             <section class="panel-body">
+                                <div v-if="isTitulo ||  isBachiller">
+                                    <div class="col-lg-6">
+                                        <label>Facultad</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="filterFacultad" 
+                                                v-bind:options="oficinas"
+                                                placeholder="Seleccione una facultad"
+                                                label="nombre"
+                                                v-bind:allow-empty="true"
+                                                track-by="id" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                        </div>
+                                    </div> 
+                                    <div class="col-lg-6">
+                                        Visualizar seleccionados
+                                        <input type="checkbox" class="form-control" v-model="visualizarSelect"/>
+                                    </div>
+                                </div>
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
@@ -151,7 +172,7 @@
                                             <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
                                             <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                                            <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja &amp;&amp; !isPracticas ">Aprobado</th>
+                                            <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
                                             <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
                                             <th class="col-sm-1 text-center"></th>
                                         </tr>
