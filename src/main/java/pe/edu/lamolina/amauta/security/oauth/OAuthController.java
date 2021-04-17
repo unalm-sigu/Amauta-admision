@@ -302,7 +302,7 @@ public class OAuthController {
             AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
 
             Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
-            if (!paramRutaEncuenta.getValor().isEmpty()) {
+            if (paramRutaEncuenta.getValor() != null) {
                 ds.setEncuestaSunedu(true);
                 ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
             }
