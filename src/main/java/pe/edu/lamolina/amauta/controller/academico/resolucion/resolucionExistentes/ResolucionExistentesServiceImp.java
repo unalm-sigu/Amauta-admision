@@ -1379,7 +1379,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = new ArrayList<>();
         for (PracticasPreProfesional practicasForm : resolucionForm.getTramitePracticasPreProfesionales()) {
 
-            if (practicasForm.getId() != null || !practicasForm.getSeleccionado()) {
+            if (practicasForm.getId() != null) {
                 continue;
             }
             DateTime today = new DateTime();
