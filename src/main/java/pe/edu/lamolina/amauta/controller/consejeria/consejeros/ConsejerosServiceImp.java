@@ -147,7 +147,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
         List<Consejero> consejerosWithMatriculados = consejeroDAO.allCountAconsejadosMatriculadosByCiclo(consejeros, cicloAcademico, EstadoEnum.ACT);
 
         for (Consejero consejero : consejeros) {
-            Consejero consejeroFound = consejerosWithMatriculados.stream().filter(x -> x.equals(consejero)).findFirst().orElse(null);
+            Consejero consejeroFound = consejerosWithMatriculados.stream().filter(x -> x.getId().equals(consejero.getId())).findFirst().orElse(null);
             if (consejeroFound != null) {
                 consejero.setAconsejadosMat(consejeroFound.getAconsejadosMat());
                 consejero.setAconsejadosNmat(consejeroFound.getAconsejadosNmat());

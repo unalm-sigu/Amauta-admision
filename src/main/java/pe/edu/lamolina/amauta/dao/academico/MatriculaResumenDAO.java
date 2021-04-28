@@ -104,4 +104,10 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public MatriculaResumen findByAlumnosCiclo(List<Alumno> alumnoBD, List<CicloAcademico> cicloAcademicos);
 
+    public Long countMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera);
+
+    public Long countNoMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera);
+
+    public Long countRetiroCicloByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera);
+
 }

@@ -20,19 +20,24 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
 
 @Service
 @Transactional(readOnly = true)
 public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
+    @Autowired
+    PersonaDAO personaDAO;
+
     @Override
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutor(filter, cicloAcademico, tutor);
@@ -40,7 +45,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         logger.debug("alumno consejero {}", alumnoConsejeros.size());
-        
+
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
             if (matResumen != null) {
@@ -54,7 +59,29 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         }
         return alumnoConsejeros;
     }
-    
+
+    @Override
+    public List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera) {
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, cicloAcademico, tutor, carrera);
+        List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
+        Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
+        logger.debug("alumno consejero {}", alumnoConsejeros.size());
+
+        for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
+            MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
+            if (matResumen != null) {
+                alumnoTutor.setEstadoMatriculableEnum(matResumen.getEstadoEnum());
+                alumnoTutor.setEstadoMatriculaAutorizacion(matResumen.getAutorizacionMatricula());
+                alumnoTutor.setCursosMatriculados(matResumen.getCursosMatriculados());
+                alumnoTutor.setCreditosMatriculados(matResumen.getCreditosMatriculados());
+            } else {
+                alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
+            }
+        }
+        return alumnoConsejeros;
+    }
+
     @Override
     public AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico) {
         Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejero(persona, cicloAcademico);
@@ -66,7 +93,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
         return aconsejadoEstadoBean;
     }
-    
+
     @Override
     @Transactional
     public void matriculaAutorizacion(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
@@ -75,5 +102,22 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         matriculaResumenBD.setFechaAutorizacionMatricula(new Date());
         matriculaResumenBD.setUserConsejero(ds.getUsuario());
         matriculaResumenDAO.update(matriculaResumenBD);
+    }
+
+    @Override
+    public Persona findPersona(Long idPersona) {
+        return personaDAO.find(idPersona);
+    }
+
+    @Override
+    public AconsejadoEstadoBean allByPersonaCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
+        Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
+        Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejeroCarrera(persona, cicloAcademico, carrera);
+        AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
+        aconsejadoEstadoBean.setMatriculados(countMatriculable);
+        aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
+        aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
+        return aconsejadoEstadoBean;
     }
 }
