@@ -154,7 +154,7 @@ var app = new Vue({
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
-                return  codigo + " - " + persona.apellidosNombres;
+                return  codigo + " - " + persona.nombreCompleto;
             }
             return "";
         },
