@@ -8,6 +8,7 @@ new Vue({
         persona: JSON.parse(personaJson),
         carrera: JSON.parse(carreraJson),
         aconsejadosURL: APP.url(rutaModulo + '/list'),
+        origen: origen,
         isLoading: false,
         consejeroModal: {
             id: 'consejeroModal',
@@ -88,15 +89,15 @@ new Vue({
 
 
         },
-        loadDataSituaciones() {
+        loadDataSituaciones(alumnosAconsejados) {
             let $vue = this;
             if ($vue.situaciones.length > 0) {
                 return;
             }
             miMapa = new Map();
-            for (var i = 0; i < $vue.$refs.load.data.length; i++) {
-                var codigo = $vue.$refs.load.data[i].alumno.situacionAcademica.codigo;
-                var nombre = $vue.$refs.load.data[i].alumno.situacionAcademica.nombre;
+            for (var i = 0; i < alumnosAconsejados.length; i++) {
+                var codigo = alumnosAconsejados[i].alumno.situacionAcademica.codigo;
+                var nombre = alumnosAconsejados[i].alumno.situacionAcademica.nombre;
                 if (miMapa.get(codigo) == undefined) {
                     var color = $vue.colors[i];
                     var data = {codigo: codigo, nombre: nombre, color: color == null ? 'text-primary' : color};
@@ -105,7 +106,7 @@ new Vue({
                 } else {
                     var cantidad = miMapa.get(codigo);
                     cantidad += 1;
-                    miMapa.set(codigo, cantidad++);
+                    miMapa.set(codigo, cantidad);
                 }
             }
             for (var [clave, valor] of  miMapa.entries()) {
@@ -124,6 +125,7 @@ new Vue({
                 type: 'post',
             }).then(response => {
                 $vue.count = response.data;
+                this.loadDataSituaciones(response.data.alumnosConsejeros);
             });
         },
         urlAcademico(item) {

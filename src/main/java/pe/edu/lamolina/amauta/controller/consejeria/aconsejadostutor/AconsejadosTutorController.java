@@ -3,9 +3,12 @@ package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Base64;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.PathParam;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +62,9 @@ public class AconsejadosTutorController {
     }
 
     @RequestMapping(value = "viewCoordinador/{idPersona}/{idCarrera}", method = RequestMethod.GET)
-    public String aconsejadosTutor(@PathVariable("idPersona") Long idPersona, @PathVariable("idCarrera") Long idCarrera, Model model, HttpSession session) {
+    public String aconsejadosTutor(@PathVariable("idPersona") Long idPersona, @PathVariable("idCarrera") Long idCarrera,
+            @PathParam("origen") String origen,
+            Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Persona persona = service.findPersona(idPersona);
@@ -68,6 +73,7 @@ public class AconsejadosTutorController {
         model.addAttribute("carrera", JsonHelper.createJson(new Carrera(idCarrera), JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        model.addAttribute("origen", getOrigen(origen));
 
         return "consejeria/viewCoordinador/viewCoordinador";
     }
@@ -158,9 +164,17 @@ public class AconsejadosTutorController {
 
             Persona person = service.findPersona(idPersona);
             AconsejadoEstadoBean aconsejadoEstadoBean = service.allByPersonaCarrera(person, ds.getCicloAcademico(), new Carrera(idCarrera));
+            ObjectNode node = JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"});
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            json.setData(JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"}));
+            for (AlumnoConsejero alumnosConsejero : aconsejadoEstadoBean.getAlumnosConsejeros()) {
+                array.add(JsonHelper.createJson(alumnosConsejero, JsonNodeFactory.instance, new String[]{
+                    "alumno.id",
+                    "alumno.situacionAcademica.codigo",
+                    "alumno.situacionAcademica.nombre"}));
+            }
+            node.set("alumnosConsejeros", array);
+            json.setData(node);
             json.setMessage("Búsqueda Exitosa");
 
         } catch (Exception e) {
@@ -257,6 +271,15 @@ public class AconsejadosTutorController {
         model.addAttribute("consejero", consejero);
         model.addAttribute("dataSession", ds.getCicloAcademico());
         return new ModelAndView(reporteAlumnosConsejeroExcelView);
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
 }

@@ -1,5 +1,7 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
+import static groovy.util.Eval.x;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,8 @@ import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,7 +83,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
                 alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
             }
         }
-        return alumnoConsejeros;
+        return alumnoConsejeros.stream().filter(x -> Arrays.asList(MAT, NMAT).contains(x.getEstadoMatriculableEnum())).collect(Collectors.toList());
     }
 
     @Override
@@ -111,13 +115,21 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
     @Override
     public AconsejadoEstadoBean allByPersonaCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+
         Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejeroCarrera(persona, cicloAcademico, carrera);
+        List<AlumnoConsejero> alumnosTutor = this.allByDynatableByCarrera(filter, cicloAcademico, persona, carrera);
+        alumnosTutor = alumnosTutor.stream().filter(x -> Arrays.asList(MAT, NMAT).contains(x.getEstadoMatriculableEnum())).collect(Collectors.toList());
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
         aconsejadoEstadoBean.setMatriculados(countMatriculable);
         aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
         aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
+        aconsejadoEstadoBean.setAlumnosConsejeros(alumnosTutor);
         return aconsejadoEstadoBean;
     }
 }

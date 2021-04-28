@@ -45,6 +45,7 @@
                     <div class="btn-group pull-right">
                         <a class="btn btn-primary dropdown-toggle pull-right" v-bind:href="'/consejeria/aconsejadostutor/reporteAlumnosAconsejados/'+ persona.id"> Descargar Informe</a>
                     </div>
+                    <a class=" block text-success " v-bind:href="origen"><h4 class="bold"><i class="bold fa fa-angle-left"></i> Regresar</h4></a>
                     <h2>Alumnos Tutorados <span v-text='ciclo.descripcion'></span></h2>
                     <span class="block h4 text-primary m-t-xxs m-b-xxs"><strong>Tutor:</strong> <span  v-text="persona.nombreCompleto">Juan Perez</span></span>    
                     <span class="block m-b" th:if="${dptoAcad}"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
@@ -70,7 +71,7 @@
 
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table  ref="load"   v-bind:afterprocess="loadDataSituaciones" >      
+                            <raptor-table  ref="load"   >      
                                 <div slot="header">
                                     <div class="col-md-8 preguntas-col">
                                         <div >
@@ -215,6 +216,7 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var personaJson = /*[[${persona.toString()}]]*/ 'json';
                 var carreraJson = /*[[${carrera.toString()}]]*/ 'json';
+                var origen = /*[[${origen}]]*/ 'json';
                 var rutaModulo = 'consejeria/aconsejadostutor';
                 /*]]>*/
             </script>
