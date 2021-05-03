@@ -133,6 +133,59 @@ public class AconsejadosTutorController {
     }
 
     @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {
+            List<AlumnoConsejero> alumnosTutor = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (AlumnoConsejero alumnoTutor : alumnosTutor) {
+                ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "alumno.id",
+                            "alumno.codigo",
+                            "alumno.creditosCursados",
+                            "alumno.creditosAprobados",
+                            "alumno.promedioAcumulado",
+                            "alumno.cicloIngreso.descripcion",
+                            "alumno.situacionAcademica.codigo",
+                            "alumno.situacionAcademica.nombre",
+                            "alumno.persona.emailCompania",
+                            "alumno.persona.tipoFoto",
+                            "alumno.persona.sexo",
+                            "alumno.persona.rutaFoto",
+                            "alumno.persona.apellidosNombres",
+                            "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "alumno.carrera.nombre",
+                            "alumno.carrera.facultad.nombre",
+                            "consejero.*",
+                            "consejero.colaborador.persona.emailCompania",
+                            "consejero.colaborador.persona.numeroDocIdentidad",
+                            "consejero.colaborador.persona.apellidosNombres",
+                            "consejero.colaborador.persona.tipoDocumento.simbolo",
+                            "cicloAcademico.descripcion"
+                        });
+
+                array.add(node);
+            }
+            json.setFiltered(filter.getFiltered());
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("countData")
     public JsonResponse countData(HttpSession session) {
 

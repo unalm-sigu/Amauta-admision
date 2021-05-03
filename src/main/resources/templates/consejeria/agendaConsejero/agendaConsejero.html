@@ -1,0 +1,179 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Agenda Consejero</title>
+        <style>
+            span#departs {
+                /*                margin-left: 1px;*/
+                font-size: x-small;
+            }
+            .circle-recorrido {
+                display: block;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin: 0 auto;
+                line-height: 50px;  
+                /*                text-align: center;*/
+                font-size: 16px;
+                /*                margin-left: 49px;*/
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <section layout:fragment="main">
+
+            <div id="agendaConsejeroVUE" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-primary dropdown-toggle pull-right" v-on:click="openModal"> Crear Agenda</a>
+                    </div>
+                    <h2>Agenda Consejero <span v-text='ciclo.descripcion'></span></h2>
+                </header>
+                <section class="wrapper-lg">
+
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table  ref="load"   >      
+                                <div slot="header">
+                                    <div class="col-md-8 preguntas-col">
+
+                                        <multiselect v-model="consejeroSelect" 
+                                                     v-bind:options='consejeros'
+                                                     :custom-label="customLabel"
+                                                     track-by='id'
+                                                     placeholder="Seleccione una carrera"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:preselect="false"                                                           
+                                                     v-on:input="cargaAconsejados">
+                                        </multiselect>
+                                    </div>
+
+                                </div>
+                                <template scope="props" >
+                                    <table id="dynaTable" class="table table-striped table-hover">
+                                        <thead class="panel panel-heading">
+                                            <tr>
+                                                <th class="col-md-3 v-middle text-center"  >Agenda</th>
+                                                <th class="col-md-6 v-middle text-center"  >Estudiante</th>
+                                                <th class="col-md-3">Estado agenda</th>
+                                                <th ></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <template v-for="item in props.data">
+                                            <tr v-for="(reuniones,index) in item.reunionAlumnoConsejeros">
+                                                <td class="v-middle" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
+                                                    <span class="block" >                                                            
+                                                        <span class=" bold"> Titulo: </span>
+                                                        {{item.titulo}}
+                                                    </span>
+                                                    <span class="block">                                                            
+                                                        <span class=" bold"> Fecha: </span>
+                                                        {{item.fecha}} - {{item.hora.descripcion}}
+                                                    </span>
+                                                </td>
+
+
+                                                <td class="v-middle">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <a class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                                {{reuniones.alumnoConsejero.alumno.persona.apellidosNombres}} 
+                                                            </a>
+
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="dropdown">
+                                                                <span class=" bold dropdown-toggle pointer" 
+                                                                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                                                      v-bind:class="styleColor(reuniones.estadoEnum)" v-text="reuniones.estadoEnum.value">  </span>
+                                                                <span class="caret"></span>
+                                                                <!--</button>-->
+                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                                    <li class="pointer"><a v-on:click="asistio(reuniones)">Asistió</a></li>
+                                                                    <li class="pointer"><a v-on:click="noAsistio(reuniones)">No Asistió</a></li>
+                                                                    <li class="pointer"><a v-on:click="anular(reuniones)">Anular</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="block">
+                                                        {{reuniones.alumnoConsejero.alumno.codigo}}
+                                                    </span>
+                                                    <small v-if="reuniones.alumnoConsejero.alumno.persona.emailCompania != '' " class="block text-primary">
+                                                        <i class="fa fa-envelope-o"></i> {{reuniones.alumnoConsejero.alumno.persona.emailCompania}}
+                                                    </small>
+                                                    <span class="block">
+                                                        {{reuniones.alumnoConsejero.alumno.carrera.nombre}}
+                                                    </span>
+                                                    <small class="block" v-if="reuniones.alumnoConsejero.alumno.carrera.nombre != reuniones.alumnoConsejero.alumno.carrera.facultad.nombre ">
+                                                        Facultad de {{reuniones.alumnoConsejero.alumno.carrera.facultad.nombre}}
+                                                    </small>
+                                                </td>
+                                                <td class="v-middle text-center" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
+                                                    <span class="block" >                                                            
+                                                        <span class=" bold " v-bind:class="styleColor(item.estadoEnum)" v-text="item.estadoEnum.value">  </span>
+                                                    </span>
+                                                </td>
+                                                <td class="v-middle" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li class="pointer"><a v-on:click="openUpdateModal(item)">Actualizar</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        </template>
+                                        </tbody>
+                                    </table>         
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+                <div th:substituteby="consejeria/agendaConsejero/agendaConsejeroModal"></div>
+            </div>
+
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+                var jHora = /*[[${jHora.toString()}]]*/ 'json';
+                var jConsejeros = /*[[${jConsejeros.toString()}]]*/ 'json';
+                var rutaModulo = 'consejeria/agendaconsejero';
+                /*]]>*/
+            </script>
+
+            <script th:src="@{/app/consejeria/agendaConsejero/agendaConsejero.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

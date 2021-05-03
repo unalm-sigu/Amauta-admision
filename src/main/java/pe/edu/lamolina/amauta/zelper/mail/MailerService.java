@@ -19,4 +19,6 @@ public interface MailerService {
 
     void enviarCorreoAccesoEspecial(String correo, Usuario usuarioBD, String contraseña, String asunto, ContenidoCarta contenidoCarta);
 
+    void enviarNotificacionReunionConsejero(String nombreDocente, String emailDocente, String emailAlumno, ContenidoCarta contenidoCarta);
+
 }

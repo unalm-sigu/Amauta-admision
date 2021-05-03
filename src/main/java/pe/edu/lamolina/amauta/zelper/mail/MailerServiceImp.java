@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.zelper.mail;
 
 import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.mail.internet.InternetAddress;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class MailerServiceImp implements MailerService {
     }
 
     @Override
-    public void enviarNotificacionAulaReservaAceptado(String nombre,String email, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionAulaReservaAceptado(String nombre, String email, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
         contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
@@ -106,7 +107,7 @@ public class MailerServiceImp implements MailerService {
     }
 
     @Override
-    public void enviarNotificacionAulaReservaRechazado(String nombre,String email, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionAulaReservaRechazado(String nombre, String email, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
         contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
@@ -123,7 +124,6 @@ public class MailerServiceImp implements MailerService {
         mailerConnector.sendMailHelpDesk(mail);
     }
 
-    
     //// PENDIENTE
     @Override
     public void enviarCorreoAccesoEspecial(String correo, Usuario usuarioBD, String contraseña, String asunto, ContenidoCarta contenidoCarta) {
@@ -159,4 +159,29 @@ public class MailerServiceImp implements MailerService {
             ex.printStackTrace();
         }
     }
+
+    @Override
+    public void enviarNotificacionReunionConsejero(String nombreDocente, String emailDocente, String emailAlumno, ContenidoCarta contenidoCarta) {
+
+        try {
+            Context ctx = new Context();
+            ctx.setVariable("contenido", contenidoCarta.getContenido());
+
+            InternetAddress ie = new InternetAddress();
+            ie.setPersonal(nombreDocente);
+            ie.setAddress(emailDocente);
+
+            MailMessage mail = new MailMessage();
+            mail.setContext(ctx);
+            mail.setTemplate("mail/mailReunionConsejero");
+            mail.setSubject(contenidoCarta.getNombre());
+            //mail.setDestinatarios(new String[]{email});
+            mail.setDestinatarios(new String[]{"dpineda@gmail.com"}); //emailAlumno
+            mail.setFrom(ie);
+            mailerConnector.sendMailAgendaConsejero(mail);
+        } catch (UnsupportedEncodingException ex) {
+            java.util.logging.Logger.getLogger(MailerServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

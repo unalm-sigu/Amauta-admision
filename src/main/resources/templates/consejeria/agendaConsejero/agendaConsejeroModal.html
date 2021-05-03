@@ -1,0 +1,99 @@
+<modal-vik ref="agendaModal"
+           v-bind="agendaModal"
+           v-bind:okaction="agendaConsejero.id == null ? save : update">
+    <div slot="body">
+
+        <div data-parsley-validate="true" id="form">
+            <div class="form-group row">
+                <div class="col-md-12">                    
+                    <label>Título</label>
+                    <input class="form-control" v-model="agendaConsejero.titulo" required="" placeholder="Ingrese un título"/>
+                </div>
+            </div>
+            <div class=" form-group row">
+                <div class=" col-md-6">  
+                    <label>Fecha</label>
+                    <div class="input-group">
+                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="agendaConsejero.fecha" required=""></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-md-6">                    
+                    <label>Hora</label>
+                    <multiselect v-model="agendaConsejero.hora" 
+                                 v-bind:options='horas'
+                                 label="descripcion"
+                                 track-by='id'
+                                 placeholder="Seleccione una hora"
+                                 deselect-label=""
+                                 select-label=""
+                                 v-bind:allow-empty="false"
+                                 v-bind:preselect="false">
+                    </multiselect>
+                    <input v-model="agendaConsejero.hora" class="hidden" required=""/>
+                </div>
+            </div>
+            <section class="panel">
+                <div class=" table-responsive">
+                    
+                    <table class="table table-striped">
+                        <thead class="panel panel-heading">
+                            <tr>
+                                <th  colspan="2">Alumno</th>
+                                <th>Citar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="alumnoConsejero in alumnosConsejerosTemp">
+                                <td class="v-middle" >
+                                    <div class="pull-left">
+                                        <div v-if="alumnoConsejero.alumno.persona.tipoFoto=='POSTUL' "
+                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                            <img class="img-foto-list" v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+                                        </div>
+
+                                        <img v-else-if="alumnoConsejero.alumno.persona.tipoFoto=='COMUN' " 
+                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                             v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+
+                                        <img v-else="" 
+                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                             v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+                                    </div>                                
+                                </td>
+                                <td class="v-middle">
+
+                                    <a class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                        {{alumnoConsejero.alumno.persona.apellidosNombres}}
+                                    </a>
+                                    <span class="block">
+                                        {{alumnoConsejero.alumno.codigo}}
+                                    </span>
+                                    <small v-if="alumnoConsejero.alumno.persona.emailCompania != '' " class="block text-primary">
+                                        <i class="fa fa-envelope-o"></i> {{alumnoConsejero.alumno.persona.emailCompania}}
+                                    </small>
+                                    <span class="block">
+                                        {{alumnoConsejero.alumno.carrera.nombre}}
+                                    </span>
+                                    <small class="block" v-if="alumnoConsejero.alumno.carrera.nombre != alumnoConsejero.alumno.carrera.facultad.nombre ">
+                                        Facultad de {{alumnoConsejero.alumno.carrera.facultad.nombre}}
+                                    </small>
+                                </td>
+                                <td>
+                                    <label class="m-t-md checkbox-inline form-control-static">
+                                        <input class="form-control" type="checkbox" id="chkbxGenMat"  v-model="alumnoConsejero.seleccionado"/>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+
+        </div>
+    </div>
+</modal-vik>
