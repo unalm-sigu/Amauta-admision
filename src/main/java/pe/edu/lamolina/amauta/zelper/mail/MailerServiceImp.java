@@ -168,8 +168,8 @@ public class MailerServiceImp implements MailerService {
             ctx.setVariable("contenido", contenidoCarta.getContenido());
 
             InternetAddress ie = new InternetAddress();
-            ie.setPersonal(nombreDocente);
-            ie.setAddress(emailDocente);
+            ie.setPersonal("UNALM - DOCENTES");
+            ie.setAddress("no-responder@carrerasqueapasionan.pe");
 
             MailMessage mail = new MailMessage();
             mail.setContext(ctx);
