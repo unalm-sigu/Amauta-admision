@@ -110,9 +110,9 @@
                                                                 <span class="caret"></span>
                                                                 <!--</button>-->
                                                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                                    <li class="pointer"><a v-on:click="asistio(reuniones)">Asistió</a></li>
-                                                                    <li class="pointer"><a v-on:click="noAsistio(reuniones)">No Asistió</a></li>
-                                                                    <li class="pointer"><a v-on:click="anular(reuniones)">Anular</a></li>
+                                                                    <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="openAsistenciaModal(reuniones)">Asistió</a></li>
+                                                                    <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="openNoAsistenciaModal(reuniones)">No Asistió</a></li>
+                                                                    <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="anular(reuniones)">Anular</a></li>
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -142,6 +142,7 @@
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li class="pointer"><a v-on:click="openUpdateModal(item)">Actualizar</a></li>
+                                                            <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="anularAgenda(item)">Anular</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

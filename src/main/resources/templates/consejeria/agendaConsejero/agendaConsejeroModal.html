@@ -37,7 +37,7 @@
             </div>
             <section class="panel">
                 <div class=" table-responsive">
-                    
+
                     <table class="table table-striped">
                         <thead class="panel panel-heading">
                             <tr>
@@ -94,6 +94,38 @@
 
 
 
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="asistenciaModal"
+           v-bind="asistenciaModal"
+           v-bind:okaction="asistio">
+    <div slot="body">
+
+        <div data-parsley-validate="true" id="form">
+            <div class="form-group row">
+                <div class="col-md-12">                    
+                    <label>Comentario</label>
+                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="noAsistenciaModal"
+           v-bind="noAsistenciaModal"
+           v-bind:okaction="noAsistio">
+    <div slot="body">
+
+        <div data-parsley-validate="true" id="form">
+            <div class="form-group row">
+                <div class="col-md-12">                    
+                    <label>Comentario</label>
+                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"/>
+                </div>
+            </div>
         </div>
     </div>
 </modal-vik>

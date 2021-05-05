@@ -68,6 +68,7 @@ var app = new Vue({
                 $vue.isPracticas = true;
             }
         }
+        console.log($vue.resolucion);
 
     }, methods: {
         tipoResolucionSelect(item) {
@@ -83,6 +84,7 @@ var app = new Vue({
             $vue.isTitulo = false;
             $vue.isPracticas = false;
             if (item.codigo == "RCI") {
+                $vue.allRetiroCiclo();
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "ANCI") {
                 $vue.isRetiroCiclo = true;
@@ -133,6 +135,21 @@ var app = new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.resolucion.tramiteTitulos = response.data;
+                    MODAL.hideWait();
+                }
+            });
+
+        },
+        allRetiroCiclo() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url("academico/resolucion/allRetiroCiclo"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.retiroCiclo = response.data;
                     MODAL.hideWait();
                 }
             });

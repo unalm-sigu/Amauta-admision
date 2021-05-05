@@ -1,6 +1,8 @@
 package pe.edu.lamolina.amauta.zelper.mail;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.mail.internet.InternetAddress;
@@ -17,6 +19,11 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.amauta.zelper.mail.connector.MailMessage;
 import pe.edu.lamolina.amauta.zelper.mail.connector.MailerConnector;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.consejeria.AgendaConsejero;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 
 @Service
 @Transactional
@@ -161,22 +168,42 @@ public class MailerServiceImp implements MailerService {
     }
 
     @Override
-    public void enviarNotificacionReunionConsejero(String nombreDocente, String emailDocente, String emailAlumno, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionReunionConsejero(ReunionAlumnoConsejero reunionAlumnoConsejero, Consejero consejero, ContenidoCarta contenidoCarta) {
 
         try {
+
+            AgendaConsejero agendaConsejero = reunionAlumnoConsejero.getAgendaConsejero();
+
+            String contenido = contenidoCarta.getContenido();
+
+            Alumno alumno = reunionAlumnoConsejero.getAlumnoConsejero().getAlumno();
+            Persona alumnoPersona = alumno.getPersona();
+            Persona consejeroPersona = consejero.getColaborador().getPersona();
+
+            contenido = contenido.replace(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), alumnoPersona.getApellidosNombres());
+            contenido = contenido.replace(VariableContenidoEnum.ESTIMADO.getValue(), alumnoPersona.getEstimado());
+            contenido = contenido.replace(VariableContenidoEnum.HORA_REUNION_CONSEJERO.getValue(), agendaConsejero.getHora().getDescripcion());
+            contenido = contenido.replace(VariableContenidoEnum.PROFESOR.getValue(), consejeroPersona.getApellidosNombres());
+
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String strDate = dateFormat.format(agendaConsejero.getFecha());
+
+            contenido = contenido.replace(VariableContenidoEnum.FECHA_REUNION_CONSEJERO.getValue(), strDate);
+
             Context ctx = new Context();
-            ctx.setVariable("contenido", contenidoCarta.getContenido());
+            ctx.setVariable("contenido", contenido);
 
             InternetAddress ie = new InternetAddress();
             ie.setPersonal("UNALM - DOCENTES");
-            ie.setAddress("no-responder@carrerasqueapasionan.pe");
+            ie.setAddress(consejeroPersona.getEmailCompania());
 
             MailMessage mail = new MailMessage();
             mail.setContext(ctx);
             mail.setTemplate("mail/mailReunionConsejero");
             mail.setSubject(contenidoCarta.getNombre());
             //mail.setDestinatarios(new String[]{email});
-            mail.setDestinatarios(new String[]{"dpineda@lamolina.edu.pe"}); //emailAlumno
+            mail.setDestinatariosCC(new String[]{"pinedacanalesd@gmail.com"});
+            mail.setDestinatarios(new String[]{"dpineda@lamolina.edu.pe", "rorihuela@lamolina.edu.pe"}); //emailAlumno
             mail.setFrom(ie);
             mailerConnector.sendMailAgendaConsejero(mail);
         } catch (UnsupportedEncodingException ex) {

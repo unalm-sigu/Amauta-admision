@@ -17,42 +17,42 @@ import static pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum.AGEN;
 
 @Service
 public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoConsejero> implements ReunionAlumnoConsejeroDAO {
-    
+
     public ReunionAlumnoConsejeroDAOH() {
         super();
         setClazz(ReunionAlumnoConsejero.class);
     }
-    
+
     @Override
     public int saveList(List<ReunionAlumnoConsejero> reunionAlumnoConsejeros) {
         if (reunionAlumnoConsejeros.isEmpty()) {
             return 0;
         }
-        
+
         long t1 = System.currentTimeMillis();
         Insecto sql = Insecto.createInsert()
                 .into(ReunionAlumnoConsejero.class)
                 .columns("estado", "alumnoConsejero", "agendaConsejero", "fechaRegistro", "userRegistro")
                 .values(reunionAlumnoConsejeros);
-        
+
         Query query = getCurrentSession().createSQLQuery(sql.toString());
         int rows = query.executeUpdate();
-        
+
         long t2 = System.currentTimeMillis();
         return rows;
     }
-    
+
     @Override
     public List<ReunionAlumnoConsejero> allByAgendaConsejero(AgendaConsejero agendaConsejeroForm) {
         Octavia sql = new Octavia()
                 .from(ReunionAlumnoConsejero.class, "rac")
-                .join("agendaConsejero ac")
+                .join("agendaConsejero ac", "ac.consejero")
                 .filter("rac.estado", AGEN)
                 .filter("ac.id", agendaConsejeroForm);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<ReunionAlumnoConsejero> allDynatableByConsejero(DynatableFilter filter, Consejero consejero, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
@@ -67,8 +67,8 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .filter("ca.id", cicloAcademico)
                 .filter("con.id", consejero)
                 .orderBy("acon.fecha", "acon.hora");
-        
+
         return all(sql);
     }
-    
+
 }

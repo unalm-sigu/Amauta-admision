@@ -82,4 +82,6 @@ public interface ResolucionExistenteService {
 
     public List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 
+    public List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
+
 }

@@ -1,6 +1,8 @@
 package pe.edu.lamolina.amauta.controller.reunionConsejero;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -93,7 +95,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             reunionAlumnoConsejero.setFechaRegistro(new Date());
             reunionAlumnoConsejero.setUserRegistro(ds.getUsuario());
             reunionAlumnoConsejeros.add(reunionAlumnoConsejero);
-            this.enviarCorreo(reunionAlumnoConsejero);
+            this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.REUNIONCONSEJERO);
         }
 
         reunionAlumnoConsejeroDAO.saveList(reunionAlumnoConsejeros);
@@ -105,6 +107,11 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     public void update(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
 
         AgendaConsejero agendaConsejero = agendaConsejeroDAO.find(agendaConsejeroForm.getId());
+        Boolean actualizacionHora = false;
+        if (agendaConsejero.getFecha().compareTo(agendaConsejeroForm.getFecha()) != 0
+                || agendaConsejeroForm.getHora().getId().compareTo(agendaConsejero.getHora().getId()) != 0) {
+            actualizacionHora = true;
+        }
 
         this.verificarInfo(agendaConsejero);
         agendaConsejero.setTitulo(agendaConsejeroForm.getTitulo());
@@ -127,6 +134,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
                 reunionAlumnoConsejero.setFechaModifica(new Date());
                 reunionAlumnoConsejero.setUserModifica(ds.getUsuario());
                 reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejero, "estado", "fechaModifica", "userModifica");
+                this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.DELETEREUNIONCONSEJERO);
             }
         }
         List<ReunionAlumnoConsejero> reunionAlumnoConsejerosSave = new ArrayList<>();
@@ -140,6 +148,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
                 reunionAlumnoConsejero.setFechaRegistro(new Date());
                 reunionAlumnoConsejero.setUserRegistro(ds.getUsuario());
                 reunionAlumnoConsejerosSave.add(reunionAlumnoConsejero);
+                this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.REUNIONCONSEJERO);
+            } else {
+                ReunionAlumnoConsejero reunionAlumnoConsejeroDb = mapBD.get(reunionAlumnoConsejeroForm.getAlumnoConsejero().getId());
+                if (actualizacionHora) {
+                    this.enviarCorreo(reunionAlumnoConsejeroDb, ContenidoEmailEnum.UPDATEREUNIONCONSEJERO);
+                }
             }
         }
 
@@ -162,6 +176,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             reunionAlumnoConsejero.setFechaModifica(new Date());
             reunionAlumnoConsejero.setUserModifica(ds.getUsuario());
             reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejero, "estado", "fechaModifica", "userModifica");
+            this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.DELETEREUNIONCONSEJERO);
         }
 
     }
@@ -213,10 +228,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
 
     @Override
     public void anularReunion(ReunionAlumnoConsejero reunionAlumnoConsejeroForm, DataSessionPivot ds) {
-        reunionAlumnoConsejeroForm.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ANU);
-        reunionAlumnoConsejeroForm.setFechaModifica(new Date());
-        reunionAlumnoConsejeroForm.setUserModifica(ds.getUsuario());
-        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroForm, "estado", "fechaModifica", "userModifica", "comentario");
+        ReunionAlumnoConsejero reunionAlumnoConsejeroDB = reunionAlumnoConsejeroDAO.find(reunionAlumnoConsejeroForm.getId());
+        reunionAlumnoConsejeroDB.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ANU);
+        reunionAlumnoConsejeroDB.setFechaModifica(new Date());
+        reunionAlumnoConsejeroDB.setUserModifica(ds.getUsuario());
+        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroDB, "estado", "fechaModifica", "userModifica", "comentario");
+        enviarCorreo(reunionAlumnoConsejeroDB, ContenidoEmailEnum.DELETEREUNIONCONSEJERO);
     }
 
     @Override
@@ -243,19 +260,16 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         return agendaConsejero;
     }
 
-    private void enviarCorreo(ReunionAlumnoConsejero reunionAlumnoConsejero)  {
+    private void enviarCorreo(ReunionAlumnoConsejero reunionAlumnoConsejero, ContenidoEmailEnum contenidoEmailEnum) {
 
-        AgendaConsejero agendaConsejero = reunionAlumnoConsejero.getAgendaConsejero();
+        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(contenidoEmailEnum.name());
+        AgendaConsejero agendaConsejero = agendaConsejeroDAO.find(reunionAlumnoConsejero.getAgendaConsejero().getId());
         Consejero consejero = consejeroDAO.find(agendaConsejero.getConsejero().getId());
-        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.REUNIONCONSEJERO.name());
-        String contenido = contenidoCarta.getContenido();
+        mailerService.enviarNotificacionReunionConsejero(reunionAlumnoConsejero, consejero, contenidoCarta);
 
-        Alumno alumno = reunionAlumnoConsejero.getAlumnoConsejero().getAlumno();
-        Persona alumnoPersona = alumno.getPersona();
-        Persona consejeroPersona = consejero.getColaborador().getPersona();
-
-        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), alumnoPersona.getApellidosNombres());
-        contenidoCarta.setContenido(contenido);
-        mailerService.enviarNotificacionReunionConsejero(consejeroPersona.getApellidosNombres(), consejeroPersona.getEmailCompania(), alumno.getEmail(), contenidoCarta);
+//        Event event = new Event()
+//    .setSummary("Google I/O 2015")
+//    .setLocation("800 Howard St., San Francisco, CA 94103")
+//    .setDescription("A chance to hear more about Google's developer products.");
     }
 }

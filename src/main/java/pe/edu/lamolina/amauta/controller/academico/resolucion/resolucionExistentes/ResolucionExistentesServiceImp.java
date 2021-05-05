@@ -126,7 +126,6 @@ import pe.edu.lamolina.model.academico.GradoAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -293,22 +292,22 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     public String saveRetiroCiclo(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(resolucionForm.getTipoResolucion().getTipoEnum());
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(usuario);
-        resolucion.setAplicacionDirecta(1l);
-        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucionDAO.save(resolucion);
+        Resolucion resolucionDB = new Resolucion();
+        resolucionDB.setOficina(resolucionForm.getOficina());
+        resolucionDB.setFecha(resolucionForm.getFecha());
+        resolucionDB.setNumero(resolucionForm.getNumero());
+        resolucionDB.setSerie(resolucionForm.getSerie());
+        resolucionDB.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucionDB.setFechaRegistro(new Date());
+        resolucionDB.setTipoResolucion(tipoResolucion);
+        resolucionDB.setUserRegistro(usuario);
+        resolucionDB.setAplicacionDirecta(1l);
+        resolucionDB.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionDAO.save(resolucionDB);
 
         Assert.isFalse(resolucionForm.getRetiroCiclo().isEmpty(), "Debe Agregar alumnos.");
 
-        return this.saveRetirosCiclos(resolucionForm, resolucion, ds);
+        return this.saveRetirosCiclos(resolucionForm, resolucionDB, ds);
     }
 
     @Override
@@ -750,11 +749,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         EstadoTramite estadoTramiteRechz = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
-        for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
+        List<RetiroCiclo> tramiteRetiro = resolucionForm.getRetiroCiclo().stream().filter(x -> x.getSeleccionado()).collect(Collectors.toList());
+
+        for (RetiroCiclo retiroCicloForm : tramiteRetiro) {
             CicloAcademico cicloAplica = null;
-            if (retiroCicloForm.getId() != null) {
-                continue;
-            }
+
             Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
             RetiroCiclo retiroCicloDB = null;
             MatriculaResumen matriculaResumen = null;
@@ -783,6 +782,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                     retiroCicloDB.setEstadoEnum(ACEP);
                     retiroCicloDB.setEstadoTramite(estadoTramiteAcep);
                     retiroCicloDB.setCicloAcademico(cicloAplica);
+                    retiroCicloDB.setResolucion(resolucionBD);
+                    retiroCicloDAO.updateColumns(retiroCicloDB, "estado", "estadoTramite", "resolucion");
 
                     Tramite tramite = retiroCicloDB.getTramite();
                     tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
@@ -1558,6 +1559,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<PracticasPreProfesional> allPracticas(DataSessionPivot ds) {
         return practicaPreProfesionalesDAO.allBySolicitados();
+    }
+
+    @Override
+    public List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds) {
+        return retiroCicloDAO.allExepcionalByCiclo(ds.getCicloAcademico());
     }
 
 }

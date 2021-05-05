@@ -16,13 +16,30 @@ new Vue({
             modalsize: "modal-lg",
             showaccept: true
         },
+        asistenciaModal: {
+            id: 'asistenciaModal',
+            header: true,
+            title: "Asistencia",
+            okbtn: 'Guardar',
+            modalsize: "modal-md",
+            showaccept: true
+        },
+        noAsistenciaModal: {
+            id: 'noAsistenciaModal',
+            header: true,
+            title: "Inasistencia",
+            okbtn: 'Guardar',
+            modalsize: "modal-md",
+            showaccept: true
+        },
         agendaConsejero: {},
         alumnosConsejeros: [],
         alumnosConsejerosTemp: [],
         configDate: {
             format: "DD/MM/YYYY",
             useCurrent: false
-        }
+        },
+        reunionConsejero: {}
     },
     mounted: function () {
         let $vue = this;
@@ -44,29 +61,31 @@ new Vue({
             $vue.$refs.load.url = APP.url(rutaModulo + '/list/' + $vue.consejeroSelect.carrera.id);
             $vue.$refs.load.loadRemoteData();
         },
-        asistio(item) {
+        asistio() {
             let $vue = this;
             $.ajax({
                 url: APP.url(rutaModulo + "/asistenciaReunion"),
                 contentType: "application/json",
-                data: JSON.stringify(item),
+                data: JSON.stringify($vue.reunionConsejero),
                 type: 'post',
             }).then(response => {
                 if (response.success) {
+                    $vue.$refs.asistenciaModal.close();
                     $vue.$refs.load.loadRemoteData();
                     notify(response.message, "success");
                 }
             });
         },
-        noAsistio(item) {
+        noAsistio() {
             let $vue = this;
             $.ajax({
                 url: APP.url(rutaModulo + "/inasistenciaReunion"),
                 contentType: "application/json",
-                data: JSON.stringify(item),
+                data: JSON.stringify($vue.reunionConsejero),
                 type: 'post',
             }).then(response => {
                 if (response.success) {
+                    $vue.$refs.noAsistenciaModal.close();
                     $vue.$refs.load.loadRemoteData();
                     notify(response.message, "success");
                 }
@@ -74,17 +93,55 @@ new Vue({
         },
         anular(item) {
             let $vue = this;
-            $.ajax({
-                url: APP.url(rutaModulo + "/anularReunion"),
-                contentType: "application/json",
-                data: JSON.stringify(item),
-                type: 'post',
-            }).then(response => {
-                if (response.success) {
-                    $vue.$refs.load.loadRemoteData();
-                    notify(response.message, "success");
+            bootbox.confirm({
+                message: "¿Está seguro que desea anular la reunión?",
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url(rutaModulo + "/anularReunion"),
+                            contentType: "application/json",
+                            data: JSON.stringify(item),
+                            type: 'post',
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.load.loadRemoteData();
+                                notify(response.message, "success");
+                            }
+                        });
+                    }
                 }
             });
+
+        },
+        anularAgenda(item) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea anular toda la agenda?",
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url(rutaModulo + "/anularAgenda"),
+                            contentType: "application/json",
+                            data: JSON.stringify(item),
+                            type: 'post',
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.load.loadRemoteData();
+                                notify(response.message, "success");
+                            }
+                        });
+                    }
+                }
+            });
+
         },
         styleColor(item) {
             switch (item.name) {
@@ -112,6 +169,16 @@ new Vue({
             $vue.$refs.agendaModal.title = 'Actualizar Agenda';
             $vue.$refs.agendaModal.okbtn = 'Actualizar';
             $vue.$refs.agendaModal.open();
+        },
+        openAsistenciaModal(item) {
+            let $vue = this;
+            $vue.reunionConsejero = Object.assign({}, item);
+            $vue.$refs.asistenciaModal.open();
+        },
+        openNoAsistenciaModal(item) {
+            let $vue = this;
+            $vue.reunionConsejero = Object.assign({}, item);
+            $vue.$refs.noAsistenciaModal.open();
         },
         obtenerInfo(item) {
             let $vue = this;
