@@ -1,8 +1,5 @@
 package pe.edu.lamolina.amauta.controller.reunionConsejero;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,9 +16,9 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
+import pe.edu.lamolina.amauta.security.oauth.OAuthServiceConfig;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
@@ -33,7 +30,6 @@ import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
-import pe.edu.lamolina.model.enums.VariableContenidoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -62,6 +58,9 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
 
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
+
+    @Autowired
+    OAuthServiceConfig config;
 
     @Override
     public List<Hora> allHora30() {
@@ -267,9 +266,5 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         Consejero consejero = consejeroDAO.find(agendaConsejero.getConsejero().getId());
         mailerService.enviarNotificacionReunionConsejero(reunionAlumnoConsejero, consejero, contenidoCarta);
 
-//        Event event = new Event()
-//    .setSummary("Google I/O 2015")
-//    .setLocation("800 Howard St., San Francisco, CA 94103")
-//    .setDescription("A chance to hear more about Google's developer products.");
     }
 }
