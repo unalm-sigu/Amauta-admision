@@ -2,8 +2,11 @@ package pe.edu.lamolina.amauta.controller.academico.ciclo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -23,6 +29,13 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,6 +51,18 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    TramiteTrasladoDAO tramiteTrasladoDAO;
+
+    @Autowired
+    PlanCurricularDAO planCurricularDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
+
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     public List<CicloAcademico> allCicloAcademico(Integer maxResultado) {
@@ -177,7 +202,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Override
     @Transactional
-    public void activar(CicloAcademico cicloAcademico) {
+    public void activar(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
@@ -194,6 +219,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.ACT);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
+        this.ejecutarTramiteAcademicos(cicloAcademicoActivo, ds);
     }
 
     @Override
@@ -250,6 +276,59 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         CicloAcademico academico = cicloAcademicoDAO.find(cicloAcademico);
         academico.setVisibleLogin(academico.getVisibleLogin() ? false : true);
         cicloAcademicoDAO.update(academico);
+    }
+
+    private void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+
+        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(cicloAcademico);
+        List<Alumno> alumnos = new ArrayList<>();
+        for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
+            Alumno alumno = tramiteTraslado.getTramite().getAlumno();
+            alumno.setCarrera(tramiteTraslado.getCarrera());
+
+            OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
+            List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarreraOrientacion(tramiteTraslado.getCarrera());
+            Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planCurriculars);
+            Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planCurriculars);
+            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
+
+            List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
+
+            Collections.sort(codigosCiclosPlanes);
+            Collections.reverse(codigosCiclosPlanes);
+
+            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+            List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
+            PlanCurricular planCurricularBD = null;
+            for (PlanCurricular planCurricular : planesBD) {
+                if (planCurricular.getOrientacionCarrera() == null) {
+                    planCurricularBD = planCurricular;
+                    alumno.setOrientacionCarrera(null);
+                    break;
+                } else {
+                    if (orientacionCarrera != null && Objects.equals(planCurricular.getOrientacionCarrera().getId(), orientacionCarrera.getId())) {
+                        alumno.setOrientacionCarrera(planCurricular.getOrientacionCarrera());
+                        planCurricularBD = planCurricular;
+                    }
+                }
+            }
+            alumno.setPlanCurricular(planCurricularBD);
+            alumnoDAO.updateColumns(alumno, "carrera", "planCurricular");
+
+            alumnos.add(alumno);
+        }
+
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+
+    }
+
+    private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {
+        for (String codigoCicloPlan : codigosCiclosPlanes) {
+            if (codigoCicloAlumno.compareTo(codigoCicloPlan) >= 0) {
+                return codigoCicloPlan;
+            }
+        }
+        return null;
     }
 
 }

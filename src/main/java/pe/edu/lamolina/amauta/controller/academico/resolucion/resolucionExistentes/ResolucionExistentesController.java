@@ -266,10 +266,10 @@ public class ResolucionExistentesController {
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
-                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
-
-                    service.generarNuevoPlan(resolucion, ds);
-                }
+//                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
+//
+//                    service.generarNuevoPlan(resolucion, ds);
+//                }
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             } else if (resolucion.isTipoNotaBaja()) {

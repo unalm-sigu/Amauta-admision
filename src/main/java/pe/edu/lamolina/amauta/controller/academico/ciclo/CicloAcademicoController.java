@@ -181,10 +181,11 @@ public class CicloAcademicoController {
 
     @ResponseBody
     @RequestMapping("activar")
-    public JsonResponse activar(CicloAcademico cicloAcademico) {
+    public JsonResponse activar(CicloAcademico cicloAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.activar(cicloAcademico);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.activar(cicloAcademico, ds);
             muestrasLabService.inicializarVisor();
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);

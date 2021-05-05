@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.ciclo;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
@@ -29,7 +30,7 @@ public interface CicloAcademicoService {
 
     void anular(CicloAcademico cicloAcademico);
 
-    void activar(CicloAcademico cicloAcademico);
+    void activar(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void desactivar(CicloAcademico cicloAcademico);
 
