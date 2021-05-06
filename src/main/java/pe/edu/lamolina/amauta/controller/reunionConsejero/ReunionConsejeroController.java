@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.reunionConsejero;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -24,12 +26,15 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.reunionConsejero.view.ReunionesConsejerosExcelView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.ANU;
+import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
 import pe.edu.lamolina.model.horario.Hora;
 
 @Controller
@@ -40,6 +45,9 @@ public class ReunionConsejeroController {
 
     @Autowired
     ReunionConsejeroService service;
+
+    @Autowired
+    ReunionesConsejerosExcelView reunionesConsejerosExcelView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -82,6 +90,10 @@ public class ReunionConsejeroController {
             List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.listDynatable(filter, consejero, ds);
             Map<Long, List<ReunionAlumnoConsejero>> map = TypesUtil.convertListToMapList("agendaConsejero.id", reunionAlumnoConsejeros);
             List<AgendaConsejero> agendaConsejeros = reunionAlumnoConsejeros.stream().map(x -> x.getAgendaConsejero()).distinct().collect(Collectors.toList());
+
+            service.verificarVencimiento(agendaConsejeros);
+            Collections.sort(agendaConsejeros,
+                    (AgendaConsejero a, AgendaConsejero b) -> a.getEstadoEnum().getValuePrioridad().compareTo(b.getEstadoEnum().getValuePrioridad()));
 
             ArrayNode arrayNodeAgenda = new ArrayNode(JsonNodeFactory.instance);
             for (AgendaConsejero agendaConsejero : agendaConsejeros) {
@@ -299,7 +311,27 @@ public class ReunionConsejeroController {
         }
         return response;
     }
-    
-    
+
+    @RequestMapping("reporteReuniones/{idCarrera}")
+    public ModelAndView reporteReuniones(
+            @PathVariable("idCarrera") Long idCarrera,
+            Model model, HttpSession session) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+//        Carrera carrera = new Carrera(idCarrera);
+        Consejero consejero = service.findConsejeroCarrera(idCarrera, ds.getPersona());
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.listDynatable(filter, consejero, ds);
+
+        reunionAlumnoConsejeros = reunionAlumnoConsejeros.stream().filter(x -> x.getAgendaConsejero().getEstadoEnum() != ANU && x.getEstadoEnum() != ReunionAlumnoConsejeroEstadoEnum.ANU).collect(Collectors.toList());
+
+        model.addAttribute("reunionAlumnoConsejeros", reunionAlumnoConsejeros);
+        model.addAttribute("consejero", consejero);
+        return new ModelAndView(reunionesConsejerosExcelView);
+    }
 
 }

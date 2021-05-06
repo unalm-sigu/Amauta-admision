@@ -3,18 +3,18 @@
            v-bind:okaction="agendaConsejero.id == null ? save : update">
     <div slot="body">
 
-        <div data-parsley-validate="true" id="form">
+        <form data-parsley-validate="true" id="formSaveOrUpdate">
             <div class="form-group row">
                 <div class="col-md-12">                    
-                    <label>Título</label>
-                    <input class="form-control" v-model="agendaConsejero.titulo" required="" placeholder="Ingrese un título"/>
+                    <label>Asunto</label>
+                    <input class="form-control" v-model="agendaConsejero.asunto" required="true" placeholder="Ingrese un asunto"/>
                 </div>
             </div>
             <div class=" form-group row">
                 <div class=" col-md-6">  
                     <label>Fecha</label>
                     <div class="input-group">
-                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="agendaConsejero.fecha" required=""></date-picker>
+                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="agendaConsejero.fecha" required="true"></date-picker>
                         <div class="input-group-addon">
                             <span class="fa fa-calendar"></span>
                         </div>
@@ -32,7 +32,13 @@
                                  v-bind:allow-empty="false"
                                  v-bind:preselect="false">
                     </multiselect>
-                    <input v-model="agendaConsejero.hora" class="hidden" required=""/>
+                    <input v-model="agendaConsejero.hora" class="hidden" required="true"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-12">                    
+                    <label>Cuerpo Mensaje</label>
+                    <textarea class="form-control" v-model="agendaConsejero.cuerpo" required="true" placeholder="Ingrese un cuerpo"/>
                 </div>
             </div>
             <section class="panel">
@@ -91,10 +97,7 @@
                     </table>
                 </div>
             </section>
-
-
-
-        </div>
+        </form>
     </div>
 </modal-vik>
 
@@ -103,11 +106,51 @@
            v-bind:okaction="asistio">
     <div slot="body">
 
-        <div data-parsley-validate="true" id="form">
+        <div data-parsley-validate="true" id="formAsistio">
             <div class="form-group row">
                 <div class="col-md-12">                    
                     <label>Comentario</label>
                     <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">  
+                    <div class="col-md">
+                        <label>Es Riesgo Academico</label>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" v-model="reunionConsejero.esRiesgoAcademico" />
+                        <span></span>
+                    </label>
+                </div>
+                <div class="col-md-6">  
+                    <div class="col-md">
+                        <label>Es Problema Sicólogico</label>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" v-model="reunionConsejero.esProblemaSicologico" />
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">     
+                    <div class="col-md">
+                        <label>Es Problema Familiar</label>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" v-model="reunionConsejero.esProblemaFamiliar" />
+                        <span></span>
+                    </label>
+                </div>
+                <div class="col-md-6"> 
+                    <div class="col-md">
+                        <label>Es Problema Economico</label>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" v-model="reunionConsejero.esProblemaEconomico" />
+                        <span></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -119,7 +162,7 @@
            v-bind:okaction="noAsistio">
     <div slot="body">
 
-        <div data-parsley-validate="true" id="form">
+        <div data-parsley-validate="true" id="formNoAsistio">
             <div class="form-group row">
                 <div class="col-md-12">                    
                     <label>Comentario</label>

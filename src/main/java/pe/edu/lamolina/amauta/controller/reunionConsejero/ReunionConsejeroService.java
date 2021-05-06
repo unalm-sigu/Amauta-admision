@@ -37,4 +37,6 @@ public interface ReunionConsejeroService {
 
     public AgendaConsejero findAgenda(Long agendaId, CicloAcademico cicloAcademico);
 
+    void verificarVencimiento(List<AgendaConsejero> agendasConsejero);
+
 }

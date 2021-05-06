@@ -48,6 +48,7 @@ new Vue({
             $vue.loadAgendasURL();
             $vue.cargaAconsejados($vue.consejeroSelect);
         }
+        $('[data-toggle="tooltip"]').tooltip();
     },
     methods: {
         customLabel(item) {
@@ -63,6 +64,11 @@ new Vue({
         },
         asistio() {
             let $vue = this;
+            var valid = $('#formAsistio').parsley().validate();
+            if (valid != true) {
+                notify("Ingrese los datos obligatorios.", "error");
+                return;
+            }
             $.ajax({
                 url: APP.url(rutaModulo + "/asistenciaReunion"),
                 contentType: "application/json",
@@ -78,6 +84,11 @@ new Vue({
         },
         noAsistio() {
             let $vue = this;
+            var valid = $('#formNoAsistio').parsley().validate();
+            if (valid != true) {
+                notify("Ingrese los datos obligatorios.", "error");
+                return;
+            }
             $.ajax({
                 url: APP.url(rutaModulo + "/inasistenciaReunion"),
                 contentType: "application/json",
@@ -153,6 +164,8 @@ new Vue({
                     return "label label-success";
                 case "NASIS" :
                     return "label label-warning";
+                case "VEN" :
+                    return "label label-success";
             }
         },
         openModal() {
@@ -195,6 +208,11 @@ new Vue({
         },
         save() {
             let $vue = this;
+            var valid = $('#formSaveOrUpdate').parsley().validate();
+            if (valid != true) {
+                notify("Ingrese los datos obligatorios.", "error");
+                return;
+            }
             var reunionAlumnoConsejeros = [];
             for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
                 if ($vue.alumnosConsejerosTemp[i].seleccionado) {
@@ -269,6 +287,10 @@ new Vue({
             let $vue = this;
             $vue.agendaConsejero = {};
             $vue.alumnosConsejerosTemp = JSON.parse(JSON.stringify($vue.alumnosConsejeros));
+        },
+        reporte() {
+            let $vue = this;
+            location.href = APP.url('consejeria/agendaconsejero/reporteReuniones/' + $vue.consejeroSelect.carrera.id);
         }
     }
 });

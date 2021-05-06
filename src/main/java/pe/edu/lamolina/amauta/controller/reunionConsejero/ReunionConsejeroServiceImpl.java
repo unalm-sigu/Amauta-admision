@@ -37,53 +37,54 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 @Service
 @Transactional(readOnly = false)
 public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
-
+    
     @Autowired
     HoraDAO horaDAO;
-
+    
     @Autowired
     ConsejeroDAO consejeroDAO;
-
+    
     @Autowired
     AgendaConsejeroDAO agendaConsejeroDAO;
-
+    
     @Autowired
     ReunionAlumnoConsejeroDAO reunionAlumnoConsejeroDAO;
-
+    
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
-
+    
     @Autowired
     MailerService mailerService;
-
+    
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
-
+    
     @Autowired
     OAuthServiceConfig config;
-
+    
     @Override
     public List<Hora> allHora30() {
         return horaDAO.allByTipo(TipoHoraEnum.H30);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void save(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
-
+        
         this.verificarInfo(agendaConsejeroForm);
-
+        
         AgendaConsejero agendaConsejero = new AgendaConsejero();
         agendaConsejero.setConsejero(agendaConsejeroForm.getConsejero());
         agendaConsejero.setEstadoEnum(AGEN);
         agendaConsejero.setFecha(agendaConsejeroForm.getFecha());
         agendaConsejero.setFechaRegistro(new Date());
         agendaConsejero.setHora(agendaConsejeroForm.getHora());
-        agendaConsejero.setTitulo(agendaConsejeroForm.getTitulo());
+        agendaConsejero.setAsunto(agendaConsejeroForm.getAsunto());
+        agendaConsejero.setCuerpo(agendaConsejeroForm.getCuerpo());
         agendaConsejero.setUserRegistro(ds.getUsuario());
         agendaConsejeroDAO.save(agendaConsejero);
-
+        
         Assert.isFalse(agendaConsejeroForm.getReunionAlumnoConsejeros().isEmpty(), "Debe seleccionar como mínimo un alumno.");
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = new ArrayList<>();
         for (ReunionAlumnoConsejero reunionAlumnoConsejeroForm : agendaConsejeroForm.getReunionAlumnoConsejeros()) {
@@ -96,37 +97,37 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             reunionAlumnoConsejeros.add(reunionAlumnoConsejero);
             this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.REUNIONCONSEJERO);
         }
-
+        
         reunionAlumnoConsejeroDAO.saveList(reunionAlumnoConsejeros);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void update(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
-
+        
         AgendaConsejero agendaConsejero = agendaConsejeroDAO.find(agendaConsejeroForm.getId());
         Boolean actualizacionHora = false;
         if (agendaConsejero.getFecha().compareTo(agendaConsejeroForm.getFecha()) != 0
                 || agendaConsejeroForm.getHora().getId().compareTo(agendaConsejero.getHora().getId()) != 0) {
             actualizacionHora = true;
         }
-
+        
         this.verificarInfo(agendaConsejero);
-        agendaConsejero.setTitulo(agendaConsejeroForm.getTitulo());
+        agendaConsejero.setAsunto(agendaConsejeroForm.getAsunto());
         agendaConsejero.setFecha(agendaConsejeroForm.getFecha());
         agendaConsejero.setHora(agendaConsejeroForm.getHora());
         agendaConsejero.setFechaModifica(new Date());
         agendaConsejero.setUserModifica(ds.getUsuario());
         agendaConsejeroDAO.updateColumns(agendaConsejero, "fechaModifica", "userModifica", "titulo", "hora", "fecha");
-
+        
         Assert.isFalse(agendaConsejeroForm.getReunionAlumnoConsejeros().isEmpty(), "Debe seleccionar como mínimo un alumno.");
-
+        
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejero(agendaConsejeroForm);
-
+        
         Map<Long, ReunionAlumnoConsejero> mapForm = TypesUtil.convertListToMap("alumnoConsejero.id", agendaConsejeroForm.getReunionAlumnoConsejeros());
         Map<Long, ReunionAlumnoConsejero> mapBD = TypesUtil.convertListToMap("alumnoConsejero.id", reunionAlumnoConsejeros);
-
+        
         for (ReunionAlumnoConsejero reunionAlumnoConsejero : reunionAlumnoConsejeros) {
             if (mapForm.get(reunionAlumnoConsejero.getAlumnoConsejero().getId()) == null) {
                 reunionAlumnoConsejero.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ANU);
@@ -140,7 +141,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         for (ReunionAlumnoConsejero reunionAlumnoConsejeroForm : agendaConsejeroForm.getReunionAlumnoConsejeros()) {
             if (mapBD.get(reunionAlumnoConsejeroForm.getAlumnoConsejero().getId()) == null) {
                 ReunionAlumnoConsejero reunionAlumnoConsejero = new ReunionAlumnoConsejero();
-                reunionAlumnoConsejero.setAgendaConsejero(agendaConsejeroForm);
+                reunionAlumnoConsejero.setAgendaConsejero(agendaConsejero);
                 reunionAlumnoConsejero.setAlumnoConsejero(reunionAlumnoConsejeroForm.getAlumnoConsejero());
                 reunionAlumnoConsejero.setComentario(reunionAlumnoConsejeroForm.getComentario());
                 reunionAlumnoConsejero.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.AGEN);
@@ -155,11 +156,11 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
                 }
             }
         }
-
+        
         reunionAlumnoConsejeroDAO.saveList(reunionAlumnoConsejerosSave);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void anularAgenda(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
@@ -167,9 +168,9 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         agendaConsejeroForm.setUserModifica(ds.getUsuario());
         agendaConsejeroForm.setEstadoEnum(AgendaConsejeroEstadoEnum.ANU);
         agendaConsejeroDAO.updateColumns(agendaConsejeroForm, "fechaModifica", "userModifica", "estado");
-
+        
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejero(agendaConsejeroForm);
-
+        
         for (ReunionAlumnoConsejero reunionAlumnoConsejero : reunionAlumnoConsejeros) {
             reunionAlumnoConsejero.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ANU);
             reunionAlumnoConsejero.setFechaModifica(new Date());
@@ -177,45 +178,65 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejero, "estado", "fechaModifica", "userModifica");
             this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.DELETEREUNIONCONSEJERO);
         }
-
+        
     }
-
+    
     private void verificarInfo(AgendaConsejero agendaConsejero) {
         Date today = new Date();
         Assert.isTrue(today.compareTo(agendaConsejero.getFecha()) < 0, "Fecha inferior a la fecha actual");
-
+        
         List<AgendaConsejero> agendaConsejerosDb = agendaConsejeroDAO.allByConsejero(agendaConsejero.getConsejero());
         for (AgendaConsejero agendaCon : agendaConsejerosDb) {
-            Assert.isFalse(agendaCon.getKey().equals(agendaConsejero.getKey()) && agendaCon.getId() != agendaConsejero.getId(), "Existe un cruce con la reunión con título " + agendaCon.getTitulo());
+            Assert.isFalse(agendaCon.getKey().equals(agendaConsejero.getKey()) && agendaCon.getId() != agendaConsejero.getId(), "Existe un cruce con la reunión con el asunto " + agendaCon.getAsunto());
         }
     }
-
+    
     @Override
     public Consejero findConsejeroCarrera(Long carreraId, Persona prsn) {
         return consejeroDAO.findByPersonaCarrera(prsn, new Carrera(carreraId));
     }
-
+    
     @Override
+    @Transactional
     public List<ReunionAlumnoConsejero> listDynatable(DynatableFilter filter, Consejero consejero, DataSessionPivot ds) {
-
-        return reunionAlumnoConsejeroDAO.allDynatableByConsejero(filter, consejero, ds.getCicloAcademico());
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allDynatableByConsejero(filter, consejero, ds.getCicloAcademico());
+        
+        return reunionAlumnoConsejeros;
     }
-
+    
+    @Override
+    @Transactional
+    public void verificarVencimiento(List<AgendaConsejero> agendasConsejero) {
+        Date today = new Date();
+        for (AgendaConsejero agendaConsejero : agendasConsejero) {
+            if (today.compareTo(agendaConsejero.getFecha()) > 0) {
+                agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
+                agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+            }
+        }
+    }
+    
     @Override
     public List<Consejero> allConsejeros(Persona persona) {
-
+        
         return consejeroDAO.allByPersona(persona);
     }
-
+    
     @Override
     @Transactional
     public void asistenciaReunion(ReunionAlumnoConsejero reunionAlumnoConsejeroForm, DataSessionPivot ds) {
-        reunionAlumnoConsejeroForm.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ASIS);
-        reunionAlumnoConsejeroForm.setFechaModifica(new Date());
-        reunionAlumnoConsejeroForm.setUserModifica(ds.getUsuario());
-        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroForm, "estado", "fechaModifica", "userModifica", "comentario");
+        ReunionAlumnoConsejero reunionAlumnoConsejeroBD = reunionAlumnoConsejeroDAO.find(reunionAlumnoConsejeroForm.getId());
+        reunionAlumnoConsejeroBD.setComentario(reunionAlumnoConsejeroForm.getComentario());
+        reunionAlumnoConsejeroBD.setEsProblemaEconomico(reunionAlumnoConsejeroForm.getEsProblemaEconomico());
+        reunionAlumnoConsejeroBD.setEsProblemaFamiliar(reunionAlumnoConsejeroForm.getEsProblemaFamiliar());
+        reunionAlumnoConsejeroBD.setEsProblemaSicologico(reunionAlumnoConsejeroForm.getEsProblemaSicologico());
+        reunionAlumnoConsejeroBD.setEsRiesgoAcademico(reunionAlumnoConsejeroForm.getEsRiesgoAcademico());
+        reunionAlumnoConsejeroBD.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ASIS);
+        reunionAlumnoConsejeroBD.setFechaModifica(new Date());
+        reunionAlumnoConsejeroBD.setUserModifica(ds.getUsuario());
+        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
     }
-
+    
     @Override
     @Transactional
     public void inasistenciaReunion(ReunionAlumnoConsejero reunionAlumnoConsejeroForm, DataSessionPivot ds) {
@@ -224,7 +245,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         reunionAlumnoConsejeroForm.setUserModifica(ds.getUsuario());
         reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroForm, "estado", "fechaModifica", "userModifica", "comentario");
     }
-
+    
     @Override
     public void anularReunion(ReunionAlumnoConsejero reunionAlumnoConsejeroForm, DataSessionPivot ds) {
         ReunionAlumnoConsejero reunionAlumnoConsejeroDB = reunionAlumnoConsejeroDAO.find(reunionAlumnoConsejeroForm.getId());
@@ -234,37 +255,37 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroDB, "estado", "fechaModifica", "userModifica", "comentario");
         enviarCorreo(reunionAlumnoConsejeroDB, ContenidoEmailEnum.DELETEREUNIONCONSEJERO);
     }
-
+    
     @Override
     public List<AlumnoConsejero> list(Consejero consejero, DataSessionPivot ds) {
         return alumnoConsejeroDAO.allActivosByConsejeroCarreraCiclo(consejero, consejero.getCarrera(), ds.getCicloAcademico());
     }
-
+    
     @Override
     public AgendaConsejero findAgenda(Long agendaId, CicloAcademico cicloAcademico) {
         AgendaConsejero agendaConsejero = agendaConsejeroDAO.find(agendaId);
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejero(agendaConsejero);
         Map<Long, ReunionAlumnoConsejero> map = TypesUtil.convertListToMap("alumnoConsejero.id", reunionAlumnoConsejeros);
-
+        
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allActivosByConsejeroCarreraCiclo(agendaConsejero.getConsejero(), agendaConsejero.getConsejero().getCarrera(), cicloAcademico);
-
+        
         for (AlumnoConsejero alumnoConsejero : alumnoConsejeros) {
             if (map.get(alumnoConsejero.getId()) != null) {
                 alumnoConsejero.setSeleccionado(Boolean.TRUE);
             }
         }
-
+        
         agendaConsejero.setAlumnoConsejeros(alumnoConsejeros);
-
+        
         return agendaConsejero;
     }
-
+    
     private void enviarCorreo(ReunionAlumnoConsejero reunionAlumnoConsejero, ContenidoEmailEnum contenidoEmailEnum) {
-
+        
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(contenidoEmailEnum.name());
         AgendaConsejero agendaConsejero = agendaConsejeroDAO.find(reunionAlumnoConsejero.getAgendaConsejero().getId());
         Consejero consejero = consejeroDAO.find(agendaConsejero.getConsejero().getId());
         mailerService.enviarNotificacionReunionConsejero(reunionAlumnoConsejero, consejero, contenidoCarta);
-
+        
     }
 }

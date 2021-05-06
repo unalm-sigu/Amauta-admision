@@ -42,8 +42,15 @@
             <div id="agendaConsejeroVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
+
                     <div class="btn-group pull-right">
-                        <a class="btn btn-primary dropdown-toggle pull-right" v-on:click="openModal"> Crear Agenda</a>
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li > <a type="button" class=" btn" v-on:click="openModal"> Crear Agenda</a></li>
+                            <li><a type="button" class=" btn"  v-on:click.prevent="reporte"> Reporte</a></li>
+                        </ul>
                     </div>
                     <h2>Agenda Consejero <span v-text='ciclo.descripcion'></span></h2>
                 </header>
@@ -85,7 +92,7 @@
                                                 <td class="v-middle" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
                                                     <span class="block" >                                                            
                                                         <span class=" bold"> Titulo: </span>
-                                                        {{item.titulo}}
+                                                        {{item.asunto}}
                                                     </span>
                                                     <span class="block">                                                            
                                                         <span class=" bold"> Fecha: </span>
@@ -102,7 +109,7 @@
                                                             </a>
 
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-4">
                                                             <div class="dropdown">
                                                                 <span class=" bold dropdown-toggle pointer" 
                                                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
@@ -114,6 +121,13 @@
                                                                     <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="openNoAsistenciaModal(reuniones)">No Asistió</a></li>
                                                                     <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="anular(reuniones)">Anular</a></li>
                                                                 </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="m-t-md" v-if="reuniones.comentario != null ">
+                                                                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" v-bind:title="reuniones.comentario" data-placement="right" >
+                                                                    <i class="fa fa-info-circle fa-lg text-primary pointer"></i>
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -133,7 +147,7 @@
                                                 <td class="v-middle text-center" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
                                                     <span class="block" >                                                            
                                                         <span class=" bold " v-bind:class="styleColor(item.estadoEnum)" v-text="item.estadoEnum.value">  </span>
-                                                    </span>
+                                                    </span>                                                   
                                                 </td>
                                                 <td class="v-middle" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
                                                     <div class="dropdown actions">
@@ -141,8 +155,8 @@
                                                             <i class="fa fa-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li class="pointer"><a v-on:click="openUpdateModal(item)">Actualizar</a></li>
-                                                            <li class="pointer" v-if="reuniones.estado == 'AGEN' "><a v-on:click="anularAgenda(item)">Anular</a></li>
+                                                            <li class="pointer"  v-if="reuniones.estado == 'AGEN'"><a v-on:click="openUpdateModal(item)">Actualizar</a></li>
+                                                            <li class="pointer" v-if="reuniones.estado == 'AGEN'"><a v-on:click="anularAgenda(item)">Anular</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
