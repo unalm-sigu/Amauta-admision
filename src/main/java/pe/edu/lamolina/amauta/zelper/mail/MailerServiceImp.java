@@ -202,8 +202,8 @@ public class MailerServiceImp implements MailerService {
             mail.setContext(ctx);
             mail.setTemplate("mail/mailReunionConsejero");
             mail.setSubject(contenidoCarta.getNombre().concat(": ").concat(agendaConsejero.getAsunto()));
-            //mail.setDestinatarios(new String[]{email});
-            mail.setDestinatarios(new String[]{alumnoPersona.getEmailCompania()}); //emailAlumno
+
+            mail.setDestinatarios(new String[]{alumnoPersona.getEmailCompania(), consejeroPersona.getEmailCompania()}); //emailAlumno
             mail.setFrom(ie);
             mailerConnector.sendMailAgendaConsejero(mail);
         } catch (UnsupportedEncodingException ex) {
