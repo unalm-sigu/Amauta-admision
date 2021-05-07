@@ -187,6 +187,7 @@ public class CicloAcademicoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activar(cicloAcademico, ds);
             muestrasLabService.inicializarVisor();
+            service.ejecutarTramiteAcademicos(cicloAcademico, ds);
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

@@ -42,4 +42,6 @@ public interface CicloAcademicoService {
 
     public void changeVisiblelogin(CicloAcademico cicloAcademico);
 
+    void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
 }

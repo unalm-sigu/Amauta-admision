@@ -10,6 +10,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -219,7 +220,6 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.ACT);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
-        this.ejecutarTramiteAcademicos(cicloAcademicoActivo, ds);
     }
 
     @Override
@@ -278,7 +278,9 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         cicloAcademicoDAO.update(academico);
     }
 
-    private void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    @Async
+    @Override
+    public void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(cicloAcademico);
         List<Alumno> alumnos = new ArrayList<>();

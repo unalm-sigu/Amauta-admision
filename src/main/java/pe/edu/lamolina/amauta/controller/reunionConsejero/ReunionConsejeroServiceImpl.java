@@ -124,7 +124,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         agendaConsejero.setHora(agendaConsejeroForm.getHora());
         agendaConsejero.setFechaModifica(new Date());
         agendaConsejero.setUserModifica(ds.getUsuario());
-        agendaConsejeroDAO.updateColumns(agendaConsejero, "fechaModifica", "userModifica", "titulo", "hora", "fecha");
+        agendaConsejeroDAO.updateColumns(agendaConsejero, "fechaModifica", "userModifica", "asunto", "hora", "fecha");
 
         Assert.isFalse(agendaConsejeroForm.getReunionAlumnoConsejeros().isEmpty(), "Debe seleccionar como mínimo un alumno.");
 
@@ -191,7 +191,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             DateTime today = new DateTime();
             DateTime todayForm = new DateTime(agendaConsejero.getFecha());
-            System.err.println(agendaConsejero.getFecha() + "T" + agendaConsejero.getHora().getDescripcion2());
+
             todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
 
             Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
@@ -225,11 +225,25 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     @Override
     @Transactional
     public void verificarVencimiento(List<AgendaConsejero> agendasConsejero) {
-        Date today = new Date();
+
+        SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        DateTime today = new DateTime();
+
         for (AgendaConsejero agendaConsejero : agendasConsejero) {
-            if (today.compareTo(agendaConsejero.getFecha()) > 0) {
-                agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
-                agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+            try {
+                DateTime todayForm = new DateTime(agendaConsejero.getFecha());
+
+                todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
+
+                Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
+                Date dateForm = sdformat.parse(todayForm.toString("yyyy-MM-dd HH:mm"));
+
+                if (dateToday.compareTo(dateForm) > 0) {
+                    agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
+                    agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+                }
+            } catch (ParseException ex) {
+                Logger.getLogger(ReunionConsejeroServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

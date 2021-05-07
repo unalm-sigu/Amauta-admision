@@ -10,6 +10,8 @@
                         <th v-if="tipo != 'CURDIR' " class="text-center">Ciclo</th>
                         <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
                         <th v-if="tipo == 'CAM_NOTA' ">Nota</th>
+                        <th v-if="tipo == 'TRAS_INT' ">Carrera Origen</th>
+                        <th v-if="tipo == 'TRAS_INT' ">Carrera Destino</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,7 +78,7 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                     </tr>
-                    <tr v-if="tipo == 'TRAS' || tipo == 'ING_HIS' || tipo == 'INTES'">
+                    <tr v-if="tipo == 'TRAS' || tipo == 'ING_HIS' || tipo == 'INTES' ">
                         <td>
                             <a class="block" v-text="alumnoTramiteTraslado.tramite.alumno.persona.nombreCompleto"></a>
                             <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>
@@ -85,6 +87,20 @@
                         </td>
                         <td>
                             <span class="block" v-text="alumnoTramiteTraslado.tramite.cicloAcademico.descripcion"></span>
+                        </td>
+                    </tr>
+                    <tr v-if="tipo == 'TRAS_INT' "  v-for="item in alumnoTramiteTraslado">
+                        <td>
+                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
+                            <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>
+
+                            <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{alumnoTramiteTraslado.tramite.alumno.persona.tipoDocumento.simbolo}} - {{alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span class="block" v-text="item.carreraOrigen.nombre"></span>
+                        </td>
+                        <td>
+                            <span class="block" v-text="item.carrera.nombre"></span>
                         </td>
                     </tr>
                     <tr v-for="item in alumnoTramiteBachiller" v-if="tipo == 'BACHI' || tipo == 'TITUL'">
