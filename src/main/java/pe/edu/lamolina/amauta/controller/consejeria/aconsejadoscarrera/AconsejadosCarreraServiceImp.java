@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -31,6 +32,8 @@ public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     ConsejeriaResumenDAO consejeriaResumenDAO;
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @Override
     public List<AlumnoConsejero> allAconsejadoByDynatable(Carrera carrera, DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -60,6 +63,10 @@ public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
         alumnoConsejero.setConsejero(alumnoConsejeroForm.getConsejero());
         alumnoConsejero.setFechaAsigna(new Date());
         alumnoConsejeroDAO.update(alumnoConsejero);
+        
+        Alumno alumno = alumnoDAO.find(alumnoConsejero.getAlumno());
+        alumno.setConsejero(alumnoConsejeroForm.getConsejero());
+        alumnoDAO.updateColumns(alumno, "consejero");
     }
 
     @Override
