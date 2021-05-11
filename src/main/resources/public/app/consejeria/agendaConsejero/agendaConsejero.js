@@ -39,7 +39,8 @@ new Vue({
             format: "DD/MM/YYYY",
             useCurrent: false
         },
-        reunionConsejero: {}
+        reunionConsejero: {},
+        selectAll: false
     },
     mounted: function () {
         let $vue = this;
@@ -49,6 +50,14 @@ new Vue({
             $vue.cargaAconsejados($vue.consejeroSelect);
         }
         $('[data-toggle="tooltip"]').tooltip();
+    },
+    watch: {
+        selectAll: function (val) {
+            let $vue = this;
+            for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
+                $vue.alumnosConsejerosTemp[i].seleccionado = val;
+            }
+        }
     },
     methods: {
         customLabel(item) {

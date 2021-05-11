@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
 
 @Component
 public class ReunionesConsejerosExcelView extends AbstractView {
@@ -174,25 +175,25 @@ public class ReunionesConsejerosExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), 10 * 256);
         excelUtil.replaceVal(irow - 1, column++, "ASUNTO", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "FECHA AGENDA", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "FECHA", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "MATRICULA", headerCell);
         sheet.setColumnWidth((column - 1), 22 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "ALUMNO", headerCell);
         sheet.setColumnWidth((column - 1), 35 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "CARRERA", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
         excelUtil.replaceVal(irow - 1, column++, "ASISTENCIA", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
         excelUtil.replaceVal(irow - 1, column++, "COMENTARIO", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TIENE RIESGO ACADEMICO", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "RIESGO ACADEMICO", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TIENE PROBLEMAS SICOLÓGICOS", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS SICOLÓGICOS", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TIENE PROBLEMAS ECONÓMICOS", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS ECONÓMICOS", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TIENE PROBLEMAS FAMILIARES", headerCell);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS FAMILIARES", headerCell);
         sheet.setColumnWidth((column - 1), 15 * 256);
 
         int num = 1;
@@ -201,7 +202,7 @@ public class ReunionesConsejerosExcelView extends AbstractView {
             column = 0;
             Alumno alumno = reunionAlumnoConsejero.getAlumnoConsejero().getAlumno();
             AgendaConsejero agendaConsejero = reunionAlumnoConsejero.getAgendaConsejero();
-            
+
             String strDate = dateFormat.format(agendaConsejero.getFecha());
             excelUtil.replaceVal(irow, column++, num, estiloNumero);
             excelUtil.replaceVal(irow, column++, agendaConsejero.getAsunto(), estiloNumero);
@@ -209,12 +210,19 @@ public class ReunionesConsejerosExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, alumno.getCodigo());
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres());
             excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEstadoEnum().getValue(), estiloGeneral);
+            String val = "";
+            if (reunionAlumnoConsejero.getEstadoEnum() == ReunionAlumnoConsejeroEstadoEnum.ASIS) {
+                val = "O";
+            } else if (reunionAlumnoConsejero.getEstadoEnum() == ReunionAlumnoConsejeroEstadoEnum.NASIS) {
+                val = "X";
+            }
+
+            excelUtil.replaceVal(irow, column++, val, estiloGeneral);
             excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getComentario(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsRiesgoAcademico() ? "SI" : "NO", estiloGeneral);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaSicologico() ? "SI" : "NO", estiloGeneral);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaEconomico() ? "SI" : "NO", estiloGeneral);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaFamiliar() ? "SI" : "NO", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsRiesgoAcademico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaSicologico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaEconomico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaFamiliar() ? "X" : "", estiloGeneral);
             irow++;
             num++;
         }

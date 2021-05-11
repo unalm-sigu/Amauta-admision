@@ -37,8 +37,8 @@
             </div>
             <div class="form-group row">
                 <div class="col-md-12">                    
-                    <label>Cuerpo Mensaje</label>
-                    <textarea class="form-control" v-model="agendaConsejero.cuerpo" required="true" placeholder="Ingrese un cuerpo"/>
+                    <label>Detalle:</label>
+                    <textarea class="form-control" v-model="agendaConsejero.cuerpo" required="true" placeholder="Ingrese un cuerpo (Max 400)"/>
                 </div>
             </div>
             <section class="panel">
@@ -48,7 +48,11 @@
                         <thead class="panel panel-heading">
                             <tr>
                                 <th  colspan="2">Alumno</th>
-                                <th>Citar</th>
+                                <th>Citar
+                                    <label class="m-t-md checkbox-inline form-control-static">
+                                        <input class="form-control" type="checkbox" id="selectAll"  v-model="selectAll"/>
+                                    </label>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>

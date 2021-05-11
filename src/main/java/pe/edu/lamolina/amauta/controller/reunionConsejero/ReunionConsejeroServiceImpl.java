@@ -230,20 +230,23 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         DateTime today = new DateTime();
 
         for (AgendaConsejero agendaConsejero : agendasConsejero) {
-            try {
-                DateTime todayForm = new DateTime(agendaConsejero.getFecha());
+            if (agendaConsejero.getEstadoEnum() == AGEN) {
 
-                todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
+                try {
+                    DateTime todayForm = new DateTime(agendaConsejero.getFecha());
 
-                Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
-                Date dateForm = sdformat.parse(todayForm.toString("yyyy-MM-dd HH:mm"));
+                    todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
 
-                if (dateToday.compareTo(dateForm) > 0) {
-                    agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
-                    agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+                    Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
+                    Date dateForm = sdformat.parse(todayForm.toString("yyyy-MM-dd HH:mm"));
+
+                    if (dateToday.compareTo(dateForm) > 0) {
+                        agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
+                        agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+                    }
+                } catch (ParseException ex) {
+                    Logger.getLogger(ReunionConsejeroServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (ParseException ex) {
-                Logger.getLogger(ReunionConsejeroServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

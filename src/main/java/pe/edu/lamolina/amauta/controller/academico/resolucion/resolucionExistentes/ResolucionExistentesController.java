@@ -653,6 +653,8 @@ public class ResolucionExistentesController {
             for (TramiteTraslado traslado : trasladados) {
                 objectNode = JsonHelper.createJson(traslado, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "carrera.*",
+                    "carreraOrigen.*",
                     "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",

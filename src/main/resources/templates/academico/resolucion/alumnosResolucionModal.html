@@ -5,13 +5,13 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                        <th>Alumno</th>
+                        <th>Alumno {{tipo}}</th>
                         <th v-if="tipo == 'BACHI' || tipo == 'TITUL'">Grado/Título</th>
-                        <th v-if="tipo != 'CURDIR' " class="text-center">Ciclo</th>
+                        <th v-if="tipo != 'CURDIR' &amp;&amp; tipo != 'TRAS_INT' " class="text-center">Ciclo</th>
                         <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
                         <th v-if="tipo == 'CAM_NOTA' ">Nota</th>
                         <th v-if="tipo == 'TRAS_INT' ">Carrera Origen</th>
-                        <th v-if="tipo == 'TRAS_INT' ">Carrera Destino</th>
+                        <th v-if="tipo == 'TRAS_INT' ">Carrera Destino </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,9 +92,9 @@
                     <tr v-if="tipo == 'TRAS_INT' "  v-for="item in alumnoTramiteTraslado">
                         <td>
                             <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
-                            <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>
+                            <span class="block">Código: {{item.tramite.alumno.codigo}}</span>
 
-                            <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{alumnoTramiteTraslado.tramite.alumno.persona.tipoDocumento.simbolo}} - {{alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                            <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
                         </td>
                         <td>
                             <span class="block" v-text="item.carreraOrigen.nombre"></span>
