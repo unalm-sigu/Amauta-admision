@@ -278,11 +278,13 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         cicloAcademicoDAO.update(academico);
     }
 
-    @Async
+//    @Async
     @Override
-    public void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
-
-        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(cicloAcademico);
+    @Transactional
+    public List<Alumno> ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
+        CicloAcademico academico = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
+        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(academico);
         List<Alumno> alumnos = new ArrayList<>();
         for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
             Alumno alumno = tramiteTraslado.getTramite().getAlumno();
@@ -320,7 +322,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             alumnos.add(alumno);
         }
 
-        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+        return alumnos;
 
     }
 

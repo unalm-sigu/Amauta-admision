@@ -28,6 +28,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
+import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
@@ -36,6 +38,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.ingresante.muestraslab.MuestrasLabService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 
 @Controller
 @RequestMapping("academico/cicloacademico")
@@ -46,6 +49,9 @@ public class CicloAcademicoController {
 
     @Autowired
     MuestrasLabService muestrasLabService;
+
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -187,7 +193,8 @@ public class CicloAcademicoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activar(cicloAcademico, ds);
             muestrasLabService.inicializarVisor();
-            service.ejecutarTramiteAcademicos(cicloAcademico, ds);
+            List<Alumno> alumnos = service.ejecutarTramiteAcademicos(cicloAcademico, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

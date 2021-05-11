@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.ciclo;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
@@ -42,6 +43,6 @@ public interface CicloAcademicoService {
 
     public void changeVisiblelogin(CicloAcademico cicloAcademico);
 
-    void ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    List<Alumno> ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }
