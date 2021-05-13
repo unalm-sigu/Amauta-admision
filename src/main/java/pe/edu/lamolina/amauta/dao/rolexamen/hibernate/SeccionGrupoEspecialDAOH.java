@@ -176,7 +176,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     @Override
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
-                .select("cur", "ghe", "au", "sec", "re.estado", "re.id", "re.nombre")
+                .select("sge")
                 .into(RolExamenDocente.class)
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("docente doc", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "aula au")

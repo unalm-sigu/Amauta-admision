@@ -233,9 +233,13 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.27.44</version>
+            <version>0.28.02</version>
         </dependency>        
-<!--      
+<!--    
+    
+        PROHIBIDO DEJAR BASURA EN EL CÓDIGO
+
+
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-calendar</artifactId>
