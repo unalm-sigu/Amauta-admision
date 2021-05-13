@@ -1028,8 +1028,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-            if (evaluado.getCurso().getCodigo().equals("AG1001")) {
-                System.out.print("AG1001");
+            if (evaluado.getCurso().getCodigo().equals("AL3014")) {
+                System.out.print("AL3014");
             }
             Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
@@ -1081,6 +1081,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     } else {
                         for (CursoEquivalente cursoEquivalente : cursoRequisitosEquivalentes) {
                             if (cursoEquivalente.getCursoCaduco() == null) {
+                                requisitosObigatorios = false;
                                 continue;
                             }
                             AlumnoCursoCurricula cursoRequisitoCaducoEquiva = mapAluCursoCurriculaByIdCursoCurricula.get(cursoEquivalente.getCursoCaduco().getId());

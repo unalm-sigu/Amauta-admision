@@ -84,4 +84,6 @@ public interface ResolucionExistenteService {
 
     public List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
 
+    public List<Reincorporacion> allReincorporacion();
+
 }

@@ -161,14 +161,13 @@
                                         <tr>
                                             <th class=" text-center">Persona</th>
                                             <th class=" text-center" >Tipo Tramite</th>
-                                            <th class=" text-center" v-if=" !isRetiroCiclo &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt  &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp; !isPracticas">Motivo Rechazo</th>
+                                            <th class=" text-center" v-if=" !isRetiroCiclo &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt  &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp; !isPracticas &amp;&amp; !isReincorporacion">Motivo Rechazo</th>
                                             <!--                                                                                        <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
                                                                                                                                         <span v-if='isRetiroCiclo'> a retirar</span>
                                                                                                                                         <span v-if='isReincorporacion'> a reincorporar</span>
                                                                                                                                     </th>-->
                                             <!--<th class=" text-center" v-if="isTrasladoInt">Carrera</th>-->
-                                            <th class="col-md-2 text-center" v-if="isTraslado">Ciclo                                               
-                                            </th>
+                                            <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
                                             <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
                                             <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class=" text-center" v-if="isCursoDirigido">Docente</th>

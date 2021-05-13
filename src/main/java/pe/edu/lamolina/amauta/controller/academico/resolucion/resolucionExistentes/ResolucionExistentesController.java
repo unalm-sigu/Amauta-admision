@@ -244,11 +244,12 @@ public class ResolucionExistentesController {
 
             if (resolucion.isTipoReincorporacion()) {
                 String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
+                if (!token.isEmpty()) {
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+                    matriculableService.generarAportes(ds, token);
+                }
 
             } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
                 String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
@@ -850,6 +851,41 @@ public class ResolucionExistentesController {
                 ppp.setSeleccionado(Boolean.FALSE);
                 array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allReincorporacion")
+    public JsonResponse allReincorporacion(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Reincorporacion> reincorporacion = service.allReincorporacion();
+
+            for (Reincorporacion ppp : reincorporacion) {
+                ppp.setAlumno(ppp.getTramite().getAlumno());
+                ppp.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "cicloReincorporacion.*",
                     "alumno.*",
                     "alumno.carrera.*",
                     "alumno.carrera.facultad.*",
