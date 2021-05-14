@@ -236,7 +236,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
                     DateTime todayForm = new DateTime(agendaConsejero.getFecha());
 
                     todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
-
+                    todayForm = todayForm.plusHours(2); // Se agregan 2 horas de tolerancia.
                     Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
                     Date dateForm = sdformat.parse(todayForm.toString("yyyy-MM-dd HH:mm"));
 
@@ -270,6 +270,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         reunionAlumnoConsejeroBD.setFechaModifica(new Date());
         reunionAlumnoConsejeroBD.setUserModifica(ds.getUsuario());
         reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
+
+        AgendaConsejero agendaConsejero = reunionAlumnoConsejeroBD.getAgendaConsejero();
+        agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.ATEN);
+        agendaConsejero.setFechaModifica(new Date());
+        agendaConsejero.setUserModifica(ds.getUsuario());
+        agendaConsejeroDAO.updateColumns(agendaConsejero, "estado", "fechaModifica", "userModifica");
     }
 
     @Override
