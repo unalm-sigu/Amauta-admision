@@ -433,8 +433,8 @@
                                                         </td>
 
                                                         <td class="v-middle text-center">
-                                                            <label class="label label-primary"  v-if="item.disponible"> Disponible </label>
-                                                            <label class="label label-danger"   v-else="item.disponible"> Ocupado </label>
+                                                            <label class="label label-primary"  v-if="item.isDisponible"> Disponible </label>
+                                                            <label class="label label-danger"   v-else="item.isDisponible"> Ocupado </label>
                                                         </td>
 
                                                         <td class="v-middle text-center">
@@ -442,7 +442,7 @@
                                                         </td>
 
                                                         <td class="v-middle">
-                                                            <a v-if="item.disponible" href="#" v-on:click.prevent="addAula(item)">
+                                                            <a v-if="item.isDisponible" href="#" v-on:click.prevent="addAula(item)">
                                                                 <i class="fa fa-plus pointer text-primary" aria-hidden="true"></i>
 
                                                             </a>
