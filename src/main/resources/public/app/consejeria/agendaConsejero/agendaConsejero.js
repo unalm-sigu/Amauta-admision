@@ -169,11 +169,11 @@ new Vue({
                     return "label label-primary";
                 case "ANU" :
                     return "label label-danger";
-                case "ASIS" :
-                    return "label label-success";
                 case "NASIS" :
                     return "label label-warning";
+                case "ASIS" :
                 case "VEN" :
+                case "ATEN" :
                     return "label label-success";
             }
         },
