@@ -42,9 +42,13 @@
             <div id="consejeriaVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-primary dropdown-toggle pull-right" v-bind:href="'/consejeria/aconsejadostutor/reporteAlumnosAconsejados'"> Descargar Informe</a>
+                    </div>
                     <h2>Alumnos Tutorados <span v-text='ciclo.descripcion'></span></h2>
                     <span class="block h4 text-primary m-t-xxs m-b-xxs"><strong>Tutor:</strong> <span  th:text="${persona.nombreCompleto}">Juan Perez</span></span>    
                     <span class="block m-b" th:if="${dptoAcad}"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+
                 </header>
 
                 <section class="wrapper-lg">

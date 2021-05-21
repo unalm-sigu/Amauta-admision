@@ -215,6 +215,7 @@ public class ResolucionExistentesController {
                     "id",
                     "codigo",
                     "persona.nombreCompleto",
+                    "persona.apellidosNombres",
                     "persona.numeroDocIdentidad",
                     "persona.tipoDocumento.*",
                     "carrera.*",
@@ -244,11 +245,12 @@ public class ResolucionExistentesController {
 
             if (resolucion.isTipoReincorporacion()) {
                 String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
+                if (!token.isEmpty()) {
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+                    matriculableService.generarAportes(ds, token);
+                }
 
             } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
                 String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
@@ -266,10 +268,10 @@ public class ResolucionExistentesController {
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
-                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
-
-                    service.generarNuevoPlan(resolucion, ds);
-                }
+//                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
+//
+//                    service.generarNuevoPlan(resolucion, ds);
+//                }
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             } else if (resolucion.isTipoNotaBaja()) {
@@ -566,6 +568,21 @@ public class ResolucionExistentesController {
                 array.add(node);
             }
             objectNode.set("tramitePracticasPreProfesionales", array);
+        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
+
+            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
+            for (RetiroCiclo retiroCiclo : retiroCiclos) {
+                ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*",
+                    "cicloAcademico.*"
+                });
+                node.put("tipo", RCI.name());
+                array.add(node);
+            }
+            objectNode.set("retiroCiclo", array);
         }
 
         return objectNode;
@@ -638,6 +655,8 @@ public class ResolucionExistentesController {
             for (TramiteTraslado traslado : trasladados) {
                 objectNode = JsonHelper.createJson(traslado, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "carrera.*",
+                    "carreraOrigen.*",
                     "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",
@@ -799,6 +818,75 @@ public class ResolucionExistentesController {
                 ppp.setSeleccionado(Boolean.FALSE);
                 array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allRetiroCiclo")
+    public JsonResponse allRetiroCiclo(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<RetiroCiclo> retiroCiclos = service.allRetiroCiclo(ds);
+
+            for (RetiroCiclo ppp : retiroCiclos) {
+                ppp.setAlumno(ppp.getTramite().getAlumno());
+                ppp.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.carrera.facultad.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allReincorporacion")
+    public JsonResponse allReincorporacion(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Reincorporacion> reincorporacion = service.allReincorporacion();
+
+            for (Reincorporacion ppp : reincorporacion) {
+                ppp.setAlumno(ppp.getTramite().getAlumno());
+                ppp.setSeleccionado(Boolean.FALSE);
+                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "cicloReincorporacion.*",
                     "alumno.*",
                     "alumno.carrera.*",
                     "alumno.carrera.facultad.*",

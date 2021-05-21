@@ -890,6 +890,72 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .filter("car.codigo", carrera);
 
         return all(sql);
+    public Long countMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("ca1.id", cicloAcademico)
+                .filter("carrcon.id", carrera)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", MAT);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long countNoMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("ca1.id", cicloAcademico)
+                .filter("carrcon.id", carrera)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", NMAT);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long countRetiroCicloByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("carrcon.id", carrera)
+                .filter("ca1.id", cicloAcademico)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", RCI);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
     }
 
 }

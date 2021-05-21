@@ -543,6 +543,15 @@ new Vue({
                     notify(Messages.errorComunicacion, 'error')
                 }
             });
+        },
+        verAlumnos(item) {
+            let $vue = this;
+            location.href = APP.url('consejeria/aconsejadostutor/viewCoordinador/' + item.colaborador.persona.id + "/" + $vue.carreraSelect.id) + $vue.getOrigenURL();
+
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         }
     }
 });

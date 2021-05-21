@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.AconsejadosTutorService;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.TutoradosConsejeroOtraCarreraExcelView;
@@ -74,6 +75,9 @@ public class ConsejerosController {
 
     @Autowired
     TutoradosConsejeroOtraCarreraExcelView tutoradosConsejeroOtraCarreraExcelView;
+
+    @Autowired
+    AconsejadosTutorService aconsejadosTutorService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -110,6 +114,7 @@ public class ConsejerosController {
                         new String[]{
                             "id", "estado", "alumnosActivos", "alumnosInactivos",
                             "aconsejadosMat", "aconsejadosNmat",
+                            "colaborador.persona.id",
                             "colaborador.persona.emailCompania",
                             "colaborador.persona.nombreCompleto",
                             "colaborador.persona.numeroDocIdentidad",
@@ -457,4 +462,59 @@ public class ConsejerosController {
         return new ModelAndView(tutoradosConsejeroOtraCarreraExcelView);
     }
 
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(HttpSession session, HttpServletRequest request) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {
+            List<AlumnoConsejero> alumnosTutor = aconsejadosTutorService.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (AlumnoConsejero alumnoTutor : alumnosTutor) {
+                ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "alumno.id",
+                            "alumno.codigo",
+                            "alumno.creditosCursados",
+                            "alumno.creditosAprobados",
+                            "alumno.promedioAcumulado",
+                            "alumno.cicloIngreso.descripcion",
+                            "alumno.situacionAcademica.codigo",
+                            "alumno.situacionAcademica.nombre",
+                            "alumno.persona.emailCompania",
+                            "alumno.persona.tipoFoto",
+                            "alumno.persona.sexo",
+                            "alumno.persona.rutaFoto",
+                            "alumno.persona.apellidosNombres",
+                            "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "alumno.carrera.nombre",
+                            "alumno.carrera.facultad.nombre",
+                            "consejero.*",
+                            "consejero.colaborador.persona.emailCompania",
+                            "consejero.colaborador.persona.numeroDocIdentidad",
+                            "consejero.colaborador.persona.apellidosNombres",
+                            "consejero.colaborador.persona.tipoDocumento.simbolo",
+                            "cicloAcademico.descripcion"
+                        });
+
+                array.add(node);
+            }
+            json.setFiltered(filter.getFiltered());
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
 }

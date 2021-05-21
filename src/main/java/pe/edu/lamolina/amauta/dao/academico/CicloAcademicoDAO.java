@@ -128,4 +128,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findConfiguradoPregrado();
 
+    CicloAcademico findAnterior(CicloAcademico ciclo);
+
 }

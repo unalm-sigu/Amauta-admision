@@ -68,6 +68,7 @@ var app = new Vue({
                 $vue.isPracticas = true;
             }
         }
+        console.log($vue.resolucion);
 
     }, methods: {
         tipoResolucionSelect(item) {
@@ -83,11 +84,13 @@ var app = new Vue({
             $vue.isTitulo = false;
             $vue.isPracticas = false;
             if (item.codigo == "RCI") {
+                $vue.allRetiroCiclo();
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "ANCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
+                   $vue.allReincorporacion();
             } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
             } else if (item.codigo == "TRAS" || item.codigo == "INTES" || item.codigo == "ING_HIS") {
@@ -138,6 +141,36 @@ var app = new Vue({
             });
 
         },
+        allRetiroCiclo() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url("academico/resolucion/allRetiroCiclo"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.retiroCiclo = response.data;
+                    MODAL.hideWait();
+                }
+            });
+
+        },
+        allReincorporacion() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url("academico/resolucion/allReincorporacion"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.reincorporaciones = response.data;
+                    MODAL.hideWait();
+                }
+            });
+
+        },
         allBachiller() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
@@ -154,7 +187,7 @@ var app = new Vue({
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
-                return  codigo + " - " + persona.nombreCompleto;
+                return  codigo + " - " + persona.apellidosNombres;
             }
             return "";
         },

@@ -6,6 +6,7 @@ import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import static pe.edu.lamolina.model.enums.TipoHoraEnum.H60;
 import pe.edu.lamolina.model.horario.Hora;
 
@@ -83,6 +84,16 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
                 .from(Hora.class, "ho")
                 .join("tipoHora th")
                 .filter("th.codigo", H60)
+                .orderBy("ho.numero");
+        return all(sql);
+    }
+
+    @Override
+    public List<Hora> allByTipo(TipoHoraEnum tipoHoraEnum) {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", tipoHoraEnum)
                 .orderBy("ho.numero");
         return all(sql);
     }

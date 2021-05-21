@@ -6,4 +6,6 @@ public interface MailerConnector {
 
     void sendMailHelpDesk(MailMessage mail);
 
+    void sendMailAgendaConsejero(MailMessage mail);
+
 }
