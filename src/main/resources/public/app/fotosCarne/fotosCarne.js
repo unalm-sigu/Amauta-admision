@@ -1,23 +1,44 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
+        carrera: '',
+        carreras: [],
+        modalidad: '',
+        modalidades: JSON.parse(modalidadesJson),
         info: {perAvance: 0},
         bloq: false
     },
     computed: {
+
     },
     mounted: function () {
         let $vue = this;
         $vue.obtenerInfo();
+
     },
     methods: {
         descagarFoto() {
             let $vue = this;
             $vue.bloq = true;
-            window.open(APP.url('fotos/carne/descargarFotos'), '_blank');
-//            location.href = APP.url('fotos/carne/descargarFotos');
-            setTimeout($vue.obtenerInfo, 3000);
+            location.href = APP.url('fotos/carne/descargarFotos/' + $vue.carrera.codigo);
+            
+//            window.open(APP.url('fotos/carne/descargarFotos/' + $vue.carrera.codigo), '_blank');
+        },
+        carrerasByCarrera(filtroModalidad) {
+            let $vue = this;
 
+            axios.get('/comun/buscar/allCarreraByModalidad/' + filtroModalidad)
+                    .then(response => {
+                        if (response.data.success) {
+//                            $vue.carrera = null;
+                            $vue.carreras = response.data.data;
+                            console.dir($vue.carreras);
+                        }
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
         },
         obtenerInfo() {
             let $vue = this;
@@ -28,12 +49,14 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.info = response.data;
-                        if ($vue.info.estado == 'ACT') {
-                            $vue.bloq = true;
+                        console.log("INFOOO")
+                        console.dir($vue.info)
+//                        if ($vue.info.estado === 'ACT') {
+//                            $vue.bloq = true;
                             setTimeout($vue.obtenerInfo, 3000);
-                        } else {
-                            $vue.bloq = false;
-                        }
+//                        } else {
+//                            $vue.bloq = false;
+//                        }
 
                     } else {
                         notify(response.message, "error");

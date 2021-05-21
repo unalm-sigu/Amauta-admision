@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,8 +44,8 @@ public class FotoCarneServiceImp implements FotoCarneService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void descargarFotos(DataSessionPivot ds, HttpServletResponse response) {
-        this.activar(ds);
+    public void descargarFotos(DataSessionPivot ds, String carrera, HttpServletResponse response) {
+        this.activar(ds, carrera);
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
@@ -71,7 +72,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 logger.debug("error 1");
             }
 
-            String folder = GlobalConstantine.TMP_DIR + "fotosCarne/";
+            String folder = "d:\\tmp\\" + "fotosCarne/";
 
             File dir = new File(folder);
 
@@ -87,14 +88,15 @@ public class FotoCarneServiceImp implements FotoCarneService {
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
                 File file = new File(folder + name);
-                if (matriculaResumen.getAlumno().getPersona().getRutaFoto() == null) {
+                if (matriculaResumen.getAlumno().getPersona().getFoto() == null) {
                     continue;
                 }
                 URL url = null;
                 try {
 
-                    url = new URL(matriculaResumen.getAlumno().getPersona().getRutaFoto());
+                    url = new URL(matriculaResumen.getAlumno().getPersona().getFoto());
                 } catch (Exception e) {
+                    e.printStackTrace();
                     logger.debug("error 2");
                     continue;
                 }
@@ -134,8 +136,10 @@ public class FotoCarneServiceImp implements FotoCarneService {
             in.close();
             comprimirArchivo(response, folder);
         } catch (MalformedURLException ex) {
+            ex.printStackTrace();
             logger.debug("error 3 {}", ex.toString());
         } catch (IOException ex) {
+             ex.printStackTrace();
             logger.debug("error 3 {}", ex.toString());
         }
     }
@@ -202,17 +206,16 @@ public class FotoCarneServiceImp implements FotoCarneService {
         return component;
     }
 
-    @Override
-    public FotosCarneComponent activar(DataSessionPivot ds) {
+    public FotosCarneComponent activar(DataSessionPivot ds, String carrera) {
         if (component.getEstado().equals("INA")) {
-            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allMatriculadosByCiclo(ds.getCicloAcademico());
+            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allMatriculadosByCicloAndCarrera(ds.getCicloAcademico(), carrera);
             component.setCantidadTotal(matriculaResumens.size());
             component.setMatriculaResumens(matriculaResumens);
             component.setAvance(0);
             component.setEstado("ACT");
             return component;
         }
-   
+
         return component;
     }
 

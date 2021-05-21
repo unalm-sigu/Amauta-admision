@@ -192,4 +192,9 @@ public class BuscarServiceImp implements BuscarService {
         return personaDAO.allByNombre(nombre);
     }
 
+    @Override
+    public List<Carrera> allCarrerasByModalidad(String modalidad) {
+        return carreraDAO.allCarrerasByModalidad(modalidad);
+    }
+
 }
