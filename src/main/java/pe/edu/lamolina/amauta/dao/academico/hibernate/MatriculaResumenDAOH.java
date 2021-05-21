@@ -890,6 +890,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .filter("car.codigo", carrera);
 
         return all(sql);
+    }
+
+    @Override
     public Long countMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
         Octavia sqlSub = new Octavia()
                 .from(AlumnoConsejero.class, "ac")
