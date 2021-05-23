@@ -86,7 +86,6 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_INV;
 
 @Service
 @Transactional(readOnly = true)
