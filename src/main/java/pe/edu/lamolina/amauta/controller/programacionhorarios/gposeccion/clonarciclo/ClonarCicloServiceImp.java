@@ -685,18 +685,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     }
 
     private void validarClonacion(CicloAcademico cicloAnalisis) {
-        EventoAcademicoEnum eventoEnum = null;//cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-        
-        if (cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV) {
-            if (cicloAnalisis.getNumeroCiclo().equalsIgnoreCase("1.5")) {
-                eventoEnum = CLASES_INV;
-            } else {
-                eventoEnum = CLASES_VER;
-            }
-        } else {
-            eventoEnum = CLASES_PRE;
-        }
-
+        EventoAcademicoEnum eventoEnum = cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+     
         EventoCicloAcademico eventoClases1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);
         Assert.isNotNull(eventoClases1, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
@@ -875,18 +865,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     }
 
     private EventoCicloAcademico getEventoDictadoClases(CicloAcademico cicloAcademico) {
-        EventoAcademicoEnum eventoClasesEnum = null;//cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-        if (cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV) {
-            if (cicloAcademico.getNumeroCiclo().equalsIgnoreCase("1.5")) {
-                eventoClasesEnum = CLASES_INV;
-            } else {
-                eventoClasesEnum = CLASES_VER;
-            }
-        } else {
-            eventoClasesEnum = CLASES_PRE;
-        }
-        
-        
+        EventoAcademicoEnum eventoClasesEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
         
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoClasesEnum);
         return eventoCiclo;
