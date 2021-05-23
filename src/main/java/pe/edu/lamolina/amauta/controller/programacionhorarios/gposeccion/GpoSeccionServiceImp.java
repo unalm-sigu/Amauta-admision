@@ -168,6 +168,9 @@ import pe.edu.lamolina.amauta.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.amauta.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_INV;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 
 @Service
 @Transactional(readOnly = true)
@@ -2982,7 +2985,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             System.out.println("return evento-epg");
             return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, CLASES_EPG);
         }
-        EventoAcademicoEnum eventoClasesEnum = ciclo.isTipoRegular() ? CLASES_PRE : CLASES_VER;
+//        EventoAcademicoEnum eventoClasesEnum = ciclo.isTipoRegular() ? CLASES_PRE : CLASES_VER;
+        EventoAcademicoEnum eventoClasesEnum = null;//cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+            if (ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
+                eventoClasesEnum = CLASES_INV;
+            } else {
+                eventoClasesEnum = CLASES_VER;
+            }
+        } else {
+            eventoClasesEnum = CLASES_PRE;
+        }
+
         System.out.println("ciclo={id:" + ciclo.getId() + ", codigo:" + ciclo.getCodigo() + ", tipo:" + ciclo.getTipo() + "}");
         System.out.println("return evento-" + eventoClasesEnum.name());
         return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, eventoClasesEnum);
