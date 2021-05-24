@@ -819,7 +819,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Boolean cumpleCursosRequisito) {
 
         Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
-        boolean cumpleCreditos = creditosAprobados > creditosAprobadosRequisito;
+        boolean cumpleCreditos = creditosAprobados >= creditosAprobadosRequisito;
         if (!cumpleCreditos) {
             if (cursoCurri.getCreditosRequisitosOr() && cumpleCursosRequisito) {
                 cursoCurriAlu.setEstadoEnum(HAB);
