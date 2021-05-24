@@ -1224,7 +1224,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             Tramite tramite = tramiteBachiller.getTramite();
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setEstadoTramite(estadoTramite);
+            tramite.setFechaRespuesta(new Date());
+            tramite.setUserRespuesta(ds.getUsuario());
+            tramite.setFinalizado(Boolean.TRUE);
             tramiteDAO.update(tramite);
 
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
@@ -1327,7 +1329,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             Tramite tramite = tramiteTitulo.getTramite();
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setEstadoTramite(estadoTramite);
+            tramite.setFechaRespuesta(new Date());
+            tramite.setUserRespuesta(ds.getUsuario());
+            tramite.setFinalizado(Boolean.TRUE);
             tramiteDAO.update(tramite);
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
                 Alumno alumno = tramiteTitulo.getTramite().getAlumno();
