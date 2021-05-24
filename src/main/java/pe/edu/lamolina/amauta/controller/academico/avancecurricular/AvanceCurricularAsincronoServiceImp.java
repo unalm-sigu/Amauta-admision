@@ -1028,8 +1028,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-            if (evaluado.getCurso().getCodigo().equals("IA4009")) {
-                System.out.print("IA4009");
+            if (evaluado.getCurso().getCodigo().equals("IA5000")) {
+                System.out.print("IA5000");
             }
             Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
@@ -1089,8 +1089,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                             if (cursoRequisitoCaducoEquiva != null && !estadosAprobados.contains(cursoRequisitoCaducoEquiva.getEstadoEnum())) {
                                 requisitosObigatorios = false;
                             } else {
+                                requisitosObigatorios = true;
                                 break;
                             }
+                        }
+                        if (!requisitosObigatorios) {
+                            break;
                         }
                     }
                 } else {
