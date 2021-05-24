@@ -2952,8 +2952,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int factorHoras = 0;
         if (ciclo.getTipoEnum() == TipoCicloEnum.REG) {
             factorHoras = 1;
-        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && !ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
             factorHoras = 3;
+        }else if(ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")){
+            factorHoras = 4;
         }
 
         int horasTeoria = 0;
