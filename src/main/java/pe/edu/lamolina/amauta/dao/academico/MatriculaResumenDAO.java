@@ -100,9 +100,11 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     int saveList(List<MatriculaResumen> matriculables);
 
-    public List<MatriculaResumen> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
+    List<MatriculaResumen> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
 
-    public MatriculaResumen findByAlumnosCiclo(List<Alumno> alumnoBD, List<CicloAcademico> cicloAcademicos);
+    MatriculaResumen findByAlumnosCiclo(List<Alumno> alumnoBD, List<CicloAcademico> cicloAcademicos);
+
+    List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, String carrera);
 
     public Long countMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera);
 

@@ -61,4 +61,6 @@ public interface BuscarService {
 
     List<Persona> allPersonaByNombre(String nombre);
 
+    List<Carrera> allCarrerasByModalidad(String modalidad);
+
 }

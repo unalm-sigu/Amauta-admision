@@ -239,7 +239,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             factorHoras = 3;
         }
 
-        EventoCicloAcademico eventoDictadoVeranoPregrado = this.getEventoDictadoClases(cicloDestino);
+        EventoCicloAcademico eventoDictadoVeranoInviernoPregrado = this.getEventoDictadoClases(cicloDestino);
         EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, CLASES_EPG);
         EventoCicloAcademico eventoDictadoClases;
 
@@ -248,7 +248,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         TipoCursoCurricula tipoCursoGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipoCursoObligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
 
-        List<HorarioAula> horarariosPregrado = horarioAulaDAO.allByFechas(eventoDictadoVeranoPregrado.getFechaInicio(), eventoDictadoVeranoPregrado.getFechaFin());
+        List<HorarioAula> horarariosPregrado = horarioAulaDAO.allByFechas(eventoDictadoVeranoInviernoPregrado.getFechaInicio(), eventoDictadoVeranoInviernoPregrado.getFechaFin());
         Map<String, List<HorarioAula>> mapHorarioAulaPre = TypesUtil.convertListToMapList("key", horarariosPregrado);
         List<HorarioAula> horarariosPosgrado = new ArrayList();
         if (eventoDictadoPosgrado != null) {
@@ -270,7 +270,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
             esCursoPosgrado = gpoSeccOrigen.getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado();
             esCursoPregrado = !esCursoPosgrado;
-            eventoDictadoClases = eventoDictadoVeranoPregrado;
+            eventoDictadoClases = eventoDictadoVeranoInviernoPregrado;
             if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && esCursoPosgrado) {
                 eventoDictadoClases = eventoDictadoPosgrado;
             }
@@ -685,7 +685,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     private void validarClonacion(CicloAcademico cicloAnalisis) {
         EventoAcademicoEnum eventoEnum = cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-
+     
         EventoCicloAcademico eventoClases1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);
         Assert.isNotNull(eventoClases1, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
@@ -865,6 +865,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     private EventoCicloAcademico getEventoDictadoClases(CicloAcademico cicloAcademico) {
         EventoAcademicoEnum eventoClasesEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoClasesEnum);
         return eventoCiclo;
     }

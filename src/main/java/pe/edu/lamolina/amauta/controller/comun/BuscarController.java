@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -45,6 +46,7 @@ import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import pe.edu.lamolina.model.general.Persona;
 
 @Controller
@@ -446,6 +448,40 @@ public class BuscarController {
 
                 json.put("id", carrera.getId());
                 json.put("nombre", carrera.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarreraByModalidad/{modalidad}")
+    public JsonResponse allCarreraByModalidad(@PathVariable("modalidad") String modalidad, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Carrera> carreras = buscarService.allCarrerasByModalidad(modalidad);
+
+            for (Carrera carrera : carreras) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", carrera.getId());
+                json.put("codigo", carrera.getCodigo());
+                if (carrera.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                    json.put("nombre", (carrera.getTipoEnum().equals(TipoCarreraEnum.MAE) ? "Maestria en " : "Doctorado en ") + carrera.getNombre());
+                } else {
+                    json.put("nombre", carrera.getNombre());
+                }
 
                 jsonList.add(json);
             }
