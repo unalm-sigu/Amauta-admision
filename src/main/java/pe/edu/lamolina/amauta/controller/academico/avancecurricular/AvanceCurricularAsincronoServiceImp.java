@@ -267,14 +267,23 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         this.printLogger("Tope cred electivos = " + resumenPlanELC.getCreditos(), showLogger);
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurriculaNew) {
 
+            if (aluCursoCurricula.getEstadoRegistroEnum() == INA) {
+                continue;
+            }
+
+            if (aluCursoCurricula.getVecesCursado() == 0) {
+                String key = aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId();
+                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
+                if (cat != null) {
+                    aluCursoCurricula.setVecesCursado(cat.getVecesCursadoTransient());
+                }
+            }
+
             TipoCursoCurriculaEnum tipo = aluCursoCurricula.getTipoCursoCurricula().getCodigoEnum();
             this.printLogger("Curso=" + aluCursoCurricula.getCurso().getCodigo()
                     + " creditos=" + aluCursoCurricula.getCreditos()
                     + " estado=" + aluCursoCurricula.getEstado()
                     + " tipo=" + tipo.name(), showLogger);
-            if (aluCursoCurricula.getEstadoRegistroEnum() == INA) {
-                continue;
-            }
 
             if (Arrays.asList(APR, EQUIV, CONV).contains(aluCursoCurricula.getEstadoEnum())) {
                 TipoCursoCurriculaEnum tipo2 = TipoCursoCurriculaEnum.valueOf(tipo.name());
@@ -655,7 +664,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds, showLogger);
         this.printLogger("cursosSimultaneosAlu.size.2=" + cursosSimultaneosAlu.size(), showLogger);
         alumnoCursosCurriculaNew.addAll(alumnoCursosElectivosNew);
-        this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, mapCursosVecesLlevado, showLogger);
+        this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
             if (!alumnoCursoCurricula.isValidado() && alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() != TipoCursoCurriculaEnum.CPRO) {
@@ -685,21 +694,13 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void saveAlumnoCursoCurricula(
             List<AlumnoCursoCurricula> alumnoCursosCurricula,
-            Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula,
-            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado, boolean showLogger) {
+            Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula, boolean showLogger) {
 
         Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("cursoCurricula.id", alumnoCursosCurricula);
 
         for (AlumnoCursoCurricula aluCursoCurriculaNew : alumnoCursosCurricula) {
             Curso curso = aluCursoCurriculaNew.getCurso();
             this.printLogger("\t.save.curso:" + curso.getCodigo() + " estado=" + aluCursoCurriculaNew.getEstado(), showLogger);
-            if (aluCursoCurriculaNew.getVecesCursado() == 0) {
-                String key = aluCursoCurriculaNew.getAlumno().getId() + "-" + aluCursoCurriculaNew.getCurso().getId();
-                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
-                if (cat != null) {
-                    aluCursoCurriculaNew.setVecesCursado(cat.getVecesCursadoTransient());
-                }
-            }
 
             if (aluCursoCurriculaNew.isCaduco()) {
                 aluCursoCurriculaNew.setEstadoRegistroEnum(INA);
