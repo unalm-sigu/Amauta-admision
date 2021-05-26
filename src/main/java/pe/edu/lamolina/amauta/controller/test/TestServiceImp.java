@@ -190,7 +190,7 @@ public class TestServiceImp implements TestService {
 //            List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allMatriculadosByCiclo(cicloAcademico);
 //            List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allMatriculadosByCiclo(cicloAcademico);
 //            List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-//            List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+//            List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnosAceptados(alumnos);
 //
 //            Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
 //            Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
@@ -337,7 +337,7 @@ public class TestServiceImp implements TestService {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
-            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
             Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
             for (MatriculaResumen mResumen : matriculasResumen) {
@@ -399,7 +399,7 @@ public class TestServiceImp implements TestService {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
-            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
             Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
             for (MatriculaResumen mResumen : matriculasResumen) {
@@ -489,7 +489,7 @@ public class TestServiceImp implements TestService {
         List<Alumno> alumnosAllInfo = alumnoDAO.allInfoByAlumnos(alumnos);
         Map<Long, Alumno> mapAlumno = TypesUtil.convertListToMap("id", alumnosAllInfo);
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
         for (MatriculaResumen mResumen : matriculasResumen) {
@@ -547,7 +547,7 @@ public class TestServiceImp implements TestService {
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEstudioEnum);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
-            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
             egresadosAcumulados.addAll(egresados);
         }
 

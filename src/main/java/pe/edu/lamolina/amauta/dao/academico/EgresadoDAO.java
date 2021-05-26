@@ -28,12 +28,14 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     List<Egresado> allByControlMeritoFacultad(DynatableFilter filter, ControlMeritoEgresado controlBD);
 
-    List<Egresado> allByAlumnos(List<Alumno> alumnos);
+    List<Egresado> allByAlumnosAceptados(List<Alumno> alumnos);
 
     List<Egresado> allByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
 
     EgresadoResumen findResumenEgresado(List<Carrera> carreras, String todo);
 
     List<Egresado> allForPdfByCicloAcademico(CicloAcademico cicloAcademico);
+
+    public List<Egresado> allByAlumnos(List<Alumno> alumnosPregrado);
 
 }
