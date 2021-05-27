@@ -819,7 +819,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Boolean cumpleCursosRequisito) {
 
         Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
-        boolean cumpleCreditos = creditosAprobados > creditosAprobadosRequisito;
+        boolean cumpleCreditos = creditosAprobados >= creditosAprobadosRequisito;
         if (!cumpleCreditos) {
             if (cursoCurri.getCreditosRequisitosOr() && cumpleCursosRequisito) {
                 cursoCurriAlu.setEstadoEnum(HAB);
@@ -1028,8 +1028,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-            if (evaluado.getCurso().getCodigo().equals("AL3014")) {
-                System.out.print("AL3014");
+            if (evaluado.getCurso().getCodigo().equals("IA5000")) {
+                System.out.print("IA5000");
             }
             Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
@@ -1065,11 +1065,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             AlumnoCursoCurricula evaluado) {
 
-        boolean requisitosCumplidos = true;
-        boolean requisitosObigatorios = true;
-
         List<RequisitoCursoCurricula> cursosObligatorios = requisitos.stream().filter(x -> x.getRequisitosObligatorio()).collect(Collectors.toList());
         List<RequisitoCursoCurricula> cursosNoObligatorios = requisitos.stream().filter(x -> !x.getRequisitosObligatorio()).collect(Collectors.toList());
+
+        boolean requisitosNoObligatorios = cursosNoObligatorios.isEmpty();
+        boolean requisitosObigatorios = false;
 //
         if (!cursosObligatorios.isEmpty()) {
             for (RequisitoCursoCurricula cursoObligatorio : cursosObligatorios) {
@@ -1084,12 +1084,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                                 requisitosObigatorios = false;
                                 continue;
                             }
-                            AlumnoCursoCurricula cursoRequisitoCaducoEquiva = mapAluCursoCurriculaByIdCursoCurricula.get(cursoEquivalente.getCursoCaduco().getId());
+                            CursoCurricula cursoCurricula = cursoEquivalente.getCursoCaduco() == null ? cursoEquivalente.getCursoCurricula() : cursoEquivalente.getCursoCaduco();
+                            AlumnoCursoCurricula cursoRequisitoCaducoEquiva = mapAluCursoCurriculaByIdCursoCurricula.get(cursoCurricula.getId());
                             if (cursoRequisitoCaducoEquiva != null && !estadosAprobados.contains(cursoRequisitoCaducoEquiva.getEstadoEnum())) {
                                 requisitosObigatorios = false;
+                            } else {
+                                requisitosObigatorios = true;
+                                break;
                             }
                         }
+                        if (!requisitosObigatorios) {
+                            break;
+                        }
                     }
+                } else {
+                    requisitosObigatorios = true;
                 }
             }
         }
@@ -1098,16 +1107,16 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             AlumnoCursoCurricula cursoRequisito = mapAluCursoCurriculaByIdCursoCurricula.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null || !estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
                 if (!evaluado.getCursoCurricula().getRequisitosOr()) {
-                    requisitosCumplidos = false;
+                    requisitosNoObligatorios = false;
                     break;
                 }
             } else {
-                requisitosCumplidos = requisitosCumplidos || true;
+                requisitosNoObligatorios = requisitosNoObligatorios || true;
             }
 
         }
 
-        return requisitosCumplidos && requisitosObigatorios;
+        return requisitosNoObligatorios && requisitosObigatorios;
     }
 
     private void validarCursosSimultaneo(

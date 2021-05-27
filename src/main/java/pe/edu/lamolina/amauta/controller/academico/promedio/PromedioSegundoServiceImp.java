@@ -50,7 +50,7 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
             List<CicloAcademico> ciclos,
             DataSessionPivot ds) {
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);

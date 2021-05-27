@@ -273,7 +273,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
                 AlumnoCursoCurricula alumnoCurs = mapAlumnoCurso.get(requisito.getCursoRequisito().getId());
                 if (alumnoCurs == null) {
-                    List<CursoEquivalente> cursosEquivalentes = mapCursoEquivalente.get(requisito.getCursoRequisito().getId());
+                    List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapCursoEquivalente.get(requisito.getCursoRequisito().getId()));
                     for (CursoEquivalente cursosEquivalente : cursosEquivalentes) {
                         if (cursosEquivalente.getCursoCaduco() == null) {
                             continue;

@@ -74,7 +74,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     public List<MatriculaResumen> allMatriculadosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .join("alu.persona")
                 .filter("estado", MAT)
@@ -876,6 +876,20 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         return find(sql);
 
+    }
+
+    @Override
+    public List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, String carrera) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona")
+                .filter("estado", MAT)
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("car.codigo", carrera);
+
+        return all(sql);
     }
 
     @Override

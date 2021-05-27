@@ -215,6 +215,7 @@ public class ResolucionExistentesController {
                     "id",
                     "codigo",
                     "persona.nombreCompleto",
+                    "persona.apellidosNombres",
                     "persona.numeroDocIdentidad",
                     "persona.tipoDocumento.*",
                     "carrera.*",
