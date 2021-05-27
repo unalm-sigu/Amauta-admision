@@ -271,14 +271,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 continue;
             }
 
-            if (aluCursoCurricula.getVecesCursado() == 0) {
-                String key = aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId();
-                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
-                if (cat != null) {
-                    aluCursoCurricula.setVecesCursado(cat.getVecesCursadoTransient());
-                }
-            }
-
             TipoCursoCurriculaEnum tipo = aluCursoCurricula.getTipoCursoCurricula().getCodigoEnum();
             this.printLogger("Curso=" + aluCursoCurricula.getCurso().getCodigo()
                     + " creditos=" + aluCursoCurricula.getCreditos()
@@ -664,7 +656,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds, showLogger);
         this.printLogger("cursosSimultaneosAlu.size.2=" + cursosSimultaneosAlu.size(), showLogger);
         alumnoCursosCurriculaNew.addAll(alumnoCursosElectivosNew);
-        this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger);
+        this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger, mapCursosVecesLlevado);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
             if (!alumnoCursoCurricula.isValidado() && alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() != TipoCursoCurriculaEnum.CPRO) {
@@ -694,7 +686,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void saveAlumnoCursoCurricula(
             List<AlumnoCursoCurricula> alumnoCursosCurricula,
-            Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula, boolean showLogger) {
+            Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula, boolean showLogger, Map<String, AlumnoCicloCurso> mapCursosVecesLlevado
+    ) {
 
         Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("cursoCurricula.id", alumnoCursosCurricula);
 
@@ -706,6 +699,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 aluCursoCurriculaNew.setEstadoRegistroEnum(INA);
             }
 
+            //            if (aluCursoCurricula.getVecesCursado() == 0) {
+            System.out.print(aluCursoCurriculaNew.getCurso().getNombre());
+            this.printLogger(":::: Curso ::::" + aluCursoCurriculaNew.getCurso().getNombre(), showLogger);
+            String key = aluCursoCurriculaNew.getAlumno().getId() + "-" + aluCursoCurriculaNew.getCurso().getId();
+            AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
+            if (cat != null) {
+                aluCursoCurriculaNew.setVecesCursado(cat.getVecesCursado());
+            }
+//            }
             // VERIFICAR SI SE APROBÓ EL CURSO CADUCO
             Boolean aproboCaduco = false;
 

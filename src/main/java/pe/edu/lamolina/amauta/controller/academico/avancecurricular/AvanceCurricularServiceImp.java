@@ -387,12 +387,12 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumnoBD);
 
-        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumnoBD);
-        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobados);
+        List<AlumnoCicloCurso> cursosAprobadosAll = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumnoBD);
+        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobadosAll);
         List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumno(alumnoBD);
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (mapCursosAprobados.get(alumnoCicloCurso.getCurso().getId()) == null) {
-                cursosAprobados.add(alumnoCicloCurso);
+                cursosAprobadosAll.add(alumnoCicloCurso);
                 mapCursosAprobados.put(alumnoCicloCurso.getCurso().getId(), alumnoCicloCurso);
             }
         }
@@ -409,7 +409,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
 
-        for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
+        for (AlumnoCicloCurso cursoAprobado : cursosAprobadosAll) {
             cursoAprobado.setVecesCursadoTransient(0);
             AlumnoCicloCurso cursoVeces = mapCursosVecesLlevado.get(cursoAprobado.getAlumnoCursoKey());
             if (cursoVeces == null) {
@@ -429,7 +429,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 mapCursosEquivalentes,
                 mapCursosVecesLlevado,
                 cursosMatriculados,
-                cursosAprobados,
+                cursosAprobadosAll,
                 alumnoCursoOld,
                 cursoOpcionalCurriculas,
                 tipoCursoCurriculas,
