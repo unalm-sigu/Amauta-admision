@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -68,7 +69,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")
-                .leftJoin("modalidadEstudio", "departamentoAcademico da","da.facultad")
+                .leftJoin("modalidadEstudio", "departamentoAcademico da", "da.facultad")
                 .filter("per.id", persona);
 
         return all(sql);
@@ -166,6 +167,18 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .join("persona per", "departamentoAcademico dpto")
                 .filter("dpto.id", idDpto)
                 .filter("doc.estado", estado);
+        return all(sql);
+    }
+
+    @Override
+    public List<Docente> allByDepartamentosAcademicoEstado(List<DepartamentoAcademico> departamentos, EnteAcademicoEstadoEnum estado) {
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico dpto")
+                .leftJoin("dpto.facultad fa")
+                .in("dpto.id", departamentos)
+                .filter("doc.estado", estado)
+                .orderBy("fa.id","dpto.id","per.paterno");
         return all(sql);
     }
 

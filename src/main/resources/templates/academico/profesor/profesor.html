@@ -9,8 +9,6 @@
 
         <header class="header b-b padder-lg" id="mainvue">
 
-
-
             <h2>Docentes | Ciclo <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
 
             <div class="btn-group pull-right">
@@ -19,14 +17,17 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
-                    <li><a type="button" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
-                    <!-- -->
+                    <li><a type="button" href="#" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
+                    <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademica" >Reporte Carga Académica</a></li>
                 </ul>
             </div>
 
-            <modal-vik ref="modalReporte"
-                       v-bind="reporteModal"
-                       v-bind:okaction="downloadReporte">
+            <modal-simple ref="modalReporte"
+                          v-bind="reporteModal"
+                          v-bind:okaction="downloadReporte">
+                <div slot="header">
+                    Reporte Entrega Materiales
+                </div>
                 <div slot="body">
                     <div class="form-group m-b-xs">
                         <label class="bold">Facultad</label>
@@ -44,7 +45,43 @@
                                      v-on:input="verAnexoSuperior" -->
                     </div>
                 </div>
-            </modal-vik>
+            </modal-simple>
+
+            <modal-simple ref="modalReporteCargaAcademica"
+                          v-bind="reporteCargaAcademicaModal"
+                          v-bind:okaction="downloadReporteCargaAcademica">
+                <div slot="header">
+                    Reporte Carga Acádemica
+                </div>
+                <div slot="body">
+                    <div class="form-group m-b-xs">
+                        <label class="bold">Departamento Acádemico</label>
+
+                        <multiselect v-model='departamento'
+                                     label='nombre'
+                                     placeholder="Todos los departamentos académicos"
+                                     deselect-label=""
+                                     select-label=""
+                                     track-by='id'
+                                     v-bind:allow-empty="true"
+                                     v-bind:options='departamentos'>
+                        </multiselect>
+                    </div>
+                    <div class="form-group m-b-xs">
+                        <label class="bold"></label>
+
+                        <multiselect v-model='tipoGrado'
+                                     label='nombre'
+                                     placeholder="Pregrado y posgrado"
+                                     deselect-label=""
+                                     select-label=""
+                                     track-by='id'
+                                     v-bind:allow-empty="true"
+                                     v-bind:options='grados'>
+                        </multiselect>
+                    </div>
+                </div>
+            </modal-simple>
 
         </header>
         <section class="wrapper-lg">
@@ -97,10 +134,12 @@
     <div layout:fragment="js">
         <script th:inline="javascript">
             var jFacultades = /*[[${jFacultades}]]*/ {};
+            var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
         </script>
-        
+
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
-        
+        <div th:substituteby="_modules/vue-modal_v1"></div>
+
         <script th:src="@{/app/academico/profesor/profesor.js}" charset="utf-8"></script>
     </div>
 
