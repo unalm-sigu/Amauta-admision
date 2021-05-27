@@ -269,8 +269,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (CursoEquivalente curso : grupo.getCursoEquivalente()) {
             
             CursoCurricula curriculaCaduca = map.get(curso.getCursoEquivalente().getId());
-            curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
-            curso.setCursoCurricula(grupo.getCursoCurricula());
+            curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId())); // curso caducado
+            curso.setCursoCurricula(grupo.getCursoCurricula()); // curso nuevo
             curso.setGrupo(maxNumeroGrupo);
             curso.setEstado(EstadoEnum.ACT.name());
             curso.setFechaRegistro(new Date());
@@ -289,8 +289,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     requisitoCursoCurriculaDAO.update(requisitoCursoCurricula);
                     
                     RequisitoCursoCurricula requisitoCursoCurriculaNew = new RequisitoCursoCurricula();
-                    requisitoCursoCurriculaNew.setCursoCurricula(grupo.getCursoCurricula());
-                    requisitoCursoCurriculaNew.setCursoRequisito(requisitoCursoCurricula.getCursoRequisito());
+                    requisitoCursoCurriculaNew.setCursoCurricula(grupo.getCursoCurricula());// curso nuevo
+                    requisitoCursoCurriculaNew.setCursoRequisito(requisitoCursoCurricula.getCursoRequisito()); 
                     requisitoCursoCurriculaNew.setEstado(EstadoEnum.ACT.name());
                     requisitoCursoCurriculaNew.setFechaRegistro(new Date());
                     requisitoCursoCurriculaNew.setUserRegistro(ds.getUsuario());
