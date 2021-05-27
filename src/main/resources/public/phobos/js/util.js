@@ -1027,3 +1027,30 @@ function barProgress(progressLineObject, direction) {
 // Anular Warnings de Librerias
 Vue.config.productionTip = false;
 Vue.config.silent = true;
+
+UTIL_BLOB = {
+    save(response) {
+        try {
+
+            let nombre = response
+                    .headers["content-disposition"]
+                    .replace("attachment; filename=", "")
+                    .replace(/"/g, '');
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nombre;
+            document.body.appendChild(link);
+            link.click();
+
+        } catch (e) {
+            notify(Messages.errorComunicacion, 'error')
+
+        }
+    }
+}
+
+const axios_blob = axios.create({
+    responseType: 'blob', // important
+});

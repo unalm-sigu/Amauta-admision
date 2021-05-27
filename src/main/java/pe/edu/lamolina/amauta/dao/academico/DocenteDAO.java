@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 
 public interface DocenteDAO extends EasyDAO<Docente> {
@@ -35,5 +36,7 @@ public interface DocenteDAO extends EasyDAO<Docente> {
     List<Docente> allByName(String nombre);
 
     List<Docente> allByNombreDepartamentos(String nombre, List<DepartamentoAcademico> departamentos);
+
+    List<Docente> allByDepartamentosAcademicoEstado(List<DepartamentoAcademico> departamentos, EnteAcademicoEstadoEnum estado);
 
 }
