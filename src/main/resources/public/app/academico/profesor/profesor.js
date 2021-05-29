@@ -135,62 +135,63 @@ $(function () {
 });
 
 
-Vue.component("multiselect", window.VueMultiselect.default);
-new Vue({
-    el: '#mainvue',
-    data: {
-        urlfilter: APP.url("tramite/aula/list"),
-        facultades: JSON.parse(jFacultades),
-        departamentos: JSON.parse(jDepartamentos),
-        facultad: null,
-        departamento: null,
-        tipoGrado: null,
-        grados: [{id: 'PRE', nombre: 'Solo pregrado'}, {id: 'EPG', nombre: 'Solo posgrado'}]
-    },
-    mounted: function () {
-        let $vue = this;
-    },
-    methods: {
-        openModalReporte: function () {
-            let vue = this;
-            vue.$refs.modalReporte.open();
+    Vue.component("multiselect", window.VueMultiselect.default);
+    new Vue({
+        el: '#mainvue',
+        data: {
+            urlfilter: APP.url("tramite/aula/list"),
+            facultades: JSON.parse(jFacultades),
+            departamentos: JSON.parse(jDepartamentos),
+            facultad: null,
+            departamento: null,
+            tipoGrado: null,
+            grados: [{id: 'PRE', nombre: 'Solo pregrado'}, {id: 'EPG', nombre: 'Solo posgrado'}]
         },
-        downloadReporte() {
-            let vue = this;
-            let data = {};
-            if (vue.facultad != null) {
-                data = {params: {facultad: vue.facultad.id}};
+        mounted: function () {
+            let $vue = this;
+        },
+        methods: {
+            openModalReporte: function () {
+                let vue = this;
+                vue.$refs.modalReporte.open();
+            },
+            downloadReporte() {
+                let vue = this;
+                let data = {};
+                if (vue.facultad != null) {
+                    data = {params: {facultad: vue.facultad.id}};
+                }
+
+                axios_blob.get("/academico/profesor/reporteEntregaMateriales", data)
+                        .then(response => {
+                            UTIL_BLOB.save(response);
+                            vue.$refs.modalReporte.close();
+                        }, () => {
+                            vue.$refs.modalReporte.stop();
+                            notify(Messages.errorComunicacion, 'error')
+                        });
+            },
+            openModalReporteCargaAcademica() {
+                let vue = this;
+                vue.$refs.modalReporteCargaAcademica.open();
+            },
+            downloadReporteCargaAcademica() {
+
+                let vue = this;
+                let data = {params: {
+                        departamento: vue.departamento ? vue.departamento.id : '',
+                        tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                        facultad: vue.facultad ? vue.facultad.id : '',
+                    }};
+
+                axios_blob.get("/academico/profesor/reporteCargaAcademica", data)
+                        .then(response => {
+                            UTIL_BLOB.save(response);
+                            vue.$refs.modalReporteCargaAcademica.close();
+                        }, () => {
+                            vue.$refs.modalReporteCargaAcademica.stop();
+                            notify(Messages.errorComunicacion, 'error')
+                        });
             }
-
-            axios_blob.get("/academico/profesor/reporteEntregaMateriales", data)
-                    .then(response => {
-                        UTIL_BLOB.save(response);
-                        vue.$refs.modalReporte.close();
-                    }, () => {
-                        vue.$refs.modalReporte.stop();
-                        notify(Messages.errorComunicacion, 'error')
-                    });
-        },
-        openModalReporteCargaAcademica() {
-            let vue = this;
-            vue.$refs.modalReporteCargaAcademica.open();
-        },
-        downloadReporteCargaAcademica() {
-
-            let vue = this;
-            let data = {params: {
-                    departamento: vue.departamento ? vue.departamento.id : '',
-                    tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
-                }};
-
-            axios_blob.get("/academico/profesor/reporteCargaAcademica", data)
-                    .then(response => {
-                        UTIL_BLOB.save(response);
-                        vue.$refs.modalReporteCargaAcademica.close();
-                    }, () => {
-                        vue.$refs.modalReporteCargaAcademica.stop();
-                        notify(Messages.errorComunicacion, 'error')
-                    });
         }
-    }
-});
+    });

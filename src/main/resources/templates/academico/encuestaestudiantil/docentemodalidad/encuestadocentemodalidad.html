@@ -14,7 +14,7 @@
                             <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a v-bind:href="`${url}/reporte/todos`"> Reporte general </a></li>
+                            <li><a href="#" v-on:click.prevent="reporteGeneralShow"> Reporte general </a></li>
                         </ul>
                     </div>
                     <h2 th:inline="text">Resultado de Encuestas [[${cicloAcademico.descripcion}]] </h2>
@@ -69,10 +69,8 @@
                                                 <td class="v-middle text-center">
                                                     <span>
                                                         <span class="pointer m-r-xs text-primary" v-on:click="findTemas(item)"><i class="fa fa-list-ul"></i></span>
-                                                        <!--<span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>-->
                                                         <span class="pointer text-warning" v-on:click="verReporte(item)" ><i class="fa fa-bar-chart"></i></span>
                                                     </span>
-                                                    <!--<a class="block" v-bind:href="`${url}/${item.id}/reporte`"> Reporte </a>-->
                                                     <span class="block m-t-xs" v-if="item.codigo"> {{ item.codigo }}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
@@ -87,7 +85,9 @@
 
                         </section>
                     </section>
+
                     <div th:substituteby="academico/encuestaestudiantil/docentemodalidad/encuestadocentemodalidadModal"></div>
+
                 </section>
 
             </div>
@@ -97,14 +97,11 @@
 
         <div layout:fragment="js">
             <script th:inline="javascript">
-                /*<![CDATA[*/
-                /*]]>*/
+                var jFacultades = /*[[${jFacultades}]]*/ {};
+                var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
-            
-            
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            
             <script th:src="@{/app/academico/encuestaestudiantil/docentemodalidad/encuestadocentemodalidad.js}" charset="utf-8"></script>
         </div>
 

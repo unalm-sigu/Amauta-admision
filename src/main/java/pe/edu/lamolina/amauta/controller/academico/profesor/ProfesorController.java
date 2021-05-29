@@ -609,11 +609,25 @@ public class ProfesorController {
     @RequestMapping("reporteCargaAcademica")
     public ModelAndView reporteCargaAcademica(@RequestParam(value = "departamento", required = false) Long departamentoId,
             @RequestParam(value = "tipoGrado", required = false) String tipoGrado,
+            @RequestParam(value = "facultad", required = false) Long facultadId,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+
+        if (facultadId != null) {
+
+            List<DepartamentoAcademico> departamentosXfacutad = departamentos
+                    .stream()
+                    .filter(x -> x.getFacultad().getId() == facultadId)
+                    .collect(Collectors.toList());
+            
+            if (!departamentosXfacutad.isEmpty()) {
+                departamentos = departamentosXfacutad;
+            }
+
+        }
 
         if (departamentoId != null) {
             departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
@@ -623,7 +637,7 @@ public class ProfesorController {
 
         List<DocenteSeccion> docentesSecciones = null;
         if (!StringUtils.isEmpty(tipoGrado)) {
-            docentesSecciones = service.allDocenteSeccionActivosByDocentesCicloModalidad(docentes, ds.getCicloAcademico(),ModalidadEstudioEnum.valueOf(tipoGrado));
+            docentesSecciones = service.allDocenteSeccionActivosByDocentesCicloModalidad(docentes, ds.getCicloAcademico(), ModalidadEstudioEnum.valueOf(tipoGrado));
         } else {
             docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, ds.getCicloAcademico());
         }

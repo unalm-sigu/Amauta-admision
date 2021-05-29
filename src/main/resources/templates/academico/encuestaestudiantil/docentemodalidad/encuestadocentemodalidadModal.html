@@ -1,6 +1,10 @@
-<modal-vik ref="modalTemas"
-           v-bind="modalTemas">
+<modal-simple ref="modalTemas" 
+              v-bind:showaccept="false" >
+    <div slot="header">
+        <p class="h4 text-primary">Temas</p>
+    </div>
     <div slot="body">
+
         <table class="table table-striped">
             <tr v-for="tema in puntajeDocenteModalidad">
                 <td class="v-middle col-md-8">
@@ -12,5 +16,60 @@
                 </td>
             </tr>
         </table>
+
     </div>
-</modal-vik>
+</modal-simple>
+
+
+
+
+<modal-simple ref="reporteGeneralModal" 
+              v-bind:okaction="downloadReporteTotal">
+    <div slot="header">
+        <p class="h4 text-primary">Reporte General</p>
+    </div>
+    <div slot="body">
+
+        <div class="form-group m-b-xs">
+            <label class="bold">Facultad</label>
+
+            <multiselect v-model='facultad'
+                         label='nombre'
+                         placeholder="Todas las facultades"
+                         deselect-label=""
+                         select-label=""
+                         track-by='id'
+                         v-bind:allow-empty="true"
+                         v-bind:options='facultades'>
+            </multiselect>
+        </div>
+        <div class="form-group m-b-xs">
+            <label class="bold">Departamento Acádemico</label>
+
+            <multiselect v-model='departamento'
+                         label='nombre'
+                         placeholder="Todos los departamentos académicos"
+                         deselect-label=""
+                         select-label=""
+                         track-by='id'
+                         v-bind:allow-empty="true"
+                         v-bind:options='departamentos'>
+            </multiselect>
+        </div>
+        <div class="form-group m-b-xs">
+            <label class="bold"></label>
+
+            <multiselect v-model='tipoGrado'
+                         label='nombre'
+                         placeholder="Pregrado y posgrado"
+                         deselect-label=""
+                         select-label=""
+                         v-bind:hide-selected="true"
+                         track-by='id'
+                         v-bind:allow-empty="false"
+                         v-bind:options='grados'>
+            </multiselect>
+        </div>
+
+    </div>
+</modal-simple>

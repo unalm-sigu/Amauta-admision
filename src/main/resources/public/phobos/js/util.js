@@ -1046,11 +1046,18 @@ UTIL_BLOB = {
 
         } catch (e) {
             notify(Messages.errorComunicacion, 'error')
-
         }
     }
 }
 
 const axios_blob = axios.create({
     responseType: 'blob', // important
+});
+
+
+axios_blob.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    notify(Messages.errorComunicacion, 'error');
+    return Promise.reject(error);
 });

@@ -143,7 +143,7 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         this.fillGrupos(grupoSecciones, total);
 
-        float[] columns = new float[]{4f, 1f, 2f, 1f, 1f, 1f, 2f};
+        float[] columns = new float[]{4f, 1f, 2f, 1f, 1f, 2f, 1f};
 
         if (total.grupoPregrado.size() > 0) {
             this.titleTable(document, columns, uDocumentoPdf, "Cursos de Pregrado");
@@ -306,10 +306,10 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
         uDocumentoPdf.addTitleCellTable("Curso", tableBody, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("Sección", tableBody, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("Horario", tableBody, 1, Element.ALIGN_CENTER);
-        uDocumentoPdf.addTitleCellTable("Matriculados", tableBody, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("% Carga ", tableBody, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("Créditos", tableBody, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("Periodo clases", tableBody, 1, Element.ALIGN_CENTER);
+        uDocumentoPdf.addTitleCellTable("Matriculados", tableBody, 1, Element.ALIGN_CENTER);
         document.add(tableBody);
 
     }
@@ -342,7 +342,6 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
             sj.add(tipoSeccion(seccion));
             uDocumentoPdf.addBodyCellTable(sj.toString(), tableBody, 1, Element.ALIGN_CENTER);
             uDocumentoPdf.addBodyCellTable(seccion.getHorarioTexto(), tableBody, 1, Element.ALIGN_CENTER);
-            uDocumentoPdf.addBodyCellTable(seccion.getMatriculados().toString(), tableBody, 1, Element.ALIGN_RIGHT);
 
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
 
@@ -367,6 +366,8 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 }
                 uDocumentoPdf.addBodyCellTable(sj.toString(), tableBody, 1, Element.ALIGN_CENTER);
             }
+
+            uDocumentoPdf.addBodyCellTable(seccion.getMatriculados().toString(), tableBody, 1, Element.ALIGN_RIGHT);
         }
     }
 
