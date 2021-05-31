@@ -35,7 +35,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.model.enums.TipoResponsableEnum;
 import pe.edu.lamolina.model.enums.TurnoAtencionEnum;
 import pe.edu.lamolina.model.general.Aula;

@@ -6,7 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.amauta.dao.bienestar.ReservaAulaDAO;
 
 @Repository

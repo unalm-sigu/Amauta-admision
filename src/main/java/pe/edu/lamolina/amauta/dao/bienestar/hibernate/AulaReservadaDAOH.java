@@ -5,8 +5,8 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.bienestar.AulaReservada;
-import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.tramite.AulaReservada;
+import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.amauta.dao.bienestar.AulaReservadaDAO;
 
 @Repository

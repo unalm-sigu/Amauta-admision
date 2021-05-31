@@ -59,13 +59,13 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
         Assert.isTrue(tramiteBD.getEstadoEnum() == TramiteEstadoEnum.SOL, "Este trámite ya fue aceptado por el supervisor(a)");
 
         AccionTramiteBienestar accion = accionTramiteBienestarDAO.findByTipoSubvencion(subvencion.getTipoSubvencion(), tramiteBD.getEstado(), tramiteSubvencion.getRespuesta());
-        if (tramiteSubvencion.getVoboSupervisor() == 1) {
-            subvencion.setFechaVobo(new Date());
+        if (tramiteSubvencion.getVoboSupervisor()) {
+            subvencion.setFechaVoBo(new Date());
         }
 
         subvencion.setHoras(tramiteSubvencion.getHoras());
         subvencion.setLaborRealizar(tramiteSubvencion.getLaborRealizar());
-        subvencion.setLugar(tramiteSubvencion.getLugar());
+        subvencion.setLugarLabores(tramiteSubvencion.getLugarLabores());
 
         subvencionDAO.update(subvencion);
 
