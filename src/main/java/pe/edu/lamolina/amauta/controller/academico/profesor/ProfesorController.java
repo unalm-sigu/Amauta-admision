@@ -139,7 +139,7 @@ public class ProfesorController {
         model.addAttribute("puedeActivar", puedeActivar);
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
-        ArrayNode jDepartamentos = JaneHelper.from(departamentos).array();
+        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad","id").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         return "academico/profesor/profesor";

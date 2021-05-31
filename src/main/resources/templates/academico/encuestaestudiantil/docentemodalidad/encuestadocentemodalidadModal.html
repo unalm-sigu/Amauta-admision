@@ -39,6 +39,7 @@
                          deselect-label=""
                          select-label=""
                          track-by='id'
+                         v-on:input="changeFacultad"
                          v-bind:allow-empty="true"
                          v-bind:options='facultades'>
             </multiselect>
@@ -53,7 +54,7 @@
                          select-label=""
                          track-by='id'
                          v-bind:allow-empty="true"
-                         v-bind:options='departamentos'>
+                         v-bind:options='departamentosSelectos'>
             </multiselect>
         </div>
         <div class="form-group m-b-xs">

@@ -63,7 +63,7 @@ public class EncuestaDocenteModalidadController {
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
-        ArrayNode jDepartamentos = JaneHelper.from(departamentos).array();
+        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad","id").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("cicloAcademico", ciclo);

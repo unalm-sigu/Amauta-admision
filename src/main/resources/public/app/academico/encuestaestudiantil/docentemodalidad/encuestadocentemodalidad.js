@@ -1,4 +1,4 @@
-    Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#docentemodalidadVUE',
     data: {
@@ -8,6 +8,7 @@ new Vue({
         puntajeDocenteModalidad: [],
         facultades: JSON.parse(jFacultades),
         departamentos: JSON.parse(jDepartamentos),
+        departamentosSelectos: [],
         facultad: null,
         departamento: null,
         tipoGrado: {id: 'PRE', nombre: 'Pregrado'},
@@ -46,6 +47,24 @@ new Vue({
                         notify(Messages.errorComunicacion, 'error')
                     });
 
+        },
+        changeFacultad() {
+            let $vue = this;
+
+            $vue.departamentosSelectos = [];
+            $vue.departamento = null;
+
+            if ($vue.facultad) {
+
+                $vue.departamentos.map((x, i) => {
+                    if (x.facultad.id == $vue.facultad.id) {
+                        $vue.departamentosSelectos.push(x)
+                    }
+                });
+
+                $vue.departamentosSelectos;
+
+            }
         }
     }
 });
