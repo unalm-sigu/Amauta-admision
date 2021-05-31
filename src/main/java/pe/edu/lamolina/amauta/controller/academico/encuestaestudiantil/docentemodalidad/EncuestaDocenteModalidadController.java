@@ -63,7 +63,7 @@ public class EncuestaDocenteModalidadController {
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
-        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad","id").array();
+        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("cicloAcademico", ciclo);
@@ -179,7 +179,7 @@ public class EncuestaDocenteModalidadController {
                 departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
             }
 
-            String fileName = service.reporteTodos(ds.getCicloAcademico(), modalidadEstudioEnum,departamentos);
+            String fileName = service.reporteTodos(ds.getCicloAcademico(), modalidadEstudioEnum, departamentos);
             pdfResponse(fileName, response);
 
         } catch (PhobosException e) {
@@ -201,7 +201,8 @@ public class EncuestaDocenteModalidadController {
             response.reset();
             response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + filex.getName() + "\"");
+            response.setHeader("content-disposition", "attachment; filename=\"" + filex.getName() + "\"");
 
             BufferedInputStream input = null;
             BufferedOutputStream output = null;
