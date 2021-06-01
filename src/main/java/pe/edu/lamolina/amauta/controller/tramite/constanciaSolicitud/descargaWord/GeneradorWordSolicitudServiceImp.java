@@ -234,12 +234,8 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
 
         try {
-            XWPFDocument doc = null;
-            if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
-                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\CertificadoPos.docx")));
-            } else {
-                doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
-            }
+            
+            XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
@@ -260,8 +256,6 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         } catch (IOException ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
         } catch (XmlException ex) {
-            java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidFormatException ex) {
             java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
