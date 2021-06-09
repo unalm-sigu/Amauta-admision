@@ -50,7 +50,7 @@ public class CuotaGpoHorasController {
     @RequestMapping("list")
     public DynatableResponse list(
             DynatableFilter filter,
-            @RequestParam(name = "anexo", required = false) Long idAnexo,
+            @RequestParam(name = "anexo", required = false , defaultValue = "0") Long idAnexo,
             HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
 

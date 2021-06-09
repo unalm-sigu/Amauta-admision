@@ -1,4 +1,4 @@
-<tr v-for="(reincorporacion , index) in resolucion.reincorporaciones" v-if="isReincorporacion &amp;&amp; resolucion.oficina.instanciaOficina == reincorporacion.alumno.carrera.facultad.id"> 
+<tr v-for="(reincorporacion , index) in resolucion.reincorporaciones" v-if="isReincorporacion &amp;&amp; resolucion.oficina.instanciaOficina == reincorporacion.alumno.carrera.facultad.id &amp;&amp; validFilter(filterFacultad, reincorporacion)"> 
     <td class="v-middle text-center">
         <div class="form-group">
             <div class="col-md-12">
@@ -30,15 +30,10 @@
             <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
         </div>
     </td>
-
-<!--    <td class="v-middle text-left">
-        <input class="form-control" v-if="!reincorporacion.isSeleccionado" v-model="reincorporacion.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null"/>
-    </td>-->
     <td>
         <label class="switch">
             <input type="checkbox" 
-                   v-model="reincorporacion.isSeleccionado"
-                   checked="1"
+                   v-model="reincorporacion.seleccionado"
                    v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null"/>
             <span class="slider round"></span>
         </label>

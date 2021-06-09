@@ -119,6 +119,7 @@ public class TramiteRetiroExcepcionalController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             retiroExcepcionalService.saveRetiro(retiro, ds);
             response.setMessage("Se registró el tramite satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
