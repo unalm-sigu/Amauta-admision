@@ -53,6 +53,7 @@ import pe.edu.lamolina.amauta.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Persona;
 
 @Service
@@ -205,8 +206,11 @@ public class GpoReporteServiceImp implements GpoReporteService {
                     if (docente.getPagoVerano() != null) {
                         total = total.add(docente.getPagoVerano());
                         Integer mismatriculados = (Integer) ObjectUtil.getParentTree(docente, "seccion.matriculados");
-                        mismatriculados = mismatriculados != null ? mismatriculados : 0;
-                        matriculados = matriculados + mismatriculados;
+                        String tipoSeccion = (String) ObjectUtil.getParentTree(docente, "seccion.tipoSeccion");
+                        if (!tipoSeccion.equalsIgnoreCase(TipoSeccionEnum.PCUR.name())) {
+                            mismatriculados = mismatriculados != null ? mismatriculados : 0;
+                            matriculados = matriculados + mismatriculados;
+                        }
                     }
                 }
             }
