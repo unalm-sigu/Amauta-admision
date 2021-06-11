@@ -135,6 +135,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -397,7 +398,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
 
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCicloCondicional(ciclo);
-        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacion(ciclo);
+        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacionByEstado(ciclo,TramiteEstadoEnum.ACEP);
         List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumosConTramite.addAll(reincorporacion.stream().map(x -> x.getAlumno()).collect(Collectors.toList()));

@@ -44,4 +44,6 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
 
     public List<Reincorporacion> allPendientesByCicloReincorporacion();
 
+    List<Reincorporacion> allByCicloReincorporacionByEstado(CicloAcademico ciclo, TramiteEstadoEnum tramiteEstadoEnum);
+
 }
