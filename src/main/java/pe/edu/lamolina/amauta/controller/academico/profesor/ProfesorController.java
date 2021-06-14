@@ -651,6 +651,7 @@ public class ProfesorController {
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("oficina", oficina);
+        model.addAttribute("tipoGrado", tipoGrado);
 
         model.addAttribute("docentes", docentes);
 

@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.zelper.pdfgenerator.FooterTypeEnum;
@@ -85,6 +86,7 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         List<Docente> docentes = (List<Docente>) model.get("docentes");
+        String tipoGrado = (String) model.get("tipoGrado");
 
         List<DocenteSeccion> docentesSecciones = (List<DocenteSeccion>) model.get("docentesSecciones");
 
@@ -109,7 +111,7 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 continue;
             }
 
-            this.builContent(document, docente, uDocumentoPdf, grupoSecciones, indice, size);
+            this.builContent(document, docente, uDocumentoPdf, grupoSecciones, indice, size, tipoGrado);
 
         }
 
@@ -122,7 +124,7 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
-    public void builContent(Document document, Docente docente, PdfDocumentGenerator uDocumentoPdf, List<GrupoSeccion> grupoSecciones, int indice, int size) throws Exception {
+    public void builContent(Document document, Docente docente, PdfDocumentGenerator uDocumentoPdf, List<GrupoSeccion> grupoSecciones, int indice, int size, String tipoGrado) throws Exception {
 
         DepartamentoAcademico departamentoAcademico = docente.getDepartamentoAcademico();
         Facultad facultad = departamentoAcademico.getFacultad();
@@ -142,6 +144,16 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
         Total total = new Total();
 
         this.fillGrupos(grupoSecciones, total);
+        
+        if (!StringUtils.isEmpty(tipoGrado)) {
+            ModalidadEstudioEnum modalidadEstudioEnum=ModalidadEstudioEnum.valueOf(tipoGrado);
+            if(modalidadEstudioEnum==ModalidadEstudioEnum.EPG){
+                total.grupoPregrado=new ArrayList(); 
+            }
+            if(modalidadEstudioEnum==ModalidadEstudioEnum.PRE){
+                total.grupoPosgrado=new ArrayList(); 
+            }
+        } 
 
         float[] columns = new float[]{4f, 1f, 2f, 1f, 1f, 2f, 1f};
 
