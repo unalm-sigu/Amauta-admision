@@ -2,7 +2,6 @@ package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWo
 
 import com.google.common.base.Objects;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -12,11 +11,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -104,7 +102,6 @@ import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.academico.NombreFacultad;
 import pe.edu.lamolina.model.academico.NombreGrado;
 import pe.edu.lamolina.model.academico.NombreTituloAcademico;
-import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
@@ -230,11 +227,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
 
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-        tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
 
         try {
-            
+
             XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -362,20 +358,28 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
             for (XWPFRun run : para.getRuns()) {
                 String text = run.text();
+
+                if (null == text) {
+                    continue;
+                }
                 if (text.isEmpty()) {
                     continue;
                 }
+                
+                logger.debug("***** {} ", text);
 
-                String[] values = text.split(" ");
-
-                for (String value : values) {
+                for (VariablePlantilla variablePlantilla : variables) {
+                 
                     VariableGenericaEnum enums = null;
-
-                    VariablePlantilla variablePlantilla = variables.stream().filter(x -> value.contains(x.getVariableGenerica().getCodigo())).findAny().orElse(null);
-                    if (variablePlantilla == null) {
+                    
+                    if (!text.contains(variablePlantilla.getVariableGenerica().getCodigo())) {
                         continue;
                     }
+
                     enums = VariableGenericaEnum.valueOf(variablePlantilla.getVariableGenerica().getCodigoEnum());
+
+                    logger.debug("----- {} ", enums);
+
                     switch (enums) {
                         case FIRMA_JEFE_FACULTAD:
                             text = text.replace(enums.getValue(), oficinaFacultad.getJefeEncargado() == null ? oficinaFacultad.getPersonaJefe().getNombreConTitulo() : oficinaFacultad.getJefeEncargado().getNombreConTitulo());
@@ -825,7 +829,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
             if (cursoAluCicloEach.getCreditos() > 0
                     && cursoAluCicloEach.isAprobado()
-                    && cursoAluCicloEach.getEstadoEnum()==MAT
+                    && cursoAluCicloEach.getEstadoEnum() == MAT
                     && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
 
                 BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
