@@ -676,10 +676,6 @@ public class ProfesorServiceImp implements ProfesorService {
     public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclo(List<Docente> docentes, CicloAcademico cicloAcademico) {
         return docenteSeccionDAO.allActivosByDocentesCiclo(docentes, cicloAcademico);
     }
-    @Override
-    public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCicloModalidad(List<Docente> docentes, CicloAcademico cicloAcademico,ModalidadEstudioEnum modalidadEnum) {
-        return docenteSeccionDAO.allActivosByDocentesCicloModalidad(docentes, cicloAcademico,modalidadEnum);
-    }
 
     @Override
     public List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones) {

@@ -64,5 +64,19 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
 
         return all(sql);
     }
+    
+    
+    @Override
+    public List<PuntajeEncuestaDocente> allByModalidadEncuestaCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
+                .join("encuestaDocente ed", "temaEncuesta te")
+                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c", "c.modalidadEstudio me")
+                .join("ed.modalidadEstudio mo")
+                .filter("ca.id", cicloAcademico)
+                .filter("mo.id", modalidadEstudio)
+                .orderBy("c.codigo");
+
+        return all(sql);
+    }
 
 }

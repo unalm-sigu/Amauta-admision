@@ -10,7 +10,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
-import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 

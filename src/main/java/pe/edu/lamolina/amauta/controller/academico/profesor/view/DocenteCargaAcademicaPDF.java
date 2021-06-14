@@ -111,7 +111,25 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 continue;
             }
 
-            this.builContent(document, docente, uDocumentoPdf, grupoSecciones, indice, size, tipoGrado);
+            Total total = new Total();
+
+            this.fillGrupos(grupoSecciones, total);
+
+            if (!StringUtils.isEmpty(tipoGrado)) {
+                ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(tipoGrado);
+                if (modalidadEstudioEnum == ModalidadEstudioEnum.EPG) {
+                    total.grupoPregrado = new ArrayList();
+                }
+                if (modalidadEstudioEnum == ModalidadEstudioEnum.PRE) {
+                    total.grupoPosgrado = new ArrayList();
+                }
+            }
+
+            if (total.grupoPosgrado.size() < 1 && total.grupoPregrado.size() < 1) {
+                continue;
+            }
+
+            this.builContent(document, docente, uDocumentoPdf, total, indice, size, tipoGrado);
 
         }
 
@@ -124,7 +142,7 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
-    public void builContent(Document document, Docente docente, PdfDocumentGenerator uDocumentoPdf, List<GrupoSeccion> grupoSecciones, int indice, int size, String tipoGrado) throws Exception {
+    public void builContent(Document document, Docente docente, PdfDocumentGenerator uDocumentoPdf, Total total, int indice, int size, String tipoGrado) throws Exception {
 
         DepartamentoAcademico departamentoAcademico = docente.getDepartamentoAcademico();
         Facultad facultad = departamentoAcademico.getFacultad();
@@ -140,20 +158,6 @@ public class DocenteCargaAcademicaPDF extends AbstractOnlyPdfView {
         document.add(tableSubs);
         document.add(uDocumentoPdf.agregarEnter(1));
         document.add(new Chunk(""));
-
-        Total total = new Total();
-
-        this.fillGrupos(grupoSecciones, total);
-        
-        if (!StringUtils.isEmpty(tipoGrado)) {
-            ModalidadEstudioEnum modalidadEstudioEnum=ModalidadEstudioEnum.valueOf(tipoGrado);
-            if(modalidadEstudioEnum==ModalidadEstudioEnum.EPG){
-                total.grupoPregrado=new ArrayList(); 
-            }
-            if(modalidadEstudioEnum==ModalidadEstudioEnum.PRE){
-                total.grupoPosgrado=new ArrayList(); 
-            }
-        } 
 
         float[] columns = new float[]{4f, 1f, 2f, 1f, 1f, 2f, 1f};
 

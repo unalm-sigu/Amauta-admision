@@ -635,12 +635,7 @@ public class ProfesorController {
 
         List<Docente> docentes = service.allDocenteByDepartamentosAcademicoEstado(departamentos, EnteAcademicoEstadoEnum.ACT);
 
-        List<DocenteSeccion> docentesSecciones = null;
-        if (!StringUtils.isEmpty(tipoGrado)) {
-            docentesSecciones = service.allDocenteSeccionActivosByDocentesCicloModalidad(docentes, ds.getCicloAcademico(), ModalidadEstudioEnum.valueOf(tipoGrado));
-        } else {
-            docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, ds.getCicloAcademico());
-        }
+        List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, ds.getCicloAcademico());
 
         List<Seccion> secciones = docentesSecciones.stream().map(x -> x.getSeccion())
                 .distinct().collect(Collectors.toList());

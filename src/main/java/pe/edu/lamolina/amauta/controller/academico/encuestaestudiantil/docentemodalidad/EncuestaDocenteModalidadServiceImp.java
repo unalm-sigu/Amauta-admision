@@ -271,7 +271,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCiclo(cicloAcademico, modalidadEstudio, departamentos);
 
-        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadCicloAcademico(modalidadEstudio, cicloAcademico);
+        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadEncuestaCicloAcademico(modalidadEstudio, cicloAcademico);
 
         Map<Long, List<PuntajeEncuestaDocente>> pedsXdocente = peds.stream()
                 .collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getDocente().getId()));

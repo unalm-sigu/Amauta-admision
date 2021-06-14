@@ -68,5 +68,4 @@ public interface ProfesorService {
 
     List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones);
 
-    List<DocenteSeccion> allDocenteSeccionActivosByDocentesCicloModalidad(List<Docente> docentes, CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEnum);
 }
