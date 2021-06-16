@@ -97,41 +97,49 @@ var app = new Vue({
         labelColor(item) {
             switch (item) {
                 case  "SOL":
-                    "label label-success"
+                    return "label label-success"
+                    break;
+                case  "ANU":
+                    return "label label-danger"
                     break;
                 default :
-                    "label label-primary"
+                    return "label label-primary"
                     break;
             }
         },
         anular(item) {
-            let $vue = this;
-            bootbox.confirm({
-                message: '¿Desea anular el tramite retiro excepcional del alumno?',
-                callback: function (result) {
-                    if (result) {
-                        
-                        MODAL.showWait("Espere un momento por favor");
 
-                        axios.post("/academico/tramiteacademico/tramiteRetiroExcepcional/anular", item)
-                                .then(response => {
-                                    
-                                    if (response.data.success) {
-                                        $vue.$refs.load.loadRemoteData();
-                                        notify(response.data.message, "success");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                    MODAL.hideWait();
-                                }).
-                                catch(e => {
-                                    MODAL.hideWait();
-                                    notify(Messages.errorComunicacion, "error");
-                                });
-                                
-                    }
-                }
-            });
+            let $vue = this;
+            $vue.retiroExcepcional = {...item};
+            $vue.$refs.modalEliminarTramite.open();
+
+        },
+        anularActionHandler() {
+
+            let $vue = this;
+            axios.post("/academico/tramiteacademico/tramiteRetiroExcepcional/anular", $vue.retiroExcepcional)
+                    .then(response => {
+
+                        if (response.data.success) {
+
+                            $vue.$refs.modalEliminarTramite.close();
+                            $vue.$refs.load.loadRemoteData();
+                            notify(response.data.message, "success");
+
+                        } else {
+
+                            $vue.$refs.modalEliminarTramite.stop();
+                            notify(response.data.message, "error");
+
+                        }
+
+                    }, () => {
+
+                        $vue.$refs.modalEliminarTramite.stop();
+                        notify(Messages.errorComunicacion, "error");
+
+                    });
+
         }
     }
 })

@@ -50,7 +50,7 @@
 
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                    <span class="" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
                                                 <td>
                                                     <div class="dropdown actions" >
@@ -76,9 +76,8 @@
                     </section>
                 </section>
 
-
-
                 <div th:substituteby="academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcionalModal"/>
+                
             </div>
 
 
@@ -89,6 +88,7 @@
             <script th:inline="javascript">
                 var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
             </script>
+                    <div th:substituteby="_modules/vue-modal_v1"></div>
             <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional.js}" charset="utf-8"></script>
 
