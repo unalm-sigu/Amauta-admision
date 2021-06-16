@@ -14,4 +14,6 @@ public interface TramiteRetiroExcepcionalService {
 
     public String reporte(Tramite tramite, DataSessionPivot ds);
 
+    public void anular(RetiroCiclo retiroCiclo, DataSessionPivot ds);
+
 }

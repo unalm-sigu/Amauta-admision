@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Controller
 @RequestMapping("academico/tramiteacademico/tramiteRetiroExcepcional")
@@ -166,5 +167,29 @@ public class TramiteRetiroExcepcionalController {
                 close(input);
             }
         }
+    }
+
+    @ResponseBody
+    @RequestMapping("anular")
+    public JsonResponse anular(@RequestBody RetiroCiclo retiroCiclo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            retiroExcepcionalService.anular(retiroCiclo, ds);
+            response.setMessage("Tramite anulado correctamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
     }
 }

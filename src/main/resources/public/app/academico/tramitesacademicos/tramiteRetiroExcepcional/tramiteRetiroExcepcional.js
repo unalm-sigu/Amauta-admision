@@ -103,6 +103,35 @@ var app = new Vue({
                     "label label-primary"
                     break;
             }
+        },
+        anular(item) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Desea anular el tramite retiro excepcional del alumno?',
+                callback: function (result) {
+                    if (result) {
+                        
+                        MODAL.showWait("Espere un momento por favor");
+
+                        axios.post("/academico/tramiteacademico/tramiteRetiroExcepcional/anular", item)
+                                .then(response => {
+                                    
+                                    if (response.data.success) {
+                                        $vue.$refs.load.loadRemoteData();
+                                        notify(response.data.message, "success");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                    MODAL.hideWait();
+                                }).
+                                catch(e => {
+                                    MODAL.hideWait();
+                                    notify(Messages.errorComunicacion, "error");
+                                });
+                                
+                    }
+                }
+            });
         }
     }
 })
