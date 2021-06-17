@@ -65,11 +65,11 @@
                             <ul class="dropdown-menu">
                                 <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
                                 <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="reporteAlumnos({id:0})" >Reporte de Tutorados</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="consejerosPorEspecialidad()" >Consejeros Por Especialidad</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('conConsejero')" >Tutorados Con Tutor</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('sinConsejero')" >Tutorados Sin Tutor</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="reporteTutoradosOtraEspecialidad()" >Reporte Tutorados Otra Especialidad</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="reporteAlumnos({id:0})" >Lista de tutores con sus alumnos</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="consejerosPorEspecialidad()" >Lista de tutores con cantidad de alumnos</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('conConsejero')" >Lista de alumnos con tutor</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('sinConsejero')" >Lista de alumnos sin tutor</a></li>
+                                <li th:if="${session.SESSION_USUARIO.email == 'hpc@lamolina.edu.pe'}"><a type="button" class=" btn" v-on:click.prevent="reporteTutoradosOtraEspecialidad()" >Reporte Tutorados Otra Especialidad</a></li>
                                 <!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
