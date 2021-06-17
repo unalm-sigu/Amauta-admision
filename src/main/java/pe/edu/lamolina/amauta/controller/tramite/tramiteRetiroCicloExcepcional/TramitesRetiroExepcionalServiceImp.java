@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
@@ -51,49 +52,48 @@ import pe.edu.lamolina.model.tramite.Tramite;
 @Service
 @Transactional(readOnly = true)
 public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcionalService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     TramiteDAO tramiteDAO;
-
+    
     @Autowired
     RetiroCicloDAO retiroCicloDAO;
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
-
+    
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-
+    
     @Autowired
     SerieDocumentoService serieDocumentoService;
-
+    
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-
+    
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
-
+    
     @Autowired
     PdfGenerator pdfGenerator;
-
+    
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-
+    
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Override
     public List<RetiroCiclo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
-
-        List<RetiroCiclo> retiros = retiroCicloDAO.allByDynatableExcepcional(filter, ds.getCicloAcademico());
-        return retiros;
+        
+        return retiroCicloDAO.allByDynatableExcepcional(filter, ds.getCicloAcademico());
     }
-
+    
     @Override
     @Transactional
     public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
@@ -109,14 +109,14 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             }
         }
         Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroForm.getCicloAcademico().getDescripcion());
-
+        
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-
+        
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
@@ -133,7 +133,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         tramite.setOficina(oficina);
         tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
-
+        
         RetiroCiclo retiroCiclo = new RetiroCiclo();
         retiroCiclo.setAlumno(alumnoDB);
         retiroCiclo.setCicloAcademico(retiroForm.getCicloAcademico());
@@ -148,13 +148,13 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         retiroCiclo.setUsuario(ds.getUsuario());
         retiroCicloDAO.save(retiroCiclo);
     }
-
+    
     @Override
     public String reporte(Tramite tramite, DataSessionPivot ds) {
         List<String> pdfs = createInfoRetiroExcepcionalPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
     }
-
+    
     private List<String> createInfoRetiroExcepcionalPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = tramite.getAlumno();
@@ -163,7 +163,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCiclo(alumno);
         AlumnoCiclo ac = null;
-
+        
         InfoRetiroExcepcional infoRetiroExcepcional = new InfoRetiroExcepcional();
         int i = 1;
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
@@ -177,8 +177,11 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
                 case S_2:
                     infoRetiroExcepcional.setVecesObservado(infoRetiroExcepcional.getVecesObservado() + 1);
                     break;
+                case S_6:
                 case S_U:
-                case S_2U:
+                case S_6U:
+                case S_6B:
+                    logger.debug("------ VecesSuspendido ----- {}", infoRetiroExcepcional.getVecesSuspendido() + 1);
                     infoRetiroExcepcional.setVecesSuspendido(infoRetiroExcepcional.getVecesSuspendido() + 1);
                     break;
             }
@@ -200,7 +203,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             }
             i++;
         }
-
+        
         BigDecimal relacionEficacion = new BigDecimal(ac.getCreditosAprobadosAcumulados()).divide(new BigDecimal(ac.getCreditosAcumulados()), 2, RoundingMode.FLOOR);
         infoRetiroExcepcional.setCaa(ac.getCreditosAprobadosAcumulados());
         infoRetiroExcepcional.setCca(ac.getCreditosAcumulados());
@@ -208,7 +211,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         infoRetiroExcepcional.setPps(ac.getPromedioCiclo());
         infoRetiroExcepcional.setRelacionEficiencia(relacionEficacion);
         infoRetiroExcepcional.setSituacion(ac.getSituacionFinal().getNombre().toUpperCase());
-
+        
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("infoRetiroExcepcional", infoRetiroExcepcional);
         ctx.setVariable("alumno", alumno);
@@ -217,16 +220,42 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         ctx.setVariable("matriculaCursos", matriculaCursos);
         ctx.setVariable("retiroCiclos", retiroCiclos);
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-
+        
         PdfContent pdfRetiroExcepcional = new PdfContent();
         pdfRetiroExcepcional.setContext(ctx);
         pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_RETIRO_EXCEPCIONAL);
-
+        
         List<String> pdfs = Arrays.asList(
                 pdfGenerator.generateDocument(pdfRetiroExcepcional)
         );
-
+        
         return pdfs;
     }
-
+    
+    @Override
+    @Transactional
+    public void anular(RetiroCiclo retiroCicloForm, DataSessionPivot ds) {
+        
+        RetiroCiclo retiroCiclo = retiroCicloDAO.find(retiroCicloForm.getId());
+        
+        if (retiroCiclo == null) {
+            throw new PhobosException("No existe el trámite");
+        }
+        
+        if (!(retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.SOL)) {
+            throw new PhobosException("Solo puede anular trámites solicitados");
+        }
+        
+        retiroCiclo.setEstadoEnum(TramiteEstadoEnum.ANU);
+        
+        retiroCicloDAO.updateColumns(retiroCiclo, "estado");
+        
+        Tramite tramite = retiroCiclo.getTramite();
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.updateEstado(tramite);
+        
+    }
+    
 }
