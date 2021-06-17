@@ -398,7 +398,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
 
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCicloCondicional(ciclo);
-        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacionByEstado(ciclo,TramiteEstadoEnum.ACEP);
+        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacionByEstado(ciclo,TramiteEstadoEnum.SOL_ACEP);
         List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumosConTramite.addAll(reincorporacion.stream().map(x -> x.getAlumno()).collect(Collectors.toList()));

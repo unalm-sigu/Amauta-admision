@@ -100,6 +100,7 @@ public class TutorSolicitudController {
                     "alumnoConsejero.alumno.persona.apellidosNombres",
                     "alumnoConsejero.alumno.persona.tipoDocumento.*",
                     "alumnoConsejero.alumno.persona.numeroDocIdentidad",
+                    "alumnoConsejero.consejero.id",
                     "alumnoConsejero.consejero.colaborador.persona.apellidosNombres",
                     "alumnoConsejero.alumno.persona.rutaFoto",
                     "alumnoConsejero.alumno.carrera.*",

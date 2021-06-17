@@ -97,7 +97,8 @@ public class AconsejadosCarreraController {
                             "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
-                            "consejero.colaborador.persona.tipoDocumento.simbolo"
+                            "consejero.colaborador.persona.tipoDocumento.simbolo",
+                            "cicloAcademico.descripcion"
                         });
 
                 array.add(node);
