@@ -775,6 +775,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, AlumnoCursoCurricula> mapCursosEquivalenteAct = TypesUtil.convertListToMap("curso.id", aluCursosCurricula);
 
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurricula) {
+            if (aluCursoCurricula.getCurso().getCodigo().equals("EP2085")) {
+                System.out.print("EP2085");
+            }
             CursoCurricula cursoCurricula = aluCursoCurricula.getCursoCurricula();
             List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapEquivalentesAll.get(cursoCurricula.getId()));
             if (cursosEquivalentes.isEmpty()) {
@@ -1030,8 +1033,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-            if (evaluado.getCurso().getCodigo().equals("EP5098")) {
-                System.out.print("EP5098");
+            if (evaluado.getCurso().getCodigo().equals("PQ3014")) {
+                System.out.print("PQ3014");
             }
             Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
@@ -1080,6 +1083,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 if (!estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
                     if (cursoRequisitosEquivalentes.isEmpty()) {
                         requisitosObigatorios = false;
+                        break;
                     } else {
                         Map<Integer, List<CursoEquivalente>> mapGruposEquiv = TypesUtil.convertListToMapList("grupo", cursoRequisitosEquivalentes);
 
@@ -1093,8 +1097,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                                     break;
                                 }
                             }
+                            requisitosObigatorios = equivalenciaEncontrada;
+
                             if (equivalenciaEncontrada) {
-                                requisitosObigatorios = equivalenciaEncontrada;
                                 break;
                             }
                         }
@@ -1115,10 +1120,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     requisitosNoObligatorios = false;
                     break;
                 }
-            } else {
-                requisitosNoObligatorios = requisitosNoObligatorios || true;
             }
-
+            requisitosNoObligatorios = true;
         }
 
         return requisitosNoObligatorios && requisitosObigatorios;

@@ -444,6 +444,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setEstado(CurriculaEstadoEnum.ACT.name());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
+            Assert.isFalse(!cursoCurricula.getRequisitosOr() && !requisito.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
             requisito.setRequisitosObligatorio(requisito.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.save(requisito);
         }
@@ -496,6 +497,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<RequisitoCursoCurricula> existentes = inspector.getOldListDB();
         
         for (RequisitoCursoCurricula nuevo : nuevos) {
+             Assert.isFalse(!cursoCurricula.getRequisitosOr() && !nuevo.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
+           
             nuevo.setSimultaneo(nuevo.getSimultaneo() == null ? 0 : 1);
             nuevo.setCursoCurricula(cursoCurricula);
             nuevo.setFechaRegistro(new Date());
@@ -511,6 +514,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         
         for (RequisitoCursoCurricula existenteBD : existentes) {
             RequisitoCursoCurricula existenteForm = mapRequisitos.get(existenteBD.getCursoRequisito().getId());
+             Assert.isFalse(!cursoCurricula.getRequisitosOr() && !existenteForm.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
+           
             existenteBD.setSimultaneo(existenteForm.getSimultaneo() == null ? 0 : 1);
             existenteBD.setRequisitosObligatorio(existenteForm.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.update(existenteBD);
