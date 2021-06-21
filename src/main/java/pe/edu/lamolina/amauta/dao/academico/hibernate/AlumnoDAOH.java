@@ -1214,6 +1214,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
             sb.append(" from aca_matricula_resumen mr  ");
             sb.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
             sb.append(" join aca_alumno alu on mr.id_alumno = alu.id ");
+            sb.append(" join aca_ciclo_academico caa on alu.id_ciclo_ingreso <> 486 ");
             sb.append(" where alu.id_modalidad_estudio = 1 and ca.codigo = '202110' limit 100; ");
 
         Query query = getCurrentSession().createSQLQuery(sb.toString())
