@@ -1206,4 +1206,21 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico) {
+        
+         StringBuilder sb = new StringBuilder();
+            sb.append(" select mr.id_alumno as id ");
+            sb.append(" from aca_matricula_resumen mr  ");
+            sb.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+            sb.append(" join aca_alumno alu on mr.id_alumno = alu.id ");
+            sb.append(" where alu.id_modalidad_estudio = 1 and ca.codigo = '202110' limit 100; ");
+
+        Query query = getCurrentSession().createSQLQuery(sb.toString())
+                .addScalar("id", LongType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(Alumno.class));
+        
+        return query.list();
+    }
+
 }
