@@ -1024,7 +1024,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     public ObjectNode allDataAlumnoMerito(Alumno alumno) {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesOrdenMeritoByAlumnoAsc(alumno);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesOrdenMeritoByAlumnoAscCustom(alumno);
 
         findMerito(alumnoCiclos, node, "CICLO");
         findMerito(alumnoCiclos, node, "FAC");
@@ -1089,6 +1089,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 objectNode.put("cantidadMeritoNivel", alumnoCiclo.getComputadosFacultadNivel());
                 objectNode.put("cantidadTotalMerito", alumnoCiclo.getControlMeritoFacultad().getAlumnosComputados());
             } else if (tipo.equals("CAR")) {
+                if (alumnoCiclo.getOrdenMeritoCarrera() == null) {
+                    continue;
+                }
                 objectNode.put("ordenMeritoNivel", alumnoCiclo.getOrdenMeritoCarreraNivel());
                 objectNode.put("ordenMeritoTotal", alumnoCiclo.getOrdenMeritoCarrera());
                 objectNode.put("cantidadMeritoNivel", alumnoCiclo.getComputadosCarreraNivel());
