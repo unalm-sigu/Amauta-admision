@@ -225,7 +225,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Transactional
     public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
-        Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A54);
         ObjectNode json = createFormJson(ds, token);
         json.put("idMatricula", matriculaResumen.getId());
         json.put("idAporte", aporte.getId());
