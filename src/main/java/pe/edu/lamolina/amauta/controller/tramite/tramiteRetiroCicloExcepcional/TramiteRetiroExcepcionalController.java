@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -37,7 +37,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Controller
 @RequestMapping("academico/tramiteacademico/tramiteRetiroExcepcional")
@@ -54,15 +53,9 @@ public class TramiteRetiroExcepcionalController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<CicloAcademico> cicloAcademicos = reincorporacionService.getCiclos(ds);
-
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            arr.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
-        }
-        model.addAttribute("ciclos", arr);
+        List<CicloAcademico> cicloAcademicos = reincorporacionService.getCiclosVeinte(ds);
+        ArrayNode arrayCiclos = JaneHelper.from(cicloAcademicos).array();
+        model.addAttribute("ciclos", arrayCiclos.toString());
         return "academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional";
     }
 

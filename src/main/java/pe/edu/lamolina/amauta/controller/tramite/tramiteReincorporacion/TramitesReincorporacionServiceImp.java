@@ -43,7 +43,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
@@ -285,6 +284,11 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
             }
         }
 
+    }
+
+    @Override
+    public List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds) {
+        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 20);
     }
 
 }

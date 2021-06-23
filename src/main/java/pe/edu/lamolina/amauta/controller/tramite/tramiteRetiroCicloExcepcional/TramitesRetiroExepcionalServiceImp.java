@@ -159,7 +159,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = tramite.getAlumno();
         Context ctx = new Context();
-        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, ds.getCicloAcademico());
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCiclo(alumno);
         AlumnoCiclo ac = null;
