@@ -1210,12 +1210,21 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico) {
         
          StringBuilder sb = new StringBuilder();
-            sb.append(" select mr.id_alumno as id ");
-            sb.append(" from aca_matricula_resumen mr  ");
-            sb.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
-            sb.append(" join aca_alumno alu on mr.id_alumno = alu.id ");
-            sb.append(" join aca_ciclo_academico caa on alu.id_ciclo_ingreso <> 486 ");
-            sb.append(" where alu.id_modalidad_estudio = 1 and ca.codigo = '202110' limit 100; ");
+            sb.append(" select alu2.id as id ");
+            sb.append(" from aca_matricula_resumen mr2 ");
+            sb.append(" join aca_alumno alu2 on mr2.id_alumno = alu2.id ");
+            sb.append(" where mr2.id_ciclo_academico = 486 and alu2.id_modalidad_estudio in (1) ");
+            sb.append(" and alu2.codigo not in ( ");
+            sb.append("                         select a.codigo from aca_alumno a where a.id_ciclo_ingreso = 486 ");
+            sb.append("                         ) ");
+            sb.append(" and not exists ( ");
+            sb.append("                 select alu.codigo    ");
+            sb.append("                 from aca_matricula_resumen mr ");
+            sb.append("                 join aca_alumno alu on mr.id_alumno = alu.id ");
+            sb.append("                 join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+            sb.append("                 where ca.codigo = '202010' and alu.id_modalidad_estudio in (1) and mr.estado in ('MAT','RCI') ");
+            sb.append("                 and alu.id = alu2.id ");
+            sb.append("                 ) ");
 
         Query query = getCurrentSession().createSQLQuery(sb.toString())
                 .addScalar("id", LongType.INSTANCE)
