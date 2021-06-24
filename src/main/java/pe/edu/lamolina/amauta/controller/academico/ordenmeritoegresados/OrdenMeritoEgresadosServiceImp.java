@@ -73,6 +73,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         controlOrdenMeritoDAO.deleteByCicloAcademico(cicloAcademico);
 
         List<Egresado> egresadosDB = egresadoDAO.allByCicloAcademico(cicloAcademico);
+        
+        logger.debug("egresadosDB {}",egresadosDB.size());
 
         Date now = new Date();
 
