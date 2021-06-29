@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -460,6 +462,10 @@ public class MatricularServiceImp implements MatricularService {
         for (MatriculaCurso matCur : matriculaCursos) {
             String key = matCur.getMatriculaResumen().getAlumno().getId() + "-" + matCur.getCurso().getId();
             List<MatriculaSeccion> matriculaSeccion = mapMatriculaSecc.get(key);
+            if (matriculaSeccion == null) {
+                matriculaCursoDAO.delete(matCur);
+                continue;
+            }
             matCur.setMatriculaSeccion(matriculaSeccion);
             if (!matriculaSeccion.isEmpty()) {
                 matCur.setGrupoSeccion(matriculaSeccion.get(0).getSeccion().getGrupoSeccion());
@@ -469,10 +475,13 @@ public class MatricularServiceImp implements MatricularService {
 //
         ///  List<MatriculaCurso> matriculaCursosTemp = new ArrayList<>();
         if (cursoCurriculaEnum == OBL) {
-            matCursosOk = matriculaCursos.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() != EEP).collect(Collectors.toList());
+
+            matCursosOk = matriculaCursos.stream().filter(x->x.getGrupoSeccion()!=null)
+                    .filter(x -> x.getTipoCursoCurricula().getCodigoEnum() != EEP).collect(Collectors.toList());
         } else {
 
-            matCursosOk = matriculaCursos.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == EEP).collect(Collectors.toList());
+            matCursosOk = matriculaCursos.stream().filter(x->x.getGrupoSeccion()!=null)
+                    .filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == EEP).collect(Collectors.toList());
             validadEEP(matCursosOk, noMatriculadosELC);
         }
         Collections.sort(matCursosOk, new MatriculaCurso.CompareGrupoSeccion());
@@ -585,7 +594,7 @@ public class MatricularServiceImp implements MatricularService {
         Map<Long, MatriculaCurso> map = TypesUtil.convertListToMap("matriculaCurso.id", "matriculaCursoSimultaneo", matriculaCursosSim);
 
         Map<String, List<MatriculaCurso>> mapMatCursoMat = TypesUtil.convertListToMapList("key", matriculaCursoMatriculados);
-   
+
         for (MatriculaCurso matriculaCurso : matriculaCursoFiltrados) {
             //grupoSeccionDAO.findLock(matriculaCurso.getGrupoSeccion().getId());
             try {
@@ -598,7 +607,7 @@ public class MatricularServiceImp implements MatricularService {
                 String key = mr.getId() + "-" + requisitoSim.getCurso().getId();
                 Boolean cumple = Boolean.FALSE;
                 if (mapMatCursoMat.get(key) != null) {
-                    
+
                     for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
                         Seccion seccion = matriculaSeccion.getSeccion();
                         if (seccion.getIsTipoSeccionTCUR()) {

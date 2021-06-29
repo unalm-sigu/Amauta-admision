@@ -450,7 +450,20 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
+        for (ConfigRecorridoIngresante configRecorridoIngresante : configRecorridoIngresantes) {
+            logger.debug("ConfigRecorridoIngresante {} {} {} {} {}",configRecorridoIngresante.getId(),
+                    configRecorridoIngresante.getTipoActividadIngresante().getId(),
+                    configRecorridoIngresante.getNumero(),
+                    configRecorridoIngresante.getCicloAcademico().getCodigo());
+        }
         Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido = TypesUtil.convertListToMap("tipoActividadIngresante.id", configRecorridoIngresantes);
+        System.out.println("==========================");
+        for (ConfigRecorridoIngresante configRecorridoIngresante : mapConfigRecorrido.values()) {
+          logger.debug("ConfigRecorridoIngresante {} {} {} {} {}",configRecorridoIngresante.getId(),
+                    configRecorridoIngresante.getTipoActividadIngresante().getId(),
+                    configRecorridoIngresante.getNumero(),
+                    configRecorridoIngresante.getCicloAcademico().getCodigo());
+        }
 
         List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByCicloAcademico(cicloAcademico);
         Map<Long, List<ActividadIngresante>> mapActividadesIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
@@ -509,7 +522,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
-                    logger.debug("alumno {}", alumno.getId());
+                    logger.debug("alumno {} codigo {}", alumno.getId(), alumno.getCodigo());
                     logger.debug("actividadesAlumno {}", actividadesAlumno.size());
                     int cantActividadAlumnoPreMatri = cantidadActividadesObligatoriasPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
@@ -572,11 +585,14 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido) {
 
         for (ActividadIngresante actIng : actividadesAlumno) {
-            logger.debug("actIng {}", actIng.getId());
+            logger.debug("ActividadIngresante {}", actIng.getId());
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
-            ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
-            actIng.setOrden(cfg.getOrdenActividad());
             logger.debug("TipoActividadIngresante {}", tipo.getId());
+            ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
+            if (cfg == null) {
+                logger.debug("*************** no encontrado tipo actividada {}", tipo.getId());
+            }
+            actIng.setOrden(cfg.getOrdenActividad());
         }
 
         Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
