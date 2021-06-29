@@ -462,10 +462,6 @@ public class MatricularServiceImp implements MatricularService {
         for (MatriculaCurso matCur : matriculaCursos) {
             String key = matCur.getMatriculaResumen().getAlumno().getId() + "-" + matCur.getCurso().getId();
             List<MatriculaSeccion> matriculaSeccion = mapMatriculaSecc.get(key);
-            if (matriculaSeccion == null) {
-                matriculaCursoDAO.delete(matCur);
-                continue;
-            }
             matCur.setMatriculaSeccion(matriculaSeccion);
             if (!matriculaSeccion.isEmpty()) {
                 matCur.setGrupoSeccion(matriculaSeccion.get(0).getSeccion().getGrupoSeccion());
@@ -476,11 +472,11 @@ public class MatricularServiceImp implements MatricularService {
         ///  List<MatriculaCurso> matriculaCursosTemp = new ArrayList<>();
         if (cursoCurriculaEnum == OBL) {
 
-            matCursosOk = matriculaCursos.stream().filter(x->x.getGrupoSeccion()!=null)
+            matCursosOk = matriculaCursos.stream()
                     .filter(x -> x.getTipoCursoCurricula().getCodigoEnum() != EEP).collect(Collectors.toList());
         } else {
 
-            matCursosOk = matriculaCursos.stream().filter(x->x.getGrupoSeccion()!=null)
+            matCursosOk = matriculaCursos.stream()
                     .filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == EEP).collect(Collectors.toList());
             validadEEP(matCursosOk, noMatriculadosELC);
         }
