@@ -509,9 +509,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
+                    logger.debug("alumno {}", alumno.getId());
+                    logger.debug("actividadesAlumno {}", actividadesAlumno.size());
                     int cantActividadAlumnoPreMatri = cantidadActividadesObligatoriasPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
-                    if (cantActividadAlumnoPreMatri < CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
+                    if (cantActividadAlumnoPreMatri >= CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
                         String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
                                 + cantActividadAlumnoPreMatri + " actividades, pero debería tener "
                                 + (CANT_MINIMA_MATRICULA_CACHIMBOS) + "."; // actividadesPreMatricula
@@ -570,9 +572,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido) {
 
         for (ActividadIngresante actIng : actividadesAlumno) {
+            logger.debug("actIng {}", actIng.getId());
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
             ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
             actIng.setOrden(cfg.getOrdenActividad());
+            logger.debug("TipoActividadIngresante {}", tipo.getId());
         }
 
         Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
