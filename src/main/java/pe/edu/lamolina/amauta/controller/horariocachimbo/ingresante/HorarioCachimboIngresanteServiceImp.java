@@ -34,7 +34,6 @@ import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
-import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CANT_MINIMA_MATRICULA_CACHIMBOS;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -71,7 +70,6 @@ import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.CAREO;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.DOCS;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.ENTREV;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.FISOEC;
-import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOEXAMED;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOMATRI;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.RPAGOADM;
 
@@ -80,6 +78,8 @@ import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.RPAGOADM;
 public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngresanteService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static Integer CANT_MINIMA_MATRICULA_CACHIMBOS = 14;
 
     @Autowired
     ActividadIngresanteDAO actividadIngresanteDAO;
@@ -451,7 +451,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     public void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
         for (ConfigRecorridoIngresante configRecorridoIngresante : configRecorridoIngresantes) {
-            logger.debug("ConfigRecorridoIngresante {} {} {} {} {}",configRecorridoIngresante.getId(),
+            logger.debug("ConfigRecorridoIngresante {} {} {} {} {}", configRecorridoIngresante.getId(),
                     configRecorridoIngresante.getTipoActividadIngresante().getId(),
                     configRecorridoIngresante.getNumero(),
                     configRecorridoIngresante.getCicloAcademico().getCodigo());
@@ -459,7 +459,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido = TypesUtil.convertListToMap("tipoActividadIngresante.id", configRecorridoIngresantes);
         System.out.println("==========================");
         for (ConfigRecorridoIngresante configRecorridoIngresante : mapConfigRecorrido.values()) {
-          logger.debug("ConfigRecorridoIngresante {} {} {} {} {}",configRecorridoIngresante.getId(),
+            logger.debug("ConfigRecorridoIngresante {} {} {} {} {}", configRecorridoIngresante.getId(),
                     configRecorridoIngresante.getTipoActividadIngresante().getId(),
                     configRecorridoIngresante.getNumero(),
                     configRecorridoIngresante.getCicloAcademico().getCodigo());
@@ -584,6 +584,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             List<ActividadIngresante> actividadesAlumno,
             Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido) {
 
+        List<ActividadIngresante> actividadesAlumnoObligatorio = new ArrayList<>();
+
         for (ActividadIngresante actIng : actividadesAlumno) {
             logger.debug("ActividadIngresante {}", actIng.getId());
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
@@ -591,14 +593,16 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
             if (cfg == null) {
                 logger.debug("*************** no encontrado tipo actividada {}", tipo.getId());
+                continue;
             }
             actIng.setOrden(cfg.getOrdenActividad());
+            actividadesAlumnoObligatorio.add(actIng);
         }
 
-        Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
+        Collections.sort(actividadesAlumnoObligatorio, new ActividadIngresante.CompareOrden());
         List<TipoActividadIngresanteEnum> actividadesOblig = Arrays.asList(CAREO, DOCS, RPAGOADM, FISOEC, ENTREV, PAGOMATRI);
         int loop = 0;
-        for (ActividadIngresante actIng : actividadesAlumno) {
+        for (ActividadIngresante actIng : actividadesAlumnoObligatorio) {
             if (actIng.getEstadoEnum() != RecorridoIngresanteEstadoEnum.ACT) {
                 continue;
             }
