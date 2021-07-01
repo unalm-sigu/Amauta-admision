@@ -465,7 +465,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         List<HorarioCachimbos> horarios = horarioCachimbosDAO.allByCiclo(cicloAcademico);
         
         for (HorarioCachimbos horario : horarios) {
-            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
+            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorarioSinQuintoSecundaria(horario);
             List<Alumno> alumnosByHorario = alumnosHorario.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
             allAlumnos.addAll(alumnosByHorario);
         }
@@ -479,7 +479,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             return;
         }
         for (HorarioCachimbos horario : horarios) {
-            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
+            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorarioSinQuintoSecundaria(horario);
             if (horario.getMatriculados() >= horario.getSuscritos()) {
                 System.out.println("No hay matriculables en el " + horario.getCodigo());
                 for (AlumnoHorario aluHorario : alumnosHorario) {
@@ -625,12 +625,12 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Transactional
     public void revisarActividad(DataSessionPivot ds) {
 
-        List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allQuintoSecundariaByCiclo(ds.getCicloAcademico());
-        
-        for (AlumnoHorario alumnoHorario : alumnoHorarios) {
-            logger.debug("Retirando a alumno codigo {}", alumnoHorario.getAlumno().getCodigo());
-            this.retirarHorario(alumnoHorario, ds);
-        }
+//        List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allQuintoSecundariaByCiclo(ds.getCicloAcademico());
+//        
+//        for (AlumnoHorario alumnoHorario : alumnoHorarios) {
+//            logger.debug("Retirando a alumno codigo {}", alumnoHorario.getAlumno().getCodigo());
+//            this.retirarHorario(alumnoHorario, ds);
+//        }
         
         recorridoIngresanteDAO.updateActividadesEjecutadas(ds.getCicloAcademico());
         recorridoIngresanteDAO.updateTotalActividades(ds.getCicloAcademico());

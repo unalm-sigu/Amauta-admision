@@ -223,9 +223,20 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .like("alu.codigo", "Q%")
                 .filter("ciclo.id", cicloAcademico)
                 .orderBy("carr.id");
-        
+
         return sql.all(getCurrentSession());
-        
+
+    }
+
+    @Override
+    public List<AlumnoHorario> allByHorarioSinQuintoSecundaria(HorarioCachimbos horario) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoHorario.class, "ah")
+                .join("cicloAcademico ciclo ", "alumno alu")
+                .notLike("alu.codigo", "Q%")
+                .leftJoin("horarioCachimbos hoca")
+                .filter("hoca.id", horario);
+        return sql.all(getCurrentSession());
     }
 
 }
