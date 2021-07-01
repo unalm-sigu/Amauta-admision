@@ -622,6 +622,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     }
     
     @Override
+    @Transactional
     public void revisarActividad(DataSessionPivot ds) {
 
         List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allQuintoSecundariaByCiclo(ds.getCicloAcademico());
