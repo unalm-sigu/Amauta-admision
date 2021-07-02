@@ -116,6 +116,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     public AlumnoCicloCurso findByAlumnoCurso(Alumno alumno, Curso curso);
 
-    public List<AlumnoCicloCurso> allPromedioPonderadoGraduacionByAlumnos(List<Alumno> alumnos);
+    public List<AlumnoCicloCurso> allPromedioPonderadoGraduacionPregradoByAlumnos(List<Alumno> alumnos);
 
 }

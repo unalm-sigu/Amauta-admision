@@ -3,7 +3,6 @@ package pe.edu.lamolina.amauta.controller.academico.ordenmeritoegresados;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -44,7 +43,6 @@ import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Service
 @Transactional(readOnly = true)
@@ -393,13 +391,15 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         List<Alumno> alumnos = egresados.stream().map(x -> x.getAlumno()).collect(toList());
 
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allPromedioPonderadoGraduacionByAlumnos(alumnos);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allPromedioPonderadoGraduacionPregradoByAlumnos(alumnos);
 
         Map<Long, List<AlumnoCicloCurso>> alumnoCicloCursosXalumno = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnoCicloCursos);
 
         for (Egresado egresado : egresados) {
             List<AlumnoCicloCurso> misAlumnoCicloCurso = alumnoCicloCursosXalumno.getOrDefault(egresado.getAlumno().getId(), new ArrayList());
             egresado.setPromedioGraduacion(dirtyGenerarPromedioPonderadoGraduacion(misAlumnoCicloCurso));
+            logger.debug("{} ppg {}", egresado.getAlumno().getCodigo(), egresado.getPromedioGraduacion());
+            egresado.setPromedioGraduacion(egresado.getPromedioGraduacion().setScale(2, RoundingMode.DOWN));
             egresadoDAO.update(egresado);
         }
     }
@@ -514,23 +514,15 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         for (AlumnoCicloCurso cursoAluCiclo : misAlumnoCicloCurso) {
 
-            if (cursoAluCiclo.getCreditos() > 0
-                    && cursoAluCiclo.isAprobado()
-                    && cursoAluCiclo.isBooleanRegistroActivo()
-                    && cursoAluCiclo.getEstadoEnum() == MAT
-                    && !Arrays.asList("AP", "TE").contains(cursoAluCiclo.getNota())) {
+            BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCiclo.getNota());
+            BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCiclo.getCreditos());
 
-                BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCiclo.getNota());
-                BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCiclo.getCreditos());
-
-                sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
-                sumCreditos = sumCreditos.add(creditosBig);
-
-            }
-
+            sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
+            sumCreditos = sumCreditos.add(creditosBig);
         }
 
-        return sumNotasCreditos.divide(sumCreditos,16, RoundingMode.DOWN);
+        return sumNotasCreditos.divide(sumCreditos, 16, RoundingMode.DOWN);
+
     }
 
 }
