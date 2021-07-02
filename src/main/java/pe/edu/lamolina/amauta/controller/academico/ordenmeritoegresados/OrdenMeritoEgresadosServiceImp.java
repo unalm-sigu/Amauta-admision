@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
@@ -69,46 +70,71 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     @Override
     @Transactional
     public void generarDatos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        logger.debug("generando datos para el ciclo {}", cicloAcademico.getId());
         egresadoDAO.deleteInfoOrdenMeritoByCicloAcademico(cicloAcademico);
         controlOrdenMeritoDAO.deleteByCicloAcademico(cicloAcademico);
+        logger.debug("removiendo orden merito success...");
 
         List<Egresado> egresadosDB = egresadoDAO.allByCicloAcademico(cicloAcademico);
 
-        logger.debug("egresadosDB {}", egresadosDB.size());
+        logger.debug("total de egresados en db x ciclo {}", egresadosDB.size());
 
         Date now = new Date();
 
-        ControlMeritoEgresado comCiclo = new ControlMeritoEgresado();
-        comCiclo.setCicloAcademico(cicloAcademico);
-        comCiclo.setEscala(ControlOrdenMeritoEscalaEnum.CICLO);
-        comCiclo.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+        ControlMeritoEgresado controlCiclo = new ControlMeritoEgresado();
+        controlCiclo.setCicloAcademico(cicloAcademico);
+        controlCiclo.setEscala(ControlOrdenMeritoEscalaEnum.CICLO);
+        controlCiclo.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
 
-        comCiclo.setUserRegistro(ds.getUsuario());
-        comCiclo.setFechaRegistro(now);
+        controlCiclo.setUserRegistro(ds.getUsuario());
+        controlCiclo.setFechaRegistro(now);
 
+        logger.debug("carreras...");
         List<Carrera> carreras = carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
         Collections.sort(carreras, new Carrera.CompareCodigo());
+        carreras.forEach(x -> logger.debug("{} {}", x.getId(), x.getNombre()));
 
+        logger.debug("facultades...");
         Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("facultad.id", "facultad", carreras);
         List<Facultad> facultades = new ArrayList(mapFacultad.values());
+        facultades.forEach(x -> logger.debug("{} {}", x.getId(), x.getNombre()));
 
+        logger.debug("jerarquia...");
         Map<Long, List<Carrera>> mapCarreras = TypesUtil.convertListToMapList("facultad.id", carreras);
         for (Map.Entry<Long, List<Carrera>> entry : mapCarreras.entrySet()) {
             Facultad fac = mapFacultad.get(entry.getKey());
             List<Carrera> carrerasFac = entry.getValue();
             fac.setCarrera(carrerasFac);
+            logger.debug("-- {}", fac.getNombre());
+            for (Carrera car : carrerasFac) {
+                logger.debug("---- {}", car.getNombre());
+            }
         }
 
+        logger.debug("facultad sin especialidad ...");
         List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
         Collections.sort(facultadUnica, new Facultad.CompareCodigo());
+        facultadUnica.forEach(x -> logger.debug("{} {}", x.getId(), x.getNombre()));
+
+        logger.debug("facultad con especialidad ...");
         List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
         Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
+        noFacultadUnica.forEach(x -> logger.debug("{} {}", x.getId(), x.getNombre()));
 
-        Map<Facultad, List<Egresado>> mapAlumnoByFacultad = egresadosDB.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
-        Map<Carrera, List<Egresado>> mapAlumnosByCarrera = egresadosDB.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
+        logger.debug("egresado x faculta sin especialidad ...");
+        Map<Facultad, List<Egresado>> mapAlumnoByFacultad = egresadosDB.stream()
+                .filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad()))
+                .collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
 
-        Map<Long, List<Egresado>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", egresadosDB);
-        Map<Long, List<Egresado>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", egresadosDB);
+        logger.debug("egresado x faculta con especialidad ...");
+        Map<Carrera, List<Egresado>> mapAlumnosByCarrera = egresadosDB.stream()
+                .filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad()))
+                .collect(Collectors.groupingBy(ac -> ac.getCarrera()));
+
+        logger.debug("total egresado x facultad ok ...");
+        Map<Long, List<Egresado>> mapAlumnosByIdFacultad = TypesUtil.convertListToMapList("carrera.facultad.id", egresadosDB);
+        logger.debug("total egresado x carrera ok ...");
+        Map<Long, List<Egresado>> mapAlumnosByIdEspecialidad = TypesUtil.convertListToMapList("carrera.id", egresadosDB);
 
         List<AlumnoCiclo> alusCiclo = alumnoCicloDAO.allByCicloAcademico(cicloAcademico);
         Map<Long, AlumnoCiclo> mapAlumnosCiclo = new HashMap();
@@ -123,77 +149,95 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         for (Map.Entry<Carrera, List<Egresado>> entry : mapAlumnosByCarrera.entrySet()) {
             total += entry.getValue().size();
         }
-        comCiclo.setTotalAlumnos(total);
-        logger.debug("total ciclo count {}", total);
-        controlOrdenMeritoDAO.save(comCiclo);
+        controlCiclo.setTotalAlumnos(total);
+        logger.debug("total egresado X ciclo {}", total);
+        controlOrdenMeritoDAO.save(controlCiclo);
+        logger.debug("tcontrolCiclo id {}", controlCiclo.getId());
 
-        for (Facultad fac : facultadUnica) {
-            ControlMeritoEgresado com = new ControlMeritoEgresado();
-            List<Egresado> egresados = mapAlumnosByIdFac.get(fac.getId());
+        for (Facultad facultad : facultadUnica) {
 
-            if (egresados == null) {
-                egresados = new ArrayList<>();
+            ControlMeritoEgresado controlFacultad = new ControlMeritoEgresado();
+
+            List<Egresado> egresadosXfacultad = mapAlumnosByIdFacultad.getOrDefault(facultad.getId(), new ArrayList());
+            if (egresadosXfacultad.isEmpty()) {
+                continue;
             }
 
-            com.setFacultad(fac);
-            com.setCicloAcademico(cicloAcademico);
-            com.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
-            com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
-            com.setTotalAlumnos(egresados.size());
+            controlFacultad.setFacultad(facultad);
+            controlFacultad.setCicloAcademico(cicloAcademico);
+            controlFacultad.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
+            controlFacultad.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+            controlFacultad.setTotalAlumnos(egresadosXfacultad.size());
+            controlFacultad.setUserRegistro(ds.getUsuario());
+            controlFacultad.setFechaRegistro(now);
 
-            com.setUserRegistro(ds.getUsuario());
-            com.setFechaRegistro(now);
+            controlOrdenMeritoDAO.save(controlFacultad);
 
-            controlOrdenMeritoDAO.save(com);
-
-            for (Egresado egresado : egresados) {
-                egresado.setControlMeritoFacultad(com);
-                egresado.setControlMeritoCiclo(comCiclo);
+            for (Egresado egresado : egresadosXfacultad) {
+                egresado.setControlMeritoFacultad(controlFacultad);
+                egresado.setControlMeritoCiclo(controlCiclo);
             }
 
-            controlOrdenMeritoDAO.update(com);
         }
 
-        for (Facultad fac : noFacultadUnica) {
-            for (Carrera carr : fac.getCarrera()) {
+        for (Facultad facultad : noFacultadUnica) {
 
-                ControlMeritoEgresado com = new ControlMeritoEgresado();
-                System.out.println("esp ==> " + carr.getCodigo());
-                List<Egresado> alumnosCiclo = mapAlumnosByIdCarr.get(carr.getId());
+            ControlMeritoEgresado controlFacultad = new ControlMeritoEgresado();
 
-                if (alumnosCiclo == null) {
-                    alumnosCiclo = new ArrayList<>();
-                }
+            List<Egresado> egresadosXfacultad = mapAlumnosByIdFacultad.getOrDefault(facultad.getId(), new ArrayList());
+            if (egresadosXfacultad.isEmpty()) {
+                continue;
+            }
 
-                com.setCarrera(carr);
-                com.setCicloAcademico(cicloAcademico);
-                com.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
-                com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
-                com.setTotalAlumnos(alumnosCiclo.size());
-                com.setUserRegistro(ds.getUsuario());
-                com.setFechaRegistro(now);
-                if (alumnosCiclo.isEmpty()) {
+            controlFacultad.setFacultad(facultad);
+            controlFacultad.setCicloAcademico(cicloAcademico);
+            controlFacultad.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
+            controlFacultad.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+            controlFacultad.setTotalAlumnos(egresadosXfacultad.size());
+            controlFacultad.setUserRegistro(ds.getUsuario());
+            controlFacultad.setFechaRegistro(now);
+
+            controlOrdenMeritoDAO.save(controlFacultad);
+
+            for (Egresado egresado : egresadosXfacultad) {
+                egresado.setControlMeritoFacultad(controlFacultad);
+                egresado.setControlMeritoCiclo(controlCiclo);
+            }
+
+            for (Carrera carrera : facultad.getCarrera()) {
+
+                ControlMeritoEgresado controlEspecialidad = new ControlMeritoEgresado();
+
+                List<Egresado> egresadosXespecialidad = mapAlumnosByIdEspecialidad.getOrDefault(carrera.getId(), new ArrayList());
+                if (egresadosXespecialidad.isEmpty()) {
                     continue;
                 }
-                controlOrdenMeritoDAO.save(com);
 
-                for (Egresado alumnoCiclo : alumnosCiclo) {
-                    alumnoCiclo.setControlMeritoCarrera(com);
-                    alumnoCiclo.setControlMeritoCiclo(comCiclo);
+                controlEspecialidad.setCarrera(carrera);
+                controlEspecialidad.setCicloAcademico(cicloAcademico);
+                controlEspecialidad.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
+                controlEspecialidad.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+                controlEspecialidad.setTotalAlumnos(egresadosXespecialidad.size());
+                controlEspecialidad.setUserRegistro(ds.getUsuario());
+                controlEspecialidad.setFechaRegistro(now);
+
+                controlOrdenMeritoDAO.save(controlEspecialidad);
+
+                for (Egresado alumnoCiclo : egresadosXespecialidad) {
+                    alumnoCiclo.setControlMeritoCarrera(controlEspecialidad);
+                    alumnoCiclo.setControlMeritoCiclo(controlCiclo);
                 }
 
-                controlOrdenMeritoDAO.update(com);
             }
         }
 
-        controlOrdenMeritoDAO.update(comCiclo);
-
+        logger.debug("copiando promedioAcumulado y creditosAcumulados ...");
         for (Egresado egresado : egresadosDB) {
-            BigDecimal promedio = egresado.getAlumno().getPromedioAcumulado();
-            promedio = promedio.setScale(2, RoundingMode.DOWN);
-            logger.debug("Alumno {} promedio {}, promedio egreso {}", egresado.getAlumno().getCodigo(), egresado.getAlumno().getPromedioAcumulado(), promedio);
-            egresado.setPromedioAcumulado(promedio);
+            BigDecimal promedioAcumulado = egresado.getAlumno().getPromedioAcumulado();
+            promedioAcumulado = promedioAcumulado.setScale(2, RoundingMode.DOWN);
+            egresado.setPromedioAcumulado(promedioAcumulado);
             egresado.setCreditosAcumulados(mapAlumnosCiclo.get(egresado.getAlumno().getId()).getCreditosAcumulados());
+            logger.debug("Alumno {} PromedioAcumulado {}  CreditosAcumulados {}", egresado.getAlumno().getCodigo(), egresado.getPromedioAcumulado(), egresado.getCreditosAcumulados());
             egresadoDAO.update(egresado);
         }
     }
