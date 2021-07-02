@@ -60,25 +60,6 @@ public class OrdenMeritoEgresadosController {
         return "academico/ordenmeritoegresados/ordenmeritoegresados";
     }
 
-    @RequestMapping("{id}/control")
-    public String infoAcademico(
-            @PathVariable Long id,
-            Model model, HttpSession session) {
-
-        ControlMeritoEgresado control = service.find(id);
-        ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
-            "id",
-            "cicloAcademico.descripcion",
-            "cicloAcademico.descripcion2",
-            "carrera.nombre",
-            "facultad.nombre",
-            "escalaEnum"
-        });
-        model.addAttribute("control", control);
-        model.addAttribute("controlJson", json);
-        return "academico/ordenmeritoegresados/ordenmeritoegresadosControl";
-    }
-
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
@@ -112,6 +93,26 @@ public class OrdenMeritoEgresadosController {
         }
 
         return json;
+    }
+
+    @RequestMapping("{id}/control")
+    public String infoAcademico(
+            @PathVariable Long id,
+            Model model, HttpSession session) {
+
+        ControlMeritoEgresado control = service.find(id);
+        ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
+            "id",
+            "cicloAcademico.descripcion",
+            "cicloAcademico.descripcion2",
+            "carrera.nombre",
+            "facultad.nombre",
+            "totalAlumnos",
+            "escalaEnum"
+        });
+        model.addAttribute("control", control);
+        model.addAttribute("controlJson", json);
+        return "academico/ordenmeritoegresados/ordenmeritoegresadosControl";
     }
 
     @ResponseBody
@@ -150,7 +151,8 @@ public class OrdenMeritoEgresadosController {
                     "tercioSuperiorCiclo",
                     "tercioSuperiorFacultad",
                     //--  --//
-                    "promedioAcumulado"
+                    "promedioAcumulado",
+                    "promedioGraduacion"
                 }));
             }
 

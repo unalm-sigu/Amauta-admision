@@ -94,7 +94,7 @@ new Vue({
                 }});
         },
         styleActividad(item) {
-            var total = item.totalActividades - 2;
+            var total = item.totalActividades - 1;
 
             if (item.actividadesEjecutadas < total) {
                 return " bgr-danger";

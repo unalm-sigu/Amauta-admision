@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.ordenmeritoegresados;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -10,15 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -41,6 +43,8 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,6 +70,9 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     AlumnoDAO alumnoDAO;
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Override
     @Transactional
@@ -246,17 +253,17 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     @Transactional
     public void calcularMeritos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
-        List<ControlMeritoEgresado> coms = controlOrdenMeritoDAO.allByCicloAcademico(cicloAcademico);
+        List<ControlMeritoEgresado> control = controlOrdenMeritoDAO.allByCicloAcademico(cicloAcademico);
 
         Date now = new Date();
 
-        for (ControlMeritoEgresado com : coms) {
+        for (ControlMeritoEgresado com : control) {
             com.setEstado(ControlOrdenMeritoEstadoEnum.CALC);
             com.setFechaCalculo(now);
             com.setUserCalculo(ds.getUsuario());
         }
 
-        List<Egresado> egresados = egresadoDAO.allByControlesOrdenMerito(coms);
+        List<Egresado> egresados = egresadoDAO.allByControlesOrdenMerito(control);
 
         Collections.sort(egresados, Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
 
@@ -291,13 +298,22 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             }
         }
 
-        ControlMeritoEgresado comCiclo = coms.stream().filter(com -> com.getEscalaEnum() == ControlOrdenMeritoEscalaEnum.CICLO).findFirst().get();
+        ControlMeritoEgresado comCiclo = control.stream()
+                .filter(com -> com.getEscalaEnum() == ControlOrdenMeritoEscalaEnum.CICLO)
+                .findFirst().get();
 
-        Map<ControlMeritoEgresado, List<Egresado>> alumnosByFacultades = egresados.stream().filter(ac -> ac.getControlMeritoFacultad() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoFacultad()));
-        Map<ControlMeritoEgresado, List<Egresado>> alumnosByCarreras = egresados.stream().filter(ac -> ac.getControlMeritoCarrera() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoCarrera()));
+        Map<ControlMeritoEgresado, List<Egresado>> alumnosByFacultades = egresados.stream()
+                .filter(ac -> ac.getControlMeritoFacultad() != null)
+                .collect(Collectors.groupingBy(ac -> ac.getControlMeritoFacultad()));
+
+        Map<ControlMeritoEgresado, List<Egresado>> alumnosByCarreras = egresados.stream()
+                .filter(ac -> ac.getControlMeritoCarrera() != null)
+                .collect(Collectors.groupingBy(ac -> ac.getControlMeritoCarrera()));
 
         for (Map.Entry<ControlMeritoEgresado, List<Egresado>> entry : alumnosByFacultades.entrySet()) {
+
             Collections.sort(entry.getValue(), Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
+
             puesto = 0;
             puestoActual = 0;
             promedio = null;
@@ -333,6 +349,7 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         }
 
         for (Map.Entry<ControlMeritoEgresado, List<Egresado>> entry : alumnosByCarreras.entrySet()) {
+
             Collections.sort(entry.getValue(), Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
 
             puesto = 0;
@@ -370,11 +387,19 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         comCiclo.setEstado(ControlOrdenMeritoEstadoEnum.CALC);
 
-        for (ControlMeritoEgresado com : coms) {
+        for (ControlMeritoEgresado com : control) {
             controlOrdenMeritoDAO.update(com);
         }
 
+        List<Alumno> alumnos = egresados.stream().map(x -> x.getAlumno()).collect(toList());
+
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allPromedioPonderadoGraduacionByAlumnos(alumnos);
+
+        Map<Long, List<AlumnoCicloCurso>> alumnoCicloCursosXalumno = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnoCicloCursos);
+
         for (Egresado egresado : egresados) {
+            List<AlumnoCicloCurso> misAlumnoCicloCurso = alumnoCicloCursosXalumno.getOrDefault(egresado.getAlumno().getId(), new ArrayList());
+            egresado.setPromedioGraduacion(dirtyGenerarPromedioPonderadoGraduacion(misAlumnoCicloCurso));
             egresadoDAO.update(egresado);
         }
     }
@@ -480,6 +505,32 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
         Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
         return facultades;
+    }
+
+    private BigDecimal dirtyGenerarPromedioPonderadoGraduacion(List<AlumnoCicloCurso> misAlumnoCicloCurso) {
+
+        BigDecimal sumNotasCreditos = BigDecimal.ZERO;
+        BigDecimal sumCreditos = BigDecimal.ZERO;
+
+        for (AlumnoCicloCurso cursoAluCiclo : misAlumnoCicloCurso) {
+
+            if (cursoAluCiclo.getCreditos() > 0
+                    && cursoAluCiclo.isAprobado()
+                    && cursoAluCiclo.isBooleanRegistroActivo()
+                    && cursoAluCiclo.getEstadoEnum() == MAT
+                    && !Arrays.asList("AP", "TE").contains(cursoAluCiclo.getNota())) {
+
+                BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCiclo.getNota());
+                BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCiclo.getCreditos());
+
+                sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
+                sumCreditos = sumCreditos.add(creditosBig);
+
+            }
+
+        }
+
+        return sumNotasCreditos.divide(sumCreditos,16, RoundingMode.DOWN);
     }
 
 }

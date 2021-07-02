@@ -27,7 +27,7 @@ public class ControlMeritoEgresadoDAOH extends AbstractEasyDAO<ControlMeritoEgre
                 .left("carrera car", "facultad fa")
                 .filter("ca.id", cicloAcademico)
                 .searchFields("car.nombre", "fa.codigo")
-                .orderBy("com.id");
+                .orderBy("car.id");
 
         return all(sql);
     }

@@ -832,6 +832,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
             if (cursoAluCicloEach.getCreditos() > 0
                     && cursoAluCicloEach.isAprobado()
+                    && cursoAluCicloEach.isBooleanRegistroActivo()
                     && cursoAluCicloEach.getEstadoEnum() == MAT
                     && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
 
