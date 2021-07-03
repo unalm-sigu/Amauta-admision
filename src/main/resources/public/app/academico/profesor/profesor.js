@@ -117,7 +117,7 @@ $(function () {
             httpMethod: "POST",
             data: {departamento: dpto},
             successCallback: function (responseHtml, url) {
-//                    console.log('aqui');
+
             },
             onFail: function (e) {
                 console.log(e);
@@ -140,16 +140,13 @@ new Vue({
     el: '#mainvue',
     data: {
         urlfilter: APP.url("tramite/aula/list"),
-        reporteModal: VUE_MODAL.structFormAjax({
-            id: 'modalReporte',
-            header: true,
-            title: 'Reporte Entrega Materiales',
-            okbtn: 'Aceptar',
-            showaccept: true,
-            modalsize: 'modal-md'
-        }),
         facultades: JSON.parse(jFacultades),
-        facultad: null
+        departamentos: JSON.parse(jDepartamentos),
+        departamentosSelectos: [],
+        facultad: null,
+        departamento: null,
+        tipoGrado: null,
+        grados: [{id: 'PRE', nombre: 'Solo pregrado'}, {id: 'EPG', nombre: 'Solo posgrado'}]
     },
     mounted: function () {
         let $vue = this;
@@ -158,25 +155,62 @@ new Vue({
         openModalReporte: function () {
             let vue = this;
             vue.$refs.modalReporte.open();
-        }, downloadReporte() {
+        },
+        downloadReporte() {
             let vue = this;
             let data = {};
             if (vue.facultad != null) {
-                data = {facultad: vue.facultad.id};
+                data = {params: {facultad: vue.facultad.id}};
             }
-            $.fileDownload("/academico/profesor/reporteEntregaMateriales", {
-                httpMethod: "POST",
-                data: data,
-                successCallback: function (responseHtml, url) {
-//                    console.log('aqui');
-                },
-                onFail: function (e) {
-                    console.log(e);
-                },
-                failCallback: function (responseHtml, url) {
-                    notify(Messages.errorComunicacion, 'error')
-                }
-            });
+
+            axios_blob.get("/academico/profesor/reporteEntregaMateriales", data)
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        vue.$refs.modalReporte.close();
+                    }, () => {
+                        vue.$refs.modalReporte.stop();
+                        notify(Messages.errorComunicacion, 'error')
+                    });
+        },
+        openModalReporteCargaAcademica() {
+            let vue = this;
+            vue.$refs.modalReporteCargaAcademica.open();
+        },
+        downloadReporteCargaAcademica() {
+
+            let vue = this;
+            let data = {params: {
+                    departamento: vue.departamento ? vue.departamento.id : '',
+                    tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                    facultad: vue.facultad ? vue.facultad.id : '',
+                }};
+
+            axios_blob.get("/academico/profesor/reporteCargaAcademica", data)
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        vue.$refs.modalReporteCargaAcademica.close();
+                    }, () => {
+                        vue.$refs.modalReporteCargaAcademica.stop();
+                        notify(Messages.errorComunicacion, 'error')
+                    });
+        },
+        changeFacultad() {
+            let $vue = this;
+
+            $vue.departamentosSelectos = [];
+            $vue.departamento=null;
+            
+            if ($vue.facultad) {
+
+                $vue.departamentos.map((x, i) => {
+                    if (x.facultad.id == $vue.facultad.id) {
+                        $vue.departamentosSelectos.push(x)
+                    }
+                });
+
+                $vue.departamentosSelectos;
+
+            }
         }
     }
 });

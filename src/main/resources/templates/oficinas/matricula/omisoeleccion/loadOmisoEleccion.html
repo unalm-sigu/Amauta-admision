@@ -44,7 +44,12 @@
                                         </div>
                                         <span id="footerLoadAbonos" class="col-md-12 text-center">
                                             <a class="btn btn-link" th:href="@{'/oficinas/matricula/omisoeleccion'}">Regresar</a>
-                                            <button type="button" class="btn btn-primary"  v-on:click.prevent="startUpload">
+                                            <button type="button" class="btn btn-primary"
+                                                    v-bind:disabled="procesando"
+                                                    v-on:click.prevent="startUpload">
+
+                                                <i  v-if="procesando" class="fa fa-spinner fa-pulse fa-fw"></i>
+
                                                 {{btnText}}
                                             </button>
                                         </span>
@@ -86,7 +91,7 @@
         </div>
 
         <div layout:fragment="js">
-              <script  th:inline="javascript" >
+            <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclos.toString()}]]*/ '';
                 /*]]>*/

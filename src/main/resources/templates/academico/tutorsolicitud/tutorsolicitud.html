@@ -8,7 +8,7 @@
         <div id="tutorSolicitudVUE" layout:fragment="main">
             <header class="header b-b padder-lg">
                 <h2 th:text="|Tutor - Solicitudes de beneficio de último ${ciclo.descripcion2}|"> </h2>
-                
+
             </header>
 
             <section class="wrapper-lg">
@@ -19,6 +19,7 @@
                                 <table class="table table-striped table-hover">
                                     <thead> 
                                         <tr>
+                                            <!--<th></th>-->
                                             <th class="col-md-4 text-center v-middle" colspan="2">Información Alumno</th><!--  //-->
                                             <th class="col-md-3 text-left">Tutor</th>
                                             <th class="col-md-3 text-left v-middle">Carrera</th>
@@ -27,7 +28,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        
                                         <tr v-for="item in props.data">
                                             <td class="v-middle">
                                                 <div class="pull-left">
@@ -56,9 +56,11 @@
                                                 </div>
                                             </td>
                                             <td class="v-middle">
-                                                <div class="v-middle clear">
+                                                <div v-if="item.alumnoConsejero.consejero.id == 1" class="v-middle clear">
+                                                    <span class="block text-danger bold">Sin Tutor, solicitado por el coordinador</span>
+                                                </div>
+                                                <div v-else="" class="v-middle clear">
                                                     <span class="block text-primary bold" v-text="item.alumnoConsejero.consejero.colaborador.persona.apellidosNombres"></span>
-
                                                 </div>
                                             </td>
                                             <td class="v-middle">
@@ -101,11 +103,11 @@
         </div>
 
         <div layout:fragment="js">
-<!--            <script  th:inline="javascript" >
-                /*<![CDATA[*/
-                var cicloJson = /*[[${ciclo.toString()}]]*/ '';
-                /*]]>*/
-            </script>-->
+            <!--            <script  th:inline="javascript" >
+                            /*<![CDATA[*/
+                            var cicloJson = /*[[${ciclo.toString()}]]*/ '';
+                            /*]]>*/
+                        </script>-->
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/tutorsolicitud/tutorsolicitud.js}" charset="utf-8"></script>

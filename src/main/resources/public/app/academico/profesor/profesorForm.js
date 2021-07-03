@@ -272,7 +272,7 @@ new Vue({
             var form = $("#formDocente");
 
             if ($('[name="persona.numeroDocIdentidad"]').val() != '' && $('[name="persona.tipoDocumento.id"]').val() == '') {
-                notify("Seleccione primero el tipo documento",'error');
+                notify("Seleccione primero el tipo documento", 'error');
                 $('[name="persona.numeroDocIdentidad"]').val('');
                 return;
             }
@@ -335,7 +335,7 @@ new Vue({
                         form.find('[name="persona.direccion"]').val(data.direccion);
                         form.find('[name="persona.foto"]').val(data.foto);
                         vue.avatarInit();
-                        notify("Profesor ya registrado.",'error')
+
                     } else {
                         $("#nombreDocente").text("");
                         form.find('[name="persona.foto"]').val('');

@@ -324,6 +324,8 @@ var app = new Vue({
                             $vue.alumnoTramiteBachiller = response.data;
                         } else if ($vue.tipo == "PRACTICAS") {
                             $vue.alumnoTramitePracticas = response.data;
+                        } else if ($vue.tipo == "TRAS_INT") {
+                            $vue.alumnoTramiteTraslado = response.data;
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

@@ -77,7 +77,6 @@ import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.zelper.CustomRenderer;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
@@ -142,14 +141,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             List<PuntajeEncuestaDocenteModalidad> puntajes,
             List<EncuestaDocente> anuladas) {
 
-//        Map<GrupoSeccion, List<PuntajeEncuestaDocente>> mapCursos = peds.stream().collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getSeccion().getGrupoSeccion()));
-        //Collections.sort(peds, new PuntajeEncuestaDocente.CompareOrdenEncuesta());
         Collections.sort(puntajes, new PuntajeEncuestaDocenteModalidad.CompareOrdenEncuesta());
-        System.out.println("peds.size=" + peds.size());
 
         Map<Seccion, List<PuntajeEncuestaDocente>> mapCursos = TypesUtil.convertListToMapList("encuestaDocente.docenteSeccion.seccion", peds);
-        System.out.println("mapCursos.size=" + mapCursos.size());
-        //Map<Seccion, EncuestaDocente> mapDocenteSeccion = TypesUtil.convertListToMapList("encuestaDocente.docenteSeccion.seccion", "encuestaDocente", peds);
 
         List<TemaExamenVirtual> temas = peds
                 .stream()
@@ -168,7 +162,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         Set<EncuestaDocente> encuestas = new HashSet();
         BigDecimal CIEN = new BigDecimal("100");
 
-//        for (Map.Entry<GrupoSeccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
         for (Map.Entry<Seccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
             Collections.sort(entry.getValue(), new PuntajeEncuestaDocente.CompareOrdenEncuesta());
             for (PuntajeEncuestaDocente ped : entry.getValue()) {
@@ -183,6 +176,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                 Seccion key = entry.getKey();
                 Curso curso = key.getGrupoSeccion().getCurso();
                 DocenteSeccion docenteSeccion = encuesta.getDocenteSeccion();
+                if (docenteSeccion.getPorcentajeCargaFraccion() == null) {
+                    docenteSeccion.setPorcentajeCargaFraccion("0");
+                }
                 BigDecimal horasTeo = new Fraxtion("0/1").getValue(2);
                 BigDecimal horasPra = new Fraxtion("0/1").getValue(2);
 
@@ -211,7 +207,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                 }
             }
         }
-        System.out.println("mapDocenteSeccion.size=" + mapDocenteSeccion.size());
 
         SimpleDateFormat formateador = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-ES"));
 
@@ -270,48 +265,36 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     }
 
     @Override
-    public String reporteTodos(CicloAcademico cicloAcademico) {
+    public String reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos) {
 
-        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(modalidadEstudioEnum);
+
+        List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCiclo(cicloAcademico, modalidadEstudio, departamentos);
+
+        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadEncuestaCicloAcademico(modalidadEstudio, cicloAcademico);
+
+        Map<Long, List<PuntajeEncuestaDocente>> pedsXdocente = peds.stream()
+                .collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getDocente().getId()));
+
+        List<PuntajeEncuestaDocenteModalidad> puntajes = puntajeEncuestaDocenteModalidadDAO.allByEncuestasDocenteModalidad(encuestas);
+
+        Map<Long, List<PuntajeEncuestaDocenteModalidad>> puntajesXencuesta = puntajes.stream()
+                .collect(Collectors.groupingBy(x -> x.getEncuestaDocenteModalidad().getDocente().getId()));
+
         Map<Long, List<EncuestaDocente>> mapAnuladas = encuestaDocenteDAO.allAnuladaByModalidadEstudioCicloAcademico(modalidadEstudio, cicloAcademico)
                 .stream()
                 .collect(Collectors.groupingBy(x -> x.getDocenteSeccion().getDocente().getId()));
 
-        List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCiclo(cicloAcademico);
-        for (EncuestaDocenteModalidad encuesta : encuestas) {
-            encuesta.setPuntajeEncuestaDocente(new ArrayList<>());
-            encuesta.setPuntajeEncuestaDocenteModalidad(new ArrayList<>());
-        }
-        Map<Long, EncuestaDocenteModalidad> encuestasPorDocente = encuestas.stream().collect(Collectors.toMap(x -> x.getDocente().getId(), x -> x));
-        Map<Long, EncuestaDocenteModalidad> encuestasPorId = encuestas.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
-        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByCicloAcademico(cicloAcademico);
-
-        for (PuntajeEncuestaDocente ped : peds) {
-            EncuestaDocenteModalidad edm = encuestasPorDocente.get(ped.getEncuestaDocente().getDocenteSeccion().getDocente().getId());
-            if (edm != null && edm.getPuntajeEncuestaDocente() != null) {
-                edm.getPuntajeEncuestaDocente().add(ped);
-            } else {
-                logger.error("not found");
-            }
-        }
-
-        List<PuntajeEncuestaDocenteModalidad> puntajes = puntajeEncuestaDocenteModalidadDAO.allByEncuestasDocenteModalidad(encuestas);
-        for (PuntajeEncuestaDocenteModalidad puntaje : puntajes) {
-            EncuestaDocenteModalidad edm = encuestasPorId.get(puntaje.getEncuestaDocenteModalidad().getId());
-            if (edm != null && edm.getPuntajeEncuestaDocenteModalidad() != null) {
-                edm.getPuntajeEncuestaDocenteModalidad().add(puntaje);
-            } else {
-                logger.error("not found 2");
-            }
-        }
-
-        List<String> pdfs = new ArrayList<>();
+        List<String> documentos = new ArrayList();
+        List dfault = new ArrayList();
+        Long key = null;
 
         for (EncuestaDocenteModalidad encuesta : encuestas) {
-            pdfs.add(buildReport(encuesta, encuesta.getPuntajeEncuestaDocente(), encuesta.getPuntajeEncuestaDocenteModalidad(), mapAnuladas.get(encuesta.getDocente().getId())));
+            key = encuesta.getDocente().getId();
+            documentos.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), mapAnuladas.getOrDefault(key, dfault)));
         }
 
-        return pdfGenerator.concatPDFs(pdfs, "resumen", true);
+        return pdfGenerator.concatPDFs(documentos, "resumen", true);
     }
 
     private String buildPlot(List<PuntajeEncuestaDocenteModalidad> puntajes) {

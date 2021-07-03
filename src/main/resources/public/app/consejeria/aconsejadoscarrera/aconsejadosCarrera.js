@@ -169,6 +169,54 @@ new Vue({
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        solicitudBeneficio(item) {
+            let $vue = this;
+
+            var sexo = item.alumno.persona.sexo == 'M' ? 'al alumno ' : 'a la alumna ';
+            var alumno = sexo + item.alumno.persona.apellidosNombres;
+            var ciclo = item.cicloAcademico.descripcion;
+
+
+            swal('¿Esta seguro que desea asignar el beneficio de último ciclo ' + alumno + ' en el ciclo ' + ciclo + ' ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("consejeria/aconsejadostutor/solicitudBeneficio"),
+                    data: JSON.stringify(item),
+                    contentType: "application/json",
+                    success: function (response) {
+                        if (response.success) {
+                            $vue.$refs.raptorAconsejados.loadRemoteData();
+                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+
         }
     }
 });

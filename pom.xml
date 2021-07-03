@@ -223,6 +223,13 @@
             <type>jar</type>
         </dependency>
         
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
@@ -233,11 +240,9 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.27.39</version>
-        </dependency>        
-      
+            <version>0.28.17</version>
+        </dependency>    
     </dependencies>
-
     <build>
         <finalName>amauta</finalName>
         <plugins>

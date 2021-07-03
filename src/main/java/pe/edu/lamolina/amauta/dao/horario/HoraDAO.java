@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.horario;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.horario.Hora;
 
 public interface HoraDAO extends EasyDAO<Hora> {
@@ -15,4 +16,6 @@ public interface HoraDAO extends EasyDAO<Hora> {
     List<Hora> allHorasByRango(int min, int max);
 
     List<Hora> allHoras();
+
+    public List<Hora> allByTipo(TipoHoraEnum tipoHoraEnum);
 }

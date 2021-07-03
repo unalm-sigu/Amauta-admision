@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 public interface EncuestaDocenteModalidadService {
 
@@ -16,7 +17,7 @@ public interface EncuestaDocenteModalidadService {
 
     String reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
-    String reporteTodos(CicloAcademico cicloAcademico);
+    String reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum,List<DepartamentoAcademico> departamentos);
 
     List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad);
 

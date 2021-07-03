@@ -6,7 +6,8 @@ new Vue({
         btnText: 'Iniciar Carga',
         ciclos: JSON.parse(cicloJson),
         datos: [],
-        cicloAcademico: null
+        cicloAcademico: null,
+        procesando: false,
     },
     mounted: function () {
         let $vue = this;
@@ -23,6 +24,7 @@ new Vue({
             let formData = new FormData();
             formData.append('file', $vue.file);
             formData.append('cicloAcademico', $vue.cicloAcademico.codigo);
+            $vue.procesando = true;
             AXIOS.post('/oficinas/matricula/omisoeleccion/cargarDatos',
                     formData,
                     {
@@ -39,14 +41,15 @@ new Vue({
 //                    notify(response.data.message, "error");
                 }
                 console.log($vue.datos);
+                $vue.procesando = false;
             }).catch(err => {
                 notify(Messages.errorComunicacion, "error");
+                $vue.procesando = false;
             });
         },
         getImage(event) {
             var $vue = this;
             $vue.file = event.target.files[0];
-
         }
     }
 });

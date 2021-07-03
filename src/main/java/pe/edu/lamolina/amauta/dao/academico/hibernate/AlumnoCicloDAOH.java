@@ -1068,4 +1068,19 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         return all(sql);
     }
 
+    @Override
+    public List<AlumnoCiclo> allActivesOrdenMeritoByAlumnoAscCustom(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "controlMeritoCiclo", "controlMeritoFacultad")
+                .left("controlMeritoCarrera")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um")
+                .filter("alu.id", alumno)
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.codigo asc");
+
+        return all(sql);
+    }
+
 }

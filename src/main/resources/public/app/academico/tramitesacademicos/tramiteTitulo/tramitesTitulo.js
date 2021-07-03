@@ -6,7 +6,7 @@ var app = new Vue({
         modalTramTitulo: {
             id: 'modalTramTitulo',
             header: true,
-            title: 'Agregar Tramite Bachiller ',
+            title: 'Agregar Tramite Título ',
             okbtn: "Guardar",
             showaccept: true
         },

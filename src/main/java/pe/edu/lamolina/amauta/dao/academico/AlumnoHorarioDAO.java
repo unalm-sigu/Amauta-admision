@@ -35,4 +35,8 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     void updateColumns(AlumnoHorario aluHorario, String... columns);
 
+    public List<AlumnoHorario> allQuintoSecundariaByCiclo(CicloAcademico cicloAcademico);
+
+    public List<AlumnoHorario> allByHorarioSinQuintoSecundaria(HorarioCachimbos horario);
+
 }

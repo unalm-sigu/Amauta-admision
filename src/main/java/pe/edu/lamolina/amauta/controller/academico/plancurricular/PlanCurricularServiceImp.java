@@ -269,8 +269,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (CursoEquivalente curso : grupo.getCursoEquivalente()) {
             
             CursoCurricula curriculaCaduca = map.get(curso.getCursoEquivalente().getId());
-            curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
-            curso.setCursoCurricula(grupo.getCursoCurricula());
+            curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId())); // curso caducado
+            curso.setCursoCurricula(grupo.getCursoCurricula()); // curso nuevo
             curso.setGrupo(maxNumeroGrupo);
             curso.setEstado(EstadoEnum.ACT.name());
             curso.setFechaRegistro(new Date());
@@ -289,8 +289,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     requisitoCursoCurriculaDAO.update(requisitoCursoCurricula);
                     
                     RequisitoCursoCurricula requisitoCursoCurriculaNew = new RequisitoCursoCurricula();
-                    requisitoCursoCurriculaNew.setCursoCurricula(grupo.getCursoCurricula());
-                    requisitoCursoCurriculaNew.setCursoRequisito(requisitoCursoCurricula.getCursoRequisito());
+                    requisitoCursoCurriculaNew.setCursoCurricula(grupo.getCursoCurricula());// curso nuevo
+                    requisitoCursoCurriculaNew.setCursoRequisito(requisitoCursoCurricula.getCursoRequisito()); 
                     requisitoCursoCurriculaNew.setEstado(EstadoEnum.ACT.name());
                     requisitoCursoCurriculaNew.setFechaRegistro(new Date());
                     requisitoCursoCurriculaNew.setUserRegistro(ds.getUsuario());
@@ -444,6 +444,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setEstado(CurriculaEstadoEnum.ACT.name());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
+            Assert.isFalse(!cursoCurricula.getRequisitosOr() && !requisito.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
             requisito.setRequisitosObligatorio(requisito.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.save(requisito);
         }
@@ -496,6 +497,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<RequisitoCursoCurricula> existentes = inspector.getOldListDB();
         
         for (RequisitoCursoCurricula nuevo : nuevos) {
+             Assert.isFalse(!cursoCurricula.getRequisitosOr() && !nuevo.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
+           
             nuevo.setSimultaneo(nuevo.getSimultaneo() == null ? 0 : 1);
             nuevo.setCursoCurricula(cursoCurricula);
             nuevo.setFechaRegistro(new Date());
@@ -511,6 +514,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         
         for (RequisitoCursoCurricula existenteBD : existentes) {
             RequisitoCursoCurricula existenteForm = mapRequisitos.get(existenteBD.getCursoRequisito().getId());
+             Assert.isFalse(!cursoCurricula.getRequisitosOr() && !existenteForm.getRequisitosObligatorio(), "No se puede agregar requisitos no obligatorios.");
+           
             existenteBD.setSimultaneo(existenteForm.getSimultaneo() == null ? 0 : 1);
             existenteBD.setRequisitosObligatorio(existenteForm.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.update(existenteBD);
@@ -1473,17 +1478,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
         
-        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumnos(alumnos);
-        Map<String, AlumnoCicloCurso> mapCursosAprobadosKey = TypesUtil.convertListToMap("alumnoCursoKey", cursosAprobados);
+        List<AlumnoCicloCurso> cursosAprobadosAll = alumnoCicloCursoDAO.allAprobadoActivoByAlumnos(alumnos);
+        Map<String, AlumnoCicloCurso> mapCursosAprobadosKey = TypesUtil.convertListToMap("alumnoCursoKey", cursosAprobadosAll);
         
         List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumnos(alumnos);
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (mapCursosAprobadosKey.get(alumnoCicloCurso.getAlumnoCursoKey()) == null) {
-                cursosAprobados.add(alumnoCicloCurso);
+                cursosAprobadosAll.add(alumnoCicloCurso);
                 mapCursosAprobadosKey.put(alumnoCicloCurso.getAlumnoCursoKey(), alumnoCicloCurso);
             }
         }
-        Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
+        Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobadosAll);
         
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
         Map<String, AlumnoCicloCurso> mapTodosCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
@@ -1493,7 +1498,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<Long, List<AlumnoCursoCurricula>> mapAlumnoCursoCurricula = TypesUtil.convertListToMapList("alumno.id", alumnoCursoCurriculas);
         
         int count = 0;
-        for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
+        for (AlumnoCicloCurso cursoAprobado : cursosAprobadosAll) {
             cursoAprobado.setVecesCursadoTransient(0);
             AlumnoCicloCurso cursoVeces = mapTodosCursosVecesLlevado.get(cursoAprobado.getAlumnoCursoKey());
             if (cursoVeces == null) {

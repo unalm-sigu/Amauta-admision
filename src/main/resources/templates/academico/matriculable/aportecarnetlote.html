@@ -1,0 +1,50 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Matriculables</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main" >
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">        
+                    <h2 class="text-primary">Generar aporte carnet en lote para el ciclo <span v-text="ciclo.descripcion">2016-II</span></h2>
+                </header>
+                <section class="wrapper-lg">
+
+                    <section class="panel">
+
+                        <section class="panel-body">
+
+                            <div class="row">
+
+                                <div class="col-sm-6">
+                                    <button v-on:click="generar" class="btn-block btn btn-primary m-3">Generar aporte carnet</button>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <button v-on:click="eliminar" class="btn-block btn btn-danger m-3">Eliminar aporte carnet</button>
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </section>
+
+                </section>
+
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <script th:src="@{/app/academico/matriculable/aportecarnetlote.js}" charset="utf-8"></script>
+        </div>
+    </body>
+
+</html>

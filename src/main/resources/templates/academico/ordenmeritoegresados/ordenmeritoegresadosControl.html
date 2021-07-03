@@ -26,7 +26,8 @@
                                             <th v-if="control.escalaEnum.name=='ESPE'"
                                                 rowspan="2" class="col-md-2 v-middle text-center">Especialidad</th>
 
-                                            <th rowspan="2" class=" text-center v-middle">Promedio</th>
+                                            <th rowspan="1" class=" text-center v-middle">Promedio</th>
+                                            <th rowspan="1" class=" text-center v-middle">Promedio Graduación</th>
                                             <th rowspan="2" class=" text-center v-middle b-l">Orden de Mérito</th>
                                             <th rowspan="2" class=" text-center v-middle">Cuadro de Honor</th>
                                             <th rowspan="2" class=" text-center v-middle">Quinto Superior</th>
@@ -48,14 +49,19 @@
                                                 <small v-if="item.carrera.codigo != item.carrera.facultad.codigo"
                                                        class="block bold"> {{item.carrera.facultad.nombre}}</small>
                                             </td>
+                                            
                                             <td class="v-middle text-center">
                                                 <span> {{ item.promedioAcumulado }} </span>
                                             </td>
+                                            
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.promedioGraduacion }} </span>
+                                            </td>
 
                                             <td class="v-middle text-center">
-                                                <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} </span>
-                                                <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultad }} </span>
-                                                <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCiclo }} </span>
+                                                <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} de {{control.totalAlumnos}} </span>
+                                                <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultad }} de {{control.totalAlumnos}} </span>
+                                                <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCiclo }} de {{control.totalAlumnos}} </span>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.cuadroHonorCarrera"> Sí </span>
@@ -91,7 +97,7 @@
             var control = /*[[${controlJson.toString()}]]*/ 'json';
             /*]]>*/
         </script>
-        
+
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/ordenmeritoegresados/ordenmeritoegresadosControl.js}" charset="utf-8"></script>
     </div>

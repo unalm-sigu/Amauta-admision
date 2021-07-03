@@ -17,6 +17,10 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 public interface ProfesorService {
 
@@ -57,5 +61,11 @@ public interface ProfesorService {
     DepartamentoAcademico findDepartamento(DepartamentoAcademico departamentoAcademico);
 
     Oficina findOficina(OficinaEnum oficinaEnum);
+
+    List<Docente> allDocenteByDepartamentosAcademicoEstado(List<DepartamentoAcademico> departamentos, EnteAcademicoEstadoEnum enteAcademicoEstadoEnum);
+
+    List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclo(List<Docente> docentes, CicloAcademico cicloAcademico);
+
+    List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones);
 
 }

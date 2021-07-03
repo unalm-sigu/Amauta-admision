@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -53,15 +53,9 @@ public class TramiteRetiroExcepcionalController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<CicloAcademico> cicloAcademicos = reincorporacionService.getCiclos(ds);
-
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            arr.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
-        }
-        model.addAttribute("ciclos", arr);
+        List<CicloAcademico> cicloAcademicos = reincorporacionService.getCiclosVeinte(ds);
+        ArrayNode arrayCiclos = JaneHelper.from(cicloAcademicos).array();
+        model.addAttribute("ciclos", arrayCiclos.toString());
         return "academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional";
     }
 
@@ -119,6 +113,7 @@ public class TramiteRetiroExcepcionalController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             retiroExcepcionalService.saveRetiro(retiro, ds);
             response.setMessage("Se registró el tramite satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
@@ -131,7 +126,7 @@ public class TramiteRetiroExcepcionalController {
 
         try {
             String fileName = retiroExcepcionalService.reporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información Retiro Excepcional.pdf", response);
+            pdfResponse(fileName, "Informe Retiro Excepcional.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
@@ -165,5 +160,29 @@ public class TramiteRetiroExcepcionalController {
                 close(input);
             }
         }
+    }
+
+    @ResponseBody
+    @RequestMapping("anular")
+    public JsonResponse anular(@RequestBody RetiroCiclo retiroCiclo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            retiroExcepcionalService.anular(retiroCiclo, ds);
+            response.setMessage("Tramite anulado correctamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
     }
 }

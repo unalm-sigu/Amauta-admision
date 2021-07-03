@@ -26,8 +26,10 @@ new Vue({
 
     },
     mounted: function () {
-        var myFrame = $("#myframe").contents().find('body');
-        myFrame.html(this.contenido);
+        setTimeout(() => {
+            var myFrame = $("#myframe").contents().find('body');
+            myFrame.html(this.contenido);
+        }, 1000)
         this.allTramiteIncrustacion();
     },
     methods: {

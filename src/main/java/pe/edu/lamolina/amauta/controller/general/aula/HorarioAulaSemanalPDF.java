@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;

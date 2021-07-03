@@ -248,4 +248,25 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         return query.list();
     }
 
+    @Override
+    public Consejero findByPersonaCarrera(Persona persona, Carrera carrera) {
+
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "conse")
+                .join("carrera ca", "colaborador cola", "cola.persona per")
+                .filter("per.id", persona)
+                .filter("ca.id", carrera);
+        return find(sql);
+    }
+
+    @Override
+    public List<Consejero> allByPersona(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera carr")
+                .filter("per.id", persona)
+                .filter("con.estado", EstadoEnum.ACT);
+        return all(sql);
+    }
+
 }

@@ -1,13 +1,13 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Tramtie Retiro Excepcional</title>
+        <title>Tramite Retiro Excepcional</title>
     </head>
 
     <body>
         <div layout:fragment="main">
             <div id="retiroExcepcional">
                 <header class="header b-b padder-lg">
-                    <h2 >Tramtie Retiro Excepcional</h2>
+                    <h2 >Tramite Retiro Excepcional</h2>
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 
@@ -50,7 +50,7 @@
 
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                    <span class="" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
                                                 <td>
                                                     <div class="dropdown actions" >
@@ -60,6 +60,8 @@
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li ><a v-bind:href="urlReporte(item)">Reporte</a></li>
+                                                            <li v-if="item.estado == 'SOL'" role="separator" class="divider"></li>
+                                                            <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                         </ul>
 
                                                     </div>
@@ -74,9 +76,8 @@
                     </section>
                 </section>
 
-
-
                 <div th:substituteby="academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcionalModal"/>
+                
             </div>
 
 
@@ -87,6 +88,7 @@
             <script th:inline="javascript">
                 var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
             </script>
+                    <div th:substituteby="_modules/vue-modal_v1"></div>
             <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional.js}" charset="utf-8"></script>
 

@@ -140,6 +140,7 @@
                                                     <small class="block" v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre ">
                                                         Facultad de {{item.alumno.carrera.facultad.nombre}}
                                                     </small>
+                                                    <span v-if="item.beneficioUtlimoCiclo == 1" class="label label-success">Solicitó Beneficio de Útimo Ciclo</span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -197,6 +198,7 @@
                                                         <ul class="dropdown-menu pull-right">
                                                             <li  ><a v-on:click="model(item)">Cambiar Tutor</a></li>
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
+                                                            <li v-if='item.beneficioUtlimoCiclo == 0' class="pointer"><a v-on:click="solicitudBeneficio(item)">Beneficio útimo ciclo</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

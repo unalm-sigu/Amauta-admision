@@ -2199,3 +2199,9 @@ only screen and (                min-resolution: 2dppx) {
 .table>tbody+tbody.editor{
     border-top: 0px solid #ddd;
 }
+
+/*fix scrolable;*/
+.pre-scrollable {
+    max-height: 650px;
+    overflow-y: scroll;
+}

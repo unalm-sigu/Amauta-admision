@@ -144,7 +144,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         subvencion.setTipoSubvencion(new TipoSubvencion(ID_TIPO_SUBVENCION_INVESTIGACION));
         subvencion.setTramite(tramite);
         subvencion.setUserRegistro(ds.getUsuario());
-        subvencion.setVoboSupervisor(1);
+        subvencion.setVoboSupervisor(true);
         subvencion.setFichaSocioeconomica(fichaSocioeconomica);
         subvencion.setComentario(alumnoBolsa.getNombreInvestigacion());
         tramiteSubvencionDAO.save(subvencion);

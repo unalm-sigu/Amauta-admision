@@ -53,12 +53,15 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.general.PaisDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Service
 @Transactional(readOnly = true)
@@ -102,6 +105,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -659,6 +665,21 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public Oficina findOficina(OficinaEnum oficinaEnum) {
         return oficinaDAO.findByCode(oficinaEnum.name());
+    }
+
+    @Override
+    public List<Docente> allDocenteByDepartamentosAcademicoEstado(List<DepartamentoAcademico> departamentos, EnteAcademicoEstadoEnum enteAcademicoEstadoEnum) {
+        return docenteDAO.allByDepartamentosAcademicoEstado(departamentos, enteAcademicoEstadoEnum);
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclo(List<Docente> docentes, CicloAcademico cicloAcademico) {
+        return docenteSeccionDAO.allActivosByDocentesCiclo(docentes, cicloAcademico);
+    }
+
+    @Override
+    public List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones) {
+        return horarioSeccionDAO.allBySecciones(secciones);
     }
 
 }

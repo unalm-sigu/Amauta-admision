@@ -90,8 +90,6 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
@@ -168,6 +166,8 @@ import pe.edu.lamolina.amauta.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.amauta.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 
 @Service
 @Transactional(readOnly = true)
@@ -2952,8 +2952,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int factorHoras = 0;
         if (ciclo.getTipoEnum() == TipoCicloEnum.REG) {
             factorHoras = 1;
-        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && !ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
             factorHoras = 3;
+        }else if(ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")){
+            factorHoras = 4;
         }
 
         int horasTeoria = 0;
@@ -2983,6 +2985,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, CLASES_EPG);
         }
         EventoAcademicoEnum eventoClasesEnum = ciclo.isTipoRegular() ? CLASES_PRE : CLASES_VER;
+
         System.out.println("ciclo={id:" + ciclo.getId() + ", codigo:" + ciclo.getCodigo() + ", tipo:" + ciclo.getTipo() + "}");
         System.out.println("return evento-" + eventoClasesEnum.name());
         return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, eventoClasesEnum);

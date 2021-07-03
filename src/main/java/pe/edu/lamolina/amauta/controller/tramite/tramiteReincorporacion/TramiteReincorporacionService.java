@@ -17,4 +17,6 @@ public interface TramiteReincorporacionService {
 
     public List<CicloAcademico> getCiclos(DataSessionPivot ds);
 
+    public List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds);
+
 }

@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 
 public interface EncuestaDocenteModalidadDAO extends EasyDAO<EncuestaDocenteModalidad> {
@@ -14,7 +15,7 @@ public interface EncuestaDocenteModalidadDAO extends EasyDAO<EncuestaDocenteModa
 
     List<EncuestaDocenteModalidad> allByDocenteCiclo(Docente docente, CicloAcademico ciclo);
 
-    List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico);
+    List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico,ModalidadEstudio modalidadEstudio,List<DepartamentoAcademico> departamentos);
 
     List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(
             DynatableFilter filter,

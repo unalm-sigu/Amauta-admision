@@ -79,6 +79,50 @@ public class MailerConnectorImp implements MailerConnector {
         }
     }
 
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendMailAgendaConsejero(MailMessage mail) {
+        try {
+
+            logger.info("Enviando email {}", mail.getSubject());
+            MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            message.setFrom(mail.getFrom());
+
+            message.setSubject(mail.getSubject());
+            message.setTo(mail.getDestinatarios());
+
+            String[] copias = despliegueConfig.getCopias().split(" ");
+            String[] emails = despliegueConfig.getEmails().split(" ");
+
+            String[] destinatarios = despliegueConfig.getMailer() ? mail.getDestinatarios() : emails;
+            for (String destinatario : destinatarios) {
+                logger.info("\temail to {}", destinatario);
+            }
+            message.setTo(destinatarios);
+            if (despliegueConfig.getMailer()) {
+                for (String copia : copias) {
+                    logger.info("\temail bcc {}", copia);
+                }
+                message.setBcc(copias);
+            }
+
+            this.attachFiles(message, mail.getFiles());
+
+            String htmlContent = this.templateEngine.process(mail.getTemplate(), mail.getContext());
+            message.setText(htmlContent, true);
+
+            this.javaMailSender.send(mimeMessage);
+
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void attachFiles(MimeMessageHelper message, List<String> files) throws MessagingException {
         if (files == null) {
             return;

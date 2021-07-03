@@ -94,7 +94,7 @@ new Vue({
                 }});
         },
         styleActividad(item) {
-            var total = item.totalActividades - 2;
+            var total = item.totalActividades - 1;
 
             if (item.actividadesEjecutadas < total) {
                 return " bgr-danger";
@@ -343,7 +343,7 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url(`${rutaModulo}/cargaringresantes`),
-                data: {id: vue.alumno.id},
+//                data: {id: vue.alumno.id},
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');

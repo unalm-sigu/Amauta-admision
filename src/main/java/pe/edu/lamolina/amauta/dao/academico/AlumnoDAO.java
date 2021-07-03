@@ -146,4 +146,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByNoMatriculableCicloAnt(List<CicloAcademico> cicloAnt);
 
+    public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico);
+
 }

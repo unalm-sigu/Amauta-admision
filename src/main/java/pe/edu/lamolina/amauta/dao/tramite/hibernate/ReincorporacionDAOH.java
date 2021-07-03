@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
@@ -198,6 +199,28 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("ca.id", cicloAcademico);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allPendientesByCicloReincorporacion() {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tr", "cicloReincorporacion cr", "rei.alumno al", "al.persona")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
+                .filter("me.codigo", PRE)
+                .filter("rei.aceptado", 0);
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allByCicloReincorporacionByEstado(CicloAcademico ciclo, TramiteEstadoEnum tramiteEstadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite", "cicloReincorporacion cr", "rei.alumno al", "al.persona")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio","estadoTramite estra")
+                .filter("cr.id", ciclo)
+                .filter("estra.codigo", tramiteEstadoEnum);
         return all(sql);
     }
 

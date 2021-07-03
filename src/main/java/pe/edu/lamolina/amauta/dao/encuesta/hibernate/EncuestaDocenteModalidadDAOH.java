@@ -10,8 +10,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
-import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteModalidadDAO;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 @Repository
 public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocenteModalidad> implements EncuestaDocenteModalidadDAO {
@@ -44,11 +44,12 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
     }
 
     @Override
-    public List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico) {
+    public List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio,List<DepartamentoAcademico> departamentos) {
         Octavia sql = Octavia.query()
                 .from(EncuestaDocenteModalidad.class, "edm")
                 .join("docente d", "modalidadEstudio me", "cicloAcademico ca", "d.persona per", "d.departamentoAcademico da", "da.facultad f")
-                //.filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .filter("me.id", modalidadEstudio)
+                .in("da.id", departamentos)
                 .filter("edm.alumnosEncuestados", ">", 0)
                 .filter("ca.id", cicloAcademico);
 

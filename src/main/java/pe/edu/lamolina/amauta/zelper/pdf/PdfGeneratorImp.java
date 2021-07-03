@@ -73,7 +73,7 @@ public class PdfGeneratorImp implements PdfGenerator {
         logger.debug("Entro a generar documento pdf");
         Document docPDF = new Document(rectangle);
         docPDF.addCreationDate();
-        docPDF.addCreator("albatross.pe");
+        docPDF.addCreator("lamolina.edu.pe");
 
         TipoPdfEnum documentoPdfEnum = pdfContent.getTipoPdfEnum();
 
@@ -92,6 +92,7 @@ public class PdfGeneratorImp implements PdfGenerator {
         try {
             filePath = documentPdfAdmisionFilename(documentoPdfEnum, subFolder);
             logger.debug("Generara el documento {}", filePath);
+            logger.debug("docente {}", filePath);
             File filex = new File(filePath);
             logger.debug("3 :::: " + (System.currentTimeMillis() - t1));
             t1 = System.currentTimeMillis();

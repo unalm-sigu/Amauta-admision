@@ -74,7 +74,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     public List<MatriculaResumen> allMatriculadosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .join("alu.persona")
                 .filter("estado", MAT)
@@ -876,6 +876,89 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         return find(sql);
 
+    }
+
+    @Override
+    public List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, String carrera) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona")
+                .filter("estado", MAT)
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("car.codigo", carrera);
+
+        return all(sql);
+    }
+
+    @Override
+    public Long countMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("ca1.id", cicloAcademico)
+                .filter("carrcon.id", carrera)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", MAT);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long countNoMatriculablesByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("ca1.id", cicloAcademico)
+                .filter("carrcon.id", carrera)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", NMAT);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long countRetiroCicloByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("carrcon.id", carrera)
+                .filter("ca1.id", cicloAcademico)
+                .filter("per.id", persona);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("estado", RCI);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
     }
 
 }

@@ -35,7 +35,9 @@ import pe.edu.lamolina.amauta.dao.almacen.TipoProductoDAO;
 import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import pe.edu.lamolina.amauta.dao.general.AulaDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.ID_OFICINA_OERA;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.general.Oficina;
 
 @Service
 @Transactional(readOnly = true)
@@ -144,7 +146,9 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         inventario.setFechaRegistro(new Date());
         inventario.setUserRegistro(user);
         inventario.setEstadoEnum(EstadoInventarioEnum.DISP);
+        inventario.setOficinaGestora(new Oficina(ID_OFICINA_OERA));
         inventarioDAO.save(inventario);
+        
         String imagen = inventario.getImagentemporal().trim();
 
         if (!Strings.isNullOrEmpty(imagen)) {
@@ -228,6 +232,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioNew.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
             inventarioNew.setVidaUtil(inventario.getVidaUtil());
             inventarioNew.setComentario(inventario.getComentario());
+            inventarioNew.setOficinaGestora(new Oficina(ID_OFICINA_OERA));
 
             inventarioDAO.save(inventarioNew);
             resumen.setCantidad((resumen.getCantidad() + 1));
@@ -331,16 +336,16 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     @Override
     @Transactional
     public void updateInventarioCode(List<Inventario> inventarios, Usuario user) {
-        if(inventarios.isEmpty()){
+        if (inventarios.isEmpty()) {
             return;
         }
-        List<Inventario> inventariosFilter=inventarios.stream()
-                .filter(x->x.getCodeEdit()==true)
+        List<Inventario> inventariosFilter = inventarios.stream()
+                .filter(x -> x.getCodeEdit() == true)
                 .collect(Collectors.toList());
         List<Inventario> inventariosDb = inventarioDAO.allById(inventariosFilter);
-        Map<Long,Inventario> inventariosDbMap = TypesUtil.convertListToMap("id", inventariosDb);
+        Map<Long, Inventario> inventariosDbMap = TypesUtil.convertListToMap("id", inventariosDb);
         for (Inventario inventario : inventariosFilter) {
-            Inventario inventarioDb= inventariosDbMap.get(inventario.getId());
+            Inventario inventarioDb = inventariosDbMap.get(inventario.getId());
             inventarioDb.setCodigo(inventario.getCodigo());
             inventarioDAO.update(inventarioDb);
         }
