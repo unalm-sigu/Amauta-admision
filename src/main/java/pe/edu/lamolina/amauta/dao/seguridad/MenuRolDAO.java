@@ -14,4 +14,6 @@ public interface MenuRolDAO extends EasyDAO<MenuRol> {
 
     List<MenuRol> allBySistema(Sistema sistema);
 
+    List<MenuRol> allBySistemaEntorno(Sistema sistema, String entorno);
+
 }

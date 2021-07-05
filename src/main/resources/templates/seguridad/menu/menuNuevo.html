@@ -1,7 +1,8 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 th:unless="${menu.id==null}">
-            <span th:inline="text"><strong>Recurso:</strong> [[${menu.nombre}]]</span>
+            <span th:inline="text" class="block"><strong>Recurso:</strong> [[${menu.nombre}]]</span>
+            <span th:inline="text" class="block"><strong>ID:</strong> [[${menu.clave}]]</span>
         </h3>
         <h3 th:if='${menu.id==null}'>Nuevo menú</h3>
     </div>
@@ -54,16 +55,34 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Estado</label>
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="radio"
+                                    required="true"
+                                    name="estado"
+                                    th:checked="${menu.estado == 'ACT' }"
+                                    value="ACT"
+                                    /> Activo
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-danger">
+                            <input  type="radio"
+                                    required="true"
+                                    name="estado"
+                                    th:checked="${menu.estado == 'INA' }"
+                                    value="INA"
+                                    /> Inactivo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
         </form>
-
-        <!--div class="line line-dashed b-b line-lg pull-in"></div>
-
-        <div class='text-center m-t-sm'>
-            <a href='#' id="cancelarMenu" class='btn btn-link btn-sm'>Cancelar</a>
-            <button class='btn btn-primary btn-sm' id="btnSaveMenu" type='button' th:inline="text" >
-                [[${menu.id!=null?'Actualizar Menú':'Crear Menú'}]]
-            </button>
-        </div-->
 
     </div>
 

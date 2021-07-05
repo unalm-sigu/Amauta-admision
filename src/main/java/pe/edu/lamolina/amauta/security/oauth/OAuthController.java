@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
@@ -40,7 +39,6 @@ import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.ciclo.CicloAcademicoService;
 import pe.edu.lamolina.amauta.controller.restcontroller.RestPivotService;
-import pe.edu.lamolina.amauta.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -58,8 +56,6 @@ public class OAuthController {
     OAuthServiceProvider serviceProvider;
     @Autowired
     CicloAcademicoService cicloAcademicoService;
-    @Autowired
-    VisorMenu visorMenu;
     @Autowired
     RestPivotService service;
     @Autowired

@@ -1,10 +1,12 @@
 package pe.edu.lamolina.amauta.controller.seguridad.menu;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,39 +63,47 @@ public class MenuServiceImp implements MenuService {
     @Override
     public List<Menu> allMenuSystem(Sistema sistema) {
         List<Menu> menus = menuDAO.allMenuSystem(sistema);
+        for (Menu menu : menus) {
+            menu.setEstadoEnum(this.getEstadoMenu(menu));
+        }
         return allMenuOrdered(menus);
     }
 
     @Override
     @Transactional
     public void save(Menu menu) {
-
         menu.setSistema(new Sistema(despliegueConfig.getSistema()));
         Integer mayorOrden = null;
+
         if (MenuTipoEnum.TITULO.name().equals(menu.getTipo())) {
             mayorOrden = menuDAO.getMayorOrdenTipo(new Sistema(despliegueConfig.getSistema()), MenuTipoEnum.TITULO);
         } else {
             mayorOrden = menuDAO.getMayorOrdenGrupo(new Sistema(despliegueConfig.getSistema()), menu.getMenuSuperior());
         }
+
         if (mayorOrden != null) {
             mayorOrden++;
         } else {
             mayorOrden = 1;
         }
+
         menu.setOrden(mayorOrden);
         menu.setClave(StringUtils.randomAlphanumeric(20));
+        menu.setEntornos(GlobalConstantine.AMBIENTES);
+        this.setEstadoMenu(menu, menu);
         menuDAO.save(menu);
     }
 
     @Override
     @Transactional
     public void update(Menu menu) {
-        Menu menudB = menuDAO.find(menu.getId());
-        menudB.setIcono(menu.getIcono());
-        menudB.setRuta(menu.getRuta());
-        menudB.setNombre(menu.getNombre());
-        menudB.setTipo(menu.getTipoEnum());
-        menuDAO.update(menudB);
+        Menu menuBD = menuDAO.find(menu.getId());
+        menuBD.setIcono(menu.getIcono());
+        menuBD.setRuta(menu.getRuta());
+        menuBD.setNombre(menu.getNombre());
+        menuBD.setTipoEnum(menu.getTipoEnum());
+        this.setEstadoMenu(menu, menuBD);
+        menuDAO.update(menuBD);
     }
 
     @Override
@@ -99,7 +111,38 @@ public class MenuServiceImp implements MenuService {
         Menu menuBD = menuDAO.find(menu.getId());
         List<Menu> menusHijos = menuDAO.allBySuperMenu(menuBD.getSistema(), menuBD);
         menuBD.setMenus(menusHijos);
+        menuBD.setEstadoEnum(getEstadoMenu(menuBD));
+
         return menuBD;
+    }
+
+    private void setEstadoMenu(Menu menuForm, Menu menuBD) {
+        String ambiente = despliegueConfig.getAmbiente().toUpperCase();
+        EstadoEnum estadoActual = getEstadoMenu(menuBD);
+        EstadoEnum estadoForm = menuForm.getEstadoEnum();
+
+        if (estadoActual != estadoForm) {
+            List<String> entornosList = new ArrayList(Arrays.asList(menuBD.getEntornos().split(",")));
+
+            if (estadoForm == EstadoEnum.ACT) {
+                entornosList.add(ambiente);
+
+            } else if (estadoForm == EstadoEnum.INA) {
+                entornosList.remove(ambiente);
+            }
+            String entornos = entornosList.stream().collect(Collectors.joining(","));
+            menuBD.setEntornos(entornos);
+        }
+    }
+
+    private EstadoEnum getEstadoMenu(Menu menu) {
+        String ambiente = despliegueConfig.getAmbiente().toUpperCase();
+        String entornos = menu.getEntornos();
+
+        if (entornos.contains(ambiente)) {
+            return EstadoEnum.ACT;
+        }
+        return EstadoEnum.INA;
     }
 
     @Override
@@ -425,7 +468,13 @@ public class MenuServiceImp implements MenuService {
 
     @Override
     public void inicializarMenus() {
-        List<MenuRol> menusRoles = menuRolDAO.allBySistema(new Sistema(despliegueConfig.getSistema()));
+        Sistema sistema = new Sistema(despliegueConfig.getSistema());
+        String entorno = despliegueConfig.getAmbiente().toUpperCase();
+        List<MenuRol> menusRoles = menuRolDAO.allBySistemaEntorno(sistema, entorno);
+        for (MenuRol mr : menusRoles) {
+            Menu menu = mr.getMenu();
+            System.out.println("menu=" + menu.getClave() + " entorno=" + menu.getEntornos() + " nombre=" + menu.getNombre());
+        }
         visorMenu.setMenusRoles(menusRoles);
     }
 

@@ -48,4 +48,15 @@ public class MenuRolDAOH extends AbstractEasyDAO<MenuRol> implements MenuRolDAO 
         return all(sql);
     }
 
+    @Override
+    public List<MenuRol> allBySistemaEntorno(Sistema sistema, String entorno) {
+        Octavia sql = Octavia.query()
+                .from(MenuRol.class, "mero")
+                .join("menu me", "rol ro", "me.sistema s")
+                .filter("s.id", sistema)
+                .like("me.entornos", entorno);
+
+        return all(sql);
+    }
+
 }

@@ -72,7 +72,6 @@ import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import static pe.edu.lamolina.model.enums.RolEnum.DOC;
 
 @Service
 @Transactional(readOnly = false)
@@ -486,23 +485,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                     break;
                 }
             }
-
-//                System.out.println("ds.getCicloAcademico().getId():::::  " + ds.getCicloAcademico().getId());
-//                ObjectUtil.printAttr(ds.getCicloAcademico());
-//            if (ds.getCicloAcademico() != null) {
-//                EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.ENCU_PSI);
-//                Date today = LocalDate.now().toDate();
-//
-//                if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
-//                        && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
-//                    AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
-//
-//                    Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
-//
-//                    ds.setEncuestaSunedu(true);
-//                    ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
-//                }
-//            }
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {
@@ -519,7 +501,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     }
 
-    //@Override
     private List<Menu> allMenusByRolMain(Rol rol, Sistema sistema, DataSessionPivot ds) {
         List<Rol> roles = new ArrayList(rol.getRolesInferiores());
         for (Rol roli : roles) {
@@ -527,7 +508,8 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         roles.add(rol);
 
-        List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema);
+        String entorno = despliegueConfig.getAmbiente().toUpperCase();
+        List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema, entorno);
         System.out.println("menusBD.size = " + menusBD.size());
         return menuService.allMenuOrdered(menusBD);
     }

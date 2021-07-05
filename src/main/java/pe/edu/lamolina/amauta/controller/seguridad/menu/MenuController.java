@@ -75,8 +75,6 @@ public class MenuController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        //List<Menu> menusDb = service.allMenuSystem(new Sistema(1L));
-        //model.addAttribute("menus", menusDb);
         return "seguridad/menu/menuSistema";
     }
 
@@ -112,6 +110,7 @@ public class MenuController {
             jmenu.put("nombre", menu.getNombre());
             jmenu.put("icono", menu.getIcono());
             jmenu.put("tipo", menu.getTipo());
+            jmenu.put("estado", menu.getEstado());
 
             if (!menu.getMenus().isEmpty()) {
                 ArrayNode arrayNode = createNodes(menu.getMenus());

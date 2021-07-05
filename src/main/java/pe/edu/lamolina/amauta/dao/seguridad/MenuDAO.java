@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 
 public interface MenuDAO extends EasyDAO<Menu> {
 
-    List<Menu> allByRolSistema(List<Rol> roles, Sistema sistema);
+    List<Menu> allByRolSistema(List<Rol> roles, Sistema sistema, String entorno);
 
     List<Menu> allMenuSystem(Sistema sistema);
 

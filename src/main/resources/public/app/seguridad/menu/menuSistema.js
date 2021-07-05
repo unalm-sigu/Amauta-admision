@@ -84,6 +84,10 @@ $(function () {
                 }
                 menu.crearMenuHijo = !(menu.tipo == 'OPCION' || menu.tipo == 'BOTON');
                 menu.asignarPermisos = (menu.tipo == 'OPCION' || menu.tipo == 'BOTON' || menu.tipo == 'MENU' || menu.tipo == 'SUB_MENU');
+                menu.style = "text-danger";
+                if (menu.estado === "ACT") {
+                    menu.style = "text-primary";
+                }
 
                 html += $.templates("#menuSistemaTemplate").render(menu);
                 //console.log();
