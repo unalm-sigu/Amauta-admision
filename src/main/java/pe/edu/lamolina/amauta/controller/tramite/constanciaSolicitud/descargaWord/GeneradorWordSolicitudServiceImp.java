@@ -518,6 +518,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case CANTIDAD_CREDITOS_CURSADOS:
                             text = text.replace(enums.getValue(), alumno.getCreditosCursados().toString());
                             break;
+                        case CANTIDAD_CREDITOS_CONVALIDADOS:
+                            text = text.replace(enums.getValue(), alumno.getCreditosConvalidados().toString());
+                            break;
                         case FECHA_ULTIMA_MATRICULA:
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
                             break;

@@ -33,8 +33,9 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr>
-                                                <th class="v-middle col-xs-9">Tipo Documento</th>
-                                                <th class="v-middlecol-xs-3">Idioma</th>
+                                                <th class="v-middle col-xs-8">Tipo Documento</th>
+                                                <th class="v-middle col-xs-3">Idioma</th>
+                                                <th class="v-middle col-xs-1">Plantilla</th>
                                                 <th class="v-middle"></th>
                                             </tr>
                                         </thead>
@@ -45,6 +46,11 @@
                                                 </td>
                                                 <td class="v-middle ">
                                                     <span >{{item.idioma.nombre}}</span> 
+                                                </td>
+                                                <td class="v-middle ">
+                                                    <a v-if="item.archivo" class="btn btn-link text-success" target="_blank" v-bind:href="item.archivo.ruta">
+                                                        <i class="fa fa-2x fa-cloud-download"></i>
+                                                    </a>
                                                 </td>
                                                 <td class="v-middle"> 
 
