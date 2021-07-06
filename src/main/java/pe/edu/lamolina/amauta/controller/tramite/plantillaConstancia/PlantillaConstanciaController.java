@@ -254,7 +254,7 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
-            
+
             service.deleteVariable(idVariablePlantilla);
             response.setMessage("Se eliminó satisfactoriamente");
 
@@ -369,11 +369,19 @@ public class PlantillaConstanciaController {
     public JsonResponse uploadBoletaFile(@RequestParam("file") MultipartFile archivo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            String fileName = TypesUtil.getUnixTime() + archivo.getOriginalFilename();
+
+            String fileName = TypesUtil.getClean(TypesUtil.getUnixTime() + archivo.getOriginalFilename().toLowerCase().replaceAll("\\s", ""));
+            
+            logger.debug("file: {}",fileName);
+
             String absoluteName = GlobalConstantine.TMP_DIR + fileName;
+
             FileHelper.saveToDisk(archivo, absoluteName);
+
             ObjectNode json = new ObjectNode(jFactory);
+
             json.put("name", fileName);
             json.put("originalFilename", archivo.getOriginalFilename());
             json.put("contentType", archivo.getContentType());
@@ -381,6 +389,7 @@ public class PlantillaConstanciaController {
             json.put("ruta", absoluteName);
             response.setData(json);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

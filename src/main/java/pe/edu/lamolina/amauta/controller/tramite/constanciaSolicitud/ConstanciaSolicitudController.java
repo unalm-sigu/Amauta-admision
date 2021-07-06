@@ -59,9 +59,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
-import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.CRE;
 import pe.edu.lamolina.model.general.Archivo;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
@@ -91,9 +89,9 @@ public class ConstanciaSolicitudController {
     public DynatableResponse allByDynatable(DynatableFilter filter) {
 
         DynatableResponse json = new DynatableResponse();
+        
         try {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
-//            List<PrecioDocumento> precios = service.allPrecioDocumento();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             String[] mapperTramite = new String[]{
                 "*",
@@ -120,24 +118,17 @@ public class ConstanciaSolicitudController {
                     "*",
                     "idioma.*",
                     "estadoTramite.*",
-                    //                    "tramite.*",
-                    //                    "tramite.alumno.*",
-                    //                    "tramite.alumno.carrera.*",
-                    //                    "tramite.alumno.carrera.facultad.*",
-                    //                    "tramite.alumno.persona.*",
-                    //                    "tramite.alumno.persona.tipoDocumento.*",
                     "tipoDocumentoAcademico.*"});
 
                 List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
                 ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
                 for (AccionTramiteDocumento accion : acciones) {
-//                    if (tramiteDoc.getEstadoTramite().getCodigoEnum() != CRE) {
                     arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
                         "*",
                         "estadoTramite.*",
                         "estadoTramiteFinal.*"}));
-//                    }
                 }
+                
                 ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);
                 node.set("tramite", tramiteJson);

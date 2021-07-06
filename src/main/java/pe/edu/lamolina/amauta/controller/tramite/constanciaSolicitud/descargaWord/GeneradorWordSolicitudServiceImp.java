@@ -250,6 +250,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             outputStream.flush();
             outputStream.close();
         } catch (IOException ex) {
+            ex.printStackTrace();
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
         } catch (XmlException ex) {
             java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
