@@ -621,7 +621,7 @@ public class ProfesorController {
                     .stream()
                     .filter(x -> x.getFacultad().getId() == facultadId)
                     .collect(Collectors.toList());
-            
+
             if (!departamentosXfacutad.isEmpty()) {
                 departamentos = departamentosXfacutad;
             }
