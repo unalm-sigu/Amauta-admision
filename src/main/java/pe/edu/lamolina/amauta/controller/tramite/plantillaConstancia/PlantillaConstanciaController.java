@@ -94,27 +94,17 @@ public class PlantillaConstanciaController {
 
         PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
         List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(documentoAcademico);
-        List<VariableGenerica> variableGeneral = service.allVariableGeneral();
+        List<VariableGenerica> variableGeneral = service.allVariableGeneralFilterByCodigoEnum();
 
-        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        for (VariablePlantilla variablePlant : variablePlantilla) {
-            arrayNode.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
-                "*",
-                "variableGenerica.*"
-            }));
-        }
+        ArrayNode arrayNode =JaneHelper.from(variablePlantilla)
+            .join("variableGenerica").array();
 
-        ArrayNode arrayVariable = new ArrayNode(JsonNodeFactory.instance);
-        for (VariableGenerica variablePlant : variableGeneral) {
-            arrayVariable.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
-        }
+        ArrayNode arrayVariable =JaneHelper.from(variableGeneral).array();
 
-        ObjectNode nodePlantillaDocumentoAcademico = JsonHelper.createJson(documentoAcademico, JsonNodeFactory.instance, new String[]{
-            "*",
-            "tipoDocumentoAcademico.*",
-            "idioma.*",});
+        ObjectNode nodePlantillaDocumentoAcademico = JaneHelper.from(documentoAcademico)
+        .join("tipoDocumentoAcademico")
+        .join("idioma")
+        .json();
 
         model.addAttribute("plantillaDocumentoAcademico", nodePlantillaDocumentoAcademico.toString());
         model.addAttribute("variables", arrayVariable.toString());

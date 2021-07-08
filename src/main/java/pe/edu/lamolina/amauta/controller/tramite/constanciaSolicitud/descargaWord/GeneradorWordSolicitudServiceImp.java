@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
@@ -282,6 +283,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         Map<Long, NombreCurso> mapNombreCurso = null;
         Map<Long, NombreGrado> mapNombreGrados = null;
         NombreCarrera nombresCarrera = null;
+        
         if (!isEspanol) {
             nombreCurso = nombreCursoDAO.allByIdioma(plantilla.getIdioma());
             nombreFacultads = nombreFacultadDAO.findByIdioma(facultadAlumno, plantilla.getIdioma());
@@ -294,6 +296,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             mapNombreCiclo = TypesUtil.convertListToMap("codigoCiclo", nombresCiclos);
             mapNombreCurso = TypesUtil.convertListToMap("curso.id", nombreCurso);
         }
+        
         variables.addAll(variablePlantillasIncrustacion);
 
         List<XWPFParagraph> paragraphList = doc.getParagraphs();
@@ -366,13 +369,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 if (text.isEmpty()) {
                     continue;
                 }
-                
+
                 logger.debug("***** {} ", text);
 
                 for (VariablePlantilla variablePlantilla : variables) {
-                 
+
                     VariableGenericaEnum enums = null;
-                    
+
                     if (!text.contains(variablePlantilla.getVariableGenerica().getCodigo())) {
                         continue;
                     }
@@ -645,6 +648,11 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             text = text.replace(enums.getValue(), egresado.getPromedioGraduacion().toString());
 
                             break;
+                        case PROMEDIO_PONDERADO_ACADEMICO:
+
+                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2,RoundingMode.HALF_UP).toString());
+
+                            break;
 
                     }
                     run.setText(text, 0);
@@ -748,8 +756,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
     private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo,
             Map<Long, NombreCurso> mapNombreCurso,
             Map<String, NombreCiclo> mapNombreCiclo,
-            Boolean isEspanol
-    ) {
+            Boolean isEspanol) {
 
         for (XWPFTableCell tableCell : pFTableRow.getTableCells()) {
 
@@ -822,7 +829,6 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 }
             }
 
-//                        }
         }
 
     }

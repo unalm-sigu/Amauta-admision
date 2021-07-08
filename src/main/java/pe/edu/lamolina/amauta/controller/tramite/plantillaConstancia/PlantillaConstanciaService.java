@@ -46,4 +46,6 @@ public interface PlantillaConstanciaService {
     public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 
     public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+
+    public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
 }

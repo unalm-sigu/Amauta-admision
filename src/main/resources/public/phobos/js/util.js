@@ -1050,6 +1050,29 @@ UTIL_BLOB = {
     }
 }
 
+
+UTIL_BLOB_INLINE = {
+    save(response) {
+        try {
+
+            let nombre = response
+                    .headers["content-disposition"]
+                    .replace("inline; filename=", "")
+                    .replace(/"/g, '');
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nombre;
+            document.body.appendChild(link);
+            link.click();
+
+        } catch (e) {
+            notify(Messages.errorComunicacion, 'error')
+        }
+    }
+}
+
 const axios_blob = axios.create({
     responseType: 'blob', // important
 });
@@ -1061,3 +1084,18 @@ axios_blob.interceptors.response.use(function (response) {
     notify(Messages.errorComunicacion, 'error');
     return Promise.reject(error);
 });
+
+function noty_download(idtoust, titulo) {
+    iziToast.show({
+        id: idtoust,
+        icon: 'fa fa-cloud-download',
+        position: 'topLeft',
+        class: 'info',
+        title: titulo,
+        timeout: false
+    });
+}
+
+function noty_clouse(id) {
+    iziToast.hide({}, document.getElementById(id));
+}

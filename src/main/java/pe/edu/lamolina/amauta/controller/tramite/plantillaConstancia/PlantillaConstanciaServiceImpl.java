@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
+import pe.edu.lamolina.model.enums.VariableGenericaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -35,34 +39,34 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 @Service
 @Transactional(readOnly = true)
 public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaService {
-
+    
     @Autowired
     PlantillaDocumentoAcademicoDAO plantillaConstanciaDAO;
-
+    
     @Autowired
     IdiomaDAO idiomaDAO;
-
+    
     @Autowired
     VariableGenericaDAO variableGenericaDAO;
-
+    
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     @Transactional
     public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
-
+        
         plantillaConstanciaDAO.update(plantillaDocumentoAcademico);
     }
-
+    
     @Override
     @Transactional
     public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
-
+        
         PlantillaDocumentoAcademico plantilla = plantillaConstanciaDAO.find(plantillaDoc.getId());
         plantilla.setContenido(GlobalConstantine.HTML_PRE + plantillaDoc.getContenido() + GlobalConstantine.HTML_SUB);
         plantillaConstanciaDAO.update(plantilla);
@@ -101,36 +105,36 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         plantilla.setVariablePlantilla(new ArrayList(allVariableMap.values()));
         return plantilla;
     }
-
+    
     @Override
     @Transactional
     public void save(PlantillaDocumentoAcademico plantilla, Usuario usuario) {
-
+        
         PlantillaDocumentoAcademico plantillaDocumentoAcaDB = plantillaConstanciaDAO.findTipoDocumento(plantilla.getTipoDocumentoAcademico(), plantilla.getIdioma());
-
+        
         Assert.isNull(plantillaDocumentoAcaDB, "Existe Plantilla en " + plantilla.getIdioma().getNombre() + " para " + plantilla.getTipoDocumentoAcademico().getNombre());
-
+        
         plantilla.setFechaRegistro(new Date());
         plantilla.setIdUserRegistro(usuario.getId());
         plantilla.setContenido("Constancia");
         plantillaConstanciaDAO.save(plantilla);
     }
-
+    
     @Override
     public PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
         return plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
     }
-
+    
     @Override
     public List<PlantillaDocumentoAcademico> all(DynatableFilter filter) {
         return plantillaConstanciaDAO.allDynatable(filter);
     }
-
+    
     @Override
     public List<Idioma> allIdioma() {
         return idiomaDAO.all();
     }
-
+    
     private Map<String, String> getConstants(String contenido) {
         String partes[] = contenido.split("__");
         Map<String, String> mapVariables = new LinkedHashMap();
@@ -145,25 +149,25 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         return mapVariables;
     }
-
+    
     public static boolean isAlpha(String name) {
         return name.matches("[0-9A-Z]+");
     }
-
+    
     @Override
     public Alumno findAlumno(Long idalumno) {
         return alumnoDAO.find(new Alumno(idalumno));
     }
-
+    
     @Autowired
     PlantillaDocumentoAcademicoDAO plantillaDocumentoAcademicoDAO;
-
+    
     @Autowired
     ConstanciaPlantillaDAO constanciaPlantillaDAO;
-
+    
     @Override
     public PlantillaGenerica fillPlantilla(PlantillaDocumentoAcademico plantillaForm) {
-
+        
         PlantillaGenerica plantilla = new PlantillaGenerica();
         PlantillaDocumentoAcademico pda = plantillaDocumentoAcademicoDAO.find(plantillaForm.getId());
         List<VariablePlantilla> vp = variablePlantillaDAO.allByPlantilla(pda);
@@ -174,10 +178,10 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             }
         }
         plantilla.setContenido(html);
-
+        
         return plantilla;
     }
-
+    
     @Override
     public List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
         List<VariablePlantilla> vp = variablePlantillaDAO.allByPlantilla(plantillaDocumentoAcademico);
@@ -186,9 +190,9 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             return new ArrayList();
         }
         return new ArrayList(vgMap.values());
-
+        
     }
-
+    
     @Override
     public AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual) {
         if (tipoDoc.getNombre().equals("Alumno Especial") && idioma.getCodigo().equals("ES")) {
@@ -198,12 +202,12 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         return null;
     }
-
+    
     private AlumnoConstancia forAlumnoEspecialEspanol(Alumno alumno, CicloAcademico cicloActual) {
         AlumnoConstancia alu = new AlumnoConstancia();
         Alumno alumnoBD = alumnoDAO.find(alumno);
         alu.setCodigo(alumnoBD.getCodigo());
-
+        
         Persona persona = alumnoBD.getPersona();
         if (persona.getSexoEnum() == SexoEnum.F) {
             alu.setMatriculado("matriculada");
@@ -214,24 +218,24 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         alu.setCicloInicio("2014-II");
         alu.setCicloFin("2017-II");
-
+        
         return alu;
     }
-
+    
     private AlumnoConstancia forAlumnoEspecialIngles(Alumno alumno, CicloAcademico cicloActual) {
         return null;
     }
-
+    
     @Override
     public List<VariablePlantilla> allVariablePlantilla(PlantillaDocumentoAcademico documentoAcademico) {
         return variablePlantillaDAO.allByPlantilla(documentoAcademico);
     }
-
+    
     @Override
     public List<VariableGenerica> allVariableGeneral() {
         return variableGenericaDAO.allByPregrado();
     }
-
+    
     @Override
     @Transactional
     public void updateVariable(VariablePlantilla variablePlantillaForm, Usuario usuario) {
@@ -240,7 +244,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         plantilla.setEsParametro(variablePlantillaForm.getEsParametro());
         variablePlantillaDAO.update(plantilla);
     }
-
+    
     @Override
     @Transactional
     public void saveVariable(VariablePlantilla variablePlantilla, Usuario usuario) {
@@ -249,13 +253,13 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         variablePlantilla.setEsParametro(variablePlantilla.getEsParametro());
         variablePlantillaDAO.save(variablePlantilla);
     }
-
+    
     @Override
     @Transactional
     public void deleteVariable(Integer idVariablePlantilla) {
         variablePlantillaDAO.delete(new VariablePlantilla(Long.parseLong(idVariablePlantilla + "")));
     }
-
+    
     @Override
     @Transactional
     public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
@@ -268,8 +272,22 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         
         plantillaDocumentoAcademicoDAO.delete(plantillaDocumentoAcademicoDB);
     }
-
+    
     @Override
     public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
     }
+    
+    @Override
+    public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum() {
+        
+        List<String> codigoVariableGenerica = Stream.of(VariableGenericaEnum.values())
+                .map(x -> x.name()).collect(Collectors.toList());
+        
+        for (String string : codigoVariableGenerica) {
+            logger.debug("{}", string);
+        }
+        
+        return variableGenericaDAO.allByPregradoByCodigoEnum(codigoVariableGenerica);
+    }
+    
 }

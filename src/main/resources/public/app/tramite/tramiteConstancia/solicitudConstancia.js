@@ -262,6 +262,21 @@ new Vue({
                     this.$refs.upload.active = true;
                 }
             }
+        },
+        descargarTramite(uri, item) {
+
+            let idToast = 'iziToast' + Date.now();
+    
+            noty_download(idToast, 'Desc. word: ' + item.tramite.alumno.codigo);
+
+            axios_blob.get(uri)
+                    .then(response => {
+                        UTIL_BLOB_INLINE.save(response);
+                        noty_clouse(idToast);
+                    }, () => {
+                        noty_clouse(idToast);
+                        notify(Messages.errorComunicacion, 'error')
+                    });
         }
     }
 });
