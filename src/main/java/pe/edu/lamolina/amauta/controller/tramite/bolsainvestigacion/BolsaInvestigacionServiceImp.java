@@ -50,6 +50,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteSubvencionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.BolsaInvestigacionEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -98,6 +99,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         BolsaInvestigacion bi = findByFacultadCicloAcademico(facultad, cicloAcademico);
 
         Assert.isTrue(bi.getPostulantes().compareTo(bi.getBecados()) < 0, "Cantidad de postulantes excedida");
+        Assert.isTrue(bi.getEstadoEnum() == BolsaInvestigacionEstadoEnum.ENV, "Aún no está habilitado agregar alumnos");
 
         bi.setPostulantes(bi.getPostulantes() + 1);
         bolsaInvestigacionDAO.update(bi);
@@ -105,7 +107,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bi, alumnoBolsa.getAlumno());
         Assert.isNull(abiBD, "Ya se ha registrado una investigación de este alumno");
 
-        Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), cicloAcademico).isEmpty(), "Alumno no válido");
+        Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), cicloAcademico, facultad).isEmpty(), "Alumno no válido");
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
 
@@ -122,11 +124,12 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramite.setAlumno(alumnoBolsa.getAlumno());
         tramite.setCicloAcademico(cicloAcademico);
         tramite.setCompania(ds.getCompania());
-        tramite.setEstado(TramiteEstadoEnum.INC.name());
-        tramite.setFechaRegistro(new Date());
+        tramite.setEstadoEnum(TramiteEstadoEnum.INC);
         tramite.setPersona(alumnoBolsa.getAlumno().getPersona());
         tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
+
         tramite.setUserRegistro(ds.getUsuario());
+        tramite.setFechaRegistro(new Date());
         tramiteDAO.save(tramite);
 
         FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), cicloAcademico);
@@ -138,6 +141,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             fichaSocioeconomica.setFechaRegistro(new Date());
             fichaSocioeconomicaDAO.save(fichaSocioeconomica);
         }
+
         TramiteSubvencion subvencion = new TramiteSubvencion();
         subvencion.setFechaRegistro(new Date());
         subvencion.setSupervisor(alumnoBolsa.getSupervisor());
@@ -164,10 +168,16 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     }
 
     @Override
-    public List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+    public List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico, Facultad facultad) {
         List<String> mensajes = new ArrayList();
 
-        Alumno alum = alumnoDAO.findSituacionAcademica(alumno);
+        Alumno alum = alumnoDAO.find(alumno);
+        Facultad fac = alum.getCarrera().getFacultad();
+        if (!fac.getId().equals(facultad.getId())) {
+            String valor = "El alumno debe pertenecer a la facultad de " + facultad.getNombre() + ".";
+            mensajes.add(valor);
+        }
+
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findUltimoCicloRegularByAlumno(alum, cicloAcademico);
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allCicloRegularByAlumno(alum);
         TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findSubvencionByAlumnoCicloAcademico(alumno, cicloAcademico);
@@ -255,8 +265,8 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     }
 
     @Override
-    public List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultad, String nombre, CicloAcademico ciclo) {
-        List<Alumno> alumnos = alumnoDAO.allByNombreFacultad(nombre, facultad);
+    public List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultades, String nombre, CicloAcademico ciclo) {
+        List<Alumno> alumnos = alumnoDAO.allByNombreFacultad(nombre, facultades);
         List<MatriculaResumen> resumenes = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ciclo);
         Map<Long, MatriculaResumen> mapResumen = TypesUtil.convertListToMap("alumno.id", resumenes);
         for (Alumno alumno : alumnos) {

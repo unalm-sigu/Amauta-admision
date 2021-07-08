@@ -14,11 +14,11 @@ public interface BolsaInvestigacionService {
 
     void agregarAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds);
 
-    List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+    List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico, Facultad facultad);
 
     AlumnoBolsaInvestigacion findAlumnoBolsaInvestigacion(Long id);
 
-    List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultad, String nombre, CicloAcademico ciclo);
+    List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultades, String nombre, CicloAcademico ciclo);
 
     List<Colaborador> searchColaboradoresByFacultadNombre(Facultad facultad, String nombre);
 

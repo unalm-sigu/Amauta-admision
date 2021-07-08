@@ -46,12 +46,11 @@ new Vue({
             this.$refs.modalAlumnoBolsa.open();
         },
         findInfoBolsa() {
-            axios.get('/tramite/bolsainvestigacion/find')
-                    .then(response => {
-                        if (response.data.success) {
-                            this.bolsaInvestigacion = response.data.data;
-                        }
-                    })
+            axios.get('/tramite/bolsainvestigacion/find').then(response => {
+                if (response.data.success) {
+                    this.bolsaInvestigacion = response.data.data;
+                }
+            });
         },
         findAlumnoBolsa(id) {
             axios.get(`/tramite/bolsainvestigacion/alumnos/${id}/find`)
