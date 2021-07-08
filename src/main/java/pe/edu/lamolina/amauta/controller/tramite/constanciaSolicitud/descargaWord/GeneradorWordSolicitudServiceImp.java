@@ -111,100 +111,100 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 @Service
 @Transactional(readOnly = true)
 public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     DespliegueConfig despliegueConfig;
-
+    
     @Autowired
     EgresadoDAO egresadoDAO;
-
+    
     @Autowired
     TramiteDocumentoAcademicoDAO tramiteDocumentoAcademicoDAO;
-
+    
     @Autowired
     PlantillaDocumentoAcademicoDAO plantillaDocumentoAcademicoDAO;
-
+    
     @Autowired
     PlantillaIncrustacionDAO plantillaIncrustacionDAO;
-
+    
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
-
+    
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
-
+    
     @Autowired
     TramiteBachillerDAO tramiteBachillerDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
+    
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
-
+    
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
+    
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-
+    
     @Autowired
     TipoDocumentoAcademicoDAO documentoAcademicoDAO;
-
+    
     @Autowired
     NombreFacultadDAO nombreFacultadDAO;
-
+    
     @Autowired
     NombreCarreraDAO nombreCarreraDAO;
-
+    
     @Autowired
     NombreCicloDAO nombreCicloDAO;
-
+    
     @Autowired
     NombreGradoDAO nombreGradoDAO;
-
+    
     @Autowired
     NombreCursoDAO nombreCursoDAO;
-
+    
     @Autowired
     NombreTituloAcademicoDAO nombreTituloAcademicoDAO;
-
+    
     @Autowired
     SerieDocumentoService serieDocumentoService;
-
+    
     @Autowired
     UploadFileS3 uploadFileS3;
-
+    
     @Autowired
     ArchivoDAO archivoDAO;
-
+    
     @Override
     @Transactional
     public void saveWordTramiteDocumento(Archivo archivo, DataSessionPivot ds) {
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.find(archivo.getIdInstancia());
-
+        
         Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(plantilla.getId(), TRAM_PLANTILLA_DOCUMENTO_ACADEMICO);
         if (!Objects.equal(archivoDB, null)) {
             archivoDAO.delete(archivoDB);
         }
-
+        
         uploadFileS3.uploadSync(AcademicoConstantine.S3_PLANTILLA_WORD, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_PLANTILLA_WORD, archivo.getNombre());
-
+        
         Archivo newarchivo = new Archivo();
         newarchivo.setFechaRegistro(new Date());
         newarchivo.setInstancia(TRAM_PLANTILLA_DOCUMENTO_ACADEMICO.name());
@@ -214,38 +214,38 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         newarchivo.setNombre(archivo.getNombre());
         newarchivo.setRuta(path);
         archivoDAO.save(newarchivo);
-
+        
         plantilla.setArchivo(newarchivo);
         plantillaDocumentoAcademicoDAO.update(plantilla);
-
+        
         TipoDocumentoAcademico documentoAcademico = plantilla.getTipoDocumentoAcademico();
         documentoAcademico.setConfigurado(1l);
         documentoAcademicoDAO.update(documentoAcademico);
-
+        
     }
-
+    
     @Override
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
-
+        
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
-
+        
         try {
-
+            
             XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
-
+            
             out.close();
             doc.close();
-
+            
             String codigoAlumno = tramiteDocumentoAcademico.getTramite().getAlumno().getCodigo();
             String nombreTramite = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getNombre();
             response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/msword");
             response.setHeader("Content-Disposition", "inline; filename=" + codigoAlumno + " - " + nombreTramite + ".docx");
-
+            
             OutputStream outputStream = response.getOutputStream();
             outputStream.write(out.toByteArray());
             outputStream.flush();
@@ -256,17 +256,17 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         } catch (XmlException ex) {
             java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
-
+    
     private void generateWord(XWPFDocument doc, TramiteDocumentoAcademico documentoAcademico, PlantillaDocumentoAcademico plantilla, Usuario usuario) throws IOException, XmlException {
-
+        
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-
+        
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
         CicloAcademico cicloAcademicoAct = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-
+        
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
         List<PlantillaDocumentoAcademico> plantillaDocumentoIncrustacion = incrustacionDocumentos.stream().map(x -> x.getPlatillaIncrustacion()).collect(Collectors.toList());
         List<VariablePlantilla> variablePlantillasIncrustacion = variablePlantillaDAO.allByPlantillas(plantillaDocumentoIncrustacion);
@@ -298,7 +298,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         }
         
         variables.addAll(variablePlantillasIncrustacion);
-
+        
         List<XWPFParagraph> paragraphList = doc.getParagraphs();
         this.addIncrustaciones(paragraphList, incrustacionDocumentos);
         this.recorrerVariableWord(alumno, alumnoCiclos, documentoAcademico, usuario, cicloAcademicoAct, egresado, paragraphList, variables,
@@ -312,7 +312,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
         }
     }
-
+    
     private void addIncrustaciones(List<XWPFParagraph> paragraphList, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
         String htmlIncrustacion = "";
         for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
@@ -329,7 +329,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             }
         }
     }
-
+    
     private void recorrerVariableWord(Alumno alumno, List<AlumnoCiclo> alumnoCiclos,
             TramiteDocumentoAcademico documentoAcademico, Usuario usuario,
             CicloAcademico cicloAcademicoAct, Egresado egresado, List<XWPFParagraph> paragraphList, List<VariablePlantilla> variables,
@@ -340,50 +340,50 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             Map<String, NombreCiclo> mapNombreCiclo,
             Boolean isEspanol,
             Facultad facultadAlumno) {
-
+        
         int idx = alumnoCiclos.size() - 1;
-
+        
         Oficina oficinaEPG = oficinaDAO.findByCode(OficinaEnum.EPG.name());
         Oficina oficinaUR = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Oficina oficinaOREA = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         Oficina oficinaFacultad = oficinaDAO.findByTipoAndFacultad(TipoOficinaEnum.FAC, alumno.getCarrera().getFacultad());
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
-
+        
         EventoCicloAcademico eventoAcademico = null;
         EventoCicloAcademico eventoFinAcademico = null;
-
+        
         if (!alumnoCiclos.isEmpty()) {
             eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
             eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
         }
-
+        
         for (XWPFParagraph para : paragraphList) {
-
+            
             for (XWPFRun run : para.getRuns()) {
                 String text = run.text();
-
+                
                 if (null == text) {
                     continue;
                 }
                 if (text.isEmpty()) {
                     continue;
                 }
-
+                
                 logger.debug("***** {} ", text);
-
+                
                 for (VariablePlantilla variablePlantilla : variables) {
-
+                    
                     VariableGenericaEnum enums = null;
-
+                    
                     if (!text.contains(variablePlantilla.getVariableGenerica().getCodigo())) {
                         continue;
                     }
-
+                    
                     enums = VariableGenericaEnum.valueOf(variablePlantilla.getVariableGenerica().getCodigoEnum());
-
+                    
                     logger.debug("----- {} ", enums);
-
+                    
                     switch (enums) {
                         case FIRMA_JEFE_FACULTAD:
                             text = text.replace(enums.getValue(), oficinaFacultad.getJefeEncargado() == null ? oficinaFacultad.getPersonaJefe().getNombreConTitulo() : oficinaFacultad.getJefeEncargado().getNombreConTitulo());
@@ -399,11 +399,11 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case CORRELATIVO_DOC:
                             if (documentoAcademico.getCorrelativoDocumento() == null) {
                                 DateTime today = new DateTime();
-
+                                
                                 TipoDocumentoCompaniaEnum tipoConEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.DOC_CONS : TipoDocumentoCompaniaEnum.DOC_CERT;
                                 TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
                                 SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-
+                                
                                 documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficinaUR.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
                                 tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
                             }
@@ -431,7 +431,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), nombreFacultads.getNombre());
                             }
                             break;
-
+                        
                         case ESPECIALIDAD:
                             if (isEspanol) {
                                 String tipo = TipoCarreraEnum.valueOf(alumno.getCarrera().getTipo()).getValue();
@@ -455,7 +455,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case NOMBRE_PERSONA:
                             text = text.replace(enums.getValue(), alumno.getPersona().getNombreCompleto());
                             break;
-
+                        
                         case FECHA_CONSTANCIA:
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(new Date(), "dd 'de' MMMM 'del' yyyy", "es"));
                             break;
@@ -472,7 +472,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             } else {
                                 text = text.replace(enums.getValue(), "");
                             }
-
+                            
                             break;
                         case PRIMER_CICLO_MATRICULADO:
                             if (isEspanol) {
@@ -494,9 +494,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             }
                             break;
                         case NIVEL_ACADEMICO:
-
+                            
                             text = text.replace(enums.getValue(), alumnoCiclos.get(idx).getNivel() + "");
-
+                            
                             break;
                         case CICLO_MATRICULA:
                             if (alumnoCiclos.get(idx).getCicloAcademico().getCodigo().equals(cicloAcademicoAct.getCodigo())) {
@@ -551,13 +551,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 }
                             } else if (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null) {
                                 if (isEspanol) {
-
+                                    
                                     text = text.replace(enums.getValue(), obtencionGradoBachi.getGradoAcademico().getNombre());
                                 } else {
                                     NombreGrado nombreGrado = mapNombreGrados.get(obtencionGradoBachi.getGradoAcademico().getId());
                                     text = text.replace(enums.getValue(), nombreGrado.getNombre());
                                 }
-
+                                
                             } else if (egresado != null && egresado.getTitulo() != null) {
                                 if (isEspanol) {
                                     text = text.replace(enums.getValue(), egresado.getTitulo().getNombre());
@@ -566,7 +566,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                     text = text.replace(enums.getValue(), tituloAcademico.getNombre());
                                 }
                             }
-
+                            
                             break;
                         case CICLO_PROMOCION:
                             if (isEspanol) {
@@ -584,86 +584,86 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), nombreCiclo.getNombre());
                             }
                             break;
-
+                        
                         case PROGRAMA:
                             String programa = "";
                             if (alumno.getCarrera().getCodigo().equals(CODIGO_ALIANZA_ESTRATEGICA)) {
                                 programa = programa.concat("por el Convenio de la " + alumno.getCarrera().getNombre().toUpperCase());
                             } else {
-
+                                
                                 programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno("alter") + " " + alumno.getCarrera().getNombre().toUpperCase());
                             }
-
+                            
                             text = text.replace(enums.getValue(), programa);
                             break;
                         case FECHA_EGRESO:
-
+                            
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
-
+                            
                             break;
                         case RESOL_EGRESO:
-
+                            
                             text = text.replace(enums.getValue(), obtencionGradoBachi.getResolucion().getDescripcion());
-
+                            
                             break;
                         case RESOL_FECHA:
-
+                            
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(obtencionGradoBachi.getResolucion().getFecha(), "dd/MM/yyyy"));
-
+                            
                             break;
                         case RESOL_TITULO:
-
+                            
                             text = text.replace(enums.getValue(), obtencionGradoTitulo.getResolucion().getDescripcion());
-
+                            
                             break;
                         case RESOL_TITULO_FECHA:
-
+                            
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(obtencionGradoTitulo.getResolucion().getFecha(), "dd/MM/yyyy"));
-
+                            
                             break;
                         case ORDEN_MERITO_EGRESADO:
-
+                            
                             text = text.replace(enums.getValue(), egresado.getOrdenMeritoFacultad() + "");
-
+                            
                             break;
                         case CANTIDAD_ALUMNOS:
-
+                            
                             text = text.replace(enums.getValue(), egresado.getControlMeritoFacultad().getTotalAlumnos() + "");
-
+                            
                             break;
                         case PROMEDIO_PONDERADO_GRADUACION:
                             if (egresado != null && egresado.getPromedioGraduacion() == null) {
                                 this.generarPromedioGraduacion(egresado, alumno);
                             }
                             text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "No hay data");
-
+                            
                             break;
                         case EPG_PROMEDIO_PONDERADO:
-
-                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2,RoundingMode.HALF_UP).toString());
-
+                            
+                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2, RoundingMode.HALF_UP).toString());
+                            
                             break;
                         case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
-
+                            
                             text = text.replace(enums.getValue(), egresado.getPromedioGraduacion().toString());
-
+                            
                             break;
                         case PROMEDIO_PONDERADO_ACADEMICO:
-
-                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2,RoundingMode.HALF_UP).toString());
-
+                            
+                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2, RoundingMode.HALF_UP).toString());
+                            
                             break;
-
+                        
                     }
                     run.setText(text, 0);
-
+                    
                 }
-
+                
             }
         }
-
+        
     }
-
+    
     private void remplazarTablasCertificados(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos,
             NombreFacultad nombreFacultads,
             NombreCarrera nombresCarrera,
@@ -677,15 +677,15 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();
-
+        
         for (XWPFTable fTable : tbl) {
-
+            
             int countRowsInicial = fTable.getRows().size();
-
+            
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
                 if (cicloCursos.stream().anyMatch(x -> x.getEstaAprobado() == 1)) {
-
+                    
                     XWPFTableRow oldRowCiclo = fTable.getRow(0);
                     CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                     XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
@@ -699,11 +699,11 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                         XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
                         this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
-
+                        
                         fTable.addRow(newRow);
                     }
                 }
-
+                
             }
             for (int i = countRowsInicial - 1; i >= 0; i--) {
                 fTable.removeRow(i);
@@ -717,9 +717,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         ctSectPr.addNewType().setVal(STSectionMark.NEXT_PAGE);
         ctColumns = ctSectPr.addNewCols();
         ctColumns.setNum(BigInteger.valueOf(0));
-
+        
     }
-
+    
     private void remplazarTablas(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos,
             NombreFacultad nombreFacultads,
             NombreCarrera nombresCarrera,
@@ -732,34 +732,34 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();
-
+        
         for (XWPFTable fTable : tbl) {
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
-
+                
                 XWPFTableRow oldRowCiclo = fTable.getRow(1);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                 XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
-
+                
                 this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
-
+                
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
-
+                    
                     this.switchValue(alumnoCicloCurso, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
-
+                    
                 }
             }
             fTable.removeRow(1);
         }
     }
-
+    
     private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo,
             Map<Long, NombreCurso> mapNombreCurso,
             Map<String, NombreCiclo> mapNombreCiclo,
             Boolean isEspanol) {
-
+        
         for (XWPFTableCell tableCell : pFTableRow.getTableCells()) {
-
+            
             for (XWPFParagraph paragraph : tableCell.getParagraphs()) {
                 for (XWPFRun run : paragraph.getRuns()) {
                     String text = run.getText(0);
@@ -769,29 +769,29 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     }
                     VariableGenericaEnum enums = null;
                     enums = VariableGenericaEnum.valueOf(variablePlantilla.getVariableGenerica().getCodigoEnum());
-
+                    
                     switch (enums) {
                         case TABLA_CODIGO_CURSO:
                             if (alumnoCicloCurso != null) {
-
+                                
                                 run.setText(alumnoCicloCurso.getCurso().getCodigo().toUpperCase(), 0);
                             }
-
+                            
                             break;
                         case TABLA_CURSO:
                             if (alumnoCicloCurso != null) {
                                 if (isEspanol) {
                                     text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre().toUpperCase());
-
+                                    
                                 } else {
                                     if (mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()) != null) {
                                         text = text.replace(enums.getValue(), mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()).getNombre().toUpperCase());
                                     } else {
-
+                                        logger.debug("no existe nombre curso {} en ingles ", alumnoCicloCurso.getCurso().getId());
                                         text = text.replace(enums.getValue(), "no data");
                                     }
                                 }
-
+                                
                                 run.setText(text, 0);
                             }
                             break;
@@ -809,10 +809,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case TABLA_CICLO_CURSADO:
                             if (isEspanol) {
-
+                                
                                 text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
                             } else {
-                                logger.debug(" **** {}",alumnoCiclo.getCicloAcademico().getCodigo());
+                                logger.debug(" **** {}", alumnoCiclo.getCicloAcademico().getCodigo());
                                 text = text.replace(enums.getValue(), mapNombreCiclo.get(alumnoCiclo.getCicloAcademico().getCodigo()).getNombre().toUpperCase());
                             }
                             run.setText(text, 0);
@@ -828,16 +828,16 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     }
                 }
             }
-
+            
         }
-
+        
     }
-
+    
     private void generarPromedioGraduacion(Egresado egresado, Alumno alumno) {
-
+        
         BigDecimal sumNotasCreditos = BigDecimal.ZERO;
         BigDecimal sumCreditos = BigDecimal.ZERO;
-
+        
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
         for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
             if (cursoAluCicloEach.getCreditos() > 0
@@ -845,18 +845,18 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     && cursoAluCicloEach.isBooleanRegistroActivo()
                     && cursoAluCicloEach.getEstadoEnum() == MAT
                     && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
-
+                
                 BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
                 BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getCreditos());
-
+                
                 sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
                 sumCreditos = sumCreditos.add(creditosBig);
-
+                
             }
         }
         BigDecimal ppg = sumNotasCreditos.divide(sumCreditos);
         egresado.setPromedioGraduacion(ppg);
         egresadoDAO.update(egresado);
     }
-
+    
 }

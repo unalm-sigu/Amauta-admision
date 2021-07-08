@@ -1,6 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
-    el: '#propedeuticoVUE',
+    el: '#main',
     data: {
         alumnoCurosURL: APP.url("academico/cursoPropedeutico/list"),
         modalAlumnoCurso: {
@@ -114,6 +114,28 @@ new Vue({
                 }
             }, error => {
                 notify(Messages.errorComunicacion, 'error');
+            });
+        },
+        removerDeuda(alumnoCursoPropedeutico) {
+            bootbox.confirm({
+                message: "Seguro que desea remover su deuda de curso propedeútico",
+                title: 'Eliminar deuda',
+                buttons: {
+                    confirm: {label: 'Eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.get(APP.url('/academico/cursoPropedeutico/eliminardeuda/'+alumnoCursoPropedeutico.id)).
+                                then(response => {
+                                    notify(response.data.message,'info');
+                                }, error => {
+                                    notify(Messages.errorComunicacion, "error");
+                                });
+
+
+                    }
+                }
             });
         }
     }
