@@ -19,6 +19,10 @@ import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.model.aporte.AporteCiclo;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
 @Repository
 public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> implements AporteAlumnoCicloDAO {
@@ -126,4 +130,16 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
         return all(sql);
     }
 
+    @Override
+    public AporteAlumnoCiclo findByAporteCicloResumen(AporteCiclo aporteCiclo, ResumenAporteAlumno resumenAporteAlumno) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "ca")
+                .leftJoin("deudaAlumno da")
+                .filter("aporteCiclo", aporteCiclo)
+                .filter("resumenAporteAlumno", resumenAporteAlumno)
+                .in("estado", Arrays.asList(DEBE, PAGO))
+                .filter("estadoRegistro", EstadoEnum.ACT);
+
+        return find(sql);
+    }
 }

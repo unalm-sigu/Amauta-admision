@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCursoPropedeutico;
@@ -39,8 +42,7 @@ public class CursoPropedeuticoController {
         return "academico/cursoPropedeutico/cursoPropedeutico";
 
     }
-    
-        
+
     @ResponseBody
     @RequestMapping(value = "list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
@@ -80,17 +82,23 @@ public class CursoPropedeuticoController {
     public JsonResponse findMatriculaResumen(@RequestParam("nombre") String nombre, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<MatriculaResumen> matriculaResumens = service.findMatriculaResumen(nombre, ds.getCicloAcademico());
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<MatriculaResumen> matriculaResumens = service.findMatriculaResumen(nombre, ds.getCicloAcademico());
+            ArrayNode arrayNode = JaneHelper.from(matriculaResumens)
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .array();
 
-        ArrayNode arrayNode = JaneHelper.from(matriculaResumens)
-                .join("alumno")
-                .join("alumno.persona")
-                .array();
+            response.setSuccess(Boolean.TRUE);
+            response.setData(arrayNode);
 
-        response.setSuccess(Boolean.TRUE);
-        response.setData(arrayNode);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
 
         return response;
     }
@@ -100,16 +108,23 @@ public class CursoPropedeuticoController {
     public JsonResponse findSeccion(@RequestParam("nombre") String nombre, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<Seccion> secciones = service.findSeccion(nombre, ds.getCicloAcademico());
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<Seccion> secciones = service.findSeccion(nombre, ds.getCicloAcademico());
 
-        ArrayNode arrayNode = JaneHelper.from(secciones)
-                .join("grupoSeccion")
-                .join("grupoSeccion.curso")
-                .array();
+            ArrayNode arrayNode = JaneHelper.from(secciones)
+                    .join("grupoSeccion")
+                    .join("grupoSeccion.curso")
+                    .array();
 
-        response.setSuccess(Boolean.TRUE);
-        response.setData(arrayNode);
+            response.setSuccess(Boolean.TRUE);
+            response.setData(arrayNode);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
 
         return response;
     }
@@ -119,11 +134,18 @@ public class CursoPropedeuticoController {
     public JsonResponse save(@RequestBody AlumnoCursoPropedeuticoBean alumnoCursoPropedeuticoBean, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.save(alumnoCursoPropedeuticoBean, ds.getCicloAcademico(), ds.getUsuario());
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.save(alumnoCursoPropedeuticoBean, ds.getCicloAcademico(), ds.getUsuario());
 
-        response.setSuccess(Boolean.TRUE);
-        response.setMessage("Se registró satisfactoriamente el curso");
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se registró satisfactoriamente el curso");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
 
         return response;
     }
@@ -133,27 +155,43 @@ public class CursoPropedeuticoController {
     public JsonResponse update(@RequestBody AlumnoCursoPropedeuticoBean alumnoCursoPropedeuticoBean, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.update(alumnoCursoPropedeuticoBean, ds.getCicloAcademico(), ds.getUsuario());
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.update(alumnoCursoPropedeuticoBean, ds.getCicloAcademico(), ds.getUsuario());
 
-        response.setSuccess(Boolean.TRUE);
-        response.setMessage("Se actualizó satisfactoriamente el curso");
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se actualizó satisfactoriamente el curso");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
-    
-    
-    
+
     @ResponseBody
     @RequestMapping(value = "eliminardeuda/{idAlumnoCursoPropedeutico}", method = RequestMethod.GET)
-    public JsonResponse eliminarDeuda(@RequestParam("idAlumnoCursoPropedeutico") Long idAlumnoCursoPropedeutico, HttpSession session) {
+    public JsonResponse eliminarDeuda(@PathVariable("idAlumnoCursoPropedeutico") Long idAlumnoCursoPropedeutico, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.eliminarDeuda(idAlumnoCursoPropedeutico, ds.getCicloAcademico(), ds.getUsuario());
-        response.setSuccess(Boolean.TRUE);
-        response.setMessage("Deuda eliminada satisfactoriamente");
-        return response;
-    }
 
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.eliminarDeudaAlumnoCursoPropedeutico(idAlumnoCursoPropedeutico, ds.getCicloAcademico(), ds.getUsuario());
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Registro removido satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
 
 }

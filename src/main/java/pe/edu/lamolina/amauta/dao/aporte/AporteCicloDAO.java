@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.aporte.AporteCiclo;
+import pe.edu.lamolina.model.enums.AportesEnum;
 
 public interface AporteCicloDAO extends EasyDAO<AporteCiclo> {
 
@@ -16,4 +17,6 @@ public interface AporteCicloDAO extends EasyDAO<AporteCiclo> {
     List<AporteCiclo> allByCicloAcademicoAporte(CicloAcademico cicloAcademico, Aporte aporte);
 
     AporteCiclo findByCicloAcademicoAporte(CicloAcademico cicloAcademico, Aporte aporte);
+
+    public AporteCiclo findByCodigoCiclo(AportesEnum aportesEnum, CicloAcademico ciclo);
 }

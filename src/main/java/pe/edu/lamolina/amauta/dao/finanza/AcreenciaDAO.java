@@ -31,4 +31,6 @@ public interface AcreenciaDAO extends EasyDAO<Acreencia> {
 
     public Acreencia findPersonaAndInstancia(Persona persona, Long id);
 
+    public Acreencia findDebeByDeudaAlumno(DeudaAlumno deudaAlumno);
+
 }

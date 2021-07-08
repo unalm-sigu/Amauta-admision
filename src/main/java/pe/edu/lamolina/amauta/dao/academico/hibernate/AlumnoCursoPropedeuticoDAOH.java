@@ -41,4 +41,15 @@ public class AlumnoCursoPropedeuticoDAOH extends AbstractEasyDAO<AlumnoCursoProp
         return all(sql);
     }
 
+    @Override
+    public AlumnoCursoPropedeutico findAll(Long id) {
+        Octavia sql = new Octavia()
+                .from(AlumnoCursoPropedeutico.class, "acp")
+                .join("seccion sec", "matriculaResumen mr")
+                .join("mr.alumno al", "al.persona")
+                .filter("acp.id", id);
+
+        return find(sql);
+    }
+
 }
