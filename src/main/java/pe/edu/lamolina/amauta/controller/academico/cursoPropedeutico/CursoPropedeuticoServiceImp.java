@@ -272,11 +272,11 @@ public class CursoPropedeuticoServiceImp implements CursoPropedeuticoService {
         Alumno alumno = alumnoCursoPropedeutico.getMatriculaResumen().getAlumno();
 
         CicloAcademico ciclo = cicloAcademicoDAO.findActivoByModalidadEstudio(alumno.getModalidadEstudio().getCodigoEnum());
-        logger.info("alumno exonerar {} en el ciclo {}", alumno.getId(), ciclo.getId());
+        logger.info("alumno anular {} en el ciclo {}", alumno.getId(), ciclo.getId());
 
         AporteCiclo aporteCiclo = aporteCicloDAO.findByCodigoCiclo(AportesEnum.A53, ciclo);
         Assert.isNotNull(aporteCiclo, "No tiene el aporte");
-        logger.info("aporteCiclo exonera {}", aporteCiclo.getId());
+        logger.info("aporteCiclo anular {}", aporteCiclo.getId());
 
         logger.info("exonerar aporte {} al alumno {}", aporteCiclo.getAporte().getNombre(), alumno.getId());
         ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, ciclo);
@@ -359,7 +359,7 @@ public class CursoPropedeuticoServiceImp implements CursoPropedeuticoService {
         deudaAlumnoDAO.update(deudaAlumno);
 
         aporteAlu.setEstadoEnum(EstadoAporteEnum.ANU);
-        aporteAlu.setEstadoRegistroEnum(EstadoEnum.ACT);
+        aporteAlu.setEstadoRegistroEnum(EstadoEnum.ANU);
         aporteAlu.setUsuarioAnula(usuario);
         aporteAlu.setFechaAnula(fechaHoraRegistro);
         logger.info("************************************ apo alm ciclo " + aporteAlu.getId());
