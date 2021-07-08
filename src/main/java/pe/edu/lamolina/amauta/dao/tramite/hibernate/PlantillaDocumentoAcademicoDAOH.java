@@ -27,6 +27,7 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
                 .from(PlantillaDocumentoAcademico.class, "pda")
                 .join("tipoDocumentoAcademico tda", "idioma")
                 .join("tda.oficinaEmisora ofe")
+                .left("archivo")
                 .searchFields("tda.nombre")
                 .filter("ofe.codigo", OficinaEnum.OERA)
                 .orderBy("tda.nombre");

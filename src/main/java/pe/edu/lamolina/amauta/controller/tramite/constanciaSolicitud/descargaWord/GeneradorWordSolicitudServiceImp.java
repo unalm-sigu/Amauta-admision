@@ -250,6 +250,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             outputStream.flush();
             outputStream.close();
         } catch (IOException ex) {
+            ex.printStackTrace();
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
         } catch (XmlException ex) {
             java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
@@ -517,6 +518,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case CANTIDAD_CREDITOS_CURSADOS:
                             text = text.replace(enums.getValue(), alumno.getCreditosCursados().toString());
+                            break;
+                        case CANTIDAD_CREDITOS_CONVALIDADOS:
+                            text = text.replace(enums.getValue(), alumno.getCreditosConvalidados().toString());
                             break;
                         case FECHA_ULTIMA_MATRICULA:
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));

@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -251,9 +252,9 @@ public class PlantillaConstanciaController {
     @RequestMapping("{idVariablePlantilla}/deleteVariable")
     public JsonResponse delete(@PathVariable("idVariablePlantilla") Integer idVariablePlantilla, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
+
             service.deleteVariable(idVariablePlantilla);
             response.setMessage("Se eliminó satisfactoriamente");
 
@@ -307,10 +308,16 @@ public class PlantillaConstanciaController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            List<PlantillaDocumentoAcademico> list = service.all(filter);
-            json.setData(new PlantillaDocumentoAcademico().toArrayJson(list));
+            List<PlantillaDocumentoAcademico> plantillas = service.all(filter);
+
+            ArrayNode plantillasArray = JaneHelper.from(plantillas)
+                    .join("tipoDocumentoAcademico")
+                    .join("archivo")
+                    .join("idioma")
+                    .array();
+
+            json.setData(plantillasArray);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
         } catch (Exception e) {
@@ -362,11 +369,19 @@ public class PlantillaConstanciaController {
     public JsonResponse uploadBoletaFile(@RequestParam("file") MultipartFile archivo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            String fileName = TypesUtil.getUnixTime() + archivo.getOriginalFilename();
+
+            String fileName = TypesUtil.getClean(TypesUtil.getUnixTime() + archivo.getOriginalFilename().toLowerCase().replaceAll("\\s", ""));
+            
+            logger.debug("file: {}",fileName);
+
             String absoluteName = GlobalConstantine.TMP_DIR + fileName;
+
             FileHelper.saveToDisk(archivo, absoluteName);
+
             ObjectNode json = new ObjectNode(jFactory);
+
             json.put("name", fileName);
             json.put("originalFilename", archivo.getOriginalFilename());
             json.put("contentType", archivo.getContentType());
@@ -374,6 +389,7 @@ public class PlantillaConstanciaController {
             json.put("ruta", absoluteName);
             response.setData(json);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

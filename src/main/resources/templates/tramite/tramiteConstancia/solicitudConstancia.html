@@ -82,26 +82,24 @@
 
                                                 <td class="v-middle ">
                                                     <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
+                                                        
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="fa fa-cog"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <!--                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" >
-                                                                                                                            <a v-bind:href="'/academico/procesar/'+item.tramite.id">Actualizar historial academico</a>
-                                                                                                                        </li> -->
-                                                            <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a></li><!-- -->
+                                                            <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a></li>
                                                             <li>  <a class="btn-link pointer" 
                                                                      v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">
-                                                                    Procesaar</a></li>
+                                                                    Procesaar
+                                                                </a>
+                                                            </li>
+                                                           
                                                             <li v-for="accionTemp in item.estados">
                                                                 <a v-if="accionTemp.url !=null" v-bind:href="accionTemp.url + item.id">{{accionTemp.opcion}}</a>
                                                                 <a class="pointer"
                                                                    v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" v-on:click="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
                                                             </li>
                                                             <li> <a v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a></li>
-                                                            <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
-                                                                                                                            <li class="divider"></li>
-                                                                                                                            <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>-->
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -120,11 +118,10 @@
         <div layout:fragment="js">
 
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <!--<script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>-->
             <script th:src="@{/app/tramite/tramiteConstancia/solicitudConstancia.js}" charset="utf-8"></script>
+            
         </div>
     </body>
 </html>
