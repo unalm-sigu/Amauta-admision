@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.IdiomaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 
 public interface IdiomaDAO extends EasyDAO<Idioma> {
@@ -12,5 +13,7 @@ public interface IdiomaDAO extends EasyDAO<Idioma> {
     List<Idioma> allByCodigo(List<String> codigos);
 
     List<Idioma> allDynatable(DynatableFilter filter);
+
+    public Idioma findByCodigoEnum(IdiomaEnum idiomaEnum);
 
 }

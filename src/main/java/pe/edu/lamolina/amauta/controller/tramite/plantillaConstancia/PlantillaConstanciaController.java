@@ -96,15 +96,15 @@ public class PlantillaConstanciaController {
         List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(documentoAcademico);
         List<VariableGenerica> variableGeneral = service.allVariableGeneralFilterByCodigoEnum();
 
-        ArrayNode arrayNode =JaneHelper.from(variablePlantilla)
-            .join("variableGenerica").array();
+        ArrayNode arrayNode = JaneHelper.from(variablePlantilla)
+                .join("variableGenerica").array();
 
-        ArrayNode arrayVariable =JaneHelper.from(variableGeneral).array();
+        ArrayNode arrayVariable = JaneHelper.from(variableGeneral).array();
 
         ObjectNode nodePlantillaDocumentoAcademico = JaneHelper.from(documentoAcademico)
-        .join("tipoDocumentoAcademico")
-        .join("idioma")
-        .json();
+                .join("tipoDocumentoAcademico")
+                .join("idioma")
+                .json();
 
         model.addAttribute("plantillaDocumentoAcademico", nodePlantillaDocumentoAcademico.toString());
         model.addAttribute("variables", arrayVariable.toString());
@@ -363,8 +363,8 @@ public class PlantillaConstanciaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             String fileName = TypesUtil.getClean(TypesUtil.getUnixTime() + archivo.getOriginalFilename().toLowerCase().replaceAll("\\s", ""));
-            
-            logger.debug("file: {}",fileName);
+
+            logger.debug("file: {}", fileName);
 
             String absoluteName = GlobalConstantine.TMP_DIR + fileName;
 
@@ -401,6 +401,25 @@ public class PlantillaConstanciaController {
             generadorWordSolicitudService.saveWordTramiteDocumento(archivo, ds);
             response.setMessage("Archivo subido satisfactoriamente");
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("fixnombreciclo")
+    public JsonResponse fixNombreCiclo() {
+        
+        JsonResponse response = new JsonResponse();
+        try {
+
+            service.fixNombreCiclo();
+            response.setMessage("Registros modificados");
+            response.setSuccess(true);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

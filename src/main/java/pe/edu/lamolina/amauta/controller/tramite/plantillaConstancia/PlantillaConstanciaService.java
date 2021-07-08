@@ -48,4 +48,6 @@ public interface PlantillaConstanciaService {
     public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 
     public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
+
+    public void fixNombreCiclo();
 }
