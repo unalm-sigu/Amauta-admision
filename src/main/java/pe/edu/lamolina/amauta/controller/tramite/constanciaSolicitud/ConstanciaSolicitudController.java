@@ -135,9 +135,11 @@ public class ConstanciaSolicitudController {
                 node.set("tramiteDocumento", JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{"*"}));
                 array.add(node);
             }
+            
             json.setData(array);
-            json.setTotal(array.size());
-            json.setFiltered(array.size());
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);

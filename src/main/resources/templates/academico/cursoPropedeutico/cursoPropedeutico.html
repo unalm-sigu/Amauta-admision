@@ -55,7 +55,12 @@
 
                                                     </td>
                                                     <td class="col-lg-3 text-center">
-                                                        <span class="block text-info bold">{{item.estado}} </span>
+                                                        <span v-if="item.estado=='ACT'" class="bold label label-primary">
+                                                            Activo
+                                                        </span>
+                                                        <span v-if="item.estado=='INA'" class="bold label label-danger">
+                                                            Inactivo
+                                                        </span>
                                                     </td>
                                                     <td class="v-middle"> 
                                                         <div class="dropdown actions">
