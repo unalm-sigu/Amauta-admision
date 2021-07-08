@@ -640,7 +640,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case EPG_PROMEDIO_PONDERADO:
 
-                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().toString());
+                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().setScale(2,RoundingMode.HALF_UP).toString());
 
                             break;
                         case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
@@ -812,8 +812,8 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
                                 text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
                             } else {
+                                logger.debug(" **** {}",alumnoCiclo.getCicloAcademico().getCodigo());
                                 text = text.replace(enums.getValue(), mapNombreCiclo.get(alumnoCiclo.getCicloAcademico().getCodigo()).getNombre().toUpperCase());
-
                             }
                             run.setText(text, 0);
                             break;
