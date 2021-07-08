@@ -429,9 +429,11 @@ public class OficinaServiceImp implements OficinaService {
         Assert.isTrue(idJefe.longValue() == oficinaForm.getPersonaJefe().getId(), "No coinciden el Jefe de la Unidad y los datos enviados");
         Persona jefe = oficinaBD.getPersonaJefe();
 
-        Date hoy = new LocalDate().toDate();
-        Assert.isFalse(oficinaForm.getFechaFinJefatura().after(hoy), "No puede poner como fecha final un día futuro");
-        Assert.isFalse(oficinaBD.getFechaInicioJefatura().after(oficinaForm.getFechaFinJefatura()), "La fecha final no puede ser antes de la fecha de inicio");
+        {
+            Date hoy = new LocalDate().toDate();
+            Assert.isFalse(oficinaForm.getFechaFinJefatura().after(hoy), "No puede poner como fecha final un día futuro");
+            Assert.isFalse(oficinaBD.getFechaInicioJefatura().after(oficinaForm.getFechaFinJefatura()), "La fecha final no puede ser antes de la fecha de inicio");
+        }
 
         Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaBD, oficinaBD.getPersonaJefe());
         colaborador.setEstadoEnum(RET);
@@ -439,6 +441,8 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setFechaModificacion(new Date());
         colaborador.setUserModificacion(ds.getUsuario());
         colaboradorDAO.update(colaborador);
+
+        Date today = new DateTime().toDate();
 
         PersonaCargo personaCargo = personaPerfilDAO.findSinCerrarByOficina(oficinaBD, ds.getCompania());
         if (personaCargo == null) {
@@ -450,7 +454,7 @@ public class OficinaServiceImp implements OficinaService {
             personaCargo.setEstadoEnum(PerfilEstadoEnum.CER);
             personaCargo.setFechaInicio(oficinaBD.getFechaInicioJefatura());
             personaCargo.setFechaFin(oficinaForm.getFechaFinJefatura());
-            personaCargo.setFechaRegistro(new Date());
+            personaCargo.setFechaRegistro(today);
             personaCargo.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(personaCargo);
 
@@ -464,18 +468,20 @@ public class OficinaServiceImp implements OficinaService {
         personaCargo.setFechaFin(oficinaForm.getFechaFinJefatura());
         personaCargo.setEstadoEnum(PerfilEstadoEnum.CER);
         personaCargo.setUserModificacion(ds.getUsuario());
-        personaCargo.setFechaModificacion(new Date());
+        personaCargo.setFechaModificacion(today);
         personaPerfilDAO.update(personaCargo);
 
         oficinaBD.setPersonaJefe(null);
         oficinaBD.setFechaInicioJefatura(null);
         oficinaDAO.update(oficinaBD);
 
-        PerfilCompania perfil = oficinaBD.getCargoJefe();
-        List<FuncionRol> funcionRoles = funcionRolDAO.allByPerfil(perfil);
-        List<Rol> roless = funcionRoles.stream().map(x -> x.getRol()).collect(Collectors.toList());
-        if (roless.isEmpty()) {
-            return;
+        List<FuncionColaborador> funciones = funcionColaboradorDAO.allByColaborador(colaborador);
+        for (FuncionColaborador funcion : funciones) {
+            funcion.setEstadoEnum(EstadoEnum.INA);
+            funcion.setFechaFin(oficinaForm.getFechaFinJefatura());
+            funcion.setUserModificacion(ds.getUsuario());
+            funcion.setFechaModificacion(today);
+            funcionColaboradorDAO.update(funcion);
         }
 
         Usuario userJefe = usuarioDAO.findActivoByPersona(jefe);
@@ -484,21 +490,13 @@ public class OficinaServiceImp implements OficinaService {
         }
 
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(userJefe, oficinaBD);
-        Map<Long, List<UsuarioRol>> mapUserRol = TypesUtil.convertListToMapList("rol.id", userRoles);
-
-        for (Rol rol : roless) {
-            List<UsuarioRol> userRolBD = TypesUtil.getListNotNull(mapUserRol.get(rol.getId()));
-            for (UsuarioRol ur : userRolBD) {
-                if (ur.getOficina().getId() == oficinaBD.getId().longValue()) {
-                    ur.setEstadoEnum(UserEstadoEnum.INA);
-                    ur.setFechaFin(oficinaForm.getFechaFinJefatura());
-                    ur.setFechaFinaliza(new Date());
-                    ur.setUserFinaliza(ds.getUsuario());
-                    usuarioRolDAO.update(ur);
-                }
-            }
+        for (UsuarioRol ur : userRoles) {
+            ur.setEstadoEnum(UserEstadoEnum.INA);
+            ur.setFechaFin(oficinaForm.getFechaFinJefatura());
+            ur.setFechaFinaliza(today);
+            ur.setUserFinaliza(ds.getUsuario());
+            usuarioRolDAO.update(ur);
         }
-
     }
 
     @Override
