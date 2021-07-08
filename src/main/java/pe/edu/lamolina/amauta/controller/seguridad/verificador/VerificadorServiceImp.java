@@ -253,7 +253,6 @@ public class VerificadorServiceImp implements VerificadorService {
 
     private String obtainPath(HttpServletRequest request, int pos) {
         String base = request.getServletPath();
-        System.out.println("base=" + base);
 
         int posIndex = StringUtils.ordinalIndexOf(base, "/", pos);
 
@@ -265,9 +264,7 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     private Menu findMenu(List<Menu> menus, String recurso) {
-        System.out.println("recurso:::" + recurso);
         for (Menu menu : menus) {
-            System.out.println("verificando " + menu.getRuta());
             if (StringUtils.isBlank(menu.getRuta())) {
                 continue;
             }
@@ -737,7 +734,6 @@ public class VerificadorServiceImp implements VerificadorService {
             boolean esORolOERA = rol.getCodigoEnum() == RolEnum.OPER_PROGH_OERA;
             boolean esOficinaOERA = oficinaMain.getCodigoEnum() == OERA;
             if (esORolOERA && esOficinaOERA) {
-                System.out.println("Todos los anexos");
                 return anexosAll;
             }
         }
@@ -785,7 +781,6 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
 
-        System.out.println("Retornando " + anexos.size() + " anexos superiores");
         return anexos;
     }
 
@@ -818,7 +813,6 @@ public class VerificadorServiceImp implements VerificadorService {
             boolean esORolOERA = rol.getCodigoEnum() == RolEnum.OPER_PROGH_OERA;
             boolean esOficinaOERA = oficinaMain.getCodigoEnum() == OERA;
             if (esORolOERA && esOficinaOERA) {
-                System.out.println("Todos los anexos");
                 return anexosAll;
             }
         }
@@ -842,7 +836,6 @@ public class VerificadorServiceImp implements VerificadorService {
             boolean esRolEPG = rol.getCodigoEnum() == RolEnum.OPER_PROGH_EPG || rol.getCodigoEnum() == RolEnum.REVISOR_PROGH_EPG;
             boolean esOficinaEPG = oficinaMain.getCodigoEnum() == EPG;
             if (esRolEPG && esOficinaEPG) {
-                System.out.println("Add anexos de posgrado");
                 anexos.addAll(mapAnexoBySuperior.get(CodigoAnexoBoletinEnum.G04.name()));
             }
         }
@@ -858,13 +851,11 @@ public class VerificadorServiceImp implements VerificadorService {
             if (esRolMaestria && esOficinaMaestria && esCarreraPosgrado) {
                 AnexoBoletin anexo = mapAnexoByCarrera.get(carreraPosgrado.getId());
                 if (anexo != null) {
-                    System.out.println("Add anexo " + anexo.getNombre());
                     anexos.add(anexo);
                 }
             }
         }
 
-        System.out.println("Retornando " + anexos.size() + " anexos inferiores");
         return anexos;
     }
 

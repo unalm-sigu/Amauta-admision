@@ -31,11 +31,10 @@
                     <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
                     <ul class="dropdown-menu pointer">
                         <li><a v-on:click="nuevoAlumnoBolsa"> Agregar alumno</a></li>
-                        <!--li><a v-on:click="enviarInvitaciones"> Enviar Invitaciones </a></li-->
                     </ul>
                 </div> 
                 <p class="h2 m-b-n" th:inline="text"> Bolsa de Investigación [[${ciclo}]] </p>
-                <p class="h4 block m-t-xs m-b" th:inline="text"> Facultad de Ciencias </p>
+                <p class="h4 block m-t-xs m-b" th:inline="text"> Facultad de [[${facultad.nombre}]] </p>
 
                 <div class="block m-b-sm">
                     <div class="iblock label-status">
