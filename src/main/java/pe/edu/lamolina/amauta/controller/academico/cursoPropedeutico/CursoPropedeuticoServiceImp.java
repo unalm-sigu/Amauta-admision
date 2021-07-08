@@ -250,5 +250,10 @@ public class CursoPropedeuticoServiceImp implements CursoPropedeuticoService {
         json.set("data", node);
         return json;
     }
+
+    @Override
+    public void eliminarDeuda(Long idAlumnoCursoPropedeutico, CicloAcademico cicloAcademico, Usuario usuario) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

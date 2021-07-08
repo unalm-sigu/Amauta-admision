@@ -132,8 +132,6 @@ new Vue({
                                 }, error => {
                                     notify(Messages.errorComunicacion, "error");
                                 });
-
-
                     }
                 }
             });
