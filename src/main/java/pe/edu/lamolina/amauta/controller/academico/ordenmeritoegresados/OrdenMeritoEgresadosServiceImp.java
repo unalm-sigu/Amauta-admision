@@ -241,8 +241,9 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             BigDecimal promedioAcumulado = egresado.getAlumno().getPromedioAcumulado();
             promedioAcumulado = promedioAcumulado.setScale(2, RoundingMode.DOWN);
             egresado.setPromedioAcumulado(promedioAcumulado);
-            egresado.setCreditosAcumulados(mapAlumnosCiclo.get(egresado.getAlumno().getId()).getCreditosAcumulados());
-            logger.debug("Alumno {} PromedioAcumulado {}  CreditosAcumulados {}", egresado.getAlumno().getCodigo(), egresado.getPromedioAcumulado(), egresado.getCreditosAcumulados());
+            logger.debug(" Alumno {} ", egresado.getAlumno().getCodigo());
+            egresado.setCreditosAcumulados(mapAlumnosCiclo.getOrDefault(egresado.getAlumno().getId(),new AlumnoCiclo()).getCreditosAcumulados());
+            logger.debug(" PromedioAcumulado {}  CreditosAcumulados {}", egresado.getPromedioAcumulado(), egresado.getCreditosAcumulados());
             egresadoDAO.update(egresado);
         }
     }
