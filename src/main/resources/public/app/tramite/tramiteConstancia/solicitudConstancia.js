@@ -1,6 +1,7 @@
 Vue.component('file-upload', VueUploadComponent);
 new Vue({
     el: '#solicitudVue',
+    mixins: [VueLoader],
     data: {
         solicitudURL: APP.url('tramite/solicitudconstancia/list'),
         persona: {},
@@ -266,7 +267,7 @@ new Vue({
         descargarTramite(uri, item) {
 
             let idToast = 'iziToast' + Date.now();
-    
+
             noty_download(idToast, 'Desc. word: ' + item.tramite.alumno.codigo);
 
             axios_blob.get(uri)
@@ -277,6 +278,31 @@ new Vue({
                         noty_clouse(idToast);
                         notify(Messages.errorComunicacion, 'error')
                     });
+        },
+        anularTramite(tramite) {
+            let $vue = this;
+            bootbox.confirm({
+                message: `¿Seguro que desea anular el tramite?`,
+                buttons: {
+                    confirm: {label: 'Sí, anular', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-default"}
+                },
+                callback: (result) => {
+                    if (result) {
+
+                        $vue.showLoader();
+
+                        axios.get('/tramite/solicitudconstancia/anulartramite/' + tramite.id)
+                                .then(response => {
+                                    $vue.hideLoader();
+                                    $vue.$refs.load.loadRemoteData();
+                                    notify(response.data.message, response.data.success ? 'info' : 'error');
+                                }, () => {
+                                    $vue.hideLoader();
+                                });
+                    }
+                }
+            });
         }
     }
 });

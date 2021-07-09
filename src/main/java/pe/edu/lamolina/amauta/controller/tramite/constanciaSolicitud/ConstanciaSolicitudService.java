@@ -94,4 +94,6 @@ public interface ConstanciaSolicitudService {
 
     public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds);
 
+    public void anularTramite(Long idTramiteDocumentoAcademico);
+
 }

@@ -104,6 +104,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoParametroDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.verificadorSolicitud.VerificadorSolicitudService;
 import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
@@ -1219,8 +1220,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public Archivo findBoletas(Long idTramiteDocumento) {
 
-        Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_DOCUMENTO);
-        return archivo;
+        return archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_DOCUMENTO);
     }
 
     private String addIncrustaciones(String htmlContent, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
@@ -1271,6 +1271,26 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         flujo.setFechaRegistro(new Date());
         flujoTramiteDocumentoDAO.save(flujo);
 
+    }
+
+    @Override
+    @Transactional
+    public void anularTramite(Long idTramiteDocumentoAcademico) {
+        
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = 
+                tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
+        
+        if (tramiteDocumentoAcademico == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        
+        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.CRE) {
+            throw new PhobosException("Solo puede anular trámites creados");
+        }
+        
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
     }
 
 }

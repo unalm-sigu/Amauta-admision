@@ -80,7 +80,7 @@ public class ConstanciaSolicitudController {
     GeneradorWordSolicitudService generadorWordSolicitudService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index() {
         return "tramite/tramiteConstancia/solicitudConstancia";
     }
 
@@ -729,6 +729,22 @@ public class ConstanciaSolicitudController {
             Archivo archivo = service.findBoletas(idTramiteDocumento);
             response.setSuccess(Boolean.TRUE);
             response.setData(JsonHelper.createJson(archivo, JsonNodeFactory.instance, new String[]{"*"}));
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anulartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
+    public JsonResponse anularTramite(@PathVariable Long idTramiteDocumentoAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {   
+            service.anularTramite(idTramiteDocumentoAcademico);
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Registro eliminado satisfactoriamente.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
