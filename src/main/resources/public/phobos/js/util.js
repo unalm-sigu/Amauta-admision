@@ -1092,6 +1092,7 @@ function noty_download(idtoust, titulo) {
         position: 'topLeft',
         class: 'info',
         title: titulo,
+        theme: 'dark',
         timeout: false
     });
 }

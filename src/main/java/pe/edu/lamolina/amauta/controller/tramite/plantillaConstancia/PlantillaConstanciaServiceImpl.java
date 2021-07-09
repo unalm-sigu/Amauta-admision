@@ -301,7 +301,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     @Transactional
     public void fixNombreCiclo() {
         Idioma idioma = idiomaDAO.findByCodigoEnum(EN);
-       String[] nombre={"WINTER TERM", "FIRST TERM", "SECOND TERM"};
+         String[] nombre={"SUMMER TERM", "FIRST TERM", "SECOND TERM"};
         List<NombreCiclo> nombreCiclos = nombreCicloDAO.allByIdioma(idioma);
         Map<String, NombreCiclo> nombreCiclosXcodigo = TypesUtil.convertListToMap("codigoCiclo", nombreCiclos);
         for (int i = 1900; i < 2040; i++) {
