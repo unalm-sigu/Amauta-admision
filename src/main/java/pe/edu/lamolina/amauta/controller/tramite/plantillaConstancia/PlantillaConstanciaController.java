@@ -409,22 +409,4 @@ public class PlantillaConstanciaController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("fixnombreciclo")
-    public JsonResponse fixNombreCiclo() {
-        
-        JsonResponse response = new JsonResponse();
-        try {
-
-            service.fixNombreCiclo();
-            response.setMessage("Registros modificados");
-            response.setSuccess(true);
-            
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
 }

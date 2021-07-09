@@ -49,5 +49,4 @@ public interface PlantillaConstanciaService {
 
     public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
 
-    public void fixNombreCiclo();
 }

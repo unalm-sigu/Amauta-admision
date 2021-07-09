@@ -297,25 +297,4 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         return variableGenericaDAO.allByPregradoByCodigoEnum(codigoVariableGenerica);
     }
 
-    @Override
-    @Transactional
-    public void fixNombreCiclo() {
-        Idioma idioma = idiomaDAO.findByCodigoEnum(EN);
-         String[] nombre={"SUMMER TERM", "FIRST TERM", "SECOND TERM"};
-        List<NombreCiclo> nombreCiclos = nombreCicloDAO.allByIdioma(idioma);
-        Map<String, NombreCiclo> nombreCiclosXcodigo = TypesUtil.convertListToMap("codigoCiclo", nombreCiclos);
-        for (int i = 1900; i < 2040; i++) {
-            for (int j = 0; j < 3; j++) {
-                NombreCiclo numCiclo = nombreCiclosXcodigo.get(i + "" + j + "" + "0");
-                if (numCiclo == null) {
-                    numCiclo = new NombreCiclo();
-                    numCiclo.setCodigoCiclo(i + "" + j + "" + "0");
-                    numCiclo.setIdioma(idioma);
-                    numCiclo.setNombre(i+" "+nombre[j]);
-                    nombreCicloDAO.save(numCiclo);
-                }
-            }
-        }
-    }
-
 }
