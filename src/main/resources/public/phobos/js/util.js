@@ -1090,7 +1090,7 @@ function noty_download(idtoust, titulo) {
         id: idtoust,
         icon: 'fa fa-cloud-download',
         position: 'topLeft',
-        class: 'info',
+        class: 'info-solid',
         title: titulo,
         theme: 'dark',
         timeout: false
