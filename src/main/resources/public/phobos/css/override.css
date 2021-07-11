@@ -2217,3 +2217,8 @@ only screen and (                min-resolution: 2dppx) {
 .success-solid {
     background-color: rgb(52, 199, 89) !important;
 }
+
+
+.warning-solid {
+    background-color: rgb(255, 149, 0) !important;
+}

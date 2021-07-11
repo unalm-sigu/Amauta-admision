@@ -51,17 +51,18 @@ function notify(message, type, position, title, icon) {
             message: message,
             icon: icon,
             color: mType.color,
-            position: position
+            position: position,
+            class:mType.class
         });
     }, 500);
 }
 
 MESSAGETYPE = {
-    success: {color: 'green', icon: 'fa fa-check'},
-    info: {color: 'blue', icon: 'fa fa-info'},
-    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle'},
-    error: {color: 'red', icon: 'fa fa-ban'},
-    default: {color: '', icon: 'fa fa-comment-alt'}
+    success: {color: 'green', icon: 'fa fa-check',class:'success-solid'},
+    info: {color: 'blue', icon: 'fa fa-info',class:'info-solid'},
+    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle',class:'warning-solid'},
+    error: {color: 'red', icon: 'fa fa-ban',class:'error-solid'},
+    default: {color: '', icon: 'fa fa-comment-alt',class:'info-solid'}
 }
 
 function notifyBootbox(message, type) {
