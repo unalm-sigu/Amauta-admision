@@ -221,16 +221,16 @@
                 <td style="text-align: right;">
                     <span  th:if="${planCalificacion.sistemaNotas.numerico}">
                         <span class="nota-academica" 
-                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}"
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
                     </span>
                     <span  th:if="${planCalificacion.sistemaNotas.letras}" > 
                         <span class="nota-academica" 
-                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosFijos}"
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditos}" > 04.18 </span>
 
                         <span class="nota-academica" 
-                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosVariables}"
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditosAprobados}" > 04.18 </span>
                     </span>
                 </td>
