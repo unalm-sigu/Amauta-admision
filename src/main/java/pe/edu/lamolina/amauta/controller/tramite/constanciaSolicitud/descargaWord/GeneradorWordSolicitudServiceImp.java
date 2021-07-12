@@ -525,6 +525,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case CANTIDAD_CREDITOS_CONVALIDADOS:
                             text = text.replace(enums.getValue(), alumno.getCreditosConvalidados().toString());
                             break;
+                        case CANTIDAD_CURSOS_CONVALIDADOS:
+                            text = text.replace(enums.getValue(), cantidadCursosConvalidados(alumnoCiclos.get(0)).toString());
+                            break;
                         case FECHA_ULTIMA_MATRICULA:
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
                             break;
@@ -857,6 +860,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         BigDecimal ppg = sumNotasCreditos.divide(sumCreditos);
         egresado.setPromedioGraduacion(ppg);
         egresadoDAO.update(egresado);
+    }
+
+    private Integer cantidadCursosConvalidados(AlumnoCiclo alumnoCiclo) {
+        if(alumnoCiclo==null){
+            return 0;
+        }
+        return alumnoCicloCursoDAO.cantidadCursoConvalidado(alumnoCiclo).size();
     }
     
 }

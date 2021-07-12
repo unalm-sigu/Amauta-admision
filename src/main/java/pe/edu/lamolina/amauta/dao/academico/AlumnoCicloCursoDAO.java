@@ -118,4 +118,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     public List<AlumnoCicloCurso> allPromedioPonderadoGraduacionPregradoByAlumnos(List<Alumno> alumnos);
 
+    public List<AlumnoCicloCurso> cantidadCursoConvalidado(AlumnoCiclo alumnoCiclo);
+
 }
