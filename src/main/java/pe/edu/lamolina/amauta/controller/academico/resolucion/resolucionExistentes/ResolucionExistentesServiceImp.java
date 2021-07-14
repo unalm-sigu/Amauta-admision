@@ -1190,7 +1190,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setSerie(resolucionForm.getSerie());
-        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setNumeroVisible(resolucionBD.getCodigoUnalm());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucionBD.setFechaRegistro(new Date());
@@ -1301,7 +1301,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setSerie(resolucionForm.getSerie());
-        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setNumeroVisible(resolucionBD.getCodigoUnalm());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucionBD.setFechaRegistro(new Date());
@@ -1370,7 +1370,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setSerie(resolucionForm.getSerie());
-        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setNumeroVisible(resolucionBD.getCodigoUnalm());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucionBD.setFechaRegistro(new Date());

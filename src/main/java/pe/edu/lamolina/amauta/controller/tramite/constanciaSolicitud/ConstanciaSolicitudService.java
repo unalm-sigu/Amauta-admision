@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -95,5 +96,7 @@ public interface ConstanciaSolicitudService {
     public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds);
 
     public void anularTramite(Long idTramiteDocumentoAcademico);
+
+    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
 }

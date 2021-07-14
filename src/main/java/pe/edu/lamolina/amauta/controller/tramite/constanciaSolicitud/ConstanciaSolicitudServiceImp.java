@@ -691,53 +691,27 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramite.setPersona(persona);
         tramiteDAO.save(tramite);
 
-        tramiteDocumentoAcademico.setTramite(tramite);
-        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
-        tramiteDocumentoAcademico.setCantidadCiclos(1);
-        tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
-
         TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-//        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        tramiteDocumentoAcademico.setCantidadCiclos(1);
+        BigDecimal monto = new BigDecimal(precio.getPrecio());
+        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            Long count = alumnoCicloDAO.countCiclosRegularConCursoAprobado(alumno);
+            tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
+            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+        }
 
-//        BigDecimal monto = new BigDecimal(precio.getPrecio());
-//        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-//            Long count = alumnoCicloDAO.countCiclosRegular(alumno);
-//            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
-//        }
-//        AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
-//        acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-//        acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-//        acreenciaTram.setUserRegistro(usuario);
-//        acreenciaTram.setFechaRegistro(new Date());
-//        LocalDate localDate = LocalDate.now();
-//        LocalDate fechaVencimiento = localDate.plusDays(7);
-//        acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
-//        acreenciaTram.setPrecio(BigDecimal.ZERO);
-//        acreenciaTram.setPrecio(monto);
-//        acreenciaTramiteDocumentoDAO.save(acreenciaTram);
-//        CuentaBancaria ctaBanco = precio.getCuentaBancaria();
-//        Acreencia acreencia = new Acreencia();
-//        if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
-//            acreencia.setDescripcion("Deuda Académica");
-//        } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
-//            acreencia.setDescripcion("Deuda Bienestar");
-//        }
-//
-//        acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
-//        acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
-//        acreencia.setInstanciaTabla(acreenciaTram.getId());
-//        acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
-//
-//        acreencia.setMonto(monto);
-//        acreencia.setAbono(BigDecimal.ZERO);
-//        acreencia.setPersona(alumno.getPersona());
-//        acreencia.setCuentaBancaria(ctaBanco);
-//        acreencia.setFechaDocumento(new Date());
-//        acreencia.setUsuarioRegistro(ds.getUsuario());
-//        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-//        acreencia.setFechaRegistro(new Date());
-//        acreenciaDAO.save(acreencia);
+        OficinaEnum oficinaEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
+        Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
+
+        tramiteDocumentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
+
+        tramiteDocumentoAcademico.setTramite(tramite);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setCostoTotal(monto);
+        tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
+
         FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
         flujo.setEstadoTramite(estadoTramite);
         flujo.setOficinaOrigen(ds.getOficinaMain());
@@ -759,7 +733,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             documentoParametro.setVariableGenerica(plantillas.get(0).getVariableGenerica());
             tramiteDocumentoParamtroDAO.save(documentoParametro);
         }
-//        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
+
     }
 
     @Override
@@ -897,16 +871,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());
                     break;
                 case CORRELATIVO_DOC:
-                    if (documentoAcademico.getCorrelativoDocumento() == null) {
-                        DateTime today = new DateTime();
-
-                        TipoDocumentoCompaniaEnum tipoConEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.DOC_CONS : TipoDocumentoCompaniaEnum.DOC_CERT;
-                        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
-                        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-
-                        documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
-                        tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
-                    }
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getCorrelativoDocumento());
                     break;
                 case SEX_IDENT:
@@ -1276,21 +1240,45 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     @Transactional
     public void anularTramite(Long idTramiteDocumentoAcademico) {
-        
-        TramiteDocumentoAcademico tramiteDocumentoAcademico = 
-                tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
-        
+
+        TramiteDocumentoAcademico tramiteDocumentoAcademico
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
+
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
-        
+
         if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.CRE) {
             throw new PhobosException("Solo puede anular trámites creados");
         }
-        
+
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+
+        if (tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
+            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
+            return new BigDecimal(precio.getPrecio());
+        }
+
+        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        BigDecimal monto = new BigDecimal(precio.getPrecio());
+
+        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            Long count = alumnoCicloDAO.countCiclosRegularConCursoAprobado(tramiteDocumentoAcademico.getTramite().getAlumno());
+            tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
+            return new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+        }
+
+        return null;
+
     }
 
 }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -89,7 +91,7 @@ public class ConstanciaSolicitudController {
     public DynatableResponse allByDynatable(DynatableFilter filter) {
 
         DynatableResponse json = new DynatableResponse();
-        
+
         try {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -128,18 +130,18 @@ public class ConstanciaSolicitudController {
                         "estadoTramite.*",
                         "estadoTramiteFinal.*"}));
                 }
-                
+
                 ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);
                 node.set("tramite", tramiteJson);
                 node.set("tramiteDocumento", JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{"*"}));
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -741,7 +743,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping(value = "anulartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
     public JsonResponse anularTramite(@PathVariable Long idTramiteDocumentoAcademico) {
         JsonResponse response = new JsonResponse();
-        try {   
+        try {
             service.anularTramite(idTramiteDocumentoAcademico);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Registro eliminado satisfactoriamente.");
@@ -749,6 +751,29 @@ public class ConstanciaSolicitudController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "calcularPrecio", method = RequestMethod.POST)
+    public JsonResponse calcularPrecio(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            
+            response.setSuccess(Boolean.FALSE);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            BigDecimal costoDocumento = service.calcularPrecio(tramiteDocumentoAcademico);
+            node.put("costoDocumento", costoDocumento.setScale(2, RoundingMode.DOWN));
+            node.put("showCostoDocumento", costoDocumento != null);
+            response.setData(node);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return response;
     }

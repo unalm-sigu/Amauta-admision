@@ -38,21 +38,19 @@ iziToast.settings({
 // transitionIn: 'flipInX', 'fadeInUp','bounceInLeft', 'fadeIn', 'fadeInDown', 'fadeInLeft'
 
 // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, center
-function notify(message, type, position, title, icon) {
+function notify(message, type, position, icon) {
     type = type == null ? 'default' : type;
-    title = title == null ? '' : title;
     var mType = this.MESSAGETYPE[type];
     icon = icon == null ? mType.icon : icon;
     message = message == null ? 'null' : message;
     position = (position == null || position == '') ? 'bottomRight' : position;
     setTimeout(function () {
         iziToast.show({
-            title: title,
-            message: message,
+            title: message,
             icon: icon,
-            color: mType.color,
             position: position,
-            class:mType.class
+            class:mType.class,
+            theme: 'dark',
         });
     }, 500);
 }

@@ -8,14 +8,19 @@
 
                 <a v-bind:href="archivo.ruta" target="_blank"> 
                     <img alt="" class="img-responsive img-thumbnail pointer"
-                                                                    v-bind:src="archivo.ruta"
-                                                                    data-holder-rendered="true" /></a>
+                         v-bind:src="archivo.ruta"
+                         data-holder-rendered="true" /></a>
 
             </div>
-            <div class="v-bottom m-t" v-if="archivo != null">
-                <label class="label label-control">N° de Boleta</label>
-                <h2> <a >{{archivo.numeroBoleta}}</a></h2>
+
+            <div class="m-t h4 text-primary" v-if="archivo != null">
+                <label>N° de Boleta {{archivo.numeroBoleta}}</label>
             </div>
+            
+            <div class="h4">
+                Costo del documento S./ <b>{{tramiteDocumentoActivo.costoTotal}}</b> 
+            </div>
+            
         </template>
     </div>
 </modal-vik>
@@ -48,6 +53,10 @@
             <div class="col-sm-12 col-md-12">
                 <p>{{archivo.nombre}}</p>
             </div>
+        </div>
+
+        <div class="h4">
+            Costo del documento S./ <b>{{tramiteDocumentoActivo.costoTotal}}</b> 
         </div>
 
         <div class="progress-bar progress-bar-striped progress-bar-success active" 

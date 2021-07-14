@@ -14,18 +14,27 @@
                         Regresar
                     </a>
 
-                    <h1 >Solicitud de Constancia</h1>
-                    <div class="tabbable-line">
+                    <h1 >Tramite de Constancias y Certificados</h1>
+                    
+                    
+                    <p class="block text-primary h4" v-if="solicitud.id">
+                        <span v-if="solicitud.tipoDocumentoAcademico">{{solicitud.tipoDocumentoAcademico.nombre}}</span>
+                    </p>
+                    
+                   <div v-if="solicitud.id" class="tabbable-line">
                         <ul class="nav nav-tabs" >
                             <li v-for="tab in tabs" v-bind:class="styleMenu(tab.id)">
                                 <a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a>
                             </li>
                         </ul>
                     </div>
+
                 </header>
 
                 <section class="wrapper-lg m-b-xs">
+                    
                     <section class="panel">
+                        
                         <section class="panel-body m-t-sm">
                             <div class="wrapper-md" >
                                 <section class="panel">

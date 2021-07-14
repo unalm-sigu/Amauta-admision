@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,7 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
@@ -1081,6 +1083,29 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .orderBy("ca.codigo asc");
 
         return all(sql);
+    }
+
+    @Override
+    public Long countCiclosRegularConCursoAprobado(Alumno alumno) {
+
+        Octavia sql0 = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc0")
+                .join("alumnoCiclo ac0", "ac0.alumno alu0")
+                .filter("acc0.registroActivo", BigDecimal.ONE.intValue())
+                .filter("acc0.estaAprobado", BigDecimal.ONE.intValue())
+                .filter("alu0.id", alumno);
+
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCiclo.class, "ac")
+                .join("ac.alumno al", "ac.cicloAcademico ca")
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ca.tipo", TipoCicloEnum.REG.name())
+                .exists(sql0)
+                .linkedBy("ac.id", "ac0.id");
+
+        return (Long) sql.find(getCurrentSession());
+        
     }
 
 }

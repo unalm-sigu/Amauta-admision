@@ -2208,17 +2208,21 @@ only screen and (                min-resolution: 2dppx) {
 
 .info-solid {
     background-color: rgb(0, 122, 255) !important;
+    color:  white !important;
 }
 
 .error-solid {
-    background-color: rgb(255, 45, 85) !important;
+    background-color: rgb(255, 0, 40) !important;
+    color:  white !important;
 }
 
 .success-solid {
-    background-color: rgb(52, 199, 89) !important;
+    background-color: rgb(0, 180, 85) !important;
+    color:  white !important;
 }
 
 
 .warning-solid {
     background-color: rgb(255, 149, 0) !important;
+    color:  white !important;
 }

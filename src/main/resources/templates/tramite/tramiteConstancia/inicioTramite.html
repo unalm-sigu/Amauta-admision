@@ -2,7 +2,7 @@
     <section class="panel-body">
 
         <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
-
+            
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Alumno</label>
@@ -61,7 +61,7 @@
                         placeholder="Seleccione un idioma"
                         label="nombre"
                         v-bind:show-labels="false"
-                        v-bind:allow-empty="false"
+                        v-bind:allow-empty="true"
                         track-by="id"
                         v-bind:disabled='isUpdate'
                         v-on:select="costoDocumentoEvent"

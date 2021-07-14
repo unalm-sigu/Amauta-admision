@@ -58,7 +58,7 @@ Vue.component("inicio-tram-component", {
         },
         idiomaDocumento(value) {
             let $vue = this;
-//            $vue.solicitud.idioma = null;
+            this.$delete($vue.solicitud, 'idioma');
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
             $vue.idiomas = value.idiomas;
@@ -84,14 +84,28 @@ Vue.component("inicio-tram-component", {
                             notify(response.data.message, "error");
                         }
                     });
-            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
-                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
-                    if (item.idioma.id == value.id) {
-                        $vue.showCostoDocumento = true;
-                        $vue.costoDocumento = item.precio;
-                    }
-                });
-            }
+
+            $vue.solicitud.tramite = $vue.tramite;
+
+            axios.post('/tramite/solicitudconstancia/calcularPrecio', $vue.solicitud)
+                    .then(response => {
+                        console.log(response);
+                        if (response.data.success) {
+                            $vue.showCostoDocumento = response.data.data.showCostoDocumento;
+                            $vue.costoDocumento = response.data.data.costoDocumento;
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    });
+
+//            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
+//                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
+//                    if (item.idioma.id == value.id) {
+//                        $vue.showCostoDocumento = true;
+//                        $vue.costoDocumento = item.precio;
+//                    }
+//                });
+//            }
         },
         submitForm() {
             let $vue = this;

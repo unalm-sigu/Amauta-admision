@@ -7,6 +7,7 @@ new Vue({
         persona: {},
         solicitud: {},
         tramiteDocumento: {},
+        tramiteDocumentoActivo: {},
         colaborador: {},
         archivo: {},
         files: [],
@@ -82,6 +83,7 @@ new Vue({
             $vue.archivo = {idAlumno: item.tramite.alumno.id};
             $vue.idSolicitud = item.tramiteDocumento.id;
             $vue.$refs.modalLoadBoleta.open();
+            $vue.tramiteDocumentoActivo = {...item};
         },
         createEnviarRevision: function () {
             var vue = this;
@@ -184,6 +186,7 @@ new Vue({
         },
         verBoleta(item) {
             var $vue = this;
+            $vue.tramiteDocumentoActivo = {...item};
             $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
             $.ajax({
                 method: 'GET',
