@@ -94,7 +94,7 @@ Vue.component("inicio-tram-component", {
                             $vue.showCostoDocumento = response.data.data.showCostoDocumento;
                             $vue.costoDocumento = response.data.data.costoDocumento;
                         } else {
-                            notify(response.data.message, "error");
+                            $vue.showCostoDocumento = false;
                         }
                     });
 
