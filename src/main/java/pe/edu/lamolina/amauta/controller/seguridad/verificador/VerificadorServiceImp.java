@@ -1039,5 +1039,36 @@ public class VerificadorServiceImp implements VerificadorService {
         }
         return esTrabajadorOERA;
     }
+    
+    
+    @Override
+    public boolean isRevisorActaNotas(DataSessionPivot ds) {
+        boolean esTrabajadorEPG = false;
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                esTrabajadorEPG = true;
+            } else if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+        if (esTrabajadorEPG) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_EPG) {
+                    return true;
+                }
+            }
+        }
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
 }

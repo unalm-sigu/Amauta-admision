@@ -12,7 +12,8 @@ Vue.component("inicio-tram-component", {
             showCostoDocumento: false,
             guardando: false,
             ciclo: {},
-            isUpdate: false
+            isUpdate: false,
+            tramiteAcademico: {}
         }
     },
     mounted() {
@@ -85,9 +86,13 @@ Vue.component("inicio-tram-component", {
                         }
                     });
 
-            $vue.solicitud.tramite = $vue.tramite;
+            $vue.tramiteAcademico = {};
+            $vue.tramiteAcademico.tramite = {};
+            $vue.tramiteAcademico.tramite.alumno = {id: $vue.tramite.alumno.id};
+            $vue.tramiteAcademico.tipoDocumentoAcademico = {id: $vue.solicitud.tipoDocumentoAcademico.id};
+            $vue.tramiteAcademico.idioma = {id: value.id};
 
-            axios.post('/tramite/solicitudconstancia/calcularPrecio', $vue.solicitud)
+            axios.post('/tramite/solicitudconstancia/calcularPrecio', $vue.tramiteAcademico)
                     .then(response => {
                         console.log(response);
                         if (response.data.success) {
@@ -98,14 +103,6 @@ Vue.component("inicio-tram-component", {
                         }
                     });
 
-//            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
-//                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
-//                    if (item.idioma.id == value.id) {
-//                        $vue.showCostoDocumento = true;
-//                        $vue.costoDocumento = item.precio;
-//                    }
-//                });
-//            }
         },
         submitForm() {
             let $vue = this;

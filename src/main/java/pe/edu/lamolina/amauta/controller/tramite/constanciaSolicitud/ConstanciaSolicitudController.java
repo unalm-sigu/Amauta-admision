@@ -765,7 +765,7 @@ public class ConstanciaSolicitudController {
             response.setSuccess(Boolean.FALSE);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             BigDecimal costoDocumento = service.calcularPrecio(tramiteDocumentoAcademico);
-            node.put("costoDocumento", costoDocumento.setScale(2, RoundingMode.DOWN));
+            node.put("costoDocumento", costoDocumento.setScale(1, RoundingMode.HALF_UP));
             node.put("showCostoDocumento", costoDocumento != null);
             response.setData(node);
             response.setSuccess(Boolean.TRUE);

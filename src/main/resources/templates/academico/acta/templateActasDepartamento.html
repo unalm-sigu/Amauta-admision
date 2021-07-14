@@ -58,6 +58,22 @@
             </div>
 
         </div>
+        
+        <div th:if="${esSoloOperador}">
+
+            <div class="dropdown actions">
+                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+
+                <ul class="dropdown-menu pull-right" >
+                    {{if secciones!=""}} 
+                    <li role="presentation">
+                        <a class="reporteActa" rel="{{:seccion}}" href="#">Reporte de Actas</a>
+                    </li>
+                    {{/if}}
+                </ul>
+            </div>
+
+        </div>
     </td>
 
 </tr>

@@ -1260,18 +1260,20 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
 
-        if (tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
-            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
+        TipoDocumentoAcademico tipoDocumentoAcademico = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
+            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, tramiteDocumentoAcademico.getIdioma());
             return new BigDecimal(precio.getPrecio());
         }
 
-        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
 
-        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
+        
         BigDecimal monto = new BigDecimal(precio.getPrecio());
 
-        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
             Long count = alumnoCicloDAO.countCiclosRegularConCursoAprobado(tramiteDocumentoAcademico.getTramite().getAlumno());
             tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
             return new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));

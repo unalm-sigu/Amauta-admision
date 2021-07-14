@@ -70,6 +70,7 @@ public class RolServiceImp implements RolService {
         }
         Boolean existEnum = false;
         for (RolEnum enu : RolEnum.values()) {
+            logger.debug("{} {} ",enu.name(), rol.getCodigo());
             existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
             if (existEnum) {
                 break;
