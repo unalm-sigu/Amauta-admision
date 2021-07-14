@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
+import static java.lang.Boolean.TRUE;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -29,9 +30,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWord.GeneradorWordSolicitudService;
@@ -61,6 +64,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;
 
 @Controller
@@ -437,43 +441,55 @@ public class ConstanciaSolicitudController {
 
         try {
 
-//            List<Idioma> idiomas = service.allIdiomas();
             List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+
             TramiteDocumentoAcademico documentoAcademico = idSolicitud == null ? null : service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
             if (documentoAcademico != null) {
-                node = JsonHelper.createJson(documentoAcademico, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "idioma.*",
-                    "tramite.*",
-                    "estadoTramite.*",
-                    "tramite.alumno.*",
-                    "tramite.alumno.carrera.*",
-                    "tramite.alumno.carrera.facultad.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*",
-                    "tipoDocumentoAcademico.*"
-                });
+
+                node = JaneHelper.from(documentoAcademico)
+                        .join("idioma")
+                        .join("tramite")
+                        .join("estadoTramite")
+                        .join("tramite.alumno")
+                        .join("tramite.alumno.carrera")
+                        .join("tramite.alumno.carrera.facultad")
+                        .join("tramite.alumno.persona")
+                        .join("tramite.alumno.persona.tipoDocumento")
+                        .join("tipoDocumentoAcademico")
+                        .json();
+
+                Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
+                logger.debug("idAlumno {}", idAlumno);
+
+                model.addAttribute("idAlumno", idAlumno);
+
             }
 
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+
             for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+
                 ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
-                ObjectNode objectNode = JsonHelper.createJson(tipoDocumentoAcademico, JsonNodeFactory.instance, new String[]{
-                    "*"
-                });
+
+                ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
+
                 ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
+
                 for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
-                    arrayPrecios.add(JsonHelper.createJson(precioDocumento, JsonNodeFactory.instance, new String[]{
-                        "*",
-                        "idioma.*"
-                    }));
-                    arrayIdiomas.add(JsonHelper.createJson(precioDocumento.getIdioma(), JsonNodeFactory.instance, new String[]{
-                        "*"
-                    }));
+
+                    arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
+
+                    arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
+
                 }
+
                 objectNode.set("idiomas", arrayIdiomas);
+
                 objectNode.set("precioDocumento", arrayPrecios);
+
                 arrayNode.add(objectNode);
             }
 
@@ -761,7 +777,7 @@ public class ConstanciaSolicitudController {
 
         JsonResponse response = new JsonResponse();
         try {
-            
+
             response.setSuccess(Boolean.FALSE);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             BigDecimal costoDocumento = service.calcularPrecio(tramiteDocumentoAcademico);
@@ -791,6 +807,38 @@ public class ConstanciaSolicitudController {
                 break;
         }
         return node;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "promedioGraduacion/{idAlumno}", method = RequestMethod.GET)
+    public JsonResponse promedioGraduacion(@PathVariable Long idAlumno) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            response.setSuccess(Boolean.FALSE);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            Egresado egresado = service.getEgresadoByIdPersona(idAlumno);
+
+            if (null != egresado) {
+                
+                node.put("esEgresado", TRUE);
+                node.set("egresado", JaneHelper.from(egresado).only("id,promedioGraduacion").json());
+                response.setSuccess(Boolean.TRUE);
+                
+            }
+
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

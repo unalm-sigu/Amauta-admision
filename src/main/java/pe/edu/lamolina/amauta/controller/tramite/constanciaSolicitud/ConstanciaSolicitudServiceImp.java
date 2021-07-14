@@ -1282,5 +1282,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return null;
 
     }
+    
+    @Override
+    public Egresado getEgresadoByIdPersona(Long idAlumno) {
+        return egresadoDAO.findByAlumno(new Alumno(idAlumno));
+    }
 
 }

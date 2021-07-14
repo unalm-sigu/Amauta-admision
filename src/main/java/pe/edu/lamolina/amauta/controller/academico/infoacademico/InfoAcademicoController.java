@@ -106,6 +106,7 @@ public class InfoAcademicoController {
 
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
+        model.addAttribute("idAlumno", idAlumno);
         model.addAttribute("alumno", alumnoJson);
         model.addAttribute("alumnoTmp", alumno);
         model.addAttribute("ciclo", cicloJson);
