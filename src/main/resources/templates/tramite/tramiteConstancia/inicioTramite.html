@@ -76,6 +76,18 @@
                     <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
                 </div>
             </div>
+            
+            
+            <div v-if="isUpdate" class="col-xs-12">
+                <div class="form-group">
+                    <label>Importe a pagar</label>
+                    <p  class="form-control-static" >  S./  {{solicitud.costoTotal}}</p>
+                </div>
+                <div class="form-group">
+                    <label>Cantidad de ciclos</label>
+                    <p  class="form-control-static" > {{solicitud.cantidadCiclos}}</p>
+                </div>
+            </div>
 
             <div >
                 <div class="col-xs-12">
