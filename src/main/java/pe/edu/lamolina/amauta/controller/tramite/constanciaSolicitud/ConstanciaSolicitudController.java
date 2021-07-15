@@ -9,6 +9,7 @@ import java.io.File;
 import static java.lang.Boolean.TRUE;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -776,13 +777,21 @@ public class ConstanciaSolicitudController {
     public JsonResponse calcularPrecio(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico) {
 
         JsonResponse response = new JsonResponse();
+
         try {
 
             response.setSuccess(Boolean.FALSE);
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            BigDecimal costoDocumento = service.calcularPrecio(tramiteDocumentoAcademico);
+            Long cantidadCiclos = service.cantidadCiclosRegularAprobado(tramiteDocumentoAcademico.getTramite().getAlumno());
+            BigDecimal costoTotal = service.calcularPrecio(tramiteDocumentoAcademico, cantidadCiclos);
+            BigDecimal costoDocumento = service.costoDocumento(tramiteDocumentoAcademico);
+
             node.put("costoDocumento", costoDocumento.setScale(1, RoundingMode.HALF_UP));
+            node.put("costoTotal", costoTotal.setScale(1, RoundingMode.HALF_UP));
+            node.put("cantidadCiclos", cantidadCiclos);
             node.put("showCostoDocumento", costoDocumento != null);
+
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
 
@@ -824,11 +833,11 @@ public class ConstanciaSolicitudController {
             Egresado egresado = service.getEgresadoByIdPersona(idAlumno);
 
             if (null != egresado) {
-                
+
+                DecimalFormat df = new DecimalFormat("#.00");
                 node.put("esEgresado", TRUE);
-                node.set("egresado", JaneHelper.from(egresado).only("id,promedioGraduacion").json());
+                node.put("promedioGraduacion", df.format(egresado.getPromedioGraduacion()));
                 response.setSuccess(Boolean.TRUE);
-                
             }
 
             response.setData(node);

@@ -98,8 +98,12 @@ public interface ConstanciaSolicitudService {
 
     public void anularTramite(Long idTramiteDocumentoAcademico);
 
-    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico,Long cantidadCiclos);
 
     public Egresado getEgresadoByIdPersona(Long idAlumno);
+
+    public Long cantidadCiclosRegularAprobado(Alumno alumno);
+
+    public BigDecimal costoDocumento(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
 }

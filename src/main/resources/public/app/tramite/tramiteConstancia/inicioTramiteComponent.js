@@ -13,7 +13,7 @@ Vue.component("inicio-tram-component", {
             guardando: false,
             ciclo: {},
             isUpdate: false,
-            tramiteAcademico: {}
+            tramiteAcademico: {},
         }
     },
     mounted() {
@@ -51,6 +51,7 @@ Vue.component("inicio-tram-component", {
             $vue.findAlumno(item.id);
         },
         clearOption(item) {
+            console.log(item);
             let $vue = this;
             $vue.solicitud = {};
             $vue.ciclo = {};
@@ -98,6 +99,8 @@ Vue.component("inicio-tram-component", {
                         if (response.data.success) {
                             $vue.showCostoDocumento = response.data.data.showCostoDocumento;
                             $vue.costoDocumento = response.data.data.costoDocumento;
+                            $vue.costoTotal = response.data.data.costoTotal;
+                            $vue.cantidadCiclos=response.data.data.cantidadCiclos
                         } else {
                             $vue.showCostoDocumento = false;
                         }
@@ -148,7 +151,6 @@ Vue.component("inicio-tram-component", {
                         Vue.set($vue.solicitud, "celular", response.data.persona.celular);
                         Vue.set($vue.solicitud, "email", response.data.persona.email);
                         $vue.$parent.alumno = response.data;
-//                        notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
                     }

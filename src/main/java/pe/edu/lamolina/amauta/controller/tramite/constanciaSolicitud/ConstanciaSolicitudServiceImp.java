@@ -1258,7 +1258,42 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico, Long cantidadCiclos) {
+
+        TipoDocumentoAcademico tipoDocumentoAcademico = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
+            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, tramiteDocumentoAcademico.getIdioma());
+            return new BigDecimal(precio.getPrecio());
+        }
+
+        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
+
+        BigDecimal monto = new BigDecimal(precio.getPrecio());
+
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            tramiteDocumentoAcademico.setCantidadCiclos(cantidadCiclos.intValue());
+            return new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(cantidadCiclos));
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public Egresado getEgresadoByIdPersona(Long idAlumno) {
+        return egresadoDAO.findByAlumno(new Alumno(idAlumno));
+    }
+
+    @Override
+    public Long cantidadCiclosRegularAprobado(Alumno alumno) {
+        return alumnoCicloDAO.countCiclosRegularConCursoAprobado(alumno);
+    }
+
+    @Override
+    public BigDecimal costoDocumento(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
 
         TipoDocumentoAcademico tipoDocumentoAcademico = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
 
@@ -1271,21 +1306,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
         
-        BigDecimal monto = new BigDecimal(precio.getPrecio());
-
-        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-            Long count = alumnoCicloDAO.countCiclosRegularConCursoAprobado(tramiteDocumentoAcademico.getTramite().getAlumno());
-            tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
-            return new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
-        }
-
-        return null;
-
-    }
-    
-    @Override
-    public Egresado getEgresadoByIdPersona(Long idAlumno) {
-        return egresadoDAO.findByAlumno(new Alumno(idAlumno));
+        return new BigDecimal(precio.getPrecio());
     }
 
 }

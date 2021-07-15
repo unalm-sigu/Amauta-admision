@@ -49,7 +49,7 @@
 
                 </div>
             </div>
-            
+
             <div class="col-sm-6 col-xs-12">
                 <div class="form-group">
                     <label>Idioma</label>
@@ -69,26 +69,44 @@
                     </multiselect>
                 </div>
             </div>
-
+            
+                        
             <div v-if="showCostoDocumento" class="col-xs-12">
                 <div class="form-group">
-                    <label>Importe a pagar</label>
+                    <label>Importe documento</label>
                     <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
                 </div>
             </div>
             
-            
+            <div v-if="showCostoDocumento" class="col-xs-12">
+                <div class="form-group">
+                    <label>Importe total a pagar</label>
+                    <p  class="form-control-static" >  S./  {{costoTotal}}</p>
+                </div>
+            </div>
+
+
             <div v-if="isUpdate" class="col-xs-12">
                 <div class="form-group">
                     <label>Importe a pagar</label>
                     <p  class="form-control-static" >  S./  {{solicitud.costoTotal}}</p>
                 </div>
+            </div>
+            
+
+            <div v-if="isUpdate" class="col-xs-12">
                 <div class="form-group">
-                    <label>Cantidad de ciclos</label>
+                    <label>Cantidad de ciclos regulares aprobados</label>
                     <p  class="form-control-static" > {{solicitud.cantidadCiclos}}</p>
                 </div>
             </div>
-
+            <div v-else="" class="col-xs-12">
+                <div class="form-group">
+                    <label v-if="cantidadCiclos">Cantidad de ciclos regulares aprobados</label>
+                    <p  class="form-control-static" > {{cantidadCiclos}}</p>
+                </div>
+            </div>
+            
             <div >
                 <div class="col-xs-12">
                     <h4  class="m-b-md m-t-md">Información de Contacto</h4>
@@ -110,8 +128,7 @@
                         <input type="text"
                                class="form-control"
                                name="celular"
-                               v-model="solicitud.celular"
-                               required="true"/>
+                               v-model="solicitud.celular" />
                     </div>
                 </div>
 
@@ -121,7 +138,7 @@
                         <input type="text"
                                class="form-control"
                                name="telefono"
-                               v-model="solicitud.telefono"/>
+                               v-model="solicitud.telefono" />
                     </div>
                 </div>
 
@@ -131,8 +148,7 @@
                         <input type="email"
                                class="form-control"
                                name="email"
-                               v-model="solicitud.email"
-                               required="true"/>
+                               v-model="solicitud.email" />
                     </div>
                 </div>
 

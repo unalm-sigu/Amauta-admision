@@ -83,7 +83,7 @@ Vue.component("inicio-component", {
                     .then(response => {
                         if (response.data.success) {
                             $vue.esEgresado = response.data.data.esEgresado;
-                            $vue.promedioGraduacion = response.data.data.egresado.promedioGraduacion;
+                            $vue.promedioGraduacion = response.data.data.promedioGraduacion;
                         }
                     });
         }
