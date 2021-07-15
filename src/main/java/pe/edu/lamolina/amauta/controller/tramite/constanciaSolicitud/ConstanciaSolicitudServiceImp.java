@@ -1187,10 +1187,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Transactional
     public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds) {
 
-        TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
+        TramiteDocumentoAcademico tramite = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
 
-        AccionTramiteDocumento accionTramiteDocumento = accionTramiteDocumentoDAO.findOrderOneByTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), 1l);
-        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(documentoAcademico.getId(), TRAM_DOCUMENTO);
+        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(tramite.getId(), TRAM_DOCUMENTO);
         if (!Objects.equal(archivoDB, null)) {
             archivoDAO.delete(archivoDB);
         }
@@ -1201,27 +1200,63 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Archivo newarchivo = new Archivo();
         newarchivo.setFechaRegistro(new Date());
         newarchivo.setInstancia(TRAM_DOCUMENTO.name());
-        newarchivo.setIdInstancia(documentoAcademico.getId());
+        newarchivo.setIdInstancia(tramite.getId());
         newarchivo.setTipo(archivo.getTipo());
         newarchivo.setUsuarioRegistro(ds.getUsuario());
         newarchivo.setNombre(archivo.getNombre());
         newarchivo.setRuta(path);
         archivoDAO.save(newarchivo);
+        tramite.setArchivo(newarchivo);
+        tramiteDocumentoAcademicoDAO.update(tramite);
+    }
 
-        documentoAcademico.setArchivo(newarchivo);
-        documentoAcademico.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
-        documentoAcademico.setNumeroBoleta(archivo.getNumeroBoleta());
-        tramiteDocumentoAcademicoDAO.update(documentoAcademico);
+    @Override
+    @Transactional
+    public void validarBoletaTramite(TramiteDocumentoAcademico idTramiteDocumentoAcademico) {
 
-        FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
-        flujo.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
-        flujo.setOficinaOrigen(documentoAcademico.getTipoDocumentoAcademico().getOficinaEmisora());
-        flujo.setOficinaDestino(documentoAcademico.getTipoDocumentoAcademico().getOficinaEmisora());
-        flujo.setUserRegistro(ds.getUsuario());
-        flujo.setTramiteDocumentoAcademico(documentoAcademico);
-        flujo.setFechaRegistro(new Date());
-        flujoTramiteDocumentoDAO.save(flujo);
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.PAG);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setNumeroBoleta(idTramiteDocumentoAcademico.getNumeroBoleta());
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+    }
 
+    @Override
+    @Transactional
+    public void aceptarTramite(Long idTramiteDocumentoAcademico) {
+
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
+
+        if (tramiteDocumentoAcademico == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+
+        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.PAG) {
+            throw new PhobosException("Solo puede aceptar trámites pagados");
+        }
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void entregarTramite(Long idTramiteDocumentoAcademico) {
+
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
+
+        if (tramiteDocumentoAcademico == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+
+        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.ACEP) {
+            throw new PhobosException("Solo puede entregar trámites aceptados");
+        }
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.COMP);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
     }
 
     @Override
@@ -1292,7 +1327,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
 
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
-        
+
         return new BigDecimal(precio.getPrecio());
     }
 

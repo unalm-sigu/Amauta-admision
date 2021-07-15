@@ -91,26 +91,37 @@
                                                                 <i class="fa fa-cog"></i>
                                                             </a>
                                                             <ul  class="dropdown-menu pull-right">
-                                                                <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a></li>
-                                                                <li>  
-                                                                    <a class="btn-link pointer" href="#" 
-                                                                       v-on:click.prevent="procesarTramite(item.tramite,$event)" 
-                                                                       v-if="item.tramite.formularioEstadoTramite.id">
-                                                                        Procesar
-                                                                    </a>
+
+                                                                <li>
+                                                                    <a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a>
                                                                 </li>
 
-                                                                <li v-for="accionTemp in item.estados">
-                                                                    <a v-if="accionTemp.url=='/tramite/solicitudconstancia/view/'" v-bind:href="accionTemp.url + item.id">{{accionTemp.opcion}}</a>
-                                                                    <a v-if="accionTemp.url=='/tramite/solicitudconstancia/downloadWord/'" v-on:click.prevent="descargarTramite(accionTemp.url + item.id,item)"  href="#">{{accionTemp.opcion}}</a>
-                                                                    <a class="pointer" href="#"
-                                                                       v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" 
-                                                                       v-on:click.prevent="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
-                                                                </li>
                                                                 <li> 
-                                                                    <a v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                    <a v-if="item.estadoTramite.codigo=='ACEP'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
                                                                 </li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='ACEP'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='PAG'" v-on:click.prevent="aceptarTramite(item)"  href="#">Aceptar</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificadar Pago</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a  v-if="item.estadoTramite.codigo!='COMP'" v-on:click.prevent="subirBoleta(item)"  href="#">Subir Boleta</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='PAG'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                </li>
+
                                                                 <li v-if="item.estadoTramite.codigo=='CRE'" class="divider"></li>
+
                                                                 <li v-if="item.estadoTramite.codigo=='CRE'"> 
                                                                     <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
                                                                 </li>
@@ -129,6 +140,7 @@
                 </section>
 
                 <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
+
             </div>
 
         </div>
@@ -137,6 +149,7 @@
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <script th:src="@{/app/tramite/tramiteConstancia/solicitudConstancia.js}" charset="utf-8"></script>
 
         </div>

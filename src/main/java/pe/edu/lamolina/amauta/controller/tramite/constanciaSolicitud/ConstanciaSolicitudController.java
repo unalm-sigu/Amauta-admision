@@ -98,50 +98,26 @@ public class ConstanciaSolicitudController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            String[] mapperTramite = new String[]{
-                "*",
-                "persona.*",
-                "alumno.*",
-                "alumno.carrera.*",
-                "alumno.carrera.facultad.*",
-                "alumno.persona.*",
-                "alumno.persona.tipoDocumento.*",
-                "compania.*",
-                "cicloAcademico.*",
-                "tipoTramite.codigo",
-                "tipoTramite.nombre",
-                "tipoTramite.oficina.*",
-                "userRegistro.*",
-                "userRegistro.persona.*",
-                "userRespuesta.*",
-                "formularioEstadoTramite.*"
-            };
 
-            for (TramiteDocumentoAcademico tramiteDoc : tipos) {
+            List<TramiteDocumentoAcademico> tramitesDocumentos = service.allTramiteDocumentoAcademico(filter);
 
-                ObjectNode node = JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "idioma.*",
-                    "estadoTramite.*",
-                    "tipoDocumentoAcademico.*"});
-
-                List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
-                ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
-                for (AccionTramiteDocumento accion : acciones) {
-                    arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
-                        "*",
-                        "estadoTramite.*",
-                        "estadoTramiteFinal.*"}));
-                }
-
-                ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
-                node.set("estados", arrayAcciones);
-                node.set("tramite", tramiteJson);
-                node.set("tramiteDocumento", JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{"*"}));
-                array.add(node);
-            }
+            ArrayNode array = JaneHelper.from(tramitesDocumentos)
+                    .join("idioma")
+                    .join("estadoTramite")
+                    .join("tipoDocumentoAcademico")
+                    .join("tramite")
+                    .join("tramite.persona")
+                    .join("tramite.persona.tipoDocumento")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .join("tramite.cicloAcademico")
+                    .join("tramite.tipoTramite")
+                    .join("tramite.tipoTramite.oficina")
+                    .join("archivo")
+                    .array();
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -157,10 +133,12 @@ public class ConstanciaSolicitudController {
     @ResponseBody
     @RequestMapping("searchalumno")
     public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         JsonResponse response = new JsonResponse();
         try {
-            FotoHelper helper = new FotoHelper();
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jAlumno = new ArrayNode(jsonFactory);
             for (Alumno alumno : alumnos) {
@@ -234,9 +212,12 @@ public class ConstanciaSolicitudController {
     @ResponseBody
     @RequestMapping("searchcolaborador")
     public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         JsonResponse response = new JsonResponse();
         try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
             FotoHelper helper = new FotoHelper();
             List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
             ArrayNode jColaborador = new ArrayNode(jsonFactory);
@@ -533,21 +514,14 @@ public class ConstanciaSolicitudController {
     @RequestMapping("allCicloAcademico")
     public JsonResponse allCicloAcademico(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
             List<CicloAcademico> ciclos = service.allCicloAcademicoByName(nombre);
-            for (CicloAcademico ciclo : ciclos) {
-                ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*", "modalidadEstudio.*"
-                        });
-                jsonList.add(cicloJson);
-            }
+            ArrayNode jsonList = JaneHelper.from(ciclos).join("modalidadEstudio").array();
             response.setData(jsonList);
-            response.setTotal(jsonList.size());
+            response.setTotal(ciclos.size());
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -563,19 +537,14 @@ public class ConstanciaSolicitudController {
     @RequestMapping("allTramiteIncrustaciones")
     public JsonResponse allTramiteIncrustaciones(@RequestParam("idTramiteAcademico") Long idTramiteAcademico, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
             List<PlantillaIncrustacionDocumento> tramiteIncrustacion = service.allTramiteIncrustaciones(new TramiteDocumentoAcademico(idTramiteAcademico));
-            for (PlantillaIncrustacionDocumento item : tramiteIncrustacion) {
-                jsonList.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "platillaIncrustacion.*",}));
-            }
+            ArrayNode jsonList = JaneHelper.from(tramiteIncrustacion).join("platillaIncrustacion").array();
             response.setData(jsonList);
-            response.setTotal(jsonList.size());
+            response.setTotal(tramiteIncrustacion.size());
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -666,7 +635,6 @@ public class ConstanciaSolicitudController {
     @RequestMapping("saveArchivoTramite")
     public JsonResponse saveArchivoTramite(@RequestBody Archivo archivo, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -674,6 +642,62 @@ public class ConstanciaSolicitudController {
             service.saveArchivoTramite(archivo, new Alumno(archivo.getIdAlumno()), ds);
             response.setMessage("Archivo subido satisfactoriamente");
             response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("validarBoletaTramite")
+    public JsonResponse validarBoletaTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.validarBoletaTramite(tramiteDocumentoAcademico);
+            response.setMessage("Boleta validado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "aceptartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
+    public JsonResponse aceptarTramite(@PathVariable Long idTramiteDocumentoAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            service.aceptarTramite(idTramiteDocumentoAcademico);
+            response.setMessage("Trámite aceptado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "entregartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
+    public JsonResponse entregarTramite(@PathVariable Long idTramiteDocumentoAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            service.entregarTramite(idTramiteDocumentoAcademico);
+            response.setMessage("Trámite entregado satisfactoriamente");
+            response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -704,6 +728,7 @@ public class ConstanciaSolicitudController {
     public JsonResponse anularTramite(@PathVariable Long idTramiteDocumentoAcademico) {
         JsonResponse response = new JsonResponse();
         try {
+
             service.anularTramite(idTramiteDocumentoAcademico);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Registro eliminado satisfactoriamente.");

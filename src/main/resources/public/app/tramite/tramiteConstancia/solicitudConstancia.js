@@ -10,6 +10,7 @@ new Vue({
         tramiteDocumentoActivo: {},
         colaborador: {},
         archivo: {},
+        archivoTmp: {},
         files: [],
         idSolicitud: null,
         mensajeerror: "",
@@ -42,13 +43,12 @@ new Vue({
             okbtn: 'Aceptar'
         })
     },
-    mounted: function () {
-
-    },
     methods: {
         classEstado(value) {
             switch (value) {
                 case 'ACEP':
+                    return "label label-primary";
+                    break;
                 case 'DEV':
                 case 'ENV':
                 case 'CRE':
@@ -179,33 +179,41 @@ new Vue({
                 this.update(item, estado);
             }
         },
-        procesarTramite(item, event) {
-            event.preventDefault();
-
-            location.href = APP.url("academico/procesar/" + item.id);
-        },
         verBoleta(item) {
             var $vue = this;
             $vue.tramiteDocumentoActivo = {...item};
-            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-            $.ajax({
-                method: 'GET',
-                url: APP.url('tramite/solicitudconstancia/verBoleta/' + item.id),
-                contentType: "application/json",
-                success: function (response) {
-                    if (response.success) {
-                        $vue.archivo = response.data;
-                        $vue.archivo.numeroBoleta = item.numeroBoleta;
-                        $vue.$refs.viewBoleta.open();
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                }, error: function () {
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+
+            if ($vue.tramiteDocumentoActivo.archivo) {
+                $vue.archivoTmp = {...$vue.tramiteDocumentoActivo.archivo};
+                $vue.$refs.viewBoleta.open();
+                return;
+            }
+
+            bootbox.alert({
+                message: `El tramite no tiene una boleta adjunta`,
+                buttons: {
+                    ok: {label: 'Cerrar', className: "btn-default"}
+                }});
+
+//            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+//            $.ajax({
+//                method: 'GET',
+//                url: APP.url('tramite/solicitudconstancia/verBoleta/' + item.id),
+//                contentType: "application/json",
+//                success: function (response) {
+//                    if (response.success) {
+//                        $vue.archivo = response.data;
+//                        $vue.archivo.numeroBoleta = item.numeroBoleta;
+//                        $vue.$refs.viewBoleta.open();
+//                    } else {
+//                        notify(response.message, 'error');
+//                    }
+//                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+//                }, error: function () {
+//                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+//                    notify(Messages.errorComunicacion, "error");
+//                }
+//            });
         },
         inputFilter(newFile, oldFile, prevent) {
             let $vue = this;
@@ -218,6 +226,8 @@ new Vue({
         },
         saveLoadBoleta() {
             let $vue = this;
+            $vue.archivo.idInstancia = $vue.tramiteDocumentoActivo.id;
+            $vue.archivo.numeroBoleta = $vue.tramiteDocumentoActivo.numeroBoleta;
             axios.post(APP.url('tramite/solicitudconstancia/saveArchivoTramite'),
                     $vue.archivo).then(response => {
                 if (response.data.success) {
@@ -225,6 +235,7 @@ new Vue({
                     $vue.$refs.load.loadRemoteData();
                     notify(response.data.message, "success");
                 } else {
+                    $vue.$refs.modalLoadBoleta.stop();
                     notify(response.data.message, "error");
                 }
             }).catch(err => {
@@ -267,13 +278,13 @@ new Vue({
                 }
             }
         },
-        descargarTramite(uri, item) {
+        descargarTramite(item) {
 
             let idToast = 'iziToast' + Date.now();
 
             noty_download(idToast, 'Desc. word: ' + item.tramite.alumno.codigo);
 
-            axios_blob.get(uri)
+            axios_blob.get('/tramite/solicitudconstancia/downloadWord/' + item.id)
                     .then(response => {
                         UTIL_BLOB_INLINE.save(response);
                         noty_clouse(idToast);
@@ -306,6 +317,82 @@ new Vue({
                     }
                 }
             });
+        },
+        aceptarTramite(tramite) {
+            let $vue = this;
+            bootbox.confirm({
+                message: `¿Seguro que desea aceptar el tramite?`,
+                buttons: {
+                    confirm: {label: 'Sí, aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-default"}
+                },
+                callback: (result) => {
+                    if (result) {
+
+                        $vue.showLoader();
+
+                        axios.get('/tramite/solicitudconstancia/aceptartramite/' + tramite.id)
+                                .then(response => {
+                                    $vue.hideLoader();
+                                    $vue.$refs.load.loadRemoteData();
+                                    notify(response.data.message, response.data.success ? 'info' : 'error');
+                                }, () => {
+                                    $vue.hideLoader();
+                                });
+                    }
+                }
+            });
+        },
+        entregarTramite(tramite) {
+            let $vue = this;
+            bootbox.confirm({
+                message: `¿Seguro que desea entregar el tramite?`,
+                buttons: {
+                    confirm: {label: 'Sí, entregar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-default"}
+                },
+                callback: (result) => {
+                    if (result) {
+
+                        $vue.showLoader();
+
+                        axios.get('/tramite/solicitudconstancia/entregartramite/' + tramite.id)
+                                .then(response => {
+                                    $vue.hideLoader();
+                                    $vue.$refs.load.loadRemoteData();
+                                    notify(response.data.message, response.data.success ? 'info' : 'error');
+                                }, () => {
+                                    $vue.hideLoader();
+                                });
+                    }
+                }
+            });
+        },
+        verificarPago(tramite) {
+
+            let $vue = this;
+            $vue.$refs.modalValidarBoleta.open();
+            $vue.tramiteDocumentoActivo = {...tramite};
+
+        },
+        saveValidarBoleta() {
+
+            let $vue = this;
+            axios.post('/tramite/solicitudconstancia/validarBoletaTramite/', {...$vue.tramiteDocumentoActivo})
+                    .then(response => {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.data.message, response.data.success ? 'info' : 'error');
+                        $vue.$refs.modalValidarBoleta.close();
+                    }, () => {
+                        $vue.$refs.modalValidarBoleta.stop();
+                        notify(Messages.errorComunicacion, 'error')
+                    });
+        },
+        subirBoleta(tramite) {
+
+            let $vue = this;
+            $vue.$refs.modalLoadBoleta.open();
+            $vue.tramiteDocumentoActivo = {...tramite};
         }
     }
 });

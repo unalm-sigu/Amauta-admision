@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -27,6 +28,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.session.DataSessionMaipi;
 
@@ -98,12 +100,18 @@ public interface ConstanciaSolicitudService {
 
     public void anularTramite(Long idTramiteDocumentoAcademico);
 
-    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico,Long cantidadCiclos);
+    public BigDecimal calcularPrecio(TramiteDocumentoAcademico tramiteDocumentoAcademico, Long cantidadCiclos);
 
     public Egresado getEgresadoByIdPersona(Long idAlumno);
 
     public Long cantidadCiclosRegularAprobado(Alumno alumno);
 
     public BigDecimal costoDocumento(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+
+    public void validarBoletaTramite(TramiteDocumentoAcademico idTramiteDocumentoAcademico);
+
+    public void aceptarTramite(Long idTramiteDocumentoAcademico);
+
+    public void entregarTramite(Long idTramiteDocumentoAcademico) ;
 
 }
