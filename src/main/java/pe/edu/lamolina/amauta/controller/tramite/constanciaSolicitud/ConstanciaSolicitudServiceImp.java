@@ -7,6 +7,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.math.BigDecimal;
+import static java.math.BigDecimal.ZERO;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -693,7 +695,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setCantidadCiclos(1);
         BigDecimal monto = new BigDecimal(precio.getPrecio());
         if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-            Long count = alumnoCicloDAO.countCiclosRegularConCursoAprobado(alumno);
+            Long count = alumnoCicloDAO.countCiclosRegularTotal(alumno);
             tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
             monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
         }
@@ -1311,7 +1313,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public Long cantidadCiclosRegularAprobado(Alumno alumno) {
-        return alumnoCicloDAO.countCiclosRegularConCursoAprobado(alumno);
+        return alumnoCicloDAO.countCiclosRegularTotal(alumno);
     }
 
     @Override
@@ -1329,6 +1331,19 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
 
         return new BigDecimal(precio.getPrecio());
+    }
+
+    @Override
+    public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico) {
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        if (precio == null) {
+            return ZERO;
+        }
+        try {
+            return new BigDecimal(precio.getPrecio());
+        } catch (Exception e) {
+            return ZERO;
+        }
     }
 
 }

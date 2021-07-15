@@ -2,7 +2,7 @@
     <section class="panel-body">
 
         <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
-            
+
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Alumno</label>
@@ -69,44 +69,50 @@
                     </multiselect>
                 </div>
             </div>
-            
-                        
-            <div v-if="showCostoDocumento" class="col-xs-12">
-                <div class="form-group">
-                    <label>Importe documento</label>
-                    <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
-                </div>
+
+            <div  class="col-xs-12">
+                <p class="text-white">.</p>
             </div>
-            
-            <div v-if="showCostoDocumento" class="col-xs-12">
+
+            <div  class="col-xs-12">
+
+                <label>Costo documento</label>
+
                 <div class="form-group">
-                    <label>Importe total a pagar</label>
-                    <p  class="form-control-static" >  S./  {{costoTotal}}</p>
+
+                    <div  class="col-xs-6">
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Importe documento (S./)</th>
+                                    <th>Cantidad de ciclos regulares</th>
+                                    <th>Importe total a pagar (S./)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-right">
+                                        <p v-text="solicitud.costoDocumento"></p>
+                                        <p v-text="costoDocumento"></p>
+                                    </td>
+
+                                    <td class="text-right">
+                                        <p v-text="solicitud.cantidadCiclos"></p>
+                                        <p v-text="cantidadCiclos"></p>
+                                    </td>
+
+                                    <td class="text-right">
+                                        <p v-text="costoTotal"></p>
+                                        <p v-text="solicitud.costoTotal"></p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </div>
                 </div>
             </div>
 
-
-            <div v-if="isUpdate" class="col-xs-12">
-                <div class="form-group">
-                    <label>Importe a pagar</label>
-                    <p  class="form-control-static" >  S./  {{solicitud.costoTotal}}</p>
-                </div>
-            </div>
-            
-
-            <div v-if="isUpdate" class="col-xs-12">
-                <div class="form-group">
-                    <label>Cantidad de ciclos regulares aprobados</label>
-                    <p  class="form-control-static" > {{solicitud.cantidadCiclos}}</p>
-                </div>
-            </div>
-            <div v-else="" class="col-xs-12">
-                <div class="form-group">
-                    <label v-if="cantidadCiclos">Cantidad de ciclos regulares aprobados</label>
-                    <p  class="form-control-static" > {{cantidadCiclos}}</p>
-                </div>
-            </div>
-            
             <div >
                 <div class="col-xs-12">
                     <h4  class="m-b-md m-t-md">Información de Contacto</h4>

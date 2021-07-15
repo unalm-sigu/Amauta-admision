@@ -97,7 +97,7 @@ new Vue({
                 data: $('#formEnviarRevision').serialize(),
                 success: function (response) {
                     if (response.success) {
-//                        dynatable.reload();
+
                     } else {
                         notify(response.message, 'error');
                     }
@@ -195,28 +195,8 @@ new Vue({
                     ok: {label: 'Cerrar', className: "btn-default"}
                 }});
 
-//            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-//            $.ajax({
-//                method: 'GET',
-//                url: APP.url('tramite/solicitudconstancia/verBoleta/' + item.id),
-//                contentType: "application/json",
-//                success: function (response) {
-//                    if (response.success) {
-//                        $vue.archivo = response.data;
-//                        $vue.archivo.numeroBoleta = item.numeroBoleta;
-//                        $vue.$refs.viewBoleta.open();
-//                    } else {
-//                        notify(response.message, 'error');
-//                    }
-//                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-//                }, error: function () {
-//                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-//                    notify(Messages.errorComunicacion, "error");
-//                }
-//            });
         },
         inputFilter(newFile, oldFile, prevent) {
-            let $vue = this;
             if (newFile && !oldFile) {
                 if (!/\.(jpg|png|jpeg)$/i.test(newFile.name)) {
                     swal('¡Este tipo de  archivo no esta permitido!', ' ', 'error', {buttons: {ok: "Aceptar"}});
@@ -257,7 +237,6 @@ new Vue({
                 if (newFile.success) {
                     let URL = window.URL || window.webkitURL;
                     if (URL && URL.createObjectURL) {
-//                        let itemCoAsesor = $vue.miembros[$vue.indiceForArchivo];
                         $vue.archivo.rutaTemporal = URL.createObjectURL(newFile.file);
                         $vue.archivo.nombre = newFile.response.data.name;
                         $vue.archivo.tipo = newFile.response.data.contentType;

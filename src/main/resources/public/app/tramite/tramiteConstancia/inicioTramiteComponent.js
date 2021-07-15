@@ -101,6 +101,7 @@ Vue.component("inicio-tram-component", {
                             $vue.costoDocumento = response.data.data.costoDocumento;
                             $vue.costoTotal = response.data.data.costoTotal;
                             $vue.cantidadCiclos=response.data.data.cantidadCiclos
+                            $vue.$forceUpdate()
                         } else {
                             $vue.showCostoDocumento = false;
                         }

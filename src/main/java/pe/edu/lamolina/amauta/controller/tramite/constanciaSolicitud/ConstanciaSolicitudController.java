@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -390,6 +391,7 @@ public class ConstanciaSolicitudController {
                 logger.debug("idAlumno {}", idAlumno);
 
                 model.addAttribute("idAlumno", idAlumno);
+                node.put("costoDocumento",service.getPrecioDocumento(documentoAcademico));
 
             }
 

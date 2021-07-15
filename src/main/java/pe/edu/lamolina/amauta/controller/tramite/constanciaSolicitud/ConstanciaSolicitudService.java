@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.List;
@@ -114,4 +115,5 @@ public interface ConstanciaSolicitudService {
 
     public void entregarTramite(Long idTramiteDocumentoAcademico) ;
 
+    public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico);
 }
