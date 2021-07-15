@@ -50,13 +50,19 @@ Vue.component("inicio-tram-component", {
             let $vue = this;
             $vue.findAlumno(item.id);
         },
-        clearOption(item) {
-            console.log(item);
+        clearOption(data) {
+            
             let $vue = this;
             $vue.solicitud = {};
             $vue.ciclo = {};
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
+
+            Vue.set($vue.solicitud, "personaContacto", data.persona.nombreCompleto);
+            Vue.set($vue.solicitud, "telefono", data.persona.telefono);
+            Vue.set($vue.solicitud, "celular", data.persona.celular);
+            Vue.set($vue.solicitud, "email", data.persona.email);
+
         },
         idiomaDocumento(value) {
             let $vue = this;
@@ -100,7 +106,7 @@ Vue.component("inicio-tram-component", {
                             $vue.showCostoDocumento = response.data.data.showCostoDocumento;
                             $vue.costoDocumento = response.data.data.costoDocumento;
                             $vue.costoTotal = response.data.data.costoTotal;
-                            $vue.cantidadCiclos=response.data.data.cantidadCiclos
+                            $vue.cantidadCiclos = response.data.data.cantidadCiclos
                             $vue.$forceUpdate()
                         } else {
                             $vue.showCostoDocumento = false;
@@ -147,10 +153,6 @@ Vue.component("inicio-tram-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        Vue.set($vue.solicitud, "personaContacto", response.data.persona.nombreCompleto);
-                        Vue.set($vue.solicitud, "telefono", response.data.persona.telefono);
-                        Vue.set($vue.solicitud, "celular", response.data.persona.celular);
-                        Vue.set($vue.solicitud, "email", response.data.persona.email);
                         $vue.$parent.alumno = response.data;
                     } else {
                         notify(response.message, "error");
