@@ -163,7 +163,6 @@ import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Service
 @Transactional(readOnly = true)
@@ -222,8 +221,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
 
-//    @Autowired
-//    VisorCalculoNotas visorCalculoNotas;
     @Autowired
     MailerService mailerService;
 
@@ -438,7 +435,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
             }
 
-//            visorCalculoNotas.setActivo(false);
             promedioService.calcularSituacionAcademica(alumno, ds);
 
         }
@@ -1096,16 +1092,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
         verificadorSolicitudService.verificarDocumentoAlumno(plantillaGeneralBean.getPlantillaDocumentoAcademico(), academico, academico.getTramite().getAlumno());
-//        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
-//        String htmlContent = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
 
-//        Alumno alumno = alumnoDAO.findAllInfo(academico.getTramite().getAlumno().getId());
-//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-//
-//        Egresado egresado = egresadoDAO.findByAlumno(alumno);
-//
-//        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
-//        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
 
         Integer orden = incrustacionDocumentos == null ? 1 : incrustacionDocumentos.size() + 1;

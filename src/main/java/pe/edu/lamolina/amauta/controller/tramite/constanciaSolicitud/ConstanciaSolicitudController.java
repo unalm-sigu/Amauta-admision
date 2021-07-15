@@ -291,63 +291,6 @@ public class ConstanciaSolicitudController {
 
             logger.debug("validando dpi...");
             logger.debug("DpiHeight {}", metadata.getDpiHeight());
-//            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_DPIHEIGHT_MSG);
-//            }
-//            logger.debug("DpiWidth {}", metadata.getDpiWidth());
-//            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_DPIWIDTH_MSG);
-//            }
-//            logger.debug("Height {}", metadata.getHeight());
-//            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
-//            if (sizeHeight > AcademicoConstantine.IMAGE_DELTA_SIZE) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_HEIGHT_MSG);
-//            }
-//            logger.debug("Width {}", metadata.getWidth());
-//            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
-//            if (sizeWidth > AcademicoConstantine.IMAGE_DELTA_SIZE) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_WIDTH_MSG);
-//            }
-//            logger.debug("Format {}", metadata.getFormat());
-//            if (!Arrays.asList(Constantine.IMAGE_FORMAT).contains(metadata.getFormat().toString())) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_FORMAT_MSG);
-//            }
-//            logger.debug("ColorType {}", metadata.getColorType());
-//            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_COLORTYPE_MSG);
-//            }
-//            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
-//            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_BITSPERPIXEL_MSG);
-//            }
-//            logger.debug("Transparent {}", metadata.isTransparent());
-//            if (metadata.isTransparent()) {
-//                formatook = Boolean.FALSE;
-//                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
-//                nocumplerequisito.append(" , ");
-//                logger.debug("{}", AcademicoConstantine.IMAGE_TRANSPARENT_MSG);
-//            }
 
             json.put("ok", formatook);
             json.put("nocumplerequisito", nocumplerequisito.toString());
