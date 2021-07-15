@@ -22,6 +22,8 @@ Vue.component("inicio-component", {
             vue.orientacionTmp = vue.alumno.orientacionCarrera;
         }
         if (ID_ALUMNO) {
+            console.debug('ID_ALUMNO');
+            console.debug(ID_ALUMNO);
             this.loadPPG()
         }
     },

@@ -805,9 +805,11 @@ public class ConstanciaSolicitudController {
             if (null != egresado) {
 
                 DecimalFormat df = new DecimalFormat("#.00");
+                logger.debug(" === PromedioGraduacion === {}",egresado.getPromedioGraduacion());
                 node.put("esEgresado", TRUE);
-                node.put("promedioGraduacion", df.format(egresado.getPromedioGraduacion()));
+                node.put("promedioGraduacion",egresado.getPromedioGraduacion()!=null? df.format(egresado.getPromedioGraduacion()):"0.00");
                 response.setSuccess(Boolean.TRUE);
+                
             }
 
             response.setData(node);
