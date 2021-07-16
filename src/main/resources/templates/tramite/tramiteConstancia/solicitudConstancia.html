@@ -60,11 +60,12 @@
                                                     </td>
 
                                                     <td class="v-middle">
-                                                        <p  class="bold" > {{item.personaContacto}}  </p>
-                                                        <p  class="bold" > Teléfono: {{item.telefono}}  </p>
-                                                        <p  class="bold" > Email: {{item.email}}  </p>
-
+                                                        <p v-if='item.personaContacto'> Contacto: <b>{{item.personaContacto}}</b>  </p>
+                                                        <p v-if='item.telefono'> Teléfono: <b>{{item.telefono}}</b>  </p>
+                                                        <p v-if='item.celular'> Celular: <b>{{item.celular}}</b>  </p>
+                                                        <p v-if='item.email'> Email: <b>{{item.email}}</b>  </p>
                                                     </td>
+                                                    
                                                     <td class="v-middle">
                                                         <p  class="" > {{item.tramite.serie}} - {{item.tramite.numero}} </p>
                                                         <p v-if="item.correlativoDocumento" class="bold"> Código Documento: {{item.correlativoDocumento}} </p>
@@ -78,6 +79,8 @@
                                                         <p class=""> {{ item.tipoDocumentoAcademico.tipoConstanciaEnum.value}}</p>
                                                         <p class="text-xs"> Idioma: {{item.idioma.nombre}}  </p>
                                                         <p class="text-xs"> {{item.tipoDocumentoAcademico.nombre}}  </p>
+                                                        <p v-if='item.fechaEntrega' class="text-xs">Fecha Entrega: {{item.fechaEntrega}}  </p>
+                                                        <p v-if='item.numeroFormato' class="text-xs">Número Formato: {{item.numeroFormato}}  </p>
                                                     </td>
 
                                                     <td class="v-middle">
@@ -97,10 +100,6 @@
                                                                 </li>
 
                                                                 <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='ACEP'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
-                                                                </li>
-
-                                                                <li> 
                                                                     <a v-if="item.estadoTramite.codigo=='ACEP'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
                                                                 </li>
 
@@ -109,7 +108,7 @@
                                                                 </li>
 
                                                                 <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificadar Pago</a>
+                                                                    <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificar Pago</a>
                                                                 </li>
 
                                                                 <li> 
@@ -118,6 +117,12 @@
 
                                                                 <li> 
                                                                     <a v-if="item.estadoTramite.codigo=='PAG'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                </li>
+
+                                                                <li v-if="item.estadoTramite.codigo=='ACEP' || item.estadoTramite.codigo=='COMP'" class="divider"></li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='ACEP' || item.estadoTramite.codigo=='COMP'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
                                                                 </li>
 
                                                                 <li v-if="item.estadoTramite.codigo=='CRE'" class="divider"></li>

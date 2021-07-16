@@ -23,7 +23,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
-import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 
 @Service
 @Transactional
@@ -72,7 +71,7 @@ public class MailerServiceImp implements MailerService {
         mail.setTemplate("mail/mailSolicitudConstancia");
         mail.setSubject("Solicitud de constancia");
         mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
-//        mail.setDestinatarios(new String[]{"davd.1491@gmail.com"});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 

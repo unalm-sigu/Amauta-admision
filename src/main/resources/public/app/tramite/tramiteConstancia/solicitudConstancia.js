@@ -62,6 +62,8 @@ new Vue({
                 case 'FVAL':
                 case 'PIMP':
                 case 'COMP':
+                    return "label label-success";
+                    break;
                 case 'VAL_URA':
                     return "label label-primary";
                     break;
@@ -324,28 +326,20 @@ new Vue({
         },
         entregarTramite(tramite) {
             let $vue = this;
-            bootbox.confirm({
-                message: `¿Seguro que desea entregar el tramite?`,
-                buttons: {
-                    confirm: {label: 'Sí, entregar', className: "btn-primary"},
-                    cancel: {label: 'Cancelar', className: "btn-default"}
-                },
-                callback: (result) => {
-                    if (result) {
-
-                        $vue.showLoader();
-
-                        axios.get('/tramite/solicitudconstancia/entregartramite/' + tramite.id)
-                                .then(response => {
-                                    $vue.hideLoader();
-                                    $vue.$refs.load.loadRemoteData();
-                                    notify(response.data.message, response.data.success ? 'info' : 'error');
-                                }, () => {
-                                    $vue.hideLoader();
-                                });
-                    }
-                }
-            });
+            $vue.$refs.modalEntregarTramite.open();
+            $vue.tramiteDocumentoActivo = {...tramite};
+        },
+        saveEntregarTramite() {
+            let $vue = this;
+            axios.post('/tramite/solicitudconstancia/entregartramite/', $vue.tramiteDocumentoActivo)
+                    .then(response => {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.data.message, response.data.success ? 'info' : 'error');
+                        $vue.$refs.modalEntregarTramite.close();
+                    }, () => {
+                        $vue.$refs.modalEntregarTramite.stop();
+                        notify(Messages.errorComunicacion, 'error')
+                    });
         },
         verificarPago(tramite) {
 

@@ -8,7 +8,6 @@ import com.google.common.base.Strings;
 import java.io.File;
 import java.math.BigDecimal;
 import static java.math.BigDecimal.ZERO;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,14 +31,11 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -65,7 +61,6 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
-import pe.edu.lamolina.model.tramite.TramiteDocumentoParametro;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.situacionacademica.SituacionAcademicaService;
@@ -296,153 +291,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     UploadFileS3 uploadFileS3;
 
     @Override
-    @Transactional
-    public void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds) {
-
-        Usuario usuario = ds.getUsuario();
-        Alumno alumno = alumnoDAO.find(alumnoForm);
-        logger.debug("alumno id   {} codigo {} ", alumno.getId(), alumno.getCodigo());
-        List<AlumnoCiclo> alumnosCiclo = alumnoForm.getAlumnoCiclo();
-        List<AlumnoCiclo> alumnosCicloDb = alumnoCicloDAO.allByAlumno(alumno);
-        logger.debug("existen  {} alumnoCiclo en db", alumnosCicloDb.size());
-        if (!alumnosCicloDb.isEmpty()) {
-            List<Long> alumnoCicloss = new ArrayList();
-            for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
-                if (alumnoCiclo.getId() != null) {
-                    alumnoCicloss.add(alumnoCiclo.getId());
-                }
-            }
-            Map<Long, AlumnoCiclo> alumnosCicloMap = TypesUtil.convertListToMap("id", alumnosCicloDb);
-            List<AlumnoCiclo> alumnosCicloDelete = new ArrayList();
-            for (Map.Entry<Long, AlumnoCiclo> entry : alumnosCicloMap.entrySet()) {
-                Long key = entry.getKey();
-                if (!alumnoCicloss.contains(key)) {
-                    alumnosCicloDelete.add(entry.getValue());
-                }
-            }
-            for (AlumnoCiclo alumnoCiclo : alumnosCicloDelete) {
-                if (alumnoCiclo.getEstadoEnum() != EstadoMatriculaEnum.NMAT) {
-                    logger.debug("remove alumnoCiclo {}", alumnoCiclo.getId());
-                    alumnoCicloCursoDAO.deleteByAlumnoCiclo(alumnoCiclo);
-                    alumnoCicloDAO.delete(alumnoCiclo);
-                }
-            }
-        }
-
-        for (AlumnoCiclo alumnoCicloForm : alumnosCiclo) {
-
-            CicloAcademico cicloAcademico = cicloAcademicoDAO.find(alumnoCicloForm.getCicloAcademico());
-
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-            DateTime today = new DateTime();
-
-            if (alumnoCiclo == null) {
-                alumnoCiclo = new AlumnoCiclo();
-                alumnoCiclo.setAlumno(alumno);
-                alumnoCiclo.setCarrera(alumno.getCarrera());
-                alumnoCiclo.setCicloAcademico(cicloAcademico);
-
-                alumnoCiclo.setCreditosAcumulados(BigDecimal.ZERO.intValue());
-                alumnoCiclo.setCreditosAprobadosAcumulados(BigDecimal.ZERO.intValue());
-
-                alumnoCiclo.setCreditosAprobadosCiclo(BigDecimal.ZERO.intValue());
-                alumnoCiclo.setCreditosCursadosCiclo(BigDecimal.ZERO.intValue());
-                alumnoCiclo.setCursosAprobados(BigDecimal.ZERO.intValue());
-                alumnoCiclo.setCursosInscritos(BigDecimal.ZERO.intValue());
-
-                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                alumnoCiclo.setUserRegistro(usuario);
-                alumnoCiclo.setUserModificacion(usuario);
-                alumnoCiclo.setFechaModificacion(today.toDate());
-                alumnoCiclo.setFechaRegistro(today.toDate());
-                alumnoCiclo.setOrientacionCarrera(alumno.getOrientacionCarrera());
-
-                alumnoCiclo.setSituacionInicio(alumno.getSituacionAcademica());
-                alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
-
-                alumnoCiclo.setPromedioAcumulado(BigDecimal.ZERO);
-                alumnoCiclo.setPromedioCiclo(BigDecimal.ZERO);
-                alumnoCicloDAO.save(alumnoCiclo);
-                alumno.getId();
-            }
-
-            List<AlumnoCicloCurso> alumnosCicloCurso = alumnoCicloForm.getAlumnoCicloCurso();
-            List<AlumnoCicloCurso> alumnosCicloCursoDb = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
-            logger.debug("existen  {} AlumnoCicloCurso en db", alumnosCicloCursoDb.size());
-            if (!alumnosCicloCursoDb.isEmpty()) {
-                List<Long> alumnoCicloCursoss = new ArrayList();
-                for (AlumnoCicloCurso alumnoCicloCurso : alumnosCicloCurso) {
-                    if (alumnoCicloCurso.getId() != null) {
-                        alumnoCicloCursoss.add(alumnoCicloCurso.getId());
-                    }
-                }
-                Map<Long, AlumnoCicloCurso> alumnosCicloCursoMap = TypesUtil.convertListToMap("id", alumnosCicloCursoDb);
-                List<AlumnoCicloCurso> alumnosCicloCursoDelete = new ArrayList();
-                for (Map.Entry<Long, AlumnoCicloCurso> entry : alumnosCicloCursoMap.entrySet()) {
-                    Long key = entry.getKey();
-                    if (!alumnoCicloCursoss.contains(key)) {
-                        alumnosCicloCursoDelete.add(entry.getValue());
-                    }
-                }
-                for (AlumnoCicloCurso alumnoCicloCurso : alumnosCicloCursoDelete) {
-                    if (alumnoCicloCurso.getEstadoEnum() != EstadoMatriculaEnum.NMAT) {
-                        logger.debug("remove alumnoCiclo {}", alumnoCicloCurso.getId());
-                        alumnoCicloCursoDAO.delete(alumnoCicloCurso);
-                    }
-                }
-            }
-
-            for (AlumnoCicloCurso alumnoCicloCursoForm : alumnosCicloCurso) {
-
-                Curso curso = cursoDAO.find(alumnoCicloCursoForm.getCurso().getId());
-                AlumnoCicloCurso alumnoCicloCurso = null;
-                if (alumnoCicloCursoForm.getId() != null) {
-                    alumnoCicloCurso = alumnoCicloCursoDAO.find(alumnoCicloCursoForm);
-                } else {
-                    alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
-                }
-
-                if (alumnoCicloCurso == null) {
-
-                    alumnoCicloCurso = new AlumnoCicloCurso();
-                    alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
-
-                    alumnoCicloCurso.setCreditos(alumnoCicloCursoForm.getCreditos());
-                    alumnoCicloCurso.setCurso(curso);
-                    alumnoCicloCurso.setEstaAprobado(BigDecimal.ZERO.intValue());
-
-                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                    alumnoCicloCurso.setFechaModificacion(today.toDate());
-                    alumnoCicloCurso.setFechaRegistro(today.toDate());
-
-                    alumnoCicloCurso.setNota(alumnoCicloCursoForm.getNota());
-                    alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.ACTA);
-                    alumnoCicloCurso.setRegistroActivo(BigDecimal.ONE.intValue());
-                    alumnoCicloCurso.setUserModificacion(usuario);
-                    alumnoCicloCurso.setUsuarioRegistro(usuario);
-
-                    alumnoCicloCurso.setVecesCursado(1);
-                    alumnoCicloCursoDAO.save(alumnoCicloCurso);
-                    alumnoCicloCurso.getId();
-                } else {
-
-                    alumnoCicloCurso.setFechaModificacion(today.toDate());
-                    alumnoCicloCurso.setNota(alumnoCicloCursoForm.getNota());
-                    alumnoCicloCurso.setUserModificacion(usuario);
-                    alumnoCicloCurso.setCurso(curso);
-
-                    alumnoCicloCursoDAO.update(alumnoCicloCurso);
-                    alumnoCicloCurso.getId();
-                }
-
-            }
-
-            promedioService.calcularSituacionAcademica(alumno, ds);
-
-        }
-    }
-
-    @Override
     public List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno) {
 
         List<AlumnoCicloCurso> cursosCiclos = alumnoCicloCursoDAO.allByAlumnoCicloAsc(alumno);
@@ -483,20 +331,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         Tramite tramite = tda.getTramite();
-        Tramite tramiteForm = tramiteDocumentoAcademico.getTramite();
-        Alumno alumno = alumnoDAO.find(tramiteForm.getAlumno());
-        tramite.setAlumno(alumno);
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(new Date());
         tramiteDAO.update(tramite);
-
-        Persona persona = alumno.getPersona();
-        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(tramiteForm, "persona.rutaFotoTemporal");
-        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
-            persona.setRutaFotoTemporal(rutaFotoTemporal);
-            personaDAO.update(persona);
-            this.uploadS3(persona.getRutaFotoTemporal());
-        }
 
         tda.setPersonaContacto(tramiteDocumentoAcademico.getPersonaContacto());
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
@@ -504,7 +341,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
         tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular");
 
-        this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
 
     @Override
@@ -708,29 +544,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setTramite(tramite);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setCostoTotal(monto);
+        tramiteDocumentoAcademico.setCostoUnitario(new BigDecimal(precio.getPrecio()));
         tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
-
-        FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
-        flujo.setEstadoTramite(estadoTramite);
-        flujo.setOficinaOrigen(ds.getOficinaMain());
-        flujo.setOficinaDestino(ds.getOficinaMain());
-        flujo.setUserRegistro(ds.getUsuario());
-        flujo.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        flujo.setFechaRegistro(new Date());
-        flujoTramiteDocumentoDAO.save(flujo);
-
-        if (tramiteDocumentoAcademico.getValorParametro() != null) {
-            PlantillaDocumentoAcademico plantillaDocumentoAcademico = plantillaDocumentoAcademicoDAO.findTipoDocumento(tipo, idioma);
-            List<VariablePlantilla> plantillas = allParametros(plantillaDocumentoAcademico);
-            TramiteDocumentoParametro documentoParametro = new TramiteDocumentoParametro();
-            documentoParametro.setPlantillaDocumento(plantillaDocumentoAcademico);
-            documentoParametro.setTipoDocumentoAcademico(tipo);
-            documentoParametro.setValor(tramiteDocumentoAcademico.getValorParametro());
-            documentoParametro.setFecharegistro(new Date());
-            documentoParametro.setUsuario(usuario);
-            documentoParametro.setVariableGenerica(plantillas.get(0).getVariableGenerica());
-            tramiteDocumentoParamtroDAO.save(documentoParametro);
-        }
 
     }
 
@@ -742,28 +557,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico academico, EstadoTramite estadoTramite) {
         return accionTramiteDocumentoDAO.allByTipoTramiteAndEstadoTramiteInicial(academico, estadoTramite);
-    }
-
-    @Override
-    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, DataSessionPivot ds) {
-        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
-        tramiteDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm, "estadoTramite");
-
-        Tramite tramite = tramiteDocumentoAcademico.getTramite();
-        tramite.setEstadoEnum(TramiteEstadoEnum.PROC);
-        tramite.setUserModificacion(ds.getUsuario());
-        tramite.setFechaModificacion(new Date());
-        tramiteDAO.updateEstado(tramite);
-
-        FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
-        flujo.setEstadoTramite(tramiteDocumentoAcademicoForm.getEstadoTramite());
-        flujo.setOficinaOrigen(ds.getOficinaMain());
-        flujo.setOficinaDestino(ds.getOficinaMain());
-        flujo.setUserRegistro(ds.getUsuario());
-        flujo.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        flujo.setFechaRegistro(new Date());
-        flujoTramiteDocumentoDAO.save(flujo);
-
     }
 
     private String remplazarTablas(String htmlContent, Alumno alumno, List<VariablePlantilla> variable) {
@@ -1244,9 +1037,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     @Transactional
-    public void entregarTramite(Long idTramiteDocumentoAcademico) {
+    public void entregarTramite(TramiteDocumentoAcademico idTramiteDocumentoAcademico) {
 
-        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico.getId());
 
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
@@ -1258,6 +1051,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.COMP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setFechaEntrega(new Date());
+        tramiteDocumentoAcademico.setNumeroFormato(idTramiteDocumentoAcademico.getNumeroFormato());
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
     }
 

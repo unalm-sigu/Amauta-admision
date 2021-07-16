@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -53,7 +52,6 @@ import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.misc.FotoHelper;
-import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -297,12 +295,14 @@ public class ConstanciaSolicitudController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
+        
         JsonResponse response = new JsonResponse();
+        
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (documentoAcademico.getId() == null) {
-
                 service.save(documentoAcademico, ds);
             } else {
                 service.updateTramiteDocumentoAcademico(documentoAcademico, ds);
@@ -323,20 +323,6 @@ public class ConstanciaSolicitudController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.updateFotoTemporal(tramiteDocumentoAcademico, ds);
-            response.setSuccess(Boolean.TRUE);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            service.update(tramiteDocumentoAcademico, ds);
             response.setSuccess(Boolean.TRUE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
@@ -386,13 +372,10 @@ public class ConstanciaSolicitudController {
                         .join("tramite.alumno.persona.tipoDocumento")
                         .join("tipoDocumentoAcademico")
                         .json();
-
+                
                 Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
                 logger.debug("idAlumno {}", idAlumno);
-
                 model.addAttribute("idAlumno", idAlumno);
-                node.put("costoDocumento",service.getPrecioDocumento(documentoAcademico));
-
             }
 
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -691,12 +674,12 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "entregartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
-    public JsonResponse entregarTramite(@PathVariable Long idTramiteDocumentoAcademico) {
+    @RequestMapping("entregartramite")
+    public JsonResponse entregarTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico) {
         JsonResponse response = new JsonResponse();
         try {
 
-            service.entregarTramite(idTramiteDocumentoAcademico);
+            service.entregarTramite(tramiteDocumentoAcademico);
             response.setMessage("Trámite entregado satisfactoriamente");
             response.setSuccess(true);
 

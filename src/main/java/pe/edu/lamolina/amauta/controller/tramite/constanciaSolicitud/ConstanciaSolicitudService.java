@@ -1,11 +1,8 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -29,13 +26,9 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Archivo;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 public interface ConstanciaSolicitudService {
-
-    void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
 
@@ -75,8 +68,6 @@ public interface ConstanciaSolicitudService {
 
     public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico tipoDocumento, EstadoTramite estadoTramite);
 
-    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
-
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico, Usuario usuario);
 
     public List<PlantillaDocumentoAcademico> allPlantillas();
@@ -113,7 +104,7 @@ public interface ConstanciaSolicitudService {
 
     public void aceptarTramite(Long idTramiteDocumentoAcademico);
 
-    public void entregarTramite(Long idTramiteDocumentoAcademico) ;
+    public void entregarTramite(TramiteDocumentoAcademico tramiteDocumentoAcademico) ;
 
     public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico);
 }

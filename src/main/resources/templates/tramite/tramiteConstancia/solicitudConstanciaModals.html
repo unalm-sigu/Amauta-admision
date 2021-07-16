@@ -109,3 +109,24 @@
 
     </div>
 </modal-simple>
+
+
+
+<modal-simple ref="modalEntregarTramite" 
+              v-bind:okaction="saveEntregarTramite">
+    <div slot="header">
+        <p class="h4 text-primary">Entregar documento</p>
+    </div>
+    <div slot="body">
+
+        <form data-parsley-validate="true" method="POST">
+
+            <div >            
+                <label>Número del formato</label>
+                <input v-model="tramiteDocumentoActivo.numeroFormato" maxlength="500" required="true" class="form-control"/>
+            </div>
+
+        </form>
+
+    </div>
+</modal-simple>
