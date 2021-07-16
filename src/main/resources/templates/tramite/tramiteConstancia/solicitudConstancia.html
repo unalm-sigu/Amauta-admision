@@ -99,30 +99,28 @@
                                                                     <a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a>
                                                                 </li>
 
-                                                                <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='ACEP'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
-                                                                </li>
-
-                                                                <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='PAG'" v-on:click.prevent="aceptarTramite(item)"  href="#">Aceptar</a>
-                                                                </li>
-
+                                                                <li class="divider"></li>
+                                                                
                                                                 <li> 
                                                                     <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificar Pago</a>
                                                                 </li>
 
                                                                 <li> 
-                                                                    <a  v-if="item.estadoTramite.codigo!='COMP'" v-on:click.prevent="subirBoleta(item)"  href="#">Subir Boleta</a>
+                                                                    <a v-on:click.prevent="subirBoleta(item)"  href="#">Subir Boleta</a>
                                                                 </li>
 
                                                                 <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='PAG'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                </li>
+                                                                
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
                                                                 </li>
 
-                                                                <li v-if="item.estadoTramite.codigo=='ACEP' || item.estadoTramite.codigo=='COMP'" class="divider"></li>
+                                                                <li v-if="item.estadoTramite.codigo!='CRE'" class="divider"></li>
 
                                                                 <li> 
-                                                                    <a v-if="item.estadoTramite.codigo=='ACEP' || item.estadoTramite.codigo=='COMP'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
                                                                 </li>
 
                                                                 <li v-if="item.estadoTramite.codigo=='CRE'" class="divider"></li>

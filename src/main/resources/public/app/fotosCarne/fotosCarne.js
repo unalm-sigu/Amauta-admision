@@ -1,4 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('vue-simple-progress', VueSimpleProgress.default)
 new Vue({
     el: '#main',
     data: {
@@ -7,65 +8,47 @@ new Vue({
         modalidad: '',
         modalidades: JSON.parse(modalidadesJson),
         info: {perAvance: 0},
-        bloq: false
-    },
-    computed: {
-
+        procesando: false
     },
     mounted: function () {
         let $vue = this;
         $vue.obtenerInfo();
-
     },
     methods: {
         descagarFoto() {
             let $vue = this;
-            $vue.bloq = true;
-            location.href = APP.url('fotos/carne/descargarFotos/' + $vue.carrera.codigo);
-            
-//            window.open(APP.url('fotos/carne/descargarFotos/' + $vue.carrera.codigo), '_blank');
+            $vue.procesando = true;
+            axios_blob.get(APP.url('fotos/carne/descargarFotos/' + $vue.carrera.codigo))
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        $vue.procesando = false;
+                    }, () => {
+                        $vue.procesando = false;
+                        notify(Messages.errorComunicacion, 'error')
+                    });
         },
         carrerasByCarrera(filtroModalidad) {
             let $vue = this;
-
+            console.log(filtroModalidad);
             axios.get('/comun/buscar/allCarreraByModalidad/' + filtroModalidad)
                     .then(response => {
                         if (response.data.success) {
-//                            $vue.carrera = null;
                             $vue.carreras = response.data.data;
-                            console.dir($vue.carreras);
+                            console.log($vue.carreras);
                         }
-                    })
-                    .catch(e => {
-                        console.log(e);
+                    }, () => {
+                        notify(response.message, "error");
                     });
         },
         obtenerInfo() {
             let $vue = this;
-            $.ajax({
-                url: APP.url('fotos/carne/info'),
-                type: 'GET',
-                async: true,
-                success: function (response) {
-                    if (response.success) {
+            axios.get(APP.url('fotos/carne/info'))
+                    .then(response => {
                         $vue.info = response.data;
-                        console.log("INFOOO")
-                        console.dir($vue.info)
-//                        if ($vue.info.estado === 'ACT') {
-//                            $vue.bloq = true;
-                            setTimeout($vue.obtenerInfo, 3000);
-//                        } else {
-//                            $vue.bloq = false;
-//                        }
-
-                    } else {
+                        setTimeout($vue.obtenerInfo, 3000);
+                    }, () => {
                         notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+                    });
         }
     }
 });

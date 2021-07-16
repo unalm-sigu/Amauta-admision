@@ -1010,28 +1010,18 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void validarBoletaTramite(TramiteDocumentoAcademico idTramiteDocumentoAcademico) {
 
         TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.PAG);
-        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
-        tramiteDocumentoAcademico.setNumeroBoleta(idTramiteDocumentoAcademico.getNumeroBoleta());
-        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
-    }
-
-    @Override
-    @Transactional
-    public void aceptarTramite(Long idTramiteDocumentoAcademico) {
-
-        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(idTramiteDocumentoAcademico);
 
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
 
-        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.PAG) {
-            throw new PhobosException("Solo puede aceptar trámites pagados");
+        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.CRE) {
+            throw new PhobosException("El pago ya fue validado");
         }
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setNumeroBoleta(idTramiteDocumentoAcademico.getNumeroBoleta());
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
     }
 
@@ -1045,7 +1035,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             throw new PhobosException("No se ha encontrado el trámite");
         }
 
-        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.ACEP) {
+        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() == TramiteEstadoEnum.CRE) {
             throw new PhobosException("Solo puede entregar trámites aceptados");
         }
 

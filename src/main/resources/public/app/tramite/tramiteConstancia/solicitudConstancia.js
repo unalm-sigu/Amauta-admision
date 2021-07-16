@@ -299,31 +299,6 @@ new Vue({
                 }
             });
         },
-        aceptarTramite(tramite) {
-            let $vue = this;
-            bootbox.confirm({
-                message: `¿Seguro que desea aceptar el tramite?`,
-                buttons: {
-                    confirm: {label: 'Sí, aceptar', className: "btn-primary"},
-                    cancel: {label: 'Cancelar', className: "btn-default"}
-                },
-                callback: (result) => {
-                    if (result) {
-
-                        $vue.showLoader();
-
-                        axios.get('/tramite/solicitudconstancia/aceptartramite/' + tramite.id)
-                                .then(response => {
-                                    $vue.hideLoader();
-                                    $vue.$refs.load.loadRemoteData();
-                                    notify(response.data.message, response.data.success ? 'info' : 'error');
-                                }, () => {
-                                    $vue.hideLoader();
-                                });
-                    }
-                }
-            });
-        },
         entregarTramite(tramite) {
             let $vue = this;
             $vue.$refs.modalEntregarTramite.open();

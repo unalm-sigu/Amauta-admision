@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +34,6 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
@@ -1097,7 +1095,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.tipo", TipoCicloEnum.REG.name());
 
         return (Long) sql.find(getCurrentSession());
-        
+
     }
 
 }

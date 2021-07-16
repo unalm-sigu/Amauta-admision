@@ -1,13 +1,7 @@
 package pe.edu.lamolina.amauta.controller.fotoCarne;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -16,16 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.controller.comun.BuscarService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -37,77 +26,43 @@ public class FotoCarneController {
 
     @Autowired
     FotoCarneService service;
+    
     @Autowired
     BuscarService buscarService;
 
+    @Autowired
+    FotosCarneComponent fotosCarneComponent;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<ModalidadEstudio> modalidades = buscarService.allModalidadEstudios();
-        ArrayNode modalidadesJson = new ArrayNode(JsonNodeFactory.instance);
-        for (ModalidadEstudio me : modalidades) {
-            modalidadesJson.add(JsonHelper.createJson(me, JsonNodeFactory.instance, true, new String[]{
-                "id",
-                "nombre",
-                "codigo"
-            }));
-        }
+        ArrayNode modalidadesJson = JaneHelper.from(modalidades).array();
 
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("modalidades", modalidadesJson.toString());
 
         return "fotosCarne/fotosCarne";
     }
-    
+
     @RequestMapping(value = "descargarFotos/{carrera}")
     public void descargarFotos(@PathVariable("carrera") String carrera, HttpSession session, HttpServletResponse response) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment;filename=fotos.zip");
-        service.descargarFotos(ds,carrera, response);
+        response.setHeader("Content-Disposition", "attachment; filename=fotos.zip");
+        service.descargarFotos(ds, carrera, response);
 
     }
 
     @ResponseBody
     @RequestMapping(value = "info", method = RequestMethod.GET)
-    public JsonResponse info(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        JsonResponse response = new JsonResponse();
-        FotosCarneComponent cant = service.info(ds);
-        ObjectNode node = JsonHelper.createJson(cant, JsonNodeFactory.instance, new String[]{"*"});
-        response.setData(node);
-        response.setSuccess(Boolean.TRUE);
-        return response;
+    public ObjectNode info(HttpSession session) {
+        return JaneHelper.from(fotosCarneComponent).json();
     }
 
 }

@@ -5,10 +5,12 @@
     <body>
 
         <div layout:fragment="main">
+
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h1 v-text="'Fotos Carne'"></h1>  <h1 th:text="${ciclo.descripcion}"></h1>
+
+                    <h1>Fotos Carne </h1>  <h1 th:text="${ciclo.descripcion}"></h1>
 
                 </header>
 
@@ -16,58 +18,71 @@
                     <section class="panel">
 
                         <section class="panel-body m-t-sm">
-                            <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-4">
 
-                                <div class="form-group">
-                                    <label>Modalidades</label>
-                                    <multiselect v-model='modalidad'
-                                                 v-bind:options='modalidades'
-                                                 v-bind:allow-empty="false"
-                                                 label='nombre'
-                                                 placeholder="Seleccione una modalidad"
-                                                 select-label="Seleccione esta modalidad"
-                                                 track-by='id'
-                                                 v-on:input="carrerasByCarrera(modalidad.codigo)">
-                                    </multiselect>
-                                    <input class="hide" required=""/>
+                                    <div class="form-group">
+                                        <label>Modalidades</label>
+                                        <multiselect v-model='modalidad'
+                                                     v-bind:options='modalidades'
+                                                     v-bind:allow-empty="false"
+                                                     label='nombre'
+                                                     placeholder="Seleccione una modalidad"
+                                                     select-label="Seleccione esta modalidad"
+                                                     track-by='id'
+                                                     v-on:input="carrerasByCarrera(modalidad.codigo)">
+                                        </multiselect>
+                                        <input class="hide" required=""/>
+                                    </div>
+                                    
                                 </div>
                             </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Carreras</label>
-                                    <multiselect v-model='carrera'
-                                                 v-bind:options='carreras'
-                                                 v-bind:allow-empty="false"
-                                                 label='nombre'
-                                                 placeholder="Seleccione una carrera"
-                                                 select-label="Seleccione esta carrera"
-                                                 track-by='id'>
-                                    </multiselect>
-                                    <input class="hide" required=""/>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Carreras</label>
+                                        <multiselect v-model='carrera'
+                                                     v-bind:options='carreras'
+                                                     v-bind:allow-empty="false"
+                                                     label='nombre'
+                                                     placeholder="Seleccione una carrera"
+                                                     select-label="Seleccione esta carrera"
+                                                     track-by='id'>
+                                        </multiselect>
+                                        <input class="hide" required=""/>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-info btn-sm"
+                                                v-on:click.prevent="descagarFoto"
+                                                v-bind:disabled='procesando' >
+                                            <span v-if="procesando"><i class="fa fa-spinner fa-spin"></i></span>
+                                            Descargar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-md-10 col-md-offset-0">
 
-                                <div class="btn-group pull-right">
-                                    <button class="btn btn-info pull-right btn-sm"
-                                            v-on:click.prevent="descagarFoto"
-                                            v-bind:disabled='bloq'
-                                            href="#" >Descargar</button>
-
-                                </div>
                                 <div class="col-xs-12 m-t-xl">
+
                                     <div>
                                         <p class="pull-right"> <span v-text='info.perAvance'></span>%</p>
                                         <p>Fotos ( <span v-text='info.avance'></span> / <span v-text='info.cantidadTotal'></span>  )</p>
                                     </div>
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar" role="progressbar" v-value="info.perAvance" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
+
+                                    <vue-simple-progress size="medium"  v-bind:val="info.perAvance" v-bind:text="info.perAvance"></vue-simple-progress>
+
                                 </div>
 
                             </div>
+                            
                         </section>
                     </section>
                 </section>
@@ -78,8 +93,7 @@
             <script th:inline="javascript">
                 var modalidadesJson = /*[[${modalidades}]]*/ '';
             </script>
-
-            <div th:substituteby="_layout/includes :: vuejs"/>
+            <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
             <script th:src="@{/app/fotosCarne/fotosCarne.js}" charset="utf-8"></script>
         </div>
     </body>

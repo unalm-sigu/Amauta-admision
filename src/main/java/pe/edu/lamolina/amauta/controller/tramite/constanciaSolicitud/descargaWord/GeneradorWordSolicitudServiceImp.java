@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.xmlbeans.XmlException;
-import org.joda.time.DateTime;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBody;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTColumns;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
@@ -82,15 +80,11 @@ import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_PLANTILLA_DOCUMENTO
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
-import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
-import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.enums.VariableGenericaEnum;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.INCRUSTACION;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.SerieDocumento;
-import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
@@ -484,9 +478,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             }
                             break;
                         case NIVEL_ACADEMICO:
-
-                            text = text.replace(enums.getValue(), alumnoCiclos.get(idx).getNivel() + "");
-
+                            text = text.replace(enums.getValue(), getNivelUltimoCicloRegular(alumnoCiclos.get(idx)) + "");
                             break;
                         case CICLO_MATRICULA:
                             if (alumnoCiclos.get(idx).getCicloAcademico().getCodigo().equals(cicloAcademicoAct.getCodigo())) {
@@ -802,7 +794,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case TABLA_CICLO_CURSADO:
                             if (isEspanol) {
-                                
+
                                 text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
                             } else {
                                 logger.debug(" **** {}", alumnoCiclo.getCicloAcademico().getCodigo());
@@ -857,6 +849,24 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             return 0;
         }
         return alumnoCicloCursoDAO.cantidadCursoConvalidado(alumnoCiclo).size();
+    }
+
+    private String getNivelUltimoCicloRegular(AlumnoCiclo alumnoCiclo) {
+        if (alumnoCiclo == null) {
+            return "";
+        }
+        int creditos = alumnoCiclo.getCreditosAprobadosConvalidadosAcumulados();
+        if (creditos <= 40) {
+            return "1";
+        } else if (creditos <= 80) {
+            return "2";
+        } else if (creditos <= 120) {
+            return "3";
+        } else if (creditos <= 160) {
+            return "4";
+        } else {
+            return "5";
+        }
     }
 
 }

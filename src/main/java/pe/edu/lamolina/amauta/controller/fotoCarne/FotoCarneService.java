@@ -7,6 +7,4 @@ public interface FotoCarneService {
 
     public void descargarFotos(DataSessionPivot ds, String carrera, HttpServletResponse response);
 
-    public FotosCarneComponent info(DataSessionPivot ds);
-
 }

@@ -102,8 +102,6 @@ public interface ConstanciaSolicitudService {
 
     public void validarBoletaTramite(TramiteDocumentoAcademico idTramiteDocumentoAcademico);
 
-    public void aceptarTramite(Long idTramiteDocumentoAcademico);
-
     public void entregarTramite(TramiteDocumentoAcademico tramiteDocumentoAcademico) ;
 
     public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico);

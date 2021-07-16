@@ -656,24 +656,6 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "aceptartramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
-    public JsonResponse aceptarTramite(@PathVariable Long idTramiteDocumentoAcademico) {
-        JsonResponse response = new JsonResponse();
-        try {
-
-            service.aceptarTramite(idTramiteDocumentoAcademico);
-            response.setMessage("Trámite aceptado satisfactoriamente");
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("entregartramite")
     public JsonResponse entregarTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico) {
         JsonResponse response = new JsonResponse();
