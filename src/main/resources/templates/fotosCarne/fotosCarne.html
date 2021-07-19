@@ -15,6 +15,8 @@
                 </header>
 
                 <section class="wrapper-lg">
+                    
+                    
 
                     <div v-bind:is="rootComponent"></div>
 
@@ -24,9 +26,13 @@
         </div>
 
         <div layout:fragment="js">
+            
             <script th:inline="javascript">
+                
                 var MODALIDADES_JSON = /*[[${modalidades}]]*/ '';
+                
             </script>
+            
             <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
             <script>
