@@ -14,87 +14,59 @@
 
                 </header>
 
-                <section class="wrapper-lg m-b-xs">
-                    <section class="panel">
+                <section class="wrapper-lg">
 
-                        <section class="panel-body m-t-sm">
-                            <div class="row">
-                                <div class="col-md-4">
+                    <div v-bind:is="rootComponent"></div>
 
-                                    <div class="form-group">
-                                        <label>Modalidades</label>
-                                        <multiselect v-model='modalidad'
-                                                     v-bind:options='modalidades'
-                                                     v-bind:allow-empty="false"
-                                                     label='nombre'
-                                                     placeholder="Seleccione una modalidad"
-                                                     select-label="Seleccione esta modalidad"
-                                                     track-by='id'
-                                                     v-on:input="carrerasByCarrera(modalidad.codigo)">
-                                        </multiselect>
-                                        <input class="hide" required=""/>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Carreras</label>
-                                        <multiselect v-model='carrera'
-                                                     v-bind:options='carreras'
-                                                     v-bind:allow-empty="false"
-                                                     label='nombre'
-                                                     placeholder="Seleccione una carrera"
-                                                     select-label="Seleccione esta carrera"
-                                                     track-by='id'>
-                                        </multiselect>
-                                        <input class="hide" required=""/>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <button class="btn btn-info btn-sm"
-                                                v-on:click.prevent="descagarFoto"
-                                                v-bind:disabled='procesando' >
-                                            <span v-if="procesando"><i class="fa fa-spinner fa-spin"></i></span>
-                                            Descargar
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-10 col-md-offset-0">
-
-                                <div class="col-xs-12 m-t-xl">
-
-                                    <div>
-                                        <p class="pull-right"> <span v-text='info.perAvance'></span>%</p>
-                                        <p>Fotos ( <span v-text='info.avance'></span> / <span v-text='info.cantidadTotal'></span>  )</p>
-                                    </div>
-
-                                    <vue-simple-progress size="medium"  v-bind:val="info.perAvance" v-bind:text="info.perAvance"></vue-simple-progress>
-
-                                </div>
-
-                            </div>
-                            
-                        </section>
-                    </section>
                 </section>
+                
             </div>
         </div>
 
         <div layout:fragment="js">
             <script th:inline="javascript">
-                var modalidadesJson = /*[[${modalidades}]]*/ '';
+                var MODALIDADES_JSON = /*[[${modalidades}]]*/ '';
             </script>
+            <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
-            <script th:src="@{/app/fotosCarne/fotosCarne.js}" charset="utf-8"></script>
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('vue-simple-progress', VueSimpleProgress.default)
+
+                const FotosCarne = httpVueLoader('/app/fotoscarne/fotoCarne.vue');
+
+                Vue.use(Vuex);
+
+                const store = new Vuex.Store({
+                    state: {
+                        count: 0
+                    },
+                    mutations: {
+                        increment(state) {
+                            state.count++
+                        }
+                    }
+                })
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        fotosCarne: FotosCarne,
+                    },
+                    data: {
+                        rootComponent: 'fotosCarne',
+                    },
+                    methods: {
+                        setView(view) {
+                            this.rootComponent = view;
+                        }
+                    }
+                });
+
+            </script>
         </div>
+
     </body>
 </html>

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Component
-public class FotosCarneComponent {
+public class FotosCarneUploadComponent {
 
     private Integer total;
 
@@ -21,7 +21,7 @@ public class FotosCarneComponent {
 
     BigDecimal perAvance;
 
-    public FotosCarneComponent() {
+    public FotosCarneUploadComponent() {
         this.total = 0;
         this.avance = 0;
         this.iniciado = false;
@@ -74,7 +74,7 @@ public class FotosCarneComponent {
             return ZERO;
         }
 
-        return ((new BigDecimal(this.avance)).multiply(new BigDecimal("100")))
+        return ((new BigDecimal(this.avance)).multiply(new BigDecimal("90")))
                 .divide(new BigDecimal(this.total), 2, RoundingMode.HALF_UP);
 
     }
