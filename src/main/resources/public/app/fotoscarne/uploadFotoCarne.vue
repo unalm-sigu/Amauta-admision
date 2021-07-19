@@ -37,19 +37,18 @@
                     </div>
                 </div>
 
-                <div class="col-md-10 col-md-offset-0">
 
-                    <div class="col-xs-12 m-t-xl">
+                                <div class="row">
+                    <div class="col-xs-12">
 
-                        <div>
+                        <div class="h4">
                             <p class="pull-right"> <span v-text='info.perAvance'></span>%</p>
-                            <p>Fotos ( <span v-text='info.avance'></span> / <span v-text='info.cantidadTotal'></span>  )</p>
+                            <p>Fotos ( <span v-text='info.avance'></span> / <span v-text='info.total'></span>  )</p>
                         </div>
 
-                        <vue-simple-progress size="medium"  v-bind:val="info.perAvance" v-bind:text="info.perAvance"></vue-simple-progress>
+                        <vue-simple-progress size="large"  v-bind:val="info.perAvance" v-bind:text="info.perAvance"></vue-simple-progress>
 
                     </div>
-
                 </div>
 
             </section>
@@ -69,7 +68,11 @@
                 processUpload: false,
                 loaderUpload: false,
                 procesandoUpload: false,
+                rutaFoto:''
             };
+        },
+        mounted() {
+            this.obtenerInfo();
         },
         methods: {
             triggerFileUpload() {
@@ -87,6 +90,7 @@
                 AXIOS.post('/comun/archivo/upload', formData)
                         .then(response => {
                             console.log(response);
+                            $vue.rutaFoto = response.data.data.ruta;
                             $vue.fileSuccesUpload = true;
                             $vue.processUpload = false;
                             $vue.procesandoUpload = false;
@@ -98,6 +102,30 @@
             },
             procesarFoto() {
                 let $vue = this;
+                if(!$vue.rutaFoto){
+                  return;  
+                }
+                let formData = new FormData();
+                formData.append('rutaFotos', $vue.rutaFoto);
+                AXIOS.post('/fotos/carne/procesarFotos',formData)
+                        .then(response => {
+                            console.log(response);
+                        }, () => {
+ 
+                        });
+
+            },
+            obtenerInfo() {
+                let $vue = this;
+                axios.get(APP.url('fotos/carne/infoUp'))
+                        .then(response => {
+                            $vue.info = response.data;
+                            $vue.procesandoUpload = $vue.info.isIniciado;
+                            $vue.loaderUpload = $vue.info.isIniciado;
+                            setTimeout($vue.obtenerInfo, 3000);
+                        }, () => {
+                            notify(response.message, "error");
+                        });
             }
         },
     };

@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -40,13 +41,16 @@ public class FotoCarneController {
     FotoCarneDownloadService service;
 
     @Autowired
+    FotoCarneUploadService fotoCarneUploadService;
+
+    @Autowired
     BuscarService buscarService;
 
     @Autowired
-    FotosCarneDownComponent fotosCarneDownComponent;
+    FotosCarneDown fotosCarneDownComponent;
 
     @Autowired
-    FotosCarneUploadComponent fotosCarneUploadComponent;
+    FotosCarneUpload fotosCarneUploadComponent;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -135,13 +139,35 @@ public class FotoCarneController {
     @ResponseBody
     @RequestMapping(value = "infoDown", method = RequestMethod.GET)
     public ObjectNode infoDown(HttpSession session) {
-        return JaneHelper.from(fotosCarneDownComponent).join("errors").json();
+        return JaneHelper.from(fotosCarneDownComponent).join("errores").json();
     }
 
     @ResponseBody
     @RequestMapping(value = "infoUp", method = RequestMethod.GET)
     public ObjectNode infoUp(HttpSession session) {
-        return JaneHelper.from(fotosCarneUploadComponent).json();
+        return JaneHelper.from(fotosCarneUploadComponent).join("errores").json();
+    }
+
+    @ResponseBody
+    @RequestMapping("procesarFotos")
+    public JsonResponse procesarFotos(@RequestParam("rutaFotos") String rutaFotos, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            fotoCarneUploadService.procesarFotos(ds, rutaFotos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
     }
 
 }

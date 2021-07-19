@@ -19,7 +19,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.fotoCarne.FotosCarneDownComponent.ErrorMessage;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -30,7 +29,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
     @Autowired
-    FotosCarneDownComponent fotosCarneComponent;
+    FotosCarneDown fotosCarneComponent;
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
@@ -43,7 +42,7 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
         logger.debug("inicia descarga foto {}", carrera);
         if (fotosCarneComponent == null) {
             logger.debug("componente no creado");
-            fotosCarneComponent = new FotosCarneDownComponent();
+            fotosCarneComponent = new FotosCarneDown();
         }
 
         if (fotosCarneComponent.isIniciado()) {
@@ -98,8 +97,8 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
             File file = new File(folder + name);
             if (StringUtils.isBlank(matriculaResumen.getAlumno().getPersona().getFoto())) {
 
-                fotosCarneComponent.getErrors()
-                        .add(fotosCarneComponent.new ErrorMessage("Error descargando foto : " + name));
+                fotosCarneComponent.getErrores()
+                        .add(new MsjError("Error descargando foto : " + name));
                 continue;
             }
 
@@ -113,14 +112,14 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
             } catch (MalformedURLException ex) {
                 ex.printStackTrace();
 
-                fotosCarneComponent.getErrors()
-                        .add(fotosCarneComponent.new ErrorMessage("Error descargando foto : " + name));
+                fotosCarneComponent.getErrores()
+                        .add(new MsjError("Error descargando foto : " + name));
 
             } catch (IOException ex) {
                 ex.printStackTrace();
 
-                fotosCarneComponent.getErrors()
-                        .add(fotosCarneComponent.new ErrorMessage("Error descargando foto : " + name));
+                fotosCarneComponent.getErrores()
+                        .add(new MsjError("Error descargando foto : " + name));
 
             }
 
@@ -181,9 +180,8 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
         } catch (Exception ex) {
 
             logger.error("Error Descarga de Archivo: {}, fileName: {}", ex, rutaArchivos);
-
-            fotosCarneComponent.getErrors()
-                    .add(fotosCarneComponent.new ErrorMessage("Error comprimiendo archivo: " + rutaArchivos));
+            fotosCarneComponent.getErrores()
+                    .add(new MsjError("Error comprimiendo archivo: " + rutaArchivos));
 
         }
 

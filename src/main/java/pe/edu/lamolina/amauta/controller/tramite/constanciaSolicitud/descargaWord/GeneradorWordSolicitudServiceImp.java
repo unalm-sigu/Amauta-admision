@@ -507,6 +507,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case CANTIDAD_CREDITOS_CONVALIDADOS:
                             text = text.replace(enums.getValue(), alumno.getCreditosConvalidados().toString());
                             break;
+                        case CANTIDAD_TOTAL_CREDITOS:
+                            text = text.replace(enums.getValue(), "" + (alumno.getCreditosCursados() +
+                                    (alumno.getCreditosConvalidados()!=null?alumno.getCreditosConvalidados():0)));
+                            break;
                         case CANTIDAD_CURSOS_CONVALIDADOS:
                             text = text.replace(enums.getValue(), cantidadCursosConvalidados(alumnoCiclos.get(0)).toString());
                             break;
