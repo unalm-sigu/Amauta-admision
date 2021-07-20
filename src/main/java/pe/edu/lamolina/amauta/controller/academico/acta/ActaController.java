@@ -103,16 +103,29 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            logger.debug("Departamentos count {}", ds.getOficinaMain().getCodigo());
+            logger.debug("Codigo oficina principal {}", ds.getOficinaMain().getCodigo());
+            
             List<DepartamentoAcademico> departamentoAcademicos = ds.getDepartamentos();
+            ObjectUtil.printAttr(ds);
+            ObjectUtil.printAttr(ds.getDepartamentos());
+            
             if (ds.getOficinaMain().getCodigoEnum() == OficinaEnum.EPG) {
+                logger.debug("Pertenece a EPG por ende all deparatamentos");
                 departamentoAcademicos = service.allDepartamentosAcademicos();
             }
 
             List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, departamentoAcademicos, ciclo);
+            
+            for (DepartamentoAcademico departamentosAcaActivo : departamentosAcaActivos) {
+                logger.debug("Pertenece al departamento {}", departamentosAcaActivo.getCodigo());
+            }
+
+            logger.debug("departamentosAcaActivos {}", departamentosAcaActivos.size());
+
             List<Long> departamentos = new ArrayList<>();
             for (DepartamentoAcademico departamento : departamentosAcaActivos) {
                 departamentos.add(departamento.getId());
@@ -172,7 +185,7 @@ public class ActaController {
 
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
         Boolean esAuditorAcataNotas = verificadorService.isRevisorActaNotas(ds);
-        
+
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
