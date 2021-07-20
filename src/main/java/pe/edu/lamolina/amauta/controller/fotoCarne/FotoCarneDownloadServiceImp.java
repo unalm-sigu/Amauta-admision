@@ -67,16 +67,13 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
         File directoryWorkSpace = new File(folder);
 
-        if (!directoryWorkSpace.exists()) {
-
-            directoryWorkSpace.mkdir();
-
-        } else {
-
-            directoryWorkSpace.delete();
-            directoryWorkSpace.mkdir();
-
+        try {
+            FileUtils.deleteDirectory(directoryWorkSpace);
+        } catch (IOException ex) {
+            logger.debug("no existe workspace");
         }
+
+        directoryWorkSpace.mkdir();
 
         String hash = TypesUtil.toMD5(System.currentTimeMillis() + "");
 
