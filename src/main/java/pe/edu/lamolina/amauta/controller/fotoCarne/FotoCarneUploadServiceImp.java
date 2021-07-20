@@ -1,13 +1,18 @@
 package pe.edu.lamolina.amauta.controller.fotoCarne;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -16,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.util.StreamUtils.BUFFER_SIZE;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
@@ -69,20 +73,13 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
 
         File directoryWorkSpace = new File(destino);
 
-        if (!directoryWorkSpace.exists()) {
-
-            logger.debug("mkdir WorkSpace ");
-
-            directoryWorkSpace.mkdir();
-
-        } else {
-
-            logger.debug("clean WorkSpace ");
-
-            directoryWorkSpace.delete();
-            directoryWorkSpace.mkdir();
-
+        try {
+            FileUtils.deleteDirectory(directoryWorkSpace);
+        } catch (IOException ex) {
+            logger.debug("no existe workspace");
         }
+
+        directoryWorkSpace.mkdir();
 
         File fotosZip = new File(rutaFotos);
 
@@ -95,7 +92,7 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
 
         try {
             logger.debug("unzip folder ");
-            this.unzip(rutaFotos, destino);
+            new ZipFile(rutaFotos).extractAll(destino);
             logger.debug("end unzip folder ");
         } catch (IOException ex) {
             fotosCarneUploadComponent.getErrores().add(new MsjError("Error al descomprimir archivo de fotos"));
@@ -103,28 +100,32 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
 
         logger.debug("Iniciado FilenameFilter");
 
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File f, String name) {
-                return name.endsWith(".jpg") || name.endsWith(".JPG") || name.endsWith(".jpeg") || name.endsWith(".JPEG");
-            }
-        };
-
         logger.debug("find files");
 
-        File[] files = directoryWorkSpace.listFiles(filter);
-        if (!(files.length > 0)) {
+        List<File> allfiles = allFile(directoryWorkSpace.getPath());
+
+        List<File> files = allfiles.stream()
+                .filter(x -> !x.getPath().contains("__MACOSX"))
+                .filter(x -> (x.getName().endsWith(".jpg") || x.getName().endsWith(".JPG") || x.getName().endsWith(".jpeg") || x.getName().endsWith(".JPEG")))
+                .collect(Collectors.toList());
+
+        logger.debug("files {}", files.size());
+
+        if (files.size() <= 0) {
             fotosCarneUploadComponent.getErrores().add(new MsjError("No se han encontrado archivos"));
+            fotosCarneUploadComponent.finalizarProceso();
             return;
         }
 
         logger.debug("init");
 
-        fotosCarneUploadComponent.setTotal(files.length);
+        fotosCarneUploadComponent.setTotal(files.size());
 
-        logger.debug("fiels {}", files.length);
+        logger.debug("files {}", files.size());
 
         for (File file : files) {
+
+            logger.debug("file {}", file.getPath());
 
             String codigoAlumno = FilenameUtils.removeExtension(file.getName());
             logger.debug("codigo {}", codigoAlumno);
@@ -151,7 +152,15 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
                 continue;
             }
 
-            this.uploadS3(namaFileUpload);
+            try {
+
+                this.uploadS3(namaFileUpload);
+                logger.debug(" {} {} ", namaFileUpload, copied.exists());
+
+            } catch (Exception ex) {
+                fotosCarneUploadComponent.getErrores().add(new MsjError("Error al subir el archivo : " + codigoAlumno));
+                continue;
+            }
 
             String urlfoto = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, namaFileUpload);
 
@@ -171,42 +180,43 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
 
     }
 
-    public void unzip(String zipFilePath, String destDirectory) throws IOException {
-        File destDir = new File(destDirectory);
-        if (!destDir.exists()) {
-            destDir.mkdir();
-        }
-        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
-        ZipEntry entry = zipIn.getNextEntry();
-        while (entry != null) {
-            String filePath = destDirectory + File.separator + entry.getName();
-            if (!entry.isDirectory()) {
-                extractFile(zipIn, filePath);
-            } else {
-                File dir = new File(filePath);
-                dir.mkdirs();
-            }
-            zipIn.closeEntry();
-            entry = zipIn.getNextEntry();
-        }
-        zipIn.close();
-    }
-
-    private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-        byte[] bytesIn = new byte[BUFFER_SIZE];
-        int read = 0;
-        while ((read = zipIn.read(bytesIn)) != -1) {
-            bos.write(bytesIn, 0, read);
-        }
-        bos.close();
-    }
-
     private void uploadS3(String fileName) {
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
             uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, fileName, true);
         }
+    }
+
+    private void allFiles(String rutaDir) throws IOException {
+
+        Path start = Paths.get(rutaDir);
+
+        try ( Stream<Path> stream = Files.walk(start, 1)) {
+
+            List<String> collect = stream
+                    .map(String::valueOf)
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            collect.forEach(System.out::println);
+
+        }
+
+    }
+
+    public List<File> allFile(String directoryName) {
+        File directory = new File(directoryName);
+        List<File> resultList = new ArrayList<File>();
+        File[] fList = directory.listFiles();
+        resultList.addAll(Arrays.asList(fList));
+        for (File file : fList) {
+            if (file.isFile()) {
+                logger.debug("{}", file.getAbsolutePath());
+            } else if (file.isDirectory()) {
+                resultList.addAll(allFile(file.getAbsolutePath()));
+            }
+        }
+        return resultList;
     }
 
 }

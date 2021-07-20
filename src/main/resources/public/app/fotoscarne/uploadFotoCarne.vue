@@ -38,7 +38,7 @@
                 </div>
 
 
-                                <div class="row">
+                <div class="row">
                     <div class="col-xs-12">
 
                         <div class="h4">
@@ -48,6 +48,25 @@
 
                         <vue-simple-progress size="large"  v-bind:val="info.perAvance" v-bind:text="info.perAvance"></vue-simple-progress>
 
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:30px;">
+                    <div class="col-xs-12">
+                        <table class="table table-streped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(error, i) in info.errors" v-bind:key="i">
+                                    <td>{{i+1}}</td>
+                                    <td>{{error.mensaje}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -68,7 +87,7 @@
                 processUpload: false,
                 loaderUpload: false,
                 procesandoUpload: false,
-                rutaFoto:''
+                rutaFoto: ''
             };
         },
         mounted() {
@@ -102,16 +121,16 @@
             },
             procesarFoto() {
                 let $vue = this;
-                if(!$vue.rutaFoto){
-                  return;  
+                if (!$vue.rutaFoto) {
+                    return;
                 }
                 let formData = new FormData();
                 formData.append('rutaFotos', $vue.rutaFoto);
-                AXIOS.post('/fotos/carne/procesarFotos',formData)
+                AXIOS.post('/fotos/carne/procesarFotos', formData)
                         .then(response => {
                             console.log(response);
                         }, () => {
- 
+
                         });
 
             },
