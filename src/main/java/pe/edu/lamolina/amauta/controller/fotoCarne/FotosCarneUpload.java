@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.fotoCarne;
 import java.math.BigDecimal;
 import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class FotosCarneUpload {
         this.avance = 0;
         this.iniciado = false;
         this.perAvance = ZERO;
+        this.errores = new ArrayList();
     }
 
     public BigDecimal getPerAvance() {
@@ -41,14 +43,15 @@ public class FotosCarneUpload {
 
     }
 
-    public void iniciarProceso(Integer total) {
+    public void iniciarProceso() {
         if (this.iniciado) {
             return;
         }
         this.iniciado = true;
         this.avance = 0;
         this.perAvance = ZERO;
-        this.total = total;
+        this.total = 0;
+        this.errores = new ArrayList();
     }
 
     public void finalizarProceso() {

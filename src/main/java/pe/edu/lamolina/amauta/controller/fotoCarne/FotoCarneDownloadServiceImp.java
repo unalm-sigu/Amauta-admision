@@ -52,7 +52,7 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
         logger.debug("componente no iniciado");
 
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allMatriculadosByCicloAndCarrera(ds.getCicloAcademico(), carrera);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allMatriculadosByCicloAndCarreraForFoto(ds.getCicloAcademico(), carrera);
 
         logger.debug("total de matriculas resumen {}", matriculaResumens.size());
 

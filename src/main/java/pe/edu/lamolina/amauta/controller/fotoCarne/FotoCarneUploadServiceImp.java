@@ -90,12 +90,18 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
             throw new PhobosException("No existe el archivo en el servidor");
         }
 
+        logger.debug("componente no iniciado");
+        fotosCarneUploadComponent.iniciarProceso();
+
         try {
             logger.debug("unzip folder ");
             this.unzip(rutaFotos, destino);
+            logger.debug("end unzip folder ");
         } catch (IOException ex) {
             fotosCarneUploadComponent.getErrores().add(new MsjError("Error al descomprimir archivo de fotos"));
         }
+
+        logger.debug("Iniciado FilenameFilter");
 
         FilenameFilter filter = new FilenameFilter() {
             @Override
@@ -104,14 +110,19 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
             }
         };
 
+        logger.debug("find files");
+
         File[] files = directoryWorkSpace.listFiles(filter);
         if (!(files.length > 0)) {
             fotosCarneUploadComponent.getErrores().add(new MsjError("No se han encontrado archivos"));
             return;
         }
 
-        logger.debug("componente no iniciado");
-        fotosCarneUploadComponent.iniciarProceso(files.length);
+        logger.debug("init");
+
+        fotosCarneUploadComponent.setTotal(files.length);
+
+        logger.debug("fiels {}", files.length);
 
         for (File file : files) {
 
@@ -125,7 +136,7 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
                 fotosCarneUploadComponent.getErrores().add(new MsjError("Alumno no encontrado: " + codigoAlumno));
                 continue;
             }
-            
+
             String namaFileUpload = TypesUtil.toMD5(codigoAlumno) + System.currentTimeMillis() + ".jpg";
 
             File copied = new File(GlobalConstantine.TMP_DIR + namaFileUpload);
@@ -153,6 +164,8 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
             fotosCarneUploadComponent.setAvance(fotosCarneUploadComponent.getAvance() + 1);
 
         }
+
+        logger.debug("end process");
 
         fotosCarneUploadComponent.finalizarProceso();
 

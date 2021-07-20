@@ -112,4 +112,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public Long countRetiroCicloByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera);
 
+    public List<MatriculaResumen> allMatriculadosByCicloAndCarreraForFoto(CicloAcademico cicloAcademico, String carrera);
+
 }
