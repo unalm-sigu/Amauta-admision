@@ -10,8 +10,8 @@
 
 <script>
 
-    const DownloadFotoCarne = httpVueLoader('/app/fotosCarne/downloadFotoCarne.vue');
-    const UploadFotoCarne = httpVueLoader('/app/fotosCarne/uploadFotoCarne.vue');
+    const DownloadFotoCarne = httpVueLoader('/app/fotoscarne/downloadFotoCarne.vue');
+    const UploadFotoCarne = httpVueLoader('/app/fotoscarne/uploadFotoCarne.vue');
 
     module.exports = {
         components: {
