@@ -65,7 +65,7 @@ public class FotoCarneController {
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("modalidades", modalidadesJson.toString());
 
-        return "fotoscarne/fotosCarne";
+        return "fotoscarne/fotoscarne";
     }
 
     @ResponseBody

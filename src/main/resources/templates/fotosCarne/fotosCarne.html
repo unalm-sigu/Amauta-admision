@@ -15,8 +15,6 @@
                 </header>
 
                 <section class="wrapper-lg">
-                    
-                    
 
                     <div v-bind:is="rootComponent"></div>
 
@@ -38,7 +36,7 @@
             <script>
 
                 Vue.component("multiselect", window.VueMultiselect.default);
-                Vue.component('vue-simple-progress', VueSimpleProgress.default)
+                Vue.component('vue-simple-progress', VueSimpleProgress.default);
 
                 const FotosCarne = httpVueLoader('/app/fotoscarne/fotoCarne.vue');
 
@@ -53,7 +51,7 @@
                             state.count++
                         }
                     }
-                })
+                });
 
                 var root = new Vue({
                     store: store,
