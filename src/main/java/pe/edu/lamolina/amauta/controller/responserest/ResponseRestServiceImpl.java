@@ -35,6 +35,8 @@ import pe.edu.lamolina.amauta.dao.aporte.AporteDAO;
 import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Service
 public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> implements ResponseRestService {
@@ -225,13 +227,23 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Transactional
     public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
-        Aporte aporte = aporteDAO.findByCode(AportesEnum.A54);
+
+        Aporte aporte = this.getAporteCarnet(matriculaResumen);
         ObjectNode json = createFormJson(ds, token);
         json.put("idMatricula", matriculaResumen.getId());
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/agregarAporte", parametro.getValor());
         return this.postToBackEnd(url, json);
+    }
+
+    private Aporte getAporteCarnet(MatriculaResumen matriculaResumen) {
+        ModalidadEstudio me = matriculaResumen.getCicloAcademico().getModalidadEstudio();
+
+        if (me.getCodigoEnum() == ModalidadEstudioEnum.PRE) {
+            return aporteDAO.findByCode(AportesEnum.A54);
+        }
+        return aporteDAO.findByCode(AportesEnum.A05);
     }
 
     @Override
@@ -251,7 +263,8 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Transactional
     public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
-        Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
+//        Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
+        Aporte aporte = this.getAporteCarnet(matriculaResumen);
         ObjectNode json = createFormJson(ds, token);
         json.put("idMatricula", matriculaResumen.getId());
         json.put("idAporte", aporte.getId());
