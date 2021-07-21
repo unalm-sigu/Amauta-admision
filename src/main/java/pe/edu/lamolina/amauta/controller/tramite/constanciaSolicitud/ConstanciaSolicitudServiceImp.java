@@ -1035,10 +1035,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             throw new PhobosException("No se ha encontrado el trámite");
         }
 
-        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() == TramiteEstadoEnum.CRE) {
-            throw new PhobosException("Solo puede entregar trámites aceptados");
-        }
-
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.COMP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setFechaEntrega(new Date());
@@ -1055,10 +1051,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
-        }
-
-        if (tramiteDocumentoAcademico.getEstadoTramite().getCodigoEnum() != TramiteEstadoEnum.CRE) {
-            throw new PhobosException("Solo puede anular trámites creados");
         }
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
