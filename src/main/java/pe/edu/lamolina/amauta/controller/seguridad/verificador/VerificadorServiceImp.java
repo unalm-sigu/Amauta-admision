@@ -1055,4 +1055,15 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
+    @Override
+    public boolean isRolCape(DataSessionPivot ds) {
+
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.CAPE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
