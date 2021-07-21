@@ -103,23 +103,21 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             logger.debug("Codigo oficina principal {}", ds.getOficinaMain().getCodigo());
-            
+
             List<DepartamentoAcademico> departamentoAcademicos = ds.getDepartamentos();
-            ObjectUtil.printAttr(ds);
-            ObjectUtil.printAttr(ds.getDepartamentos());
-            
+
             if (ds.getOficinaMain().getCodigoEnum() == OficinaEnum.EPG) {
                 logger.debug("Pertenece a EPG por ende all deparatamentos");
                 departamentoAcademicos = service.allDepartamentosAcademicos();
             }
 
             List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, departamentoAcademicos, ciclo);
-            
+
             for (DepartamentoAcademico departamentosAcaActivo : departamentosAcaActivos) {
                 logger.debug("Pertenece al departamento {}", departamentosAcaActivo.getCodigo());
             }
@@ -184,13 +182,14 @@ public class ActaController {
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
-        Boolean esAuditorAcataNotas = verificadorService.isRevisorActaNotas(ds);
+        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
 
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
         model.addAttribute("gruposSecciones", allGruposSeccion);
         model.addAttribute("esOperadorEditor", esOperadorEditor);
+        model.addAttribute("isRevisorActaNotas", isRevisorActaNotas);
         return "academico/acta/actaDepartamento";
 
     }
