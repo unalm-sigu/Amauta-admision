@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -182,7 +183,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         List<Oficina> oficinasUnalm = allEstructuraOficinas();
         List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
+        for (Oficina oficina : oficinasMain) {
+            logger.debug("************ oficinas {}", oficina.getNombre());
+        }
         Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
+        logger.debug("*********** ofiMain {}", ofiMain.getNombre());
 
         DataSessionPivot ds = new DataSessionPivot();
         ds.setEmail(email);
@@ -199,6 +204,8 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setOficinaMain(ofiMain);
         settingOficinaMain(ofiMain, ds);
 
+        logger.debug("*** 5 dpto cantidad {}", ds.getDepartamentos().size());
+
         ds.setBrowser(servlet.getHeader("User-Agent"));
         ds.setDireccionIp(servlet.getRemoteAddr());
         ds.setSistemaOperativo(getClientOS(servlet));
@@ -208,7 +215,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
-
+        logger.debug("*** 6 dpto cantidad {}", ds.getDepartamentos().size());
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
@@ -320,18 +327,19 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> dptos = departamentoAcademicoDAO.all();
         List<Carrera> carreras = carreraDAO.all();
-
-        TipoOficina tipoOfi = oficinaMain.getTipoOficina();
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.DPTO) {
-            DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficinaMain.getInstanciaOficina());
+        if (contieneTipoOficina(ds.getOficinas(), TipoOficinaEnum.DPTO)) {
+            Oficina oficinaDepartamento = getOficinaByTipo(ds.getOficinas(), TipoOficinaEnum.DPTO);
+            DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficinaDepartamento.getInstanciaOficina());
             ds.getDepartamentos().add(dpto);
         }
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.ESP) {
-            Carrera carr = carreraDAO.find(oficinaMain.getInstanciaOficina());
+        if (contieneTipoOficina(ds.getOficinas(), TipoOficinaEnum.ESP)) {
+            Oficina oficinaCarrera = getOficinaByTipo(ds.getOficinas(), TipoOficinaEnum.ESP);
+            Carrera carr = carreraDAO.find(oficinaCarrera.getInstanciaOficina());
             ds.getCarreras().add(carr);
         }
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.FAC) {
-            Facultad fac = facultadDAO.find(oficinaMain.getInstanciaOficina());
+        if (contieneTipoOficina(ds.getOficinas(), TipoOficinaEnum.FAC)) {
+            Oficina oficinaFacultad= getOficinaByTipo(ds.getOficinas(), TipoOficinaEnum.FAC);
+            Facultad fac = facultadDAO.find(oficinaFacultad.getInstanciaOficina());
             ds.getFacultades().add(fac);
             for (Carrera carrera : carreras) {
                 if (carrera.getFacultad().getId() == fac.getId().longValue()) {
@@ -517,6 +525,30 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Override
     public List<CicloAcademico> findCiclosVisibles() {
         return cicloAcademicoDAO.allVisibles(ModalidadEstudioEnum.PRE);
+    }
+
+    private boolean contieneTipoOficina(List<Oficina> oficinas, TipoOficinaEnum tipoOficinaEnum) {
+        if (oficinas == null) {
+            return false;
+        }
+        for (Oficina oficina : oficinas) {
+            if (tipoOficinaEnum == oficina.getTipoOficina().getCodigoEnum()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Oficina getOficinaByTipo(List<Oficina> oficinas, TipoOficinaEnum tipoOficinaEnum) {
+        if (oficinas == null) {
+            return null;
+        }
+        for (Oficina oficina : oficinas) {
+            if (tipoOficinaEnum == oficina.getTipoOficina().getCodigoEnum()) {
+                return oficina;
+            }
+        }
+        return null;
     }
 
 }
