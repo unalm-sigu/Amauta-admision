@@ -1,6 +1,7 @@
-package pe.edu.lamolina.amauta.controller.fotoCarne;
+package pe.edu.lamolina.amauta.controller.fotocarne;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import static com.helger.commons.io.stream.StreamHelper.close;
 import java.io.BufferedInputStream;
@@ -30,8 +31,11 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.comun.BuscarService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 
 @Controller
 @RequestMapping("fotos/carne")
@@ -168,6 +172,37 @@ public class FotoCarneController {
 
         return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarreraByModalidad/{modalidad}")
+    public JsonResponse allCarreraByModalidad(@PathVariable("modalidad") String modalidad, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<Carrera> carreras = buscarService.allCarrerasActivaByModalidad(modalidad);
+
+            for (Carrera carrera : carreras) {
+                if (carrera.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                    carrera.setNombre((carrera.getTipoEnum().equals(TipoCarreraEnum.MAE) ? "Maestria en " : "Doctorado en ") + carrera.getNombre());
+                }
+            }
+
+            ArrayNode node = JaneHelper.from(carreras).only("id,codigo,nombre").array();
+
+            response.setData(node);
+            response.setTotal(node.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
     }
 
 }

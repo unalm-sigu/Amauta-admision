@@ -161,7 +161,7 @@
             carrerasByCarrera(filtroModalidad) {
                 let $vue = this;
                 $vue.carrera = null;
-                axios.get('/comun/buscar/allCarreraByModalidad/' + filtroModalidad)
+                axios.get('/fotos/carne/allCarreraByModalidad/' + filtroModalidad)
                         .then(response => {
                             if (response.data.success) {
                                 $vue.carreras = response.data.data;

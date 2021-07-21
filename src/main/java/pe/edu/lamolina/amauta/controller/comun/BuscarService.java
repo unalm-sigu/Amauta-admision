@@ -63,4 +63,6 @@ public interface BuscarService {
 
     List<Carrera> allCarrerasByModalidad(String modalidad);
 
+    List<Carrera> allCarrerasActivaByModalidad(String modalidad);
+
 }

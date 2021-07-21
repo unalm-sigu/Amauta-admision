@@ -197,4 +197,9 @@ public class BuscarServiceImp implements BuscarService {
         return carreraDAO.allCarrerasByModalidad(modalidad);
     }
 
+    @Override
+    public List<Carrera> allCarrerasActivaByModalidad(String modalidad) {
+        return carreraDAO.allCarrerasActivaByModalidad(modalidad);
+    }
+
 }

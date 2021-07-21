@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.fotoCarne;
+package pe.edu.lamolina.amauta.controller.fotocarne;
 
 import java.io.File;
 import java.io.FilenameFilter;

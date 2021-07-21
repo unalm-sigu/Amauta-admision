@@ -66,4 +66,6 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allCarrerasByModalidad(String modalidad);
 
+    public List<Carrera> allCarrerasActivaByModalidad(String modalidad);
+
 }
