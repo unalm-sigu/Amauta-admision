@@ -183,11 +183,8 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         List<Oficina> oficinasUnalm = allEstructuraOficinas();
         List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
-        for (Oficina oficina : oficinasMain) {
-            logger.debug("************ oficinas {}", oficina.getNombre());
-        }
+
         Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
-        logger.debug("*********** ofiMain {}", ofiMain.getNombre());
 
         DataSessionPivot ds = new DataSessionPivot();
         ds.setEmail(email);
@@ -204,8 +201,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setOficinaMain(ofiMain);
         settingOficinaMain(ofiMain, ds);
 
-        logger.debug("*** 5 dpto cantidad {}", ds.getDepartamentos().size());
-
         ds.setBrowser(servlet.getHeader("User-Agent"));
         ds.setDireccionIp(servlet.getRemoteAddr());
         ds.setSistemaOperativo(getClientOS(servlet));
@@ -215,7 +210,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
-        logger.debug("*** 6 dpto cantidad {}", ds.getDepartamentos().size());
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
