@@ -182,8 +182,11 @@ public class ActaController {
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
-        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
+        logger.debug("esOperadorEditor {}",esOperadorEditor);
 
+        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
+        logger.debug("isRevisorActaNotas {}",isRevisorActaNotas);
+        
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
