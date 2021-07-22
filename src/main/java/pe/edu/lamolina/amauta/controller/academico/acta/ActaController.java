@@ -90,7 +90,10 @@ public class ActaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        //   model.addAttribute("docente", ds.getDocente());
+        Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
+
+//   model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("esOperadorEditor", esOperadorEditor);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "academico/acta/acta";
@@ -182,11 +185,11 @@ public class ActaController {
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
-        logger.debug("esOperadorEditor {}",esOperadorEditor);
+        logger.debug("esOperadorEditor {}", esOperadorEditor);
 
         Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
-        logger.debug("isRevisorActaNotas {}",isRevisorActaNotas);
-        
+        logger.debug("isRevisorActaNotas {}", isRevisorActaNotas);
+
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
