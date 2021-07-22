@@ -1,12 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentemodalidad;
 
-import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PRStream;
-import com.itextpdf.text.pdf.PdfDictionary;
-import com.itextpdf.text.pdf.PdfImage;
 import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfStream;
 import java.awt.Color;
 import java.awt.Font;
@@ -70,6 +65,7 @@ import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TEO;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteDAO;
@@ -81,6 +77,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
 import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 
 @Service
@@ -110,6 +107,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     @Autowired
     VerificadorService verificadorService;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -210,6 +210,8 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         SimpleDateFormat formateador = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-ES"));
 
+        String imgBuilt = buildPlot(puntajes);
+
         Context ctx = new Context();
         ctx.setVariable("edm", edm);
         ctx.setVariable("docente", edm.getDocente());
@@ -226,7 +228,8 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         ctx.setVariable("anuladas", anuladas);
         ctx.setVariable("temas", temas);
         ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
-        ctx.setVariable("plot", buildPlot(puntajes));
+        ctx.setVariable("imagenChart", imgBuilt);
+        logger.debug("imagenChart {}", imgBuilt);
 
         PdfContent pdfContent = new PdfContent();
         pdfContent.setContext(ctx);
@@ -234,23 +237,23 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         String dest = src;
-        try {
-            PdfReader reader = new PdfReader(src);
-            PdfDictionary page = reader.getPageN(1);
-            PdfDictionary resources = page.getAsDict(PdfName.RESOURCES);
-            PdfDictionary xobjects = resources.getAsDict(PdfName.XOBJECT);
-            PdfName imgRef = xobjects.getKeys().iterator().next();
-            PRStream stream = (PRStream) xobjects.getAsStream(imgRef);
-            PdfImage image = new PdfImage(Image.getInstance(buildPlot(puntajes)), "", null);
-            replaceStream(stream, image);
-            dest = String.format("%s%d.pdf", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
-
-            PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
-            stamper.close();
-            reader.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+//        try {
+//            PdfReader reader = new PdfReader(src);
+//            PdfDictionary page = reader.getPageN(1);
+//            PdfDictionary resources = page.getAsDict(PdfName.RESOURCES);
+//            PdfDictionary xobjects = resources.getAsDict(PdfName.XOBJECT);
+//            PdfName imgRef = xobjects.getKeys().iterator().next();
+//            PRStream stream = (PRStream) xobjects.getAsStream(imgRef);
+//            PdfImage image = new PdfImage(Image.getInstance(imgBuilt), "", null);
+//            replaceStream(stream, image);
+//            dest = String.format("%s%d.pdf", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
+//
+//            PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
+//            stamper.close();
+//            reader.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
         return dest;
     }
 
@@ -341,9 +344,8 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
             int width = 1200;
             int height = 600;
-
-            String fileName = String.format("%s%d.png", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
-            ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName), chart, width, height);
+            String fileName = String.format("%s%d.png", PdfImageProvider.ONLY_CHART_ENCUESTA, TypesUtil.getUnixTime());
+            ChartUtilities.writeChartAsPNG(new FileOutputStream(GlobalConstantine.TMP_DIR + fileName), chart, width, height);
             return fileName;
 
         } catch (Exception i) {
@@ -411,6 +413,11 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             departamentos.add(new DepartamentoAcademico(99999L));
         }
         return departamentos;
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademico() {
+        return cicloAcademicoDAO.allPregradoByRange(2015, 2200);
     }
 
 }

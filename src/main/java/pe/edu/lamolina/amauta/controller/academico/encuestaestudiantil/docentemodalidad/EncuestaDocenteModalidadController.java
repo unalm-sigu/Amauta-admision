@@ -65,10 +65,12 @@ public class EncuestaDocenteModalidadController {
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
 
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
-        model.addAttribute("cicloAcademico", ciclo);
-        model.addAttribute("isDocente", ds.getDocente()!=null);
+        model.addAttribute("cicloAcademico", JaneHelper.from(ciclo).json().toString());
+        model.addAttribute("isDocente", ds.getDocente() != null);
+        model.addAttribute("ciclos", JaneHelper.from(ciclos).array().toString());
         return "academico/encuestaestudiantil/docentemodalidad/encuestadocentemodalidad";
     }
 
@@ -153,6 +155,7 @@ public class EncuestaDocenteModalidadController {
     @RequestMapping("reporte/todos")
     public void reporteTodos(@RequestParam(value = "departamento", required = false) Long departamentoId,
             @RequestParam("tipoGrado") String tipoGrado,
+            @RequestParam(value = "cicloAcademico", required = false) Long cicloAcademicoId,
             @RequestParam(value = "facultad", required = false) Long facultadId,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
 
@@ -181,7 +184,10 @@ public class EncuestaDocenteModalidadController {
                 departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
             }
 
-            String fileName = service.reporteTodos(ds.getCicloAcademico(), modalidadEstudioEnum, departamentos);
+            CicloAcademico ciclo = cicloAcademicoId != null ? new CicloAcademico(cicloAcademicoId) : ds.getCicloAcademico();
+
+            String fileName = service.reporteTodos(ciclo, modalidadEstudioEnum, departamentos);
+
             pdfResponse(fileName, response);
 
         } catch (PhobosException e) {
