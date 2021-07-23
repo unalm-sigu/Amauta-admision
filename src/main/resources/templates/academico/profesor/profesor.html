@@ -53,6 +53,21 @@
                     <p class="h4 text-primary">Reporte Carga Acádemica</p>
                 </div>
                 <div slot="body">
+
+                    <div class="form-group m-b-xs">
+                        <label class="bold">Ciclo Académico</label>
+
+                        <multiselect v-model='ciclo'
+                                     label='descripcion'
+                                     placeholder="Seleccione el ciclo académico"
+                                     deselect-label=" "
+                                     select-label=" "
+                                     track-by='id'
+                                     v-bind:allow-empty="true"
+                                     v-bind:options='ciclos'>
+                        </multiselect>
+                    </div>
+
                     <div class="form-group m-b-xs">
                         <label class="bold">Facultad</label>
 
@@ -148,6 +163,7 @@
         <script th:inline="javascript">
             var jFacultades = /*[[${jFacultades}]]*/ {};
             var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
+            var jCicloAcademicos = /*[[${jCicloAcademicos}]]*/ {};
         </script>
 
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>

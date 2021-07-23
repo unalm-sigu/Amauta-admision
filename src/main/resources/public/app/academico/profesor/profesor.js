@@ -142,7 +142,9 @@ new Vue({
         urlfilter: APP.url("tramite/aula/list"),
         facultades: JSON.parse(jFacultades),
         departamentos: JSON.parse(jDepartamentos),
+        ciclos: JSON.parse(jCicloAcademicos),
         departamentosSelectos: [],
+        ciclo: null,
         facultad: null,
         departamento: null,
         tipoGrado: null,
@@ -183,6 +185,7 @@ new Vue({
                     departamento: vue.departamento ? vue.departamento.id : '',
                     tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
                     facultad: vue.facultad ? vue.facultad.id : '',
+                    cicloAcademico: vue.ciclo?vue.ciclo.id:'',
                 }};
 
             axios_blob.get("/academico/profesor/reporteCargaAcademica", data)

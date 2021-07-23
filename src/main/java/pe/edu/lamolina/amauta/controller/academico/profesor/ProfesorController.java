@@ -131,6 +131,7 @@ public class ProfesorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
@@ -139,8 +140,10 @@ public class ProfesorController {
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad","id").array();
+        ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
+        model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
         return "academico/profesor/profesor";
     }
 
@@ -608,12 +611,19 @@ public class ProfesorController {
     @RequestMapping("reporteCargaAcademica")
     public ModelAndView reporteCargaAcademica(@RequestParam(value = "departamento", required = false) Long departamentoId,
             @RequestParam(value = "tipoGrado", required = false) String tipoGrado,
+            @RequestParam(value = "cicloAcademico", required = false) Long idCicloAcademico,
             @RequestParam(value = "facultad", required = false) Long facultadId,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        
+        CicloAcademico cicloAcademico=ds.getCicloAcademico();
+        
+        if(idCicloAcademico!=null){
+            cicloAcademico=service.findCicloAcademico(idCicloAcademico);
+        }
 
         if (facultadId != null) {
 
@@ -634,7 +644,7 @@ public class ProfesorController {
 
         List<Docente> docentes = service.allDocenteByDepartamentosAcademicoEstado(departamentos, EnteAcademicoEstadoEnum.ACT);
 
-        List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, ds.getCicloAcademico());
+        List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, cicloAcademico);
 
         List<Seccion> secciones = docentesSecciones.stream().map(x -> x.getSeccion())
                 .distinct().collect(Collectors.toList());
@@ -643,7 +653,7 @@ public class ProfesorController {
 
         Oficina oficina = service.findOficina(OficinaEnum.OERA);
 
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("oficina", oficina);
         model.addAttribute("tipoGrado", tipoGrado);
 
