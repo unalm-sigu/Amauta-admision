@@ -1,0 +1,95 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Cursos</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <h2>Nombre de Cursos en Ingles</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="cursoURL" ref="raptorCursos">
+                                <div slot="header"></div>
+
+                                <template scope="props" >
+
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-sm-6 v-middle">Curso Nombre</th>
+                                                <th class="col-sm-6 v-middle">Name</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle">
+                                                    <span class="block text-primary h4 m-t-xs m-b-xs">{{item.curso.nombre}}</span>
+                                                    <span class="block"><b>{{item.curso.codigo}}</b> &nbsp;&nbsp; <i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}</span>
+                                                </td>
+
+                                                <td class="v-middle">
+
+                                                    <p >{{item.nombre}}</p>
+
+                                                    <textarea class="form-control"></textarea>
+
+                                                    <button class="btn btn-primary btn-sm">
+                                                        Editar
+                                                    </button><!-- comment -->
+
+                                                    <button class="btn btn-danger btn-sm">
+                                                        Eliminar
+                                                    </button><!-- comment -->
+
+                                                    <button class="btn btn-default btn-sm">
+                                                        Cancelar
+                                                    </button><!-- comment -->
+
+
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <button class="btn btn-default">
+                                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                    </button>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+
+            <script th:src="@{/app/academico/curso/cursoidioma/cursoidioma.js}" charset="utf-8"></script>
+
+        </div>
+
+    </body>
+</html>

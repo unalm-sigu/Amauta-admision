@@ -12,4 +12,6 @@ public interface NombreCursoDAO extends EasyDAO<NombreCurso> {
 
     public List<NombreCurso> allByIdioma(Idioma idioma);
 
+    public List<NombreCurso> allByCursosIdioma(List<Curso> cursos, Idioma idioma);
+
 }

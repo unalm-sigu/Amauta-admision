@@ -475,4 +475,21 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Curso> allByDynatableNombreCurso(DynatableFilter filter) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Curso.class, "cu")
+                .join("departamentoAcademico da", "da.facultad fa")
+                .leftJoin("planCalificacion pc", "carrera ca", "coordinador co", "co.persona per")
+                .leftJoin("modalidadEstudio me")
+                .searchFields("cu.nombre", "cu.codigo", "cu.codigoAnterior1", "fa.nombre", "da.nombre", "cu.estado", "ca.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("cu.id desc");
+
+        return all(sql);
+        
+    }
+
 }
