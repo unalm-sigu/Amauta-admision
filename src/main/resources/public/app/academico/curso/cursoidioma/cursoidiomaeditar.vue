@@ -1,7 +1,7 @@
 <template>
-  <div class="v-middle">
+  <div >
       
-    <div v-if="editar">
+    <div class="v-middle" v-if="editar">
 
       <textarea v-model="nombreCursoActivo.nombre" class="form-control"></textarea>
 
@@ -15,7 +15,7 @@
 
     </div>
 
-    <div v-else="">
+    <div class="v-middle" v-else="">
       <p class="h4">{{ value.nombre }}</p>
     </div>
 
@@ -61,6 +61,16 @@ module.exports = {
             });
     },
     eliminar () {
+
+
+        swal({
+        title: "Seguro que desea eliminar el registro",
+        icon: "warning",
+        buttons: ["Cancelar", "Eliminar"],
+        dangerMode: true,
+        }).then((willDelete) => {
+        if (willDelete) {
+
         let $vue=this;
         axios.delete(APP.url('academico/curso/idioma/'+ $vue.nombreCursoActivo.id)).
             then(({data}) => {
@@ -75,6 +85,11 @@ module.exports = {
             }, error => {
                 notify(Messages.errorComunicacion, "error");
             });
+
+        }
+        });
+
+
     },
     actualizar () { 
         let $vue=this;
