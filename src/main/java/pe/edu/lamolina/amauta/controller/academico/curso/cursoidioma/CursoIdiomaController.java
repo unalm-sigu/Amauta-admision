@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,7 +66,7 @@ public class CursoIdiomaController {
     }
 
     @ResponseBody
-    @RequestMapping("save")
+    @RequestMapping(method = RequestMethod.POST)
     public JsonResponse save(@RequestBody NombreCurso nombreCurso, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -86,7 +87,7 @@ public class CursoIdiomaController {
     }
 
     @ResponseBody
-    @RequestMapping("update")
+    @RequestMapping(method = RequestMethod.PUT)
     public JsonResponse update(@RequestBody NombreCurso nombreCurso) {
 
         JsonResponse response = new JsonResponse();
@@ -106,14 +107,14 @@ public class CursoIdiomaController {
     }
 
     @ResponseBody
-    @RequestMapping("delete")
-    public JsonResponse delete(@RequestBody NombreCurso nombreCurso, HttpSession session) {
+    @RequestMapping(value = "{idNombreCurso}", method = RequestMethod.DELETE)
+    public JsonResponse delete(@PathVariable Long idNombreCurso, HttpSession session) {
         
         JsonResponse response = new JsonResponse();
         
         try {
             
-            service.delete(nombreCurso);
+            service.delete(idNombreCurso);
             response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 

@@ -69,8 +69,8 @@ public class CursoIdiomaServiceImp implements CursoIdiomaService {
 
     @Override
     @Transactional
-    public void delete(NombreCurso nombreCurso) {
-        nombreCursoDAO.delete(nombreCurso.getId());
+    public void delete(Long idNombreCurso) {
+        nombreCursoDAO.delete(idNombreCurso);
     }
 
     @Override

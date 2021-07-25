@@ -11,7 +11,7 @@ public interface CursoIdiomaService {
 
     public void save(NombreCurso nombreCurso, Usuario usuario);
 
-    public void delete(NombreCurso nombreCurso);
+    public void delete(Long idNombreCurso);
 
     public void update(NombreCurso nombreCurso);
     

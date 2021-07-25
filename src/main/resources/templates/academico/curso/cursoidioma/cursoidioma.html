@@ -28,8 +28,7 @@
                                         <thead> 
                                             <tr> 
                                                 <th class="col-sm-6 v-middle">Curso Nombre</th>
-                                                <th class="col-sm-6 v-middle">Name</th>
-                                                <th></th>
+                                                <th class="col-sm-6 v-middle"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -42,29 +41,8 @@
 
                                                 <td class="v-middle">
 
-                                                    <p >{{item.nombre}}</p>
+                                                    <curso-idioma-editar v-model="item"></curso-idioma-editar>
 
-                                                    <textarea class="form-control"></textarea>
-
-                                                    <button class="btn btn-primary btn-sm">
-                                                        Editar
-                                                    </button><!-- comment -->
-
-                                                    <button class="btn btn-danger btn-sm">
-                                                        Eliminar
-                                                    </button><!-- comment -->
-
-                                                    <button class="btn btn-default btn-sm">
-                                                        Cancelar
-                                                    </button><!-- comment -->
-
-
-                                                </td>
-
-                                                <td class="v-middle">
-                                                    <button class="btn btn-default">
-                                                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                    </button>
                                                 </td>
 
                                             </tr>
@@ -84,6 +62,8 @@
         </div>
 
         <div layout:fragment="js">
+
+            <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
 
