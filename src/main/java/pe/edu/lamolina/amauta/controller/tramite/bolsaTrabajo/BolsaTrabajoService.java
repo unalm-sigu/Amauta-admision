@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.bolsaTrabajo;
+package pe.edu.lamolina.amauta.controller.tramite.bolsatrabajo;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.CicloAcademico;

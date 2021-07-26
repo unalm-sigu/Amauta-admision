@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.bolsaTrabajo;
+package pe.edu.lamolina.amauta.controller.tramite.bolsatrabajo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
