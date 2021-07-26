@@ -23,7 +23,7 @@ import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
+import pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;

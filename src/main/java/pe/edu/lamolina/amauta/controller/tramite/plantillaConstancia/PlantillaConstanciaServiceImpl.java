@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,7 +17,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import static pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.IdiomaEnum.EN;
+import static pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia.IdiomaEnum.EN;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
