@@ -1,0 +1,62 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Tramite Reincorporación</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <readmision-nuevo></readmision-nuevo>
+
+                    <h2 th:inline="text">Tramite Readmisión  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+
+                </header>
+
+                <section  class="wrapper-lg">
+
+                    <readmision-list ref="readmisionlist"></readmision-list>
+
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script th:inline="javascript">
+                var CICLOS = /*[[${ciclos}]]*/ '';
+            </script>
+
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
+
+            <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
+
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+
+                const ReadmisionList = httpVueLoader('/app/academico/tramitesacademicos/readmision/ReadmisionList.vue');
+                const ReadmisionNuevo = httpVueLoader('/app/academico/tramitesacademicos/readmision/ReadmisionNuevo.vue');
+
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        readmisionList: ReadmisionList,
+                        readmisionNuevo: ReadmisionNuevo,
+                    }
+                });
+
+            </script>
+
+        </div>
+
+
+    </body>
+</html>

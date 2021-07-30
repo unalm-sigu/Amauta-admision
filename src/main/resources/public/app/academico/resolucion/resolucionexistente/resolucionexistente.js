@@ -90,7 +90,7 @@ var app = new Vue({
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
-                   $vue.allReincorporacion();
+                $vue.allReincorporacion();
             } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
             } else if (item.codigo == "TRAS" || item.codigo == "INTES" || item.codigo == "ING_HIS") {

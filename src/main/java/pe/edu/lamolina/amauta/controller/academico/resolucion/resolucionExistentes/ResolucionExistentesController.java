@@ -60,6 +60,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.OBTE_GRADO;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -74,7 +75,20 @@ public class ResolucionExistentesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    static List<String> TIPO_RESOLUCION = Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name(), PRACTICAS.name());
+    static List<String> TIPO_RESOLUCION = Arrays.asList(
+            READMISION.name(),
+            TRAS_INT.name(),
+            RCI.name(),
+            ANCI.name(),
+            REIC.name(), 
+            CAM_NOTA.name(), 
+            CURDIR.name(), 
+            TRAS.name(),
+            INTES.name(),
+            NOTA_BAJA.name(), 
+            BACHI.name(), 
+            TITUL.name(), 
+            PRACTICAS.name());
 
     @Autowired
     ResolucionExistenteService service;

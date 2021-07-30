@@ -1,7 +1,8 @@
-package pe.edu.lamolina.amauta.controller.tramite.reincorporacion;
+package pe.edu.lamolina.amauta.controller.tramite.cambioplancurricular;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -15,9 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -26,24 +29,19 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -58,22 +56,21 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
 @Service
 @Transactional(readOnly = true)
-public class TramitesReincorporacionServiceImp implements TramiteReincorporacionService {
+public class CambioPlanCurricularServiceImp implements CambioPlanCurricularService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     TramiteDAO tramiteDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
 
     @Autowired
     AlumnoDAO alumnoDAO;
@@ -89,12 +86,6 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
-
-    @Autowired
-    PdfGenerator pdfGenerator;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
 
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
@@ -120,33 +111,48 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
 
-    @Override
-    public List<Reincorporacion> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    @Autowired
+    PlanCurricularDAO planCurricularDAO;
 
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
-        return reincorporaciones;
+    @Autowired
+    CambioPlanCurricularDAO cambioPlanCurricularDAO;
+
+    @Override
+    public List<CambioPlanCurricular> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+
+        return cambioPlanCurricularDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
+
     }
 
     @Override
     @Transactional
-    public void saveReincorporacion(Reincorporacion reincorporacionForm, DataSessionPivot ds) {
-        Boolean esCondicional = reincorporacionForm.getAlumno().getEsMatriculaCondicional();
+    public void save(CambioPlanCurricular cambioPlanEstudios, DataSessionPivot ds) {
+
         DateTime today = new DateTime();
+
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
 
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_REIN);
-        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-        Alumno alumnoDB = alumnoDAO.find(reincorporacionForm.getAlumno());
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAMITE_CAMBIO_PLAN_CURRICULAR);
 
-        Reincorporacion reincorporacione = reincorporacionDAO.findByAlumnoCiclo(alumnoDB, reincorporacionForm.getCicloReincorporacion());
-        Assert.isNull(reincorporacione, "EL alumno ya tiene tramite pendiente");
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CAMBIO_PLAN_CURRICULAR.name());
+
+        Alumno alumnoDB = alumnoDAO.find(cambioPlanEstudios.getAlumno());
+
+        Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
+
+        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByAlumnoCiclo(alumnoDB, cambioPlanEstudios.getCicloAcademico());
+
+        if (cambioPlanEstudiosDb != null) {
+            throw new PhobosException("EL alumno ya tiene tramite pendiente");
+        }
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
-        tramite.setAlumno(reincorporacionForm.getAlumno());
+        tramite.setAlumno(cambioPlanEstudios.getAlumno());
         tramite.setCicloAcademico(ds.getCicloAcademico());
         tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
         tramite.setEstadoTramite(estadoTramite);
@@ -158,51 +164,92 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setOficina(oficina);
         tramite.setNumeroVisible(tramite.getDescripcion());
+
         tramiteDAO.save(tramite);
 
         Facultad facultad = alumnoDB.getCarrera().getFacultad();
-        reincorporacione = new Reincorporacion();
-        reincorporacione.setAceptado(0);
-        reincorporacione.setFechaRegistro(new Date());
-        reincorporacione.setEstadoTramite(estadoTramite);
-        reincorporacione.setUserRegistro(ds.getUsuario());
-        reincorporacione.setAlumno(alumnoDB);
-        reincorporacione.setCicloReincorporacion(reincorporacionForm.getCicloReincorporacion());
-        reincorporacione.setMotivoDesercion(reincorporacionForm.getMotivoDesercion());
-        reincorporacione.setFacultad(facultad);
-        reincorporacione.setTramite(tramite);
-        reincorporacione.setEsCondicional(esCondicional);
-        reincorporacionDAO.save(reincorporacione);
+
+        cambioPlanEstudios.setAceptado(0);
+        cambioPlanEstudios.setFechaRegistro(new Date());
+        cambioPlanEstudios.setEstadoTramite(estadoTramite);
+        cambioPlanEstudios.setUserRegistro(ds.getUsuario());
+        cambioPlanEstudios.setCicloAcademico(ds.getCicloAcademico());
+        cambioPlanEstudios.setAlumno(alumnoDB);
+        cambioPlanEstudios.setFacultad(facultad);
+        cambioPlanEstudios.setTramite(tramite);
+        cambioPlanEstudios.setEsCondicional(esCondicional);
+        cambioPlanCurricularDAO.save(cambioPlanEstudios);
+
     }
 
     @Override
-    public String reporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoReincorporacionPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "reincorporacion", true);
+    public List<CicloAcademico> getCiclosVeinte() {
+        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 20);
     }
 
-    private List<String> createInfoReincorporacionPDF(Tramite tramite, DataSessionPivot ds) {
-        tramite = tramiteDAO.find(tramite.getId());
-        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-        Context ctx = new Context();
+    @Override
+    @Transactional
+    public void anular(Long idCambioPlanEstudios, DataSessionPivot ds) {
 
+        CambioPlanCurricular cambioPlanEstudios = cambioPlanCurricularDAO.find(idCambioPlanEstudios);
+
+        if (cambioPlanEstudios == null) {
+            throw new PhobosException("No existe el trámite");
+        }
+
+        EstadoTramite estadoAnulado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ANU);
+
+        cambioPlanEstudios.setEstadoTramite(estadoAnulado);
+
+        cambioPlanCurricularDAO.updateColumns(cambioPlanEstudios, "estadoTramite");
+
+        Tramite tramite = cambioPlanEstudios.getTramite();
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.updateEstado(tramite);
+
+    }
+
+    @Override
+    public List<Alumno> searchAlumno(String nombre, DataSessionPivot ds) {
+        return alumnoDAO.allByName(nombre);
+    }
+
+    @Override
+    public void reporte(Model model, Long idCambioPlanCurricular, DataSessionPivot ds) {
+
+        logger.debug("idCambioPlanEstudios {}", idCambioPlanCurricular);
+
+        CambioPlanCurricular cambioPlanEstudios = cambioPlanCurricularDAO.find(idCambioPlanCurricular);
+
+        logger.debug("idCambioPlanEstudios {}", cambioPlanEstudios.getId());
+
+        Tramite tramite = cambioPlanEstudios.getTramite();
+
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno().getId());
+        logger.debug("alumno {}", alumno.getId());
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+        logger.debug("alumnoCiclo {}", alumnoCiclo.getId());
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
+        logger.debug("tipoCursoCurriculaGen {}", tipoCursoCurriculaCPRO.getCodigoEnum());
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        logger.debug("tipoCursoCurriculaGen {}", tipoCursoCurriculaGen.getCodigoEnum());
+        logger.debug("alumno {}", alumno.getId());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        logger.debug("alumnoCicloCursos {}", alumnoCicloCursos.size());
+
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
-        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(alumno.getPlanCurricular());
-        Map<Long, CursoCurricula> mapCursoCurricula = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
         Map<Long, TipoCursoCurricula> mapTipoAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
 
             if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
-                // Para asignar un curso de deporte como curso general
                 if (alumnoCicloCurso.getCreditos() > 0) {
                     alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaGen);
                 }
             }
+
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
                 TipoCursoCurricula tipoCursoCurricula = mapTipoAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
                 if (tipoCursoCurricula == null) {
@@ -212,9 +259,8 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
                     alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
                 }
             }
+
         }
-        //revisar codigo
-        //alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
 
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
@@ -242,9 +288,9 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
         if (alumnoConsejero != null) {
             alumno.setConsejero(alumnoConsejero.getConsejero());
-
         }
 
+        Context ctx = new Context();
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
@@ -252,43 +298,31 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//
+        //metadata
+        ctx.setVariable("nombrePdf", "Informe Readmisión " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        ctx.setVariable("templatePdf", "detalleCambioPlanCurricular,historialAcademicoCambioPlanCurricular");
 
-        PdfContent pdfHistorial = new PdfContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-
-        PdfContent pdfRetiroExcepcional = new PdfContent();
-        pdfRetiroExcepcional.setContext(ctx);
-        pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_REINCORPORACION);
-//
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfRetiroExcepcional),
-                pdfGenerator.generateDocument(pdfHistorial)
-        );
-//
-        return pdfs;
-    }
-
-    @Override
-    public List<CicloAcademico> getCiclos(DataSessionPivot ds) {
-
-        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 3);
-    }
-
-    private void validadCaducos(Map<Long, CursoCurricula> mapCursoCurricula, List<AlumnoCicloCurso> alumnoCicloCursos) {
-
-        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-            if (mapCursoCurricula.get(alumnoCicloCurso.getCurso().getId()) != null) {
-                alumnoCicloCurso.setEsCaduco(1);
-            }
-        }
+        model.addAllAttributes(ctx.getVariables());
 
     }
 
     @Override
-    public List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds) {
-        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 20);
+    public ObjectNode searchPlanCurricular(Long idAlumno, DataSessionPivot ds) {
+
+        Alumno alumno = alumnoDAO.findAllInfo(idAlumno);
+        
+        List<PlanCurricular> planCurriculares = planCurricularDAO.allActivoByCarrera(alumno.getCarrera());
+
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        
+        node.set("planCurricularOrigen", JaneHelper.from(alumno.getPlanCurricular())
+                .join("cicloInicioVigencia").json());
+        
+        node.set("destinos", JaneHelper.from(planCurriculares)
+                .join("cicloInicioVigencia").array());
+
+        return node;
+
     }
 
 }
