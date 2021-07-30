@@ -2204,3 +2204,10 @@ only screen and (                min-resolution: 2dppx) {
 .input-group-addon {
     border-color: black;
 }
+
+.sidebar-blue {
+    background: #353c46 !important;
+}
+.sidebar-blue .menu-section ul li a.active {
+    background: #000  !important;
+}

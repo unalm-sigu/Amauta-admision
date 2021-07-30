@@ -3,7 +3,7 @@ Vue.component('date-picker', VueBootstrapDatetimePicker);
 Vue.component('file-upload', VueUploadComponent);
 
 var app = new Vue({
-    el: '#resolucionReinForm',
+    el: '#main',
     data: {
         resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []},
         oficinas: JSON.parse(oficinasJson),

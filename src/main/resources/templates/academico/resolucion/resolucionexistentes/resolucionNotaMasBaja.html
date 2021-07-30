@@ -12,7 +12,7 @@
                              deselect-label="No se puede eliminar este valor"
                              v-bind:internal-search='false'
                              v-on:select="allAlumnoCiclo($event,tramiteNotabaja)"
-                             placeholder="Ingresa un caracter como mínimo" >
+                             placeholder=" " >
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
@@ -39,7 +39,7 @@
                              v-bind:allow-empty="false"
                              deselect-label="No se puede eliminar este valor"
                              v-bind:internal-search='true'
-                             placeholder="Ingresa un caracter como mínimo" >
+                             placeholder=" " >
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
                             <span class="option__title block bold">{{ props.option.cicloAcademico.descripcion }} -{{ props.option.curso.nombre }} - ( {{ props.option.nota }} ) </span>

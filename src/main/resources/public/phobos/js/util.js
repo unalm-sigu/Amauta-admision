@@ -1046,4 +1046,4 @@ URL_UTIL = {
         let url = window.location.href;
         return "?origen=" + Base64.encode(url);
     }
-}
+};

@@ -12,7 +12,7 @@
                     <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
                 </div>
             </header>
-            <div id="resolucionReinForm" v-cloak="">
+            <div id="main" v-cloak="">
                 <div >
 
                     <section class="wrapper-lg">
@@ -96,7 +96,7 @@
                                                 <multiselect 
                                                     v-model="resolucion.tipoResolucion" 
                                                     v-bind:options="tiposResolucion"
-                                                placeholder="Seleccione un tipo de resolucion"
+                                                placeholder=" "
                                                     label="nombre"
                                                     v-bind:allow-empty="false"
                                                     deselect-label="No se puede eliminar este valor"
@@ -118,7 +118,7 @@
                                                 <multiselect 
                                                     v-model="resolucion.cicloAplica" 
                                                     v-bind:options="ciclos"
-                                                placeholder="Seleccione un ciclo"
+                                                placeholder=" "
                                                     label="descripcion"
                                                     track-by="id" 
                                                     required="true"
@@ -142,7 +142,7 @@
                                                 <multiselect 
                                                     v-model="filterFacultad" 
                                                     v-bind:options="oficinas"
-                                                placeholder="Seleccione una facultad"
+                                                placeholder=" "
                                                     label="nombre"
                                                     v-bind:allow-empty="true"
                                                     track-by="id" 
@@ -248,8 +248,6 @@
                 var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ '';
                 var resolucionJson = /*[[${resolucion != null ? resolucion.toString() : null}]]*/ '';
             </script>
-
-            <div th:substituteby="_modules/vue-raptor-table"/>
 
             <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistente.js}" charset="utf-8"></script> 
 
