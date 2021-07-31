@@ -1888,41 +1888,6 @@ div.notas {
     max-width: none;
 }
 
-.multiselect, .multiselect__input, .multiselect__single {
-    font-family: inherit;
-    font-size: 13px !important;
-}
-
-.multiselect__clear {
-    position: absolute;
-    right: 41px;
-    height: 40px;
-    width: 40px;
-    display: block;
-    cursor: pointer;
-    z-index: 2
-}
-
-.multiselect__clear:after,
-.multiselect__clear:before {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 3px;
-    height: 16px;
-    background: #aaa;
-    top: 12px;
-    right: 4px
-}
-
-.multiselect__clear:before {
-    transform: rotate(45deg)
-}
-
-.multiselect__clear:after {
-    transform: rotate(-45deg)
-}
-
 .label-varios {
     display: inline-block;
     float: none;
@@ -2204,4 +2169,48 @@ only screen and (                min-resolution: 2dppx) {
 .pre-scrollable {
     max-height: 650px;
     overflow-y: scroll;
+}
+
+.info-solid {
+    background-color: rgb(0, 122, 255) !important;
+    color:  white !important;
+}
+
+.error-solid {
+    background-color: rgb(255, 0, 40) !important;
+    color:  white !important;
+}
+
+.success-solid {
+    background-color: rgb(0, 180, 85) !important;
+    color:  white !important;
+}
+
+
+.warning-solid {
+    background-color: rgb(255, 149, 0) !important;
+    color:  white !important;
+}
+
+.form-control {
+  border-color: black !important;
+}
+.form-control:focus {
+  border-color: #0040ff !important;
+}
+.switch span {
+    background-color: #847c7c;
+}
+.input-group-addon {
+    border-color: black;
+}
+
+.sidebar-blue {
+    background: #353c46 !important;
+}
+.sidebar-blue .menu-section ul li a.active {
+    background: #000  !important;
+}
+.sidebar-blue .menu-section ul li a.toggled {
+    background: #000  !important;
 }

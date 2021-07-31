@@ -13,105 +13,137 @@
                     </a>
                     <h1>Trámites documentarios</h1>
                 </header>
-                <section class="panel">
-                    <section class="panel-body">
-                        <div class="col-md-12">
-                            <raptor-table v-bind:url="solicitudURL" ref="load">
-                                <template  scope="props" >
-                                    <table  class="table table-striped table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="2">Alumno</th>
-                                                <th class="col-xs-3">Contacto</th>
-                                                <th class="col-xs-3">Trámite</th>
-                                                <th class="col-xs-2">Documento</th>
-                                                <th class="col-xs-1">Estado</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="item in props.data">
-                                                <td class="v-middle">
-                                                    <div class="pull-left">
-                                                        <div v-if="item.tramite.alumno.persona.tipoFoto=='POSTUL' "
-                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
-                                                            <img class="img-foto-list" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+
+                <section  class="wrapper-lg">
+
+                    <section class="panel">
+
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <raptor-table v-bind:url="solicitudURL" ref="load">
+                                    <template  scope="props" >
+                                        <table  class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">Alumno</th>
+                                                    <th class="col-xs-3">Contacto</th>
+                                                    <th class="col-xs-3">Trámite</th>
+                                                    <th class="col-xs-2">Documento</th>
+                                                    <th class="col-xs-1">Estado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data">
+                                                    <td class="v-middle">
+                                                        <div class="pull-left">
+                                                            <div v-if="item.tramite.alumno.persona.tipoFoto=='POSTUL' "
+                                                                 class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                                <img class="img-foto-list" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                            </div>
+
+                                                            <img v-else-if="item.tramite.alumno.persona.tipoFoto=='COMUN' " 
+                                                                 class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                                 v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+
+                                                            <img v-else="" 
+                                                                 class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                                 v-bind:src="item.tramite.alumno.persona.rutaFoto" />
                                                         </div>
+                                                    </td>
+                                                    <td  class="v-middle"  >
+                                                        <p  class="h5 bold text-primary" v-text="item.tramite.alumno.persona.apellidosNombres"></p>
+                                                        <span class="block"> Especialidad de {{item.tramite.alumno.carrera.nombre}}</span>
+                                                        <span v-if="item.tramite.alumno.carrera.codigo != item.tramite.alumno.carrera.facultad.codigo" class="block">Facultad de {{item.tramite.alumno.carrera.facultad.nombre}}</span>
+                                                        <small class="block bold">{{item.tramite.alumno.persona.tipoDocumento.simbolo}} {{item.tramite.alumno.persona.numeroDocIdentidad}}</small>
+                                                        <small class="block bold"> Matrícula: {{item.tramite.alumno.codigo}}</small>
+                                                    </td>
 
-                                                        <img v-else-if="item.tramite.alumno.persona.tipoFoto=='COMUN' " 
-                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                    <td class="v-middle">
+                                                        <p v-if='item.personaContacto'> Contacto: <b>{{item.personaContacto}}</b>  </p>
+                                                        <p v-if='item.telefono'> Teléfono: <b>{{item.telefono}}</b>  </p>
+                                                        <p v-if='item.celular'> Celular: <b>{{item.celular}}</b>  </p>
+                                                        <p v-if='item.email'> Email: <b>{{item.email}}</b>  </p>
+                                                    </td>
+                                                    
+                                                    <td class="v-middle">
+                                                        <p  class="" > {{item.tramite.serie}} - {{item.tramite.numero}} </p>
+                                                        <p v-if="item.correlativoDocumento" class="bold"> Código Documento: {{item.correlativoDocumento}} </p>
+                                                        <span v-if="item.comentario" >
+                                                            <label class=" bold">Mensaje</label>
+                                                            <p v-text="item.comentario"></p>
+                                                        </span>
+                                                    </td>
 
-                                                        <img v-else="" 
-                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
-                                                    </div>
-                                                </td>
-                                                <td  class="v-middle"  >
-                                                    <p  class="h5 bold text-primary" v-text="item.tramite.alumno.persona.apellidosNombres"></p>
-                                                    <span class="block"> Especialidad de {{item.tramite.alumno.carrera.nombre}}</span>
-                                                    <span v-if="item.tramite.alumno.carrera.codigo != item.tramite.alumno.carrera.facultad.codigo" class="block">Facultad de {{item.tramite.alumno.carrera.facultad.nombre}}</span>
-                                                    <small class="block bold">{{item.tramite.alumno.persona.tipoDocumento.simbolo}} {{item.tramite.alumno.persona.numeroDocIdentidad}}</small>
-                                                    <small class="block bold"> Matrícula: {{item.tramite.alumno.codigo}}</small>
-                                                </td>
+                                                    <td class="v-middle">
+                                                        <p class=""> {{ item.tipoDocumentoAcademico.tipoConstanciaEnum.value}}</p>
+                                                        <p class="text-xs"> Idioma: {{item.idioma.nombre}}  </p>
+                                                        <p class="text-xs"> {{item.tipoDocumentoAcademico.nombre}}  </p>
+                                                        <p v-if='item.fechaEntrega' class="text-xs">Fecha Entrega: {{item.fechaEntrega}}  </p>
+                                                        <p v-if='item.numeroFormato' class="text-xs">Número Formato: {{item.numeroFormato}}  </p>
+                                                    </td>
 
-                                                <td class="v-middle">
-                                                    <p  class="bold" > {{item.personaContacto}}  </p>
-                                                    <p  class="bold" > Teléfono: {{item.telefono}}  </p>
-                                                    <p  class="bold" > Email: {{item.email}}  </p>
+                                                    <td class="v-middle">
+                                                        <span   v-bind:class="classEstado(item.estadoTramite.codigo)">{{item.estadoTramite.nombre}}</span>
+                                                    </td>
 
-                                                </td>
-                                                <td class="v-middle">
-                                                    <p  class="" > {{item.tramite.serie}} - {{item.tramite.numero}} </p>
-                                                    <p v-if="item.correlativoDocumento" class="bold"> Código Documento: {{item.correlativoDocumento}} </p>
-                                                    <span v-if="item.comentario" >
-                                                        <label class=" bold">Mensaje</label>
-                                                        <p v-text="item.comentario"></p>
-                                                    </span>
-                                                </td>
+                                                    <td class="v-middle ">
+                                                        <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
 
-                                                <td class="v-middle">
-                                                    <p class=""> {{ item.tipoDocumentoAcademico.tipoConstanciaEnum.value}}</p>
-                                                    <p class="text-xs"> Idioma: {{item.idioma.nombre}}  </p>
-                                                    <p class="text-xs"> {{item.tipoDocumentoAcademico.nombre}}  </p>
-                                                </td>
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="fa fa-cog"></i>
+                                                            </a>
+                                                            <ul  class="dropdown-menu pull-right">
 
-                                                <td class="v-middle">
-                                                    <span   v-bind:class="classEstado(item.estadoTramite.codigo)">{{item.estadoTramite.nombre}}</span>
-                                                </td>
+                                                                <li>
+                                                                    <a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a>
+                                                                </li>
 
-                                                <td class="v-middle ">
-                                                    <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
-                                                        
-                                                        <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="fa fa-cog"></i>
-                                                        </a>
-                                                        <ul  class="dropdown-menu pull-right">
-                                                            <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a></li>
-                                                            <li>  <a class="btn-link pointer" 
-                                                                     v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">
-                                                                    Procesaar
-                                                                </a>
-                                                            </li>
-                                                           
-                                                            <li v-for="accionTemp in item.estados">
-                                                                <a v-if="accionTemp.url !=null" v-bind:href="accionTemp.url + item.id">{{accionTemp.opcion}}</a>
-                                                                <a class="pointer"
-                                                                   v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" v-on:click="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
-                                                            </li>
-                                                            <li> <a v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </template>
-                            </raptor-table>
-                        </div>
+                                                                <li class="divider"></li>
+                                                                
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificar Pago</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a v-on:click.prevent="subirBoleta(item)"  href="#">Subir Boleta</a>
+                                                                </li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
+                                                                </li>
+                                                                
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
+                                                                </li>
+
+                                                                <li v-if="item.estadoTramite.codigo!='CRE'" class="divider"></li>
+
+                                                                <li> 
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
+                                                                </li>
+
+                                                                <li v-if="item.estadoTramite.codigo!='COMP'" class="divider"></li>
+
+                                                                <li v-if="item.estadoTramite.codigo!='COMP'"> 
+                                                                    <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
+                                                                </li>
+
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
+                            </div>
+                        </section>
                     </section>
                 </section>
+
                 <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
+
             </div>
 
         </div>
@@ -120,8 +152,9 @@
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <script th:src="@{/app/tramite/tramiteConstancia/solicitudConstancia.js}" charset="utf-8"></script>
-            
+
         </div>
     </body>
 </html>

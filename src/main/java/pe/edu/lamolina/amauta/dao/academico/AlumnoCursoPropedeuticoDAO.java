@@ -13,4 +13,6 @@ public interface AlumnoCursoPropedeuticoDAO extends EasyDAO<AlumnoCursoPropedeut
 
     List<AlumnoCursoPropedeutico> allBySeccionDynatable(DynatableFilter filter, CicloAcademico academico);
 
+    public AlumnoCursoPropedeutico findAll(Long id);
+
 }

@@ -51,7 +51,8 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
                 .filter("me.id", modalidadEstudio)
                 .in("da.id", departamentos)
                 .filter("edm.alumnosEncuestados", ">", 0)
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("f.nombre","da.nombre","per.paterno");
 
         return all(sql);
     }

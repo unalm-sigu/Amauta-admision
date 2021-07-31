@@ -33,4 +33,16 @@ public class VariableGenericaDAOH extends AbstractEasyDAO<VariableGenerica> impl
         return all(sql);
     }
 
+    @Override
+    public List<VariableGenerica> allByPregradoByCodigoEnum(List<String> codigos) {
+
+        Octavia sql = Octavia.query()
+                .from(VariableGenerica.class, "vg")
+                .join("oficina ofi")
+                .in("vg.codigoEnum",codigos)
+                .filter("ofi.codigo", OERA);
+        return all(sql);
+
+    }
+
 }

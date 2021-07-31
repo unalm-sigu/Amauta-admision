@@ -35,33 +35,30 @@ iziToast.settings({
     transitionOut: 'flipOutX',
     displayMode: 2
 });
-// transitionIn: 'flipInX', 'fadeInUp','bounceInLeft', 'fadeIn', 'fadeInDown', 'fadeInLeft'
 
-// bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, center
-function notify(message, type, position, title, icon) {
+function notify(message, type, position, icon) {
     type = type == null ? 'default' : type;
-    title = title == null ? '' : title;
     var mType = this.MESSAGETYPE[type];
     icon = icon == null ? mType.icon : icon;
     message = message == null ? 'null' : message;
     position = (position == null || position == '') ? 'bottomRight' : position;
     setTimeout(function () {
         iziToast.show({
-            title: title,
-            message: message,
+            title: message,
             icon: icon,
-            color: mType.color,
-            position: position
+            position: position,
+            class: mType.class,
+            theme: 'dark',
         });
     }, 500);
 }
 
 MESSAGETYPE = {
-    success: {color: 'green', icon: 'fa fa-check'},
-    info: {color: 'blue', icon: 'fa fa-info'},
-    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle'},
-    error: {color: 'red', icon: 'fa fa-ban'},
-    default: {color: '', icon: 'fa fa-comment-alt'}
+    success: {color: 'green', icon: 'fa fa-check', class: 'success-solid'},
+    info: {color: 'blue', icon: 'fa fa-info', class: 'info-solid'},
+    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle', class: 'warning-solid'},
+    error: {color: 'red', icon: 'fa fa-ban', class: 'error-solid'},
+    default: {color: '', icon: 'fa fa-comment-alt', class: 'info-solid'}
 }
 
 function notifyBootbox(message, type) {
@@ -748,64 +745,6 @@ const Messages = {
 
 APP.select2();
 
-$.fn.disableButtonsModal = function (btn, htmlBtn)
-{
-    var el = this;
-
-    $(el).find(".modal-footer>button").each(function (i, item) {
-        $(item).attr("disabled", "disabled");
-    });
-    $(el).find(".modal-footer>a").each(function (i, item) {
-        $(item).attr("disabled", "disabled");
-    });
-    if (btn != null) {
-        if (htmlBtn != null) {
-            btn.html(htmlBtn);
-        } else {
-            btn.html('<i class="fa fa-spinner fa-spin fa-lg"></i> Procesando');
-        }
-    }
-    return el;
-};
-
-$.fn.enableButtonsModal = function (btn, htmlBtn)
-{
-    var el = this;
-
-    setTimeout(function () {
-
-        $(el).find(".modal-footer>button").each(function (i, item) {
-            $(item).removeAttr("disabled");
-        });
-
-        $(el).find(".modal-footer>a").each(function (i, item) {
-            $(item).removeAttr("disabled");
-        });
-
-        if (btn != null) {
-            btn.html(htmlBtn);
-        }
-
-    }, 1000);
-
-    return el;
-};
-
-$.fn.cleanForm = function ()
-{
-    $(this).find("input[type=text], textarea, #id, input[name='id'] ").val("");
-    $(this).find("input[type=checkbox]").prop("checked", false);
-    $(this).find("input[type=radio]").prop("checked", false);
-    $(this).find("input[name='*[]']").prop("checked", false);
-    $(this).find("input[name='id*']").val("");
-    return this;
-};
-
-$.fn.cleanAll = function ()
-{
-    $(this).find("input, textarea").val("");
-    return this;
-};
 
 $.fn.treeview = function () {
     var self = $(this);
@@ -1050,6 +989,29 @@ UTIL_BLOB = {
     }
 }
 
+
+UTIL_BLOB_INLINE = {
+    save(response) {
+        try {
+
+            let nombre = response
+                    .headers["content-disposition"]
+                    .replace("inline; filename=", "")
+                    .replace(/"/g, '');
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nombre;
+            document.body.appendChild(link);
+            link.click();
+
+        } catch (e) {
+            notify(Messages.errorComunicacion, 'error')
+        }
+    }
+}
+
 const axios_blob = axios.create({
     responseType: 'blob', // important
 });
@@ -1061,3 +1023,27 @@ axios_blob.interceptors.response.use(function (response) {
     notify(Messages.errorComunicacion, 'error');
     return Promise.reject(error);
 });
+
+function noty_download(idtoust, titulo) {
+    iziToast.show({
+        id: idtoust,
+        icon: 'fa fa-cloud-download',
+        position: 'topLeft',
+        class: 'info-solid',
+        title: titulo,
+        theme: 'dark',
+        timeout: false
+    });
+}
+
+function noty_clouse(id) {
+    iziToast.hide({}, document.getElementById(id));
+}
+
+
+URL_UTIL = {
+    getOrigenURL() {
+        let url = window.location.href;
+        return "?origen=" + Base64.encode(url);
+    }
+};

@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.AporteCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 
@@ -24,5 +25,7 @@ public interface AporteAlumnoCicloDAO extends EasyDAO<AporteAlumnoCiclo> {
     public List<AporteAlumnoCiclo> allAporteDuplicadoCarnetByCicloMatriculaResumen(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens);
 
     public  List<AporteAlumnoCiclo> allByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    public AporteAlumnoCiclo findByAporteCicloResumen(AporteCiclo aporteCiclo, ResumenAporteAlumno resumen);
 
 }

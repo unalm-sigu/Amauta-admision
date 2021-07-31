@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -46,12 +47,20 @@ public class AconsejadosCarreraController {
     @Autowired
     CarreraService carreraService;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Carrera> carreras = consejeroService.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
 
+        boolean restriccionCape = verificadorService.isRolCape(ds);
+
         model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
+
+        model.addAttribute("restriccionCape", restriccionCape);
+
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";

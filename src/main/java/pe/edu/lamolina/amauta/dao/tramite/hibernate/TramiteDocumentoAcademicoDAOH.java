@@ -30,6 +30,7 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
                 .join("tipoDocumentoAcademico tda", "idioma idi", "tramite tra", "tra.alumno alu", "alu.persona per", "estadoTramite")
                 .join("tda.oficinaEmisora ofiemi")
                 .leftJoin("per.tipoDocumento td")
+                .leftJoin("archivo arch")
                 .searchFields("td.simbolo", "per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -33,13 +33,13 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWord.GeneradorWordSolicitudService;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.descargaWord.GeneradorWordSolicitudService;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.tipoConstancia.TipoConstanciaService;
+import pe.edu.lamolina.amauta.controller.tramite.tipoconstancia.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -94,27 +94,17 @@ public class PlantillaConstanciaController {
 
         PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
         List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(documentoAcademico);
-        List<VariableGenerica> variableGeneral = service.allVariableGeneral();
+        List<VariableGenerica> variableGeneral = service.allVariableGeneralFilterByCodigoEnum();
 
-        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        for (VariablePlantilla variablePlant : variablePlantilla) {
-            arrayNode.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
-                "*",
-                "variableGenerica.*"
-            }));
-        }
+        ArrayNode arrayNode = JaneHelper.from(variablePlantilla)
+                .join("variableGenerica").array();
 
-        ArrayNode arrayVariable = new ArrayNode(JsonNodeFactory.instance);
-        for (VariableGenerica variablePlant : variableGeneral) {
-            arrayVariable.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
-        }
+        ArrayNode arrayVariable = JaneHelper.from(variableGeneral).array();
 
-        ObjectNode nodePlantillaDocumentoAcademico = JsonHelper.createJson(documentoAcademico, JsonNodeFactory.instance, new String[]{
-            "*",
-            "tipoDocumentoAcademico.*",
-            "idioma.*",});
+        ObjectNode nodePlantillaDocumentoAcademico = JaneHelper.from(documentoAcademico)
+                .join("tipoDocumentoAcademico")
+                .join("idioma")
+                .json();
 
         model.addAttribute("plantillaDocumentoAcademico", nodePlantillaDocumentoAcademico.toString());
         model.addAttribute("variables", arrayVariable.toString());
@@ -373,8 +363,8 @@ public class PlantillaConstanciaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             String fileName = TypesUtil.getClean(TypesUtil.getUnixTime() + archivo.getOriginalFilename().toLowerCase().replaceAll("\\s", ""));
-            
-            logger.debug("file: {}",fileName);
+
+            logger.debug("file: {}", fileName);
 
             String absoluteName = GlobalConstantine.TMP_DIR + fileName;
 
@@ -418,4 +408,5 @@ public class PlantillaConstanciaController {
         }
         return response;
     }
+
 }

@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.aporte.AporteCiclo;
 import pe.edu.lamolina.amauta.dao.aporte.AporteCicloDAO;
+import pe.edu.lamolina.model.enums.AportesEnum;
 
 @Repository
 public class AporteCicloDAOH extends AbstractEasyDAO<AporteCiclo> implements AporteCicloDAO {
@@ -70,6 +71,15 @@ public class AporteCicloDAOH extends AbstractEasyDAO<AporteCiclo> implements Apo
                 .filter("ca.codigo", cicloAcademico.getCodigo())
                 .filter("ap.id", aporte);
 
+        return find(sql);
+    }
+
+    @Override
+    public AporteCiclo findByCodigoCiclo(AportesEnum aportesEnum, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query(AporteCiclo.class, "ac")
+                .join("cicloAcademico ca", "aporte a", "cuentaBancaria")
+                .filter("ca.id", ciclo.getId())
+                .filter("a.codigo", aportesEnum.name().replace("A", ""));
         return find(sql);
     }
 }

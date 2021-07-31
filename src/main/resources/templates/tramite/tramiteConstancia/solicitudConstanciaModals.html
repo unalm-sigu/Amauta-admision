@@ -1,68 +1,132 @@
-<modal-vik ref="viewBoleta"
-           v-bind="viewBoleta" >
-
+<modal-simple ref="viewBoleta"  >
+    <div slot="header">
+        <p class="h4 text-primary">Boleta de pago</p>
+    </div>
     <div slot="body">
+
         <template >
-            <div class="v-bottom m-t"  v-if="archivo != null">
+            <div class="v-bottom m-t"  v-if="archivoTmp != null">
 
-
-                <a v-bind:href="archivo.ruta" target="_blank"> <img alt="" class="img-responsive img-thumbnail pointer"
-                                                                    v-bind:src="archivo.ruta"
-                                                                    data-holder-rendered="true" /></a>
+                <a v-bind:href="archivoTmp.ruta" target="_blank"> 
+                    <img alt="" class="img-responsive img-thumbnail pointer"
+                         v-bind:src="archivoTmp.ruta"
+                         data-holder-rendered="true" /></a>
 
             </div>
-            <div class="v-bottom m-t" v-if="archivo != null">
-                <label class="label label-control">N° de Boleta</label>
-                <h2> <a >{{archivo.numeroBoleta}}</a></h2>
+
+            <div class="m-t h4 text-primary" v-if="archivoTmp != null">
+                <label>N° de Boleta {{tramiteDocumentoActivo.numeroBoleta}}</label>
             </div>
+
+            <div class="h4">
+                Costo del documento S./ <b>{{tramiteDocumentoActivo.costoTotal}}</b> 
+            </div>
+
         </template>
+
+
     </div>
-</modal-vik>
+</modal-simple>
 
-<modal-vik ref="modalLoadBoleta"
-           v-bind="modalLoadBoleta"
-           v-bind:okaction="saveLoadBoleta">
 
+<modal-simple ref="modalLoadBoleta" 
+              v-bind:okaction="saveLoadBoleta">
+    <div slot="header">
+        <p class="h4 text-primary">Subir Boleta de Pago</p>
+    </div>
     <div slot="body">
-        <div class="row mt-3">
-            <div class="col-sm-4 col-md-4">
-                <file-upload 
-                    v-show="!$refs.upload || !$refs.upload.active"
-                    extensions="jpg,jpeg,png"
-                    accept=".jpg,.jpeg,.png"
-                    input-id="file"
-                    name="file"
-                    class="col-sm-12 col-md-12 btn"
-                    v-bind:class="btnFileColor"
-                    post-action="/tramite/solicitudconstancia/uploadBoletaFile"
-                    v-on:input-file="inputFile"
-                    v-on:input-filter="inputFilter"
-                    ref="upload">
-                    <i class="fa fa-cloud-upload"> Seleccionar archivo</i>
-                </file-upload>
 
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-sm-12 col-md-12">
-                <p>{{archivo.nombre}}</p>
-            </div>
-        </div>
+        <form data-parsley-validate="true" method="POST">
 
-        <div class="progress-bar progress-bar-striped progress-bar-success active" 
-             style="height: 4px;">
-            <div id="progress-bar" class="progress-bar" 
-                 role="progressbar" 
-                 style="width: 0%;" 
-                 aria-valuenow="0" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100">
+            <div class="row mt-3">
+                <div class="col-sm-4 col-md-4">
+                    <file-upload 
+                        v-show="!$refs.upload || !$refs.upload.active"
+                        extensions="jpg,jpeg,png"
+                        accept=".jpg,.jpeg,.png"
+                        input-id="file"
+                        name="file"
+                        class="col-sm-12 col-md-12 btn"
+                        v-bind:class="btnFileColor"
+                        post-action="/tramite/solicitudconstancia/uploadBoletaFile"
+                        v-on:input-file="inputFile"
+                        v-on:input-filter="inputFilter"
+                        ref="upload">
+                        <i class="fa fa-cloud-upload"> Seleccionar archivo</i>
+                    </file-upload>
+
+                </div>
             </div>
-        </div>
-        <hr/>
-        <div >            
-            <label>N° de Boleta</label>
-            <input v-model="archivo.numeroBoleta" required="" class="form-control"/>
-        </div>
+            <div class="row mt-3">
+                <div class="col-sm-12 col-md-12">
+                    <p>{{archivo.nombre}}</p>
+                </div>
+            </div>
+
+            <div class="h4">
+                Costo del documento S./ <b>{{tramiteDocumentoActivo.costoTotal}}</b> 
+            </div>
+
+            <div class="progress-bar progress-bar-striped progress-bar-success active" 
+                 style="height: 4px;">
+                <div id="progress-bar" class="progress-bar" 
+                     role="progressbar" 
+                     style="width: 0%;" 
+                     aria-valuenow="0" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                </div>
+            </div>
+            <hr/>
+            <div >            
+                <label>N° de Boleta</label>
+                <input v-model="tramiteDocumentoActivo.numeroBoleta" required="true" class="form-control"/>
+            </div>
+        </form>
+
     </div>
-</modal-vik>
+</modal-simple>
+
+<modal-simple ref="modalValidarBoleta" 
+              v-bind:okaction="saveValidarBoleta">
+    <div slot="header">
+        <p class="h4 text-primary">Verificar Pago</p>
+    </div>
+    <div slot="body">
+
+        <form data-parsley-validate="true" method="POST">
+
+            <div class="h4">
+                Costo del documento S./ <b>{{tramiteDocumentoActivo.costoTotal}}</b> 
+            </div>
+
+            <div >            
+                <label>N° de Boleta</label>
+                <input v-model="tramiteDocumentoActivo.numeroBoleta" required="true" class="form-control"/>
+            </div>
+
+        </form>
+
+    </div>
+</modal-simple>
+
+
+
+<modal-simple ref="modalEntregarTramite" 
+              v-bind:okaction="saveEntregarTramite">
+    <div slot="header">
+        <p class="h4 text-primary">Entregar documento</p>
+    </div>
+    <div slot="body">
+
+        <form data-parsley-validate="true" method="POST">
+
+            <div >            
+                <label>Número del formato</label>
+                <input v-model="tramiteDocumentoActivo.numeroFormato" maxlength="500" required="true" class="form-control"/>
+            </div>
+
+        </form>
+
+    </div>
+</modal-simple>

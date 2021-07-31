@@ -1083,4 +1083,19 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         return all(sql);
     }
 
+    @Override
+    public Long countCiclosRegularTotal(Alumno alumno) {
+
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCiclo.class, "ac")
+                .join("ac.alumno al", "ac.cicloAcademico ca")
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("al.id", alumno)
+                .filter("ca.tipo", TipoCicloEnum.REG.name());
+
+        return (Long) sql.find(getCurrentSession());
+
+    }
+
 }

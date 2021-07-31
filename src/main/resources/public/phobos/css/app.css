@@ -38,10 +38,6 @@ a:focus {
   text-decoration: underline;
 }
 
-label {
-  font-weight: normal;
-}
-
 small, .small {
   font-size: 11px;
 }
@@ -171,7 +167,6 @@ a:hover .caret-white {
 }
 .form-control, .form-control:focus {
   -webkit-box-shadow: none;
-  box-shadow: none;
 }
 .form-control:focus {
   border-color: #22a4ff;

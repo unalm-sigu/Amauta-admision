@@ -3,7 +3,7 @@ Vue.component('date-picker', VueBootstrapDatetimePicker);
 Vue.component('file-upload', VueUploadComponent);
 
 var app = new Vue({
-    el: '#resolucionReinForm',
+    el: '#main',
     data: {
         resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []},
         oficinas: JSON.parse(oficinasJson),
@@ -90,7 +90,7 @@ var app = new Vue({
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
-                   $vue.allReincorporacion();
+                $vue.allReincorporacion();
             } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
             } else if (item.codigo == "TRAS" || item.codigo == "INTES" || item.codigo == "ING_HIS") {
@@ -317,6 +317,9 @@ var app = new Vue({
         },
         validFilter(ofi, item) {
             let $vue = this;
+            if (!item.alumno) {
+                return false;
+            }
             if (!$vue.visualizarSelect && (ofi != null && ofi.instanciaOficina != item.alumno.carrera.facultad.id)) {
                 return false;
             } else if ($vue.visualizarSelect && !item.seleccionado) {
@@ -358,8 +361,6 @@ var app = new Vue({
                         if (response.data != null && response.data.length > 0) {
                             $vue.errores = response.data;
                             $vue.$refs.modalError.open();
-//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
-//                            $vue.alumnos = [];
                             notify("Algunos alumnos no pudieron ser matriculados.", 'error');
                         } else {
                             notify(response.message, 'error');
@@ -407,8 +408,6 @@ var app = new Vue({
                                     if (response.data != null && response.data.length > 0) {
                                         $vue.errores = response.data;
                                         $vue.$refs.modalError.open();
-//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
-//                            $vue.alumnos = [];
                                         notify("Algunos alumnos no pudieron ser matriculados.", 'error');
                                     } else {
                                         notify(response.message, 'error');

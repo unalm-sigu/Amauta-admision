@@ -17,7 +17,7 @@
                             <li><a href="#" v-on:click.prevent="reporteGeneralShow"> Reporte general </a></li>
                         </ul>
                     </div>
-                    <h2 th:inline="text">Resultado de Encuestas [[${cicloAcademico.descripcion}]] </h2>
+                    <h2 th:inline="text">Resultado de Encuestas {{cicloAcademico.descripcion}} </h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -99,6 +99,8 @@
             <script th:inline="javascript">
                 var jFacultades = /*[[${jFacultades}]]*/ {};
                 var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
+                var CICLOS_ACADEMICOS = /*[[${ciclos}]]*/ {};
+                var CICLO_ACADEMICO = /*[[${cicloAcademico}]]*/ {};
             </script>
             <div th:substituteby="_modules/vue-modal_v1"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>

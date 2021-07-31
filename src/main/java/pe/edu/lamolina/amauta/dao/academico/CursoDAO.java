@@ -68,4 +68,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allProgramadosByCiclo(CicloAcademico ciclo);
 
+    public List<Curso> allByDynatableNombreCurso(DynatableFilter filter);
+
 }

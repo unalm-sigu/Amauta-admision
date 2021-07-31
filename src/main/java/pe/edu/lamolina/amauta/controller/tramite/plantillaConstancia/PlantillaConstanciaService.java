@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -46,4 +46,7 @@ public interface PlantillaConstanciaService {
     public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 
     public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+
+    public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
+
 }

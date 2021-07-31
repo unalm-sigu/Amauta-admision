@@ -90,7 +90,10 @@ public class ActaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        //   model.addAttribute("docente", ds.getDocente());
+        Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
+
+//   model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("esOperadorEditor", esOperadorEditor);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "academico/acta/acta";
@@ -103,16 +106,27 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            logger.debug("Departamentos count {}", ds.getOficinaMain().getCodigo());
+            logger.debug("Codigo oficina principal {}", ds.getOficinaMain().getCodigo());
+
             List<DepartamentoAcademico> departamentoAcademicos = ds.getDepartamentos();
+
             if (ds.getOficinaMain().getCodigoEnum() == OficinaEnum.EPG) {
+                logger.debug("Pertenece a EPG por ende all deparatamentos");
                 departamentoAcademicos = service.allDepartamentosAcademicos();
             }
 
             List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, departamentoAcademicos, ciclo);
+
+            for (DepartamentoAcademico departamentosAcaActivo : departamentosAcaActivos) {
+                logger.debug("Pertenece al departamento {}", departamentosAcaActivo.getCodigo());
+            }
+
+            logger.debug("departamentosAcaActivos {}", departamentosAcaActivos.size());
+
             List<Long> departamentos = new ArrayList<>();
             for (DepartamentoAcademico departamento : departamentosAcaActivos) {
                 departamentos.add(departamento.getId());
@@ -171,11 +185,17 @@ public class ActaController {
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
+        logger.debug("esOperadorEditor {}", esOperadorEditor);
+
+        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
+        logger.debug("isRevisorActaNotas {}", isRevisorActaNotas);
+
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
         model.addAttribute("gruposSecciones", allGruposSeccion);
         model.addAttribute("esOperadorEditor", esOperadorEditor);
+        model.addAttribute("isRevisorActaNotas", isRevisorActaNotas);
         return "academico/acta/actaDepartamento";
 
     }

@@ -6,6 +6,9 @@ new Vue({
         label: {'INA': 'label-warning', 'ACT': 'label-success', 'ANU': 'label-danger'},
         labelText: {'INA': 'Inactivo', 'ACT': 'Activo', 'ANU': 'Anulado'},
         puntajeDocenteModalidad: [],
+        ciclos: JSON.parse(CICLOS_ACADEMICOS),
+        cicloAcademico: JSON.parse(CICLO_ACADEMICO),
+        ciclo:JSON.parse(CICLO_ACADEMICO),
         facultades: JSON.parse(jFacultades),
         departamentos: JSON.parse(jDepartamentos),
         departamentosSelectos: [],
@@ -33,6 +36,7 @@ new Vue({
         downloadReporteTotal() {
             let vue = this;
             let data = {params: {
+                    cicloAcademico: vue.ciclo?vue.ciclo.id:'',
                     departamento: vue.departamento ? vue.departamento.id : '',
                     tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
                     facultad: vue.facultad ? vue.facultad.id : '',

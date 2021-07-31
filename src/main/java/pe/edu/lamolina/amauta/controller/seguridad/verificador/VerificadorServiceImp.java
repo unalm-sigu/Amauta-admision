@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +70,8 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Autowired
     OficinaService oficinaService;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public enum CantidadItemsEnum {
         TODOS, PARCIAL, SIN_PERMISO
@@ -1038,6 +1042,28 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
         return esTrabajadorOERA;
+    }
+
+    @Override
+    public boolean isRevisorActaNotas(DataSessionPivot ds) {
+
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isRolCape(DataSessionPivot ds) {
+
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.CAPE) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

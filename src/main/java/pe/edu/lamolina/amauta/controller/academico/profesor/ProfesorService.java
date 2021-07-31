@@ -68,4 +68,8 @@ public interface ProfesorService {
 
     List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones);
 
+    CicloAcademico findCicloAcademico(Long idCicloAcademico);
+
+    List<CicloAcademico> allCicloAcademico();
+
 }

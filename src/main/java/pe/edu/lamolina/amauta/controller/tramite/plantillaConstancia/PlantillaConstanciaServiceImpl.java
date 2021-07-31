@@ -1,10 +1,13 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +17,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import static pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia.IdiomaEnum.EN;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
+import pe.edu.lamolina.model.enums.VariableGenericaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -25,11 +30,13 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.amauta.dao.academico.NombreCicloDAO;
 import pe.edu.lamolina.amauta.dao.general.IdiomaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PlantillaDocumentoAcademicoDAO;
+import pe.edu.lamolina.model.academico.NombreCiclo;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
@@ -49,7 +56,11 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     VariablePlantillaDAO variablePlantillaDAO;
 
     @Autowired
+    NombreCicloDAO nombreCicloDAO;
+
+    @Autowired
     AlumnoDAO alumnoDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -265,11 +276,25 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             plantillaDocumentoAcademicoDB = variablePlantilla.getPlantillaDocumentoAcademico();
             variablePlantillaDAO.delete(variablePlantilla);
         }
-        
+
         plantillaDocumentoAcademicoDAO.delete(plantillaDocumentoAcademicoDB);
     }
 
     @Override
     public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
     }
+
+    @Override
+    public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum() {
+
+        List<String> codigoVariableGenerica = Stream.of(VariableGenericaEnum.values())
+                .map(x -> x.name()).collect(Collectors.toList());
+
+        for (String string : codigoVariableGenerica) {
+            logger.debug("{}", string);
+        }
+
+        return variableGenericaDAO.allByPregradoByCodigoEnum(codigoVariableGenerica);
+    }
+
 }

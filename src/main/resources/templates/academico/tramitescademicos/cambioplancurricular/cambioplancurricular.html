@@ -1,0 +1,62 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Trámite Cambio Plan Curricular</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <cambio-plan-curricular-nuevo></cambio-plan-curricular-nuevo>
+
+                    <h2 th:inline="text">Trámite Cambio Plan de Curricular [[ ${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+
+                </header>
+
+                <section  class="wrapper-lg">
+
+                    <cambio-plan-curricular-list ref="cambioplancurricularlist"></cambio-plan-curricular-list>
+
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script th:inline="javascript">
+                var CICLOS = /*[[${ciclos}]]*/ '';
+            </script>
+
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
+
+            <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
+
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+
+                const CambioPlanCurricularList = httpVueLoader('/app/academico/tramitesacademicos/cambioplancurricular/CambioPlanCurricularList.vue');
+                const CambioPlanCurricularNuevo = httpVueLoader('/app/academico/tramitesacademicos/cambioplancurricular/CambioPlanCurricularNuevo.vue');
+
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        cambioPlanCurricularList: CambioPlanCurricularList,
+                        cambioPlanCurricularNuevo: CambioPlanCurricularNuevo,
+                    }
+                });
+
+            </script>
+
+        </div>
+
+
+    </body>
+</html>

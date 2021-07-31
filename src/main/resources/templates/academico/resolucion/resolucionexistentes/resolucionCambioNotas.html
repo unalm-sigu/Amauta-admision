@@ -12,7 +12,7 @@
                              deselect-label="No se puede eliminar este valor"
                              v-bind:internal-search='false'
                              v-on:select="cicloCambioNota($event,resolucion)"
-                             placeholder="Ingresa un caracter como mínimo" 
+                             placeholder=" " 
                              v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
@@ -63,7 +63,7 @@
                              v-bind:show-labels="false"
                              v-bind:allow-empty="false"
                              v-bind:internal-search='true'
-                             placeholder="Ingresa un caracter"                                         
+                             placeholder=" "                                         
                              required="true"  
                              v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null">
                 </multiselect>

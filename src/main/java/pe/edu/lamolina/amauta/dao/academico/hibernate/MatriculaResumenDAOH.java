@@ -961,4 +961,18 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return Long.parseLong(sql.all(getCurrentSession()).size() + "");
     }
 
+    @Override
+    public List<MatriculaResumen> allMatriculadosByCicloAndCarreraForFoto(CicloAcademico cicloAcademico, String carrera) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona per")
+                .filter("estado", MAT)
+                .isNotNull("per.foto")
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("car.codigo", carrera);
+        return all(sql);
+    }
+
 }

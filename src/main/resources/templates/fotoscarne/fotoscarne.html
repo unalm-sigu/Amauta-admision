@@ -1,0 +1,76 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Fotos Carne</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <h1>Fotos Carne Editado </h1>  <h1 th:text="${ciclo.descripcion}"></h1>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <div v-bind:is="rootComponent"></div>
+
+                </section>
+                
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            
+            <script th:inline="javascript">
+                
+                var MODALIDADES_JSON = /*[[${modalidades}]]*/ '';
+                
+            </script>
+            
+            <script type="text/javascript" th:src="@{/phobos/js/httpVueLoader.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/js/vue-simple-progress.min.js}" charset="utf-8"></script>
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('vue-simple-progress', VueSimpleProgress.default);
+
+                const FotosCarne = httpVueLoader('/app/fotoscarne/fotoCarne.vue');
+
+                Vue.use(Vuex);
+
+                const store = new Vuex.Store({
+                    state: {
+                        count: 0
+                    },
+                    mutations: {
+                        increment(state) {
+                            state.count++
+                        }
+                    }
+                });
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        fotosCarne: FotosCarne,
+                    },
+                    data: {
+                        rootComponent: 'fotosCarne',
+                    },
+                    methods: {
+                        setView(view) {
+                            this.rootComponent = view;
+                        }
+                    }
+                });
+
+            </script>
+        </div>
+
+    </body>
+</html>

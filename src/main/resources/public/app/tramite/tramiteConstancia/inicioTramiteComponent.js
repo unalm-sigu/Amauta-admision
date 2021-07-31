@@ -12,7 +12,8 @@ Vue.component("inicio-tram-component", {
             showCostoDocumento: false,
             guardando: false,
             ciclo: {},
-            isUpdate: false
+            isUpdate: false,
+            tramiteAcademico: {},
         }
     },
     mounted() {
@@ -49,16 +50,23 @@ Vue.component("inicio-tram-component", {
             let $vue = this;
             $vue.findAlumno(item.id);
         },
-        clearOption(item) {
+        clearOption(data) {
+            
             let $vue = this;
             $vue.solicitud = {};
             $vue.ciclo = {};
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
+
+            Vue.set($vue.solicitud, "personaContacto", data.persona.nombreCompleto);
+            Vue.set($vue.solicitud, "telefono", data.persona.telefono);
+            Vue.set($vue.solicitud, "celular", data.persona.celular);
+            Vue.set($vue.solicitud, "email", data.persona.email);
+
         },
         idiomaDocumento(value) {
             let $vue = this;
-//            $vue.solicitud.idioma = null;
+            this.$delete($vue.solicitud, 'idioma');
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
             $vue.idiomas = value.idiomas;
@@ -84,14 +92,27 @@ Vue.component("inicio-tram-component", {
                             notify(response.data.message, "error");
                         }
                     });
-            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
-                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
-                    if (item.idioma.id == value.id) {
-                        $vue.showCostoDocumento = true;
-                        $vue.costoDocumento = item.precio;
-                    }
-                });
-            }
+
+            $vue.tramiteAcademico = {};
+            $vue.tramiteAcademico.tramite = {};
+            $vue.tramiteAcademico.tramite.alumno = {id: $vue.tramite.alumno.id};
+            $vue.tramiteAcademico.tipoDocumentoAcademico = {id: $vue.solicitud.tipoDocumentoAcademico.id};
+            $vue.tramiteAcademico.idioma = {id: value.id};
+
+            axios.post('/tramite/solicitudconstancia/calcularPrecio', $vue.tramiteAcademico)
+                    .then(response => {
+                        console.log(response);
+                        if (response.data.success) {
+                            $vue.showCostoDocumento = response.data.data.showCostoDocumento;
+                            $vue.costoDocumento = response.data.data.costoDocumento;
+                            $vue.costoTotal = response.data.data.costoTotal;
+                            $vue.cantidadCiclos = response.data.data.cantidadCiclos
+                            $vue.$forceUpdate()
+                        } else {
+                            $vue.showCostoDocumento = false;
+                        }
+                    });
+
         },
         submitForm() {
             let $vue = this;
@@ -132,12 +153,7 @@ Vue.component("inicio-tram-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        Vue.set($vue.solicitud, "personaContacto", response.data.persona.nombreCompleto);
-                        Vue.set($vue.solicitud, "telefono", response.data.persona.telefono);
-                        Vue.set($vue.solicitud, "celular", response.data.persona.celular);
-                        Vue.set($vue.solicitud, "email", response.data.persona.email);
                         $vue.$parent.alumno = response.data;
-//                        notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
                     }

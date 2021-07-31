@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.deuda.DeudaDTO;
 import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
+import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.extensionobu.TallerCiclo;
 
 @Repository
@@ -122,6 +123,17 @@ public class AcreenciaDAOH extends AbstractEasyDAO<Acreencia> implements Acreenc
                 .filter("per.id", persona)
                 .filter("estado", DeudaEstadoEnum.DEU)
                 .filter("instanciaTabla", idInstancia);
+        return find(sql);
+    }
+
+    @Override
+    public Acreencia findDebeByDeudaAlumno(DeudaAlumno deudaAlumno) {
+        Octavia sql = new Octavia()
+                .from(Acreencia.class, "acr")
+                .join("persona per", "oficina ofi", "cuentaBancaria")
+                .filter("acr.estado", DeudaEstadoEnum.DEU)
+                .filter("acr.tabla", NombreTablasEnum.FIN_DEUDA_ALUMNO)
+                .filter("acr.instanciaTabla", deudaAlumno);
         return find(sql);
     }
 

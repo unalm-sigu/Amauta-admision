@@ -234,6 +234,14 @@
                                 <span v-text='alumno.ciclosVeranosTransient'></span>
                             </td>
                         </tr>
+                        <tr v-if="esEgresado">
+                            <td>
+                                <strong> Promedio ponderado egresado  </strong>
+                            </td>
+                            <td>
+                                <span v-text='promedioGraduacion'></span>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

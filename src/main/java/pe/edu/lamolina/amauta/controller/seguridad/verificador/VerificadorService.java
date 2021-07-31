@@ -78,4 +78,8 @@ public interface VerificadorService {
 
     boolean isTrabajadorOera(DataSessionPivot ds);
 
+    boolean isRevisorActaNotas(DataSessionPivot ds);
+    
+    boolean isRolCape(DataSessionPivot ds);
+
 }

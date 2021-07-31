@@ -105,4 +105,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allActivosByDocentesCiclo(List<Docente> docentes, CicloAcademico cicloAcademico);
 
+    List<DocenteSeccion> allActivosByDocentesCicloCodigo(List<Docente> docentes, CicloAcademico cicloAcademico);
+
 }

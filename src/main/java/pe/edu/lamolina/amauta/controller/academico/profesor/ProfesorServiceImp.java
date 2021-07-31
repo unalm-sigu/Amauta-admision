@@ -20,6 +20,7 @@ import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -108,6 +109,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -674,12 +678,22 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclo(List<Docente> docentes, CicloAcademico cicloAcademico) {
-        return docenteSeccionDAO.allActivosByDocentesCiclo(docentes, cicloAcademico);
+        return docenteSeccionDAO.allActivosByDocentesCicloCodigo(docentes, cicloAcademico);
     }
 
     @Override
     public List<HorarioSeccion> allHorarioSeccionBySecciones(List<Seccion> secciones) {
         return horarioSeccionDAO.allBySecciones(secciones);
+    }
+
+    @Override
+    public CicloAcademico findCicloAcademico(Long idCicloAcademico) {
+        return cicloAcademicoDAO.find(idCicloAcademico);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademico() {
+        return cicloAcademicoDAO.allPregradoByRange(1980,2050);
     }
 
 }

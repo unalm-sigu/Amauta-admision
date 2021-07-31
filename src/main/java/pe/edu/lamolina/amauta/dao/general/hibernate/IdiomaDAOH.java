@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.general.hibernate;
 
+import static java.math.BigDecimal.ONE;
 import java.util.List;
 import pe.edu.lamolina.amauta.dao.general.IdiomaDAO;
 import org.springframework.stereotype.Repository;
@@ -7,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia.IdiomaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 
 @Repository
@@ -38,11 +40,20 @@ public class IdiomaDAOH extends AbstractEasyDAO<Idioma> implements IdiomaDAO {
     @Override
     public List<Idioma> allDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
-                .from(Idioma.class,"ii")
+                .from(Idioma.class, "ii")
                 .searchFields("nombre", "codigo")
                 .orderBy("ii.id desc");
 
         return all(sql);
+    }
+
+    @Override
+    public Idioma findByCodigoEnum(IdiomaEnum idiomaEnum) {
+        Octavia sql = Octavia.query()
+                .from(Idioma.class, "idi")
+                .filter("idi.codigo", idiomaEnum.getAcronimo()).
+                limit(ONE.intValue());
+        return find(sql);
     }
 
 }

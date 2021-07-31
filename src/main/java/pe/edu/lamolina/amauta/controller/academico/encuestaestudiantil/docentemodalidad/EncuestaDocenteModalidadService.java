@@ -25,4 +25,6 @@ public interface EncuestaDocenteModalidadService {
 
     List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request);
 
+    public List<CicloAcademico> allCicloAcademico();
+
 }

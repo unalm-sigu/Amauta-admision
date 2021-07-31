@@ -20,4 +20,6 @@ public interface CursoPropedeuticoService {
 
     public List<AlumnoCursoPropedeutico> list(DynatableFilter filter, CicloAcademico cicloAcademico);
 
+    public void eliminarDeudaAlumnoCursoPropedeutico(Long idAlumnoCursoPropedeutico, CicloAcademico cicloAcademico, Usuario usuario);
+
 }

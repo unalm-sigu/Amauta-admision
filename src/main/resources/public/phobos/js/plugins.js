@@ -85,11 +85,6 @@
             };
         });
 
-        // slider
-        $('.slider').each(function () {
-            $(this).slider();
-        });
-
         // spinner
         $("input[data-ride='spinner']").each(function () {
             var $options = $(this).data();
