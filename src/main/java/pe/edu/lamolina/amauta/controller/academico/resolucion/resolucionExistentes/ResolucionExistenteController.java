@@ -3,13 +3,8 @@ package pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExisten
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -17,35 +12,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
-import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
-import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.NOTA_BAJA;
-import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
@@ -53,42 +39,45 @@ import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableServ
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.OBTE_GRADO;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
+import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Controller
 @RequestMapping("academico/resolucion")
-public class ResolucionExistentesController {
+public class ResolucionExistenteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    static List<String> TIPO_RESOLUCION = Arrays.asList(
-            READMISION.name(),
-            TRAS_INT.name(),
-            RCI.name(),
-            ANCI.name(),
-            REIC.name(), 
-            CAM_NOTA.name(), 
-            CURDIR.name(), 
-            TRAS.name(),
-            INTES.name(),
-            NOTA_BAJA.name(), 
-            BACHI.name(), 
-            TITUL.name(), 
-            PRACTICAS.name());
+    static List<String> TIPOS_RESOLUCIONES = Arrays.asList(
+            TipoResolucionEnum.READMISION.name(),
+            TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR.name(),
+            TipoResolucionEnum.TRAS_INT.name(),
+            TipoResolucionEnum.RCI.name(),
+            TipoResolucionEnum.ANCI.name(),
+            TipoResolucionEnum.REIC.name(),
+            TipoResolucionEnum.CAM_NOTA.name(),
+            TipoResolucionEnum.CURDIR.name(),
+            TipoResolucionEnum.TRAS.name(),
+            TipoResolucionEnum.INTES.name(),
+            TipoResolucionEnum.NOTA_BAJA.name(),
+            TipoResolucionEnum.BACHI.name(),
+            TipoResolucionEnum.TITUL.name(),
+            TipoResolucionEnum.PRACTICAS.name()
+    );
 
     @Autowired
     ResolucionExistenteService service;
@@ -102,112 +91,68 @@ public class ResolucionExistentesController {
     @Autowired
     AvanceCurricularService avanceCurricularService;
 
-    private MultipartFile resolucionFile;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
-
     @RequestMapping(value = "resolucionExistentes", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode carrerasJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode tipoResolucionJson = new ArrayNode(JsonNodeFactory.instance);
 
-        List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
-        for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (TIPO_RESOLUCION.contains(tipoResolucion.getCodigo())) {
-                tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
-            }
-        }
+        ArrayNode tipoResolucionJson = JaneHelper
+                .from(service.allTipoResolucionByCodigo(TIPOS_RESOLUCIONES))
+                .array();
 
-        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(40);
-        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
-        List<Carrera> carreras = service.allCarrera();
-        for (Oficina oficina : oficinas) {
-            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
-            oficinasJson.add(oficinaJson);
-        }
-        for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            ObjectNode cicloJson = JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"});
-            ciclosJson.add(cicloJson);
-        }
-        for (Carrera carrera : carreras) {
-            ObjectNode carreraJson = JsonHelper.createJson(carrera, JsonNodeFactory.instance, new String[]{"*"});
-            carrerasJson.add(carreraJson);
-        }
+        ArrayNode oficinasJson = JaneHelper
+                .from(resolucionService.allOFicinasByUser(ds))
+                .array();
+
+        ArrayNode ciclosJson = JaneHelper
+                .from(service.ciclosAnteriores(40))
+                .array();
+
+        ArrayNode carrerasJson = JaneHelper
+                .from(service.allCarrera())
+                .array();
+
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
+
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
     @RequestMapping(value = "updateresolucionExistentes/{idResolucion}", method = RequestMethod.GET)
     public String updateresolucionExistentes(@PathVariable(value = "idResolucion") Long idResolucion, Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode carrerasJson = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode tipoResolucionJson = new ArrayNode(JsonNodeFactory.instance);
 
-        List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
-        for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name()).contains(tipoResolucion.getCodigo())) {
-                tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
-            }
-        }
+        ArrayNode tipoResolucionJson = JaneHelper
+                .from(service.allTipoResolucionByCodigo(TIPOS_RESOLUCIONES))
+                .array();
 
-        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(40);
-        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
-        List<Carrera> carreras = service.allCarrera();
-        for (Oficina oficina : oficinas) {
-            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
-            oficinasJson.add(oficinaJson);
-        }
-        for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            ObjectNode cicloJson = JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"});
-            ciclosJson.add(cicloJson);
-        }
-        for (Carrera carrera : carreras) {
-            ObjectNode carreraJson = JsonHelper.createJson(carrera, JsonNodeFactory.instance, new String[]{"*"});
-            carrerasJson.add(carreraJson);
-        }
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode oficinasJson = JaneHelper
+                .from(resolucionService.allOFicinasByUser(ds))
+                .array();
+
+        ArrayNode ciclosJson = JaneHelper
+                .from(service.ciclosAnteriores(40))
+                .array();
+
+        ArrayNode carrerasJson = JaneHelper
+                .from(service.allCarrera())
+                .array();
+
         Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
 
         ObjectNode objectNode = this.findDataResolucion(resolucionDB);
+
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
         model.addAttribute("resolucion", objectNode);
+
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
@@ -282,10 +227,6 @@ public class ResolucionExistentesController {
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
-//                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
-//
-//                    service.generarNuevoPlan(resolucion, ds);
-//                }
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             } else if (resolucion.isTipoNotaBaja()) {
@@ -302,6 +243,22 @@ public class ResolucionExistentesController {
                 String token = service.saveResolucionTramitePracticas(resolucion, ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
+            } else if (resolucion.isTipoReadmision()) {
+                String token = service.saveReadmision(resolucion, ds.getUsuario(), ds);
+                if (!token.isEmpty()) {
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+                    matriculableService.generarAportes(ds, token);
+                }
+            } else if (resolucion.isTipoCambioPlanCurricular()) {
+                String token = service.saveCambioPlanCurricular(resolucion, ds.getUsuario(), ds);
+                if (!token.isEmpty()) {
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+                    matriculableService.generarAportes(ds, token);
+                }
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -322,6 +279,7 @@ public class ResolucionExistentesController {
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<String> msg = new ArrayList();
@@ -416,10 +374,8 @@ public class ResolucionExistentesController {
     }
 
     private ObjectNode findDataResolucion(Resolucion resolucionDB) {
-        List<Reincorporacion> reincorporacions = new ArrayList();
+
         List<RetiroCiclo> retiroCiclos = new ArrayList();
-        List<CambioNota> cambioNotas = new ArrayList();
-        List<CursoDirigido> cursoDirigidos = new ArrayList();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         ObjectNode objectNode = JsonHelper.createJson(resolucionDB, JsonNodeFactory.instance, new String[]{
@@ -428,107 +384,7 @@ public class ResolucionExistentesController {
             "oficina.*",
             "cicloAplica.*"
         });
-//        if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
-//            reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
-//            for (Reincorporacion reicorporacion : reincorporacions) {
-//                ObjectNode node = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "facultad.*",
-//                    "alumno.*",
-//                    "alumno.persona.*",
-//                    "alumno.persona.tipoDocumento.*",
-//                    "cicloReincorporacion.*"
-//                });
-//                node.put("tipo", REIC.name());
-//                array.add(node);
-//            }
-//            objectNode.set("reincorporaciones", array);
-//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
-//
-//            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
-//            for (RetiroCiclo retiroCiclo : retiroCiclos) {
-//                ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "alumno.*",
-//                    "alumno.persona.*",
-//                    "alumno.persona.tipoDocumento.*",
-//                    "cicloAcademico.*"
-//                });
-//                node.put("tipo", RCI.name());
-//                array.add(node);
-//            }
-//            objectNode.set("retiroCiclo", array);
-//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
-//            cambioNotas = service.allCambioNota(resolucionDB);
-//            for (CambioNota cambioNota : cambioNotas) {
-//                ObjectNode node = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "curso.*",
-//                    "alumno.*",
-//                    "alumno.persona.*",
-//                    "alumno.persona.tipoDocumento.*",
-//                    "cicloAcademico.*"
-//                });
-//                node.put("tipo", CAM_NOTA.name());
-//                array.add(node);
-//            }
-//            objectNode.set("cambioNota", array);
-//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
-//            cursoDirigidos = service.allCursodirigido(resolucionDB);
-//            for (CursoDirigido cursoDir : cursoDirigidos) {
-//
-//                cursoDir.setAlumno(cursoDir.getTramite().getAlumno());
-//                ObjectNode node = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "alumno.id",
-//                    "alumno.codigo",
-//                    "alumno.persona.*",
-//                    "curso.*",
-//                    "docenteAsignado.*",
-//                    "docenteAsignado.*",
-//                    "docenteAsignado.persona.*",
-//                    "tramite.*",
-//                    "tramite.alumno.*",
-//                    "tramite.alumno.persona.*",
-//                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
-//                });
-//                node.put("tipo", CURDIR.name());
-//                array.add(node);
-//            }
-//            objectNode.set("cursoDirigido", array);
-//        } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
-//            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
-//            for (TramiteTraslado tramiteTras : tramiteTraslados) {
-//                tramiteTras.setAlumno(tramiteTras.getTramite().getAlumno());
-//                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "alumno.id",
-//                    "alumno.codigo",
-//                    "alumno.persona.*",
-//                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-//                    "tramite.alumno.*",
-//                    "tramite.alumno.persona.*",
-//                    "tramite.alumno.persona.tipoDocumento.*"
-//                });
-//                node.put("tipo", TRAS.name());
-//                array.add(node);
-//            }
-//            objectNode.set("tramiteTraslado", array);
-//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(NOTA_BAJA.name())) {
-//            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
-//            for (TramiteTraslado tramiteTras : tramiteTraslados) {
-//                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
-//                    "*",
-//                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-//                    "tramite.alumno.*",
-//                    "tramite.alumno.persona.*",
-//                    "tramite.alumno.persona.tipoDocumento.*"
-//                });
-//                node.put("tipo", NOTA_BAJA.name());
-//                array.add(node);
-//            }
-//            objectNode.set("cambioNotaMasBajas", array);
-//        } 
+
         if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
             List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucionDB);
             for (TramiteBachiller bachiller : bachillers) {
@@ -888,28 +744,57 @@ public class ResolucionExistentesController {
     @ResponseBody
     @RequestMapping("allReincorporacion")
     public JsonResponse allReincorporacion(HttpSession session) {
+
         JsonResponse response = new JsonResponse();
+
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<Reincorporacion> reincorporacion = service.allReincorporacion();
+            List<Reincorporacion> reincorporaciones = service.allReincorporacion();
 
-            for (Reincorporacion ppp : reincorporacion) {
-                ppp.setAlumno(ppp.getTramite().getAlumno());
-                ppp.setSeleccionado(Boolean.FALSE);
-                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "cicloReincorporacion.*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.carrera.facultad.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*"
-                }));
-            }
+            ArrayNode array = JaneHelper.from(reincorporaciones)
+                    .join("cicloReincorporacion")
+                    .join("alumno")
+                    .join("alumno.carrera")
+                    .join("alumno.carrera.facultad")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .array();
+
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allReadmision")
+    public JsonResponse allReadmision(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<Readmision> readmisiones = service.allReadmision();
+
+            ArrayNode array = JaneHelper.from(readmisiones)
+                    .join("cicloReadmitido")
+                    .join("alumno")
+                    .join("alumno.carrera")
+                    .join("alumno.carrera.facultad")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .array();
+
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {

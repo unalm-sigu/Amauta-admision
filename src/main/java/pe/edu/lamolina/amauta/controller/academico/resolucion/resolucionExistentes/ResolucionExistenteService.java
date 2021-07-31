@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
+import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -28,7 +29,7 @@ public interface ResolucionExistenteService {
 
     Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
 
-    List<TipoResolucion> allTipoResolucion();
+    List<TipoResolucion> allTipoResolucionByCodigo(List<String> codigos);
 
     String saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
@@ -85,5 +86,11 @@ public interface ResolucionExistenteService {
     public List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
 
     public List<Reincorporacion> allReincorporacion();
+
+    public List<Readmision> allReadmision();
+
+    public String saveReadmision(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
+    public String saveCambioPlanCurricular(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
 }

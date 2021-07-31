@@ -103,6 +103,7 @@ import pe.edu.lamolina.amauta.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ReadmisionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
@@ -125,12 +126,13 @@ import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
+import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Service
 @Transactional(readOnly = true)
-public class ResolucionExistentesServiceImp implements ResolucionExistenteService {
+public class ResolucionExistenteServiceImp implements ResolucionExistenteService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -230,6 +232,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Autowired
     TramitePracticaPreProfesionalesDAO practicaPreProfesionalesDAO;
 
+    @Autowired
+    ReadmisionDAO readmisionDAO;
+
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
         Oficina oficina = instanciaOficina == null ? null : oficinaDAO.find(instanciaOficina);
@@ -275,12 +280,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         Resolucion resolucion = resolucionDAO.findById(resolucionId);
 
         return resolucion;
-    }
-
-    @Override
-    public List<TipoResolucion> allTipoResolucion() {
-
-        return tipoResolucionDAO.all();
     }
 
     @Override
@@ -1534,6 +1533,158 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<Reincorporacion> allReincorporacion() {
         return reincorporacionDAO.allPendientesByCicloReincorporacion();
+    }
+
+    @Override
+    public List<TipoResolucion> allTipoResolucionByCodigo(List<String> codigos) {
+        return tipoResolucionDAO.allByCodigo(codigos);
+    }
+
+    @Override
+    public List<Readmision> allReadmision() {
+        return readmisionDAO.allPendientes();
+    }
+
+    @Override
+    @Transactional
+    public String saveReadmision(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.READMISION);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
+        Assert.isFalse(resolucionForm.getReincorporaciones().isEmpty(), "Debe Agregar alumnos.");
+
+        return this.saveReadmision(resolucionForm, resolucion);
+    }
+
+    @Override
+    @Transactional
+    public String saveCambioPlanCurricular(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
+        Assert.isFalse(resolucionForm.getReincorporaciones().isEmpty(), "Debe Agregar alumnos.");
+
+        return this.saveCambioPlanCurricular(resolucionForm, resolucion);
+    }
+
+    private String saveReadmision(Resolucion resolucionForm, Resolucion resolucionBD) {
+        List<Alumno> alumnos = new ArrayList();
+        List<Reincorporacion> tramiteReincorporacion = resolucionForm.getReincorporaciones().stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
+        Assert.isFalse(tramiteReincorporacion.isEmpty(), "Debe seleccionar como mínimo un alumnos.");
+
+        Map<Long, Long> couterMap = tramiteReincorporacion.stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+        for (Long count : couterMap.values()) {
+            Assert.isFalse(count > 1, "Está repitiendo alumno");
+        }
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allPendientesByCicloReincorporacion();
+        Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
+
+        EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
+        for (Reincorporacion reincorporacioneForm : tramiteReincorporacion) {
+
+            Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
+            reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
+            reincorporacion.setResolucion(resolucionBD);
+            reincorporacion.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            reincorporacionDAO.updateColumns(reincorporacion, "aceptado", "resolucion", "estadoTramite");
+
+            Tramite tramite = reincorporacion.getTramite();
+            tramite.setEstadoEnum(reincorporacioneForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
+            tramite.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            tramiteDAO.update(tramite);
+            if (reincorporacion.getCicloReincorporacion().getId().equals(cicloActivo.getId())) {
+                alumnos.add(reincorporacion.getAlumno());
+            }
+        }
+        String token = "";
+        if (!alumnos.isEmpty()) {
+
+            token = RandomStringUtils.randomAlphanumeric(43);
+            String tokenProm = token + TOKEN_PROMEDIOS;
+            String tokenCurri = token + TOKEN_CURRICULA;
+            String tokenMatri = token + TOKEN_MATRICULABLE;
+
+            visorCalculoNotas.createToken(tokenProm, alumnos);
+            visorCalculoNotas.createToken(tokenCurri, alumnos);
+            visorCalculoNotas.createToken(tokenMatri, alumnos);
+        }
+
+        return token;
+    }
+
+    private String saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucionBD) {
+        List<Alumno> alumnos = new ArrayList();
+        List<Reincorporacion> tramiteReincorporacion = resolucionForm.getReincorporaciones().stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
+        Assert.isFalse(tramiteReincorporacion.isEmpty(), "Debe seleccionar como mínimo un alumnos.");
+
+        Map<Long, Long> couterMap = tramiteReincorporacion.stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+        for (Long count : couterMap.values()) {
+            Assert.isFalse(count > 1, "Está repitiendo alumno");
+        }
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allPendientesByCicloReincorporacion();
+        Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
+
+        EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
+        for (Reincorporacion reincorporacioneForm : tramiteReincorporacion) {
+
+            Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
+            reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
+            reincorporacion.setResolucion(resolucionBD);
+            reincorporacion.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            reincorporacionDAO.updateColumns(reincorporacion, "aceptado", "resolucion", "estadoTramite");
+
+            Tramite tramite = reincorporacion.getTramite();
+            tramite.setEstadoEnum(reincorporacioneForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
+            tramite.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            tramiteDAO.update(tramite);
+            if (reincorporacion.getCicloReincorporacion().getId().equals(cicloActivo.getId())) {
+                alumnos.add(reincorporacion.getAlumno());
+            }
+        }
+        String token = "";
+        if (!alumnos.isEmpty()) {
+
+            token = RandomStringUtils.randomAlphanumeric(43);
+            String tokenProm = token + TOKEN_PROMEDIOS;
+            String tokenCurri = token + TOKEN_CURRICULA;
+            String tokenMatri = token + TOKEN_MATRICULABLE;
+
+            visorCalculoNotas.createToken(tokenProm, alumnos);
+            visorCalculoNotas.createToken(tokenCurri, alumnos);
+            visorCalculoNotas.createToken(tokenMatri, alumnos);
+        }
+
+        return token;
     }
 
 }

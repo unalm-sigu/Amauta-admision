@@ -50,4 +50,6 @@ public interface ReadmisionDAO extends EasyDAO<Readmision> {
 
     Readmision find(Long readmision);
 
+    public List<Readmision> allPendientes();
+
 }

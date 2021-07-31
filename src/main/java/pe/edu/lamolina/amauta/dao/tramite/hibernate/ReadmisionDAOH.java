@@ -10,14 +10,15 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReadmisionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_REI;
 import pe.edu.lamolina.model.tramite.Readmision;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 
 @Repository
 public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements ReadmisionDAO {
@@ -225,22 +226,32 @@ public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements Readm
     }
 
     @Override
-    public void updateColumns(Readmision readmision, String... columns){
+    public void updateColumns(Readmision readmision, String... columns) {
         Octavia octavia = Octavia.update(Readmision.class);
         octavia.set(readmision, columns);
         this.update(octavia);
     }
-    
-    
+
     @Override
     public Readmision find(Long readmision) {
-        
+
         Octavia sql = Octavia.query()
                 .from(Readmision.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReadmitido cr")
                 .filter("rei.id", readmision);
 
         return find(sql);
+    }
+
+    @Override
+    public List<Readmision> allPendientes() {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tr", "cicloReadmitido cr", "rei.alumno al", "al.persona")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
+                .filter("me.codigo", PRE)
+                .filter("rei.aceptado", 0);
+        return all(sql);
     }
 
 }

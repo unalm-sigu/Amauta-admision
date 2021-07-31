@@ -2211,3 +2211,6 @@ only screen and (                min-resolution: 2dppx) {
 .sidebar-blue .menu-section ul li a.active {
     background: #000  !important;
 }
+.sidebar-blue .menu-section ul li a.toggled {
+    background: #000  !important;
+}
