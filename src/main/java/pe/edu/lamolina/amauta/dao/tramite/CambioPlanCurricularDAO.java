@@ -50,4 +50,6 @@ public interface CambioPlanCurricularDAO extends EasyDAO<CambioPlanCurricular> {
 
     CambioPlanCurricular find(Long cambioPlanEstudios);
 
+    public List<CambioPlanCurricular> allPendientes();
+
 }

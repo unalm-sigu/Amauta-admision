@@ -112,7 +112,7 @@ var app = new Vue({
         },
         editarResolucionOther: function (resolucion, e) {
             e.preventDefault();
-            location.href = APP.url("academico/resolucion/updateresolucionExistentes/" + resolucion.id);
+            location.href = APP.url("academico/resolucion/existentes/" + resolucion.id);
         },
         loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();

@@ -5,7 +5,19 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#main',
     data: {
-        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []},
+        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {
+            reincorporaciones: [],
+            retiroCiclo: [],
+            cambioNota: [],
+            cursoDirigido: [],
+            tramiteTraslado: [],
+            cambioNotaMasBajas: [],
+            tramiteBachiller: [],
+            tramiteTitulos: [],
+            tramitePracticasPreProfesionales: [],
+            readmisiones: [],
+            cambioPlanCurriculares: [],
+        },
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -28,6 +40,8 @@ var app = new Vue({
         isBachiller: false,
         isTitulo: false,
         isPracticas: false,
+        isReadmision: false,
+        isCambioPlanCurricular: false,
         filterFacultad: null,
         modalError: {
             id: 'modalError',
@@ -66,6 +80,10 @@ var app = new Vue({
                 $vue.isTitulo = true;
             } else if ($vue.resolucion.isTipoTramitePracticas) {
                 $vue.isPracticas = true;
+            } else if ($vue.resolucion.isReadmision) {
+                $vue.isReadmision = true;
+            } else if ($vue.resolucion.isCambioPlanCurricular) {
+                $vue.isCambioPlanCurricular = true;
             }
         }
         console.log($vue.resolucion);
@@ -83,6 +101,8 @@ var app = new Vue({
             $vue.isBachiller = false;
             $vue.isTitulo = false;
             $vue.isPracticas = false;
+            $vue.isReadmision = false;
+            $vue.isCambioPlanCurricular = false;
             if (item.codigo == "RCI") {
                 $vue.allRetiroCiclo();
                 $vue.isRetiroCiclo = true;
@@ -107,16 +127,50 @@ var app = new Vue({
                 $vue.allTitulos();
             } else if (item.codigo == "PRACTICAS") {
                 $vue.isPracticas = true;
+            } else if (item.codigo == "READMISION") {
+                $vue.isReadmision = true;
+            } else if (item.codigo == "CAMBIO_PLAN_CURRICULAR") {
+                $vue.isCambioPlanCurricular = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
+        },
+        allReadmision() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+
+            $.ajax({
+                url: APP.url("academico/resolucion/existentes/allReadmision"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.readmitidos = response.data;
+                    MODAL.hideWait();
+                }
+            });
+        },
+        allCambioPlanCuriicular() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+
+            $.ajax({
+                url: APP.url("academico/resolucion/existentes/allCambioPlanCuriicular"),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(response => {
+                if (response.success) {
+                    $vue.resolucion.cambioPlanCurriculares = response.data;
+                    MODAL.hideWait();
+                }
+            });
         },
         allPracticas() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
 
             $.ajax({
-                url: APP.url("academico/resolucion/allPracticas"),
+                url: APP.url("academico/resolucion/existentes/allPracticas"),
                 dataType: "json",
                 contentType: "application/json"
             }).then(response => {
@@ -130,7 +184,7 @@ var app = new Vue({
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
-                url: APP.url("academico/resolucion/allTitulo"),
+                url: APP.url("academico/resolucion/existentes/allTitulo"),
                 dataType: "json",
                 contentType: "application/json"
             }).then(response => {
@@ -145,7 +199,7 @@ var app = new Vue({
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
-                url: APP.url("academico/resolucion/allRetiroCiclo"),
+                url: APP.url("academico/resolucion/existentes/allRetiroCiclo"),
                 dataType: "json",
                 contentType: "application/json"
             }).then(response => {
@@ -160,7 +214,7 @@ var app = new Vue({
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
-                url: APP.url("academico/resolucion/allReincorporacion"),
+                url: APP.url("academico/resolucion/existentes/allReincorporacion"),
                 dataType: "json",
                 contentType: "application/json"
             }).then(response => {
@@ -175,7 +229,7 @@ var app = new Vue({
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
-                url: APP.url("academico/resolucion/allBachiller"),
+                url: APP.url("academico/resolucion/existentes/allBachiller"),
                 dataType: "json",
                 contentType: "application/json"
             }).then(response => {
@@ -202,7 +256,7 @@ var app = new Vue({
 
                 if ($vue.isTrasladoInt || $vue.isTraslado) {
                     $.ajax({
-                        url: APP.url("academico/resolucion/findAlumno"),
+                        url: APP.url("academico/resolucion/existentes/findAlumno"),
                         dataType: 'json',
                         type: 'post',
                         data: {nombre: nombre}
@@ -216,7 +270,7 @@ var app = new Vue({
                 } else {
 
                     $.ajax({
-                        url: APP.url("academico/resolucion/findAlumno"),
+                        url: APP.url("academico/resolucion/existentes/findAlumno"),
                         dataType: 'json',
                         type: 'post',
                         data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}
@@ -250,7 +304,7 @@ var app = new Vue({
         allAlumnoCiclo(item, tramiteNotabaja) {
             let $vue = this;
             $.ajax({
-                url: APP.url("academico/resolucion/allCiclosRepetido/" + item.id),
+                url: APP.url("academico/resolucion/existentes/allCiclosRepetido/" + item.id),
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
@@ -291,6 +345,14 @@ var app = new Vue({
             } else if ($vue.isPracticas) {
                 var tramitePracticas = {};
                 $vue.resolucion.tramitePracticasPreProfesionales.push(tramitePracticas);
+            } else if ($vue.isReadmision) {
+                console.log('isReadmision');
+                var readmision = {seleccionado: true};
+                $vue.resolucion.readmisiones.push(readmision);
+            } else if ($vue.isCambioPlanCurricular) {
+                console.log('isCambioPlanCurricular');
+                var cambioPlanCurricular = {seleccionado: true};
+                $vue.resolucion.cambioPlanCurriculares.push(cambioPlanCurricular);
             }
         },
         deleteItem(index) {
@@ -313,12 +375,16 @@ var app = new Vue({
                 $vue.resolucion.tramiteTitulos.splice(index, 1);
             } else if ($vue.isPracticas) {
                 $vue.resolucion.tramitePracticasPreProfesionales.splice(index, 1);
+            } else if ($vue.isReadmision) {
+                $vue.resolucion.readmisiones.splice(index, 1);
+            } else if ($vue.isCambioPlanCurricular) {
+                $vue.resolucion.planCurriculares.splice(index, 1);
             }
         },
         validFilter(ofi, item) {
             let $vue = this;
             if (!item.alumno) {
-                return false;
+                return true;
             }
             if (!$vue.visualizarSelect && (ofi != null && ofi.instanciaOficina != item.alumno.carrera.facultad.id)) {
                 return false;
@@ -347,7 +413,7 @@ var app = new Vue({
             $vue.errores = [];
 
             $.ajax({
-                url: APP.url('academico/resolucion/save'),
+                url: APP.url('academico/resolucion/existentes/save'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -355,7 +421,19 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success && response.data.length == 0) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []};
+                        $vue.resolucion = {
+                            reincorporaciones: [],
+                            retiroCiclo: [],
+                            cambioNota: [],
+                            cursoDirigido: [],
+                            tramiteTraslado: [],
+                            cambioNotaMasBajas: [],
+                            tramiteBachiller: [],
+                            tramiteTitulos: [],
+                            tramiteReadmisiones: [],
+                            tramiteCambioPlanCuriculares: [],
+                            tramitePracticasPreProfesionales: []
+                        };
                         $vue.alumnos = [];
                     } else {
                         if (response.data != null && response.data.length > 0) {
@@ -369,6 +447,7 @@ var app = new Vue({
                     MODAL.hideWait();
                 },
                 error: function () {
+                    MODAL.hideWait();
                     notify(Messages.errorComunicacion, "error");
                 }
             });
@@ -394,7 +473,7 @@ var app = new Vue({
                 callback: function (result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('academico/resolucion/resolucionExistente/update'),
+                            url: APP.url('academico/resolucion/existentes/update'),
                             dataType: "json",
                             contentType: "application/json",
                             type: 'POST',

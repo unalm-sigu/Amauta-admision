@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExistentes;
+package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -49,6 +49,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
+import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
@@ -57,7 +58,7 @@ import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Controller
-@RequestMapping("academico/resolucion")
+@RequestMapping("academico/resolucion/existentes")
 public class ResolucionExistenteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -91,7 +92,7 @@ public class ResolucionExistenteController {
     @Autowired
     AvanceCurricularService avanceCurricularService;
 
-    @RequestMapping(value = "resolucionExistentes", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -112,7 +113,6 @@ public class ResolucionExistenteController {
                 .from(service.allCarrera())
                 .array();
 
-        model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
@@ -121,7 +121,7 @@ public class ResolucionExistenteController {
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
-    @RequestMapping(value = "updateresolucionExistentes/{idResolucion}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{idResolucion}", method = RequestMethod.GET)
     public String updateresolucionExistentes(@PathVariable(value = "idResolucion") Long idResolucion, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -146,7 +146,6 @@ public class ResolucionExistenteController {
 
         ObjectNode objectNode = this.findDataResolucion(resolucionDB);
 
-        model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
@@ -164,7 +163,9 @@ public class ResolucionExistenteController {
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
+        
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
@@ -275,7 +276,7 @@ public class ResolucionExistenteController {
     }
 
     @ResponseBody
-    @RequestMapping("resolucionExistente/update")
+    @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -785,6 +786,42 @@ public class ResolucionExistenteController {
 
             ArrayNode array = JaneHelper.from(readmisiones)
                     .join("cicloReadmitido")
+                    .join("alumno")
+                    .join("alumno.carrera")
+                    .join("alumno.carrera.facultad")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .array();
+
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCambioPlanCuricular")
+    public JsonResponse allCambioPlanCuricular(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCuricular();
+            
+            ArrayNode array = JaneHelper.from(cambioPlanCurriculares)
+                    .join("planCurricularOrigen")
+                    .join("planCurricularOrigen.cicloInicioVigencia")
+                    .join("planCurricularDestino")
+                    .join("planCurricularDestino.cicloInicioVigencia")
+                    .join("cicloAcademico")
                     .join("alumno")
                     .join("alumno.carrera")
                     .join("alumno.carrera.facultad")
