@@ -128,8 +128,10 @@ public class PlanCurricularController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
+        List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
         model.addAttribute("ambiente", despliegueConfig.getAmbiente());
         model.addAttribute("carrerasJson", carrerasJson.toString());
@@ -144,6 +146,7 @@ public class PlanCurricularController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -153,7 +156,7 @@ public class PlanCurricularController {
             boolean tienePermiso = verificadorService.isRevisorCurriculas(ds);
             logger.info("Acceso alumnos {}", cantidadEnum.name());
             if (tienePermiso && cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
                 logger.info("Acceso a {} carreras", carreras.size());
             }
             if (tienePermiso && cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
@@ -535,13 +538,13 @@ public class PlanCurricularController {
     @RequestMapping("nuevo")
     public String nuevo(@RequestParam("origen") String origen, Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String codeRequest = verificadorService.generateCodeRequest();
 
         PlanCurricular planCurricular = new PlanCurricular();
         planCurricular.init();
 
         List<CicloAcademico> ciclos = service.allUltimosCiclos(40);
-//        List<Carrera> carreras = service.allCarreras(ds.getCarreras());
-        List<Carrera> carreras = service.allCarreras(ds, request);
+        List<Carrera> carreras = service.allCarreras(ds, request, codeRequest);
 
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
@@ -1140,7 +1143,7 @@ public class PlanCurricularController {
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("orientaciones", orientaciones);
         model.addAttribute("format", new NumberFormat());
-         model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
+        model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
         model.addAttribute("cantAlumnos", cantAlumnos);
 

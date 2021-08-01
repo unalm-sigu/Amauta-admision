@@ -3,7 +3,6 @@ package pe.edu.lamolina.amauta.controller.academico.plancurricular;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -28,7 +27,7 @@ public interface PlanCurricularService {
 
     List<Carrera> allCarreras(List<Carrera> carreras);
 
-    List<Carrera> allCarreras(DataSessionPivot ds, HttpServletRequest request);
+    List<Carrera> allCarreras(DataSessionPivot ds, HttpServletRequest request, String codeRequest);
 
     List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
 

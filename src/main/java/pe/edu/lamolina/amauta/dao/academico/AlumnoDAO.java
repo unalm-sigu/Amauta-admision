@@ -48,6 +48,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     AlumnoResumen findResumen();
 
+    AlumnoResumen findResumen(List<Carrera> carreras);
+
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
     Long countByPlanCurricular(PlanCurricular plan);

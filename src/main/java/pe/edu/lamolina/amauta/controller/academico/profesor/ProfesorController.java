@@ -128,8 +128,10 @@ public class ProfesorController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
@@ -139,7 +141,7 @@ public class ProfesorController {
         model.addAttribute("puedeActivar", puedeActivar);
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
-        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad","id").array();
+        ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
         ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
@@ -153,10 +155,11 @@ public class ProfesorController {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String codeRequest = verificadorService.generateCodeRequest();
 
         try {
 
-            List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+            List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
             List<Docente> docentes;
 
@@ -599,8 +602,9 @@ public class ProfesorController {
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
         logger.debug("facultad " + facultadId);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String codeRequest = verificadorService.generateCodeRequest();
 
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("facultad", new Facultad(facultadId));
@@ -616,13 +620,14 @@ public class ProfesorController {
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String codeRequest = verificadorService.generateCodeRequest();
 
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
-        
-        CicloAcademico cicloAcademico=ds.getCicloAcademico();
-        
-        if(idCicloAcademico!=null){
-            cicloAcademico=service.findCicloAcademico(idCicloAcademico);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
+
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        if (idCicloAcademico != null) {
+            cicloAcademico = service.findCicloAcademico(idCicloAcademico);
         }
 
         if (facultadId != null) {

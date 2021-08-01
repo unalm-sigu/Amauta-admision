@@ -65,6 +65,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
@@ -201,8 +202,17 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public AlumnoResumen findResumen() {
-        return alumnoDAO.findResumen();
+    public AlumnoResumen findResumen(VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> careras) {
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.TODOS) {
+            return alumnoDAO.findResumen();
+        } else if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            if (careras.isEmpty()) {
+                return new AlumnoResumen(0L, 0L, 0L, 0L);
+            } else {
+                return alumnoDAO.findResumen(careras);
+            }
+        }
+        return new AlumnoResumen(0L, 0L, 0L, 0L);
     }
 
     @Override

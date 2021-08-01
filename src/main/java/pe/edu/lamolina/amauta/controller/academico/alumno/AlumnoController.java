@@ -121,7 +121,14 @@ public class AlumnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         verificadorService.revisarPermiso(request, ds);
 
-        model.addAttribute("resumen", service.findResumen());
+        String codeRequest = verificadorService.generateCodeRequest();
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        List<Carrera> carreras = new ArrayList();
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+        }
+
+        model.addAttribute("resumen", service.findResumen(cantidadEnum, carreras));
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
         model.addAttribute("puedeVerHead", verificadorService.puedeVerHeadAlumno(ds));//no ven los de ROL REVISOR_FAC_ECONOMIA
@@ -133,6 +140,8 @@ public class AlumnoController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
+        String codeRequest = verificadorService.generateCodeRequest();
+
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
@@ -142,8 +151,8 @@ public class AlumnoController {
             List<Alumno> alumnos = new ArrayList();
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
 
-            logger.info("cantidadEnum {}", cantidadEnum.name());
-            List<RolEnum> rolCodigos = new ArrayList();///tmp
+            logger.info("RQ={} cantidadEnum {}", codeRequest, cantidadEnum.name());
+            List<RolEnum> rolCodigos = new ArrayList();
 
             for (Rol rol : ds.getRoles()) {
                 rolCodigos.add(rol.getCodigoEnum());
@@ -152,27 +161,22 @@ public class AlumnoController {
             List<Carrera> carrerasOfFacultadEconomia = new ArrayList();
             if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
                 carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
-                logger.info("Rol especial {}", RolEnum.REVISOR_FAC_ECONOMIA.name());
-            }///
+                logger.info("RQ={} rol-especial={}", codeRequest, RolEnum.REVISOR_FAC_ECONOMIA.name());
+            }
 
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
-                Docente docente = service.finDocenteAccesoEspecial();//temporal
-                if (docente.getId() != null) {
-                    carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
-                    carreras.addAll(carrerasOfFacultadEconomia);
-                }//
-                logger.info("Acceso a {} carreras", carreras.size());
-            }
-            if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
-                alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
-                logger.info("Se extrajeron {} alumnos", alumnos.size());
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+                logger.info("RQ={} total-acceso-carreras={}", codeRequest, carreras.size());
             }
 
-            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA) && carreras.isEmpty()) {////tmp
+            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA) && carreras.isEmpty()) {
                 carreras = carrerasOfFacultadEconomia;
                 alumnos = service.allAlumnosbyDynatable(filter, carreras);
-            }////
+
+            } else if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+                alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
+                logger.info("RQ={} retornaron-count-alumnos={}", codeRequest, alumnos.size());
+            }
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

@@ -84,6 +84,7 @@ public class EgresadoController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
 
         try {
 
@@ -93,7 +94,7 @@ public class EgresadoController {
 
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
             }
 
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
@@ -137,6 +138,7 @@ public class EgresadoController {
     public JsonResponse resumen(HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
 
         try {
 
@@ -145,7 +147,7 @@ public class EgresadoController {
             List<Carrera> carreras = new ArrayList();
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
             }
 
             EgresadoResumen resumen = new EgresadoResumen();

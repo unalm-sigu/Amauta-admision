@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.LongType;
@@ -720,7 +721,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
         sql.append(" inner join al.carrera ca ");
         sql.append(" inner join al.cicloActivo cia ");
-        sql.append("  inner join ca.modalidadEstudio moe ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
@@ -728,6 +729,36 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         query.setString("EPG", EPG.name());
         query.setString("VIS", VIS.name());
         query.setString("ESP", ESP.name());
+
+        return (AlumnoResumen) query.uniqueResult();
+    }
+
+    @Override
+    public AlumnoResumen findResumen(List<Carrera> carreras) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(AlumnoResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" inner join al.cicloActivo cia ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" where ca.id in :CARRERAS ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+
+        List<Long> idCarreras = carreras.stream().map(x -> x.getId()).collect(Collectors.toList());
+        query.setParameterList("CARRERAS", idCarreras);
 
         return (AlumnoResumen) query.uniqueResult();
     }
@@ -1208,28 +1239,28 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico) {
-        
-         StringBuilder sb = new StringBuilder();
-            sb.append(" select alu2.id as id ");
-            sb.append(" from aca_matricula_resumen mr2 ");
-            sb.append(" join aca_alumno alu2 on mr2.id_alumno = alu2.id ");
-            sb.append(" where mr2.id_ciclo_academico = 486 and alu2.id_modalidad_estudio in (1) ");
-            sb.append(" and alu2.codigo not in ( ");
-            sb.append("                         select a.codigo from aca_alumno a where a.id_ciclo_ingreso = 486 ");
-            sb.append("                         ) ");
-            sb.append(" and not exists ( ");
-            sb.append("                 select alu.codigo    ");
-            sb.append("                 from aca_matricula_resumen mr ");
-            sb.append("                 join aca_alumno alu on mr.id_alumno = alu.id ");
-            sb.append("                 join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
-            sb.append("                 where ca.codigo = '202010' and alu.id_modalidad_estudio in (1) and mr.estado in ('MAT','RCI') ");
-            sb.append("                 and alu.id = alu2.id ");
-            sb.append("                 ) ");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select alu2.id as id ");
+        sb.append(" from aca_matricula_resumen mr2 ");
+        sb.append(" join aca_alumno alu2 on mr2.id_alumno = alu2.id ");
+        sb.append(" where mr2.id_ciclo_academico = 486 and alu2.id_modalidad_estudio in (1) ");
+        sb.append(" and alu2.codigo not in ( ");
+        sb.append("                         select a.codigo from aca_alumno a where a.id_ciclo_ingreso = 486 ");
+        sb.append("                         ) ");
+        sb.append(" and not exists ( ");
+        sb.append("                 select alu.codigo    ");
+        sb.append("                 from aca_matricula_resumen mr ");
+        sb.append("                 join aca_alumno alu on mr.id_alumno = alu.id ");
+        sb.append("                 join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+        sb.append("                 where ca.codigo = '202010' and alu.id_modalidad_estudio in (1) and mr.estado in ('MAT','RCI') ");
+        sb.append("                 and alu.id = alu2.id ");
+        sb.append("                 ) ");
 
         Query query = getCurrentSession().createSQLQuery(sb.toString())
                 .addScalar("id", LongType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(Alumno.class));
-        
+
         return query.list();
     }
 

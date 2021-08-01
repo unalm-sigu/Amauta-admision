@@ -17,14 +17,14 @@ public interface EncuestaDocenteModalidadService {
 
     String reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
-    String reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum,List<DepartamentoAcademico> departamentos);
+    String reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos);
 
     List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
-    List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request);
+    List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request, String codeRequest);
 
-    List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request);
+    List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request, String codeRequest);
 
-    public List<CicloAcademico> allCicloAcademico();
+    List<CicloAcademico> allCicloAcademico();
 
 }

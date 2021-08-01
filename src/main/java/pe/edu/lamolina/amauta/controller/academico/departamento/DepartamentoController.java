@@ -40,7 +40,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -91,13 +90,15 @@ public class DepartamentoController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<DepartamentoAcademico> departamentosUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
-            
+            List<DepartamentoAcademico> departamentosUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
+
             List<DepartamentoAcademico> departamentos = service.allDepartamentoAcademico(filter, departamentosUser);
-            
+
             List<DepartamentoCursoDocente> departamentoCursoDocente = service.allDepartamentoCursoDocente(departamentos);
 
             Map<Long, DepartamentoCursoDocente> departamentoMap = TypesUtil.convertListToMap("id", departamentoCursoDocente);

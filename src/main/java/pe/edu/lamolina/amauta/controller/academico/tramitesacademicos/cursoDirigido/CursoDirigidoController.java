@@ -85,8 +85,9 @@ public class CursoDirigidoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds, codeRequest);
         model.addAttribute("facultades", createFacultadesJson(facultades).toString());
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "tramite/cursoDirigido/cursoDirigido";

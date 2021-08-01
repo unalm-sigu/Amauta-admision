@@ -49,8 +49,9 @@ public class BolsaInvestigacionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String codeRequest = verificadorService.generateCodeRequest();
 
-        Facultad facultad = this.getFacultad(request, ds);
+        Facultad facultad = this.getFacultad(request, ds, codeRequest);
         if (facultad == null) {
             return "redirect:/";
         }
@@ -66,10 +67,12 @@ public class BolsaInvestigacionController {
     public JsonResponse find(HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
             response.setSuccess(Boolean.FALSE);
 
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             if (facultad != null) {
                 BolsaInvestigacion bi = service.findByFacultadCicloAcademico(facultad, ds.getCicloAcademico());
                 response.setData(JsonHelper.createJson(bi, JsonNodeFactory.instance));
@@ -89,7 +92,8 @@ public class BolsaInvestigacionController {
     @RequestMapping(value = "list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Facultad facultad = this.getFacultad(request, ds);
+        String codeRequest = verificadorService.generateCodeRequest();
+        Facultad facultad = this.getFacultad(request, ds, codeRequest);
 
         List<AlumnoBolsaInvestigacion> alumnos = new ArrayList();
         if (facultad != null) {
@@ -137,9 +141,11 @@ public class BolsaInvestigacionController {
     public JsonResponse alumnos(@RequestBody String nombre, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
             CicloAcademico ciclo = ds.getCicloAcademico();
-            List<Facultad> facultades = this.getFacultades(request, ds);
+            List<Facultad> facultades = this.getFacultades(request, ds, codeRequest);
             List<Alumno> alumnos = service.searchAlumnosByFacultadNombre(facultades, nombre, ciclo);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             for (Alumno alumno : alumnos) {
@@ -178,8 +184,10 @@ public class BolsaInvestigacionController {
     public JsonResponse supervisores(@RequestBody String nombre, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             List<Colaborador> colaboradores = service.searchColaboradoresByFacultadNombre(facultad, nombre);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             for (Colaborador colaborador : colaboradores) {
@@ -212,8 +220,10 @@ public class BolsaInvestigacionController {
     public JsonResponse saveAlumno(@RequestBody AlumnoBolsaInvestigacion alumnoBolsa, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             if (alumnoBolsa.getId() != null) {
                 service.updateAlumno(facultad, ds.getCicloAcademico(), alumnoBolsa, ds);
                 response.setMessage("Alumno actualizado");
@@ -279,8 +289,10 @@ public class BolsaInvestigacionController {
     public JsonResponse eliminarAlumno(@PathVariable Long id, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             service.eliminarAlumno(id, ds.getCicloAcademico(), facultad);
             response.setMessage("Alumno eliminado");
             response.setSuccess(Boolean.TRUE);
@@ -297,8 +309,10 @@ public class BolsaInvestigacionController {
     public JsonResponse checkearAlumno(@PathVariable Long id, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             List<String> errores = service.checkearAlumno(new Alumno(id), ds.getCicloAcademico(), facultad);
             ObjectNode erroresNode = new ObjectNode(JsonNodeFactory.instance);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
@@ -321,8 +335,10 @@ public class BolsaInvestigacionController {
     public JsonResponse enviarInvitaciones(HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
+        String codeRequest = verificadorService.generateCodeRequest();
+
         try {
-            Facultad facultad = this.getFacultad(request, ds);
+            Facultad facultad = this.getFacultad(request, ds, codeRequest);
             service.enviarInvitaciones(facultad, ds.getCicloAcademico(), ds);
             response.setMessage("Invitaciones enviadas");
             response.setSuccess(Boolean.TRUE);
@@ -334,16 +350,16 @@ public class BolsaInvestigacionController {
         return response;
     }
 
-    private Facultad getFacultad(HttpServletRequest request, DataSessionPivot ds) {
-        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+    private Facultad getFacultad(HttpServletRequest request, DataSessionPivot ds, String codeResquest) {
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds, codeResquest);
         if (facultades.size() == 1) {
             return facultades.get(0);
         }
         return null;
     }
 
-    private List<Facultad> getFacultades(HttpServletRequest request, DataSessionPivot ds) {
-        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+    private List<Facultad> getFacultades(HttpServletRequest request, DataSessionPivot ds, String codeRequest) {
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds, codeRequest);
         if (facultades.size() == 1) {
             return facultades;
         }

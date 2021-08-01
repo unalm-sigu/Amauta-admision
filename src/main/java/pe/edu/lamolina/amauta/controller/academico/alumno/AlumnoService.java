@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.alumno;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -27,7 +28,7 @@ public interface AlumnoService {
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades, String todo);
 
-    AlumnoResumen findResumen();
+    AlumnoResumen findResumen(VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras);
 
     List<CicloAcademico> allCicloAcademico();
 

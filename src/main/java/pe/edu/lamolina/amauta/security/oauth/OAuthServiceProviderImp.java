@@ -77,52 +77,52 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = false)
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
-
+    
     @Autowired
     UsuarioDAO usuarioDAO;
-
+    
     @Autowired
     RolDAO rolDAO;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     DocenteDAO docenteDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
+    
     @Autowired
     CompaniaDAO companiaDAO;
-
+    
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-
+    
     @Autowired
     CarreraDAO carreraDAO;
-
+    
     @Autowired
     FacultadDAO facultadDAO;
-
+    
     @Autowired
     ColaboradorDAO colaboradorDAO;
-
+    
     @Autowired
     MenuDAO menuDAO;
-
+    
     @Autowired
     InstanciaEntidadDAO instanciaEntidadDAO;
-
+    
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
+    
     @Autowired
     ParametroDAO parametroDAO;
-
+    
     @Autowired
     OAuthServiceConfig config;
     @Autowired
@@ -131,9 +131,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     MenuService menuService;
     @Autowired
     DespliegueConfig despliegueConfig;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public OAuth20Service getService() {
         return new ServiceBuilder(config.getKey())
@@ -143,7 +143,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 .callback(config.getCallback())
                 .build(GoogleApi20.instance());
     }
-
+    
     @Override
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
@@ -155,37 +155,37 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         if (usuario.getEstadoEnum() != UserEstadoEnum.ACT) {
             usuario = usuario.getUserActivo();
         }
-
+        
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         List<Rol> rolesMain = generateRolesMain(roles);
         Map<String, Rol> mapCodeRoles = TypesUtil.convertListToMap("codigo", roles);
-
+        
         List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(usuario.getPersona());
         Rol rolAdmUnalm = mapCodeRoles.get(ADM_UNALM.name());
         if (rolAdmUnalm != null && colaboradores.isEmpty()) {
             throw new PhobosException("Usted no está registrado como colaborador en la universidad");
         }
-
+        
         Collection<GrantedAuthority> authorities = new ArrayList();
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
-
+        
         if (authorities.isEmpty()) {
             throw new PhobosException("Usuario sin rol asignado.");
         }
-
+        
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, email, authorities);
         SecurityContext cntx = SecurityContextHolder.getContext();
         cntx.setAuthentication(authentication);
-
+        
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
-
+        
         List<Oficina> oficinasUnalm = allEstructuraOficinas();
         List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
-
+        
         Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
-
+        
         DataSessionPivot ds = new DataSessionPivot();
         ds.setEmail(email);
         ds.setUsuario(usuario);
@@ -195,24 +195,24 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         if (findCiclosVisibles().isEmpty()) {
             ds.setCicloAcademico(cicloAcademico);
         }
-
+        
         ds.setColaborador(colaboradores);
         ds.setOficinas(oficinasMain);
         ds.setOficinaMain(ofiMain);
         settingOficinaMain(ofiMain, ds);
-
+        
         ds.setBrowser(servlet.getHeader("User-Agent"));
         ds.setDireccionIp(servlet.getRemoteAddr());
         ds.setSistemaOperativo(getClientOS(servlet));
-
+        
         ds.setDocente(null);
         ds.setDepartamentoAcademico(null);
-
+        
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
-
+    
     @Async
     @Override
     public void createLogJson(DataSessionPivot ds, HttpSession session) {
@@ -223,7 +223,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         objData.put("tipo", "Inicio Sesión");
         interceptorService.saveInterceptor(objData, session);
     }
-
+    
     @Async
     @Override
     public void createLogJsonLogout(DataSessionPivot ds, HttpSession session) {
@@ -234,7 +234,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         objData.put("tipo", TipoSesionEnum.LOGIN.name());
         interceptorService.saveInterceptor(objData, session);
     }
-
+    
     private String getClientOS(HttpServletRequest request) {
         final String browserDetails = request.getHeader("User-Agent");
 
@@ -254,12 +254,12 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             return "UnKnown, More-Info: " + browserDetails;
         }
     }
-
+    
     private List<Oficina> allEstructuraOficinas() {
         List<Oficina> oficinas = oficinaDAO.all();
         List<InstanciaEntidad> instancias = instanciaEntidadDAO.all();
         Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("id", oficinas);
-
+        
         for (Oficina oficina : oficinas) {
             oficina.setOficinasDependientes(new ArrayList());
             oficina.setInstanciaEntidades(new ArrayList());
@@ -268,22 +268,22 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 oficina.setOficinaSuperior(ofiSuperior);
             }
         }
-
+        
         for (Oficina oficina : oficinas) {
             Oficina ofiSuperior = oficina.getOficinaSuperior();
             if (ofiSuperior != null) {
                 ofiSuperior.getOficinasDependientes().add(oficina);
             }
         }
-
+        
         for (InstanciaEntidad instancia : instancias) {
             Oficina oficina = mapOficinas.get(instancia.getOficina().getId());
             oficina.getInstanciaEntidades().add(instancia);
         }
-
+        
         return oficinas;
     }
-
+    
     private List<Oficina> allOficinasMain(List<Colaborador> colaboradores, List<Oficina> oficinasUnalm) {
         Map<Long, Oficina> mapOficinasMain = new LinkedHashMap();
         Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("id", oficinasUnalm);
@@ -296,27 +296,27 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         return new ArrayList(mapOficinasMain.values());
     }
-
+    
     private Oficina findOficinaMain(Oficina oficina) {
         TipoOficina tipoOficina = oficina.getTipoOficina();
         if (tipoOficina.getNivelEnum() == NivelOficinaEnum.OFI) {
             return oficina;
         }
         return findOficinaMain(oficina.getOficinaSuperior());
-
+        
     }
-
+    
     private void settingOficinaMain(Oficina oficinaMain, DataSessionPivot ds) {
         ds.setDepartamentos(new ArrayList());
         ds.setFacultades(new ArrayList());
         ds.setCarreras(new ArrayList());
         ds.setModalidades(new ArrayList());
-
+        
         if (oficinaMain == null) {
             logger.debug("No tiene oficinaMain.. sale sin asignacion de menu");
             return;
         }
-
+        
         List<ModalidadEstudio> modalidades = modalidadEstudioDAO.all();
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> dptos = departamentoAcademicoDAO.all();
@@ -332,7 +332,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             ds.getCarreras().add(carr);
         }
         if (contieneTipoOficina(ds.getOficinas(), TipoOficinaEnum.FAC)) {
-            Oficina oficinaFacultad= getOficinaByTipo(ds.getOficinas(), TipoOficinaEnum.FAC);
+            Oficina oficinaFacultad = getOficinaByTipo(ds.getOficinas(), TipoOficinaEnum.FAC);
             Facultad fac = facultadDAO.find(oficinaFacultad.getInstanciaOficina());
             ds.getFacultades().add(fac);
             for (Carrera carrera : carreras) {
@@ -346,16 +346,16 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 }
             }
         }
-
+        
         if (oficinaMain.getInstanciaEntidades().isEmpty()) {
             return;
         }
-
+        
         Map<Long, Facultad> mapFacultad = facultades.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
         Map<Long, Carrera> mapCarrera = carreras.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
         Map<Long, DepartamentoAcademico> mapDptos = dptos.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
         Map<Long, ModalidadEstudio> mapModalidad = modalidades.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
-
+        
         for (InstanciaEntidad instanciaEnte : oficinaMain.getInstanciaEntidades()) {
             if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.DPTO) {
                 if (instanciaEnte.getContieneTodos() == 1) {
@@ -417,9 +417,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 }
             }
         }
-
+        
     }
-
+    
     private List<Rol> generateRolesMain(List<Rol> roles) {
         List<Rol> rolesNuevos = new ArrayList();
         List<Rol> rolesMain = new ArrayList();
@@ -438,7 +438,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             }
         }
         roles.addAll(rolesNuevos);
-
+        
         for (Rol role : roles) {
             Rol rolSuperior = role.getRolSuperior();
             if (rolSuperior != null) {
@@ -455,13 +455,13 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         return rolesMain;
     }
-
+    
     @Override
     public void asignarRolActivo(Rol rol, DataSessionPivot ds, HttpSession session) {
         if (ds.getRolActivo() != null && rol.getId().longValue() == ds.getRolActivo().getId()) {
             return;
         }
-
+        
         ds.setDocente(null);
         ds.setDepartamentoAcademico(null);
         ds.setOficinaMain(null);
@@ -469,18 +469,19 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setFacultades(new ArrayList());
         ds.setCarreras(new ArrayList());
         ds.setModalidades(new ArrayList());
-
+        
         if (rol.getCodigoEnum() == RolEnum.ADM_UNALM) {
             logger.debug("Configurando rol adm_unalm");
             Oficina ofiMain = ds.getOficinas().isEmpty() ? null : ds.getOficinas().get(0);
             ds.setOficinaMain(ofiMain);
             settingOficinaMain(ofiMain, ds);
         }
-
+        
         if (rol.getCodigoEnum() == RolEnum.DOC) {
             logger.debug("Configurando rol docente");
             List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
             for (Docente docente : docentes) {
+                logger.info("add-docente-to-session {}", docente);
                 if (docente.getEstadoEnum() == DocenteEstadoEnum.ACT) {
                     ds.setDocente(docente);
                     ds.setDepartamentoAcademico(docente.getDepartamentoAcademico());
@@ -488,39 +489,39 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 }
             }
         }
-
+        
         if (rol.getCodigoEnum() == RolEnum.ALU) {
             logger.debug("Configurando rol alumno que sera expulsado del amauta");
         }
-
+        
         logger.debug("Configurando menus para este rol");
         Sistema sistema = new Sistema(despliegueConfig.getSistema());
         List<Menu> menus = allMenusByRolMain(rol, sistema, ds);
         ds.setMenu(menus);
         ds.setRolActivo(rol);
-
+        
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
-
+        
     }
-
+    
     private List<Menu> allMenusByRolMain(Rol rol, Sistema sistema, DataSessionPivot ds) {
         List<Rol> roles = new ArrayList(rol.getRolesInferiores());
         for (Rol roli : roles) {
             logger.debug("rol-inferior {} {}", roli.getId(), roli.getNombre());
         }
         roles.add(rol);
-
+        
         String entorno = despliegueConfig.getAmbiente().toUpperCase();
         List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema, entorno);
         System.out.println("menusBD.size = " + menusBD.size());
         return menuService.allMenuOrdered(menusBD);
     }
-
+    
     @Override
     public List<CicloAcademico> findCiclosVisibles() {
         return cicloAcademicoDAO.allVisibles(ModalidadEstudioEnum.PRE);
     }
-
+    
     private boolean contieneTipoOficina(List<Oficina> oficinas, TipoOficinaEnum tipoOficinaEnum) {
         if (oficinas == null) {
             return false;
@@ -532,7 +533,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         return false;
     }
-
+    
     private Oficina getOficinaByTipo(List<Oficina> oficinas, TipoOficinaEnum tipoOficinaEnum) {
         if (oficinas == null) {
             return null;
@@ -544,5 +545,5 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         return null;
     }
-
+    
 }

@@ -100,11 +100,12 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
-//        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1));
+        String codeRequest = verificadorService.generateCodeRequest();
+
         List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostDiplomado(new Compania(1));
         List<ModalidadEstudio> modalidadesCurso = verificadorService.modalidadesPermitidasForCursos(ds, modalidades);
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
-        List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
+        List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
 
         List<Curso> cursos = cursoDAO.allByDynatable(filter, modalidadesCurso, carreras, departamentos);
         List<CantidadMatriculadosDTO> cantidadMatriculados = matriculaSeccionDAO.cantidadMatriculadosPorCurso(cursos, cicloAcademico, EstadoMatriculaEnum.MAT);

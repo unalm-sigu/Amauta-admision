@@ -11,12 +11,14 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 public interface VerificadorService {
+    
+    String generateCodeRequest();
 
     void revisarPermiso(HttpServletRequest request, DataSessionPivot ds);
 
     CantidadItemsEnum verificarCantidad(TipoOficinaEnum tipoOficina, HttpServletRequest request, DataSessionPivot ds);
 
-    <T> List<T> allInstanciasByMenuRol(TipoOficinaEnum tipoOficina, HttpServletRequest request, DataSessionPivot ds);
+    <T> List<T> allInstanciasByMenuRol(TipoOficinaEnum tipoOficina, HttpServletRequest request, DataSessionPivot ds, String codeRequest);
 
     boolean puedeOperarMatricula(DataSessionPivot ds);
 
@@ -79,7 +81,7 @@ public interface VerificadorService {
     boolean isTrabajadorOera(DataSessionPivot ds);
 
     boolean isRevisorActaNotas(DataSessionPivot ds);
-    
+
     boolean isRolCape(DataSessionPivot ds);
 
 }

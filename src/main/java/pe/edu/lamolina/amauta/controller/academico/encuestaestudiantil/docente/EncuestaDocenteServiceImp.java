@@ -218,6 +218,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         if (ds.getRolActivo().getCodigoEnum() == DOC) {
             docente = ds.getDocente();
         }
+        System.out.println("docente=" + docente);
 
         List<EncuestaDocente> encuestas = encuestaDocenteDAO.allByDynatable(filter, ciclo, departamentos, docente);
         List<Seccion> secciones = new ArrayList();
@@ -371,7 +372,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 //        boolean esSinConfig = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CRE;
 //        boolean esSinData = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaTipoDocente.getObjetivosEncuesta() == 0;
 //        Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
-
         updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
         updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
 
@@ -481,12 +481,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     public List<Facultad> allFacultadesFromDocentes(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
+
         List<Facultad> facultadesAll = facultadDAO.allFromDocentesByCiclo(cicloAcademico);
         if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
             return facultadesAll;
         }
 
-        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds, codeRequest);
         if (facultades.isEmpty()) {
             return facultades;
         }
@@ -510,12 +512,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             DataSessionPivot ds,
             HttpServletRequest request) {
 
+        String codeRequest = verificadorService.generateCodeRequest();
+
         List<DepartamentoAcademico> dptosAll = departamentoAcademicoDAO.allFromDocentesByCiclo(cicloAcademico);
         if (verificadorService.puedeVerAllDepartamentos(ds, "ENCUESTA_ESTUDIANTIL")) {
             return dptosAll;
         }
 
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
         if (departamentos.isEmpty() && facultades.isEmpty()) {
             return departamentos;
         }
@@ -584,11 +588,13 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     public List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
+
         if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
             return new ArrayList();
         }
 
-        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds, codeRequest);
         if (facultades.isEmpty()) {
             facultades.add(new Facultad(99999L));
         }
@@ -597,6 +603,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     public List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request) {
+        String codeRequest = verificadorService.generateCodeRequest();
+
         if (facultades.isEmpty()) {
             return new ArrayList();
         }
@@ -614,7 +622,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             facultades.remove(comodin);
         }
 
-        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
         if (departamentos.isEmpty() && facultades.isEmpty()) {
             departamentos.add(new DepartamentoAcademico(99999L));
             return departamentos;

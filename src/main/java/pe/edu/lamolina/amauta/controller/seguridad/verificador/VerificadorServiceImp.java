@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,11 @@ public class VerificadorServiceImp implements VerificadorService {
     public enum CantidadItemsEnum {
         TODOS, PARCIAL, SIN_PERMISO
     };
+
+    @Override
+    public String generateCodeRequest() {
+        return RandomStringUtils.randomAlphanumeric(7);
+    }
 
     @Override
     public boolean isOperadorActaNotas(DataSessionPivot ds) {
@@ -166,7 +172,9 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
-    public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoSolicitud, HttpServletRequest request, DataSessionPivot ds) {
+    public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoSolicitud, HttpServletRequest request, DataSessionPivot ds, String codeRequest) {
+        logger.info("RQ={} iniclio allInstanciasByMenuRol", codeRequest);
+
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
 
@@ -214,40 +222,73 @@ public class VerificadorServiceImp implements VerificadorService {
             return lista;
         }
 
-        List<Carrera> carreras = carreraDAO.allPrePosGrado();
+        List<Carrera> carrerasPregrado = carreraDAO.allPreGrado();
+        List<Carrera> carrerasPosgrado = carreraDAO.allPosGrado();
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.all();
-        Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carreras);
-        Map<Long, List<Carrera>> mapCarrerasByFacultad = TypesUtil.convertListToMapList("facultad.id", carreras);
+        Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carrerasPregrado);
+        Map<Long, List<Carrera>> mapCarrerasPregradoByFacultad = TypesUtil.convertListToMapList("facultad.id", carrerasPregrado);
+        Map<Long, List<Carrera>> mapCarrerasPosgradoByFacultad = TypesUtil.convertListToMapList("facultad.id", carrerasPosgrado);
         Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
         Map<Long, DepartamentoAcademico> mapDepartamento = TypesUtil.convertListToMap("id", departamentos);
         Map<Long, List<DepartamentoAcademico>> mapDepartamentoByFacultad = TypesUtil.convertListToMapList("facultad.id", departamentos);
 
+        logger.info("RQ={} tipoSolicitud={} listaInicial.size={}", codeRequest, tipoSolicitud, lista.size());
+
         for (Oficina oficina : oficinas) {
-            if (tipoSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum().getClazz() == Carrera.class) {
-                lista.add(mapCarreras.get(oficina.getInstanciaOficina()));
+            TipoOficinaEnum tipoOficinaEnum = oficina.getTipoOficina().getCodigoEnum();
+            logger.info("RQ={} tipoOficinaEnum={}", codeRequest, tipoOficinaEnum.getClazz());
 
-            } else if (tipoSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
+            if (tipoSolicitud == ESP && tipoOficinaEnum.getClazz() == Carrera.class) {
+                Carrera carrera = mapCarreras.get(oficina.getInstanciaOficina());
+                if (carrera != null) {
+                    logger.info("RQ={} agregando-carrera={}", codeRequest, carrera.getCodigo());
+                    lista.add(carrera);
+                }
+
+            } else if (tipoSolicitud == ESP && tipoOficinaEnum.getClazz() == Facultad.class) {
                 Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
-                lista.addAll(TypesUtil.getListNotNull(mapCarrerasByFacultad.get(facultad.getId())));
+                if (facultad != null) {
+                    List<Carrera> carrerasPre = TypesUtil.getListNotNull(mapCarrerasPregradoByFacultad.get(facultad.getId()));
+                    List<Carrera> carrerasEpg = TypesUtil.getListNotNull(mapCarrerasPosgradoByFacultad.get(facultad.getId()));
+                    lista.addAll(carrerasPre);
+                    lista.addAll(carrerasEpg);
+                    logger.info("RQ={} agregando-count-carreras-pre={} desde-facultad={}", codeRequest, carrerasPre.size(), facultad.getCodigo());
+                    logger.info("RQ={} agregando-count-carreras-epg={} desde-facultad={}", codeRequest, carrerasEpg.size(), facultad.getCodigo());
+                }
 
-            } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum().getClazz() == Carrera.class) {
+            } else if (tipoSolicitud == FAC && tipoOficinaEnum.getClazz() == Carrera.class) {
+                logger.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
                 // IMPLEMENTAR LOGICA
 
-            } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
-                lista.add(mapFacultad.get(oficina.getInstanciaOficina()));
-
-            } else if (tipoSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
+            } else if (tipoSolicitud == FAC && tipoOficinaEnum.getClazz() == Facultad.class) {
                 Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
-                lista.addAll(TypesUtil.getListNotNull(mapDepartamentoByFacultad.get(facultad.getId())));
+                if (facultad != null) {
+                    lista.add(facultad);
+                    logger.info("RQ={} agregando-facultad={}", codeRequest, facultad.getCodigo());
+                }
 
-            } else if (tipoSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum().getClazz() == DepartamentoAcademico.class) {
-                lista.add(mapDepartamento.get(oficina.getInstanciaOficina()));
+            } else if (tipoSolicitud == DPTO && tipoOficinaEnum.getClazz() == Facultad.class) {
+                Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
+                if (facultad != null) {
+                    List<DepartamentoAcademico> dptos = TypesUtil.getListNotNull(mapDepartamentoByFacultad.get(facultad.getId()));
+                    lista.addAll(dptos);
+                    logger.info("RQ={} agregando-count-dptos={} desde-facultad={}", codeRequest, dptos.size(), facultad.getCodigo());
+                }
+
+            } else if (tipoSolicitud == DPTO && tipoOficinaEnum.getClazz() == DepartamentoAcademico.class) {
+                DepartamentoAcademico dpto = mapDepartamento.get(oficina.getInstanciaOficina());
+                if (dpto != null) {
+                    lista.add(dpto);
+                    logger.info("RQ={} agregando-dpto-academico={}", codeRequest, dpto.getCodigo());
+                }
 
             } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
+                logger.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
                 // IMPLEMENTAR LOGICA
             }
         }
+        logger.info("listaFinal.size={}", lista.size());
         return lista;
     }
 
