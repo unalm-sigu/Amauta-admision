@@ -72,6 +72,8 @@ import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
 @Transactional(readOnly = true)
 public class ColaboradorServiceImp implements ColaboradorService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     OficinaDAO oficinaDAO;
 
@@ -134,8 +136,6 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Autowired
     VerificadorService verificadorService;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Oficina findOficina(Oficina oficina) {
@@ -248,47 +248,36 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         List<PersonaCargo> personaCargo = personaCargoDAO.allByPersonaOficina(empleadoBD.getPersona(), empleadoBD.getOficina());
         for (PersonaCargo pp : personaCargo) {
-            pp.setEstadoEnum(PerfilEstadoEnum.INA);
-            pp.setFechaFin(empleadoForm.getFechaFin());
-            pp.setFechaModificacion(new Date());
-            pp.setUserModificacion(ds.getUsuario());
-            personaCargoDAO.update(pp);
+            if (pp.getEstadoEnum() == PerfilEstadoEnum.ACT) {
+                pp.setEstadoEnum(PerfilEstadoEnum.INA);
+                pp.setFechaFin(empleadoForm.getFechaFin());
+                pp.setFechaModificacion(new Date());
+                pp.setUserModificacion(ds.getUsuario());
+                personaCargoDAO.update(pp);
+            }
         }
 
         List<FuncionColaborador> funciones = funcionColaboradorDAO.allByColaborador(empleadoBD);
         for (FuncionColaborador fc : funciones) {
-            fc.setEstadoEnum(EstadoEnum.INA);
-            fc.setFechaFin(empleadoForm.getFechaFin());
-            fc.setUserModificacion(ds.getUsuario());
-            fc.setFechaModificacion(new Date());
-            funcionColaboradorDAO.update(fc);
-        }
-
-        Usuario userEmpleado = usuarioDAO.findActivoByPersona(empleadoBD.getPersona());
-
-        List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(userEmpleado, empleadoBD.getOficina());
-        for (UsuarioRol ur : userRoles) {
-            ur.setEstadoEnum(UserEstadoEnum.INA);
-            ur.setFechaFin(new Date());
-            ur.setUserFinaliza(ds.getUsuario());
-            usuarioRolDAO.update(ur);
-        }
-
-        List<Alumno> alumnos = alumnoDAO.allByPersona(empleadoBD.getPersona());
-        List<Docente> docentes = docenteDAO.allByPersona(empleadoBD.getPersona());
-
-        int activos = 0;
-        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(empleadoBD.getPersona());
-        for (Colaborador emp : colaboradores) {
-            if (emp.getId() != empleadoBD.getId().longValue()) {
-                activos++;
+            if (fc.getEstadoEnum() == EstadoEnum.ACT) {
+                fc.setEstadoEnum(EstadoEnum.INA);
+                fc.setFechaFin(empleadoForm.getFechaFin());
+                fc.setUserModificacion(ds.getUsuario());
+                fc.setFechaModificacion(new Date());
+                funcionColaboradorDAO.update(fc);
             }
         }
 
-        if (Arrays.asList(DESP, RET).contains(empleadoBD.getEstadoEnum())
-                && activos == 0 && alumnos.isEmpty() && docentes.isEmpty()) {
+        Usuario user = usuarioDAO.findActivoByPersona(empleadoBD.getPersona());
 
-            usuarioRolDAO.updateInactivar(empleadoBD, userEmpleado);
+        List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(user, empleadoBD.getOficina());
+        for (UsuarioRol ur : userRoles) {
+            if (ur.getEstadoEnum() == UserEstadoEnum.ACT) {
+                ur.setEstadoEnum(UserEstadoEnum.INA);
+                ur.setFechaFin(new Date());
+                ur.setUserFinaliza(ds.getUsuario());
+                usuarioRolDAO.update(ur);
+            }
         }
 
     }
@@ -700,10 +689,6 @@ public class ColaboradorServiceImp implements ColaboradorService {
         }
     }
 
-//    @Override
-//    public List<PerfilCompania> allFunciones() {
-//        return perfilCompaniaDAO.allTipoFuncion();
-//    }
     @Override
     public Persona verificarDocumento(Persona persona) {
         return personaDAO.findByDoc(persona);
