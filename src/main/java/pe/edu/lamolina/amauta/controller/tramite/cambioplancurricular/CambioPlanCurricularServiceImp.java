@@ -126,7 +126,7 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
     @Override
     @Transactional
-    public void save(CambioPlanCurricular cambioPlanEstudios, DataSessionPivot ds) {
+    public void save(CambioPlanCurricular cambioPlanCurricular, DataSessionPivot ds) {
 
         DateTime today = new DateTime();
 
@@ -138,11 +138,11 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CAMBIO_PLAN_CURRICULAR.name());
 
-        Alumno alumnoDB = alumnoDAO.find(cambioPlanEstudios.getAlumno());
+        Alumno alumnoDB = alumnoDAO.find(cambioPlanCurricular.getAlumno());
 
         Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
 
-        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByAlumnoCiclo(alumnoDB, cambioPlanEstudios.getCicloAcademico());
+        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
 
         if (cambioPlanEstudiosDb != null) {
             throw new PhobosException("EL alumno ya tiene tramite pendiente");
@@ -152,7 +152,7 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
-        tramite.setAlumno(cambioPlanEstudios.getAlumno());
+        tramite.setAlumno(cambioPlanCurricular.getAlumno());
         tramite.setCicloAcademico(ds.getCicloAcademico());
         tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
         tramite.setEstadoTramite(estadoTramite);
@@ -169,16 +169,16 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
         Facultad facultad = alumnoDB.getCarrera().getFacultad();
 
-        cambioPlanEstudios.setAceptado(0);
-        cambioPlanEstudios.setFechaRegistro(new Date());
-        cambioPlanEstudios.setEstadoTramite(estadoTramite);
-        cambioPlanEstudios.setUserRegistro(ds.getUsuario());
-        cambioPlanEstudios.setCicloAcademico(ds.getCicloAcademico());
-        cambioPlanEstudios.setAlumno(alumnoDB);
-        cambioPlanEstudios.setFacultad(facultad);
-        cambioPlanEstudios.setTramite(tramite);
-        cambioPlanEstudios.setEsCondicional(esCondicional);
-        cambioPlanCurricularDAO.save(cambioPlanEstudios);
+        cambioPlanCurricular.setAceptado(0);
+        cambioPlanCurricular.setFechaRegistro(new Date());
+        cambioPlanCurricular.setEstadoTramite(estadoTramite);
+        cambioPlanCurricular.setUserRegistro(ds.getUsuario());
+        cambioPlanCurricular.setCicloAcademico(ds.getCicloAcademico());
+        cambioPlanCurricular.setAlumno(alumnoDB);
+        cambioPlanCurricular.setFacultad(facultad);
+        cambioPlanCurricular.setTramite(tramite);
+        cambioPlanCurricular.setEsCondicional(esCondicional);
+        cambioPlanCurricularDAO.save(cambioPlanCurricular);
 
     }
 
@@ -189,21 +189,21 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
     @Override
     @Transactional
-    public void anular(Long idCambioPlanEstudios, DataSessionPivot ds) {
+    public void anular(Long idCambioPlanCurricular, DataSessionPivot ds) {
 
-        CambioPlanCurricular cambioPlanEstudios = cambioPlanCurricularDAO.find(idCambioPlanEstudios);
+        CambioPlanCurricular cambioPlanCurricular = cambioPlanCurricularDAO.find(idCambioPlanCurricular);
 
-        if (cambioPlanEstudios == null) {
+        if (cambioPlanCurricular == null) {
             throw new PhobosException("No existe el trámite");
         }
 
         EstadoTramite estadoAnulado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ANU);
 
-        cambioPlanEstudios.setEstadoTramite(estadoAnulado);
+        cambioPlanCurricular.setEstadoTramite(estadoAnulado);
 
-        cambioPlanCurricularDAO.updateColumns(cambioPlanEstudios, "estadoTramite");
+        cambioPlanCurricularDAO.updateColumns(cambioPlanCurricular, "estadoTramite");
 
-        Tramite tramite = cambioPlanEstudios.getTramite();
+        Tramite tramite = cambioPlanCurricular.getTramite();
         tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
         tramite.setFechaModificacion(new Date());
         tramite.setUserModificacion(ds.getUsuario());
@@ -219,13 +219,12 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
     @Override
     public void reporte(Model model, Long idCambioPlanCurricular, DataSessionPivot ds) {
 
-        logger.debug("idCambioPlanEstudios {}", idCambioPlanCurricular);
+        logger.debug("idCambioPlanCurricular {}", idCambioPlanCurricular);
 
-        CambioPlanCurricular cambioPlanEstudios = cambioPlanCurricularDAO.find(idCambioPlanCurricular);
+        CambioPlanCurricular cambioPlanCurricular = cambioPlanCurricularDAO.find(idCambioPlanCurricular);
 
-        logger.debug("idCambioPlanEstudios {}", cambioPlanEstudios.getId());
-
-        Tramite tramite = cambioPlanEstudios.getTramite();
+        logger.debug("idCambioPlanCurricular {}", cambioPlanCurricular.getId());
+        Tramite tramite = cambioPlanCurricular.getTramite();
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno().getId());
         logger.debug("alumno {}", alumno.getId());

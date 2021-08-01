@@ -48,6 +48,8 @@ var app = new Vue({
         alumnoTramiteBachiller: [],
         alumnoTramitePracticas: [],
         alumnoTramiteTraslado: {},
+        alumnoTramiteReadmision:[],
+        alumnoTramiteCambioPlanCurricular: [],
         tipo: ""
     },
     created: function () {
@@ -301,7 +303,7 @@ var app = new Vue({
         allAlumnos(item) {
             let $vue = this;
             $.ajax({
-                url: APP.url('academico/resolucion/alumnos/' + item.id),
+                url: APP.url('academico/resolucion/existentes/alumnos/' + item.id),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -326,6 +328,10 @@ var app = new Vue({
                             $vue.alumnoTramitePracticas = response.data;
                         } else if ($vue.tipo == "TRAS_INT") {
                             $vue.alumnoTramiteTraslado = response.data;
+                        } else if ($vue.tipo == "READMISION") {
+                            $vue.alumnoTramiteReadmision = response.data;
+                        } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
+                            $vue.alumnoTramiteCambioPlanCurricular = response.data;
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

@@ -18,11 +18,9 @@ import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_REI;
 import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 
 @Repository
 public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements ReadmisionDAO {
-
     public ReadmisionDAOH() {
         super();
         setClazz(Readmision.class);
@@ -198,7 +196,8 @@ public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements Readm
                 .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("rei.id desc");
 
         return all(sql);
     }
@@ -246,7 +245,7 @@ public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements Readm
     @Override
     public List<Readmision> allPendientes() {
         Octavia sql = Octavia.query()
-                .from(Reincorporacion.class, "rei")
+                .from(Readmision.class, "rei")
                 .join("tramite tr", "cicloReadmitido cr", "rei.alumno al", "al.persona")
                 .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
                 .filter("me.codigo", PRE)

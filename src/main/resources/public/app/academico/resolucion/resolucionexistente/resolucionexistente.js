@@ -91,6 +91,7 @@ var app = new Vue({
     }, methods: {
         tipoResolucionSelect(item) {
             let $vue = this;
+            console.log(item.codigo);
             $vue.isRetiroCiclo = false;
             $vue.isReincorporacion = false;
             $vue.isCambioNota = false;
@@ -129,8 +130,10 @@ var app = new Vue({
                 $vue.isPracticas = true;
             } else if (item.codigo == "READMISION") {
                 $vue.isReadmision = true;
+                $vue.allReadmision();
             } else if (item.codigo == "CAMBIO_PLAN_CURRICULAR") {
                 $vue.isCambioPlanCurricular = true;
+                $vue.allCambioPlanCuriicular();
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -138,106 +141,86 @@ var app = new Vue({
         allReadmision() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allReadmision"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.readmitidos = response.data;
-                    MODAL.hideWait();
-                }
-            });
+            AXIOS.get(APP.url("academico/resolucion/existentes/allReadmision"))
+                    .then(({data}) => {
+                        $vue.resolucion.readmisiones = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allCambioPlanCuriicular() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allCambioPlanCuriicular"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.cambioPlanCurriculares = response.data;
-                    MODAL.hideWait();
-                }
-            });
+            AXIOS.get(APP.url("academico/resolucion/existentes/allCambioPlanCurricular"))
+                    .then(({data}) => {
+                        $vue.resolucion.cambioPlanCurriculares = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allPracticas() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allPracticas"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.tramitePracticasPreProfesionales = response.data;
-                    MODAL.hideWait();
-                }
-            });
+            AXIOS.get(APP.url("academico/resolucion/existentes/allPracticas"))
+                    .then(({data}) => {
+                        $vue.resolucion.tramitePracticasPreProfesionales = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allTitulos() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allTitulo"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.tramiteTitulos = response.data;
-                    MODAL.hideWait();
-                }
-            });
-
+            AXIOS.get(APP.url("academico/resolucion/existentes/allTitulo"))
+                    .then(({data}) => {
+                        $vue.resolucion.tramiteTitulos = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allRetiroCiclo() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allRetiroCiclo"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.retiroCiclo = response.data;
-                    MODAL.hideWait();
-                }
-            });
-
+            AXIOS.get(APP.url("academico/resolucion/existentes/allRetiroCiclo"))
+                    .then(({data}) => {
+                        $vue.resolucion.retiroCiclo = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allReincorporacion() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allReincorporacion"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.reincorporaciones = response.data;
-                    MODAL.hideWait();
-                }
-            });
-
+            AXIOS.get(APP.url("academico/resolucion/existentes/allReincorporacion"))
+                    .then(({data}) => {
+                        $vue.resolucion.reincorporaciones = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         allBachiller() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                url: APP.url("academico/resolucion/existentes/allBachiller"),
-                dataType: "json",
-                contentType: "application/json"
-            }).then(response => {
-                if (response.success) {
-                    $vue.resolucion.tramiteBachiller = response.data;
-                    MODAL.hideWait();
-                }
-            });
+            AXIOS.get(APP.url("academico/resolucion/existentes/allBachiller"))
+                    .then(({data}) => {
+                        $vue.resolucion.tramiteBachiller = data.data;
+                        MODAL.hideWait();
+                    }, () => {
+                        notify(Messages.errorComunicacion, "error");
+                        MODAL.hideWait();
+                    });
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
@@ -346,11 +329,9 @@ var app = new Vue({
                 var tramitePracticas = {};
                 $vue.resolucion.tramitePracticasPreProfesionales.push(tramitePracticas);
             } else if ($vue.isReadmision) {
-                console.log('isReadmision');
                 var readmision = {seleccionado: true};
                 $vue.resolucion.readmisiones.push(readmision);
             } else if ($vue.isCambioPlanCurricular) {
-                console.log('isCambioPlanCurricular');
                 var cambioPlanCurricular = {seleccionado: true};
                 $vue.resolucion.cambioPlanCurriculares.push(cambioPlanCurricular);
             }

@@ -21,7 +21,7 @@
                                     <td class="v-middle"> 
                                         <span class="block">Serie: {{item.tramite.serie}}</span>
                                         <span class="block">Número: {{item.tramite.numero}}</span>
-                                        <span class="block">Ciclo Readmisión: {{item.cicloReadmitido.descripcion}}</span>
+                                        <span class="block">Ciclo Readmisión: {{item.cicloAcademico.descripcion}}</span>
 
                                     </td>
                                     <td class="v-middle text-left">

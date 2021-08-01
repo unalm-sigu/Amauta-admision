@@ -1697,8 +1697,19 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
-    public List<CambioPlanCurricular> allCambioPlanCuricular() {
+    public List<CambioPlanCurricular> allCambioPlanCurricular() {
         return cambioPlanCurricularDAO.allPendientes();
     }
+
+    @Override
+    public List<Readmision> allReadmisionByResolucion(Resolucion resolucion) {
+        return readmisionDAO.allByResolucion(resolucion);
+    }
+
+    @Override
+    public List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion) {
+        return cambioPlanCurricularDAO.allByResolucion(resolucion);
+    }
+    
 
 }

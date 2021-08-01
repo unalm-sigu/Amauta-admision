@@ -526,15 +526,16 @@ public class ResolucionController {
             @RequestParam("file") MultipartFile file,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
             logger.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
-
             service.uploadResolucionFile(new Resolucion(resolucionId), file, ds);
-
-            //    response.setData(name);
             response.setMessage("Archivo cargado.");
             response.setSuccess(true);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception ex) {

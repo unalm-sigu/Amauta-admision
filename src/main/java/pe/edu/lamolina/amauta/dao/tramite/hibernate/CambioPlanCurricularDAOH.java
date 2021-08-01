@@ -197,7 +197,8 @@ public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricul
                 .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("rei.id desc");
 
         return all(sql);
     }
