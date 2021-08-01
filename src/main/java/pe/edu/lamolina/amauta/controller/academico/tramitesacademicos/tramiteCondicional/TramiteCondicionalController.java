@@ -43,7 +43,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
+import pe.edu.lamolina.amauta.controller.academico.resolucion.existentes.ResolucionExistenteService;
 import pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;

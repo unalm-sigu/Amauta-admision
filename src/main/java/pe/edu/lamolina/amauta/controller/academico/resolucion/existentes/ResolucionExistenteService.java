@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExistentes;
+package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
@@ -92,5 +93,7 @@ public interface ResolucionExistenteService {
     public String saveReadmision(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     public String saveCambioPlanCurricular(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
+    public List<CambioPlanCurricular> allCambioPlanCuricular();
 
 }
