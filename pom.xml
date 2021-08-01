@@ -241,12 +241,14 @@
             <artifactId>model</artifactId>
             <version>0.28.36</version>
         </dependency>
+        
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.18</version>
             <type>jar</type>
         </dependency>
+        
     </dependencies>
     <build>
         <finalName>amauta</finalName>
