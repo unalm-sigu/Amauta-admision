@@ -239,8 +239,14 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.28.35</version>
-        </dependency>    
+            <version>0.28.36</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.18</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <finalName>amauta</finalName>

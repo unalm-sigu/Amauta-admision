@@ -1,330 +1,318 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Resoluciones</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .td-vacio {
-            padding-right: 4px !important;
-            padding-left: 4px !important;
-        }
-        .bg-row {
-            background-color: #f9fafc;
-        }
+    </head>
 
-    </style>
-</head>
+    <body>
+        <div layout:fragment="main">
+            <div id="resoluciones" v-cloak="">
+                <header class="header b-b padder-lg m-b-xs">
 
-<body>
-    <div layout:fragment="main">
-        <div id="resoluciones" v-cloak="">
-            <header class="header b-b padder-lg m-b-xs">
-
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                        Acciones &nbsp; <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <!--<li> <a th:href="@{/academico/resolucion/nuevo}" >Nueva Resolución</a></li>-->
-                        <li> <a th:href="@{/academico/resolucion/resolucionExistentes}"  >Resolución Existente</a></li>                        
-                    </ul>
-                </div>
-                <h2 >Resoluciones</h2>
-            </header>
-            <section class="wrapper-lg">
-
-                <section class="panel">
-                    <section class="panel-body">
-
-
-                        <raptor-table ref="tblResoluciones"
-                                      v-bind:url="URL_RESOLUCIONES" >
-
-                            <template scope="props">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-muted">Tipo</th>
-                                            <th class="text-muted text-center">Alumnos</th>
-                                            <th class="text-muted">Oficina emite</th>
-                                            <th class="text-muted">Número del documento</th>
-                                            <th class="text-muted text-center">Fecha</th>
-                                            <th class="text-muted text-center">Estado</th>
-                                            <th class="text-muted" style="width: 20px !important;"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in props.data"> 
-                                            <td class="v-middle">
-                                                <div class="m-t-sm m-b-sm">
-                                                    {{item.tipoResolucion.nombre}}
-                                                </div>
-                                            </td>
-
-                                            <td class="text-center v-middle">
-                                                <span class="pointer">
-                                                    <i class="fa fa-users text-primary fa-lg" aria-hidden="true" v-on:click="allAlumnos(item)"></i>
-                                                </span>
-                                            </td>
-
-                                            <td class="v-middle">
-                                                {{item.oficina.nombre}}    
-                                            </td>
-
-                                            <td class="v-middle">
-                                                <div class="text-success">{{item.descripcion}}</div>
-                                                <div v-if="item.rutaUrl" class="block text-muted">
-                                                    <a v-bind:href="item.rutaUrl" target="_blank" >
-                                                        <i class="fa fa-file-pdf-o text-danger"></i>
-                                                        Ver documento
-                                                    </a>
-                                                </div>
-                                            </td>
-
-                                            <td class="text-center v-middle">
-                                                <span v-text="item.fecha"></span>
-                                            </td>
-
-                                            <td class="text-center v-middle">
-                                                <span class="label" v-bind:class="getEstadoClass(item.estado)">{{item.estadoEnum.value}}</span>
-                                            </td>
-
-                                            <td class="text-center v-middle">
-                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
-                                                <ul class="dropdown-menu pull-right" >
-                                                    <li role="presentation" v-if='item.autorizado'>
-                                                    
-                                                        <a class="aceptar-expandir-sistema"  
-                                                           v-on:click="editarResolucionOther(item,$event)" href="#"
-                                                           v-if="item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
-                                                           item.isTipoTramitePracticas || item.isTipoRetiroCiclo" 
-                                                           >
-                                                            Editar
-                                                        </a>
-                                                        <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir PDF</a>
-                                                        <!--<a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>-->
-                                                        <!--<a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>-->
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
-
-                    </section>
-                </section>
-
-
-                <modal-vik ref="modalResolucion"
-                           v-bind="resolucionModal"
-                           v-bind:okaction="saveResolucion"
-                           v-bind:showaccept="false"
-                           modalsize="modal-md">
-                    <div slot="body">
-                        <form id="frmResolucion" v-if="resolucion!=null">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <label>Tipo Resolución</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.tipoResolucion.nombre"/>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <label>Fecha Resolución</label>
-                                    <div class="form-group">
-                                        <format-date class="form-control" v-bind:datetext="resolucion.fecha"></format-date>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <label>Serie</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.serie"/>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <label>Número</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.numero"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <label>Archivo</label>
-                                    <div class="form-group">
-
-                                        <file-upload
-                                            extensions="gif,jpg,jpeg,png,pdf"
-                                            accept="image/png,image/gif,image/jpeg,application/pdf"
-                                            class="pull-right"
-                                            post-action="/academico/resolucion/addFile"
-                                            v-bind:data="{resolucionId:resolucion.id}"
-                                            v-model="files"
-                                            v-bind:multiple="false"
-                                            v-on:input-filter="inputFilter"
-                                            v-on:input-file="inputFile"
-                                            required="true"
-                                            ref="upload">
-                                            <span class="btn btn-primary pull-right m-b-md"
-                                                  v-if="!$refs.upload || !$refs.upload.active"
-                                                  v-on:click="$refs.upload.active = true">
-                                                <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
-                                            </span>
-                                        </file-upload>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" v-if="resolucion.userRegistro.id!=''">
-                                <div class="col-lg-6">
-                                    <label>Usuario Registro</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.userRegistro.persona.apellidosNombres"/>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <label>Fecha Registro</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.fechaRegistro"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" v-if="resolucion.userActualizacion!=null &amp;&amp; resolucion.userActualizacion.id!=''">
-                                <div class="col-lg-6">
-                                    <label>Usuario Registro</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.userActualizacion.persona.apellidosNombres"/>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <label>Fecha Registro</label>
-                                    <div class="form-group">
-                                        <span class="form-control" v-text="resolucion.fechaActualizacion"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li> <a th:href="@{/academico/resolucion/existentes}"  >Resolución Existente</a></li>                        
+                        </ul>
                     </div>
-                </modal-vik>
+                    <h2 >Resoluciones</h2>
+                </header>
+                <section class="wrapper-lg">
 
-                <modal-vik ref="modalConfirmar"
-                           modalsize="modal-lg"
-                           v-bind="confirmarModal"
-                           v-bind:okaction="saveConfirmarSubirDocumento">
-                    <div slot="body">
-                        <form id="frmConfirmar">
-                            <div class="row" v-if="resolucion != null &AMP;&AMP; resolucion.tipoResolucion.codigo == 'REI'">
-                                <div class="col-lg-6">
-                                    <label>Ciclo Académico</label>
-                                    <div class="form-group">
-                                        <multiselect 
-                                            v-model="resolucion.cicloReincorporacion" 
-                                            v-bind:options="ciclosToReincorporacion"
-                                            v-if='ciclosToReincorporacion' 
-                                            label="descripcion"
-                                            v-bind:custom-label="customLabelCiclosRei"
-                                            track-by="id" 
-                                            required="true"
-                                            v-bind:show-labels="false"
-                                            >
-                                        </multiselect> 
-                                    </div>
-                                </div>
-                            </div>
-                            <raptor-table ref="tblTramites"
-                                          v-bind:url="URL_TRAMITES" 
-                                          rowsperpage="5"
-                                          v-bind:searcher="false">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <raptor-table ref="tblResoluciones"
+                                          v-bind:url="URL_RESOLUCIONES" >
 
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="v-middle text-center">Tramite</th>
-                                                <th class="v-middle text-center">Persona</th>
-                                                <th class="v-middle text-center">Estado</th>
-                                                <th class="v-middle text-center">Registro</th>
-                                                <th>Aceptado</th>
+                                                <th class="text-muted">Tipo</th>
+                                                <th class="text-muted text-center">Alumnos</th>
+                                                <th class="text-muted">Oficina emite</th>
+                                                <th class="text-muted">Número del documento</th>
+                                                <th class="text-muted text-center">Fecha</th>
+                                                <th class="text-muted text-center">Estado</th>
+                                                <th class="text-muted" style="width: 20px !important;"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data"> 
-                                                <td class="v-middle text-left">   
-                                                    <small class="block text-muted">{{item.tramite.tipoTramite.nombre}}</small>
-                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                <td class="v-middle">
+                                                    <div class="m-t-sm m-b-sm">
+                                                        {{item.tipoResolucion.nombre}}
+                                                    </div>
                                                 </td>
-                                                <td class="v-middle text-left">
-                                                    {{ item.tramite.persona.apellidosNombres}}
-                                                </td> 
-                                                <td>
-                                                    <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
-                                                    <small class="block text-muted" 
-                                                           v-if="item.tramite.tipoTramite.esReincorporacionPregrado">
-                                                        Reincorporación: {{item.estadoTramite.nombre}}
-                                                    </small>
-                                                    <!-- 
-                                                    <small class="block text-muted" 
-                                                           v-if="item.tramiteReunionConsejo">
-                                                        <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
-                                                    </small>
-                                                    -->
-                                                </td> 
-                                                <td>
-                                                    {{ item.userRegistro.persona.apellidosNombres}}
-                                                    <small class="block text-muted">
-                                                        <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
-                                                    </small>
-                                                    <!--
-                                                    <a class="btn" 
-                                                       v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
-                                                       type="button"    
-                                                       v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
-                                                       href="#" >Seleccionar</a> -->
+
+                                                <td class="text-center v-middle">
+                                                    <span class="pointer">
+                                                        <i class="fa fa-users text-primary fa-lg" aria-hidden="true" v-on:click="allAlumnos(item)"></i>
+                                                    </span>
                                                 </td>
-                                                <td>
-                                                    <label class="switch">
-                                                        <input  type="checkbox" 
-                                                                value="1"
-                                                                v-model="item.aceptado"
-                                                                disabled="true"/>
-                                                        <span></span>
-                                                    </label>
+
+                                                <td class="v-middle">
+                                                    {{item.oficina.nombre}}    
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="text-success">{{item.descripcion}}</div>
+                                                    <div v-if="item.rutaUrl" class="block text-muted">
+                                                        <a v-bind:href="item.rutaUrl" target="_blank" >
+                                                            <i class="fa fa-file-pdf-o text-danger"></i>
+                                                            Ver documento
+                                                        </a>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <span v-text="item.fecha"></span>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <span class="label" v-bind:class="getEstadoClass(item.estado)">{{item.estadoEnum.value}}</span>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                                                    <ul class="dropdown-menu pull-right" >
+                                                        <li role="presentation" v-if='item.autorizado'>
+
+                                                            <a class="aceptar-expandir-sistema"  
+                                                               v-on:click="editarResolucionOther(item,$event)" href="#"
+                                                               v-if="item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
+                                                               item.isTipoTramitePracticas || item.isTipoRetiroCiclo" 
+                                                               >
+                                                                Editar
+                                                            </a>
+                                                            <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir PDF</a>
+                                                            <!--<a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>-->
+                                                            <!--<a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>-->
+                                                        </li>
+                                                    </ul>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </template>
                             </raptor-table>
-                        </form>
-                    </div>
-                </modal-vik>
+
+                        </section>
+                    </section>
 
 
-                <div th:substituteby="academico/resolucion/alumnosResolucionModal"/>
-            </section>
+                    <modal-vik ref="modalResolucion"
+                               v-bind="resolucionModal"
+                               v-bind:okaction="saveResolucion"
+                               v-bind:showaccept="false"
+                               modalsize="modal-md">
+                        <div slot="body">
+                            <form id="frmResolucion" v-if="resolucion!=null">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Tipo Resolución</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.tipoResolucion.nombre"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Resolución</label>
+                                        <div class="form-group">
+                                            <format-date class="form-control" v-bind:datetext="resolucion.fecha"></format-date>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Serie</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.serie"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Número</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.numero"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <label>Archivo</label>
+                                        <div class="form-group">
+
+                                            <file-upload
+                                                extensions="gif,jpg,jpeg,png,pdf"
+                                                accept="image/png,image/gif,image/jpeg,application/pdf"
+                                                class="pull-right"
+                                                post-action="/academico/resolucion/addFile"
+                                                v-bind:data="{resolucionId:resolucion.id}"
+                                                v-model="files"
+                                                v-bind:multiple="false"
+                                                v-on:input-filter="inputFilter"
+                                                v-on:input-file="inputFile"
+                                                required="true"
+                                                ref="upload">
+                                                <span class="btn btn-primary pull-right m-b-md"
+                                                      v-if="!$refs.upload || !$refs.upload.active"
+                                                      v-on:click="$refs.upload.active = true">
+                                                    <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
+                                                </span>
+                                            </file-upload>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="resolucion.userRegistro.id!=''">
+                                    <div class="col-lg-6">
+                                        <label>Usuario Registro</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.userRegistro.persona.apellidosNombres"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Registro</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.fechaRegistro"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="resolucion.userActualizacion!=null &amp;&amp; resolucion.userActualizacion.id!=''">
+                                    <div class="col-lg-6">
+                                        <label>Usuario Registro</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.userActualizacion.persona.apellidosNombres"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Registro</label>
+                                        <div class="form-group">
+                                            <span class="form-control" v-text="resolucion.fechaActualizacion"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </modal-vik>
+
+                    <modal-vik ref="modalConfirmar"
+                               modalsize="modal-lg"
+                               v-bind="confirmarModal"
+                               v-bind:okaction="saveConfirmarSubirDocumento">
+                        <div slot="body">
+                            <form id="frmConfirmar">
+                                <div class="row" v-if="resolucion != null &AMP;&AMP; resolucion.tipoResolucion.codigo == 'REI'">
+                                    <div class="col-lg-6">
+                                        <label>Ciclo Académico</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.cicloReincorporacion" 
+                                                v-bind:options="ciclosToReincorporacion"
+                                                v-if='ciclosToReincorporacion' 
+                                                label="descripcion"
+                                                v-bind:custom-label="customLabelCiclosRei"
+                                                track-by="id" 
+                                                required="true"
+                                                v-bind:show-labels="false"
+                                                >
+                                            </multiselect> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <raptor-table ref="tblTramites"
+                                              v-bind:url="URL_TRAMITES" 
+                                              rowsperpage="5"
+                                              v-bind:searcher="false">
+
+                                    <template scope="props">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="v-middle text-center">Tramite</th>
+                                                    <th class="v-middle text-center">Persona</th>
+                                                    <th class="v-middle text-center">Estado</th>
+                                                    <th class="v-middle text-center">Registro</th>
+                                                    <th>Aceptado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data"> 
+                                                    <td class="v-middle text-left">   
+                                                        <small class="block text-muted">{{item.tramite.tipoTramite.nombre}}</small>
+                                                        <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
+                                                        <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                    </td>
+                                                    <td class="v-middle text-left">
+                                                        {{ item.tramite.persona.apellidosNombres}}
+                                                    </td> 
+                                                    <td>
+                                                        <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
+                                                        <small class="block text-muted" 
+                                                               v-if="item.tramite.tipoTramite.esReincorporacionPregrado">
+                                                            Reincorporación: {{item.estadoTramite.nombre}}
+                                                        </small>
+                                                        <!-- 
+                                                        <small class="block text-muted" 
+                                                               v-if="item.tramiteReunionConsejo">
+                                                            <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
+                                                        </small>
+                                                        -->
+                                                    </td> 
+                                                    <td>
+                                                        {{ item.userRegistro.persona.apellidosNombres}}
+                                                        <small class="block text-muted">
+                                                            <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
+                                                        </small>
+                                                        <!--
+                                                        <a class="btn" 
+                                                           v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
+                                                           type="button"    
+                                                           v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
+                                                           href="#" >Seleccionar</a> -->
+                                                    </td>
+                                                    <td>
+                                                        <label class="switch">
+                                                            <input  type="checkbox" 
+                                                                    value="1"
+                                                                    v-model="item.aceptado"
+                                                                    disabled="true"/>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
+                            </form>
+                        </div>
+                    </modal-vik>
+
+
+                    <div th:substituteby="academico/resolucion/alumnosResolucionModal"/>
+                </section>
+            </div>
+            <div th:substituteby="templates/modal"/>
+
         </div>
-        <div th:substituteby="templates/modal"/>
 
-    </div>
-
-    <div layout:fragment="js">
+        <div layout:fragment="js">
 
 
-        <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
-        <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
+            <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
 
-        <div th:substituteby="_modules/vue-raptor-table"/>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
 
-        <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
 
-        <script th:src="@{/app/academico/resolucion/resolucion.js}" charset="utf-8"></script> 
-    </div>
+            <script th:src="@{/app/academico/resolucion/resolucion.js}" charset="utf-8"></script> 
+        </div>
 
 
-</body>
+    </body>
 </html>

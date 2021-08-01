@@ -11,13 +11,13 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_REI;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Repository
 public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricular> implements CambioPlanCurricularDAO {
@@ -225,22 +225,35 @@ public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricul
     }
 
     @Override
-    public void updateColumns(CambioPlanCurricular readmision, String... columns){
+    public void updateColumns(CambioPlanCurricular readmision, String... columns) {
         Octavia octavia = Octavia.update(CambioPlanCurricular.class);
         octavia.set(readmision, columns);
         this.update(octavia);
     }
-    
-    
+
     @Override
     public CambioPlanCurricular find(Long readmision) {
-        
+
         Octavia sql = Octavia.query()
                 .from(CambioPlanCurricular.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloAcademico cr")
                 .filter("rei.id", readmision);
 
         return find(sql);
+    }
+
+    @Override
+    public List<CambioPlanCurricular> allPendientes() {
+
+        Octavia sql = Octavia.query()
+                .from(CambioPlanCurricular.class, "rei")
+                .join("planCurricularOrigen pco", "planCurricularDestino pcd", "pco.cicloInicioVigencia", "pcd.cicloInicioVigencia")
+                .join("tramite tr", "cicloAcademico cr", "rei.alumno al", "al.persona")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
+                .filter("me.codigo", PRE)
+                .filter("rei.aceptado", 0);
+        return all(sql);
+        
     }
 
 }

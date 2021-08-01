@@ -7,18 +7,27 @@
         <section  layout:fragment="main">
             <header class="header b-b padder-lg">
 
-                <h2 > Resolución Existente <span th:text="${ciclo.descripcion}"></span></h2>
+                <h2> Resolución Existente <span th:text="${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''}"></span></h2>
+
                 <div class="pull-right m-t-md">
                     <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
                 </div>
+
             </header>
+
             <div id="main" v-cloak="">
+
                 <div >
 
                     <section class="wrapper-lg">
+
                         <form id="form" data-parsley-validate="true" >
-                            <section class="panel m-b-xs">
+
+
+                            <section class="panel m-b-sm">
                                 <section class="panel-body">
+
+
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <label>Facultad</label>
@@ -61,7 +70,12 @@
                                             <div class="form-group">
                                                 <label>Fecha Resolución</label>
                                                 <div class="input-group date">
-                                                    <date-picker v-model="resolucion.fecha" required="true" v-bind:config="configDate" data-parsley-id="2" v-bind:wrap="true" ></date-picker>  
+                                                    <date-picker v-model="resolucion.fecha" 
+                                                                 required="true" 
+                                                                 v-bind:config="configDate" 
+                                                                 data-parsley-id="2" 
+                                                                 v-bind:wrap="true" >
+                                                    </date-picker>  
                                                     <div class="input-group-addon">
                                                         <span class="fa fa-calendar"></span>
                                                     </div>
@@ -90,27 +104,29 @@
                                         </div>
                                     </div>
                                     <div class="row">
+                                        
                                         <div class="col-lg-6">
                                             <label>Tipo Resolución</label>
                                             <div class="form-group">
                                                 <multiselect 
                                                     v-model="resolucion.tipoResolucion" 
                                                     v-bind:options="tiposResolucion"
-                                                placeholder=" "
+                                                    placeholder=" "
                                                     label="nombre"
                                                     v-bind:allow-empty="false"
                                                     deselect-label="No se puede eliminar este valor"
                                                     track-by="id" 
                                                     required="true"
                                                     v-on:select="tipoResolucionSelect"
-                                                v-bind:disabled="isEdicion"
+                                                    v-bind:disabled="isEdicion"
                                                     >
                                                 </multiselect>
                                                 <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                                             </div>
                                         </div> 
-                                        <div class="col-lg-6" v-if=" !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp;  !isRetiroCiclo &amp;&amp; !isReincorporacion &amp;&amp; !isTraslado &amp;&amp; !isPracticas  &amp;&amp; !isTrasladoInt">
-                                        <label>Ciclo 
+                                       
+                                        <div class="col-lg-6" v-if="isCambioNota||isCursoDirigido">
+                                            <label>Ciclo 
                                                 <span v-if='isRetiroCiclo'> a retirar</span>
                                                 <span v-if='isReincorporacion'> a reincorporar</span>
                                             </label>
@@ -118,17 +134,18 @@
                                                 <multiselect 
                                                     v-model="resolucion.cicloAplica" 
                                                     v-bind:options="ciclos"
-                                                placeholder=" "
+                                                    placeholder=" "
                                                     label="descripcion"
                                                     track-by="id" 
                                                     required="true"
                                                     v-bind:allow-empty="true"
-                                                deselect-label="No se puede eliminar este valor" 
-                                                v-bind:disabled="isEdicion">
+                                                    deselect-label="No se puede eliminar este valor" 
+                                                    v-bind:disabled="isEdicion">
                                                 </multiselect>
                                                 <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
                                             </div>
                                         </div>
+                                        
                                     </div>
                                 </section>
                             </section>
@@ -137,12 +154,12 @@
                                 <section class="panel-body">
                                     <div v-if="isTitulo ||  isBachiller || isRetiroCiclo || isReincorporacion">
                                         <div class="col-lg-6">
-                                            <label>Facultad</label>
+                                            <label>Filtro Facultad</label>
                                             <div class="form-group">
                                                 <multiselect 
                                                     v-model="filterFacultad" 
                                                     v-bind:options="oficinas"
-                                                placeholder=" "
+                                                    placeholder=" "
                                                     label="nombre"
                                                     v-bind:allow-empty="true"
                                                     track-by="id" 
@@ -152,8 +169,10 @@
                                             </div>
                                         </div> 
                                         <div class="col-lg-6">
-                                            Visualizar seleccionados
-                                            <input type="checkbox" class="form-control" v-model="visualizarSelect"/>
+                                            <label>Filtro Visualizar Solo Seleccionados</label>
+                                            <div class="form-group">
+                                                <input type="checkbox" style="width: 25px;height: 25px;" class="v-middle" v-model="visualizarSelect"/> 
+                                            </div>
                                         </div>
                                     </div>
                                     <table class="table table-striped">
@@ -161,12 +180,7 @@
                                             <tr>
                                                 <th class=" text-center">Persona</th>
                                                 <th class=" text-center" >Tipo Tramite</th>
-                                                <th class=" text-center" v-if=" !isRetiroCiclo &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt  &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp; !isPracticas &amp;&amp; !isReincorporacion">Motivo Rechazo</th>
-                                                <!--                                                                                        <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
-                                                                                                                                            <span v-if='isRetiroCiclo'> a retirar</span>
-                                                                                                                                            <span v-if='isReincorporacion'> a reincorporar</span>
-                                                                                                                                        </th>-->
-                                                <!--<th class=" text-center" v-if="isTrasladoInt">Carrera</th>-->
+                                                <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
                                                 <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
                                                 <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
                                                 <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
@@ -202,6 +216,12 @@
                                             <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionTitulo"></div>
                                         </template>
                                         <template>
+                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionReadmision"></div>
+                                        </template>
+                                        <template>
+                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionCambioPlanCurricular"></div>
+                                        </template>
+                                        <template>
                                             <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionPracticasPreProfesionales"></div>
                                         </template>
 
@@ -226,9 +246,8 @@
                     </section>
                 </div>
 
-                <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionError">
+                <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionError"> </div>
 
-                </div>
             </div>
         </section>
 
