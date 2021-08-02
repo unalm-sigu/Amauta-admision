@@ -158,7 +158,7 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
                 logger.debug(" {} {} ", namaFileUpload, copied.exists());
 
             } catch (Exception ex) {
-                fotosCarneUploadComponent.getErrores().add(new MsjError("Error al subir el archivo : " + codigoAlumno));
+                fotosCarneUploadComponent.getErrores().add(new MsjError("Error cdn al subir el archivo : " + codigoAlumno));
                 continue;
             }
 
