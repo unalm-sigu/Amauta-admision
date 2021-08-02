@@ -1552,7 +1552,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<Readmision> allReadmision() {
-        return readmisionDAO.allPendientes();
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+        return readmisionDAO.allPendienteByEstado(estadoTramite);
     }
 
     @Override
@@ -1734,7 +1735,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<CambioPlanCurricular> allCambioPlanCurricular() {
-        return cambioPlanCurricularDAO.allPendientes();
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+        return cambioPlanCurricularDAO.allPendienteByEstado(estadoTramite);
     }
 
     @Override

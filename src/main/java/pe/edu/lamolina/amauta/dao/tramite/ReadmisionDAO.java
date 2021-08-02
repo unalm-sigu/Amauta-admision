@@ -28,4 +28,6 @@ public interface ReadmisionDAO extends EasyDAO<Readmision> {
 
     Readmision findByEstadoTramiteAlumnoCiclo(Alumno alumno, CicloAcademico cicloReadmitido, EstadoTramite estadoTramite);
 
+    public List<Readmision> allPendienteByEstado(EstadoTramite estadoTramite);
+
 }

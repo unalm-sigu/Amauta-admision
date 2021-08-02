@@ -115,11 +115,23 @@ public class ReadmisionDAOH extends AbstractEasyDAO<Readmision> implements Readm
     public Readmision findByEstadoTramiteAlumnoCiclo(Alumno alumno, CicloAcademico cicloReadmitido, EstadoTramite estadoTramite) {
         Octavia sql = Octavia.query()
                 .from(Readmision.class, "rei")
-                .join("cicloReadmitido cr", "tramite tr", "tr.alumno al","estadoTramite es")
+                .join("cicloReadmitido cr", "tramite tr", "tr.alumno al", "estadoTramite es")
                 .filter("al.id", alumno)
                 .filter("es.id", estadoTramite)
                 .filter("cr.id", cicloReadmitido);
         return find(sql);
+    }
+
+    @Override
+    public List<Readmision> allPendienteByEstado(EstadoTramite estadoTramite) {
+        Octavia sql = Octavia.query()
+                .from(Readmision.class, "rei")
+                .join("tramite tr", "cicloReadmitido cr", "rei.alumno al", "al.persona")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio me", "estadoTramite es")
+                .filter("me.codigo", PRE)
+                .filter("es.id", estadoTramite)
+                .filter("rei.aceptado", 0);
+        return all(sql);
     }
 
 }

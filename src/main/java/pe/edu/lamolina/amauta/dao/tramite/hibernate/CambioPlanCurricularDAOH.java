@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
 public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricular> implements CambioPlanCurricularDAO {
@@ -20,6 +21,23 @@ public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricul
     public CambioPlanCurricularDAOH() {
         super();
         setClazz(CambioPlanCurricular.class);
+    }
+
+    @Override
+    public List<CambioPlanCurricular> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(CambioPlanCurricular.class, "rei")
+                .join("tramite tra", "facultad fac", "estadoTramite et", "cicloAcademico cr")
+                .join("tra.cicloAcademico ca", "tra.alumno al", "al.persona per")
+                .left("resolucion")
+                .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("rei.id desc");
+
+        return all(sql);
     }
 
     @Override
@@ -44,18 +62,11 @@ public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricul
     }
 
     @Override
-    public List<CambioPlanCurricular> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
-
-        DynatableSql sql = new DynatableSql(filter)
+    public List<CambioPlanCurricular> allByTramite(Tramite tramite) {
+        Octavia sql = Octavia.query()
                 .from(CambioPlanCurricular.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloAcademico cr")
-                .join("tra.cicloAcademico ca", "tra.alumno al", "al.persona per")
-                .left("resolucion")
-                .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
-                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico)
-                .orderBy("rei.id desc");
+                .filter("tra.id", tramite);
 
         return all(sql);
     }
@@ -112,6 +123,19 @@ public class CambioPlanCurricularDAOH extends AbstractEasyDAO<CambioPlanCurricul
                 .filter("cr.id", cicloAcademico)
                 .filter("es.id", estadoTramite);
         return find(sql);
+    }
+
+    @Override
+    public List<CambioPlanCurricular> allPendienteByEstado(EstadoTramite estadoTramite) {
+        Octavia sql = Octavia.query()
+                .from(CambioPlanCurricular.class, "rei")
+                .join("planCurricularOrigen pco", "planCurricularDestino pcd", "pco.cicloInicioVigencia", "pcd.cicloInicioVigencia")
+                .join("tramite tr", "cicloAcademico cr", "rei.alumno al", "al.persona" ,"estadoTramite es")
+                .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
+                .filter("es.id", estadoTramite)
+                .filter("me.codigo", PRE)
+                .filter("rei.aceptado", 0);
+        return all(sql);
     }
 
 }

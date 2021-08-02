@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Resolucion;
+import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface CambioPlanCurricularDAO extends EasyDAO<CambioPlanCurricular> {
 
@@ -23,6 +24,10 @@ public interface CambioPlanCurricularDAO extends EasyDAO<CambioPlanCurricular> {
 
     List<CambioPlanCurricular> allPendientes();
 
-    public CambioPlanCurricular findByEstadoTramiteAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico, EstadoTramite estadoTramite);
+    CambioPlanCurricular findByEstadoTramiteAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico, EstadoTramite estadoTramite);
+
+    List<CambioPlanCurricular> allByTramite(Tramite tramite);
+
+    public List<CambioPlanCurricular> allPendienteByEstado(EstadoTramite estadoTramite);
 
 }

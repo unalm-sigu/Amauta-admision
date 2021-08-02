@@ -858,9 +858,6 @@ public class ResolucionExistenteController {
         try {
 
             List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricular();
-            for (CambioPlanCurricular cambioPlanCurriculare : cambioPlanCurriculares) {
-                ObjectUtil.printAttr(cambioPlanCurriculare);
-            }
 
             ArrayNode array = JaneHelper.from(cambioPlanCurriculares)
                     .join("planCurricularOrigen")
