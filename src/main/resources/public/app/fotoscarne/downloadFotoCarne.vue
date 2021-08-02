@@ -99,7 +99,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(error, i) in info.errors" v-bind:key="i">
+                                <tr v-for="(error, i) in info.errores" v-bind:key="i">
                                     <td>{{i+1}}</td>
                                     <td>{{error.mensaje}}</td>
                                 </tr>
