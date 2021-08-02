@@ -11,6 +11,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
 @Repository
 public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implements PlanCurricularDAO {
@@ -80,6 +81,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
 
         return all(sql);
     }
+
     @Override
     public List<PlanCurricular> allActivoByCarreraOrientacion(Carrera carrera) {
         Octavia sql = Octavia.query()
@@ -135,6 +137,19 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 //                .filter("estado", EstadoEnum.ACT)
                 .filter("pc.id", planCurricular);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<PlanCurricular> allCambioActivoByCarrera(Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
+                .isNull("ocar.id")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("carrera", carrera)
+                .orderBy("cic.codigo desc");
         return all(sql);
     }
 

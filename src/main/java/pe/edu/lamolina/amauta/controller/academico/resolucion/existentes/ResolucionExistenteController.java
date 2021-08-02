@@ -337,6 +337,20 @@ public class ResolucionExistenteController {
                 String token = respuestas.get(0);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
+            } else if (resolucion.isTipoReadmision()) {
+                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                String token = respuestas.get(0);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
+            } else if (resolucion.isTipoCambioPlanCurricular()) {
+                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                String token = respuestas.get(0);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");

@@ -142,7 +142,7 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
         Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
 
-        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
+        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, ds.getCicloAcademico(),estadoTramite);
 
         if (cambioPlanEstudiosDb != null) {
             throw new PhobosException("EL alumno ya tiene tramite pendiente");
@@ -310,7 +310,10 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
         Alumno alumno = alumnoDAO.findAllInfo(idAlumno);
         
-        List<PlanCurricular> planCurriculares = planCurricularDAO.allActivoByCarrera(alumno.getCarrera());
+        List<PlanCurricular> planCurriculares = planCurricularDAO.allCambioActivoByCarrera(alumno.getCarrera());
+        for (PlanCurricular planCurriculare : planCurriculares) {
+            logger.debug(" planCurriculare {}",planCurriculare.getCicloInicioVigencia().getCodigo());
+        }
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         
