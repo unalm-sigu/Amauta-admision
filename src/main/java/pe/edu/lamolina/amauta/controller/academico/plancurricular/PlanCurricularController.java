@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -76,11 +77,13 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
 
 @Controller
 @RequestMapping("academico/planCurricular")
@@ -100,6 +103,9 @@ public class PlanCurricularController {
     @Autowired
     DespliegueConfig despliegueConfig;
 
+    @Autowired
+    PdfHtmlSimplified reporteReadmisionPdf;
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -1454,6 +1460,18 @@ public class PlanCurricularController {
         }
         response.setData(arr);
         return response;
+    }
+    
+    @RequestMapping(value = "descargarPlan/{idPlanCurricular}/reporte", method = RequestMethod.GET)
+    public ModelAndView descargarPlan(Model model, HttpSession session, @PathVariable Long idPlanCurricular) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+            List<PlanEstudiosDTO> planes = service.descargarPlanCurricular(idPlanCurricular);
+            service.reporte(model, planes);
+        } catch (Exception e) {
+            System.out.println(e.getCause().getMessage());
+        }
+        return new ModelAndView(reporteReadmisionPdf);
     }
 
     @ResponseBody

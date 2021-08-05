@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +14,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
@@ -56,7 +60,6 @@ import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
-import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EAD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECP;
@@ -78,6 +81,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
@@ -104,6 +108,7 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 
 @Service
 @Transactional(readOnly = true)
@@ -185,7 +190,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         this.allUpdateResumen();
 
-    }
+    }    
 
     private enum NivelEnum {
         OBLIGATORIO, OPCIONAL, ADICIONAL
@@ -1156,6 +1161,33 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             Assert.isNull(cursoOpcional, "Este curso ya existe en el grupo de electivos");
         }
 
+    }
+    
+    @Override
+    public void reporte(Model model, List<PlanEstudiosDTO> listPlanEstudiosDTO) {
+        
+        String facultad = listPlanEstudiosDTO.get(0).getFacultad();
+        String especialidad = listPlanEstudiosDTO.get(0).getEspecialidad();
+        String year = Long.toString(listPlanEstudiosDTO.get(0).getYear());
+        Map<String, List<PlanEstudiosDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
+
+        Context ctx = new Context();
+        //metadata        
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        ctx.setVariable("facultad", facultad);
+        ctx.setVariable("especialidad", especialidad);
+        ctx.setVariable("year", year);
+        ctx.setVariable("datos", mapPlanEstudios);
+        ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
+        ctx.setVariable("templatePdf", "planEstudios");
+        model.addAllAttributes(ctx.getVariables());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular) {
+        //PlanCurricular planBD = planCurricularDAO.find(idPlanCurricular);
+        return planCurricularDAO.reportePlanCurricular(idPlanCurricular);        
     }
 
     @Override

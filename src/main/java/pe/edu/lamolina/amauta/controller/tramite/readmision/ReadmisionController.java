@@ -126,7 +126,7 @@ public class ReadmisionController {
         return response;
     }
 
-    @RequestMapping(value = "{idReadmision}/reporte", method = RequestMethod.GET)
+    @RequestMapping(value = "{idReadmision}/reporte", method = RequestMethod.POST)
     public ModelAndView bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idReadmision) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
