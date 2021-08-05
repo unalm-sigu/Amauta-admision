@@ -71,19 +71,11 @@ public class PdfHtmlSimplified extends AbstractPdfHtmlView {
         documentPdf.addTitle(nombre);
         documentPdf.addSubject(nombre);
 
-        PdfContent pdfContent = new PdfContent();
-        pdfContent.setContext(ctx);
-        pdfContent.setNombre(nombre);
-        pdfContent.setSubject(nombre);
-        pdfContent.setTitle(nombre);
-
         for (String plantilla : plantillasArr) {
 
             logger.debug("plantilla {}", plantilla);
 
-            pdfContent.setTemplate(templateResolver(plantilla));
-
-            String htmlContent = this.templateEngine.process(pdfContent.getTemplate(), pdfContent.getContext());
+            String htmlContent = this.templateEngine.process(templateResolver(plantilla), ctx);
 
             HtmlCleaner cleaner = new HtmlCleaner();
 

@@ -2368,6 +2368,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void saveRestriccion(Seccion seccion, DataSessionPivot ds, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones) {
         DateTime today = new DateTime();
+        
+        logger.debug("restricciones {}",restricciones);
 
         if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
             List<Carrera> carrerasSeleccionadas = new ArrayList<>();
