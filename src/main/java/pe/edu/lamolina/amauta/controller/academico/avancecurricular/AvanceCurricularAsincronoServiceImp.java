@@ -1197,7 +1197,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 if (showLogger) {
                     logger.info("\tevaluado.curso={}  evaluado.id={}", evaluado.getCurso().getCodigo(), evaluado.getId());
                 }
-                //ObjectUtil.printAttr(alumnoCursoSimultaneo);
                 simultaneos.add(alumnoCursoSimultaneo);
 
             } else {

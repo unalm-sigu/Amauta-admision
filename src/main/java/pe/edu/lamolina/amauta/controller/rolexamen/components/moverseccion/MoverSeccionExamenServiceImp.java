@@ -140,8 +140,6 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     @Transactional
     public void cambioHorarioExamenSeccion(CambioHorarioExamenSeccion cambioHorarioExamenSeccion, DataSessionPivot ds) {
 
-        ObjectUtil.printAttr(cambioHorarioExamenSeccion);
-
         SeccionCursoMasivo seccionCursoMasivoOrigen = null;
         SeccionGrupoRegular seccionGrupoRegularOrigen = null;
         SeccionGrupoEspecial seccionGrupoEspecialOrigen = null;
