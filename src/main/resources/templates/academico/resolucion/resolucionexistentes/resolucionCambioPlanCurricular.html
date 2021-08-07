@@ -1,5 +1,5 @@
 <tr v-for="(cambioPlanCurricular , index) in resolucion.cambioPlanCurriculares" 
-    v-if="iscambioPlanCurricular &amp;&amp; resolucion.oficina.instanciaOficina == cambioPlanCurricular.alumno.carrera.facultad.id &amp;&amp; validFilter(filterFacultad, cambioPlanCurricular)"> 
+    v-if="isCambioPlanCurricular &amp;&amp; validFilter(filterFacultad, cambioPlanCurricular)"> 
     <td class="v-middle text-center">
         <div class="form-group">
             <div class="col-md-12">

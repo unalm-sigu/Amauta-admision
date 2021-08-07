@@ -677,6 +677,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         if (resolucionBD.isTipoReincorporacion()) {
             return Arrays.asList(this.saveReincorporaciones(resolucionForm, resolucionBD, ds));
+        } else if (resolucionBD.isTipoReadmision()) {
+            return Arrays.asList(this.saveReadmision(resolucionForm, resolucionBD));
+        } else if (resolucionBD.isTipoCambioPlanCurricular()) {
+            return Arrays.asList(this.saveCambioPlanCurricular(resolucionForm, resolucionBD));
         } else if (resolucionBD.isTipoRetiroCiclo() || resolucionBD.isTipoAnulacionCiclo()) {
             return Arrays.asList(this.saveRetirosCiclos(resolucionForm, resolucionBD, ds));
         } else if (resolucionBD.isTipoCambioNota()) {
@@ -1548,12 +1552,17 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<Readmision> allReadmision() {
-        return readmisionDAO.allPendientes();
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+        return readmisionDAO.allPendienteByEstado(estadoTramite);
     }
 
     @Override
     @Transactional
     public String saveReadmision(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        if (resolucionForm.getReadmisiones().isEmpty()) {
+            throw new PhobosException("Debe Agregar alumnos.");
+        }
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.READMISION);
         Resolucion resolucion = new Resolucion();
@@ -1569,14 +1578,80 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
-        Assert.isFalse(resolucionForm.getReadmisiones().isEmpty(), "Debe Agregar alumnos.");
-
         return this.saveReadmision(resolucionForm, resolucion);
+
+    }
+
+    private String saveReadmision(Resolucion resolucionForm, Resolucion resolucionBD) {
+
+        List<Alumno> alumnos = new ArrayList();
+
+        List<Readmision> tramiteReadmisiones = resolucionForm.getReadmisiones().stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
+
+        if (tramiteReadmisiones.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        Map<Long, Long> couterMap = tramiteReadmisiones.stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+
+        for (Long count : couterMap.values()) {
+            if (count > 1) {
+                throw new PhobosException("Está repitiendo alumno");
+            }
+        }
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+
+        List<Readmision> readmisiones = readmisionDAO.allPendientesByCicloReadmision();
+
+        Map<Long, Readmision> readmisionXalumno = TypesUtil.convertListToMap("alumno.id", readmisiones);
+
+        EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+
+        EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
+
+        for (Readmision readmisionForm : tramiteReadmisiones) {
+
+            Readmision readmision = readmisionXalumno.get(readmisionForm.getAlumno().getId());
+            readmision.setAceptado(readmisionForm.isSeleccionado() ? 1 : 0);
+            readmision.setResolucion(resolucionBD);
+            readmision.setEstadoTramite(readmisionForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            readmisionDAO.updateColumns(readmision, "aceptado", "resolucion", "estadoTramite");
+
+            Tramite tramite = readmision.getTramite();
+            tramite.setEstadoEnum(readmisionForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
+            tramite.setEstadoTramite(readmisionForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            tramiteDAO.update(tramite);
+
+            if (readmision.getCicloReadmitido().getId().equals(cicloActivo.getId())) {
+                alumnos.add(readmision.getAlumno());
+            }
+        }
+
+        String token = "";
+
+        if (!alumnos.isEmpty()) {
+
+            token = RandomStringUtils.randomAlphanumeric(43);
+            String tokenProm = token + TOKEN_PROMEDIOS;
+            String tokenCurri = token + TOKEN_CURRICULA;
+            String tokenMatri = token + TOKEN_MATRICULABLE;
+
+            visorCalculoNotas.createToken(tokenProm, alumnos);
+            visorCalculoNotas.createToken(tokenCurri, alumnos);
+            visorCalculoNotas.createToken(tokenMatri, alumnos);
+        }
+
+        return token;
     }
 
     @Override
     @Transactional
     public String saveCambioPlanCurricular(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        if (resolucionForm.getCambioPlanCurriculares().isEmpty()) {
+            throw new PhobosException("Debe Agregar alumnos.");
+        }
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR);
         Resolucion resolucion = new Resolucion();
@@ -1592,81 +1667,39 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
-        Assert.isFalse(resolucionForm.getCambioPlanCurriculares().isEmpty(), "Debe Agregar alumnos.");
-
         return this.saveCambioPlanCurricular(resolucionForm, resolucion);
-    }
 
-    private String saveReadmision(Resolucion resolucionForm, Resolucion resolucionBD) {
-        List<Alumno> alumnos = new ArrayList();
-        List<Readmision> tramiteReadmisiones = resolucionForm.getReadmisiones().stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
-        Assert.isFalse(tramiteReadmisiones.isEmpty(), "Debe seleccionar como mínimo un alumnos.");
-
-        Map<Long, Long> couterMap = tramiteReadmisiones.stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
-        for (Long count : couterMap.values()) {
-            Assert.isFalse(count > 1, "Está repitiendo alumno");
-        }
-
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-        List<Readmision> readmisiones = readmisionDAO.allPendientesByCicloReincorporacion();
-        Map<Long, Readmision> map = TypesUtil.convertListToMap("alumno.id", readmisiones);
-
-        EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-        EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
-        for (Readmision readmisionForm : tramiteReadmisiones) {
-            
-            ObjectUtil.printAttr(readmisionForm);
-
-            Readmision readmision = map.get(readmisionForm.getAlumno().getId());
-            readmision.setAceptado(readmisionForm.isSeleccionado() ? 1 : 0);
-            readmision.setResolucion(resolucionBD);
-            readmision.setEstadoTramite(readmisionForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
-            readmisionDAO.updateColumns(readmision, "aceptado", "resolucion", "estadoTramite");
-
-            Tramite tramite = readmision.getTramite();
-            tramite.setEstadoEnum(readmisionForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
-            tramite.setEstadoTramite(readmisionForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
-            tramiteDAO.update(tramite);
-            if (readmision.getCicloReadmitido().getId().equals(cicloActivo.getId())) {
-                alumnos.add(readmision.getAlumno());
-            }
-        }
-        String token = "";
-        
-        if (!alumnos.isEmpty()) {
-
-            token = RandomStringUtils.randomAlphanumeric(43);
-            String tokenProm = token + TOKEN_PROMEDIOS;
-            String tokenCurri = token + TOKEN_CURRICULA;
-            String tokenMatri = token + TOKEN_MATRICULABLE;
-
-            visorCalculoNotas.createToken(tokenProm, alumnos);
-            visorCalculoNotas.createToken(tokenCurri, alumnos);
-            visorCalculoNotas.createToken(tokenMatri, alumnos);
-        }
-
-        return token;
     }
 
     private String saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucionBD) {
-        List<Alumno> alumnos = new ArrayList();
-        List<CambioPlanCurricular> tramiteCambioPlanCurricular = resolucionForm.getCambioPlanCurriculares().stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
-        Assert.isFalse(tramiteCambioPlanCurricular.isEmpty(), "Debe seleccionar como mínimo un alumnos.");
 
-        Map<Long, Long> couterMap = tramiteCambioPlanCurricular.stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+        List<Alumno> alumnos = new ArrayList();
+
+        List<CambioPlanCurricular> tramiteCambioPlanCurricular = resolucionForm.getCambioPlanCurriculares()
+                .stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
+
+        if (tramiteCambioPlanCurricular.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumnos.");
+        }
+
+        Map<Long, Long> couterMap = tramiteCambioPlanCurricular.stream()
+                .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+
         for (Long count : couterMap.values()) {
-            Assert.isFalse(count > 1, "Está repitiendo alumno");
+            if (count > 1) {
+                throw new PhobosException("Está repitiendo alumno");
+            }
         }
 
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-        List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allPendientesByCicloReincorporacion();
-        Map<Long, CambioPlanCurricular> map = TypesUtil.convertListToMap("alumno.id", cambioPlanCurriculares);
+        List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allPendientesByCicloAcademico();
+        Map<Long, CambioPlanCurricular> cambioPlanCurricularXalumno = TypesUtil.convertListToMap("alumno.id", cambioPlanCurriculares);
 
         EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
         for (CambioPlanCurricular cambioPlanCurricularForm : tramiteCambioPlanCurricular) {
 
-            CambioPlanCurricular cambioPlanCurricular = map.get(cambioPlanCurricularForm.getAlumno().getId());
+            CambioPlanCurricular cambioPlanCurricular = cambioPlanCurricularXalumno.get(cambioPlanCurricularForm.getAlumno().getId());
             cambioPlanCurricular.setAceptado(cambioPlanCurricularForm.isSeleccionado() ? 1 : 0);
             cambioPlanCurricular.setResolucion(resolucionBD);
             cambioPlanCurricular.setEstadoTramite(cambioPlanCurricularForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
@@ -1676,11 +1709,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoEnum(cambioPlanCurricularForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
             tramite.setEstadoTramite(cambioPlanCurricularForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
             tramiteDAO.update(tramite);
+
             if (cambioPlanCurricular.getCicloAcademico().getId().equals(cicloActivo.getId())) {
                 alumnos.add(cambioPlanCurricular.getAlumno());
             }
+
         }
+
         String token = "";
+
         if (!alumnos.isEmpty()) {
 
             token = RandomStringUtils.randomAlphanumeric(43);
@@ -1697,8 +1734,19 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
-    public List<CambioPlanCurricular> allCambioPlanCuricular() {
-        return cambioPlanCurricularDAO.allPendientes();
+    public List<CambioPlanCurricular> allCambioPlanCurricular() {
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+        return cambioPlanCurricularDAO.allPendienteByEstado(estadoTramite);
+    }
+
+    @Override
+    public List<Readmision> allReadmisionByResolucion(Resolucion resolucion) {
+        return readmisionDAO.allByResolucion(resolucion);
+    }
+
+    @Override
+    public List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion) {
+        return cambioPlanCurricularDAO.allByResolucion(resolucion);
     }
 
 }

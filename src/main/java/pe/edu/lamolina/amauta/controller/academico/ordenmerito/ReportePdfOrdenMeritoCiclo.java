@@ -228,7 +228,6 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
             Map<String, ControlOrdenMerito> mapControl = TypesUtil.convertListToMap("escala", control);
             ControlOrdenMerito cc = mapControl.get(CICLO.name());
             Map ccMap = cc.toMap();
-            ObjectUtil.printAttr(cc);
             for (Map.Entry<Integer, List<AlumnoCiclo>> entry : mapListAlumnoCiclo.entrySet()) {
                 int cantidadAlumnos = (Integer) ccMap.get("computadosNivel" + entry.getKey());
                 System.out.println("cantidadAlumnos " + cantidadAlumnos);

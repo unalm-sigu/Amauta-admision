@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -19,10 +20,14 @@ public interface PlanCurricularDAO extends EasyDAO<PlanCurricular> {
 
     List<PlanCurricular> allActivosByCarrera(Carrera carrera);
 
-    public List<PlanCurricular> allActivo();
+    List<PlanCurricular> allActivo();
 
-    public List<PlanCurricular> findById(PlanCurricular planCurricular);
+    List<PlanCurricular> findById(PlanCurricular planCurricular);
 
     List<PlanCurricular> allActivoByCarreraOrientacion(Carrera carrera);
+
+    List<PlanCurricular> allCambioActivoByCarrera(Carrera carrera);
+    
+    List<PlanEstudiosDTO> reportePlanCurricular(Long idPlanCurricular);
 
 }

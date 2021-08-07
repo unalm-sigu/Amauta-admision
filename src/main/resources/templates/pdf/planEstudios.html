@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <title th:inline="text"> Plan Curricular </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:12px !important;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table th {
+                padding-top: 5px !important;
+                padding-bottom: 5px !important;
+            }
+            
+            table td {
+                padding-top: 5px !important;
+                padding-bottom: 5px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+
+        </style>
+    </head>
+    <body>                 
+        <div style="text-align: left; position: relative; top:-10px;">
+            <img height="80px" src="logo-min.jpg" />
+        </div>
+        <div style="text-align: right; padding-top: 20px; padding-bottom: 20px;">        
+            <table cellspacing="0" cellpadding="0" width="100%">
+                <tr>
+                    <td style="text-align: center">                         
+                        <b th:if="${year} == '2019'" class="block" style="font-size: 16px; padding-bottom: 20px; vertical-align: middle;"> PLAN DE ESTUDIOS VIGENTE <span th:text="${year}"></span> - UNALM </b>
+                        <b th:unless="${year == '2019'}" class="block" style="font-size: 16px; padding-bottom: 20px; vertical-align: middle;"> PLAN DE ESTUDIOS <span th:text="${year}"></span> - UNALM </b>
+                    </td>                    
+                </tr>
+            </table>
+        </div>
+        
+        <div style="text-align: left">
+            <b class="block" style="font-size: 14px;"> FACULTAD: </b> <span style="font-size: 14px;" th:inline="text">[[${#strings.toUpperCase(facultad)}]]</span>            
+        </div>
+        <div style="text-align: left; padding-bottom: 20px;">
+            <b class="block" style="font-size: 14px;"> ESPECIALIDAD: </b> <span style="font-size: 14px;" th:inline="text">[[${#strings.toUpperCase(especialidad)}]]</span>
+        </div>       
+        
+        <th:block  th:each="dato : ${datos}">
+        <div style="text-align: left">
+            
+            <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
+                <thead>
+                    <tr>
+                        <td colspan="7" style="text-align: left;">
+                            <b th:inline="text" th:if="${dato.key}" style="font-size: 14px;"> CICLO: [[${dato.key}]] </b>                      
+                        </td>
+                    </tr>
+                    <tr style="margin-bottom: 50px;">
+                        <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
+                        <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
+                        <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
+                        <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
+                        <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
+                        <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
+                        <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
+                    </tr>
+                    <tr th:each="item : ${dato.value}">                        
+                        <td><span th:text="${item.codigoCurso}"></span></td>                        
+                        <td><span th:text="${item.nombreCurso}"></span></td>
+                        <td><span th:text="${item.tipoCurso}"></span></td>
+                        <td><span th:text="${item.horasTeoria}"></span></td>
+                        <td><span th:text="${item.horasPractica}"></span></td>
+                        <td th:switch="${item.codigoCurso}">                
+                            <span th:case="ELC" th:text="${item.creditosOtros}"></span>
+                            <span th:case="CULT" th:text="${item.creditosOtros}"></span>
+                            <span th:case="*" th:text="${item.creditos}"></span>            
+                        </td>
+                        <td>
+                            <span th:text="${item.cursoRequisito}"></span>
+                            <span th:text="${item.creditosRequisito}"></span>
+                            <span th:if="${item.creditosRequisito != ''}">créditos aprobados. </span>                            
+                        </td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        </th:block>
+</body>
+</html>

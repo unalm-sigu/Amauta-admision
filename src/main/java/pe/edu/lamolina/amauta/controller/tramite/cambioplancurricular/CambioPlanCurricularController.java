@@ -62,7 +62,7 @@ public class CambioPlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = JaneHelper.from(service.allTramitesByFilter(filter, ds))
-                    .join("cicloReadmitido")
+                    .join("cicloAcademico")
                     .join("resolucion")
                     .join("facultad")
                     .join("tramite")

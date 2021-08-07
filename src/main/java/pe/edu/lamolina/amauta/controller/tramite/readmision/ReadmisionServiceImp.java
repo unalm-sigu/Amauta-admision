@@ -133,7 +133,7 @@ public class ReadmisionServiceImp implements ReadmisionService {
 
         Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
 
-        Readmision readmisionDb = readmisionDAO.findByAlumnoCiclo(alumnoDB, readmision.getCicloReadmitido());
+        Readmision readmisionDb = readmisionDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, readmision.getCicloReadmitido(),estadoTramite);
 
         if (readmisionDb != null) {
             throw new PhobosException("EL alumno ya tiene tramite pendiente");

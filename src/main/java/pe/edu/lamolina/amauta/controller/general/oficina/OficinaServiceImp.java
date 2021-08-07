@@ -565,7 +565,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds) {
-        ObjectUtil.printAttr(ausencia);
+
         Oficina oficinaBD = oficinaDAO.find(ausencia.getOficina().getId());
         AusenciaJefe ausenciaBD = ausenciaJefeDAO.findSinCerrar(ausencia);
         Assert.isNotNull(ausenciaBD, "No existe una encargatura pendiente de cierre con estos datos para esta unidad");

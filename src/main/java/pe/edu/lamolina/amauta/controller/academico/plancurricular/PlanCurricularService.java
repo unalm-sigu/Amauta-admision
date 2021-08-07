@@ -2,7 +2,9 @@ package pe.edu.lamolina.amauta.controller.academico.plancurricular;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -105,6 +107,8 @@ public interface PlanCurricularService {
 
     List<ResumenPlanCurricular> allResPlanCurByDynatable(DynatableFilter filter);
 
+    List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular);
+    
     void updatePlanCurricular(PlanCurricular planCurricular);
 
     void deletePlanCurricular(PlanCurricular plan);
@@ -152,5 +156,7 @@ public interface PlanCurricularService {
     Carrera getCarreraActiva();
 
     void caducar(Long idCursoCurricula, String caduco, DataSessionPivot ds);
+    
+    void reporte(Model model, List<PlanEstudiosDTO> list);
 
 }

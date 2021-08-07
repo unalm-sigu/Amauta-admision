@@ -231,15 +231,8 @@
         
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
-            <!--<groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
             <version>1.1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>pe.edu.lamolina</groupId>  
-            <artifactId>model</artifactId>
-            <version>0.28.41</version>
         </dependency>
         
         <dependency>
@@ -247,6 +240,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.18</version>
             <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>pe.edu.lamolina</groupId>  
+            <artifactId>model</artifactId>
+            <version>0.28.41</version>
         </dependency>
         
     </dependencies>

@@ -72,8 +72,10 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ReadmisionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReunionConsejoDAO;
@@ -84,6 +86,8 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
+import pe.edu.lamolina.model.tramite.Readmision;
 
 @Service
 @Transactional(readOnly = true)
@@ -174,6 +178,12 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+
+    @Autowired
+    ReadmisionDAO readmisionDAO;
+
+    @Autowired
+    CambioPlanCurricularDAO cambioPlanCurricularDAO;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -384,10 +394,38 @@ public class ResolucionServiceImp implements ResolucionService {
                     }
                     flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
                 }
+            } else if (resolucion.getTipoResolucion().isReadmision()) {
+                List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
+                for (Readmision raedmision : readmisiones) {
+                    Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
+                    List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
+                    if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                        throw new PhobosException("Estado tramite incorrecto");
+                    }
+                }
+            } else if (resolucion.getTipoResolucion().isCambioPlanCurricular()) {
+                List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allByResolucion(resolucion);
+                for (CambioPlanCurricular raedmision : cambioPlanCurriculares) {
+                    Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
+                    List<CambioPlanCurricular> cambioPlanCurricularByTram = cambioPlanCurricularDAO.allByTramite(tramite);
+                    if (!cambioPlanCurricularByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                        throw new PhobosException("Estado tramite incorrecto");
+                    }
+                }
             } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByResolucion(resolucion);
                 for (CursoDirigido cursoDir : cursoDirigidos) {
                     Tramite tramite = tramiteDAO.find(cursoDir.getTramite().getId());
+                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
+                }
+            } else if (resolucion.getTipoResolucion().isReadmision()) {
+                List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
+                for (Readmision readmision : readmisiones) {
+                    Tramite tramite = tramiteDAO.find(readmision.getTramite().getId());
+                    List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
+                    if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                        throw new PhobosException("Estado tramite incorrecto");
+                    }
                     flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
                 }
             }

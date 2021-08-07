@@ -576,13 +576,11 @@ public class AulaServiceImp implements AulaService {
     private boolean filterByRol(DataSessionPivot ds) {
         List<Rol> rolesActivo = ds.getRoles();
         for (Rol rol : rolesActivo) {
-            ObjectUtil.printAttr(rol);
             if (Arrays.asList(IOREA, OREA).contains(rol.getCodigoEnum())) {
                 return Boolean.FALSE;
             }
         }
         for (Rol rol : rolesActivo) {
-            ObjectUtil.printAttr(rol);
             if (Arrays.asList(INF_OBUAE, RESDEP, RESCULT).contains(rol.getCodigoEnum())) {
                 return Boolean.TRUE;
             }

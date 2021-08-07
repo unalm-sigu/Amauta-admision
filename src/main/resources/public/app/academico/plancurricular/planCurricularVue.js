@@ -298,6 +298,27 @@ new Vue({
             }
             $vue.$refs.modalConfirmAction.open();
         },
+        descargarPlan(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea descargar este plan?";
+            $vue.configConfirmAction.okbtn = "Si, descargar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = function () {
+                axios_blob.get("/" + rutaModulo + "/descargarPlan/" + item.id + "/reporte").then(response => {
+                    if(response.status === 200){
+                        UTIL_BLOB.save(response);                        
+                    }
+                    $vue.$refs.modalConfirmAction.confirmReaction(true);
+                }).catch(e => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(Messages.errorComunicacion, "error");
+                });
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        mensajeDescarga(){
+            notify('Válido para Pregrado', "warning");
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);

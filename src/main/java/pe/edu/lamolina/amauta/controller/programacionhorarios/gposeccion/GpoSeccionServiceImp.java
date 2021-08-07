@@ -2369,6 +2369,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public void saveRestriccion(Seccion seccion, DataSessionPivot ds, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones) {
         DateTime today = new DateTime();
 
+        logger.debug("restricciones {}", restricciones);
+
         if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
             List<Carrera> carrerasSeleccionadas = new ArrayList<>();
             for (Long restriccionEach : restricciones) {
@@ -2461,37 +2463,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidadEach);
             }
         } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.MOD)) {
-            List<ModalidadEstudio> modalidadesSeleccioandas = new ArrayList<>();
-            for (Long restriccionEach : restricciones) {
-                modalidadesSeleccioandas.add(new ModalidadEstudio(restriccionEach));
-            }
+
+            logger.debug("restricciones {}", restricciones);
 
             List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
             List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
             List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
 
-            //Desactivar los deseleccionados
             for (RestriccionModalidad restriccionaModalidadEach : restriccionesModalidad) {
-                if (!modalidadesSeleccioandas.contains(restriccionaModalidadEach.getModalidadEstudio())) {
-                    restriccionaModalidadEach.setEstadoEnum(EstadoEnum.INA);
-                    restriccionaModalidadEach.setFechaModificacion(today.toDate());
-                    restriccionaModalidadEach.setUsuarioModificacion(ds.getUsuario());
-                    restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionaModalidadEach);
-                }
+                restriccionaModalidadEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionaModalidadEach.setFechaModificacion(today.toDate());
+                restriccionaModalidadEach.setUsuarioModificacion(ds.getUsuario());
+                restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionaModalidadEach);
             }
-            //Grabar solo las nuevas selecciones
-            for (ModalidadEstudio modalidadEstudioEach : modalidadesSeleccioandas) {
-                if (!modalidadEstudioEach.isTieneRestriccion(restriccionesModalidad)) {
-                    RestriccionModalidad restriccionModalidad = new RestriccionModalidad();
-                    restriccionModalidad.setModalidadEstudio(modalidadEstudioEach);
-                    restriccionModalidad.setEstadoEnum(EstadoEnum.ACT);
-                    restriccionModalidad.setFechaRegistro(today.toDate());
-                    restriccionModalidad.setUsuarioRegistro(ds.getUsuario());
-                    restriccionModalidad.setSeccion(seccion);
-                    restriccionModalidadDAO.save(restriccionModalidad);
-                }
-            }
-
+            
             for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
                 restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionCarreraEach.setFechaModificacion(today.toDate());
@@ -2505,6 +2490,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionFacultadEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
             }
+
+            for (Long restriccion : restricciones) {
+
+                RestriccionModalidad restriccionModalidad = new RestriccionModalidad();
+                for (RestriccionModalidad restriccionModalidadDB : restriccionesModalidad) {
+                    if (restriccionModalidadDB.getModalidadEstudio().getId() == restriccion.longValue()) {
+                        restriccionModalidad = restriccionModalidadDB;
+                        break;
+                    }
+                }
+
+                if (restriccionModalidad.getId() == null) {
+                    restriccionModalidad = new RestriccionModalidad();
+                    restriccionModalidad.setModalidadEstudio(new ModalidadEstudio(restriccion));
+                    restriccionModalidad.setEstadoEnum(EstadoEnum.ACT);
+                    restriccionModalidad.setFechaRegistro(today.toDate());
+                    restriccionModalidad.setUsuarioRegistro(ds.getUsuario());
+                    restriccionModalidad.setSeccion(seccion);
+                    restriccionModalidadDAO.save(restriccionModalidad);
+                } else {
+                    restriccionModalidad.setEstadoEnum(EstadoEnum.ACT);
+                    restriccionModalidad.setFechaModificacion(today.toDate());
+                    restriccionModalidad.setUsuarioModificacion(ds.getUsuario());
+                    restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidad);
+                }
+            }
+
         }
         this.actualizarBoletin();
     }
@@ -2954,7 +2966,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             factorHoras = 1;
         } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && !ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
             factorHoras = 3;
-        }else if(ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")){
+        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
             factorHoras = 4;
         }
 

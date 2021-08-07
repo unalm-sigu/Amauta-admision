@@ -984,10 +984,10 @@ UTIL_BLOB = {
             link.click();
 
         } catch (e) {
-            notify(Messages.errorComunicacion, 'error')
+            notify(Messages.errorComunicacion, 'error');
         }
     }
-}
+};
 
 
 UTIL_BLOB_INLINE = {
