@@ -14,11 +14,12 @@ import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 public interface MatriculableService {
 
-    List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo);
+    List<MatriculaResumen> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo);
 
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
@@ -26,7 +27,7 @@ public interface MatriculableService {
 
     void generar(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
+    AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras);
 
     void calcularPromedios(String token, DataSessionPivot ds);
 

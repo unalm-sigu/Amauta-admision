@@ -52,7 +52,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_G;
@@ -136,18 +135,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return all(sql);
     }
 
-    //@Override
-//    public List<Alumno> allInfoByAlumno(List<Alumno> alumnos) {
-//        Octavia sql = Octavia.query()
-//                .from(Alumno.class, "alu")
-//                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per")
-//                .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
-//                .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
-//                .left("orientacionCarrera", "per.tipoDocumento")
-//                .in("alu.id", alumnos);
-//
-//        return all(sql);
-//    }
     @Override
     public Alumno findByCodigo(String codigoAlumno) {
         Octavia sql = Octavia.query()
@@ -223,7 +210,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Alumno.class, "al")
-                .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .join("persona per", "carrera ca", "modalidadEstudio moe", "ca.facultad fac", "ca.modalidadEstudio")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -739,15 +726,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         sql.append("select new ").append(AlumnoResumen.class.getName());
         sql.append(" (   ");
-        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :VIS then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :ESP then 1 else 0 end),0)   ");
         sql.append(" )   ");
         sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
         sql.append(" inner join al.carrera ca ");
-        sql.append(" inner join al.cicloActivo cia ");
-        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" inner join al.modalidadEstudio moe ");
         sql.append(" where ca.id in :CARRERAS ");
 
         Query query = getCurrentSession().createQuery(sql.toString());

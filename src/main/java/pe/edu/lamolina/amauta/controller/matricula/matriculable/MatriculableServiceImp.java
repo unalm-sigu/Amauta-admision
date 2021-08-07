@@ -103,6 +103,7 @@ import pe.edu.lamolina.amauta.controller.academico.promedio.ReincorporadosServic
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.amauta.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_HISTORIAL;
@@ -222,12 +223,18 @@ public class MatriculableServiceImp implements MatriculableService {
     VisorCalculoNotas visorCalculoNotas;
 
     @Override
-    public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-        return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
+    public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.TODOS) {
+            return matriculaResumenDAO.findResumenByCiclo(cicloAcademico);
+        } else if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL && !carreras.isEmpty()) {
+            return matriculaResumenDAO.findResumenByCiclo(cicloAcademico, carreras);
+        }
+        return new AlumnoResumen(0L, 0L, 0L, 0L);
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
+    public List<MatriculaResumen> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
+        
         long t10 = System.currentTimeMillis();
         long t1 = System.currentTimeMillis();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloCarrerasDynatable(filter, cicloAcademico, carreras, todo);
@@ -398,7 +405,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
 
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCicloCondicional(ciclo);
-        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacionByEstado(ciclo,TramiteEstadoEnum.SOL_ACEP);
+        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacionByEstado(ciclo, TramiteEstadoEnum.SOL_ACEP);
         List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumosConTramite.addAll(reincorporacion.stream().map(x -> x.getAlumno()).collect(Collectors.toList()));

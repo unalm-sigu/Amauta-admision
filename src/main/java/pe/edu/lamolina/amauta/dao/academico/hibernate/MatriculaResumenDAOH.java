@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public AlumnoResumen findResumenByCicloRolDynateable(CicloAcademico ciclo, String codigo, List<Long> filtros) {
+    public AlumnoResumen findResumenByCiclo(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
         sql.append("select new ").append(AlumnoResumen.class.getName());
         sql.append(" (   ");
@@ -129,18 +130,12 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         sql.append(" )   ");
         sql.append("  from ").append(MatriculaResumen.class.getName()).append(" as mr ");
         sql.append(" inner join mr.alumno al ");
-        sql.append(" inner join mr.cicloAcademico ca ");
-        sql.append(" inner join al.persona per ");
-        sql.append(" inner join al.carrera car ");
-        sql.append(" inner join al.situacionAcademica sita ");
+        sql.append(" inner join mr.cicloAcademico ci ");
         sql.append(" inner join al.modalidadEstudio moe ");
-        sql.append(" inner join car.facultad fac ");
-        sql.append(" where ");
-        sql.append(" ca.codigo=:prm_ciclo ");
+        sql.append(" where ci.codigo = :CODIGO_CICLO ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
-        //  query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        query.setParameter("prm_ciclo", ciclo.getCodigo());
+        query.setParameter("CODIGO_CICLO", ciclo.getCodigo());
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
         query.setString("VIS", VIS.name());
@@ -149,14 +144,45 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public AlumnoResumen findResumenByCiclo(CicloAcademico ciclo, List<Carrera> carreras) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select new ").append(AlumnoResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0) AS pregrado,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0) AS postgrado,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :VIS  then 1 else 0 end),0) AS visitante,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :ESP  then 1 else 0 end),0) AS especiales  ");
+        sql.append(" )   ");
+        sql.append("  from ").append(MatriculaResumen.class.getName()).append(" as mr ");
+        sql.append(" inner join mr.alumno al ");
+        sql.append(" inner join mr.cicloAcademico ci ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" inner join al.modalidadEstudio moe ");
+        sql.append(" where ci.codigo = :CODIGO_CICLO ");
+        sql.append("   and ca.id in :CARRERAS ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CODIGO_CICLO", ciclo.getCodigo());
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+
+        List<Long> idCarreras = carreras.stream().map(x -> x.getId()).collect(Collectors.toList());
+        query.setParameterList("CARRERAS", idCarreras);
+
+        return (AlumnoResumen) query.uniqueResult();
+    }
+
+    @Override
     public List<MatriculaResumen> allByCicloCarrerasDynatable(DynatableFilter filter, CicloAcademico ciclo, List<Carrera> carreras, String todo) {
 
         DynatableSql sql = new DynatableSql(filter);
         sql.from(MatriculaResumen.class, "mr")
-                .join("alumno al", "cicloAcademico ca", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
+                .join("alumno al", "cicloAcademico ci", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
                 .join("al.modalidadEstudio moe", "car.facultad fac")
-                .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
-                .filter("ca.codigo", ciclo.getCodigo())
+                .leftJoin("al.cicloIngreso cing", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
+                .filter("ci.codigo", ciclo.getCodigo())
                 .searchFields("car.nombre", "fac.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -191,7 +217,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 sql.filter("moe.codigo", EPG);
             } else if (values.equals("visitante")) {
                 sql.filter("moe.codigo", VIS);
-            } else if (values.equals("especiales")) {
+            } else if (values.equals("especial")) {
                 sql.filter("moe.codigo", ESP);
             }
         }

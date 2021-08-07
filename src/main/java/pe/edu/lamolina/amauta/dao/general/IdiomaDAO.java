@@ -14,6 +14,6 @@ public interface IdiomaDAO extends EasyDAO<Idioma> {
 
     List<Idioma> allDynatable(DynatableFilter filter);
 
-    public Idioma findByCodigoEnum(IdiomaEnum idiomaEnum);
+    Idioma findByCodigoEnum(IdiomaEnum idiomaEnum);
 
 }

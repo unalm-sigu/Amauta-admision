@@ -17,7 +17,6 @@ public interface AbonoAlumnoService {
 
     List<Observado> loadArchivoHistorico(MultipartFile file, CicloAcademico ciclo, Usuario usuario);
 
-//    void asignarPostulante(ItemCargaAbono itemCargaAbono, CicloAcademico ciclo, DataSessionPivot ds);
     List<ItemCargaAbono> allExtornados(ItemCargaAbono itemCargaForm);
 
     void reasignarExtorno(ItemCargaAbono form, Usuario usuario);

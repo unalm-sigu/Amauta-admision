@@ -285,20 +285,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         logger.debug("debePagarInscripcion {}", debePagarInscripcion);
         logger.debug("debePagarExtemporaneo {}", debePagarExtemporaneo);
 
-//        if (interesado.getEstadoEnum() == REG && pagoProspecto) {
-//            interesado.setEstado(PROS);
-//            interesadoDAO.update(interesado);
-//            postulante.setEstado(PostulanteEstadoEnum.PROS);
-//            postulanteDAO.update(postulante);
-//            return;
-//        }
-//        if (interesado.getEstadoEnum() == PROS && !pagoProspecto && debePagarProspecto) {
-//            interesado.setEstado(REG);
-//            interesadoDAO.update(interesado);
-//            postulante.setEstado(PostulanteEstadoEnum.CRE);
-//            postulanteDAO.update(postulante);
-//            return;
-//        }
         if (interesado.getEstadoEnum() == POST
                 && postulante.getEstadoEnum() == PostulanteEstadoEnum.PRE
                 && (pagoProspecto || !debePagarProspecto)
@@ -324,20 +310,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             return;
         }
 
-//        if (interesado.getEstadoEnum() == PROS
-//                && postulante.getEstadoEnum() == PostulanteEstadoEnum.PROS
-//                && (pagoProspecto || !debePagarProspecto)
-//                && (pagoInscripcion || !debePagarInscripcion)
-//                && (pagoExtemporaneo || !debePagarExtemporaneo)) {
-//            if (modalidad == null) {
-//                interesado.setEstado(PROS);
-//            } else {
-//                interesado.setEstado(POST);
-//            }
-//            interesadoDAO.update(interesado);
-//            postulante.setEstado(PostulanteEstadoEnum.PAGO);
-//            postulanteDAO.update(postulante);
-//        }
     }
 
     private EventoCiclo findEventoExtemporaneo(CicloPostula ciclo) {

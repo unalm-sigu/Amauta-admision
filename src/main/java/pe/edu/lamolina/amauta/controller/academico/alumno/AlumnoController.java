@@ -63,7 +63,6 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Rol;
 
@@ -158,22 +157,13 @@ public class AlumnoController {
                 rolCodigos.add(rol.getCodigoEnum());
                 logger.debug("Rol {} {}", rol.getCodigo(), rol.getNombre());
             }
-            List<Carrera> carrerasOfFacultadEconomia = new ArrayList();
-            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
-                carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
-                logger.info("RQ={} rol-especial={}", codeRequest, RolEnum.REVISOR_FAC_ECONOMIA.name());
-            }
 
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
                 logger.info("RQ={} total-acceso-carreras={}", codeRequest, carreras.size());
             }
 
-            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA) && carreras.isEmpty()) {
-                carreras = carrerasOfFacultadEconomia;
-                alumnos = service.allAlumnosbyDynatable(filter, carreras);
-
-            } else if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+            if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
                 alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
                 logger.info("RQ={} retornaron-count-alumnos={}", codeRequest, alumnos.size());
             }

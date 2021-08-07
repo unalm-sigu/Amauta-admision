@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,19 +96,20 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     @Transactional
-    public void agregarAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumnoBolsa, DataSessionPivot ds) {
-        BolsaInvestigacion bi = findByFacultadCicloAcademico(facultad, cicloAcademico);
+    public void agregarAlumno(Facultad facultad, CicloAcademico ciclo, AlumnoBolsaInvestigacion alumnoBolsa, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        BolsaInvestigacion bolsa = findByFacultadCicloAcademico(facultad, ciclo);
 
-        Assert.isTrue(bi.getPostulantes().compareTo(bi.getBecados()) < 0, "Cantidad de postulantes excedida");
-        Assert.isTrue(bi.getEstadoEnum() == BolsaInvestigacionEstadoEnum.ENV, "Aún no está habilitado agregar alumnos");
+        Assert.isTrue(bolsa.getPostulantes().compareTo(bolsa.getBecados()) < 0, "Cantidad de postulantes excedida");
+        Assert.isTrue(bolsa.getEstadoEnum() == BolsaInvestigacionEstadoEnum.ENV, "Aún no está habilitado agregar alumnos");
 
-        bi.setPostulantes(bi.getPostulantes() + 1);
-        bolsaInvestigacionDAO.update(bi);
+        bolsa.setPostulantes(bolsa.getPostulantes() + 1);
+        bolsaInvestigacionDAO.update(bolsa);
 
-        AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bi, alumnoBolsa.getAlumno());
-        Assert.isNull(abiBD, "Ya se ha registrado una investigación de este alumno");
+        AlumnoBolsaInvestigacion alumnoBolsaBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bolsa, alumnoBolsa.getAlumno());
+        Assert.isNull(alumnoBolsaBD, "Ya se ha registrado una investigación de este alumno");
 
-        Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), cicloAcademico, facultad).isEmpty(), "Alumno no válido");
+        Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), ciclo, facultad).isEmpty(), "Alumno no válido");
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
 
@@ -115,49 +117,56 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         Persona persona = new Persona(alumnoBolsa.getAlumno().getPersona().getId());
         Colaborador supervisor = new Colaborador(alumnoBolsa.getSupervisor().getId());
         alumno.setPersona(persona);
+
         alumnoBolsa.setAlumno(alumno);
         alumnoBolsa.setSupervisor(supervisor);
 
+        
+
+        FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), ciclo);
+        if (fichaSocioeconomica == null) {
+            fichaSocioeconomica = new FichaSocioeconomica();
+            fichaSocioeconomica.setAlumno(alumnoBolsa.getAlumno());
+            fichaSocioeconomica.setCicloAcademico(ciclo);
+            fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
+            fichaSocioeconomica.setFechaRegistro(today.toDate());
+            fichaSocioeconomicaDAO.save(fichaSocioeconomica);
+        } else {
+            fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
+            fichaSocioeconomicaDAO.update(fichaSocioeconomica);
+        }
+        
         Tramite tramite = new Tramite();
         tramite.setSerie(Long.parseLong(serie.getNumeroSerie()));
         tramite.setNumero(Long.parseLong(serie.getNumeroDocumento()));
         tramite.setAlumno(alumnoBolsa.getAlumno());
-        tramite.setCicloAcademico(cicloAcademico);
+        tramite.setCicloAcademico(ciclo);
         tramite.setCompania(ds.getCompania());
         tramite.setEstadoEnum(TramiteEstadoEnum.INC);
         tramite.setPersona(alumnoBolsa.getAlumno().getPersona());
         tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
+        tramite.setFichaSocioeconomica(fichaSocioeconomica);
 
         tramite.setUserRegistro(ds.getUsuario());
-        tramite.setFechaRegistro(new Date());
+        tramite.setFechaRegistro(today.toDate());
         tramiteDAO.save(tramite);
 
-        FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), cicloAcademico);
-        if (fichaSocioeconomica == null) {
-            fichaSocioeconomica = new FichaSocioeconomica();
-            fichaSocioeconomica.setAlumno(alumnoBolsa.getAlumno());
-            fichaSocioeconomica.setCicloAcademico(cicloAcademico);
-            fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
-            fichaSocioeconomica.setFechaRegistro(new Date());
-            fichaSocioeconomicaDAO.save(fichaSocioeconomica);
-        }
-
         TramiteSubvencion subvencion = new TramiteSubvencion();
-        subvencion.setFechaRegistro(new Date());
         subvencion.setSupervisor(alumnoBolsa.getSupervisor());
         subvencion.setTipoSubvencion(new TipoSubvencion(ID_TIPO_SUBVENCION_INVESTIGACION));
         subvencion.setTramite(tramite);
-        subvencion.setUserRegistro(ds.getUsuario());
         subvencion.setVoboSupervisor(true);
         subvencion.setFichaSocioeconomica(fichaSocioeconomica);
         subvencion.setComentario(alumnoBolsa.getNombreInvestigacion());
+        subvencion.setUserRegistro(ds.getUsuario());
+        subvencion.setFechaRegistro(today.toDate());
         tramiteSubvencionDAO.save(subvencion);
 
-        alumnoBolsa.setBolsaInvestigacion(bi);
+        alumnoBolsa.setBolsaInvestigacion(bolsa);
         alumnoBolsa.setEstado(AlumnoBolsaInvestigacionEstadoEnum.CRE);
+        alumnoBolsa.setTramiteSubvencion(subvencion);
         alumnoBolsa.setUserRegistro(ds.getUsuario());
         alumnoBolsa.setFechaRegistro(new Date());
-        alumnoBolsa.setTramiteSubvencion(subvencion);
         alumnoBolsaInvestigacionDAO.save(alumnoBolsa);
     }
 

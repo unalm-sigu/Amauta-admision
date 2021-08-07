@@ -205,12 +205,10 @@ public class AlumnoServiceImp implements AlumnoService {
     public AlumnoResumen findResumen(VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> careras) {
         if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.TODOS) {
             return alumnoDAO.findResumen();
-        } else if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-            if (careras.isEmpty()) {
-                return new AlumnoResumen(0L, 0L, 0L, 0L);
-            } else {
-                return alumnoDAO.findResumen(careras);
-            }
+
+        } else if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL && !careras.isEmpty()) {
+            return alumnoDAO.findResumen(careras);
+
         }
         return new AlumnoResumen(0L, 0L, 0L, 0L);
     }
