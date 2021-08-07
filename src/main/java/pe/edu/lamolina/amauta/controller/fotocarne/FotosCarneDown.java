@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.fotoxcarne;
+package pe.edu.lamolina.amauta.controller.fotocarne;
 
 import java.math.BigDecimal;
 import static java.math.BigDecimal.ZERO;
@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.springframework.stereotype.Component;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Component
 @Data
-public class FotosCarneUpload {
+public class FotosCarneDown {
 
     private Integer total;
 
@@ -18,11 +19,15 @@ public class FotosCarneUpload {
 
     private boolean iniciado;
 
-    private BigDecimal perAvance;
+    private List<MatriculaResumen> matriculaResumens;
 
     private List<MsjError> errores;
 
-    public FotosCarneUpload() {
+    private BigDecimal perAvance;
+
+    private String pathFile;
+
+    public FotosCarneDown() {
         this.total = 0;
         this.avance = 0;
         this.iniciado = false;
@@ -31,6 +36,7 @@ public class FotosCarneUpload {
     }
 
     public BigDecimal getPerAvance() {
+
         if (this.total < 1) {
             return ZERO;
         }
@@ -43,19 +49,26 @@ public class FotosCarneUpload {
 
     }
 
-    public void iniciarProceso() {
+    public void setPerAvance(BigDecimal perAvance) {
+        this.perAvance = perAvance;
+    }
+
+    public void iniciarProceso(List<MatriculaResumen> matriculaResumens) {
         if (this.iniciado) {
             return;
         }
         this.iniciado = true;
+        this.matriculaResumens = matriculaResumens;
+        this.total = matriculaResumens.size();
         this.avance = 0;
         this.perAvance = ZERO;
-        this.total = 0;
+        this.pathFile = "";
         this.errores = new ArrayList();
     }
 
     public void finalizarProceso() {
         this.iniciado = false;
+        this.matriculaResumens = null;
     }
 
 }

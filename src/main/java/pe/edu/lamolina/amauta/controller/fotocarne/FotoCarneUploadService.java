@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.fotoxcarne;
+package pe.edu.lamolina.amauta.controller.fotocarne;
 
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

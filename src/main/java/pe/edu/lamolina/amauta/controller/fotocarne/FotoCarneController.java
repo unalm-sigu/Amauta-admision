@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.fotoxcarne;
+package pe.edu.lamolina.amauta.controller.fotocarne;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
