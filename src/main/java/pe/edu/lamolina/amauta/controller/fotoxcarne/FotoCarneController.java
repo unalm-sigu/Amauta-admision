@@ -1,7 +1,6 @@
-package pe.edu.lamolina.amauta.controller.fotocarne;
+package pe.edu.lamolina.amauta.controller.fotoxcarne;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import static com.helger.commons.io.stream.StreamHelper.close;
 import java.io.BufferedInputStream;

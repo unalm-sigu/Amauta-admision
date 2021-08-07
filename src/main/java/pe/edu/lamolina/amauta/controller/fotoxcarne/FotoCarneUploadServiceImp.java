@@ -1,7 +1,6 @@
-package pe.edu.lamolina.amauta.controller.fotocarne;
+package pe.edu.lamolina.amauta.controller.fotoxcarne;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.lingala.zip4j.ZipFile;

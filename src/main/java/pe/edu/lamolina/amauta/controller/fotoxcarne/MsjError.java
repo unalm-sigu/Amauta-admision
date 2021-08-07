@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.fotocarne;
+package pe.edu.lamolina.amauta.controller.fotoxcarne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
