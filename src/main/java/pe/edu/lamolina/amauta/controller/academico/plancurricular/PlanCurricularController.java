@@ -104,8 +104,8 @@ public class PlanCurricularController {
     DespliegueConfig despliegueConfig;
 
     @Autowired
-    PdfHtmlSimplified reporteReadmisionPdf;
-    
+    PdfHtmlSimplified reportePlanCurricularPdf;
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -1461,17 +1461,12 @@ public class PlanCurricularController {
         response.setData(arr);
         return response;
     }
-    
+
     @RequestMapping(value = "descargarPlan/{idPlanCurricular}/reporte", method = RequestMethod.GET)
     public ModelAndView descargarPlan(Model model, HttpSession session, @PathVariable Long idPlanCurricular) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            List<PlanEstudiosDTO> planes = service.descargarPlanCurricular(idPlanCurricular);
-            service.reporte(model, planes);
-        } catch (Exception e) {
-            System.out.println(e.getCause().getMessage());
-        }
-        return new ModelAndView(reporteReadmisionPdf);
+
+        service.reporte(model, service.descargarPlanCurricular(idPlanCurricular));
+        return new ModelAndView(reportePlanCurricularPdf);
     }
 
     @ResponseBody

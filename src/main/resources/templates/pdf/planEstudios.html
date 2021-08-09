@@ -109,6 +109,7 @@
                         <td th:switch="${item.codigoCurso}">                
                             <span th:case="ELC" th:text="${item.creditosOtros}"></span>
                             <span th:case="CULT" th:text="${item.creditosOtros}"></span>
+                            <span th:case="PROD" th:text="${item.creditosOtros}"></span>
                             <span th:case="*" th:text="${item.creditos}"></span>            
                         </td>
                         <td>
