@@ -163,7 +163,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramiteSubvencionDAO.save(subvencion);
 
         alumnoBolsa.setBolsaInvestigacion(bolsa);
-        alumnoBolsa.setEstado(AlumnoBolsaInvestigacionEstadoEnum.CRE);
+        alumnoBolsa.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.CRE);
         alumnoBolsa.setTramiteSubvencion(subvencion);
         alumnoBolsa.setUserRegistro(ds.getUsuario());
         alumnoBolsa.setFechaRegistro(new Date());
@@ -258,7 +258,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         List<AlumnoBolsaInvestigacion> abis = alumnoBolsaInvestigacionDAO.allByBolsaInvestigacion(bi);
         for (AlumnoBolsaInvestigacion abi : abis) {
             //Enviar investigacion
-            abi.setEstado(AlumnoBolsaInvestigacionEstadoEnum.INVI);
+            abi.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.INVI);
             alumnoBolsaInvestigacionDAO.update(abi);
         }
     }

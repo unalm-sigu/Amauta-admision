@@ -5,11 +5,13 @@ import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Component
-@Data
+@Getter
+@Setter
 public class FotosCarneUpload {
 
     private Integer total;

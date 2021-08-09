@@ -1,5 +1,6 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaincrustacion;
+package pe.edu.lamolina.amauta.controller.tramite.incrustacion;
 
+import pe.edu.lamolina.amauta.controller.tramite.incrustacion.PlantillaIncrustacionService;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

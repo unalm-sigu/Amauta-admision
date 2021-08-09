@@ -26,7 +26,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.amauta.controller.tramite.tipoconstancia.TipoConstanciaService;
+import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;

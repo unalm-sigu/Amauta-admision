@@ -5,12 +5,14 @@ import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Component
-@Data
+@Getter
+@Setter
 public class FotosCarneDown {
 
     private Integer total;

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantilla;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -39,7 +39,7 @@ import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.tipoconstancia.TipoConstanciaService;
+import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
