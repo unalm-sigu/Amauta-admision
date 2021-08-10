@@ -188,7 +188,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         TramiteTraslado traslado = tramiteTrasladoDAO.findByTramite(tramite);
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
         Context ctx = new Context();
 
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);

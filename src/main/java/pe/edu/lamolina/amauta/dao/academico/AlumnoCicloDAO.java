@@ -145,4 +145,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     Long countCiclosRegularTotal(Alumno alumno);
 
+    AlumnoCiclo findLastActiveEstudiadoByAlumno(Alumno alumno);
+
 }
