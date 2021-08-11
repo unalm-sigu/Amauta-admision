@@ -5,14 +5,11 @@ import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.stereotype.Component;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Component
-@Getter
-@Setter
 public class FotosCarneDown {
 
     private Integer total;
@@ -71,6 +68,54 @@ public class FotosCarneDown {
     public void finalizarProceso() {
         this.iniciado = false;
         this.matriculaResumens = null;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Integer getAvance() {
+        return avance;
+    }
+
+    public void setAvance(Integer avance) {
+        this.avance = avance;
+    }
+
+    public boolean isIniciado() {
+        return iniciado;
+    }
+
+    public void setIniciado(boolean iniciado) {
+        this.iniciado = iniciado;
+    }
+
+    public List<MatriculaResumen> getMatriculaResumens() {
+        return matriculaResumens;
+    }
+
+    public void setMatriculaResumens(List<MatriculaResumen> matriculaResumens) {
+        this.matriculaResumens = matriculaResumens;
+    }
+
+    public List<MsjError> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(List<MsjError> errores) {
+        this.errores = errores;
+    }
+
+    public String getPathFile() {
+        return pathFile;
+    }
+
+    public void setPathFile(String pathFile) {
+        this.pathFile = pathFile;
     }
 
 }
