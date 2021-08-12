@@ -9,11 +9,10 @@ import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
 
 public interface AlumnoBolsaInvestigacionDAO extends EasyDAO<AlumnoBolsaInvestigacion> {
 
-    public List<AlumnoBolsaInvestigacion> allByBolsaInvestigacion(BolsaInvestigacion bi);
+    List<AlumnoBolsaInvestigacion> allByBolsaInvestigacion(BolsaInvestigacion bolsa);
 
-    public List<AlumnoBolsaInvestigacion> allByDynatableBolsaInvestigacion(DynatableFilter filter, BolsaInvestigacion bi);
+    List<AlumnoBolsaInvestigacion> allByDynatableBolsaInvestigacion(DynatableFilter filter, BolsaInvestigacion bolsa);
 
-    public AlumnoBolsaInvestigacion findByBolsaInvestigacionAlumno(BolsaInvestigacion bi, Alumno alumno);
+    AlumnoBolsaInvestigacion findByBolsaInvestigacionAlumno(BolsaInvestigacion bolsa, Alumno alumno);
 
 }
-

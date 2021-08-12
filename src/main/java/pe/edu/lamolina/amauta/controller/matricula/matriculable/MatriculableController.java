@@ -193,7 +193,7 @@ public class MatriculableController {
                             "creditosAprobadosCiclo",
                             "creditosAprobadosAcumulados",
                             "cicloAcademicoInfo.*",
-                            "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.carrera.codigo",
+                            "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.pregrado", "alumno.carrera.codigo",
                             "alumno.carrera.nombre", "alumno.carrera.tipo", "alumno.carrera.tipoEnum",
                             "alumno.carrera.facultad.id", "alumno.carrera.facultad.nombre", "alumno.carrera.facultad.codigo",
                             "situacionInicio.id", "situacionFinal.id", "situacionFinal.nombre",

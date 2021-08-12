@@ -76,7 +76,7 @@
                                         <thead >
                                             <tr>
                                                 <th class="col-md-4" colspan="2"></th>
-                                                <th class="col-md-2 text-center">Puntaje <br/> Situación</th>
+                                                <th class="col-md-2 text-center">Puntaje QQQ <br/> Situación</th>
                                                 <th class="col-md-2 text-center v-middle">Prioridad <br/> Turno</th>
                                                 <th class="col-md-2 text-center v-middle">Datos Puntaje</th>
                                                 <th class="col-md-2 text-center v-middle">Matrícula</th>
@@ -114,14 +114,17 @@
                                                                 {{item.alumno.persona.numeroDocIdentidad}}
                                                             </template>
                                                         </span>
-                                                        <span class="block text-primary" v-if="item.alumno.carrera.codigo != item.alumno.carrera.facultad.codigo">
+                                                        <span class="block text-primary" 
+                                                              v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre">
                                                             {{item.alumno.carrera.nombre}}
                                                         </span>
-                                                        <span class="block bold" v-if="item.alumno.carrera.tipo == 'MAE' || item.alumno.carrera.tipo == 'DOC'">
+                                                        <span class="block bold" 
+                                                              v-if="item.alumno.carrera.tipo == 'MAE' || item.alumno.carrera.tipo == 'DOC'">
                                                             {{item.alumno.carrera.tipoEnum.value}}
                                                         </span>
-                                                        <template v-if="alumno.pregrado">
-                                                            <span class="block" v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre ">
+                                                        <template v-if="item.alumno.pregrado">
+                                                            <span class="block" 
+                                                                  v-if="item.alumno.carrera.nombre == item.alumno.carrera.facultad.nombre ">
                                                                 {{item.alumno.carrera.facultad.nombre}}
                                                             </span>
                                                         </template>

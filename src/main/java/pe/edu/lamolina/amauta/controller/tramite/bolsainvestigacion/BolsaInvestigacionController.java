@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -33,6 +34,7 @@ import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.zelper.util.ModelUtils;
 
 @Controller
 @RequestMapping("tramite/bolsainvestigacion")
@@ -75,7 +77,14 @@ public class BolsaInvestigacionController {
             Facultad facultad = this.getFacultad(request, ds, codeRequest);
             if (facultad != null) {
                 BolsaInvestigacion bi = service.findByFacultadCicloAcademico(facultad, ds.getCicloAcademico());
-                response.setData(JsonHelper.createJson(bi, JsonNodeFactory.instance));
+                ObjectNode json = JaneHelper
+                        .from(bi)
+                        .only("id,estado,estadoEnum,becados,postulantes")
+                        .join("facultad", "nombre")
+                        .join("cicloAcademico", "descripcion")
+                        .json();
+
+                response.setData(json);
                 response.setSuccess(Boolean.TRUE);
             }
 
@@ -94,6 +103,8 @@ public class BolsaInvestigacionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         String codeRequest = verificadorService.generateCodeRequest();
         Facultad facultad = this.getFacultad(request, ds, codeRequest);
+        logger.info("facultad = {}", ModelUtils.toString(facultad, "id", "codigo", "nombre"));
+        logger.info("ciclo = {}", ModelUtils.toString(ds.getCicloAcademico(), "id", "codigo", "descripcion"));
 
         List<AlumnoBolsaInvestigacion> alumnos = new ArrayList();
         if (facultad != null) {
@@ -101,8 +112,22 @@ public class BolsaInvestigacionController {
         }
 
         DynatableResponse json = new DynatableResponse();
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode array = JaneHelper
+                .from(alumnos)
+                .only("id,estado,estadoEnum,nombreInvestigacion")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "codigo,nombre")
+                .join("alumno.carrera.facultad", "codigo,nombre")
+                .join("alumno.persona", "id,nombreCompleto,numeroDocIdentidad")
+                .join("alumno.persona.tipoDocumento", "id,simbolo")
+                .join("supervisor", "id")
+                .join("supervisor.persona", "id,nombreCompleto,numeroDocIdentidad")
+                .join("supervisor.persona.tipoDocumento", "id,simbolo")
+                .join("supervisor.cargo", "nombre")
+                .join("supervisor.oficina", "nombre")
+                .array();
 
+        /*
         for (AlumnoBolsaInvestigacion alumno : alumnos) {
             array.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
                 "id",
@@ -128,7 +153,7 @@ public class BolsaInvestigacionController {
                 "estado"
             }));
         }
-
+        ///***/
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
@@ -293,9 +318,10 @@ public class BolsaInvestigacionController {
 
         try {
             Facultad facultad = this.getFacultad(request, ds, codeRequest);
-            service.eliminarAlumno(id, ds.getCicloAcademico(), facultad);
+            service.eliminarAlumno(new AlumnoBolsaInvestigacion(id), ds.getCicloAcademico(), facultad, ds);
             response.setMessage("Alumno eliminado");
             response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -342,6 +368,7 @@ public class BolsaInvestigacionController {
             service.enviarInvitaciones(facultad, ds.getCicloAcademico(), ds);
             response.setMessage("Invitaciones enviadas");
             response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

@@ -121,8 +121,6 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         alumnoBolsa.setAlumno(alumno);
         alumnoBolsa.setSupervisor(supervisor);
 
-        
-
         FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), ciclo);
         if (fichaSocioeconomica == null) {
             fichaSocioeconomica = new FichaSocioeconomica();
@@ -135,14 +133,14 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
             fichaSocioeconomicaDAO.update(fichaSocioeconomica);
         }
-        
+
         Tramite tramite = new Tramite();
         tramite.setSerie(Long.parseLong(serie.getNumeroSerie()));
         tramite.setNumero(Long.parseLong(serie.getNumeroDocumento()));
         tramite.setAlumno(alumnoBolsa.getAlumno());
         tramite.setCicloAcademico(ciclo);
         tramite.setCompania(ds.getCompania());
-        tramite.setEstadoEnum(TramiteEstadoEnum.INC);
+        tramite.setEstadoEnum(TramiteEstadoEnum.CRE);
         tramite.setPersona(alumnoBolsa.getAlumno().getPersona());
         tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
         tramite.setFichaSocioeconomica(fichaSocioeconomica);
@@ -163,7 +161,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramiteSubvencionDAO.save(subvencion);
 
         alumnoBolsa.setBolsaInvestigacion(bolsa);
-        alumnoBolsa.setEstado(AlumnoBolsaInvestigacionEstadoEnum.CRE);
+        alumnoBolsa.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.CRE);
         alumnoBolsa.setTramiteSubvencion(subvencion);
         alumnoBolsa.setUserRegistro(ds.getUsuario());
         alumnoBolsa.setFechaRegistro(new Date());
@@ -172,8 +170,12 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     public List<AlumnoBolsaInvestigacion> allByDynatableFacultadCicloAcademico(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico) {
-        BolsaInvestigacion bi = findByFacultadCicloAcademico(facultad, cicloAcademico);
-        return alumnoBolsaInvestigacionDAO.allByDynatableBolsaInvestigacion(filter, bi);
+        BolsaInvestigacion bolsa = findByFacultadCicloAcademico(facultad, cicloAcademico);
+        logger.info("bolsa = {}", bolsa);
+        if (bolsa == null) {
+            return new ArrayList();
+        }
+        return alumnoBolsaInvestigacionDAO.allByDynatableBolsaInvestigacion(filter, bolsa);
     }
 
     @Override
@@ -229,7 +231,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             }
         }
 
-        if (tramiteSub != null) {
+        if (tramiteSub != null && tramiteSub.getTramite().getEstadoEnum() != TramiteEstadoEnum.ANU) {
             String valor = "Ya tiene un registro de tramite de subvención.";
             mensajes.add(valor);
         }
@@ -238,29 +240,54 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     @Transactional
-    public void eliminarAlumno(Long id, CicloAcademico cicloAcademico, Facultad facultad) {
-        AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.find(id);
+    public void eliminarAlumno(AlumnoBolsaInvestigacion alumnoBolsa, CicloAcademico cicloAcademico, Facultad facultad, DataSessionPivot ds) {
+        AlumnoBolsaInvestigacion alumnoBolsaBD = alumnoBolsaInvestigacionDAO.find(alumnoBolsa.getId());
+        Assert.isNotNull(alumnoBolsaBD, "No se pudo ubicar el registro de la bolsa de investigación del alumno");
+        Assert.isFalse(alumnoBolsaBD.isTramiteAnulado(), "Esta registro ya se encuentra anulado");
 
-        BolsaInvestigacion bi = abiBD.getBolsaInvestigacion();
-        bi.setPostulantes(bi.getPostulantes() - 1);
-        bolsaInvestigacionDAO.update(bi);
+        Facultad facultadAlumno = alumnoBolsaBD.getBolsaInvestigacion().getFacultad();
+        Assert.isTrue(facultadAlumno.getId().equals(facultad.getId()), "Este alumno no pertenece a esta facultad");
 
-        Assert.isTrue(abiBD.getBolsaInvestigacion().getFacultad().getId().equals(facultad.getId()), "Esta investigación no pertenece a esta facultad");
+        TramiteSubvencion tramiteSubvencion = alumnoBolsaBD.getTramiteSubvencion();
+        Tramite tramite = tramiteSubvencion.getTramite();
+        Assert.isFalse(tramite.getEstadoEnum() == TramiteEstadoEnum.ANU, "El trámite del alumnos ya se encuentra anulado");
 
-        alumnoBolsaInvestigacionDAO.delete(abiBD);
+        DateTime today = new DateTime();
+
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setAceptado(false);
+        tramite.setFinalizado(true);
+        tramite.setUserModificacion(ds.getUsuario());
+        tramite.setFechaModificacion(today.toDate());
+        tramiteDAO.update(tramite);
+
+        BolsaInvestigacion bolsa = alumnoBolsaBD.getBolsaInvestigacion();
+        bolsa.setPostulantes(bolsa.getPostulantes() - 1);
+        bolsaInvestigacionDAO.update(bolsa);
+
+        alumnoBolsaBD.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.ANU);
+        alumnoBolsaBD.setUserAnulacion(ds.getUsuario());
+        alumnoBolsaBD.setFechaAnulacion(today.toDate());
+        alumnoBolsaInvestigacionDAO.update(alumnoBolsaBD);
     }
 
     @Override
     @Transactional
-    public void enviarInvitaciones(Facultad facultad, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        BolsaInvestigacion bi = findByFacultadCicloAcademico(facultad, cicloAcademico);
+    public void enviarInvitaciones(Facultad facultad, CicloAcademico ciclo, DataSessionPivot ds) {
+        BolsaInvestigacion bolsa = findByFacultadCicloAcademico(facultad, ciclo);
+        List<AlumnoBolsaInvestigacion> alumnosBolsas = alumnoBolsaInvestigacionDAO.allByBolsaInvestigacion(bolsa);
 
-        List<AlumnoBolsaInvestigacion> abis = alumnoBolsaInvestigacionDAO.allByBolsaInvestigacion(bi);
-        for (AlumnoBolsaInvestigacion abi : abis) {
-            //Enviar investigacion
-            abi.setEstado(AlumnoBolsaInvestigacionEstadoEnum.INVI);
-            alumnoBolsaInvestigacionDAO.update(abi);
+        int contador = 0;
+        for (AlumnoBolsaInvestigacion aluBolsa : alumnosBolsas) {
+            if (aluBolsa.getEstadoEnum() == AlumnoBolsaInvestigacionEstadoEnum.CRE) {
+                aluBolsa.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.INVI);
+                aluBolsa.setUserModificacion(ds.getUsuario());
+                aluBolsa.setFechaModificacion(new Date());
+                alumnoBolsaInvestigacionDAO.update(aluBolsa);
+                contador++;
+            }
         }
+        Assert.isTrue(contador > 0, "No existen alumnos a quienes invitar a la bolsa de investigación");
     }
 
     @Override
@@ -298,14 +325,17 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     @Transactional
-    public void updateAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds) {
-        AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.find(alumno.getId());
-        Assert.isTrue(abiBD.getBolsaInvestigacion().getFacultad().getId().equals(facultad.getId()), "Esta investigación no pertenece a esta facultad");
+    public void updateAlumno(Facultad facultad, CicloAcademico ciclo, AlumnoBolsaInvestigacion alumnoBolsa, DataSessionPivot ds) {
+        AlumnoBolsaInvestigacion alumnoBolsaBD = alumnoBolsaInvestigacionDAO.find(alumnoBolsa.getId());
+        Facultad facultadBD = alumnoBolsaBD.getBolsaInvestigacion().getFacultad();
+        Assert.isTrue(facultadBD.getId().equals(facultad.getId()), "Esta investigación no pertenece a esta facultad");
 
-        abiBD.setSupervisor(alumno.getSupervisor());
-        abiBD.setNombreInvestigacion(alumno.getNombreInvestigacion());
+        alumnoBolsaBD.setSupervisor(alumnoBolsa.getSupervisor());
+        alumnoBolsaBD.setNombreInvestigacion(alumnoBolsa.getNombreInvestigacion());
+        alumnoBolsaBD.setUserModificacion(ds.getUsuario());
+        alumnoBolsaBD.setFechaModificacion(new Date());
 
-        alumnoBolsaInvestigacionDAO.update(abiBD);
+        alumnoBolsaInvestigacionDAO.update(alumnoBolsaBD);
     }
 
     @Override

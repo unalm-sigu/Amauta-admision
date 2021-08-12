@@ -26,7 +26,7 @@ public interface BolsaInvestigacionService {
 
     List<AlumnoBolsaInvestigacion> allByDynatableFacultadCicloAcademico(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico);
 
-    void eliminarAlumno(Long id, CicloAcademico cicloAcademico, Facultad facultad);
+    void eliminarAlumno(AlumnoBolsaInvestigacion alumnoBolsa, CicloAcademico cicloAcademico, Facultad facultad, DataSessionPivot ds);
 
     void enviarInvitaciones(Facultad facultad, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
