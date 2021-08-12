@@ -1,5 +1,6 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia;
+package pe.edu.lamolina.amauta.controller.tramite.plantilla;
 
+import pe.edu.lamolina.amauta.controller.tramite.plantilla.AlumnoConstancia;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;

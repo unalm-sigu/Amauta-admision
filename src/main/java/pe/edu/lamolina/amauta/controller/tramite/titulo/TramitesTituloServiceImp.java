@@ -1,12 +1,7 @@
 package pe.edu.lamolina.amauta.controller.tramite.titulo;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -34,19 +29,14 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
-import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -55,7 +45,6 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
-import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
@@ -123,13 +112,10 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     }
 
     @Override
-    public String TituloReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoTituloPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
-    }
+    public Context reporte(Long idTramite, DataSessionPivot ds) {
 
-    private List<String> createInfoTituloPDF(Tramite tramite, DataSessionPivot ds) {
-        // tramite = tramiteDAO.find(tramite.getId());
+        Tramite tramite = this.findByTramite(idTramite);
+
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -173,6 +159,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
 
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+
         Context ctx = new Context();
 
         ctx.setVariable("alumno", alumno);
@@ -185,21 +172,11 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         ctx.setVariable("fechaResolucion", TypesUtil.getStringDate(obtencionGrado.getResolucion().getFecha(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-//        PdfContent pdfHistorial = new PdfContent();
-//        pdfHistorial.setContext(ctx);
-//        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-        PdfContent pdfBachiller = new PdfContent();
-        pdfBachiller.setContext(ctx);
-        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_TITULO);
+        ctx.setVariable("nombrePdf", "Informe Titulo " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        ctx.setVariable("templatePdf", "detalleTitulo");
 
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfBachiller)
-        //                pdfGenerator.generateDocument(pdfHistorial)
-        );
-
-        return pdfs;
+        return ctx;
     }
 
     @Override
@@ -268,7 +245,6 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         tramiteTituloDAO.updateColumns(tramiteTitulo, "estado");
     }
 
-    @Override
     public Tramite findByTramite(Long id) {
         return tramiteDAO.findById(new Tramite(id));
     }

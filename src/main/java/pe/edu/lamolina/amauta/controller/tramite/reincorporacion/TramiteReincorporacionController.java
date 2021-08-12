@@ -3,16 +3,9 @@ package pe.edu.lamolina.amauta.controller.tramite.reincorporacion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,18 +17,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.amauta.controller.tramite.titulo.TramitesTituloService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.Tramite;
 
 @Controller
 @RequestMapping("academico/tramiteacademico/tramiteReincorporacion")
@@ -47,7 +41,7 @@ public class TramiteReincorporacionController {
     TramiteReincorporacionService reincorporacionService;
 
     @Autowired
-    TramitesTituloService tramitesTituloService;
+    PdfHtmlSimplified reporteTramiteReincorporacion;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -127,48 +121,21 @@ public class TramiteReincorporacionController {
         return response;
     }
 
-    @RequestMapping("{id}/reporte")
-    public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    @RequestMapping("{idTramite}/reporte")
+    public ModelAndView bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idTramite) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            Tramite tramite = tramitesTituloService.findByTramite(id);
-            String fileName = reincorporacionService.reporte(tramite, ds);
-            String name = "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
-            pdfResponse(fileName, name, response);
+            Context context = reincorporacionService.reporte(idTramite, ds);
+            model.addAllAttributes(context.getVariables());
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, model);
         }
+
+        return new ModelAndView(reporteTramiteReincorporacion);
     }
 
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
-    }
 }

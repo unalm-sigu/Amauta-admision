@@ -137,18 +137,13 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        List<TramiteBachiller> bachillers = tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
-        return bachillers;
+        return  tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
     }
 
     @Override
-    public String bachillerReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoBachillerPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
-    }
+    public Context reporte(Long idTramite, DataSessionPivot ds) {
 
-    private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
-        // tramite = tramiteDAO.find(tramite.getId());
+        Tramite tramite = this.findByTramite(idTramite);
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -182,7 +177,6 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         }
 
         validadCaducos(mapCursoCurricula, alumnoCicloCursos);
-        alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
 
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
@@ -251,22 +245,11 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-        PdfContent pdfHistorial = new PdfContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+        ctx.setVariable("nombrePdf", "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoCurdir");
 
-        PdfContent pdfBachiller = new PdfContent();
-        pdfBachiller.setContext(ctx);
-        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_BACHILLER);
-
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfBachiller),
-                pdfGenerator.generateDocument(pdfHistorial)
-        );
-
-        return pdfs;
+        return ctx;
     }
 
     @Override
@@ -361,7 +344,6 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         }
     }
 
-    @Override
     public Tramite findByTramite(Long id) {
         return tramiteDAO.findById(new Tramite(id));
     }

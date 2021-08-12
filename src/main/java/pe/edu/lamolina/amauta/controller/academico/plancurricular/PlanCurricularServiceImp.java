@@ -1172,14 +1172,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, List<PlanEstudiosDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
 
         Context ctx = new Context();
-        //metadata        
+    
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("facultad", facultad);
         ctx.setVariable("especialidad", especialidad);
         ctx.setVariable("year", year);
         ctx.setVariable("datos", mapPlanEstudios);
+
         ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
         ctx.setVariable("templatePdf", "planEstudios");
+        
         model.addAllAttributes(ctx.getVariables());
     }
     

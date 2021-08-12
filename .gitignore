@@ -13,3 +13,8 @@ dump[a-z].log/
 *.iml
 lamolina-pivot.log
 lamolina-pivot.log.*
+.classpath
+.factorypath 
+./settings/
+./vscode/
+

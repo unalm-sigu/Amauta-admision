@@ -5,11 +5,9 @@ import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
 import org.springframework.stereotype.Component;
 
 @Component
-@Data
 public class FotosCarneUpload {
 
     private Integer total;
@@ -56,6 +54,38 @@ public class FotosCarneUpload {
 
     public void finalizarProceso() {
         this.iniciado = false;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Integer getAvance() {
+        return avance;
+    }
+
+    public void setAvance(Integer avance) {
+        this.avance = avance;
+    }
+
+    public boolean isIniciado() {
+        return iniciado;
+    }
+
+    public void setIniciado(boolean iniciado) {
+        this.iniciado = iniciado;
+    }
+
+    public List<MsjError> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(List<MsjError> errores) {
+        this.errores = errores;
     }
 
 }

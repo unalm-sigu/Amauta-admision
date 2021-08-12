@@ -65,7 +65,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
-import pe.edu.lamolina.amauta.controller.tramite.plantillaconstancia.PlantillaGenerica;
+import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;

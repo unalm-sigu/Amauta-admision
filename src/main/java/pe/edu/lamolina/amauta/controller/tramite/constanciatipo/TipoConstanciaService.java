@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.tipoconstancia;
+package pe.edu.lamolina.amauta.controller.tramite.constanciatipo;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;

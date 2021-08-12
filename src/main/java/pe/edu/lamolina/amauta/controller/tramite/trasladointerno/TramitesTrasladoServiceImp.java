@@ -179,17 +179,13 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
     }
 
     @Override
-    public String reporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoReincorporacionPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "trasladoInterno", true);
-    }
+    public Context reporte(Tramite idTramite, DataSessionPivot ds) {
 
-    private List<String> createInfoReincorporacionPDF(Tramite tramite, DataSessionPivot ds) {
+        Tramite tramite = tramiteDAO.findById(idTramite);
         TramiteTraslado traslado = tramiteTrasladoDAO.findByTramite(tramite);
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-        Context ctx = new Context();
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
 
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
@@ -219,7 +215,6 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         }
 
         validadCaducos(mapCursoCurricula, alumnoCicloCursos);
-        alumnoCicloCursoDAO.updateList(alumnoCicloCursos, "tipoCursoCurricula");
 
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
@@ -229,17 +224,6 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
         historialSorted.putAll(historial);
 
-        int creditosConvalidados = 0;
-
-        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByTipoCurso(alumno);
-
-        for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
-            if (alumnoCicloCurso.getNota().equals("TE")) {
-                creditosConvalidados = creditosConvalidados + alumnoCicloCurso.getCreditos();
-            }
-        }
-
-        alumno.setCreditosConvalidadosTransient(creditosConvalidados);
         Oficina oficinaColaborador = null;
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
@@ -262,6 +246,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
             especificarCarreraOrigen = true;
         }
 
+        Context ctx = new Context();
         ctx.setVariable("especificarCarrera", especificarCarrera);
         ctx.setVariable("especificarCarreraOrigen", especificarCarreraOrigen);
         ctx.setVariable("traslado", traslado);
@@ -272,22 +257,11 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//
 
-        PdfContent pdfHistorial = new PdfContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+        ctx.setVariable("nombrePdf", "Informe Traslado " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        ctx.setVariable("templatePdf", "detalleTrasladoInterno,historialAcademicoCurdir");
 
-        PdfContent pdfRetiroExcepcional = new PdfContent();
-        pdfRetiroExcepcional.setContext(ctx);
-        pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_TRASLADO_INTERO);
-//
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfRetiroExcepcional),
-                pdfGenerator.generateDocument(pdfHistorial)
-        );
-//
-        return pdfs;
+        return ctx;
     }
 
     @Override

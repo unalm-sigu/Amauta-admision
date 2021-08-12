@@ -24,15 +24,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.amauta.controller.tramite.titulo.TramitesTituloService;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -48,20 +50,19 @@ public class TramiteTrasladoController {
     TramiteTrasladoService service;
 
     @Autowired
-    TramitesTituloService tramitesTituloService;
+    PdfHtmlSimplified reporteTramiteTraslado;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        
         List<Carrera> carreras = service.getCarreras(ds);
 
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (Carrera carrera : carreras) {
-            arr.add(JsonHelper.createJson(carrera, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
-        }
-        model.addAttribute("carreras", arr);
+        ArrayNode carrerasJson = JaneHelper.from(carreras).array();
+        
+        model.addAttribute("carreras", carrerasJson);
+        
         return "academico/tramitescademicos/tramiteTraslado/tramiteTraslado";
     }
 
@@ -131,46 +132,21 @@ public class TramiteTrasladoController {
     }
 
     @RequestMapping("{id}/reporte")
-    public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    public ModelAndView bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            Tramite tramite = tramitesTituloService.findByTramite(id);
-            String fileName = service.reporte(tramite, ds);
-            String name = "Informe Traslado " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero() + ".pdf";
-            pdfResponse(fileName, name, response);
+            
+            Context context = service.reporte(new Tramite(id), ds);
+            model.addAllAttributes(context.getVariables());
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, model);
         }
+        
+        return new ModelAndView(reporteTramiteTraslado);
     }
 
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
-    }
 }
