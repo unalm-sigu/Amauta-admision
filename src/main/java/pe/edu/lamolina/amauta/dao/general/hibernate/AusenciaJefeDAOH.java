@@ -20,7 +20,8 @@ public class AusenciaJefeDAOH extends AbstractEasyDAO<AusenciaJefe> implements A
     public AusenciaJefe findSinCerrar(AusenciaJefe ausencia) {
         Octavia sql = Octavia.query()
                 .from(AusenciaJefe.class, "au")
-                .join("oficina ofi", "encargado enc", "jefe")
+                .join("oficina ofi", "encargado enc")
+                .leftJoin("jefe")
                 .filter("ofi.id", ausencia.getOficina())
                 .filter("enc.id", ausencia.getEncargado())
                 .filter("fechaInicioEncargatura", ausencia.getFechaInicioEncargatura())
@@ -33,7 +34,8 @@ public class AusenciaJefeDAOH extends AbstractEasyDAO<AusenciaJefe> implements A
     public List<AusenciaJefe> allNoCerradasByOficinas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .from(AusenciaJefe.class, "au")
-                .join("oficina ofi", "encargado enc", "jefe")
+                .join("oficina ofi", "encargado enc")
+                .leftJoin("jefe")
                 .in("ofi.id", oficinas)
                 .isNull("fechaFinEncargatura");
 

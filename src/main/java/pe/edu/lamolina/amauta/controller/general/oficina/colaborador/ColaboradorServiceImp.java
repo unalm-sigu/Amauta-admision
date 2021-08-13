@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
@@ -68,11 +67,10 @@ import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.medico.MedicoDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class ColaboradorServiceImp implements ColaboradorService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     OficinaDAO oficinaDAO;
@@ -302,7 +300,10 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     public Colaborador findColaborador(Colaborador colaboradorForm) {
+        log.info("colaboradorForm={}", colaboradorForm);
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm);
+        log.info("colaboradorBD={}", colaboradorBD);
+
         List<FuncionColaborador> funcionesColaborador = funcionColaboradorDAO.allByColaborador(colaboradorForm);
         colaboradorBD.setFuncionColaborador(funcionesColaborador);
         return colaboradorBD;
@@ -485,15 +486,15 @@ public class ColaboradorServiceImp implements ColaboradorService {
             oficinaMain = oficinaDAO.find(oficinaMain.getId());
         }
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfiles(perfiles);
-        logger.debug("funcionRol size {}", funcionRol.size());
+        log.debug("funcionRol size {}", funcionRol.size());
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
-        logger.debug("mapRol size {}", mapRol.size());
+        log.debug("mapRol size {}", mapRol.size());
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(userColaborador, oficinaMain);
         Map<Long, List<UsuarioRol>> mapUserRol = TypesUtil.convertListToMapList("rol.id", userRoles);
 
         for (PerfilCompania perfil : perfiles) {
             List<Rol> roless = mapRol.get(perfil.getId());
-            logger.debug("mapRol size {} {}  ", perfil.getId(), roless);
+            log.debug("mapRol size {} {}  ", perfil.getId(), roless);
             if (roless == null) {
                 continue;
             }
@@ -532,7 +533,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
         Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
-        logger.info("oficina anterior={} nueva={}", oficinaAnterior.getId(), oficinaNueva.getId());
+        log.info("oficina anterior={} nueva={}", oficinaAnterior.getId(), oficinaNueva.getId());
 
         boolean noCambioDatos = ObjectUtil.verificarIgualdad(colaboradorBD, colaboradorForm, Arrays.asList("cargo.id", "oficina.id", "fechaInicio"));
         if (!noCambioDatos) {
@@ -652,7 +653,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             Oficina oficinaMain,
             Colaborador colaborador, DataSessionPivot ds) {
 
-        logger.info("ENTRA A UPDATE USER ROL");
+        log.info("ENTRA A UPDATE USER ROL");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfiles(perfilesCompaniaNuevos);
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
@@ -660,7 +661,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
-            logger.info("ENTRA AL PRIMER LOOP");
+            log.info("ENTRA AL PRIMER LOOP");
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
@@ -670,9 +671,9 @@ public class ColaboradorServiceImp implements ColaboradorService {
         }
 
         for (FuncionRol funcionRolNuevo : funcionRolNuevos) {
-            logger.info("ENTRA AL SEGUNDO LOOP");
+            log.info("ENTRA AL SEGUNDO LOOP");
             if (!mapRolTengo.containsKey(funcionRolNuevo.getRol().getId())) {
-                logger.info("ENTRA AL IF");
+                log.info("ENTRA AL IF");
 
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);

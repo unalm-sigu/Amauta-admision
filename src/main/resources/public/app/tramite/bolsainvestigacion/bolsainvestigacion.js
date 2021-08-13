@@ -5,15 +5,12 @@ new Vue({
     data: {
         alumnos: [],
         supervisores: [],
-        labelType: {'PEND': 'label-warning', 'CER': 'label-primary', 'ENV': 'label-success'},
-        labelText: {'PEND': 'Pendiente', 'CER': 'Cerrado', 'ENV': 'Activo'},
-        labelAlumnoType: {'CRE': 'label-default', 'INVI': 'label-success'},
-        labelAlumnoText: {'CRE': 'Creado', 'INVI': 'Invitado', },
         alumnoBolsa: {alumno: {}},
         alumnoError: {},
         errores: [],
         bolsaInvestigacion: {
             estado: 'PEND',
+            estadoEnum: 'Pendiente',
             becados: 0,
             postulantes: 0
         },
@@ -173,6 +170,16 @@ new Vue({
                 return "";
             }
             return supervisor.persona.nombreCompleto;
+        },
+        classEstado(item) {
+            if (item.estado === "PEND") {
+                return 'label-warning';
+            } else if (item.estado === "ANU") {
+                return 'label-danger';
+            } else if (item.estado === "INVI") {
+                return 'label-success';
+            }
+            return 'label-primary';
         }
     }
 });

@@ -10,6 +10,8 @@ import static pe.edu.lamolina.model.enums.TipoTramiteEnum.SUBV;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteSubvencionDAO;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 
 @Repository
 public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> implements TramiteSubvencionDAO {
@@ -27,8 +29,8 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .join("tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion ts", "supervisor sup")
                 .join("alu.carrera car", "car.facultad")
                 .filter("ca.id", cicloAcademico)
-                //.filter("tra.estado", TramiteEstadoEnum.SOL)
                 .in("sup.id", colaboradores)
+                .filter("tra.estado", "<>", TramiteEstadoEnum.ANU)
                 .filter("tt.codigo", SUBV)
                 .orderBy("trs.id DESC");
         return all(sql);
@@ -50,7 +52,8 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .join("tramite tra", "tra.alumno alu", "tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion bb")
                 .filter("ca.id", cicloAcademico)
                 .filter("alu.id", alumno)
-                .filter("tt.codigo", "SUBV");
+                .filter("tra.estado", "<>", TramiteEstadoEnum.ANU)
+                .filter("tt.codigo", TipoTramiteEnum.SUBV);
         return (TramiteSubvencion) sql.find(getCurrentSession());
     }
 

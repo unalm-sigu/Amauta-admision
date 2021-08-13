@@ -145,7 +145,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .searchFields("ofi.nombre", "ca.nombre", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("case co.estado when 'ACT' then 1 when 'PER' then 1 when 'VAC' then 2 when 'DSC' then 2 else 3 end","co.id desc");
+                .orderBy("case co.estado when 'ACT' then 1 when 'PER' then 1 when 'VAC' then 2 when 'DSC' then 2 else 3 end", "co.id desc");
 
         setCondicionEstado(filter, sql);
 
@@ -166,7 +166,8 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     public Colaborador find(Colaborador colaborador) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
-                .join("persona per", "per.tipoDocumento")
+                .join("persona per", "oficina", "cargo")
+                .leftJoin("per.tipoDocumento")
                 .filter("co.id", colaborador);
 
         return find(sql);

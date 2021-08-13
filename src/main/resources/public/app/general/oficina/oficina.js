@@ -302,7 +302,7 @@ new Vue({
         },
         previoRetirarEncargado(item) {
             let $vue = this;
-            $vue.oficina = Object.assign({}, item, {});
+            $vue.oficina = JSON.parse(JSON.stringify(item));
             $vue.configConfirmAction.message = "¿Está seguro desea dar por finalizada la <b>Encargatura</b> de esta Unidad?";
             $vue.configConfirmAction.okbtn = "Si, finalizar";
             $vue.configConfirmAction.okclass = "btn-danger";
@@ -313,7 +313,7 @@ new Vue({
         verRetirarEncargado() {
             let $vue = this;
             $vue.$refs.modalConfirmAction.confirmReaction(true);
-            $vue.ausencia = Object.assign({}, $vue.oficina.ausenciaJefe, {});
+            $vue.ausencia = JSON.parse(JSON.stringify($vue.oficina.ausenciaJefe));
             $vue.configModalRetirarEncargado.okclass = "btn-danger";
             $vue.$refs.modalRetirarEncargado.open();
         },
