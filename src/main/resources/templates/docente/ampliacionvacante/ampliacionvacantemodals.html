@@ -61,8 +61,8 @@
                             <div class="col-sm-5">
                                 <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
                                 <p class="block">{{props.option.codigo}}</p>
-                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger">{{props.option.motivoMatriculable}}</span>
-                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary">Matriculable</span>
+                                <span v-if="props.option.situacion=='0' " class="bg-light label text-xs bold text-danger">{{props.option.motivoMatriculable}}</span>
+                                <span v-if="props.option.situacion=='1' " class="bg-light label text-xs bold text-primary">Matriculable</span>
                             </div>
 
                             <div  class="col-sm-5">
@@ -121,52 +121,5 @@
             </tbody>                            
         </table>
 
-    </div>
-</modal-vik>
-
-<modal-vik ref="refModalAceptarSolicitud"
-           id="modalAceptarSolicitudId"
-           modalsize="modal-lg"
-           header="true">
-    <div slot="body">
-        <table class="table table-striped table-hover" v-if="solicitudesMatriculaSec">
-            <thead> 
-                <tr class=""> 
-                    <th class="col-md-3"></th>
-                    <th class="col-md-4 text-center">Alumno</th>
-                    <th class="col-md-4 text-center">Carrera</th>
-                    <th class="col-md-1 text-center">Aceptar</th>
-                    <th class="col-md-1 text-center">Rechazar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="matSec in solicitudesMatriculaSec">
-
-                    <td class="v-middle padder-v" >
-                        <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
-                             onerror="this.src=APP.url('phobos/images/avatar.png');"
-                             v-bind:src="matSec.matriculaResumen.alumno.persona.rutaFotoPostulante" 
-                             class="img-circle" />
-                    </td>
-
-                    <td class="v-middle text-center">
-                        <p class="text-primary block">{{matSec.matriculaResumen.alumno.persona.nombreCompleto}}</p> 
-                        <span class="text-xs bold block text-danger">{{matSec.estadoEnum.value}}</span>
-                    </td>
-
-                    <td class="text-center">
-                        <p class="block">{{matSec.matriculaResumen.alumno.carrera.nombre}}</p>
-                        <p v-if="matSec.matriculaResumen.alumno.carrera.facultad.nombre==matSec.matriculaResumen.alumno.carrera.nombre" class="block"></p>
-                        <p v-else="" class="block">{{matSec.matriculaResumen.alumno.carrera.facultad.nombre}}</p>
-                    </td>
-                    <td class="text-center">
-                        <a class="btn btn-info" type="button"   v-on:click.prevent="aceptarSolicitud(matSec)"   href="#" >Aceptar</a>
-                    </td>
-                    <td class="text-center">
-                        <a class="btn btn-danger" type="button" v-on:click.prevent="rechazarSolicitud(matSec)"   href="#" >Rechazar</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </modal-vik>

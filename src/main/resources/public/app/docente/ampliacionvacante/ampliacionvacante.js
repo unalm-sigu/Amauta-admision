@@ -29,6 +29,18 @@ var app = new Vue({
     methods: {
         changeVacante(seccion) {
             let $vue = this;
+            if (!seccion.docentePrincipaTcurLogeado) {
+                swal({
+                    title: " ",
+                    text: "Solo el docente principal del curso de teoría puede ampliar vacantes",
+                    icon: "warning",
+                    button: {
+                        text: "Aceptar",
+                    },
+                });
+                return;
+            }
+
             $vue.$refs.modalAmpliacionVacante.open();
             $vue.seccion = seccion;
             $vue.alumnoeleccionado = {};
@@ -122,77 +134,6 @@ var app = new Vue({
             let $vue = this;
             $vue.alumnoeleccionados.splice($vue.alumnoeleccionados.indexOf(alumno), 1);
         },
-        prueba() {
-            this.$refs.refModalAceptarSolicitud.open();
-        },
-        showModalSolicitudes(seccion) {
-            console.log("la seccion es")
-            console.dir(seccion);
-            let $vue = this;
-            $vue.solicitudesMatriculaSec = [];
-            $vue.$refs.refModalAceptarSolicitud.title = 'Solicitudes de la Sección ' + seccion.codigo2;
-            $.ajax({
-                url: APP.url('docente/ampliacionvacante/loadModalSolicitudes'),
-                type: 'POST',
-                dataType: 'json',
-                contentType: "application/json",
-                data: JSON.stringify(seccion),
-                success(response) {
-                    if (response.success) {
-                        $vue.solicitudesMatriculaSec = response.data;
-                        $vue.$refs.refModalAceptarSolicitud.open();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-        }, aceptarSolicitud(matSeccion) {
-            let $vue = this;
-            $.ajax({
-                url: APP.url('docente/ampliacionvacante/aceptarSolicitudMatricula'),
-                type: 'POST',
-                dataType: 'json',
-                contentType: "application/json",
-                data: JSON.stringify(matSeccion),
-                success(response) {
-                    if (response.success) {
-                        $vue.solicitudesMatriculaSec = response.data;
-                        $vue.$refs.raptor.repreload();
-                        $vue.$refs.refModalAceptarSolicitud.close();
-                        notify("Registro guardado", "info");
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-        }, rechazarSolicitud(matSeccion) {
-            let $vue = this;
-            $.ajax({
-                url: APP.url('docente/ampliacionvacante/rechazarSolicitudMatricula'),
-                type: 'POST',
-                dataType: 'json',
-                contentType: "application/json",
-                data: JSON.stringify(matSeccion),
-                success(response) {
-                    if (response.success) {
-                        $vue.solicitudesMatriculaSec = response.data;
-                        $vue.$refs.raptor.repreload();
-                        $vue.$refs.refModalAceptarSolicitud.close();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-        }
     }
 });
 

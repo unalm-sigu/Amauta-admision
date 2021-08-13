@@ -26,7 +26,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -197,82 +196,6 @@ public class AmpliacionVacanteController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
             response.setMessage(GlobalMessages.UPDATED);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("loadModalSolicitudes")
-    public JsonResponse loadModalSolicitudes(@RequestBody Seccion seccion, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ds.setFechaAccionAudit(new Date());
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            //service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
-            List<MatriculaSeccion> solicitudesMatriculasSeccion = service.allSolicitudesBySeccion(seccion, ds);
-
-            JsonNodeFactory jc = JsonNodeFactory.instance;
-            ArrayNode jSolicitudes = new ArrayNode(jc);
-            for (MatriculaSeccion matriculaSeccion : solicitudesMatriculasSeccion) {
-                ObjectNode jMatriculaSeccion = JsonHelper.createJson(matriculaSeccion, jc, false,
-                        new String[]{
-                            "*",
-                            "matriculaResumen.id",
-                            "matriculaResumen.alumno.id",
-                            "matriculaResumen.alumno.persona.nombreCompleto",
-                            "matriculaResumen.alumno.persona.rutaFotoPostulante",
-                            "matriculaResumen.alumno.carrera.nombre",
-                            "matriculaResumen.alumno.carrera.facultad.nombre",
-                            "seccion.id",
-                            "userRegistro.*",
-                            "userRegistro.persona.*"
-                        });
-                jSolicitudes.add(jMatriculaSeccion);
-            }
-            response.setData(jSolicitudes);
-            response.setMessage(GlobalMessages.UPDATED);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("aceptarSolicitudMatricula")
-    public JsonResponse aceptarSolicitudMatricula(@RequestBody MatriculaSeccion matriculaSeccion, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ds.setFechaAccionAudit(new Date());
-            service.aceptarSolicitudMatricula(matriculaSeccion, ds);
-            response.setMessage("Solicitud aceptada.");
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("rechazarSolicitudMatricula")
-    public JsonResponse rechazarSolicitudMatricula(@RequestBody MatriculaSeccion matriculaSeccion, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ds.setFechaAccionAudit(new Date());
-            service.rechazarSolicitudMatricula(matriculaSeccion, ds);
-            response.setMessage("Solicitud rechazada.");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

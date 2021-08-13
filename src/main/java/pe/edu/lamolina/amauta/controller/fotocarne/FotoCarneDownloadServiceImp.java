@@ -23,6 +23,7 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
 @Service
 @Transactional(readOnly = true)
@@ -89,7 +90,8 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
 
-            String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
+            String codigo = this.getTipoDocumentoSUNEDU(matriculaResumen.getAlumno().getPersona().getTipoDocumento());
+            String name = codigo + matriculaResumen.getAlumno().getCodigo() + ".jpg";
 
             File file = new File(folder + name);
             if (StringUtils.isBlank(matriculaResumen.getAlumno().getPersona().getFoto())) {
@@ -182,6 +184,13 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
         }
 
+    }
+
+    private String getTipoDocumentoSUNEDU(TipoDocIdentidad tipoDocumento) {
+        if (StringUtils.isBlank(tipoDocumento.getSunedu())) {
+            return "5_";
+        }
+        return String.format("%s_", tipoDocumento.getSunedu());
     }
 
 }
