@@ -20,10 +20,10 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
+import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
 
 @Repository
 public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricula> implements AlumnoCursoCurriculaDAO {
@@ -309,27 +309,20 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     }
 
     @Override
-    public List<AlumnoCursoCurricula> allHabilesMatByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
-
-        Octavia subquery = Octavia.query()
-                .from(GrupoSeccion.class, "gs")
-                .join("curso cur", "cicloAcademico ca")
-                .left("anexoBoletin ab", "ab.anexoSuperior asu")
-                .in("asu.codigo", alumno.getCodigoAnexoBoletin())
-                .filter("ca.codigo", cicloAcademico.getCodigo());
-
+    public List<AlumnoCursoCurricula> allHabilesByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno al", "curso cu")
-                .leftJoin("tipoCursoCurricula tcc", "cicloAprobado ci", "cu.departamentoAcademico")
-                .leftJoin("cursoCurricula cc", "cursoOpcional cco")
+                .leftJoin("cicloAprobado ci", "cursoCurricula cc")
                 .filter("al.id", alumno)
-                .exists(subquery)
-                .linkedBy("cu.id", "cur.id")
-                .in("acc.estado", Arrays.asList(HAB, SIM, SUL, LIMB))
-                .filter("estadoRegistro", ACT)
+                .in("estado", Arrays.asList(HAB, SIM))
+                .beginBlock()
+                .__().filter("estadoRegistro", "!=", INA)
+                .__().isNull("estadoRegistro")
+                .endBlock()
                 .orderBy("cu.nombre");
 
         return all(sql);
     }
+
 }

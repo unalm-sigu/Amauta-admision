@@ -52,4 +52,6 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
     public AlumnoCursoCurricula findPracticaPreProfesional(Alumno alumno);
 
     public AlumnoCursoCurricula findById(Long id);
+
+    public List<AlumnoCursoCurricula> allHabilesByAlumno(Alumno alumno);
 }
