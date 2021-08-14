@@ -473,7 +473,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
         }
 
-        if (matriculaResumen.getCreditosTrikaPagados() == 0 && matriculaResumen.getCicloAcademico() == cicloAcademico) {
+        if (matriculaResumen.getCreditosTrikaPagados() == 0 
+                && matriculaResumen.getCicloAcademico().equals(cicloAcademico)) {
             throw new PhobosException("Debe generar un aporte trika.");
         }
 
