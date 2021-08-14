@@ -11,7 +11,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
@@ -448,6 +447,16 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.MAT.name(), EstadoMatriculaEnum.RCI.name()))
                 .filter("ca.codigo", ciclo.getCodigo())
                 .filter("alu.id", alumno);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<MatriculaCurso> allMatriculadoByCicloMatricula(MatriculaResumen matriculaResumen, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name()))
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("mr.id", matriculaResumen);
         return sql.all(getCurrentSession());
     }
 

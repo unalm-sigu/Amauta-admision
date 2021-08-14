@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
@@ -305,5 +306,30 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("cu.nombre");
 
         return find(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> allHabilesMatByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+
+        Octavia subquery = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .left("anexoBoletin ab", "ab.anexoSuperior asu")
+                .in("asu.codigo", alumno.getCodigoAnexoBoletin())
+                .filter("ca.codigo", cicloAcademico.getCodigo());
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno al", "curso cu")
+                .leftJoin("tipoCursoCurricula tcc", "cicloAprobado ci", "cu.departamentoAcademico")
+                .leftJoin("cursoCurricula cc", "cursoOpcional cco")
+                .filter("al.id", alumno)
+                .exists(subquery)
+                .linkedBy("cu.id", "cur.id")
+                .in("acc.estado", Arrays.asList(HAB, SIM, SUL, LIMB))
+                .filter("estadoRegistro", ACT)
+                .orderBy("cu.nombre");
+
+        return all(sql);
     }
 }

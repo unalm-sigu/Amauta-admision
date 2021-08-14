@@ -47,6 +47,8 @@ import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -427,6 +429,52 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 throw new PhobosException("El curso no cumple requisito en su curricula.");
 
             }
+
+            this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(),cicloAcademico);
+
+        }
+
+    }
+
+    private void validarTrika(MatriculaResumen matriculaResumen, Curso curso,CicloAcademico cicloAcademico) {
+
+        List<MatriculaCurso> matriculasCursos = matriculaCursoDAO.allMatriculadoByCicloMatricula(matriculaResumen,cicloAcademico);
+
+        List<AlumnoCursoCurricula> alumnoCursosCurricula = alumnoCursoCurriculaDAO.allHabilesByAlumno(matriculaResumen.getAlumno());
+
+        List<AlumnoCursoCurricula> alumnoCursosCurriculaTrikeados = alumnoCursosCurricula.stream()
+                .filter(x -> x.getVecesCursado() >= AcademicoConstantine.VECES_TRIKA)
+                .collect(Collectors.toList());
+
+        List<AlumnoCursoCurricula> alumnoCursosCurriculaNoTrikeados = alumnoCursosCurricula.stream()
+                .filter(x -> x.getVecesCursado() < AcademicoConstantine.VECES_TRIKA)
+                .collect(Collectors.toList());
+
+        if (alumnoCursosCurriculaTrikeados.isEmpty()) {
+            return;
+        }
+
+        if (matriculaResumen.getCicloAcademico().isTipoRegular() && !matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
+            AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaTrikeados.stream()
+                    .filter(x -> x.getCurso().getId().equals(curso.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (alumnoCursoCurricula == null || !matriculasCursos.isEmpty()) {
+                throw new PhobosException("Solo puede matricularse a un curso trikeado.");
+            }
+
+        } else if (matriculaResumen.getCicloAcademico().isTipoNivelacion()) {
+            AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaNoTrikeados.stream()
+                    .filter(x -> x.getCurso().getId().equals(curso.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (alumnoCursoCurricula == null) {
+                throw new PhobosException("Solo puede matricularse en cursos no trikeados.");
+            }
+        }
+
+        if (matriculaResumen.getCreditosTrikaPagados() == 0 && matriculaResumen.getCicloAcademico() == cicloAcademico) {
+            throw new PhobosException("Debe generar un aporte trika.");
         }
 
     }
