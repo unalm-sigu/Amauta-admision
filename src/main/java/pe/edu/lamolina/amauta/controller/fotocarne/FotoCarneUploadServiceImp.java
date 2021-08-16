@@ -53,7 +53,6 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Async
     public void procesarFotos(DataSessionPivot ds, String rutaFotos) {
 
         logger.debug("inicia carga de  foto {}", rutaFotos);

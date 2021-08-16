@@ -185,7 +185,15 @@ public class FotoCarneController {
 
             for (Carrera carrera : carreras) {
                 if (carrera.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                    carrera.setNombre((carrera.getTipoEnum().equals(TipoCarreraEnum.MAE) ? "Maestria en " : "Doctorado en ") + carrera.getNombre());
+                    if("99".equalsIgnoreCase(carrera.getCodigo())){
+                        continue;
+                    }
+                    if (carrera.getTipoEnum().equals(TipoCarreraEnum.DOC)) {
+                        carrera.setNombre("Doctorado en " + carrera.getNombre());
+                    }
+                    if (carrera.getTipoEnum().equals(TipoCarreraEnum.MAE)) {
+                        carrera.setNombre("Maestria en " + carrera.getNombre());
+                    }
                 }
             }
 

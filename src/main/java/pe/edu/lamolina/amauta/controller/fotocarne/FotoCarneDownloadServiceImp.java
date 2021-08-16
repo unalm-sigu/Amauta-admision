@@ -38,7 +38,6 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Async
     public void compilarInformacion(DataSessionPivot ds, String carrera) {
         logger.debug("inicia descarga foto {}", carrera);
         if (fotosCarneComponent == null) {
@@ -57,12 +56,12 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
 
         logger.debug("total de matriculas resumen {}", matriculaResumens.size());
 
+        fotosCarneComponent.iniciarProceso(matriculaResumens);
+
         if (matriculaResumens.isEmpty()) {
             fotosCarneComponent.finalizarProceso();
             return;
         }
-
-        fotosCarneComponent.iniciarProceso(matriculaResumens);
 
         String folder = GlobalConstantine.TMP_DIR + "path_demonium_foto_carnet/";
 
@@ -91,7 +90,14 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
 
             String codigo = this.getTipoDocumentoSUNEDU(matriculaResumen.getAlumno().getPersona().getTipoDocumento());
-            String name = codigo + matriculaResumen.getAlumno().getCodigo() + ".jpg";
+            if (StringUtils.isBlank(matriculaResumen.getAlumno().getPersona().getNumeroDocIdentidad())) {
+
+                fotosCarneComponent.getErrores()
+                        .add(new MsjError("Alumno sin numero de documento "+matriculaResumen.getAlumno().getCodigo()));
+                continue;
+            }
+
+            String name = codigo + matriculaResumen.getAlumno().getPersona().getNumeroDocIdentidad() + ".jpg";
 
             File file = new File(folder + name);
             if (StringUtils.isBlank(matriculaResumen.getAlumno().getPersona().getFoto())) {

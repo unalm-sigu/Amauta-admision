@@ -52,24 +52,11 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <button class="btn btn-default"
+                            <button class="btn btn-success"
                                     v-on:click.prevent="compilarFoto"
                                     v-bind:disabled='procesando' >
                                 <span v-if="procesando"><i class="fa fa-spinner fa-spin"></i></span>
-                                Compilar Información
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <div v-if="info.pathFile" class="form-group">
-                            <button class="btn btn-success"
-                                    v-on:click.prevent="descargarFoto"
-                                    v-bind:disabled='procesando' >
-                                <span v-if="procesando"><i class="fa fa-spinner fa-spin"></i></span>
-                                Descargar Archivo
+                                  Descargar Archivo
                             </button>
                         </div>
                     </div>
@@ -142,6 +129,7 @@
                 $vue.procesando = true;
                 axios.get(APP.url('fotos/carne/compilarInformacion/' + $vue.carrera.codigo))
                         .then(() => {
+                            $vue.descargarFoto();
                         }, () => {
                             notify(response.message, "error");
                         });
