@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
+import static pe.edu.lamolina.model.enums.TipoDocumentoAcademicoEnum.SEGUIMIENTO_EGRESADO;
 
 @Repository
 public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocumentoAcademico> implements TramiteDocumentoAcademicoDAO {
@@ -35,6 +36,7 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("ofiemi.codigo", OERA)
+                .filter("tda.codigo", "<>", SEGUIMIENTO_EGRESADO)
                 .orderBy("pda.id desc");
         return sql.all(getCurrentSession());
     }
