@@ -177,10 +177,11 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         for (Alumno alumno : alumnos) {
 
             MatriculaResumen matriculaResumen = matriculasMap.get(alumno.getId());
-            alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
-
+            alumno.setMotivoMatriculable("");
             alumno.setSituacion("0");
+            
             if (matriculaResumen == null) {
+                alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
                 continue;
             }
 
@@ -190,7 +191,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
 
             MatriculaCurso matriculaCurso = matriculaCursosMap.get(matriculaResumen.getId());
-
             if (matriculaCurso != null && matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
                 alumno.setMotivoMatriculable("Ya se encuentra matriculado en otro grupo");
                 continue;
@@ -203,7 +203,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnosCursoCurriculaMap.get(alumno.getId());
-
             if (alumnoCursoCurricula == null) {
                 alumno.setMotivoMatriculable("Curso no disponible en su curricula en este momento.");
                 continue;
@@ -430,15 +429,15 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             }
 
-            this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(),cicloAcademico);
+            this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(), cicloAcademico);
 
         }
 
     }
 
-    private void validarTrika(MatriculaResumen matriculaResumen, Curso curso,CicloAcademico cicloAcademico) {
+    private void validarTrika(MatriculaResumen matriculaResumen, Curso curso, CicloAcademico cicloAcademico) {
 
-        List<MatriculaCurso> matriculasCursos = matriculaCursoDAO.allMatriculadoByCicloMatricula(matriculaResumen,cicloAcademico);
+        List<MatriculaCurso> matriculasCursos = matriculaCursoDAO.allMatriculadoByCicloMatricula(matriculaResumen, cicloAcademico);
 
         List<AlumnoCursoCurricula> alumnoCursosCurricula = alumnoCursoCurriculaDAO.allHabilesByAlumno(matriculaResumen.getAlumno());
 
@@ -473,7 +472,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
         }
 
-        if (matriculaResumen.getCreditosTrikaPagados() == 0 
+        if (matriculaResumen.getCreditosTrikaPagados() == 0
                 && matriculaResumen.getCicloAcademico().equals(cicloAcademico)) {
             throw new PhobosException("Debe generar un aporte trika.");
         }
