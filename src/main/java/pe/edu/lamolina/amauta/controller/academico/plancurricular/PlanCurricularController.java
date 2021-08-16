@@ -3,13 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.plancurricular;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,9 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -77,7 +69,6 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
-import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -155,6 +146,7 @@ public class PlanCurricularController {
         String codeRequest = verificadorService.generateCodeRequest();
 
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Carrera> carreras = new ArrayList();
             List<PlanCurricular> curriculas = new ArrayList();
@@ -1878,46 +1870,4 @@ public class PlanCurricularController {
         return response;
     }
 
-    @RequestMapping("download/{idPlan}")
-    public void reporteTodos(@PathVariable Long idPlan, Model model, HttpSession session, HttpServletResponse response) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        try {
-//            String fileName = service.download(new PlanCurricular(idPlan));
-//            pdfResponse(fileName, String.format("PlanCurricular %s.pdf", ds.getCicloAcademico().getDescripcion()), response);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
-    }
-
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-            DateTime hoy = new DateTime();
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
-    }
 }

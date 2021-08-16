@@ -404,6 +404,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
         planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
         planBD.setFechaAprobado(planForm.getFechaAprobado());
+        planBD.setResolucionFacultad(planForm.getResolucionFacultad());
+        planBD.setResolucionConsejoUniversitario(planForm.getResolucionConsejoUniversitario());
         planCurricularDAO.updatePlanCurricular(planBD);
     }
 
@@ -1186,9 +1188,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
     
     @Override
-    @Transactional(readOnly = true)
     public List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular) {
-        //PlanCurricular planBD = planCurricularDAO.find(idPlanCurricular);
         return planCurricularDAO.reportePlanCurricular(idPlanCurricular);        
     }
 

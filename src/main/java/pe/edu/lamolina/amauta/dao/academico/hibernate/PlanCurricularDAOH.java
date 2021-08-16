@@ -197,10 +197,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("        join aca_tipo_curso_curricula tcc on cc2.id_tipo_curso_curricula = tcc.id                                                ")
                 .append("        where rcc.estado = 'ACT'                                                                                                 ")
                 .append("     ) rcc1 on cc.id = rcc1.id_cc                                                                                                ")                
-                //.append("where car.codigo = '").append(planCurricular.getCarrera().getCodigo()).append("' ")
                 .append("where pc.id = ").append(idPlanCurricular).append(" ")
-                //.append("and cap.codigo_anterior = '").append(planCurricular.getCicloInicioVigencia().getCodigoAnterior()).append("' ")
-                //.append("and cap.id_modalidad_estudio = 1 ")
                 .append("group by cc.id ")
                 .append("order by cc.numero_ciclo,cu.nombre");
         

@@ -178,6 +178,20 @@
                 <div class="form-control text-primary" th:text="${planCurricular.ciclos}"></div>
             </div>
         </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label >Resolución Facultad</label>
+                <input name="resolucionFacultad" type="text" th:value="${planCurricular.resolucionFacultad}"  class="form-control"/>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group" >
+                <label >Resolución Consejo Universitario</label>
+                <input name="resolucionConsejoUniversitario" th:value="${planCurricular.resolucionConsejoUniversitario}" type="text" class="form-control"/>
+            </div>
+        </div>
     </div>
 
     <div class="row" th:if="${planCurricular.id}">
