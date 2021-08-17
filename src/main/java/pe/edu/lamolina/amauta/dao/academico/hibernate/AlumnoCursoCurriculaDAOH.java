@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Repository
 public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricula> implements AlumnoCursoCurriculaDAO {
@@ -320,6 +321,23 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .__().filter("estadoRegistro", "!=", INA)
                 .__().isNull("estadoRegistro")
                 .endBlock()
+                .orderBy("cu.nombre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> vecesQueLlevoCurso(Alumno alumno, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno al", "curso cu")
+                .leftJoin("tipoCursoCurricula")
+                .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
+                .join("cc.planCurricular")
+                .filter("acc.estadoMatricula", MAT)
+                .filter("al.id", alumno)
+                .filter("cu.id", curso)
+                .filter("acc.estadoRegistro", ACT)
                 .orderBy("cu.nombre");
 
         return all(sql);

@@ -179,7 +179,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             MatriculaResumen matriculaResumen = matriculasMap.get(alumno.getId());
             alumno.setMotivoMatriculable("");
             alumno.setSituacion("0");
-            
+
             if (matriculaResumen == null) {
                 alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
                 continue;
@@ -452,6 +452,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         if (alumnoCursosCurriculaTrikeados.isEmpty()) {
             return;
         }
+
+        List<AlumnoCursoCurricula> vecesQueLlevoCurso = alumnoCursoCurriculaDAO.vecesQueLlevoCurso(matriculaResumen.getAlumno(), curso);
 
         if (matriculaResumen.getCicloAcademico().isTipoRegular() && !matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaTrikeados.stream()
