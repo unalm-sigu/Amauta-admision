@@ -326,21 +326,4 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         return all(sql);
     }
 
-    @Override
-    public List<AlumnoCursoCurricula> vecesQueLlevoCurso(Alumno alumno, Curso curso) {
-        Octavia sql = Octavia.query()
-                .from(AlumnoCursoCurricula.class, "acc")
-                .join("alumno al", "curso cu")
-                .leftJoin("tipoCursoCurricula")
-                .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
-                .join("cc.planCurricular")
-                .filter("acc.estadoMatricula", MAT)
-                .filter("al.id", alumno)
-                .filter("cu.id", curso)
-                .filter("acc.estadoRegistro", ACT)
-                .orderBy("cu.nombre");
-
-        return all(sql);
-    }
-
 }

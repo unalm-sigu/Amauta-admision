@@ -55,5 +55,4 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
     public List<AlumnoCursoCurricula> allHabilesByAlumno(Alumno alumno);
 
-    public List<AlumnoCursoCurricula> vecesQueLlevoCurso(Alumno alumno, Curso curso);
 }

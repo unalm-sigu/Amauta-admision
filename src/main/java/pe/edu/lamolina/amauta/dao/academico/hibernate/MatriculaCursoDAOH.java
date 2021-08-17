@@ -460,4 +460,15 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<MatriculaCurso> vecesQueLlevoCurso(Alumno alumno, Curso curso) {
+        Octavia sql = Octavia.query(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name()))
+                .filter("cu.id", curso)
+                .filter("alu.id", alumno)
+                .orderBy("ca.codigo desc");
+        return sql.all(getCurrentSession());
+    }
+
 }

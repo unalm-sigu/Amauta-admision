@@ -425,17 +425,17 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     CursoCurriculaEstadoEnum.SIM,
                     CursoCurriculaEstadoEnum.SUL).contains(alumnoCursoCurricula.getEstadoEnum())) {
 
-                throw new PhobosException("El curso no cumple requisito en su curricula.");
+                throw new PhobosException(String.format("alumno %S el curso no cumple requisito en su curricula", alumno.getPersona().getApellidosNombres()));
 
             }
 
-            this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(), cicloAcademico);
+            this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(), cicloAcademico, alumno);
 
         }
 
     }
 
-    private void validarTrika(MatriculaResumen matriculaResumen, Curso curso, CicloAcademico cicloAcademico) {
+    private void validarTrika(MatriculaResumen matriculaResumen, Curso curso, CicloAcademico cicloAcademico, Alumno alumno) {
 
         List<MatriculaCurso> matriculasCursos = matriculaCursoDAO.allMatriculadoByCicloMatricula(matriculaResumen, cicloAcademico);
 
@@ -453,7 +453,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             return;
         }
 
-        List<AlumnoCursoCurricula> vecesQueLlevoCurso = alumnoCursoCurriculaDAO.vecesQueLlevoCurso(matriculaResumen.getAlumno(), curso);
+        List<MatriculaCurso> vecesQueLlevoCurso = matriculaCursoDAO.vecesQueLlevoCurso(matriculaResumen.getAlumno(), curso);
 
         if (matriculaResumen.getCicloAcademico().isTipoRegular() && !matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaTrikeados.stream()
@@ -461,7 +461,46 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     .findFirst()
                     .orElse(null);
             if (alumnoCursoCurricula == null || !matriculasCursos.isEmpty()) {
-                throw new PhobosException("Solo puede matricularse a un curso trikeado.");
+
+                throw new PhobosException(String.format("alumno %s solo puede matricularse a un curso trikeado", alumno.getPersona().getApellidosNombres()));
+            }
+
+            if (!vecesQueLlevoCurso.isEmpty()) {
+
+                logger.debug("alumno trikero {}", curso.getId());
+
+                MatriculaCurso matriculaCursoTrika = vecesQueLlevoCurso.get(0);
+
+                CicloAcademico cicloTrika = matriculaCursoTrika.getMatriculaResumen().getCicloAcademico();
+
+                logger.debug("ciclo {}", cicloTrika.getNumeroCiclo());
+
+                if (cicloTrika.getId().longValue() != cicloAcademico.getId()) {
+
+                    String codigoCicloMatriculable = "100000";
+
+                    switch (cicloTrika.getNumeroCiclo()) {
+                        case "0":
+                            codigoCicloMatriculable = cicloTrika.getYear() + "20";
+                            break;
+                        case "1":
+                            codigoCicloMatriculable = (cicloTrika.getYear() + 1) + "10";
+                            break;
+                        case "1.5":
+                            codigoCicloMatriculable = (cicloTrika.getYear() + 1) + "10";
+                            break;
+                        case "2":
+                            codigoCicloMatriculable = (cicloTrika.getYear() + 1) + "20";
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                    if(TypesUtil.getInt(codigoCicloMatriculable)<=cicloAcademico.getCodigoInt()){
+                        throw new PhobosException(String.format("alumno %s no es matriculable en este ciclo", alumno.getPersona().getApellidosNombres()));
+                    };
+
+                }
             }
 
         } else if (matriculaResumen.getCicloAcademico().isTipoNivelacion()) {
@@ -470,13 +509,13 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     .findFirst()
                     .orElse(null);
             if (alumnoCursoCurricula == null) {
-                throw new PhobosException("Solo puede matricularse en cursos no trikeados.");
+                throw new PhobosException(String.format("alumno %s solo puede matricularse en cursos no trikeados", alumno.getPersona().getApellidosNombres()));
             }
         }
 
         if (matriculaResumen.getCreditosTrikaPagados() == 0
                 && matriculaResumen.getCicloAcademico().equals(cicloAcademico)) {
-            throw new PhobosException("Debe generar un aporte trika.");
+            throw new PhobosException(String.format("alumno %s debe generar un aporte trika", alumno.getPersona().getApellidosNombres()));
         }
 
     }
