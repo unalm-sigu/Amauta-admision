@@ -1261,13 +1261,13 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         sb.append("                                       join aca_alumno alu2 on mr.id_alumno = alu2.id   ");
         sb.append("                                       join aca_modalidad_estudio me on alu2.id_modalidad_estudio = me.id   ");
         sb.append("                                       where ca.codigo = '202110' and mr.estado = 'MAT' and alu2.id_modalidad_estudio = 1   ");
-        sb.append("                                       and not exists (//quienes no tienen aporte de carnet   ");
+        sb.append("                                       and not exists (   ");
         sb.append("                                                       select distinct fr.matricula ");
         sb.append("                                                       from v_alumno_aporte fr   ");
         sb.append("                                                       where fr.codigo_aporte in ('05','54') and    ");
         sb.append("                                                       fr.ciclo = '2021-I' and fr.modalidad = 'PRE'    ");
         sb.append("                                                       and fr.matricula in (   ");
-        sb.append("                                                                       select alu.codigo//,me.nombre//,count(mr.id)  5595 matriculados   ");
+        sb.append("                                                                       select alu.codigo  ");
         sb.append("                                                                       from aca_matricula_resumen mr   ");
         sb.append("                                                                       join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id   ");
         sb.append("                                                                       join aca_alumno alu on mr.id_alumno = alu.id   ");
