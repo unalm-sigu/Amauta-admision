@@ -147,4 +147,8 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     AlumnoCiclo findLastActiveEstudiadoByAlumno(Alumno alumno);
 
+    public AlumnoCiclo findRegularActivoByAlumnoCicloTope(Alumno alumno, CicloAcademico cicloAcademico);
+
+    public AlumnoCiclo findUltimoActivoByAlumnoCicloTope(Alumno alumno, CicloAcademico cicloAcademico);
+
 }

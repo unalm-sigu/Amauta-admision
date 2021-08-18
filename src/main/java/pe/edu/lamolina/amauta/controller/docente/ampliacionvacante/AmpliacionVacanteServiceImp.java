@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -45,10 +47,14 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.TopeMatriculaDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.TopeMatricula;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
+import static pe.edu.lamolina.model.enums.TipoCreditoEnum.FIJO;
 
 @Service
 @Transactional(readOnly = true)
@@ -91,6 +97,12 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    TopeMatriculaDAO topeMatriculaDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -247,7 +259,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
 
-        this.lazyValidatorAlumno(alumnos, ds.getCicloAcademico(), seccion);
+        this.lazyValidatorAlumno(alumnos, ds.getCicloAcademico(), seccion, curso);
 
         JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, alumnos, ds);
         if (!responseRest.getSuccess()) {
@@ -374,7 +386,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     }
 
-    private void lazyValidatorAlumno(List<Alumno> alumnos, CicloAcademico cicloAcademico, Seccion seccion) {
+    private void lazyValidatorAlumno(List<Alumno> alumnos, CicloAcademico cicloAcademico, Seccion seccion, Curso curso) {
 
         List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumenXalumno = TypesUtil.convertListToMap("alumno.id", matriculasResumenes);
@@ -427,6 +439,18 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
                 throw new PhobosException(String.format("alumno %S el curso no cumple requisito en su curricula", alumno.getPersona().getApellidosNombres()));
 
+            }
+
+            Integer creditosAmatricular = curso.getTipoCreditoEnum() == FIJO
+                    ? curso.getCreditos()
+                    : seccion.getGrupoSeccion().getCurso().getCreditos();
+
+            if (cicloAcademico.isTipoRegular()) {
+                this.validarTopeCreditosMatricular(alumno, matriculaResumen, creditosAmatricular);
+            }
+
+            if (cicloAcademico.isTipoNivelacion()) {
+                this.validarTopeCreditosVerano(matriculaResumen, creditosAmatricular);
             }
 
             this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(), cicloAcademico, alumno);
@@ -495,8 +519,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                         default:
                             break;
                     }
-                    
-                    if(TypesUtil.getInt(codigoCicloMatriculable)<=cicloAcademico.getCodigoInt()){
+
+                    if (TypesUtil.getInt(codigoCicloMatriculable) <= cicloAcademico.getCodigoInt()) {
                         throw new PhobosException(String.format("alumno %s no es matriculable en este ciclo", alumno.getPersona().getApellidosNombres()));
                     };
 
@@ -519,4 +543,84 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }
 
     }
+
+    private void validarTopeCreditosVerano(MatriculaResumen matriculaResumen, Integer creditosAmat) {
+        Integer creditosTomados = matriculaResumen.getCreditosMatriculados();
+
+        Integer total = creditosTomados + creditosAmat;
+        logger.debug("Créditos matriculado {}", creditosTomados);
+        logger.debug("Créditos a matricular {}", creditosAmat);
+
+        Assert.isFalse(total > 8, "No puede matricularse en más de 8 créditos. ");
+    }
+
+    private void validarTopeCreditosMatricular(Alumno alumno, MatriculaResumen matriculaResumen, Integer creditosAmat) {
+
+        Integer creditosTomados = 0;
+        creditosTomados = matriculaResumen.getCreditosMatriculados();
+
+        creditosTomados = creditosTomados + creditosAmat;
+        logger.info("Créditos matriculados {}", matriculaResumen.getCreditosMatriculados());
+        logger.info("Créditos pre-matriculados {}", matriculaResumen.getCreditosPrematriculados());
+        logger.info("Créditos a matricular {}", creditosAmat);
+        logger.info("Créditos totales {}", creditosTomados);
+
+        TopeMatricula topeMatricula = this.findTopeAlumno(matriculaResumen);
+        logger.info("Tope creditos {}", topeMatricula.getCreditos());
+
+        Assert.isNotNull(topeMatricula, "No se han generado topes de matrícula. Comunícate con mesa de ayuda.");
+
+        if (creditosTomados > topeMatricula.getCreditos()) {
+            if (alumno.isPregrado() || alumno.isVisitante()) {
+                throw new PhobosException("Superó el tope de créditos matriculables.");
+            } else {
+                throw new PhobosException("Solo puede matricularse en " + topeMatricula.getCreditos() + " crédito(s).");
+            }
+        }
+    }
+
+    private TopeMatricula findTopeAlumno(MatriculaResumen matriculaResumen) {
+        Alumno alumno = matriculaResumen.getAlumno();
+        CicloAcademico cicloAcademico = matriculaResumen.getCicloAcademico();
+
+        if (alumno.isPregrado()) {
+            if (alumno.getCicloActivoRegular() != null) {
+                AlumnoCiclo alumnoCicloRegular = alumnoCicloDAO.findRegularActivoByAlumnoCicloTope(alumno, cicloAcademico);
+                AlumnoCiclo alumnoCicloUltimo = alumnoCicloDAO.findUltimoActivoByAlumnoCicloTope(alumno, cicloAcademico);
+                alumno.setAlumnoCicloActivoRegular(alumnoCicloRegular);
+                alumno.setAlumnoCicloActivo(alumnoCicloUltimo);
+            }
+            return getTopePregrado(alumno, matriculaResumen, cicloAcademico);
+        }
+
+        if (alumno.isVisitante()) {
+            TopeMatricula tope = new TopeMatricula();
+            tope.setCreditos(28);
+            return tope;
+        }
+
+        throw new PhobosException("Tipo de modalidad de alumno no considerado en el proceso de matrícula");
+    }
+
+    private TopeMatricula getTopePregrado(Alumno alumno, MatriculaResumen matriculaResumen, CicloAcademico cicloAcademico) {
+        TipoAlumnoEnum tipoAlumnoEnum = null;
+        if (alumno.getIsTipoAltoRendimiento()) {
+            tipoAlumnoEnum = TipoAlumnoEnum.AREND;
+        } else if (alumno.getIsTipoBajoRendimiento()) {
+            tipoAlumnoEnum = TipoAlumnoEnum.BREND;
+        } else if (matriculaResumen.getEsUltimoCiclo()) {
+            tipoAlumnoEnum = TipoAlumnoEnum.ULTCIC;
+        } else if (alumno.getIsTipoRegular()) {
+            tipoAlumnoEnum = TipoAlumnoEnum.REG;
+        }
+
+        if (matriculaResumen.getEsBeneficiadoUltimoCiclo() && alumno.getCreditosAprobadosConvalidados() > 180) {
+            tipoAlumnoEnum = TipoAlumnoEnum.ULTCIC;
+        }
+
+        Assert.isNotNull(tipoAlumnoEnum, "No se le ha considerado en ningún tipo de alumno. Consultar a mesa de ayuda");
+        logger.debug("tipoAlumnoEnum  {}", tipoAlumnoEnum.name());
+        return topeMatriculaDAO.findByTipoAlumnoAndCiclo(tipoAlumnoEnum, cicloAcademico);
+    }
+
 }

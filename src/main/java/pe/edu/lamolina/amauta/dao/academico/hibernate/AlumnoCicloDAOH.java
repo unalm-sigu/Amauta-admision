@@ -1097,8 +1097,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         return (Long) sql.find(getCurrentSession());
 
     }
-    
-    
+
     @Override
     public AlumnoCiclo findLastActiveEstudiadoByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -1110,6 +1109,35 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .orderBy("ca.codigo desc")
                 .limit(1);
 
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findRegularActivoByAlumnoCicloTope(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .filter("ac.estado", EstadoMatriculaEnum.MAT)
+                .filter("alu.id", alumno)
+                .filter("ca.tipo", TipoCicloEnum.REG)
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .orderBy("ca.codigo desc")
+                .limit(1);
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findUltimoActivoByAlumnoCicloTope(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .filter("ac.estado", EstadoMatriculaEnum.MAT)
+                .filter("alu.id", alumno)
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .orderBy("ca.codigo desc")
+                .limit(1);
         return find(sql);
     }
 

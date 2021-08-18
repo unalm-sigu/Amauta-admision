@@ -5,9 +5,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.TopeMatricula;
+import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
 
 public interface TopeMatriculaDAO extends EasyDAO<TopeMatricula> {
 
     List<TopeMatricula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    public TopeMatricula findByTipoAlumnoAndCiclo(TipoAlumnoEnum tipoAlumnoEnum, CicloAcademico cicloAcademico);
 
 }
