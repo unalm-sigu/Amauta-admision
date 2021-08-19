@@ -279,10 +279,11 @@ public class PlantillaConstanciaController {
     @RequestMapping("delete")
     public JsonResponse delete(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteVariables(plantillaDocumentoAcademico, ds.getUsuario());
-//            service.deletePlantilla(plantillaDocumentoAcademico, ds.getUsuario());
 
             response.setMessage("Se eliminó");
             response.setSuccess(Boolean.TRUE);

@@ -130,13 +130,16 @@ public class ReadmisionServiceImp implements ReadmisionService {
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.READMISION.name());
 
         Alumno alumnoDB = alumnoDAO.find(readmision.getAlumno());
+        if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
+            throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
 
         Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
 
-        Readmision readmisionDb = readmisionDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, readmision.getCicloReadmitido(),estadoTramite);
+        Readmision readmisionDb = readmisionDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, readmision.getCicloReadmitido(), estadoTramite);
 
         if (readmisionDb != null) {
-            throw new PhobosException("EL alumno ya tiene tramite pendiente");
+            throw new PhobosException(String.format("EL alumno ya tiene tramite en proceso en el ciclo %s", readmisionDb.getTramite().getCicloAcademico().getDescripcion2()));
         }
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
@@ -217,17 +220,16 @@ public class ReadmisionServiceImp implements ReadmisionService {
         Tramite tramite = readmision.getTramite();
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        
+
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
 
         TipoCursoCurricula tipoCursoCurriculaPropedeutico = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         TipoCursoCurricula tipoCursoCurriculaGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
 
-        
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
-        
+
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
-        
+
         Map<Long, TipoCursoCurricula> mapTipoAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {

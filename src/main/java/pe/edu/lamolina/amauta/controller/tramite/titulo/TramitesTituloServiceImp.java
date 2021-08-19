@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -107,8 +108,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     @Override
     public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        List<TramiteTitulo> titulos = tramiteTituloDAO.allByDynatable(filter, ds.getCicloAcademico());
-        return titulos;
+        return tramiteTituloDAO.allByDynatable(filter, ds.getCicloAcademico());
     }
 
     @Override
@@ -182,21 +182,28 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     @Override
     @Transactional
     public void saveTitulo(TramiteTitulo tramiteTituloForm, DataSessionPivot ds) {
+
         LocalDate today = new LocalDate();
 
-        logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
-        Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
+        if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
+            throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
+        
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-        logger.debug("PAse 2");
+
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TIT.name());
+        
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
-        logger.debug("PAse 3");
-        Assert.isNull(tramite, "Ya cuenta con un tramite titulo en proceso.");
+
+        if (tramite!=null) {
+            throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramite.getCicloAcademico().getDescripcion2()));
+        }
+        
         tramite = new Tramite();
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setCompania(ds.getCompania());

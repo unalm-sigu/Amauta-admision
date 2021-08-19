@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -145,7 +146,10 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         Alumno alumnoDB = alumnoDAO.find(tramiteTrasForm.getAlumno());
 
         TramiteTraslado tramiteTras = tramiteTrasladoDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
-        Assert.isTrue(tramiteTras == null, "EL alumno ya tiene tramite pendiente");
+
+        if (tramiteTras != null) {
+            throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramiteTras.getCicloAcademico().getDescripcion2()));
+        }
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Tramite tramite = new Tramite();

@@ -140,12 +140,16 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
 
         Alumno alumnoDB = alumnoDAO.find(cambioPlanCurricular.getAlumno());
 
+        if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
+            throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
+
         Boolean esCondicional = alumnoDB.getEsMatriculaCondicional();
 
-        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, ds.getCicloAcademico(),estadoTramite);
+        CambioPlanCurricular cambioPlanEstudiosDb = cambioPlanCurricularDAO.findByEstadoTramiteAlumnoCiclo(alumnoDB, ds.getCicloAcademico(), estadoTramite);
 
         if (cambioPlanEstudiosDb != null) {
-            throw new PhobosException("EL alumno ya tiene tramite pendiente");
+            throw new PhobosException(String.format("EL alumno ya tiene tramite en proceso en el ciclo %s", cambioPlanEstudiosDb.getTramite().getCicloAcademico().getDescripcion2()));
         }
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
@@ -309,17 +313,17 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
     public ObjectNode searchPlanCurricular(Long idAlumno, DataSessionPivot ds) {
 
         Alumno alumno = alumnoDAO.findAllInfo(idAlumno);
-        
+
         List<PlanCurricular> planCurriculares = planCurricularDAO.allCambioActivoByCarrera(alumno.getCarrera());
         for (PlanCurricular planCurriculare : planCurriculares) {
-            logger.debug(" planCurriculare {}",planCurriculare.getCicloInicioVigencia().getCodigo());
+            logger.debug(" planCurriculare {}", planCurriculare.getCicloInicioVigencia().getCodigo());
         }
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-        
+
         node.set("planCurricularOrigen", JaneHelper.from(alumno.getPlanCurricular())
                 .join("cicloInicioVigencia").json());
-        
+
         node.set("destinos", JaneHelper.from(planCurriculares)
                 .join("cicloInicioVigencia").array());
 

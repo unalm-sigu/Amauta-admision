@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.bachiller;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -38,9 +38,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -137,7 +135,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        return  tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
+        return tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
     }
 
     @Override
@@ -257,19 +255,23 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     public void saveBachiller(TramiteBachiller tramiteBachillerForm, DataSessionPivot ds) {
         LocalDate today = new LocalDate();
 
-        logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteBachillerForm.getAlumno());
-        Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
+        if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
+            throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-        logger.debug("PAse 2");
+
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.BACHI.name());
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
-        logger.debug("PAse 3");
-        Assert.isNull(tramite, "Ya cuenta con un tramite bachiller en proceso.");
+
+        if (tramite != null) {
+            throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramite.getCicloAcademico().getDescripcion2()));
+        }
+
         tramite = new Tramite();
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setCompania(ds.getCompania());

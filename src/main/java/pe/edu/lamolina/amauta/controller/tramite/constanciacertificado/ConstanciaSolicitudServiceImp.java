@@ -103,7 +103,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
-import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.verificadorSolicitud.VerificadorSolicitudService;
 import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
@@ -280,9 +279,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     ResolucionDAO resolucionDAO;
-
-    @Autowired
-    VerificadorSolicitudService verificadorSolicitudService;
 
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
@@ -485,8 +481,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-
-        verificadorSolicitudService.verificarDocumentoAlumno(tramiteDocumentoAcademico, alumno);
 
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -886,7 +880,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Assert.isNull(pid, "Ya se agregó la incrustación " + plantillaGeneralBean.getPlantillaDocumentoAcademico().getNombre() + " para este Tramite");
 
         TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
-        verificadorSolicitudService.verificarDocumentoAlumno(plantillaGeneralBean.getPlantillaDocumentoAcademico(), academico, academico.getTramite().getAlumno());
 
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
 

@@ -116,16 +116,6 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
     @Transactional
     public void save(TramiteCorreccionHistorial correccionHistorialForm, DataSessionPivot ds) {
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CORR_HISTO.name());
-//        String ruta = guardarArchivo(file);
-//        Archivo archivo = new Archivo();
-//        archivo.setFechaRegistro(new Date());
-//        archivo.setNombre(file.getName());
-//        archivo.setInstancia("TRAMTRAMITECORRECCIONHISTORIAL");
-//        archivo.setUsuarioRegistro(ds.getUsuario());
-//        archivo.setRuta(ruta);
-//        archivo.setTipo(file.getContentType());
-//        archivoDAO.save(archivo);
-
         DateTime today = new DateTime();
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.valueOf(correccionHistorialForm.getTipoDocumento()));
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
@@ -149,7 +139,6 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
         List<AccionTramiteAcademico> accionTramiteAcademico = accionTramiteAcademicoDAO.allByTipoTramite(tipoTramite);
         AccionTramiteAcademico tramiteAcademico = accionTramiteAcademico.stream().filter(x -> x.getOrdenOpcion() == 1).findAny().orElse(null);
         TramiteCorreccionHistorial correccionHistorial = new TramiteCorreccionHistorial();
-//        correccionHistorial.setArchivo(archivo);
         correccionHistorial.setEstadoTramite(tramiteAcademico.getEstadoTramiteInicio());
         correccionHistorial.setTramite(tramite);
         correccionHistorial.setAlumno(alumno);
