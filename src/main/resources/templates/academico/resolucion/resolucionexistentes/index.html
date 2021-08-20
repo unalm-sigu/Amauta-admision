@@ -1,0 +1,62 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Calificacion de Postulantes</title>
+    </head>
+
+    <body>
+        <section  layout:fragment="main">
+            <header class="header b-b padder-lg">
+
+                <h2> Resolución Existente <span th:text="${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''}"></span></h2>
+
+                <div class="pull-right m-t-md">
+                    <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
+                </div>
+
+            </header>
+
+            <div id="main" v-cloak="">
+
+                <section class="wrapper-lg">
+
+                    <resolucion-form></resolucion-form>
+
+                </section>
+
+            </div>
+
+        </section>
+
+        <div layout:fragment="js">
+
+            <script th:inline="javascript">
+                var oficinasJson = /*[[${oficinas.toString()}]]*/ '';
+                var ciclosJson = /*[[${ciclos.toString()}]]*/ '';
+                var carrerasJson = /*[[${carreras.toString()}]]*/ '';
+                var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ '';
+                var resolucionJson = /*[[${resolucion != null ? resolucion.toString() : null}]]*/ '';
+            </script>
+
+            <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistentestore.js}" charset="utf-8"></script>
+
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('date-picker', VueBootstrapDatetimePicker);
+                Vue.component('file-upload', VueUploadComponent);
+
+                const ResolucionForm = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionForm.vue');
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        resolucionForm: ResolucionForm,
+                    }
+                });
+
+            </script>
+
+        </div>
+    </body>
+</html>

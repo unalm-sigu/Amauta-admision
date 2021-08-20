@@ -22,7 +22,6 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
@@ -106,14 +105,17 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
+                .only("id,nombre")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
                 .from(service.ciclosAnteriores(40))
+                .only("id,codigo,descripcion")
                 .array();
 
         ArrayNode carrerasJson = JaneHelper
                 .from(service.allCarrera())
+                .only("id,nombre")
                 .array();
 
         model.addAttribute("carreras", carrerasJson);
@@ -135,14 +137,17 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
+                .only("id,nombre")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
                 .from(service.ciclosAnteriores(40))
+                .only("id,codigo,descripcion")
                 .array();
 
         ArrayNode carrerasJson = JaneHelper
                 .from(service.allCarrera())
+                .only("id,nombre")
                 .array();
 
         Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
@@ -154,7 +159,6 @@ public class ResolucionExistenteController {
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
         model.addAttribute("resolucion", objectNode);
-
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
@@ -171,21 +175,18 @@ public class ResolucionExistenteController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<Alumno> alumnos = service.allAlumnoByOficina(nombre, instanciaOficina);
-            for (Alumno alumno : alumnos) {
-                data.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
-                    "id",
-                    "codigo",
-                    "persona.nombreCompleto",
-                    "persona.apellidosNombres",
-                    "persona.numeroDocIdentidad",
-                    "persona.tipoDocumento.*",
-                    "carrera.*",
-                    "carrera.facultad.*",}));
-            }
+
+            ArrayNode data = JaneHelper.from(alumnos).only("id,codigo")
+                    .join("persona", "nombreCompleto,apellidosNombres,numeroDocIdentidad")
+                    .join("persona.tipoDocumento")
+                    .join("carrera")
+                    .join("carrera.facultad")
+                    .array();
+
             response.setSuccess(Boolean.TRUE);
             response.setData(data);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {

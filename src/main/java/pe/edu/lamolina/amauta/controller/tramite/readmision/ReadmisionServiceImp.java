@@ -287,7 +287,7 @@ public class ReadmisionServiceImp implements ReadmisionService {
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        //metadata
+
         ctx.setVariable("nombrePdf", "Informe Readmisión " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
         ctx.setVariable("templatePdf", "detalleReadmision,historialAcademicoReadmision");
 

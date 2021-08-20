@@ -220,8 +220,7 @@ public class ResolucionServiceImp implements ResolucionService {
             filter.setQueries(new HashMap());
         }
         filter.getQueries().put("res.id", resolucion.getId());
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByDyna(filter);
-        return reincorporaciones;
+        return reincorporacionDAO.allByDyna(filter);
     }
 
     @Override
@@ -615,7 +614,12 @@ public class ResolucionServiceImp implements ResolucionService {
                 }
                 List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(cursoDirigido.getTramite().getTipoTramite(), cursoDirigido.getEstado());
                 AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigido.getCurso().getDepartamentoAcademico());
-                Assert.isNotNull(anexoBoletin, "No existe el anexo boletín para el departamento " + cursoDirigido.getCurso().getDepartamentoAcademico().getNombre());
+                
+                if(anexoBoletin==null){
+                    
+                    throw new PhobosException( "No existe el anexo boletín para el departamento " + cursoDirigido.getCurso().getDepartamentoAcademico().getNombre());
+                }
+                
                 List<GrupoSeccion> grupoSeccions = null;
                 GrupoSeccion grupoSeccion = gpoSeccionService.findByCursoAndDocenteDirigido(cursoDirigido.getCurso(), cursoDirigido.getDocenteAsignado(), cicloAcademico);
                 if (grupoSeccion == null) {
