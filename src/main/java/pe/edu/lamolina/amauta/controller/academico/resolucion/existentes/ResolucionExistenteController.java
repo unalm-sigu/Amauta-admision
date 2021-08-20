@@ -123,6 +123,7 @@ public class ResolucionExistenteController {
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
 
+//        return "academico/resolucion/resolucionexistentes/index";
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 

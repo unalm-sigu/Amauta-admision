@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,7 +189,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         this.allUpdateResumen();
 
-    }    
+    }
 
     private enum NivelEnum {
         OBLIGATORIO, OPCIONAL, ADICIONAL
@@ -399,10 +398,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void updatePlanCurricular(PlanCurricular planForm) {
+        
         ObjectUtil.eliminarAttrSinId(planForm);
+        
         PlanCurricular planBD = planCurricularDAO.find(planForm.getId());
-        planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
-        planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
+       
+        if (planBD.getEstadoEnum() == CRE) {
+            planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
+            planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
+        }
+
         planBD.setFechaAprobado(planForm.getFechaAprobado());
         planBD.setResolucionFacultad(planForm.getResolucionFacultad());
         planBD.setResolucionConsejoUniversitario(planForm.getResolucionConsejoUniversitario());
@@ -1164,17 +1169,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
     }
-    
+
     @Override
     public void reporte(Model model, List<PlanEstudiosDTO> listPlanEstudiosDTO) {
-        
+
         String facultad = listPlanEstudiosDTO.get(0).getFacultad();
         String especialidad = listPlanEstudiosDTO.get(0).getEspecialidad();
         String year = Long.toString(listPlanEstudiosDTO.get(0).getYear());
         Map<String, List<PlanEstudiosDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
 
         Context ctx = new Context();
-    
+
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("facultad", facultad);
         ctx.setVariable("especialidad", especialidad);
@@ -1183,13 +1188,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
         ctx.setVariable("templatePdf", "planEstudios");
-        
+
         model.addAllAttributes(ctx.getVariables());
     }
-    
+
     @Override
     public List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular) {
-        return planCurricularDAO.reportePlanCurricular(idPlanCurricular);        
+        return planCurricularDAO.reportePlanCurricular(idPlanCurricular);
     }
 
     @Override

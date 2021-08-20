@@ -76,9 +76,11 @@
 
 <script>
     module.exports = {
+        computed: {
+            ...Vuex.mapState(["resolucion"])
+        },
         data() {
             return {
-                resolucion: {tramiteBachiller: []},
                 alumnos: [],
                 isEdicion: false
             };

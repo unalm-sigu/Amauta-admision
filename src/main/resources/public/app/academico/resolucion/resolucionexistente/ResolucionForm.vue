@@ -19,55 +19,55 @@
                         <div v-if="resolucion.tipoResolucion.isTramiteBachiller">
                             <resolucion-form-details-bachiller></resolucion-form-details-bachiller>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isCambioNota">
                             <resolucion-form-details-cambio-nota></resolucion-form-details-cambio-nota>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isCambioPlanCurricular">
                             <resolucion-form-details-cambio-plan-curricular></resolucion-form-details-cambio-plan-curricular>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isCursoDirigido">
                             <resolucion-form-details-curso-dirigido></resolucion-form-details-curso-dirigido>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isNotaBaja">
                             <resolucion-form-details-nota-mas-baja></resolucion-form-details-nota-mas-baja>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isTramitePracticas">
                             <resolucion-form-details-practicas-preprofesionales></resolucion-form-details-practicas-preprofesionales>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isReadmision">
                             <resolucion-form-details-readmision></resolucion-form-details-readmision>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isReincorporacion">
                             <resolucion-form-details-reincorporacion></resolucion-form-details-reincorporacion>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isRetiroCiclo">
                             <resolucion-form-details-retiro-ciclo></resolucion-form-details-retiro-ciclo>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isTramiteTitulo">
                             <resolucion-form-details-titulo></resolucion-form-details-titulo>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isTrasladoInterno">
                             <resolucion-form-details-traslado></resolucion-form-details-traslado>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isTrasladoExterno">
                             <resolucion-form-details-traslado></resolucion-form-details-traslado>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isIntercambioEstudiantil">
                             <resolucion-form-details-traslado></resolucion-form-details-traslado>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isIngresoFisicoHistorial">
                             <resolucion-form-details-traslado></resolucion-form-details-traslado>
                         </div>
@@ -88,6 +88,21 @@
             </section>
 
         </form>
+
+
+        <modal-simple ref="modalError" v-bind:showaccept="false" >
+            <div slot="header">
+                <p class="h4 text-primary">LOS SIGUIENTES ALUMNO NO PUDIERON SER MATRICULADOS</p>
+            </div>
+            <div slot="body">
+
+                <div class="row m-b-md" v-for="error in errores">
+                    <b>- <span v-text="error"></span></b>
+                </div>
+
+            </div>
+        </modal-simple>
+
 
     </div>
 </template>
@@ -156,7 +171,7 @@
                             if (data.success && data.data.length == 0) {
 
                                 $vue.$store.dispatch('newResolucion');
-                                
+
                                 notify(data.message, 'info');
 
                             } else {

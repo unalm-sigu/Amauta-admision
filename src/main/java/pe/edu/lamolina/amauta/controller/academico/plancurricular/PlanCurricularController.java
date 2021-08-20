@@ -221,7 +221,7 @@ public class PlanCurricularController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (CursoCurricula cursoCurricula : cursosCurricula) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                System.out.println("idCurso :::: " + cursoCurricula.getCurso().getId());
+                logger.debug("idCurso :::: {}",cursoCurricula.getCurso().getId());
                 Integer esRequisitoDe = cursoCurricula.getRequisitosCursoCurricula().size()
                         + cursoCurricula.getRequisitosCursoOpcional().size();
                 node.put("id", cursoCurricula.getId());
