@@ -69,6 +69,10 @@ var app = new Vue({
     mounted: function () {
         let $vue = this;
         $vue.carreraCurso = $vue.curso.carrera;
+        if($vue.curso.id){
+             $vue.changeModalidad({codigo:$vue.modalidadCurso.codigo}) ;
+             $vue.nivelCurso={id: $vue.curso.nivel}
+        }
     },
     methods: {
         desbloquearIdioma(index) {
@@ -275,7 +279,7 @@ var app = new Vue({
             return item.tipoEnum.value + " - " + item.nombre;
         },
         changeModalidad(item) {
-            
+
             let $vue = this;
             if (item.codigo == 'PRE') {
                 $vue.nivelesCurso = $vue.nivelesPregrado;

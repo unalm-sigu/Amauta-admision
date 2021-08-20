@@ -213,19 +213,19 @@ public class CursoController {
         Compania cia = ds.getCompania();
 
         settingJson(curso, cia, model);
-        System.out.println("origen ::: " + origen);
-        System.out.println("getOrigen(origen) ::: " + getOrigen(origen));
+        logger.debug("origen ::: {}", origen);
+        logger.debug("getOrigen(origen) ::: {}", getOrigen(origen));
         model.addAttribute("origen", getOrigen(origen));
         return "academico/curso/cursoForm";
     }
 
     private String getOrigen(String origen) {
-        System.out.println("1111");
+        logger.debug("1111");
         if (StringUtils.isEmpty(origen)) {
-            System.out.println("2222");
+            logger.debug("2222");
             return "/academico/curso";
         }
-        System.out.println("3333");
+        logger.debug("3333");
         byte[] decoded = Base64.getMimeDecoder().decode(origen);
         String output = new String(decoded);
         return output;
@@ -240,7 +240,7 @@ public class CursoController {
         Curso curso = service.find(id);
 
         settingJson(curso, cia, model);
-        System.out.println("getOrigen(origen) ::: " + getOrigen(origen));
+        logger.debug("getOrigen(origen) ::: {}", getOrigen(origen));
         model.addAttribute("origen", getOrigen(origen));
         return "academico/curso/cursoForm";
     }

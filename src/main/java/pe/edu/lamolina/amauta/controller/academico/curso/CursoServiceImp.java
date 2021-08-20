@@ -146,22 +146,18 @@ public class CursoServiceImp implements CursoService {
     private Curso updateCurso(Curso curso, DataSessionPivot ds) {
         validarDatosCurso(curso);
         Curso cursoBD = cursoDAO.find(curso.getId());
+        
         cursoBD.setNombre(curso.getNombre());
-        if (curso.getCarrera() != null && cursoBD.getCarrera() == null) {
-            cursoBD.setCarrera(curso.getCarrera());
-        }
-        if (curso.getModalidadEstudio() != null && cursoBD.getModalidadEstudio() == null) {
-            cursoBD.setModalidadEstudio(curso.getModalidadEstudio());
-        }
-        if (curso.getDepartamentoAcademico() != null && cursoBD.getDepartamentoAcademico() == null) {
-            cursoBD.setDepartamentoAcademico(curso.getDepartamentoAcademico());
-        }
-        if (!StringUtils.isEmpty(curso.getTipoCurricula()) && cursoBD.getTipoCurriculaEnum() == null) {
-            cursoBD.setTipoCurricula(curso.getTipoCurricula());
-        }
-        if (curso.getNivel() != null && cursoBD.getNivel() == null) {
-            cursoBD.setNivel(curso.getNivel());
-        }
+
+        cursoBD.setCarrera(curso.getCarrera());
+
+        cursoBD.setModalidadEstudio(curso.getModalidadEstudio());
+
+        cursoBD.setDepartamentoAcademico(curso.getDepartamentoAcademico());
+
+        cursoBD.setTipoCurricula(curso.getTipoCurricula());
+
+        cursoBD.setNivel(curso.getNivel());
 
         cursoBD.setTipoCreditoEnum(curso.getTipoCreditoEnum());
         cursoBD.setTipoCursoEnum(curso.getTipoCursoEnum());

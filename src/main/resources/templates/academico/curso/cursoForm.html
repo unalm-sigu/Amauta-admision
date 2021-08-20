@@ -35,41 +35,34 @@
                                 <div class="col-lg-6">
                                     <div class="form-group  ">
                                         <label>Tipo Curricula</label>
-                                        <template v-if="curso.id == '' || curso.tipoCurricula == '' ">
-                                            <multiselect v-model='tipoCurriculaEnum'
-                                                         v-bind:options='tiposCurricula'
-                                                         v-bind:allow-empty="false"
-                                                         label='value'
-                                                         placeholder="Seleccione un tipo"
-                                                         deselect-label=""
-                                                         select-label="Seleccione este tipo"
-                                                         track-by='name'
-                                                         v-on:input="setTipoCurricula">
-                                            </multiselect>
-                                            <input name="tipoCurricula" class="hide" v-model="tipoCurriculaEnum.name"  required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.tipoCurriculaEnum.value"></span>
-
+                                        <multiselect v-model='tipoCurriculaEnum'
+                                                     v-bind:options='tiposCurricula'
+                                                     v-bind:allow-empty="false"
+                                                     label='value'
+                                                     placeholder="Seleccione un tipo"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este tipo"
+                                                     track-by='name'
+                                                     v-on:input="setTipoCurricula">
+                                        </multiselect>
+                                        <input name="tipoCurricula" class="hide" v-model="tipoCurriculaEnum.name"  required=""/>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-4" v-if="!isComodinAdicionalExterno(tipoCurriculaEnum.name)">
                                     <div class="form-group">
                                         <label>Modalidad Estudio</label>
-                                        <template v-if="curso.id == '' || curso.modalidadEstudio.id == '' ">
-                                            <multiselect v-model='modalidadCurso'
-                                                         v-bind:options='modalidades'
-                                                         v-bind:allow-empty="false"
-                                                         label='nombre'
-                                                         placeholder="Seleccione una modalidad"
-                                                         deselect-label=""
-                                                         select-label="Seleccione esta modalidad"
-                                                         track-by='id'
-                                                         v-on:input="changeModalidad">
-                                            </multiselect>
-                                            <input name="modalidadCurso.id" class="hide" v-model="modalidadCurso.id" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.modalidadEstudio.nombre"></span>
+                                        <multiselect v-model='modalidadCurso'
+                                                     v-bind:options='modalidades'
+                                                     v-bind:allow-empty="false"
+                                                     label='nombre'
+                                                     placeholder="Seleccione una modalidad"
+                                                     deselect-label=""
+                                                     select-label="Seleccione esta modalidad"
+                                                     track-by='id'
+                                                     v-on:input="changeModalidad">
+                                        </multiselect>
+                                        <input name="modalidadCurso.id" class="hide" v-model="modalidadCurso.id" required=""/>
 
                                     </div>
                                 </div>
@@ -77,19 +70,16 @@
                                 <div class="col-lg-2" v-if="!isComodinAdicionalExterno(tipoCurriculaEnum.name)">
                                     <div class="form-group">
                                         <label>Nivel</label>
-                                        <template v-if="curso.id == '' || curso.nivel == '' || curso.nivel == undefined ">
-                                            <multiselect v-model='nivelCurso'
-                                                         v-bind:options='nivelesCurso'
-                                                         v-bind:allow-empty="false"
-                                                         label='id'
-                                                         placeholder="Seleccione un nivel"
-                                                         deselect-label=""
-                                                         select-label="Seleccione este nivel"
-                                                         track-by='id'>
-                                            </multiselect>
-                                            <input name="nivel" class="hide" v-model="nivelCurso.id" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.nivel"></span>
+                                        <multiselect v-model='nivelCurso'
+                                                     v-bind:options='nivelesCurso'
+                                                     v-bind:allow-empty="false"
+                                                     label='id'
+                                                     placeholder="Seleccione un nivel"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este nivel"
+                                                     track-by='id'>
+                                        </multiselect>
+                                        <input name="nivel" class="hide" v-model="nivelCurso.id" required=""/>
 
                                     </div>
                                 </div>
@@ -100,19 +90,16 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Departamento Académico</label>
-                                        <template v-if="curso.id == '' || curso.departamentoAcademico.id == '' ">
-                                            <multiselect v-model='dptoCurso'
-                                                         v-bind:options='departamentos'
-                                                         v-bind:allow-empty="false"
-                                                         label='nombre'
-                                                         placeholder="Seleccione un departamento"
-                                                         deselect-label=""
-                                                         select-label="Seleccione este departamento"
-                                                         track-by='id'>
-                                            </multiselect>
-                                            <input name="departamentoAcademico.id" class="hide" v-model="dptoCurso.id" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.departamentoAcademico.nombre"></span>
+                                        <multiselect v-model='dptoCurso'
+                                                     v-bind:options='departamentos'
+                                                     v-bind:allow-empty="false"
+                                                     label='nombre'
+                                                     placeholder="Seleccione un departamento"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este departamento"
+                                                     track-by='id'>
+                                        </multiselect>
+                                        <input name="departamentoAcademico.id" class="hide" v-model="dptoCurso.id" required=""/>
                                     </div>
                                 </div>
 
@@ -120,24 +107,21 @@
                                      v-if="modalidadCurso.id == 2">
                                     <div class="form-group  ">
                                         <label>Especialidad Posgrado</label>
-                                        <template v-if="curso.id == '' || curso.carrera.id == '' ">
-                                            <multiselect v-model='carreraCurso'
-                                                         v-bind:options='carreras'
-                                                         v-bind:allow-empty="false"
-                                                         v-bind:custom-label="verCarrera"
-                                                         label='nombre'
-                                                         placeholder="Seleccione una especialidad"
-                                                         deselect-label=""
-                                                         select-label="Seleccione esta especialidad"
-                                                         track-by='id'>
-                                                <template slot="option" slot-scope="props">
-                                                    <div class="block" v-text="props.option.nombre"></div>
-                                                    <small class="block" v-text="props.option.tipoEnum.value"></small>
-                                                </template>
-                                            </multiselect>
-                                            <input name="carrera.id" class="hide" v-model="carreraCurso.id" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.carrera.tipoEnum.value + ' - ' + curso.carrera.nombre"></span>
+                                        <multiselect v-model='carreraCurso'
+                                                     v-bind:options='carreras'
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:custom-label="verCarrera"
+                                                     label='nombre'
+                                                     placeholder="Seleccione una especialidad"
+                                                     deselect-label=""
+                                                     select-label="Seleccione esta especialidad"
+                                                     track-by='id'>
+                                            <template slot="option" slot-scope="props">
+                                                <div class="block" v-text="props.option.nombre"></div>
+                                                <small class="block" v-text="props.option.tipoEnum.value"></small>
+                                            </template>
+                                        </multiselect>
+                                        <input name="carrera.id" class="hide" v-model="carreraCurso.id" required=""/>
 
                                     </div>
                                 </div>
@@ -147,9 +131,6 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Tipo Dictado</label>
-                                        <!-- 
-                                  <template v-if="curso.id == '' || curso.tipoCursoEnum.name == 'NINGUNO' ">
-                                        -->
                                         <multiselect v-model='tipoCursoEnum'
                                                      v-bind:options='tiposCurso'
                                                      v-bind:allow-empty="false"
@@ -161,10 +142,6 @@
                                                      v-on:input="setTipoCurso">
                                         </multiselect>
                                         <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
-                                        <!-- 
-                                    </template>
-                                    <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
-                                        -->
 
                                     </div>
                                 </div>
@@ -269,7 +246,7 @@
                                         <label>Créditos Práctica</label>
                                         <div class="form-group">
                                             <input name="creditosPractica" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
-                                                   v-on:change="setCreditos()" v-bind:readonly="!isCreditosPractica()" v-model="curso.creditosPractica" />
+                                                   v-on:change="setCreditos()" v-bind:readonly="!isCreditosTeoria()" v-model="curso.creditosPractica" />
                                         </div>
                                     </div>  
                                 </template>
@@ -347,8 +324,6 @@
                                 <a v-if="curso.id == '' " class="btn btn-primary " v-on:click="save()">Crear Curso</a>
                                 <a v-else="" class="btn btn-primary save-update-curso" v-on:click="save()" >Actualizar Curso</a>
                             </div>
-
-                            <!--<pre>{{idiomaCurso}}</pre>-->
 
                             <div class="row" v-if="curso.id != '' &amp;&amp; !isComodinAdicionalExterno(tipoCurriculaEnum.name) ">
                                 <div class="col-lg-8 col-lg-offset-2 m-t-lg">
