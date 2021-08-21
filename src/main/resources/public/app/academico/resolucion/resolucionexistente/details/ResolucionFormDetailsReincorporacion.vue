@@ -1,6 +1,8 @@
 <template>
     <div>
 
+        <resolucion-form-filter></resolucion-form-filter>
+
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -25,15 +27,18 @@
                             <div class="col-md-12">
                                 <multiselect v-model="reincorporacion.alumno" 
                                              v-bind:options='alumnos'
-                                             v-on:search-change="loadAlumno"
-                                             v-bind:custom-label='customLabel'
+                                             v-on:search-change="searchAlumno"
                                              track-by='id'
+                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
                                              v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null">
+                                    <template slot="singleLabel" slot-scope="props">
+                                        <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
+                                    </template>
                                     <template slot="option" slot-scope="props">
                                         <div class="option__desc">
                                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
@@ -60,7 +65,7 @@
                         </label>
                     </td>
                     <td>
-                        <button v-on:click="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; reincorporacion.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; reincorporacion.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
@@ -77,27 +82,65 @@
 
 <script>
     module.exports = {
+        mixins: [AppliedFilter, VueLoader],
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion", "visualizarSoloSeleccionados", "filterFacultad"])
         },
         data() {
             return {
                 alumnos: [],
-                isEdicion: false
+                isLoading: false
             };
         },
         mounted: function () {
             let $vue = this;
+            $vue.allReincorporacion();
         },
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.reincorporaciones.push({seleccionado: true});
+                $vue.resolucion.reincorporaciones.push({seleccionado: false});
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.reincorporaciones.splice(index, 1);
             },
+            searchAlumno(nombre) {
+
+                let $vue = this;
+                $vue.isLoading = true
+                if ($vue.resolucion.oficina == null) {
+                    notify("Seleccione una oficina.");
+                    return;
+                }
+
+                if (nombre) {
+
+                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                            .then(({data}) => {
+                                if (data.success) {
+                                    $vue.alumnos = data.data;
+                                }
+                                $vue.isLoading = false;
+                            }, error => {
+                                $vue.isLoading = false;
+                            });
+
+                }
+            },
+            allReincorporacion() {
+                let $vue = this;
+                $vue.showLoader("Espere un momento por favor");
+                AXIOS.get(APP.url("academico/resolucion/existentes/allReincorporacion"))
+                        .then(({data}) => {
+                            $vue.resolucion.reincorporaciones = data.data;
+                            $vue.hideLoader();
+                        }, () => {
+                            notify(Messages.errorComunicacion, "error");
+                            $vue.hideLoader();
+                        });
+            }
         }
     };
 </script>

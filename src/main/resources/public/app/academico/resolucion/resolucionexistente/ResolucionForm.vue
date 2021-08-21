@@ -74,15 +74,17 @@
 
                     </div>
 
-                    <button v-if="resolucion.id == null" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
+
+                    <button v-if="resolucion.id" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
+                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+                        Actualizar
+                    </button>
+
+                    <button  v-else="" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
                         <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
                         Guardar
                     </button>
 
-                    <button v-else="" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
-                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                        Actualizar
-                    </button>
 
                 </section>
             </section>
@@ -140,12 +142,11 @@
         mixins: [VueLoader],
         data() {
             return {
-                isEdicion: false,
                 errores: []
             };
         },
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         mounted: function () {
             let $vue = this;
@@ -201,9 +202,6 @@
                     return;
                 }
 
-                $vue.showLoader("Espere un momento por favor");
-                $vue.errores = [];
-
                 bootbox.confirm({
                     message: '¿Seguro que desea actualizar la resolución? ',
                     buttons: {
@@ -212,6 +210,9 @@
                     },
                     callback: function (result) {
                         if (result) {
+
+                            $vue.showLoader("Espere un momento por favor");
+                            $vue.errores = [];
 
                             AXIOS.post(APP.url('academico/resolucion/existentes/update'), $vue.resolucion)
                                     .then(({data}) => {

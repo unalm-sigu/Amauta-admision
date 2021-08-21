@@ -18,21 +18,24 @@
             </thead>
             <tbody>
 
-                <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado" v-if="isTraslado || isTrasladoInt"> 
+                <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado"> 
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
                                 <multiselect v-model="tramiteTraslado.alumno" 
                                              v-bind:options='alumnos'
-                                             v-on:search-change="loadAlumno"
-                                             v-bind:custom-label='customLabel'
+                                             v-on:search-change="searchAlumno"
                                              track-by='id'
+                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
                                              v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
+                                    <template slot="singleLabel" slot-scope="props">
+                                        <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
+                                    </template>
                                     <template slot="option" slot-scope="props">
                                         <div class="option__desc">
                                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
@@ -63,39 +66,26 @@
                             <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
                         </div>
                     </td>
-                    <!--    <td class="v-middle text-left" v-if="isTrasladoInt">
-                            <div class="form-group">
-                                <multiselect 
-                                    v-model="tramiteTraslado.carrera" 
-                                    v-bind:options="carreras"
-                                    placeholder="Seleccione una carrera"
-                                    label="nombre"
-                                    track-by="id" 
-                                    required="true"
-                                    v-bind:allow-empty="true"
-                                    deselect-label="No se puede eliminar este valor" 
-                                    v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"
-                                    >
-                                </multiselect>
-                                <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
-                            </div>
-                        </td>-->
                     <td>
                         <label class="switch">
                             <input type="checkbox" 
-                                   v-model="tramiteTraslado.seleccionado"
-                                   id="tramiteTraslado"
-                                   checked="1" />
+                                   v-model="tramiteTraslado.seleccionado" />
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   v-model="tramiteTraslado.rechazado" />
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td class="v-middle text-center">
-                        <button v-on:click="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
-
 
             </tbody>
         </table>
@@ -108,12 +98,13 @@
 <script>
     module.exports = {
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
-                isEdicion: false
+                isLoading: false,
+                carreras: JSON.parse(carrerasJson),
             };
         },
         mounted: function () {
@@ -122,11 +113,35 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado.push({seleccionado: true});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: false});
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
+            },
+            searchAlumno(nombre) {
+
+                let $vue = this;
+                $vue.isLoading = true
+                if ($vue.resolucion.oficina == null) {
+                    notify("Seleccione una oficina.");
+                    return;
+                }
+
+                if (nombre) {
+
+                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                            {params: {nombre: nombre}})
+                            .then(({data}) => {
+                                if (data.success) {
+                                    $vue.alumnos = data.data;
+                                }
+                                $vue.isLoading = false;
+                            }, error => {
+                                $vue.isLoading = false;
+                            });
+
+                }
             },
         }
     };

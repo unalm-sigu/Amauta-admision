@@ -1,38 +1,35 @@
 <template>
     <div>
-
+        
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th class=" text-center">Persona</th>
-                    <th class=" text-center" >Tipo Tramite</th>
-                    <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
-                    <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
-                    <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
-                    <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
-                    <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                    <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
-                    <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
+                    <th class=" text-center">Tipo Tramite</th>
+                    <th v-if="validColumCreditos(resolucion)">Créditos</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
             <tbody>
 
-                <tr v-if="isPracticas " v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
+                <tr v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
                                 <multiselect v-model="practicas.alumno" 
                                              v-bind:options='alumnos'
-                                             v-on:search-change="loadAlumno"
-                                             v-bind:custom-label='customLabel'
+                                             v-on:search-change="searchAlumno"
                                              track-by='id'
+                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
                                              v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
+                                    <template slot="singleLabel" slot-scope="props">
+                                        <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
+                                    </template>
                                     <template slot="option" slot-scope="props">
                                         <div class="option__desc">
                                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} </span>
@@ -49,10 +46,10 @@
                         <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                     </td>
                     <td class="v-middle text-center" v-if="validColumCreditos(resolucion)">
-                        <input  class="form-control" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
+                        <input  class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
                     </td>
                     <td>
-                        <button v-on:click="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
@@ -70,17 +67,19 @@
 
 <script>
     module.exports = {
+        mixins: [VueLoader],
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
-                isEdicion: false
+                isLoading: false
             };
         },
         mounted: function () {
             let $vue = this;
+            $vue.allPracticas();
         },
         methods: {
             add() {
@@ -91,6 +90,48 @@
                 let $vue = this;
                 $vue.resolucion.tramitePracticasPreProfesionales.splice(index, 1);
             },
+            searchAlumno(nombre) {
+
+                let $vue = this;
+
+                if ($vue.resolucion.oficina == null) {
+                    notify("Seleccione una oficina.");
+                    return;
+                }
+
+                if (nombre) {
+                    $vue.isLoading = true
+                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                            .then(({data}) => {
+                                if (data.success) {
+                                    $vue.alumnos = data.data;
+                                }
+                                $vue.isLoading = false;
+                            }, error => {
+                                $vue.isLoading = false;
+                            });
+
+                }
+            },
+            allPracticas() {
+                let $vue = this;
+                $vue.showLoader("Espere un momento por favor");
+                AXIOS.get(APP.url("academico/resolucion/existentes/allPracticas"))
+                        .then(({data}) => {
+                            $vue.resolucion.tramitePracticasPreProfesionales = data.data;
+                            $vue.hideLoader();
+                        }, () => {
+                            notify(Messages.errorComunicacion, "error");
+                            $vue.hideLoader();
+                        });
+            },
+            validColumCreditos(item) {
+                if (item.oficina != null && item.oficina.codigo == "F040") {
+                    return true;
+                }
+                return false;
+            }
         }
     };
 </script>

@@ -105,7 +105,7 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
-                .only("id,nombre")
+                .only("id,nombre,codigo")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper

@@ -18,22 +18,24 @@
             </thead>
             <tbody>
 
-                <tr v-for="(readmision , index) in resolucion.readmisiones" 
-                    v-if="isReadmision &amp;&amp; validFilter(filterFacultad, readmision)"> 
+                <tr v-for="(readmision , index) in resolucion.readmisiones"   > 
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
                                 <multiselect v-model="readmision.alumno" 
                                              v-bind:options='alumnos'
-                                             v-on:search-change="loadAlumno"
-                                             v-bind:custom-label='customLabel'
+                                             v-on:search-change="searchAlumno"
                                              track-by='id'
+                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
                                              v-bind:disabled="isEdicion &amp;&amp; readmision.id != null">
+                                    <template slot="singleLabel" slot-scope="props">
+                                        <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
+                                    </template>
                                     <template slot="option" slot-scope="props">
                                         <div class="option__desc">
                                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
@@ -60,7 +62,7 @@
                         </label>
                     </td>
                     <td>
-                        <button v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; readmision.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; readmision.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
 
@@ -74,23 +76,24 @@
 
         <button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
 
-
     </div>
 </template>
 
 <script>
     module.exports = {
+        mixins: [VueLoader],
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
-                isEdicion: false
+                isLoading: false
             };
         },
         mounted: function () {
             let $vue = this;
+            $vue.allReadmision();
         },
         methods: {
             add() {
@@ -101,6 +104,43 @@
                 let $vue = this;
                 $vue.resolucion.readmisiones.splice(index, 1);
             },
+            searchAlumno(nombre) {
+
+                let $vue = this;
+                $vue.isLoading = true
+                if ($vue.resolucion.oficina == null) {
+                    notify("Seleccione una oficina.");
+                    return;
+                }
+
+                if (nombre) {
+
+                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                            .then(({data}) => {
+                                if (data.success) {
+                                    $vue.alumnos = data.data;
+                                }
+                                $vue.isLoading = false;
+                            }, error => {
+                                $vue.isLoading = false;
+                            });
+
+                }
+            },
+            allReadmision() {
+                let $vue = this;
+                $vue.showLoader("Espere un momento por favor");
+                AXIOS.get(APP.url("academico/resolucion/existentes/allReadmision"))
+                        .then(({data}) => {
+                            $vue.resolucion.readmisiones = data.data;
+                            $vue.hideLoader();
+                        }, () => {
+                            notify(Messages.errorComunicacion, "error");
+                            $vue.hideLoader();
+                        });
+            },
+
         }
     };
 </script>

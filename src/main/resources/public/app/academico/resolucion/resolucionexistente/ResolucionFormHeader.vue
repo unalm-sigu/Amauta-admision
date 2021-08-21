@@ -14,8 +14,7 @@
                         track-by="id" 
                         required="true"
                         v-bind:showNoOptions="true"
-                        v-bind:show-labels="false"
-                        v-on:select="oficinaSelect" >
+                        v-bind:show-labels="false" >
 
                         <template slot="singleLabel" slot-scope="props">
                             <span class="option__title">
@@ -79,7 +78,7 @@
             </div>
         </div>
         <div class="row">
-            
+
             <div class="col-lg-6">
                 <label>Tipo Resolución</label>
                 <div class="form-group">
@@ -92,7 +91,6 @@
                         deselect-label="No se puede eliminar este valor"
                         track-by="id" 
                         required="true"
-                        v-on:select="tipoResolucionSelect"
                         v-bind:disabled="isEdicion"
                         >
                     </multiselect>
@@ -100,24 +98,26 @@
                 </div>
             </div> 
 
-            <div class="col-lg-6" v-if="isCambioNota||isCursoDirigido">
-                <label>Ciclo 
-                    <span v-if='isRetiroCiclo'> a retirar</span>
-                    <span v-if='isReincorporacion'> a reincorporar</span>
-                </label>
-                <div class="form-group">
-                    <multiselect 
-                        v-model="resolucion.cicloAplica" 
-                        v-bind:options="ciclos"
-                        placeholder=" "
-                        label="descripcion"
-                        track-by="id" 
-                        required="true"
-                        v-bind:allow-empty="true"
-                        deselect-label="No se puede eliminar este valor" 
-                        v-bind:disabled="isEdicion">
-                    </multiselect>
-                    <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
+            <div v-if="resolucion.tipoResolucion">
+                <div class="col-lg-6" v-if="resolucion.tipoResolucion.isCambioNota||resolucion.tipoResolucion.isCursoDirigido">
+                    <label>Ciclo 
+                        <span v-if='resolucion.tipoResolucion.isRetiroCiclo'> a retirar</span>
+                        <span v-if='resolucion.tipoResolucion.isReincorporacion'> a reincorporar</span>
+                    </label>
+                    <div class="form-group">
+                        <multiselect 
+                            v-model="resolucion.cicloAplica" 
+                            v-bind:options="ciclos"
+                            placeholder=" "
+                            label="descripcion"
+                            track-by="id" 
+                            required="true"
+                            v-bind:allow-empty="true"
+                            deselect-label="No se puede eliminar este valor" 
+                            v-bind:disabled="isEdicion">
+                        </multiselect>
+                        <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
+                    </div>
                 </div>
             </div>
 
@@ -133,7 +133,6 @@
                 oficinas: JSON.parse(oficinasJson),
                 ciclos: JSON.parse(ciclosJson),
                 tiposResolucion: JSON.parse(tiposResolucionJson),
-                carreras: JSON.parse(carrerasJson),
                 configDate: {
                     format: 'DD/MM/YYYY',
                     useCurrent: false
@@ -141,7 +140,7 @@
             };
         },
         computed: {
-            ...Vuex.mapState(["resolucion"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         mounted: function () {
             let $vue = this;
@@ -150,15 +149,11 @@
         methods: {
             oficinaSelect(ofi) {
                 let $vue = this;
-                if ($vue.resolucion.oficina != null) {
+                if ($vue.resolucion.oficina) {
                     if (ofi.id != $vue.resolucion.oficina.id) {
                         $vue.resolucion.reincorporaciones = [];
-                        $vue.alumnos = [];
                     }
                 }
-            },
-            tipoResolucionSelect() {
-
             },
         }
     };
