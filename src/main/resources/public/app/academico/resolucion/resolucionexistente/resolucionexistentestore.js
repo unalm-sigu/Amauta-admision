@@ -32,6 +32,9 @@ const store = new Vuex.Store({
         SET_STATE_REMOVE_FILTER_FACULTAD(state) {
             state.filterFacultad = null;
         },
+        SET_STATE_IS_EDICION(state) {
+            state.isEdicion = true;
+        },
     },
     getters: {
         getResolucion: state => state.resolucion,
@@ -67,6 +70,11 @@ const store = new Vuex.Store({
         removeFilterFacultad(context) {
 
             context.commit('SET_STATE_REMOVE_FILTER_FACULTAD');
+
+        },
+        setIsEdicion(context) {
+
+            context.commit('SET_STATE_IS_EDICION');
 
         },
     }

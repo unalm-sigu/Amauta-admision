@@ -4,7 +4,7 @@
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
 
         <table class="table table-striped">
-            
+
             <thead>
                 <tr>
                     <th class="col-sm-9 text-center">Persona</th>
@@ -14,7 +14,7 @@
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
-            
+
             <tbody>
 
                 <tr v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
@@ -46,11 +46,11 @@
                             </div>
                         </div>
                     </td>
-                    
+
                     <td class="v-middle text-center" >
                         <input v-if="validColumCreditos(resolucion)" class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
                     </td>
-                    
+
                     <td class="v-middle">
                         <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
@@ -81,7 +81,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allPracticas();
+            if (!$vue.isEdicion) {
+                $vue.allPracticas();
+            }
         },
         methods: {
             add() {
@@ -101,13 +103,13 @@
                     return;
                 }
 
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                            });
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
             },
             allPracticas() {
                 let $vue = this;

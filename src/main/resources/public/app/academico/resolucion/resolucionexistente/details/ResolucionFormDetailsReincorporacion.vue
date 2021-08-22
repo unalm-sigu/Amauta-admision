@@ -101,7 +101,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allReincorporacion();
+            if (!$vue.isEdicion) {
+                $vue.allReincorporacion();
+            }
         },
         methods: {
             add() {

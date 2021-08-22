@@ -47,7 +47,7 @@
                     <td class="v-middle text-left">
                         <input class="form-control" v-if="readmision.rechazado" v-model="readmision.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; !readmision.id"/>
                     </td>
-                   <td class="v-middle">
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="readmision.seleccionado"
@@ -96,7 +96,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allReadmision();
+            if (!$vue.isEdicion) {
+                $vue.allReadmision();
+            }
         },
         methods: {
             add() {
@@ -115,13 +117,13 @@
                     return;
                 }
 
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                            });
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
             },
             allReadmision() {
                 let $vue = this;

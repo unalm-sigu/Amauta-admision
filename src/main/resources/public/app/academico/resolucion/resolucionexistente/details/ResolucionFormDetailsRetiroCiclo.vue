@@ -98,7 +98,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allRetiroCiclo();
+            if (!$vue.isEdicion) {
+                $vue.allRetiroCiclo();
+            }
         },
         methods: {
             add() {

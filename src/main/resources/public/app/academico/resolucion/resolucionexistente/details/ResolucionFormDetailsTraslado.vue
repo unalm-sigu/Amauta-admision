@@ -94,7 +94,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allTraslados();
+            if (!$vue.isEdicion) {
+                $vue.allTraslados();
+            }
         },
         methods: {
             add() {
@@ -118,7 +120,7 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                         }
+                        }
                         });
             },
             allTraslados() {

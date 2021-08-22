@@ -77,7 +77,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allTraslados();
+            if (!$vue.isEdicion) {
+                $vue.allTraslados();
+            }
         },
         methods: {
             add() {
@@ -104,7 +106,7 @@
             },
             allTraslados() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado=[];
+                $vue.resolucion.tramiteTraslado = [];
             }
         }
     };

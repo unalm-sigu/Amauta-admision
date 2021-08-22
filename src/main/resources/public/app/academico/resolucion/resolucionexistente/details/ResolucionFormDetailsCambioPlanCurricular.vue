@@ -98,7 +98,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allCambioNota();
+            if (!$vue.isEdicion) {
+                $vue.allCambioPlanCurricular();
+            }
         },
         methods: {
             add() {
@@ -120,10 +122,10 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                            }
+                        }
                         });
             },
-            allCambioNota() {
+            allCambioPlanCurricular() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
                 AXIOS.get(APP.url("academico/resolucion/existentes/allCambioPlanCurricular"))

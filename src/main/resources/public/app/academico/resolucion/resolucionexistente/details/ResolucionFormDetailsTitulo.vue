@@ -86,7 +86,9 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allTitulos();
+            if (!$vue.isEdicion) {
+                $vue.allTitulos();
+            }
         },
         methods: {
             add() {

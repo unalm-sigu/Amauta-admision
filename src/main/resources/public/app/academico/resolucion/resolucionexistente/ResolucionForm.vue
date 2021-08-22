@@ -139,7 +139,7 @@
             resolucionFormDetailsRetiroCiclo: ResolucionFormDetailsRetiroCiclo,
             resolucionFormDetailsTitulo: ResolucionFormDetailsTitulo,
             resolucionFormDetailsTraslado: ResolucionFormDetailsTraslado,
-            resolucionFormDetailsTrasladoInterno :ResolucionFormDetailsTrasladoInterno,
+            resolucionFormDetailsTrasladoInterno: ResolucionFormDetailsTrasladoInterno,
         },
         mixins: [VueLoader],
         data() {
@@ -153,10 +153,12 @@
         mounted: function () {
             let $vue = this;
             if ($vue.resolucion.id) {
-                $vue.isEdicion = true;
+                console.log($vue.resolucion.id);
+                $vue.setIsEdicion();
             }
         },
         methods: {
+            ...Vuex.mapActions(['setIsEdicion']),
             save() {
 
                 let $vue = this;

@@ -82,7 +82,10 @@
         },
         mounted: function () {
             let $vue = this;
-            $vue.allBachillers();
+            if (!$vue.isEdicion) {
+                $vue.allBachillers();
+            }
+
         },
         methods: {
             add() {
@@ -101,13 +104,13 @@
                     return;
                 }
 
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                            });
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
             },
             allBachillers() {
                 let $vue = this;
