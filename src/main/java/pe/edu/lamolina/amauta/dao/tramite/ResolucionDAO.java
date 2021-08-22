@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Resolucion;
 
 public interface ResolucionDAO extends EasyDAO<Resolucion> {
@@ -24,4 +25,6 @@ public interface ResolucionDAO extends EasyDAO<Resolucion> {
     List<Resolucion> allByNombre(String nombre);
 
     public void updateColumns(Resolucion resolucionBD, String... string);
+
+    public Resolucion findByOficinaSerieNumero(Oficina oficina, String serie, String numero);
 }

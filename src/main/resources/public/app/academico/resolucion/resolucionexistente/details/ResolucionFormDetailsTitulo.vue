@@ -1,20 +1,15 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <resolucion-form-filter></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class=" text-center">Persona</th>
-                    <th class=" text-center" >Tipo Tramite</th>
-                    <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
-                    <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
-                    <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
-                    <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
-                    <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                    <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
-                    <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
+                    <th class="col-sm-10 text-center">Persona</th>
+                    <th class="col-sm-1">Seleccionado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
@@ -28,7 +23,6 @@
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
-                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
@@ -50,10 +44,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
-                    </td>
-                    <td>
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="titulo.seleccionado"
@@ -62,7 +53,7 @@
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td>
+                    <td class="v-middle">
                         <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
@@ -79,15 +70,18 @@
 </template>
 
 <script>
+    const ResolucionFormFilter = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionFormFilter.vue');
     module.exports = {
         mixins: [AppliedFilter, VueLoader],
+        components: {
+            resolucionFormFilter: ResolucionFormFilter,
+        },
         computed: {
             ...Vuex.mapState(["resolucion", "visualizarSoloSeleccionados", "filterFacultad", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
-                isLoading: false
             };
         },
         mounted: function () {
@@ -106,26 +100,19 @@
             searchAlumno(nombre) {
 
                 let $vue = this;
-                $vue.isLoading = true
                 if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
                     return;
                 }
 
-                if (nombre) {
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
 
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
-                            });
-
-                }
             },
             allTitulos() {
                 let $vue = this;

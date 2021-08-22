@@ -105,7 +105,7 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
-                .only("id,nombre,codigo")
+                .only("id,nombre,codigo,instanciaOficina")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
@@ -115,7 +115,7 @@ public class ResolucionExistenteController {
 
         ArrayNode carrerasJson = JaneHelper
                 .from(service.allCarrera())
-                .only("id,nombre")
+                .only("id,nombre,codigo")
                 .array();
 
         model.addAttribute("carreras", carrerasJson);
@@ -123,7 +123,6 @@ public class ResolucionExistenteController {
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
 
-//        return "academico/resolucion/resolucionexistentes/index";
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
@@ -138,7 +137,7 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
-                .only("id,nombre")
+                .only("id,nombre,codigo,instanciaOficina")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
@@ -148,7 +147,7 @@ public class ResolucionExistenteController {
 
         ArrayNode carrerasJson = JaneHelper
                 .from(service.allCarrera())
-                .only("id,nombre")
+                .only("id,nombre,codigo")
                 .array();
 
         Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
@@ -580,7 +579,7 @@ public class ResolucionExistenteController {
                     "curso.*",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
+                    "tramite.alumno.persona.tipoDocumento.*",
                 });
                 objectNode.put("tipo", PRACTICAS.name());
                 array.add(objectNode);
@@ -656,23 +655,29 @@ public class ResolucionExistenteController {
     public JsonResponse allBachiller(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<TramiteBachiller> tramitesBachillerBeans = service.allBachiller(ds);
+            
+            List<TramiteBachiller> tramitesBachiller = service.allBachiller(ds);
 
-            for (TramiteBachiller tramiteBachiller : tramitesBachillerBeans) {
+            for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
+                
                 tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
                 tramiteBachiller.setSeleccionado(Boolean.FALSE);
-                array.add(JsonHelper.createJson(tramiteBachiller, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.carrera.facultad.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.simbolo"
-                }));
+                
+                 array.add(JaneHelper.from(tramiteBachiller)
+                         .join("tramite")
+                         .join("alumno","id,codigo")
+                         .join("alumno.carrera","id,codigo,nombre")
+                         .join("alumno.carrera.facultad","id,codigo,nombre,simbolo")
+                         .join("alumno.persona","id,apellidosNombres")
+                         .join("alumno.persona.tipoDocumento")
+                         .json());
+                
             }
+            
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
         } catch (PhobosException e) {

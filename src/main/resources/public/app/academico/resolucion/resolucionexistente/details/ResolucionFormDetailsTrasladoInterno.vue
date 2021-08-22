@@ -6,21 +6,18 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class="col-sm-3 text-center" >Persona</th>
-                    <th class="col-sm-3 text-center" >Motivo Rechazo</th>
-                    <th class="col-sm-1 text-center" >Aprobado</th>
-                    <th class="col-sm-1 text-center" >Rechazado</th>
+                    <th class="col-sm-10 text-center" >Persona</th>
+                    <th class="col-sm-1 text-center" >Seleccionado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
             <tbody>
 
-                <tr v-for="(cambioPlanCurricular , index) in resolucion.cambioPlanCurriculares" 
-                    v-if="filtroFacultadSeleccionado(filterFacultad, cambioPlanCurricular)"> 
+                <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado"> 
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
-                                <multiselect v-model="cambioPlanCurricular.alumno" 
+                                <multiselect v-model="tramiteTraslado.alumno" 
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
@@ -29,12 +26,10 @@
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
-                                             v-bind:disabled="isEdicion &amp;&amp; cambioPlanCurricular.id != null">
-
+                                             v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                                     <template slot="singleLabel" slot-scope="props">
                                         <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
-
                                     <template slot="option" slot-scope="props">
                                         <div class="option__desc">
                                             <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
@@ -42,40 +37,24 @@
                                             <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
                                         </div>
                                     </template>
-
                                 </multiselect>
-                                <input v-model="cambioPlanCurricular.alumno" required="true" type="text" class="hide"/>
+                                <input v-model="tramiteTraslado.alumno" required="true" type="text" class="hide"/>
                             </div>
                         </div>
                     </td>
-                    <td class="v-middle text-left">
-                        <input class="form-control" v-if="cambioPlanCurricular.rechazado" v-model="cambioPlanCurricular.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; !cambioPlanCurricular.id"/>
-                    </td>
                     <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
-                                   v-model="cambioPlanCurricular.seleccionado"
-                                   v-on:change="cambioSeleccionado(cambioPlanCurricular)"
-                                   v-bind:disabled="isEdicion &amp;&amp; cambioPlanCurricular.id != null"/>
+                                   v-model="tramiteTraslado.seleccionado" />
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td class="v-middle">
-                        <label class="switch">
-                            <input type="checkbox" 
-                                   v-model="cambioPlanCurricular.rechazado"
-                                   v-on:change="cambioRechazado(cambioPlanCurricular)"
-                                   v-bind:disabled="isEdicion &amp;&amp; cambioPlanCurricular.id != null"/>
-                            <span class="slider round"></span>
-                        </label>
-                    </td>
-                    <td class="v-middle">
-                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; cambioPlanCurricular.id != null">
+                    <td class="v-middle text-center">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
-
 
             </tbody>
         </table>
@@ -87,59 +66,45 @@
 
 <script>
     module.exports = {
-        mixins: [AppliedFilter, VueLoader],
         computed: {
             ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
+                carreras: JSON.parse(carrerasJson),
             };
         },
         mounted: function () {
             let $vue = this;
-            $vue.allCambioNota();
+            $vue.allTraslados();
         },
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.cambioPlanCurriculares.push({seleccionado: false, rechazado: false});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: false});
             },
             del(index) {
                 let $vue = this;
-                $vue.resolucion.cambioPlanCurriculares.splice(index, 1);
+                $vue.resolucion.tramiteTraslado.splice(index, 1);
             },
             searchAlumno(nombre) {
                 let $vue = this;
-                if (!$vue.resolucion.oficina) {
+                if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
                     return;
                 }
                 AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        {params: {nombre: nombre}})
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                            }
+                        }
                         });
             },
-            allCambioNota() {
+            allTraslados() {
                 let $vue = this;
-                $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allCambioPlanCurricular"))
-                        .then(({data}) => {
-                            $vue.resolucion.cambioPlanCurriculares = data.data;
-                            $vue.hideLoader();
-                        }, () => {
-                            notify(Messages.errorComunicacion, "error");
-                            $vue.hideLoader();
-                        });
-            },
-            cambioRechazado(cambioPlanCurricular) {
-                cambioPlanCurricular.seleccionado = false;
-            },
-            cambioSeleccionado(cambioPlanCurricular) {
-                cambioPlanCurricular.rechazado = false;
+                $vue.resolucion.tramiteTraslado=[];
             }
         }
     };

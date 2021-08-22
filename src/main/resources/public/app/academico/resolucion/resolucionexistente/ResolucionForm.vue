@@ -57,7 +57,7 @@
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTrasladoInterno">
-                            <resolucion-form-details-traslado></resolucion-form-details-traslado>
+                            <resolucion-form-details-traslado-interno></resolucion-form-details-traslado-interno>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTrasladoExterno">
@@ -123,6 +123,7 @@
     const ResolucionFormDetailsRetiroCiclo = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRetiroCiclo.vue');
     const ResolucionFormDetailsTitulo = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTitulo.vue');
     const ResolucionFormDetailsTraslado = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTraslado.vue');
+    const ResolucionFormDetailsTrasladoInterno = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTrasladoInterno.vue');
 
     module.exports = {
         components: {
@@ -138,6 +139,7 @@
             resolucionFormDetailsRetiroCiclo: ResolucionFormDetailsRetiroCiclo,
             resolucionFormDetailsTitulo: ResolucionFormDetailsTitulo,
             resolucionFormDetailsTraslado: ResolucionFormDetailsTraslado,
+            resolucionFormDetailsTrasladoInterno :ResolucionFormDetailsTrasladoInterno,
         },
         mixins: [VueLoader],
         data() {

@@ -264,6 +264,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             throw new PhobosException("Debe Agregar alumnos.");
         }
 
+        Resolucion resolucionDb = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionDb != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
 
         Resolucion resolucion = new Resolucion();
@@ -292,6 +301,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public String saveRetiroCiclo(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        Resolucion resolucionDb = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionDb != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(resolucionForm.getTipoResolucion().getTipoEnum());
         Resolucion resolucionDB = new Resolucion();
@@ -333,6 +351,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public String saveCambioNota(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CAM_NOTA);
         Resolucion resolucion = new Resolucion();
@@ -382,10 +409,35 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public List<String> saveCursoDirigido(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
-        List<String> msg = new ArrayList();
-
         if (resolucionForm.getCursoDirigido().isEmpty()) {
-            throw new PhobosException("Debe Agregar alumnos.");
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        List<CursoDirigido> tramiteCursoDirigidoAceptadoOrRechazado = resolucionForm.getCursoDirigido()
+                .stream().filter(x -> x.isSeleccionado() || x.isRechazado()).collect(Collectors.toList());
+
+        if (tramiteCursoDirigidoAceptadoOrRechazado.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        Map<Long, Long> couterMap = tramiteCursoDirigidoAceptadoOrRechazado.stream()
+                .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+
+        for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
+
+            Long count = entry.getValue();
+
+            if (count > 1) {
+
+                CursoDirigido cursoDirigido = resolucionForm.getCursoDirigido()
+                        .stream()
+                        .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
+                        .findFirst().orElse(null);
+
+                throw new PhobosException(String.format("Está repitiendo al alumno %s en la lista", cursoDirigido.getAlumno().getCodigo()));
+
+            }
+
         }
 
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
@@ -397,7 +449,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapMatriculaCursos = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculaCursos);
 
-        for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
+        List<String> msg = new ArrayList();
+
+        for (CursoDirigido cursoDirigidoForm : tramiteCursoDirigidoAceptadoOrRechazado) {
             String message = "";
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
 
@@ -416,6 +470,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             return msg;
         }
 
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
@@ -430,10 +493,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucion.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionDAO.save(resolucion);
 
-        for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
+        for (CursoDirigido cursoDirigidoForm : tramiteCursoDirigidoAceptadoOrRechazado) {
 
-            EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
-            TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
+            EstadoTramite estado = cursoDirigidoForm.isSeleccionado() ? estadoTramite : estadoTramiteRech;
+            TramiteEstadoEnum estadotram = cursoDirigidoForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
 
             cursoDirigidoTram.setMotivoRechazo(cursoDirigidoTram.getMotivoRechazo());
@@ -446,7 +509,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoEnum(estadotram);
             tramiteDAO.update(tramite);
 
-            if (!cursoDirigidoForm.getSeleccionado()) {
+            if (!cursoDirigidoForm.isSeleccionado()) {
                 continue;
             }
             AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigidoTram.getCurso().getDepartamentoAcademico());
@@ -555,6 +618,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public void saveTramiteTraslado(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         if (resolucionForm.getTramiteTraslado().isEmpty()) {
             throw new PhobosException("Debe Agregar alumnos.");
         }
@@ -584,6 +656,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public void saveIngresoHisto(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
 
         if (resolucionForm.getTramiteTraslado().isEmpty()) {
             throw new PhobosException("Debe Agregar alumnos.");
@@ -639,6 +720,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        logger.debug("{}", resolucionForm.getOficina().getId());
+        logger.debug("{}", resolucionForm.getSerie());
+        logger.debug("{}", resolucionForm.getNumero());
+
+        Resolucion resolucionDb = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionDb != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -725,19 +820,18 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private String saveReincorporaciones(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
 
-        List<Alumno> alumnos = new ArrayList();
-
-        List<Reincorporacion> tramiteReincorporacion = resolucionForm.getReincorporaciones()
-                .stream()
-                .filter(x -> x.isSeleccionado())
-                .collect(Collectors.toList());
-
-        if (tramiteReincorporacion.isEmpty()) {
+        if (resolucionForm.getReincorporaciones().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
 
-        Map<Long, Long> couterMap = tramiteReincorporacion
-                .stream()
+        List<Reincorporacion> tramiteReincorporacionAceptadoOrRechazado = resolucionForm.getReincorporaciones()
+                .stream().filter(x -> x.isSeleccionado() || x.isRechazado()).collect(Collectors.toList());
+
+        if (tramiteReincorporacionAceptadoOrRechazado.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        Map<Long, Long> couterMap = tramiteReincorporacionAceptadoOrRechazado.stream()
                 .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
 
         for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
@@ -751,7 +845,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                         .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
                         .findFirst().orElse(null);
 
-                throw new PhobosException("Está repitiendo al alumno " + reincorporacion.getAlumno().getPersona().getApellidosNombres());
+                throw new PhobosException(String.format("Está repitiendo al alumno %s en la lista", reincorporacion.getAlumno().getCodigo()));
+
             }
 
         }
@@ -765,7 +860,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
-        for (Reincorporacion reincorporacioneForm : tramiteReincorporacion) {
+        List<Alumno> alumnos = new ArrayList();
+
+        for (Reincorporacion reincorporacioneForm : tramiteReincorporacionAceptadoOrRechazado) {
 
             Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
             reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
@@ -775,7 +872,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
             Tramite tramite = reincorporacion.getTramite();
             tramite.setEstadoEnum(reincorporacioneForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
-            tramite.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
             tramiteDAO.update(tramite);
             if (reincorporacion.getCicloReincorporacion().getId().equals(cicloActivo.getId())) {
                 alumnos.add(reincorporacion.getAlumno());
@@ -800,17 +896,43 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     private String saveRetirosCiclos(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
+
+        if (resolucionForm.getRetiroCiclo().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        List<RetiroCiclo> tramiteRetiroCicloAceptadoOrRechazado = resolucionForm.getRetiroCiclo()
+                .stream().filter(x -> x.isSeleccionado() || x.isRechazado()).collect(Collectors.toList());
+
+        if (tramiteRetiroCicloAceptadoOrRechazado.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        Map<Long, Long> couterMap = tramiteRetiroCicloAceptadoOrRechazado.stream()
+                .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+
+        for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
+
+            Long count = entry.getValue();
+
+            if (count > 1) {
+
+                RetiroCiclo retiroCiclo = resolucionForm.getRetiroCiclo()
+                        .stream()
+                        .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
+                        .findFirst().orElse(null);
+
+                throw new PhobosException(String.format("Está repitiendo al alumno %s en la lista", retiroCiclo.getAlumno().getCodigo()));
+
+            }
+
+        }
+
         List<Alumno> alumnos = new ArrayList<>();
         EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         EstadoTramite estadoTramiteRechz = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
-        List<RetiroCiclo> tramiteRetiro = resolucionForm.getRetiroCiclo().stream().filter(x -> x.getSeleccionado()).collect(Collectors.toList());
-
-        if (tramiteRetiro.isEmpty()) {
-            throw new PhobosException("Debe seleccionar como mínimo un alumnos.");
-        }
-
-        for (RetiroCiclo retiroCicloForm : tramiteRetiro) {
+        for (RetiroCiclo retiroCicloForm : tramiteRetiroCicloAceptadoOrRechazado) {
             CicloAcademico cicloAplica = null;
 
             Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
@@ -823,7 +945,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 }
                 cicloAplica = retiroCicloDB.getCicloAcademico();
                 matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
-                if (retiroCicloForm.getSeleccionado()) {
+                if (retiroCicloForm.isSeleccionado()) {
 
                     matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
                     matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
@@ -1148,8 +1270,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 continue;
             }
 
-            EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
-            TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
+            EstadoTramite estado = cursoDirigidoForm.isSeleccionado() ? estadoTramite : estadoTramiteRech;
+            TramiteEstadoEnum estadotram = cursoDirigidoForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
 
             cursoDirigidoTram.setMotivoRechazo(cursoDirigidoTram.getMotivoRechazo());
@@ -1162,7 +1284,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoEnum(estadotram);
             tramiteDAO.update(tramite);
 
-            if (!cursoDirigidoForm.getSeleccionado()) {
+            if (!cursoDirigidoForm.isSeleccionado()) {
                 continue;
             }
             AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigidoTram.getCurso().getDepartamentoAcademico());
@@ -1253,6 +1375,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public void saveResolucionTramiteBachiller(Resolucion resolucionForm, DataSessionPivot ds) {
 
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.BACHI);
         Resolucion resolucionBD = new Resolucion();
         resolucionBD.setOficina(resolucionForm.getOficina());
@@ -1277,7 +1408,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(ds.getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
 
         if (eventoCicloAcademico == null) {
-            throw new PhobosException("No se ha configurado las fechas de inicio y fin de ciclo");
+            throw new PhobosException("No se ha configurado las fechas de inicio y fin del  ciclo " + ds.getCicloAcademico().getDescripcion());
         }
 
         List<Alumno> alumnos = resolucionForm.getTramiteBachiller().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
@@ -1371,6 +1502,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public void saveTramiteTitulo(Resolucion resolucionForm, DataSessionPivot ds) {
 
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.TITUL);
         Resolucion resolucionBD = new Resolucion();
         resolucionBD.setOficina(resolucionForm.getOficina());
@@ -1442,7 +1582,18 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public String saveResolucionTramitePracticas(Resolucion resolucionForm, DataSessionPivot ds) {
+
+        Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionExistente != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.PRACTICAS);
+
         Resolucion resolucionBD = new Resolucion();
         resolucionBD.setOficina(resolucionForm.getOficina());
         resolucionBD.setFecha(resolucionForm.getFecha());
@@ -1647,7 +1798,17 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             throw new PhobosException("Debe Agregar alumnos.");
         }
 
+        Resolucion resolucionDb = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionDb != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.READMISION);
+
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -1667,26 +1828,18 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private String saveReadmision(Resolucion resolucionForm, Resolucion resolucionBD) {
 
-        List<Alumno> alumnos = new ArrayList();
-
         if (resolucionForm.getReadmisiones().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
 
-        List<Readmision> tramiteReadmisionAceptados = resolucionForm.getReadmisiones()
-                .stream()
-                .filter(x -> x.isSeleccionado()).collect(Collectors.toList());
+        List<Readmision> tramiteReadmisionAceptadoOrRechazado = resolucionForm.getReadmisiones()
+                .stream().filter(x -> x.isSeleccionado() || x.isRechazado()).collect(Collectors.toList());
 
-        List<Readmision> tramiteReadmisionRechazados = resolucionForm.getReadmisiones()
-                .stream()
-                .filter(x -> x.isRechazado()).collect(Collectors.toList());
-
-        if (tramiteReadmisionAceptados.isEmpty()&&tramiteReadmisionRechazados.isEmpty()) {
+        if (tramiteReadmisionAceptadoOrRechazado.isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
 
-        Map<Long, Long> couterMap = resolucionForm.getReadmisiones()
-                .stream()
+        Map<Long, Long> couterMap = tramiteReadmisionAceptadoOrRechazado.stream()
                 .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
 
         for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
@@ -1700,7 +1853,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                         .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
                         .findFirst().orElse(null);
 
-                throw new PhobosException("Está repitiendo al alumno " + readmision.getAlumno().getPersona().getApellidosNombres());
+                throw new PhobosException(String.format("Está repitiendo al alumno %s en la lista", readmision.getAlumno().getCodigo()));
+
             }
 
         }
@@ -1715,13 +1869,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
+        List<Alumno> alumnos = new ArrayList();
+
         for (Readmision readmisionForm : resolucionForm.getReadmisiones()) {
 
             Readmision readmision = readmisionXalumno.get(readmisionForm.getAlumno().getId());
             readmision.setAceptado(readmisionForm.isSeleccionado() ? 1 : 0);
             readmision.setResolucion(resolucionBD);
+            readmision.setMotivoRechazo(readmisionForm.getMotivoRechazo());
             readmision.setEstadoTramite(readmisionForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
-            readmisionDAO.updateColumns(readmision, "aceptado", "resolucion", "estadoTramite");
+            readmisionDAO.updateColumns(readmision, "aceptado", "resolucion", "estadoTramite", "motivoRechazo");
 
             Tramite tramite = readmision.getTramite();
             tramite.setEstadoEnum(readmisionForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
@@ -1757,7 +1914,17 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             throw new PhobosException("Debe Agregar alumnos.");
         }
 
+        Resolucion resolucionDb = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
+        if (resolucionDb != null) {
+            throw new PhobosException(
+                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                            resolucionForm.getSerie(),
+                            resolucionForm.getNumero(),
+                            resolucionForm.getOficina().getNombre()));
+        }
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR);
+
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -1775,24 +1942,37 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     }
 
-    private String saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucionBD) {
+    private String saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucion) {
 
-        List<Alumno> alumnos = new ArrayList();
-
-        List<CambioPlanCurricular> tramiteCambioPlanCurricular = resolucionForm.getCambioPlanCurriculares()
-                .stream().filter(x -> x.isSeleccionado()).collect(Collectors.toList());
-
-        if (tramiteCambioPlanCurricular.isEmpty()) {
-            throw new PhobosException("Debe seleccionar como mínimo un alumnos.");
+        if (resolucionForm.getCambioPlanCurriculares().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
 
-        Map<Long, Long> couterMap = tramiteCambioPlanCurricular.stream()
+        List<CambioPlanCurricular> tramiteCambioPlanCurricularAceptadoOrRechazado = resolucionForm.getCambioPlanCurriculares()
+                .stream().filter(x -> x.isSeleccionado() || x.isRechazado()).collect(Collectors.toList());
+
+        if (tramiteCambioPlanCurricularAceptadoOrRechazado.isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        Map<Long, Long> couterMap = tramiteCambioPlanCurricularAceptadoOrRechazado.stream()
                 .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
 
-        for (Long count : couterMap.values()) {
+        for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
+
+            Long count = entry.getValue();
+
             if (count > 1) {
-                throw new PhobosException("Está repitiendo alumno");
+
+                CambioPlanCurricular cambioPlanCurricular = resolucionForm.getCambioPlanCurriculares()
+                        .stream()
+                        .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
+                        .findFirst().orElse(null);
+
+                throw new PhobosException(String.format("Está repitiendo al alumno %s en la lista", cambioPlanCurricular.getAlumno().getCodigo()));
+
             }
+
         }
 
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
@@ -1801,17 +1981,23 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
-        for (CambioPlanCurricular cambioPlanCurricularForm : tramiteCambioPlanCurricular) {
+
+        List<Alumno> alumnos = new ArrayList();
+
+        for (CambioPlanCurricular cambioPlanCurricularForm : tramiteCambioPlanCurricularAceptadoOrRechazado) {
 
             CambioPlanCurricular cambioPlanCurricular = cambioPlanCurricularXalumno.get(cambioPlanCurricularForm.getAlumno().getId());
+            if (cambioPlanCurricular == null) {
+                throw new PhobosException(String.format("Alumno %s no tiene tramite de cambio plan curricular", cambioPlanCurricularForm.getAlumno().getCodigo()));
+            }
             cambioPlanCurricular.setAceptado(cambioPlanCurricularForm.isSeleccionado() ? 1 : 0);
-            cambioPlanCurricular.setResolucion(resolucionBD);
+            cambioPlanCurricular.setResolucion(resolucion);
+            cambioPlanCurricular.setMotivoRechazo(cambioPlanCurricularForm.getMotivoRechazo());
             cambioPlanCurricular.setEstadoTramite(cambioPlanCurricularForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
-            cambioPlanCurricularDAO.updateColumns(cambioPlanCurricular, "aceptado", "resolucion", "estadoTramite");
+            cambioPlanCurricularDAO.updateColumns(cambioPlanCurricular, "aceptado", "resolucion", "estadoTramite", "motivoRechazo");
 
             Tramite tramite = cambioPlanCurricular.getTramite();
             tramite.setEstadoEnum(cambioPlanCurricularForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
-            tramite.setEstadoTramite(cambioPlanCurricularForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
             tramiteDAO.update(tramite);
 
             if (cambioPlanCurricular.getCicloAcademico().getId().equals(cicloActivo.getId())) {

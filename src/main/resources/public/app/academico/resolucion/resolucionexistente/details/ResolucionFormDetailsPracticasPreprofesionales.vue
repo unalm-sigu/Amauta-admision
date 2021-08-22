@@ -1,15 +1,20 @@
 <template>
     <div>
-        
+
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <table class="table table-striped">
+            
             <thead>
                 <tr>
-                    <th class=" text-center">Persona</th>
-                    <th class=" text-center">Tipo Tramite</th>
-                    <th v-if="validColumCreditos(resolucion)">Créditos</th>
+                    <th class="col-sm-9 text-center">Persona</th>
+                    <th class="col-sm-2 text-center" >
+                        <span v-if="validColumCreditos(resolucion)">Créditos</span>
+                    </th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
+            
             <tbody>
 
                 <tr v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
@@ -20,7 +25,6 @@
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
-                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
@@ -42,13 +46,12 @@
                             </div>
                         </div>
                     </td>
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
+                    
+                    <td class="v-middle text-center" >
+                        <input v-if="validColumCreditos(resolucion)" class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
                     </td>
-                    <td class="v-middle text-center" v-if="validColumCreditos(resolucion)">
-                        <input  class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
-                    </td>
-                    <td>
+                    
+                    <td class="v-middle">
                         <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
@@ -74,7 +77,6 @@
         data() {
             return {
                 alumnos: [],
-                isLoading: false
             };
         },
         mounted: function () {
@@ -99,20 +101,13 @@
                     return;
                 }
 
-                if (nombre) {
-                    $vue.isLoading = true
                     AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
                             {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
                             .then(({data}) => {
                                 if (data.success) {
                                     $vue.alumnos = data.data;
                                 }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
                             });
-
-                }
             },
             allPracticas() {
                 let $vue = this;

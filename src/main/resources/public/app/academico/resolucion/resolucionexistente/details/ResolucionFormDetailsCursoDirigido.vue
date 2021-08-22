@@ -1,13 +1,14 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class="col-sm-3 text-center" >Persona</th>
-                    <th class="col-sm-3 text-center" >Tipo Tramite</th>
+                    <th class="col-sm-4 text-center" >Persona</th>
                     <th class="col-sm-3 text-center" >Docente</th>
-                    <th class="col-sm-3 text-center" >Motivo Rechazo</th>
+                    <th class="col-sm-2 text-center" >Motivo Rechazo</th>
                     <th class="col-sm-1 text-center" >Aprobado</th>
                     <th class="col-sm-1 text-center" >Rechazado</th>
                     <th class="col-sm-1 text-center"></th>
@@ -16,14 +17,13 @@
             <tbody>
 
                 <tr v-for="(cursoDirigido , index) in resolucion.cursoDirigido"> 
-                    <td class="v-middle text-center">
+                    <td class="v-middle">
                         <div class="form-group">
                             <div class="col-md-12">
                                 <multiselect v-model="cursoDirigido.alumno" 
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
-                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
@@ -47,13 +47,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
-                    </td>
-                    <td class="v-middle text-left">
-                        <input class="form-control" v-if="!cursoDirigido.seleccionado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
-                    </td>
-                    <td class="v-middle text-left">
+                    <td class="v-middle">
                         <div class="col-md-12" v-if="cursoDirigido.seleccionado">
                             <div class="form-group">
                                 <multiselect 
@@ -80,16 +74,30 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td class="v-middle">
+                        <input class="form-control" v-if="cursoDirigido.rechazado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
+                    </td>
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="cursoDirigido.seleccionado"
-                                   checked="1"
+                                   checked="0"
+                                   v-on:change="cambioSeleccionado(cursoDirigido)"
                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td>
+                    <td class="v-middle">
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   v-model="cursoDirigido.rechazado"
+                                   v-on:change="cambioRechazado(cursoDirigido)"
+                                   checked="0"
+                                   v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td class="v-middle">
                         <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
@@ -115,7 +123,6 @@
             return {
                 alumnos: [],
                 docentes: [],
-                isLoading: true
             };
         },
         mounted: function () {
@@ -124,7 +131,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.cursoDirigido.push({seleccionado: true});
+                $vue.resolucion.cursoDirigido.push({seleccionado: false, rechazado: false});
             },
             del(index) {
                 let $vue = this;
@@ -136,33 +143,33 @@
                     notify("Seleccione una oficina.");
                     return;
                 }
-                $vue.isLoading = true
                 AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
                         {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                            }
-                            $vue.isLoading = false;
+                        }
                         }, error => {
-                            $vue.isLoading = false;
                         });
             },
             findDocente(nombre) {
                 let $vue = this;
-                $vue.isLoading = true
                 AXIOS.get(APP.url("academico/tramiteacademico/findDocente"),
                         {params: {nombre: nombre}})
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.docentes = data.data;
-                            }
-                            $vue.isLoading = false;
+                        }
                         }, error => {
-                            $vue.isLoading = false;
                         });
 
             },
+            cambioRechazado(cursoDirigido) {
+                cursoDirigido.seleccionado = false;
+            },
+            cambioSeleccionado(cursoDirigido) {
+                cursoDirigido.rechazado = false;
+            }
         }
     };
 </script>

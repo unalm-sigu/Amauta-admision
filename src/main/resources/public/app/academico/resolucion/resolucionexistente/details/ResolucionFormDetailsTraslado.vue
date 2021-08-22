@@ -1,18 +1,14 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class=" text-center">Persona</th>
-                    <th class=" text-center" >Tipo Tramite</th>
-                    <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
-                    <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
-                    <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
-                    <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
-                    <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                    <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
-                    <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
+                    <th class="col-sm-6 text-center" >Persona</th>
+                    <th class="col-sm-4 text-center" >Ciclo</th>
+                    <th class="col-sm-1 text-center" >Seleccionado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
@@ -26,7 +22,6 @@
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
-                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
@@ -48,10 +43,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
-                    </td> 
-                    <td class="v-middle text-left" v-if="!isTrasladoInt">
+                    <td class="v-middle text-left" >
                         <div class="form-group">
                             <multiselect 
                                 v-model="tramiteTraslado.cicloAcademico" 
@@ -66,17 +58,10 @@
                             <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
                         </div>
                     </td>
-                    <td>
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="tramiteTraslado.seleccionado" />
-                            <span class="slider round"></span>
-                        </label>
-                    </td>
-                    <td>
-                        <label class="switch">
-                            <input type="checkbox" 
-                                   v-model="tramiteTraslado.rechazado" />
                             <span class="slider round"></span>
                         </label>
                     </td>
@@ -103,12 +88,13 @@
         data() {
             return {
                 alumnos: [],
-                isLoading: false,
                 carreras: JSON.parse(carrerasJson),
+                ciclos: JSON.parse(ciclosJson),
             };
         },
         mounted: function () {
             let $vue = this;
+            $vue.allTraslados();
         },
         methods: {
             add() {
@@ -122,27 +108,23 @@
             searchAlumno(nombre) {
 
                 let $vue = this;
-                $vue.isLoading = true
                 if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
                     return;
                 }
 
-                if (nombre) {
-
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
-                            });
-
-                }
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                         }
+                        });
             },
+            allTraslados() {
+                let $vue = this;
+                $vue.resolucion.tramiteTraslado = [];
+            }
         }
     };
 </script>

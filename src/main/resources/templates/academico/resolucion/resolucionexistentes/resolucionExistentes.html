@@ -17,240 +17,14 @@
 
             <div id="main" v-cloak="">
 
-                <div >
+                <section class="wrapper-lg">
 
-                    <section class="wrapper-lg">
+                    <resolucion-form></resolucion-form>
 
-                        <form id="form" data-parsley-validate="true" >
-
-
-                            <section class="panel m-b-sm">
-                                <section class="panel-body">
-
-
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <label>Facultad</label>
-                                            <div class="form-group">
-                                                <multiselect 
-                                                    v-model="resolucion.oficina" 
-                                                    v-bind:options="oficinas"
-                                                    placeholder=" "
-                                                    label="nombre"
-                                                    v-bind:allow-empty="false"
-                                                    track-by="id" 
-                                                    required="true"
-                                                    v-bind:showNoOptions="true"
-                                                    v-bind:show-labels="false"
-                                                    v-on:select="oficinaSelect" >
-
-
-                                                    <template slot="singleLabel" slot-scope="props">
-                                                        <span class="option__title">
-                                                            {{props.option.nombre}}
-                                                        </span>
-                                                    </template>
-
-                                                    <template slot="option" slot-scope="props">
-                                                        <span class="option_title">
-                                                            {{props.option.nombre}}
-                                                        </span> 
-                                                    </template>
-
-                                                    <template slot="noOptions">&nbsp;</template>
-                                                    <template slot="noResult">&nbsp;</template>
-
-                                                </multiselect>
-
-                                                <input v-model="resolucion.oficina" required="true" type="text" class="hide"/>
-
-                                            </div>
-                                        </div> 
-                                        <div class="col-lg-6">
-                                            <div class="form-group">
-                                                <label>Fecha Resolución</label>
-                                                <div class="input-group date">
-                                                    <date-picker v-model="resolucion.fecha" 
-                                                                 required="true" 
-                                                                 v-bind:config="configDate" 
-                                                                 data-parsley-id="2" 
-                                                                 v-bind:wrap="true" >
-                                                    </date-picker>  
-                                                    <div class="input-group-addon">
-                                                        <span class="fa fa-calendar"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <label>Serie</label>
-                                            <div class="form-group">
-                                                <input type="text"
-                                                       v-model="resolucion.serie"
-                                                       maxlength="10"
-                                                       class="form-control numerico" 
-                                                       required="true"></input>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <label>Número</label>
-                                            <div class="form-group">
-                                                <input type="text"
-                                                       maxlength="10"
-                                                       v-model="resolucion.numero"
-                                                       class="form-control numerico" 
-                                                       required="true"> </input>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-
-                                        <div class="col-lg-6">
-                                            <label>Tipo Resolución</label>
-                                            <div class="form-group">
-                                                <multiselect 
-                                                    v-model="resolucion.tipoResolucion" 
-                                                    v-bind:options="tiposResolucion"
-                                                    placeholder=" "
-                                                    label="nombre"
-                                                    v-bind:allow-empty="false"
-                                                    deselect-label="No se puede eliminar este valor"
-                                                    track-by="id" 
-                                                    required="true"
-                                                    v-on:select="tipoResolucionSelect"
-                                                    v-bind:disabled="isEdicion"
-                                                    >
-                                                </multiselect>
-                                                <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
-                                            </div>
-                                        </div> 
-
-                                        <div class="col-lg-6" v-if="isCambioNota||isCursoDirigido">
-                                            <label>Ciclo 
-                                                <span v-if='isRetiroCiclo'> a retirar</span>
-                                                <span v-if='isReincorporacion'> a reincorporar</span>
-                                            </label>
-                                            <div class="form-group">
-                                                <multiselect 
-                                                    v-model="resolucion.cicloAplica" 
-                                                    v-bind:options="ciclos"
-                                                    placeholder=" "
-                                                    label="descripcion"
-                                                    track-by="id" 
-                                                    required="true"
-                                                    v-bind:allow-empty="true"
-                                                    deselect-label="No se puede eliminar este valor" 
-                                                    v-bind:disabled="isEdicion">
-                                                </multiselect>
-                                                <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </section>
-                            </section>
-
-                            <section class="panel m-b-xs">
-                                <section class="panel-body">
-                                    <div v-if="isTitulo ||  isBachiller || isRetiroCiclo || isReincorporacion">
-                                        <div class="col-lg-6">
-                                            <label>Filtro Facultad</label>
-                                            <div class="form-group">
-                                                <multiselect 
-                                                    v-model="filterFacultad" 
-                                                    v-bind:options="oficinas"
-                                                    placeholder=" "
-                                                    label="nombre"
-                                                    v-bind:allow-empty="true"
-                                                    track-by="id" 
-                                                    required="true"
-                                                    >
-                                                </multiselect>
-                                            </div>
-                                        </div> 
-                                        <div class="col-lg-6">
-                                            <label>Filtro Visualizar Solo Seleccionados</label>
-                                            <div class="form-group">
-                                                <input type="checkbox" style="width: 25px;height: 25px;" class="v-middle" v-model="visualizarSelect"/> 
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th class=" text-center">Persona</th>
-                                                <th class=" text-center" >Tipo Tramite</th>
-                                                <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
-                                                <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
-                                                <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
-                                                <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
-                                                <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                                                <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
-                                                <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
-                                                <th class="col-sm-1 text-center"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionReincorporacion"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionRetiroCiclo"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionCambioNotas"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionCursoDirigido"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionTraslados"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionNotaMasBaja"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionBachiller"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionTitulo"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionReadmision"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionCambioPlanCurricular"></div>
-                                        </template>
-                                        <template>
-                                            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionPracticasPreProfesionales"></div>
-                                        </template>
-
-                                        </tbody>
-                                    </table>
-
-                                    <button type="button" v-on:click="addResolucion" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
-
-                                    <button v-if="resolucion.id == null" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
-                                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                                        Guardar
-                                    </button>
-
-                                    <button v-else="" type="button" v-on:click="updateResolucion" class="btn btn-primary pull-left m-t-md">
-                                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                                        Actualizar
-                                    </button>
-
-                                </section>
-                            </section>
-                        </form>
-                    </section>
-                </div>
-
-                <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionError"> </div>
+                </section>
 
             </div>
+
         </section>
 
         <div layout:fragment="js">
@@ -263,7 +37,27 @@
                 var resolucionJson = /*[[${resolucion != null ? resolucion.toString() : null}]]*/ '';
             </script>
 
-            <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistente.js}" charset="utf-8"></script> 
+            <div th:substituteby="_modules/vue-modal_v1"/>
+
+            <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistentestore.js}" charset="utf-8"></script>
+
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('date-picker', VueBootstrapDatetimePicker);
+                Vue.component('file-upload', VueUploadComponent);
+
+                const ResolucionForm = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionForm.vue');
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        resolucionForm: ResolucionForm,
+                    }
+                });
+
+            </script>
 
         </div>
     </body>

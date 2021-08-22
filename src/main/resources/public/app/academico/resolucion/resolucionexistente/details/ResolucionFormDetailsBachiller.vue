@@ -1,15 +1,15 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <resolucion-form-filter></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class=" text-center">Persona</th>
-                    <th class=" text-center" >Tipo Tramite</th>
-                    <th >Aprobado</th>
-                    <th >Rechazado</th>
+                    <th class="col-sm-10 text-center">Persona</th>
+                    <th class="col-sm-1">Seleccionado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
@@ -17,39 +17,33 @@
                 <tr v-if="filtroFacultadSeleccionado(filterFacultad,bachiller)" v-for="(bachiller , index) in resolucion.tramiteBachiller" >
                     <td class="v-middle text-center">
                         <div class="form-group">
-                            <div class="col-md-12">
-                                <multiselect v-model="bachiller.alumno" 
-                                             v-bind:options='alumnos'
-                                             v-on:search-change="searchAlumno"
-                                             track-by='id'
-                                             v-bind:loading="isLoading"
-                                             v-bind:show-labels="false"
-                                             v-bind:allow-empty="false"
-                                             deselect-label="No se puede eliminar este valor"
-                                             v-bind:internal-search='false'
-                                             placeholder=" " 
-                                             v-bind:disabled="isEdicion &amp;&amp; !bachiller.id">
+                            <multiselect v-model="bachiller.alumno" 
+                                         v-bind:options='alumnos'
+                                         v-on:search-change="searchAlumno"
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         deselect-label="No se puede eliminar este valor"
+                                         v-bind:internal-search='false'
+                                         placeholder=" " 
+                                         v-bind:disabled="isEdicion &amp;&amp; !bachiller.id">
 
-                                    <template slot="singleLabel" slot-scope="props">
-                                        <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
-                                    </template>
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
+                                </template>
 
-                                    <template slot="option" slot-scope="props">
-                                        <div class="option__desc">
-                                            <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} </span>
-                                            <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
-                                            <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
-                                        </div>
-                                    </template>
-                                </multiselect>
-                                <input v-model="bachiller.alumno" required="true" type="text" class="hide"/>
-                            </div>
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} </span>
+                                        <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                        <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="bachiller.alumno" required="true" type="text" class="hide"/>
                         </div>
                     </td>
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
-                    </td>
-                    <td>
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="bachiller.seleccionado"
@@ -57,15 +51,7 @@
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td>
-                        <label class="switch">
-                            <input type="checkbox" 
-                                   v-model="bachiller.rechazado"
-                                   v-bind:disabled="isEdicion &amp;&amp; !bachiller.id"/>
-                            <span class="slider round"></span>
-                        </label>
-                    </td>
-                    <td>
+                    <td class="v-middle text-center">
                         <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; !bachiller.id">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
@@ -92,7 +78,6 @@
         data() {
             return {
                 alumnos: [],
-                isLoading: false
             };
         },
         mounted: function () {
@@ -111,13 +96,10 @@
             searchAlumno(nombre) {
 
                 let $vue = this;
-                $vue.isLoading = true
                 if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
                     return;
                 }
-
-                if (nombre) {
 
                     AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
                             {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
@@ -125,12 +107,7 @@
                                 if (data.success) {
                                     $vue.alumnos = data.data;
                                 }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
                             });
-
-                }
             },
             allBachillers() {
                 let $vue = this;

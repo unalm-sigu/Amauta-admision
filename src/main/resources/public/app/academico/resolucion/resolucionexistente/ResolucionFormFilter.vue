@@ -12,6 +12,7 @@
                         v-bind:allow-empty="true"
                         track-by="id" 
                         v-on:select="oficinaSelect"
+                        v-on:remove="oficinaRemove"
                         required="true" >
                     </multiselect>
                 </div>
@@ -44,7 +45,7 @@
             $vue.oficinaLocal = {...$vue.filterFacultad};
         },
         methods: {
-            ...Vuex.mapActions(['toggleSeleccionado','setFilterFacultad']),
+            ...Vuex.mapActions(['toggleSeleccionado', 'setFilterFacultad','removeFilterFacultad']),
             changeVisualizar() {
                 let $vue = this;
                 $vue.toggleSeleccionado();
@@ -52,6 +53,11 @@
             oficinaSelect(item) {
                 let $vue = this;
                 $vue.setFilterFacultad(item);
+                $vue.$forceUpdate();
+            },
+            oficinaRemove() {
+                let $vue = this;
+                $vue.removeFilterFacultad();
                 $vue.$forceUpdate();
             }
         }

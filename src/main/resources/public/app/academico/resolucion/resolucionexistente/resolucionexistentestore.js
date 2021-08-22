@@ -29,6 +29,9 @@ const store = new Vuex.Store({
         SET_STATE_FILTER_FACULTAD(state, facultad) {
             state.filterFacultad = facultad;
         },
+        SET_STATE_REMOVE_FILTER_FACULTAD(state) {
+            state.filterFacultad = null;
+        },
     },
     getters: {
         getResolucion: state => state.resolucion,
@@ -61,20 +64,29 @@ const store = new Vuex.Store({
             context.commit('SET_STATE_FILTER_FACULTAD', {...facultad});
 
         },
+        removeFilterFacultad(context) {
+
+            context.commit('SET_STATE_REMOVE_FILTER_FACULTAD');
+
+        },
     }
 });
 
 var AppliedFilter = {
     methods: {
-        filtroFacultadSeleccionado(ofi, item) {
+        filtroFacultadSeleccionado(filtroOficina, item) {
             let $vue = this;
             if (!item.alumno) {
                 return true;
             }
-            if (!$vue.visualizarSoloSeleccionados && (ofi != null && ofi.instanciaOficina != item.alumno.carrera.facultad.id)) {
-                return false;
-            } else if ($vue.visualizarSoloSeleccionados && !item.seleccionado) {
-                return false;
+            if ($vue.visualizarSoloSeleccionados && filtroOficina != null) {
+                return ($vue.visualizarSoloSeleccionados && (filtroOficina.instanciaOficina == item.alumno.carrera.facultad.id));
+            }
+            if ($vue.visualizarSoloSeleccionados) {
+                return item.seleccionado;
+            }
+            if (filtroOficina) {
+                return filtroOficina.instanciaOficina == item.alumno.carrera.facultad.id;
             }
             return true;
         },

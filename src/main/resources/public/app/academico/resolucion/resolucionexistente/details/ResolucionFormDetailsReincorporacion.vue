@@ -1,27 +1,24 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <resolucion-form-filter></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class=" text-center">Persona</th>
-                    <th class=" text-center" >Tipo Tramite</th>
-                    <th class=" text-center" v-if="isCambioNota||isCursoDirigido">Motivo Rechazo</th>
-                    <th class="col-md-2 text-center" v-if="isTraslado">Ciclo  </th>
-                    <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>
-                    <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
-                    <th class=" text-center" v-if="isCursoDirigido">Docente</th>
-                    <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja  &amp;&amp; !isPracticas">Aprobado</th>
-                    <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
+                    <th class="col-sm-3 text-center" >Persona</th>
+                    <th class="col-sm-3 text-center" >Motivo Rechazo</th>
+                    <th class="col-sm-1 text-center" >Aprobado</th>
+                    <th class="col-sm-1 text-center" >Rechazado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
             <tbody>
 
                 <tr v-for="(reincorporacion , index) in resolucion.reincorporaciones" 
-                    v-if="isReincorporacion &amp;&amp; resolucion.oficina.instanciaOficina == reincorporacion.alumno.carrera.facultad.id &amp;&amp; validFilter(filterFacultad, reincorporacion)"> 
+                    v-if="resolucion.oficina.instanciaOficina == reincorporacion.alumno.carrera.facultad.id &amp;&amp; filtroFacultadSeleccionado(filterFacultad, reincorporacion)"> 
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
@@ -29,7 +26,6 @@
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
-                                             v-bind:loading="isLoading"
                                              v-bind:show-labels="false"
                                              v-bind:allow-empty="false"
                                              deselect-label="No se puede eliminar este valor"
@@ -52,19 +48,27 @@
                         </div>
                     </td>
                     <td class="v-middle text-left">
-                        <div class="form-group">
-                            <span v-if="resolucion.tipoResolucion" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
-                        </div>
+                        <input class="form-control" v-if="reincorporacion.rechazado" v-model="reincorporacion.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; !reincorporacion.id"/>
                     </td>
-                    <td>
+                    <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="reincorporacion.seleccionado"
+                                   v-on:change="cambioSeleccionado(reincorporacion)"
                                    v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td>
+                    <td class="v-middle">
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   v-model="reincorporacion.rechazado"
+                                   v-on:change="cambioRechazado(reincorporacion)"
+                                   v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null"/>
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td class="v-middle">
                         <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion  &amp;&amp; reincorporacion.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
@@ -81,15 +85,18 @@
 </template>
 
 <script>
+    const ResolucionFormFilter = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionFormFilter.vue');
     module.exports = {
         mixins: [AppliedFilter, VueLoader],
+        components: {
+            resolucionFormFilter: ResolucionFormFilter,
+        },
         computed: {
             ...Vuex.mapState(["resolucion", "isEdicion", "visualizarSoloSeleccionados", "filterFacultad"])
         },
         data() {
             return {
                 alumnos: [],
-                isLoading: false
             };
         },
         mounted: function () {
@@ -108,26 +115,18 @@
             searchAlumno(nombre) {
 
                 let $vue = this;
-                $vue.isLoading = true
                 if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
                     return;
                 }
 
-                if (nombre) {
-
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
-                            });
-
-                }
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
             },
             allReincorporacion() {
                 let $vue = this;
@@ -140,6 +139,12 @@
                             notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
+            },
+            cambioRechazado(reincorporacion) {
+                reincorporacion.seleccionado = false;
+            },
+            cambioSeleccionado(reincorporacion) {
+                reincorporacion.rechazado = false;
             }
         }
     };

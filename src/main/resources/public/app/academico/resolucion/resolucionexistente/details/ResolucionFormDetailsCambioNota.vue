@@ -1,12 +1,13 @@
 <template>
     <div>
 
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
+
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class="col-sm-3 text-center">Persona</th>
-                    <th class="col-sm-2 text-center">Tipo Tramite</th>
-                    <th class="col-sm-3 text-center">Motivo Rechazo</th>
+                    <th class="col-sm-5 text-center">Persona</th>
+                    <th class="col-sm-3 text-center">Motivo</th>
                     <th class="col-sm-2 text-center">Curso</th>
                     <th class="col-sm-1 text-center">Nota</th>
                     <th class="col-sm-1 text-center"></th>
@@ -21,7 +22,6 @@
                                          v-bind:options='alumnos'
                                          v-on:search-change="searchAlumno"
                                          track-by='id'
-                                         v-bind:loading="isLoading"
                                          v-bind:show-labels="false"
                                          v-bind:allow-empty="false"
                                          deselect-label="No se puede eliminar este valor"
@@ -44,10 +44,6 @@
                             </multiselect>
                             <input v-model="cambioNota.alumno" required="true" type="text" class="hide"/>
                         </div>
-                    </td>
-
-                    <td class="v-middle text-center">
-                        <span v-if="resolucion.tipoResolucion" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                     </td>
 
                     <td class="v-middle text-left">
@@ -95,18 +91,16 @@
 <script>
     module.exports = {
         computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion:"])
+            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
                 cursos: [],
-                isLoading: false
             };
         },
         mounted: function () {
             let $vue = this;
-            $vue.loadTramites();
         },
         methods: {
             add() {
@@ -120,7 +114,6 @@
             searchAlumno(nombre) {
 
                 let $vue = this;
-                $vue.isLoading = true
 
                 if ($vue.resolucion.oficina == null) {
                     notify("Seleccione una oficina.");
@@ -132,7 +125,6 @@
                     return;
                 }
 
-                if (nombre) {
 
                     AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
                             {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
@@ -140,12 +132,7 @@
                                 if (data.success) {
                                     $vue.alumnos = data.data;
                                 }
-                                $vue.isLoading = false;
-                            }, error => {
-                                $vue.isLoading = false;
                             });
-
-                }
             },
             cicloCambioNota(alumno, resolucion) {
                 let $vue = this;
@@ -154,7 +141,7 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.cursos = data.data;
-                            }
+                        }
                         });
             },
         }
