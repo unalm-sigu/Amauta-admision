@@ -89,7 +89,14 @@ var app = new Vue({
             return "?origen=" + Base64.encode(url);
         },
         urlReporteBachiller(item) {
-            return APP.url('academico/tramiteacademico/tramitetitulo/' + item.tramite.id + '/reporte');
+
+            axios_blob.get(APP.url('academico/tramiteacademico/tramitetitulo/' + item.tramite.id + '/reporte'))
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                    }, (error) => {
+                        notify(error.response.data.message, 'error')
+                    });
+
         },
         anular(item) {
             let $vue = this;

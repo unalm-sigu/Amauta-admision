@@ -53,8 +53,11 @@ public class TramitesTituloController {
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<TramiteTitulo> tramitesTitulos = tramitesTituloService.allTramitesByFilter(filter, ds);
 
@@ -155,17 +158,10 @@ public class TramitesTituloController {
     public ModelAndView bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idTramite) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        try {
-
-            Context context = tramitesTituloService.reporte(idTramite, ds);
-            model.addAllAttributes(context.getVariables());
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
+        Context context = tramitesTituloService.reporte(idTramite, ds);
+        model.addAllAttributes(context.getVariables());
         return new ModelAndView(reporteTramiteTitulo);
+
     }
 
 }

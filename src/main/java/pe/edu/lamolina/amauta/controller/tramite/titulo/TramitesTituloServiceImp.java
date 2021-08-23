@@ -117,6 +117,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         Tramite tramite = this.findByTramite(idTramite);
 
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByTramite(tramite);
+        if (tramiteTitulo == null) {
+            throw new PhobosException("No se ha encontrado el tramite");
+        }
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -156,7 +159,15 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
 
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
+        if (eventoActual == null) {
+            throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", alumno.getCicloActivo().getDescripcion()));
+        }
+
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
+
+        if (eventoIngreso == null) {
+            throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", cicloInicio.getDescripcion()));
+        }
 
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
 
@@ -191,19 +202,19 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
-        
+
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
 
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TIT.name());
-        
+
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
 
-        if (tramite!=null) {
+        if (tramite != null) {
             throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramite.getCicloAcademico().getDescripcion2()));
         }
-        
+
         tramite = new Tramite();
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setCompania(ds.getCompania());
