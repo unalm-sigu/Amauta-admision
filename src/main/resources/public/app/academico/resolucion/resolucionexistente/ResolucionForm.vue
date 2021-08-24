@@ -172,7 +172,7 @@
 
                 AXIOS.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
                         .then(({data}) => {
-                            $vue.resolucion.tramiteTitulos = data.data;
+
                             if (data.success && data.data.length == 0) {
 
                                 $vue.$store.dispatch('newResolucion');
