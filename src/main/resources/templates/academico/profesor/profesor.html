@@ -1,176 +1,83 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Personas</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
+    </head>
 
-<body>
-    <div layout:fragment="main">
+    <body>
+        <div layout:fragment="main">
 
-        <header class="header b-b padder-lg" id="mainvue">
+            <div id="main">
 
-            <h2>Docentes | Ciclo <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
+                <header class="header b-b padder-lg" >
 
-            <div class="btn-group pull-right">
-                <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                    Acciones &nbsp; <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
-                    <li><a type="button" href="#" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
-                    <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademica" >Reporte Carga Académica</a></li>
-                </ul>
-            </div>
+                    <h2>Docentes | Ciclo <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
 
-            <modal-simple ref="modalReporte"
-                          v-bind="reporteModal"
-                          v-bind:okaction="downloadReporte">
-                <div slot="header">
-                    
-                    <p class="h4 text-primary">Reporte Entrega Materiales</p>
-                </div>
-                <div slot="body">
-                    <div class="form-group m-b-xs">
-                        <label class="bold">Facultad</label>
-
-                        <multiselect v-model='facultad'
-                                     label='nombre'
-                                     placeholder="Todas las facultades"
-                                     deselect-label=""
-                                     select-label=""
-                                     track-by='id'
-                                     v-bind:allow-empty="true"
-                                     v-bind:options='facultades'>
-                        </multiselect>
-                    </div>
-                </div>
-            </modal-simple>
-
-            <modal-simple ref="modalReporteCargaAcademica"
-                          v-bind="reporteCargaAcademicaModal"
-                          v-bind:okaction="downloadReporteCargaAcademica">
-                <div slot="header">
-                    <p class="h4 text-primary">Reporte Carga Acádemica</p>
-                </div>
-                <div slot="body">
-
-                    <div class="form-group m-b-xs">
-                        <label class="bold">Ciclo Académico</label>
-
-                        <multiselect v-model='ciclo'
-                                     label='descripcion'
-                                     placeholder="Seleccione el ciclo académico"
-                                     deselect-label=" "
-                                     select-label=" "
-                                     track-by='id'
-                                     v-bind:allow-empty="true"
-                                     v-bind:options='ciclos'>
-                        </multiselect>
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
+                            <li><a type="button" href="#" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
+                            <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademica" >Reporte Carga Académica</a></li>
+                        </ul>
                     </div>
 
-                    <div class="form-group m-b-xs">
-                        <label class="bold">Facultad</label>
+                    <reporte-materiales ref='reportemateriales'></reporte-materiales>
 
-                        <multiselect v-model='facultad'
-                                     label='nombre'
-                                     placeholder="Todas las facultades"
-                                     deselect-label=""
-                                     select-label=""
-                                     track-by='id'
-                                     v-on:input="changeFacultad"
-                                     v-bind:allow-empty="true"
-                                     v-bind:options='facultades'>
-                        </multiselect>
-                    </div>
-                    <div class="form-group m-b-xs">
-                        <label class="bold">Departamento Acádemico</label>
+                    <reporte-carga-academica ref='reportecargaacademica'></reporte-carga-academica>
 
-                        <multiselect v-model='departamento'
-                                     label='nombre'
-                                     placeholder="Todos los departamentos académicos"
-                                     deselect-label=""
-                                     select-label=""
-                                     track-by='id'
-                                     v-bind:allow-empty="true"
-                                     v-bind:options='departamentosSelectos'>
-                        </multiselect>
-                    </div>
-                    <div class="form-group m-b-xs">
-                        <label class="bold"></label>
+                </header>
 
-                        <multiselect v-model='tipoGrado'
-                                     label='nombre'
-                                     placeholder="Pregrado y posgrado"
-                                     deselect-label=""
-                                     select-label=""
-                                     track-by='id'
-                                     v-bind:allow-empty="true"
-                                     v-bind:options='grados'>
-                        </multiselect>
-                    </div>
-                </div>
-            </modal-simple>
+                <section class="wrapper-lg">
+                    <section class="panel">
 
-        </header>
-        <section class="wrapper-lg">
-            <section class="panel">
+                        <section class="panel-body">
 
-                <section class="panel-body">
+                            <profesor-list></profesor-list>
 
-                    <div class="hide m-t-lg col-lg-6" id="headDynatable">
-                        <div class="">
-                            <select class="form-control" id="departamento">
-                                <option></option>
-                                <option th:each="dpto : ${departamentos}"
-                                        th:value="${dpto.id}"
-                                        th:text="${dpto.nombre}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <table id="dynaTable" class="table table-striped">
-                        <thead class="panel panel-heading">
-                            <tr>
-                                <th class="col-md-3 v-middle" colspan="2"></th>                    
-                                <th class="col-md-2 v-middle">Información de contacto</th>
-                                <th class="col-md-2 text-center v-middle"><span>Departamento Académico</span></th>
-                                <th class="col-md-2 text-center v-middle"><span>Situación laboral</span></th>
-                                <th class="col-md-1 text-center v-middle">Secciones Pre.</th>   
-                                <th class="col-md-1 text-center v-middle">Secciones Pos.</th>   
-                                <th class="col-md-1 text-center v-middle">Estado</th>                    
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                        </section>
+                    </section>
 
                 </section>
-            </section>
+            </div>
 
+        </div>
 
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var jFacultades = /*[[${jFacultades}]]*/ {};
+                var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
+                var jCicloAcademicos = /*[[${jCicloAcademicos}]]*/ {};
+                var PUEDE_ACTIVAR = /*[[${puedeActivar}]]*/ {};
+            </script>
 
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
 
+            <script>
+                Vue.component("multiselect", window.VueMultiselect.default);
+                const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');
+                const ReporteMateriales = httpVueLoader('/app/academico/profesor/ReporteMateriales.vue');
+                const ReporteCargaAcademica = httpVueLoader('/app/academico/profesor/ReporteCargaAcademica.vue');
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        profesorList: ProfesorList,
+                        reporteMateriales: ReporteMateriales,
+                        reporteCargaAcademica: ReporteCargaAcademica,
+                    },
+                    methods: {
+                        openModalReporte() {
+                            this.$refs.reportemateriales.open();
+                        },
+                        openModalReporteCargaAcademica() {
+                            this.$refs.reportecargaacademica.open();
+                        }
+                    }
+                });
+            </script>
+        </div>
 
-        </section>
-
-        <script id="profesorTemplate" type="text/x-template" class="hide" > 
-            <div th:substituteby="academico/profesor/profesorTemplate"/>
-        </script>
-
-
-    </div>
-    <div layout:fragment="js">
-        <script th:inline="javascript">
-            var jFacultades = /*[[${jFacultades}]]*/ {};
-            var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
-            var jCicloAcademicos = /*[[${jCicloAcademicos}]]*/ {};
-        </script>
-
-        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
-        <div th:substituteby="_modules/vue-modal_v1"></div>
-
-        <script th:src="@{/app/academico/profesor/profesor.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>
