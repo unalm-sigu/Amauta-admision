@@ -5,7 +5,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
@@ -50,8 +49,6 @@ public interface ProfesorService {
 
     Persona findPersona(Persona persona);
 
-    String getRutaFoto(String foto, String sexo);
-
     Persona update(Docente docente, DataSessionPivot ds);
 
     List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
@@ -71,5 +68,7 @@ public interface ProfesorService {
     CicloAcademico findCicloAcademico(Long idCicloAcademico);
 
     List<CicloAcademico> allCicloAcademico();
+
+    public List<Docente> allByNombre(String nombre);
 
 }

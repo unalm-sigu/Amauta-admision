@@ -608,25 +608,6 @@ public class ProfesorServiceImp implements ProfesorService {
         return personaDAO.find(persona.getId());
     }
 
-    @Override
-    public String getRutaFoto(String foto, String sexo) {
-
-        if (!StringUtils.isEmpty(foto)) {
-            return AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_FOTO_DOCENTE + foto;
-        }
-
-        if (!StringUtils.isEmpty(sexo)) {
-            switch (sexo) {
-                case "M":
-                    return "/phobos/images/unalm/male.png";
-                case "F":
-                    return "/phobos/images/unalm/female.png";
-            }
-        }
-
-        return "/phobos/images/unalm/unknown-person.gif";
-    }
-
     private void uploadS3(String fileName) {
         logger.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
@@ -694,6 +675,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<CicloAcademico> allCicloAcademico() {
         return cicloAcademicoDAO.allPregradoByRange(1980,2050);
+    }
+
+    @Override
+    public List<Docente> allByNombre(String nombre) {
+        return docenteDAO.allByName(nombre);
     }
 
 }

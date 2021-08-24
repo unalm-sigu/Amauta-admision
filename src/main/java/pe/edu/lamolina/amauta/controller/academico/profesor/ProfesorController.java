@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -136,8 +137,6 @@ public class ProfesorController {
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
 
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("departamentos", departamentos);
         model.addAttribute("puedeActivar", puedeActivar);
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
@@ -617,6 +616,7 @@ public class ProfesorController {
             @RequestParam(value = "tipoGrado", required = false) String tipoGrado,
             @RequestParam(value = "cicloAcademico", required = false) Long idCicloAcademico,
             @RequestParam(value = "facultad", required = false) Long facultadId,
+            @RequestParam(value = "docente", required = false) Long idDocente,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -647,7 +647,13 @@ public class ProfesorController {
             departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
         }
 
-        List<Docente> docentes = service.allDocenteByDepartamentosAcademicoEstado(departamentos, EnteAcademicoEstadoEnum.ACT);
+        List<Docente> docentes = new ArrayList<>();
+        
+        if (idDocente != null) {
+            docentes.add(service.find(new Docente(idDocente)));
+        } else {
+            docentes = service.allDocenteByDepartamentosAcademicoEstado(departamentos, EnteAcademicoEstadoEnum.ACT);
+        }
 
         List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, cicloAcademico);
 
@@ -668,6 +674,18 @@ public class ProfesorController {
         model.addAttribute("horarioSecciones", horarioSecciones);
 
         return new ModelAndView(docenteCargaAcademicaPDF);
+    }
+
+    @ResponseBody
+    @RequestMapping("searchDocente")
+    public ArrayNode searchDocente(@RequestParam("nombre") String nombre) {
+
+        List<Docente> docentes = service.allByNombre(nombre);
+
+        return JaneHelper.from(docentes).
+                only("id").
+                join("persona", "id,nombreCompleto").array();
+
     }
 
 }
