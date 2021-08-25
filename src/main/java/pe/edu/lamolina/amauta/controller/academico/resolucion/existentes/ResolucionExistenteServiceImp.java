@@ -1594,21 +1594,21 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.PRACTICAS);
 
-        Resolucion resolucionBD = new Resolucion();
-        resolucionBD.setOficina(resolucionForm.getOficina());
-        resolucionBD.setFecha(resolucionForm.getFecha());
-        resolucionBD.setNumero(resolucionForm.getNumero());
-        resolucionBD.setSerie(resolucionForm.getSerie());
-        resolucionBD.setNumeroVisible(resolucionBD.getCodigoPracticas());
-        resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucionBD.setFechaRegistro(new Date());
-        resolucionBD.setTipoResolucion(tipoResolucion);
-        resolucionBD.setUserRegistro(ds.getUsuario());
-        resolucionBD.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucionBD);
+        Resolucion resolucionNueva = new Resolucion();
+        resolucionNueva.setOficina(resolucionForm.getOficina());
+        resolucionNueva.setFecha(resolucionForm.getFecha());
+        resolucionNueva.setNumero(resolucionForm.getNumero());
+        resolucionNueva.setSerie(resolucionForm.getSerie());
+        resolucionNueva.setNumeroVisible(resolucionNueva.getCodigoPracticas());
+        resolucionNueva.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionNueva.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucionNueva.setFechaRegistro(new Date());
+        resolucionNueva.setTipoResolucion(tipoResolucion);
+        resolucionNueva.setUserRegistro(ds.getUsuario());
+        resolucionNueva.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucionNueva);
 
-        return saveTramitePracticas(resolucionForm, resolucionBD, ds);
+        return saveTramitePracticas(resolucionForm, resolucionNueva, ds);
     }
 
     private String saveTramitePracticas(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
