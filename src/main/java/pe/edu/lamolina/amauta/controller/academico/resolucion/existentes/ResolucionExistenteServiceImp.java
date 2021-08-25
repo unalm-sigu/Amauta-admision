@@ -1682,7 +1682,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
-
+                
                 if (practicasForm.getCreditos() == null) {
                     throw new PhobosException("Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
                 }
