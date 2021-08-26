@@ -105,7 +105,7 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
-                .only("id,nombre,codigo,instanciaOficina")
+                .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
@@ -137,7 +137,7 @@ public class ResolucionExistenteController {
 
         ArrayNode oficinasJson = JaneHelper
                 .from(resolucionService.allOFicinasByUser(ds))
-                .only("id,nombre,codigo,instanciaOficina")
+                .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
@@ -579,8 +579,7 @@ public class ResolucionExistenteController {
                     "curso.*",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*",
-                });
+                    "tramite.alumno.persona.tipoDocumento.*",});
                 objectNode.put("tipo", PRACTICAS.name());
                 array.add(objectNode);
             }
@@ -655,29 +654,29 @@ public class ResolucionExistenteController {
     public JsonResponse allBachiller(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             List<TramiteBachiller> tramitesBachiller = service.allBachiller(ds);
 
             for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
-                
+
                 tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
                 tramiteBachiller.setSeleccionado(Boolean.FALSE);
-                
-                 array.add(JaneHelper.from(tramiteBachiller)
-                         .join("tramite")
-                         .join("alumno","id,codigo")
-                         .join("alumno.carrera","id,codigo,nombre")
-                         .join("alumno.carrera.facultad","id,codigo,nombre,simbolo")
-                         .join("alumno.persona","id,apellidosNombres")
-                         .join("alumno.persona.tipoDocumento")
-                         .json());
-                
+
+                array.add(JaneHelper.from(tramiteBachiller)
+                        .join("tramite")
+                        .join("alumno", "id,codigo")
+                        .join("alumno.carrera", "id,codigo,nombre")
+                        .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
+                        .join("alumno.persona", "id,apellidosNombres")
+                        .join("alumno.persona.tipoDocumento")
+                        .json());
+
             }
-            
+
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
         } catch (PhobosException e) {
