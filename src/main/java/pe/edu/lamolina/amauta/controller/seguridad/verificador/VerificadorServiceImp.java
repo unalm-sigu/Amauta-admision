@@ -226,7 +226,8 @@ public class VerificadorServiceImp implements VerificadorService {
         List<Carrera> carrerasPosgrado = carreraDAO.allPosGrado();
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.all();
-        Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carrerasPregrado);
+        Map<Long, Carrera> mapCarrerasPregado = TypesUtil.convertListToMap("id", carrerasPregrado);
+        Map<Long, Carrera> mapCarrerasPosgado = TypesUtil.convertListToMap("id", carrerasPosgrado);
         Map<Long, List<Carrera>> mapCarrerasPregradoByFacultad = TypesUtil.convertListToMapList("facultad.id", carrerasPregrado);
         Map<Long, List<Carrera>> mapCarrerasPosgradoByFacultad = TypesUtil.convertListToMapList("facultad.id", carrerasPosgrado);
         Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
@@ -240,10 +241,15 @@ public class VerificadorServiceImp implements VerificadorService {
             logger.info("RQ={} tipoOficinaEnum={}", codeRequest, tipoOficinaEnum.getClazz());
 
             if (tipoSolicitud == ESP && tipoOficinaEnum.getClazz() == Carrera.class) {
-                Carrera carrera = mapCarreras.get(oficina.getInstanciaOficina());
-                if (carrera != null) {
-                    logger.info("RQ={} agregando-carrera={}", codeRequest, carrera.getCodigo());
-                    lista.add(carrera);
+                Carrera carreraPregrado = mapCarrerasPregado.get(oficina.getInstanciaOficina());
+                if (carreraPregrado != null) {
+                    logger.info("RQ={} agregando-carrera-pregado={}", codeRequest, carreraPregrado.getCodigo());
+                    lista.add(carreraPregrado);
+                }
+                Carrera carreraPosgrado = mapCarrerasPosgado.get(oficina.getInstanciaOficina());
+                if (carreraPosgrado != null) {
+                    logger.info("RQ={} agregando-carrera-posgado={}", codeRequest, carreraPosgrado.getCodigo());
+                    lista.add(carreraPosgrado);
                 }
 
             } else if (tipoSolicitud == ESP && tipoOficinaEnum.getClazz() == Facultad.class) {
