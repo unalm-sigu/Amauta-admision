@@ -167,13 +167,18 @@ public class MatriculableController {
             List<MatriculaResumen> matriculables = new ArrayList();
 
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+            logger.debug("cantidadEnum que pueve ver {}", cantidadEnum.name());
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+                logger.debug("carreras que pueve ver {}", carreras.size());
             }
 
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+                logger.debug("inicia consulta de matriculables");
                 matriculables = service.allMatriculablesByDynatable(filter, ds.getCicloAcademico(), carreras, cantidadEnum.name());
             }
+
+            logger.debug("matriculables {}", matriculables.size());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
