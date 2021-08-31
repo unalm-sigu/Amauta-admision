@@ -174,7 +174,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("when '10' then '10' ")
                 .append("else '' end nivel, ") 
                 .append("cu.codigo codigoCurso, cu.nombre nombreCurso, tcc.nombre tipoCurso, cu.horas_teoria horasTeoria, cu.horas_practica horasPractica, ")
-                .append("cu.creditos creditos, ")
+                .append("cc.creditos creditos, ")
                 .append("group_concat(distinct coalesce(rcc1.cur_cod, '') separator ' ') cursoRequisito, ")
                 .append("case ")
                 .append("when cc.creditos_requisito = 0  then '' ")
@@ -198,6 +198,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("        where rcc.estado = 'ACT'                                                                                                 ")
                 .append("     ) rcc1 on cc.id = rcc1.id_cc                                                                                                ")                
                 .append("where pc.id = ").append(idPlanCurricular).append(" ")
+                .append("and cc.estado not in ('CAD') ")
                 .append("group by cc.id ")
                 .append("order by cc.numero_ciclo,cu.nombre");
         
