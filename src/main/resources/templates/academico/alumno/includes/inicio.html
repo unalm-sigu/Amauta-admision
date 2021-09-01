@@ -158,6 +158,24 @@
                                 <span v-text="alumno.ciclosRegularesTransient"></span>
                             </td>
                         </tr>
+                        
+                        <tr v-if="alumno.resolucionTitulo">
+                            <td>
+                                <strong> Título </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.resolucionTitulo"></span>
+                            </td>
+                        </tr>
+
+                        <tr v-if="alumno.resolucionBachiller">
+                            <td>
+                                <strong> Bachiller  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.resolucionBachiller"></span>
+                            </td>
+                        </tr>
 
                     </tbody>
                 </table>

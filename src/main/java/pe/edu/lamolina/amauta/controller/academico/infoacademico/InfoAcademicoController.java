@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -656,7 +657,7 @@ public class InfoAcademicoController {
 
         return response;
     }
-
+    
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo",
@@ -665,6 +666,8 @@ public class InfoAcademicoController {
             "creditosCarreraAprobados", "creditosCarreraCursados",
             "creditosAprobados", "creditosCursados",
             "creditosConvalidados",
+            "resolucionTitulo",
+            "resolucionBachiller",
             // --- //
             "carrera.codigo",
             "carrera.nombre",
