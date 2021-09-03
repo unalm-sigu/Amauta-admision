@@ -31,10 +31,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
 @RequestMapping("tramite/plantillainscrustacion")
@@ -42,9 +40,6 @@ public class PlantillaIncrustacionController {
 
     @Autowired
     PlantillaIncrustacionService service;
-
-    @Autowired
-    PdfHtmlView pdfHtmlView;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

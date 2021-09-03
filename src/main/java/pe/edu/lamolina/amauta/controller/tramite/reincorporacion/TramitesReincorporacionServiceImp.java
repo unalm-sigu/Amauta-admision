@@ -35,7 +35,6 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -59,6 +58,7 @@ import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -88,7 +88,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     EstadoTramiteDAO estadoTramiteDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;

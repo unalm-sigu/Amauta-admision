@@ -1,26 +1,19 @@
-package pe.edu.lamolina.amauta.zelper.pdf;
+package pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum TipoPdfEnum {
+@Deprecated
+public enum TipoActaNotasPdfEnum {
 
     ACTA_NOTAS("ActaNotas", "pdf/actaDeNotas", "Acta de Notas", "Acta de Notas"),
     RESULTADO_ENCUESTA("ResultadoEncuesta", "pdf/resultadoencuesta", "Resultado de Encuestas", "Resultado de Encuestas"),
     SUBVENCION_CARGA_ADICIONAL("SubvencionCargaAdicional", "pdf/subvencionCargaAdicional", "Subvención por carga Académica Adicional", "Subvención por carga Académica Adicional"),
-    AVANCE_CURRICULAR("AvanceCurricular", "pdf/avanceCurricular", "Avance Curricular", "Avance Curricular"),
-    HISTORIAL_ACADEMICO("HistorialAcademico", "pdf/historialAcademico", "Historial Académico", "Historial Académico"),
     HISTORIAL_ACADEMICO_TRAMITE("HistorialAcademico", "pdf/historialAcademicoCurdir", "Historial Académico", "Historial Académico"),
     HISTORIAL_ACADEMICO_LISTADO("HistorialAcademicoListado", "pdf/historialAcademicoListado", "Historial Académico", "Historial Académico"),
-    PLAN_CURRICULAR("SubvencionCargaAdicional", "pdf/planCurricular", "Plan Curricular", "Plan Curricular"),
     CURSOS_MATRICULADOS("CursosMatriculados", "pdf/cursosMatriculados", "Cursos Matriculados", "Cursos Matriculados"),
     LIST_CURSOS_DIRIGIDOS("ListCursosDirigidos", "pdf/listDetalleCursoDirigido", "Lista Cursos Dirigidos", "Lista Cursos Dirigidos"),
     DETALLE_CURSO_DIRIGIDO("DetalleCursoDirigido", "pdf/detalleCursoDirigido", "Curso Dirigido", "Curso Dirigido"),
-    DETALLE_BACHILLER("DetalleBachiller", "pdf/detalleBachiller", "Bachiller", "Bachiller"),
-    DETALLE_TITULO("DetalleTitulo", "pdf/detalleTitulo", "Titulo", "Titulo"),
-    DETALLE_RETIRO_EXCEPCIONAL("DetallerRetiroExcelcional", "pdf/retiroExcepcional", "Retiro Excepcional", "Retiro Excepcional"),
-    DETALLE_REINCORPORACION("DetallerReincorporacion", "pdf/detalleReincorporacion", "Reincorporación", "Reincorporación"),
-    DETALLE_TRASLADO_INTERO("DetallerTrasladoInterno", "pdf/detalleTrasladoInterno", "Traslado Interno", "Traslado Interno"),
     HORARIO("Horario", "pdf/horario", "Horario", "Horario"),
     PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios");
 
@@ -29,23 +22,23 @@ public enum TipoPdfEnum {
     private final String title;
     private final String subject;
 
-    private static final Map<String, TipoPdfEnum> lookup = new HashMap<>();
+    private static final Map<String, TipoActaNotasPdfEnum> lookup = new HashMap<>();
 
     static {
-        for (TipoPdfEnum d : TipoPdfEnum.values()) {
+        for (TipoActaNotasPdfEnum d : TipoActaNotasPdfEnum.values()) {
             lookup.put(d.getName(), d);
         }
     }
 
-    private TipoPdfEnum(String name, String fileTemplate, String title, String subject) {
+    private TipoActaNotasPdfEnum(String name, String fileTemplate, String title, String subject) {
         this.name = name;
         this.fileTemplate = fileTemplate;
         this.title = title;
         this.subject = subject;
     }
 
-    public static TipoPdfEnum getEnum(String name) {
-        for (TipoPdfEnum d : TipoPdfEnum.values()) {
+    public static TipoActaNotasPdfEnum getEnum(String name) {
+        for (TipoActaNotasPdfEnum d : TipoActaNotasPdfEnum.values()) {
             if (d.name().equalsIgnoreCase(name)) {
                 return d;
             }

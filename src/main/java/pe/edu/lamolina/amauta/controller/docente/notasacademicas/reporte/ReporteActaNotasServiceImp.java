@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.zelper.pdf;
+package pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -49,13 +47,14 @@ import pe.edu.lamolina.amauta.dao.academico.EvaluacionPlanDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 
 @Service
+@Deprecated
 @Transactional(readOnly = true)
-public class PdfServiceImp implements PdfService {
+public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     NotaAcademicaService notaAcademicaService;
@@ -182,8 +181,8 @@ public class PdfServiceImp implements PdfService {
 
                 }
 
-                PdfContent pdfContent = new PdfContent();
-                pdfContent.setTipoPdfEnum(TipoPdfEnum.ACTA_NOTAS);
+                PdfActaNotasContent pdfContent = new PdfActaNotasContent();
+                pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.ACTA_NOTAS);
                 pdfContent.setContext(ctx);
 
                 String subFolder = "acta_notas";
@@ -271,8 +270,8 @@ public class PdfServiceImp implements PdfService {
         ctx.setVariable("listAB", listAB);
 
         //   ctx.setVariable("page", (index + 1));
-        PdfContent pdfContent = new PdfContent();
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.PROGRAMACION_HORARIOS);
+        PdfActaNotasContent pdfContent = new PdfActaNotasContent();
+        pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.PROGRAMACION_HORARIOS);
         pdfContent.setContext(ctx);
 //        String nombre = modalidad.getNombre().replace(' ', '_').replace('-', '_');
 //        String subFolder = nombre + "_" + index;

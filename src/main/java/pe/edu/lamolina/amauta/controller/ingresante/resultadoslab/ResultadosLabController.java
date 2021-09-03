@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.InputStream;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -32,11 +30,9 @@ import pe.edu.lamolina.model.enums.TipoSangreEnum;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.amauta.controller.reporte.view.ResultadoTurnoMuestraLabView;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("ingresante/resultadoslab")
@@ -46,7 +42,7 @@ public class ResultadosLabController {
     ResultadosLabService service;
 
     @Autowired
-    PdfHtmlView pdfHtmlView;
+    PdfHtml reporteResultadoLaboratorio;
 
     @Autowired
     ResultadoTurnoMuestraLabView resultadoTurnoMuestraLabView;
@@ -194,7 +190,7 @@ public class ResultadosLabController {
     }
 
     @RequestMapping("reporte")
-    public ModelAndView reporte(HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr, Model model) {
+    public ModelAndView reporte(HttpSession session, Model model) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
@@ -230,12 +226,13 @@ public class ResultadosLabController {
 //                reco.setLaboratorio(resultLab.get(0));
 //            }
 //        }
-        model.addAttribute("formatoEnum", PDFFormatoEnum.RESULTADOS_LAB);
-        model.addAttribute("nombrePdf", String.format("Resultados de Laboratorio - %s", ds.getCicloAcademico().getDescripcion2()));
         model.addAttribute("ingresantes", lista);
         model.addAttribute("ciclo", ciclo);
+        
+        model.addAttribute("templatePdf", "resultadosLaboratorio");
+        model.addAttribute("nombrePdf", String.format("Resultados de Laboratorio - %s", ds.getCicloAcademico().getDescripcion2()));
 
-        return new ModelAndView(pdfHtmlView);
+        return new ModelAndView(reporteResultadoLaboratorio);
     }
 
     @RequestMapping("listaExcelTurno")

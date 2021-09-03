@@ -92,9 +92,8 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasContent;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.TipoActaNotasPdfEnum;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejoService;
@@ -112,6 +111,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -180,7 +180,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     TramiteBachillerDAO tramiteBachillerDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     InfoAcademicoService infoAcademicoService;
@@ -692,21 +692,21 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-        PdfContent pdfMatriculados = new PdfContent();
+        PdfActaNotasContent pdfMatriculados = new PdfActaNotasContent();
         pdfMatriculados.setContext(ctx);
-        pdfMatriculados.setTipoPdfEnum(TipoPdfEnum.CURSOS_MATRICULADOS);
+        pdfMatriculados.setTipoPdfEnum(TipoActaNotasPdfEnum.CURSOS_MATRICULADOS);
 
-        PdfContent pdfHistorial = new PdfContent();
+        PdfActaNotasContent pdfHistorial = new PdfActaNotasContent();
         pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+        pdfHistorial.setTipoPdfEnum(TipoActaNotasPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
 
-        PdfContent pdfHorario = new PdfContent();
+        PdfActaNotasContent pdfHorario = new PdfActaNotasContent();
         pdfHorario.setContext(ctx);
-        pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
+        pdfHorario.setTipoPdfEnum(TipoActaNotasPdfEnum.HORARIO);
 
-        PdfContent pdfCursoDirigido = new PdfContent();
+        PdfActaNotasContent pdfCursoDirigido = new PdfActaNotasContent();
         pdfCursoDirigido.setContext(ctx);
-        pdfCursoDirigido.setTipoPdfEnum(TipoPdfEnum.DETALLE_CURSO_DIRIGIDO);
+        pdfCursoDirigido.setTipoPdfEnum(TipoActaNotasPdfEnum.DETALLE_CURSO_DIRIGIDO);
 
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
@@ -1005,9 +1005,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         Context ctx = new Context();
 
-        PdfContent pdfList = new PdfContent();
+        PdfActaNotasContent pdfList = new PdfActaNotasContent();
         pdfList.setContext(ctx);
-        pdfList.setTipoPdfEnum(TipoPdfEnum.LIST_CURSOS_DIRIGIDOS);
+        pdfList.setTipoPdfEnum(TipoActaNotasPdfEnum.LIST_CURSOS_DIRIGIDOS);
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("cursoDirigido", cursoDirigidos);

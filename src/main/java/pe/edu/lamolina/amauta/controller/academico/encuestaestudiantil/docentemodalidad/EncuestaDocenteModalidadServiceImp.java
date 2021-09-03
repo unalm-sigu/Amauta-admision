@@ -75,10 +75,10 @@ import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.zelper.CustomRenderer;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.TipoActaNotasPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -103,7 +103,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     VerificadorService verificadorService;
@@ -231,9 +231,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         ctx.setVariable("imagenChart", imgBuilt);
         logger.debug("imagenChart {}", imgBuilt);
 
-        PdfContent pdfContent = new PdfContent();
+        PdfActaNotasContent pdfContent = new PdfActaNotasContent();
         pdfContent.setContext(ctx);
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.RESULTADO_ENCUESTA);
+        pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.RESULTADO_ENCUESTA);
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         String dest = src;

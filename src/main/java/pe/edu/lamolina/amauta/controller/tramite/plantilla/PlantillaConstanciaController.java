@@ -42,7 +42,6 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
 import pe.edu.lamolina.model.general.Archivo;
 
 @Controller
@@ -54,9 +53,6 @@ public class PlantillaConstanciaController {
 
     @Autowired
     TipoConstanciaService tipoConstanciaService;
-
-    @Autowired
-    PdfHtmlView pdfHtmlView;
 
     @Autowired
     GeneradorWordSolicitudService generadorWordSolicitudService;

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.zelper.pdf;
+package pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte;
 
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -37,11 +37,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
-public class PdfGeneratorImp implements PdfGenerator {
+@Deprecated
+public class PdfActaNotasGeneratorImp implements PdfActaNotasGenerator {
 
     private final String PDF_CSS = "public/pdf/css/pdf.css";
     private final String PDF_SAVE_PATH = GlobalConstantine.TMP_DIR;
@@ -52,22 +53,22 @@ public class PdfGeneratorImp implements PdfGenerator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public String generateDocument(PdfContent pdfContent, Rectangle rectangle) {
+    public String generateDocument(PdfActaNotasContent pdfContent, Rectangle rectangle) {
         return generateDocument(pdfContent, null, rectangle);
     }
 
     @Override
-    public String generateDocument(PdfContent pdfContent, String subFolder) {
+    public String generateDocument(PdfActaNotasContent pdfContent, String subFolder) {
         return generateDocument(pdfContent, subFolder, PageSize.A4);
     }
 
     @Override
-    public String generateDocument(PdfContent pdfContent) {
+    public String generateDocument(PdfActaNotasContent pdfContent) {
         return generateDocument(pdfContent, null, PageSize.A4);
     }
 
     @Override
-    public String generateDocument(PdfContent pdfContent, String subFolder, Rectangle rectangle) {
+    public String generateDocument(PdfActaNotasContent pdfContent, String subFolder, Rectangle rectangle) {
         long t1 = System.currentTimeMillis();
         logger.debug("1 :: ");
         logger.debug("Entro a generar documento pdf");
@@ -75,7 +76,7 @@ public class PdfGeneratorImp implements PdfGenerator {
         docPDF.addCreationDate();
         docPDF.addCreator("lamolina.edu.pe");
 
-        TipoPdfEnum documentoPdfEnum = pdfContent.getTipoPdfEnum();
+        TipoActaNotasPdfEnum documentoPdfEnum = pdfContent.getTipoPdfEnum();
 
         pdfContent.setSubject(documentoPdfEnum.getSubject());
         pdfContent.setTitle(documentoPdfEnum.getTitle());
@@ -156,7 +157,7 @@ public class PdfGeneratorImp implements PdfGenerator {
         return filePath;
     }
 
-    private String documentPdfAdmisionFilename(TipoPdfEnum docPdfEnum, String subFolder) {
+    private String documentPdfAdmisionFilename(TipoActaNotasPdfEnum docPdfEnum, String subFolder) {
         File folder = new File(PDF_SAVE_PATH + (StringUtils.isEmpty(subFolder) ? "" : File.separator + subFolder));
         if (!folder.exists()) {
             folder.mkdirs();

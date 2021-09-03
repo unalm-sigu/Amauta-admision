@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.zelper.pdf.pdfHtml;
+package pe.edu.lamolina.amauta.zelper.pdf;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
@@ -31,10 +31,9 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
 
 @Component
-public class PdfHtmlSimplified extends AbstractPdfHtmlView {
+public class PdfHtml extends AbstractPdfHtml {
 
     @Autowired
     private SpringTemplateEngine templateEngine;
@@ -109,6 +108,7 @@ public class PdfHtmlSimplified extends AbstractPdfHtmlView {
         }
 
         response.setHeader("content-disposition", "attachment; filename=\"" + nombre + ".pdf\"");
+        response.setHeader("content-filename", nombre + ".pdf");
 
     }
 

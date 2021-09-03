@@ -3,16 +3,9 @@ package pe.edu.lamolina.amauta.controller.tramite.retirocicloexcepcional;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -31,12 +25,11 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.amauta.controller.tramite.reincorporacion.TramiteReincorporacionService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.Tramite;
 
 @Controller
 @RequestMapping("academico/tramiteacademico/tramiteRetiroExcepcional")
@@ -45,15 +38,15 @@ public class TramiteRetiroExcepcionalController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    TramiteRetiroExcepcionalService retiroExcepcionalService;
+    TramiteRetiroExcepcionalService service;
 
     @Autowired
-    TramiteReincorporacionService reincorporacionService;
+    PdfHtml reporteTramiteRetiroExcepcionalPdf;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<CicloAcademico> cicloAcademicos = reincorporacionService.getCiclosVeinte(ds);
+        List<CicloAcademico> cicloAcademicos = service.getCiclosVeinte(ds);
         ArrayNode arrayCiclos = JaneHelper.from(cicloAcademicos).array();
         model.addAttribute("ciclos", arrayCiclos.toString());
         return "academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional";
@@ -67,7 +60,7 @@ public class TramiteRetiroExcepcionalController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<RetiroCiclo> trCiclos = retiroExcepcionalService.allTramitesByFilter(filter, ds);
+            List<RetiroCiclo> trCiclos = service.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
                 "*",
@@ -111,7 +104,7 @@ public class TramiteRetiroExcepcionalController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            retiroExcepcionalService.saveRetiro(retiro, ds);
+            service.saveRetiro(retiro, ds);
             response.setMessage("Se registró el tramite satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -120,46 +113,13 @@ public class TramiteRetiroExcepcionalController {
         return response;
     }
 
-    @RequestMapping("{id}/reporte")
-    public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    @RequestMapping("{idTramite}/reporte")
+    public ModelAndView tramiteRetiroExcepcionalReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idTramite) {
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.reporte(idTramite, ds, model);
+        return new ModelAndView(reporteTramiteRetiroExcepcionalPdf);
 
-        try {
-            String fileName = retiroExcepcionalService.reporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Informe Retiro Excepcional.pdf", response);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
-    }
-
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
     }
 
     @ResponseBody
@@ -172,8 +132,7 @@ public class TramiteRetiroExcepcionalController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-            retiroExcepcionalService.anular(retiroCiclo, ds);
+            service.anular(retiroCiclo, ds);
             response.setMessage("Tramite anulado correctamente.");
             response.setSuccess(Boolean.TRUE);
 

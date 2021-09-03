@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.zelper.pdf.pdfHtml;
+package pe.edu.lamolina.amauta.zelper.pdf;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.view.AbstractView;
 
-public abstract class AbstractPdfHtmlView extends AbstractView {
+public abstract class AbstractPdfHtml extends AbstractView {
 
-    public AbstractPdfHtmlView() {
+    public AbstractPdfHtml() {
         setContentType("application/pdf");
     }
 

@@ -69,11 +69,10 @@ import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.amauta.zelper.CustomRenderer;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasContent;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.TipoActaNotasPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -90,7 +89,7 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
     @Autowired
     EncuestaDocenteDAO encuestaDocenteDAO;
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
     @Autowired
@@ -184,9 +183,9 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
         ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
         ctx.setVariable("plot", buildPlot(puntajes));
 
-        PdfContent pdfContent = new PdfContent();
+        PdfActaNotasContent pdfContent = new PdfActaNotasContent();
         pdfContent.setContext(ctx);
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.RESULTADO_ENCUESTA);
+        pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.RESULTADO_ENCUESTA);
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         String dest = src;

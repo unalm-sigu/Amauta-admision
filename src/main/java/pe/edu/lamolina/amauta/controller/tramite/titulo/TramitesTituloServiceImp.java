@@ -30,7 +30,6 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -51,6 +50,7 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,7 +67,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     TramiteTituloDAO tramiteTituloDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;

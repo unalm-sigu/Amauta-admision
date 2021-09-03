@@ -62,8 +62,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;
 
@@ -77,7 +76,7 @@ public class ConstanciaSolicitudController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PdfHtmlView pdfHtmlView;
+    PdfHtml boletaPagoSolicitudConstanciaPDF;
 
     @Autowired
     GeneradorWordSolicitudService generadorWordSolicitudService;
@@ -199,10 +198,10 @@ public class ConstanciaSolicitudController {
         model.addAttribute("cuenta", cuenta);
         model.addAttribute("numeroDocIdentidad", persona.getNumeroDocIdentidad());
         model.addAttribute("montoString", montoString);
-        model.addAttribute("formatoEnum", PDFFormatoEnum.BOLETA_PAGO_SOL);
-        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
 
-        return new ModelAndView(pdfHtmlView);
+        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
+        model.addAttribute("templatePdf", "boletaPagoSolicitudConstancia");
+        return new ModelAndView(boletaPagoSolicitudConstanciaPDF);
     }
 
     @ResponseBody
@@ -293,11 +292,10 @@ public class ConstanciaSolicitudController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
 
-        
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (documentoAcademico.getId() == null) {
                 service.save(documentoAcademico, ds);
@@ -357,7 +355,7 @@ public class ConstanciaSolicitudController {
                         .join("tramite.alumno.persona.tipoDocumento")
                         .join("tipoDocumentoAcademico")
                         .json();
-                
+
                 Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
                 logger.debug("idAlumno {}", idAlumno);
                 model.addAttribute("idAlumno", idAlumno);
@@ -755,11 +753,11 @@ public class ConstanciaSolicitudController {
             if (null != egresado) {
 
                 DecimalFormat df = new DecimalFormat("#.00");
-                logger.debug(" === PromedioGraduacion === {}",egresado.getPromedioGraduacion());
+                logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
                 node.put("esEgresado", TRUE);
-                node.put("promedioGraduacion",egresado.getPromedioGraduacion()!=null? df.format(egresado.getPromedioGraduacion()):"0.00");
+                node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
                 response.setSuccess(Boolean.TRUE);
-                
+
             }
 
             response.setData(node);

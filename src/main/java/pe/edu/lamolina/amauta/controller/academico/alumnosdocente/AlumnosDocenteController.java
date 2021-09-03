@@ -36,7 +36,7 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfService;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.ReporteActaNotasService;
 
 @Controller
 @RequestMapping("academico/docente/alumnosDocente")
@@ -48,7 +48,7 @@ public class AlumnosDocenteController {
     AlumnosDocenteService service;
 
     @Autowired
-    PdfService pdfService;
+    ReporteActaNotasService pdfService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {

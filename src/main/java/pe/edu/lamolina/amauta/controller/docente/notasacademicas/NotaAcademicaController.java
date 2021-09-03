@@ -76,7 +76,7 @@ import pe.edu.lamolina.amauta.controller.reporte.view.ReporteActasView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfService;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.ReporteActaNotasService;
 
 @Controller
 @RequestMapping("docente/notasacademica")
@@ -88,7 +88,7 @@ public class NotaAcademicaController {
     NotaAcademicaService service;
 
     @Autowired
-    PdfService pdfService;
+    ReporteActaNotasService pdfService;
 
     @Autowired
     ReporteActasView reporteActasView;

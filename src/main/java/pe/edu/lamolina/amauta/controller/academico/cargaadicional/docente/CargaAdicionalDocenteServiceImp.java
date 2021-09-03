@@ -44,9 +44,9 @@ import pe.edu.lamolina.amauta.dao.academico.Factor1CargaAdicionalDAO;
 import pe.edu.lamolina.amauta.dao.academico.Factor2CargaAdicionalDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasContent;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.TipoActaNotasPdfEnum;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -76,7 +76,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
+    PdfActaNotasGenerator pdfGenerator;
 
     @Override
     public List<DocenteCiclo> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -326,9 +326,9 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         ctx.setVariable("cicloAcademico", cicloAcademico);
         ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
 
-        PdfContent pdfContent = new PdfContent();
+        PdfActaNotasContent pdfContent = new PdfActaNotasContent();
         pdfContent.setContext(ctx);
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.SUBVENCION_CARGA_ADICIONAL);
+        pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.SUBVENCION_CARGA_ADICIONAL);
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         return src;

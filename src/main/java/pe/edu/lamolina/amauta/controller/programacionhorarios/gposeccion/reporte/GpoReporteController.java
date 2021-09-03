@@ -44,8 +44,7 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("academico/gposeccion/reporte")
@@ -58,7 +57,7 @@ public class GpoReporteController {
     GpoReporteService service;
 
     @Autowired
-    PdfHtmlView pdfHtmlView;
+    PdfHtml pdfHtmlSimplified;
 
     @Autowired
     BoletinPDF boletinPDF;
@@ -151,11 +150,11 @@ public class GpoReporteController {
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
-        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+        model.addAttribute("templatePdf", "reporteVeranoPagoDocente");
 
-        return new ModelAndView(pdfHtmlView);
+        return new ModelAndView(pdfHtmlSimplified);
     }
 
     @RequestMapping("reporteVeranoDocenteDepartamento")
@@ -173,11 +172,11 @@ public class GpoReporteController {
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
-        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_DOCENTE_DEPARTAMENTO);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+        model.addAttribute("templatePdf", "reporteVeranoDocenteDepartamento");
 
-        return new ModelAndView(pdfHtmlView);
+        return new ModelAndView(pdfHtmlSimplified);
     }
 
     @RequestMapping("reporteVeranoPagoCurso")
@@ -195,11 +194,11 @@ public class GpoReporteController {
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
-        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_CURSO);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+        model.addAttribute("templatePdf", "reporteVeranoCurso");
 
-        return new ModelAndView(pdfHtmlView);
+        return new ModelAndView(pdfHtmlSimplified);
     }
 
     @RequestMapping("reporteVeranoPagoPorDocenteFacultad")
@@ -217,11 +216,11 @@ public class GpoReporteController {
 
         model.addAttribute("falcultades", falcultades);
         model.addAttribute("fecha", sb.toString());
-        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE_FACULTAD);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+        model.addAttribute("templatePdf", "reporteVeranoPagoDocenteFacultad");
 
-        return new ModelAndView(pdfHtmlView);
+        return new ModelAndView(pdfHtmlSimplified);
     }
 
     @RequestMapping("boletinPDF")
