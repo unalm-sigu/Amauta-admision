@@ -54,7 +54,7 @@ public class PdfHtml extends AbstractPdfHtml {
             throw new PhobosException("Plantilla no especificada.");
         }
 
-        String[] plantillasArr = plantillas.split(",");
+        String[] plantillasArray = plantillas.split(",");
         logger.debug("plantillas {}", plantillas);
 
         String nombre = (String) model.get("nombrePdf");
@@ -70,7 +70,7 @@ public class PdfHtml extends AbstractPdfHtml {
         documentPdf.addTitle(nombre);
         documentPdf.addSubject(nombre);
 
-        for (String plantilla : plantillasArr) {
+        for (String plantilla : plantillasArray) {
 
             logger.debug("plantilla {}", plantilla);
 
@@ -99,7 +99,7 @@ public class PdfHtml extends AbstractPdfHtml {
                 p.parse(new StringReader(resultado));
             }
 
-            if (plantillasArr.length>1) {
+            if (plantillasArray.length>1) {
 
                 documentPdf.newPage();
 
