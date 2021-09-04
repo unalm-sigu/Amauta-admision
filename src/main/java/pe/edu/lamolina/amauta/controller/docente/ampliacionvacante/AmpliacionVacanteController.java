@@ -73,7 +73,7 @@ public class AmpliacionVacanteController {
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
 
                 ObjectNode nodeGpoSecc = JsonHelper.createJson(grupoSeccion, factory, true, new String[]{
-                    "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
+                    "id", "estado", "estadoEnum", "codigo2","codigo", "cursoDirigido",
                     "tipoDictado", "fechaInicioModular", "fechaFinModular",
                     "curso.id",
                     "curso.codigo",
@@ -89,6 +89,7 @@ public class AmpliacionVacanteController {
                     "docenteResponsable.persona.nombreCompleto",
                     "docenteResponsable.persona.letraNomPaterno",
                     "docenteResponsable.persona.nombrePaterno",
+                    "docenteResponsable.persona.emailCompania",
                     "curso.tipoCursoTEO",
                     "curso.tipoCursoPRA",
                     "curso.tipoCursoTEOPRA",
@@ -122,10 +123,12 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.aula.capacidadAula",
                     "secciones.seccionSuperior.grupoHoras.id",
                     "secciones.seccionSuperior.grupoHoras.codigo",
+                    "secciones.seccionSuperior.docentePrincipal.persona.emailCompania",
                     "secciones.docentePrincipal.codigo",
                     "secciones.docentePrincipal.persona.nombreCompleto",
                     "secciones.docentePrincipal.persona.letraNomPaterno",
                     "secciones.docentePrincipal.persona.nombrePaterno",
+                    "secciones.docentePrincipal.persona.emailCompania",
                     "secciones.docentePrincipalLogeado",
                     "secciones.docentePrincipaTcurLogeado"});
 
