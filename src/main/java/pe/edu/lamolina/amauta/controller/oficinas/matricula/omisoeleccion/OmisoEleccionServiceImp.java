@@ -52,10 +52,13 @@ import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
 @Service
 @Transactional(readOnly = true)
@@ -92,6 +95,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
     @Autowired
     NoVotaronService noVotaronService;
+
+    @Autowired
+    RetiroCicloDAO retiroCicloDAO;
 
     @Override
     @Transactional
@@ -228,14 +234,16 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     @Override
     public List<Alumno> allDeudaAlumno(DynatableFilter filter) {
 
-        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allOrder(filter);
-        Map<Long, List<AlumnoOmisoEleccion>> map = TypesUtil.convertListToMapList("alumno.id", alumnoOmisoEleccions);
-        List<Alumno> alumnos = alumnoOmisoEleccions.stream().map(x -> x.getAlumno()).distinct().collect(Collectors.toList());
+        List<Alumno> alumnos = alumnoDAO.allDynatableAlumnoOmisoEleccion(filter);
+
+        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByAlumno(alumnos);
+
+        Map<Long, List<AlumnoOmisoEleccion>> alumnoOmisoEleccionsXalumno = TypesUtil.convertListToMapList("alumno.id", alumnoOmisoEleccions);
 
         for (Alumno alumno : alumnos) {
-            List<AlumnoOmisoEleccion> alumnoOmisoEle = map.get(alumno.getId());
-            alumno.setAlumnoOmisoEleccions(alumnoOmisoEle);
+            alumno.setAlumnoOmisoEleccions(alumnoOmisoEleccionsXalumno.getOrDefault(alumno.getId(), new ArrayList()));
         }
+
         return alumnos;
     }
 
@@ -320,24 +328,6 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     @Override
-    public ResumenAporteAlumno findResumenAporteAlumno(Alumno alumnoForm) {
-        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
-        ModalidadEstudioEnum modalidadEnum = alumno.getModalidadEstudio().getOperativeModalidadEnum();
-        CicloAcademico ciclo = cicloAcademicoDAO.findActivo(modalidadEnum);
-        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, ciclo);
-        if (resumen == null) {
-            resumen = new ResumenAporteAlumno();
-            resumen.setMatriculaResumen(new MatriculaResumen());
-            resumen.getMatriculaResumen().setAlumno(alumno);
-            resumen.getMatriculaResumen().setCicloAcademico(ciclo);
-            resumen.setAporteAlumnoCiclo(new ArrayList());
-            return resumen;
-        }
-
-        return matriculableService.findResumenAporteAlumno(resumen);
-    }
-
-    @Override
     public MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico) {
         MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         if (resumen != null) {
@@ -348,6 +338,29 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         resumen.setAlumno(alumnoDAO.find(alumno));
         resumen.setCicloAcademico(cicloAcademico);
         return resumen;
+    }
+
+    @Override
+    public RetiroCiclo getTramiteRetiro(MatriculaResumen matriculaResumen) {
+        return retiroCicloDAO.findByAlumnoCicloRegistroUnique(matriculaResumen.getAlumno(), matriculaResumen.getCicloAcademico());
+    }
+
+    @Override
+    public List<ResumenAporteAlumno> allResumenAporteAlumno(Alumno alumnoForm, CicloAcademico cicloAcademico) {
+
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
+
+        List<ResumenAporteAlumno> resumenes = resumenAporteAlumnoDAO.allByAlumnoInitYear(alumno, 2019);
+
+        List<AporteAlumnoCiclo> aportesCiclo = aporteAlumnoCicloDAO.allByResumenAporteAlumno(resumenes);
+        
+        Map<Long, List<AporteAlumnoCiclo>> aportesCicloXresumen = TypesUtil.convertListToMapList("resumenAporteAlumno.id", aportesCiclo);
+        
+        for (ResumenAporteAlumno resumene : resumenes) {
+            resumene.setAporteAlumnoCiclo(aportesCicloXresumen.getOrDefault(resumene.getId(), new ArrayList()));
+        }
+        
+        return resumenes;
     }
 
 }

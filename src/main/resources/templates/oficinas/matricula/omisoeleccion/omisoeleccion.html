@@ -5,7 +5,7 @@
     </head>
 
     <body>
-        <div id="omisioVUE" layout:fragment="main">
+        <div id="omisioVUE" layout:fragment="main" v-cloak="">
             <header class="header b-b padder-lg">
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
@@ -59,14 +59,20 @@
                                                     {{item.persona.nombreCompleto}}
                                                 </a>
                                                 <span class="block">
-                                                    Matrícula: {{item.codigo}}
+                                                    Matrícula: <b>{{item.codigo}}</b>
                                                 </span>
                                                 <span class="block">
-                                                    Modalidad: {{item.modalidadEstudio.nombre}}
+                                                    Modalidad: <b> {{item.modalidadEstudio.nombre}}</b>
                                                 </span>
                                                 <small v-if="item.persona.numeroDocIdentidad != '' " class="block bold">
                                                     {{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}}
                                                 </small>
+                                                <span class="block">
+                                                    Correo institucional:  <b>{{item.persona.emailCompania}}</b>
+                                                </span>
+                                                <span class="block">
+                                                    Correo personal:  <b>{{item.persona.email}}</b>
+                                                </span>
                                             </td>
 
                                             <td class="v-middle text-center" >
@@ -88,9 +94,9 @@
                                                 <div class="actions">
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a v-on:click="openAnular(item)">Anular Deuda</a></li>
-                                                        <li><a v-on:click="verAportes(item)">Ver aportes</a></li>
-                                                        <li><a v-on:click="verBoletas(item)">Ver boletas</a></li>
+                                                        <li><a href="#" v-on:click.prevent="openAnular(item)">Anular Deuda</a></li>
+                                                        <li><a href="#" v-on:click.prevent="verAportes(item)">Ver aportes</a></li>
+                                                        <li><a href="#" v-on:click.prevent="verBoletas(item)">Ver boletas</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -105,7 +111,8 @@
                     </section>
                 </section>
             </section>
-            <div th:replace="academico/matriculable/aporteAlumnoModal"></div>
+            <div th:replace="oficinas/matricula/omisoeleccion/aporteAlumnoModal"></div>
+            
             <div th:replace="academico/matriculable/boletaAlumnoModal"></div>
 
             <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
@@ -120,7 +127,7 @@
                 var rutaModulo = /*[[${rutaModulo}]]*/ '';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/oficinas/matricula/omisoeleccion/omisoEleccion.js}" charset="utf-8"></script>
         </div>

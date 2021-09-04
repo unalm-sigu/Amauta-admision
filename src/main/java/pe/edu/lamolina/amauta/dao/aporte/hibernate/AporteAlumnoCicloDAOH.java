@@ -142,4 +142,21 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
 
         return find(sql);
     }
+
+    @Override
+    public List<AporteAlumnoCiclo> allByResumenAporteAlumno(List<ResumenAporteAlumno> resumenes) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
+                .join("ac.cuentaBancaria cta")
+                .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
+                .in("raa.id", resumenes)
+                .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
+                .filter("aac.monto", "!=", ZERO)
+                .filter("aac.numeroCuota", 1)
+                .filter("aac.estadoRegistro", ACT)
+                .orderBy("ca.codigo desc");
+        return all(sql);
+    }
+
 }

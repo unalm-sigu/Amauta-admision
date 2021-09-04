@@ -3,7 +3,7 @@ package pe.edu.lamolina.amauta.controller.oficinas.matricula.omisoeleccion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -28,46 +29,47 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.MotivoOmisoEnum;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
-import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
 @Controller
 @RequestMapping("oficinas/matricula/omisoeleccion")
 public class OmisoEleccionController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     OmisoEleccionService service;
+
     @Autowired
     MatriculableService matriculableService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         List<CicloAcademico> cicloAcademicos = service.allCicloAcademico(ds.getCicloAcademico());
-        ArrayNode arrayCiclo = new ArrayNode(JsonNodeFactory.instance);
+
+        ArrayNode arrayCiclo = JaneHelper.from(cicloAcademicos).array();
+
         ArrayNode arrayEnum = new ArrayNode(JsonNodeFactory.instance);
-        for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            arrayCiclo.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
-        }
+
         for (MotivoOmisoEnum enums : MotivoOmisoEnum.values()) {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("name", enums.name());
             node.put("value", enums.getValue());
             arrayEnum.add(node);
         }
+
         model.addAttribute("motivos", arrayEnum);
         model.addAttribute("ciclos", arrayCiclo);
         model.addAttribute("rutaModulo", rutaModulo);
@@ -107,6 +109,8 @@ public class OmisoEleccionController {
                     "persona.tipoDocumento.*",
                     "persona.numeroDocIdentidad",
                     "persona.rutaFoto",
+                    "persona.emailCompania",
+                    "persona.email",
                     "carrera.*",
                     "carrera.facultad.*"});
 
@@ -251,46 +255,44 @@ public class OmisoEleccionController {
     @ResponseBody
     @RequestMapping("getInfoAportes/{idAlumno}")
     public JsonResponse getInfoAportes(@PathVariable("idAlumno") Long idAlumno, HttpSession session) {
+
         JsonResponse json = new JsonResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory factory = JsonNodeFactory.instance;
-            ObjectNode info = new ObjectNode(factory);
-            ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new Alumno(idAlumno));
+            ArrayNode arrayResumenes = new ArrayNode(factory);
 
-            Alumno alumno = resumen.getMatriculaResumen().getAlumno();
-            Persona persona = alumno.getPersona();
+            List<ResumenAporteAlumno> resumenes = service.allResumenAporteAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
 
-            info.put("nombre", persona.getNombreCompleto());
-            info.put("codigo", alumno.getCodigo());
-            info.put("carrera", alumno.getCarrera().getNombre());
-            info.put("ciclo", resumen.getMatriculaResumen().getCicloAcademico().getDescripcion());
+            for (ResumenAporteAlumno resumen : resumenes) {
 
-            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                info.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
-            } else {
-                info.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
+                ObjectNode info = new ObjectNode(factory);
+                
+                info.put("ciclo", resumen.getMatriculaResumen().getCicloAcademico().getDescripcion());
+                info.put("estado", (resumen.getMatriculaResumen() != null
+                        && resumen.getMatriculaResumen().getId() != null)
+                        ? resumen.getMatriculaResumen().getEstadoEnum().getValue()
+                        : "No matriculado");
+                
+                RetiroCiclo retiroCiclo = service.getTramiteRetiro(resumen.getMatriculaResumen());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                info.put("fecharetiro", (retiroCiclo != null && retiroCiclo.getResolucion() != null)
+                        ? sdf.format(retiroCiclo.getResolucion().getFecha()) : "");
+
+                ArrayNode array = JaneHelper.from(resumen.getAporteAlumnoCiclo())
+                        .only("monto,pagado,saldo,numeroCuota,estadoEnum")
+                        .join("aporteCiclo.aporte", "nombre")
+                        .join("aporteCiclo.cuentaBancaria", "nombre,numero")
+                        .array();
+
+                info.set("aporteAlumnoCiclo", array);
+                arrayResumenes.add(info);
             }
-            ArrayNode array = new ArrayNode(factory);
 
-            for (AporteAlumnoCiclo aporte : resumen.getAporteAlumnoCiclo()) {
-                if (Arrays.asList(DEBE.name(), PAGO.name()).contains(aporte.getEstado())) {
-                    ObjectNode node = JsonHelper.createJson(aporte, factory, true, new String[]{
-                        "monto", "pagado", "saldo", "numeroCuota", "estadoEnum",
-                        "aporteCiclo.aporte.nombre",
-                        "aporteCiclo.cuentaBancaria.nombre",
-                        "aporteCiclo.cuentaBancaria.numero"
-                    });
-                    array.add(node);
-                }
-            }
-
-            info.set("aporteAlumnoCiclo", array);
-
-            json.setData(info);
+            json.setData(arrayResumenes);
             json.setSuccess(Boolean.TRUE);
-            json.setMessage("Datos cargados con éxito");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);

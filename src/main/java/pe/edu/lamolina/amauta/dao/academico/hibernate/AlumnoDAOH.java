@@ -46,6 +46,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableResumen;
+import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_00;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
@@ -1285,6 +1286,28 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .setResultTransformer(Transformers.aliasToBean(Alumno.class));
 
         return query.list();
+    }
+
+    @Override
+    public List<Alumno> allDynatableAlumnoOmisoEleccion(DynatableFilter filter) {
+
+        Octavia sql1 = new Octavia()
+                .from(AlumnoOmisoEleccion.class, "aoe")
+                .join("alumno al1");
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Alumno.class, "al")
+                .join("al.carrera car", "car.facultad", "al.modalidadEstudio")
+                .join("al.persona per", "per.tipoDocumento")
+                .searchFields("al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .exists(sql1)
+                .linkedBy("al.id", "al1.id")
+                .orderBy("al.id");
+
+        return all(sql);
+        
     }
 
 }
