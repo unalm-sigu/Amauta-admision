@@ -236,7 +236,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("cur.departamentoAcademico da", "da.facultad fa")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ciclo.id", ciclo)
-                .filter(("doc.id"), docente)
+                .filter("doc.id", docente)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")

@@ -8,7 +8,6 @@ public enum TipoActaNotasPdfEnum {
 
     ACTA_NOTAS("ActaNotas", "pdf/actaDeNotas", "Acta de Notas", "Acta de Notas"),
     RESULTADO_ENCUESTA("ResultadoEncuesta", "pdf/resultadoencuesta", "Resultado de Encuestas", "Resultado de Encuestas"),
-    SUBVENCION_CARGA_ADICIONAL("SubvencionCargaAdicional", "pdf/subvencionCargaAdicional", "Subvención por carga Académica Adicional", "Subvención por carga Académica Adicional"),
     HISTORIAL_ACADEMICO_TRAMITE("HistorialAcademico", "pdf/historialAcademicoCurdir", "Historial Académico", "Historial Académico"),
     HISTORIAL_ACADEMICO_LISTADO("HistorialAcademicoListado", "pdf/historialAcademicoListado", "Historial Académico", "Historial Académico"),
     CURSOS_MATRICULADOS("CursosMatriculados", "pdf/cursosMatriculados", "Cursos Matriculados", "Cursos Matriculados"),

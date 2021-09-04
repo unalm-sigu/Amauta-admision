@@ -99,7 +99,6 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
 
     @Override
     public List<String> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
-        //47
 
         List<String> pdfs = new ArrayList<>();
 
@@ -120,7 +119,7 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
 
         Seccion seccion = null;
         Docente docentePrincipal = null;
-        //  ds.getDocente()
+
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
         for (DocenteSeccion docSecc : docentesSeccion) {
             if (!docSecc.isEstadoActivado()) {
@@ -211,72 +210,4 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
         return mapNotas;
     }
 
-//    @Override
-//    public List<String> reporteProgramacion(CicloAcademico ciclo) {
-//        List<String> pdfs = new ArrayList<>();
-//        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo);
-//        for (AnexoBoletin anexo : anexos) {
-//            anexo.setGruposSecciones(new ArrayList());
-//        }
-//        Map<Long, AnexoBoletin> mapAnexoSuper = TypesUtil.convertListToMap("anexoSuperior.id", "anexoSuperior", anexos);
-//        Map<Long, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("id", anexos);
-//
-//        List<AnexoBoletin> anexosSuper = new ArrayList(mapAnexoSuper.values());
-//        for (AnexoBoletin anexo : anexosSuper) {
-//            anexo.setAnexosBoletinHijos(new ArrayList());
-//        }
-//        for (AnexoBoletin anexo : anexos) {
-//            AnexoBoletin anexoPadre = mapAnexoSuper.get(anexo.getAnexoSuperior().getId());
-//            anexoPadre.getAnexosBoletinHijos().add(anexo);
-//            anexo.setAnexoSuperior(anexoPadre);
-//        }
-//
-//        List<Seccion> secciones = seccionDAO.allForBoletinByCiclo(ciclo);
-//        Map<Long, Seccion> mapSeccion = TypesUtil.convertListToMap("id", secciones);
-//        for (Seccion secc : secciones) {
-//            secc.setDocenteSeccion(new ArrayList());
-//        }
-//
-//        Map<Long, GrupoSeccion> mapGpoSeccion = TypesUtil.convertListToMap("grupoSeccion.id", "grupoSeccion", secciones);
-//        List<GrupoSeccion> gpoSecciones = new ArrayList(mapGpoSeccion.values());
-//        for (GrupoSeccion gpoSecc : gpoSecciones) {
-//            gpoSecc.setSecciones(new ArrayList());
-//            AnexoBoletin anexo = mapAnexos.get(gpoSecc.getAnexoBoletin().getId());
-//            anexo.getGruposSecciones().add(gpoSecc);
-//        }
-//
-//        for (Seccion secc : secciones) {
-//            GrupoSeccion gpoSecc = mapGpoSeccion.get(secc.getGrupoSeccion().getId());
-//            gpoSecc.getSecciones().add(secc);
-//            secc.setGrupoSeccion(gpoSecc);
-//        }
-//
-//        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
-//        for (DocenteSeccion profeSecc : docentesSecciones) {
-//            Seccion secc = mapSeccion.get(profeSecc.getSeccion().getId());
-//            secc.getDocenteSeccion().add(profeSecc);
-//            profeSecc.setSeccion(secc);
-//        }
-//
-//        String pdf = createPdfReporteProgramacion(anexosSuper);
-//        pdfs.add(pdf);
-//
-//        return pdfs;
-//    }
-
-    private String createPdfReporteProgramacion(List<AnexoBoletin> listAB) {
-
-        Context ctx = new Context();
-        ctx.setVariable("listAB", listAB);
-
-        //   ctx.setVariable("page", (index + 1));
-        PdfActaNotasContent pdfContent = new PdfActaNotasContent();
-        pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.PROGRAMACION_HORARIOS);
-        pdfContent.setContext(ctx);
-//        String nombre = modalidad.getNombre().replace(' ', '_').replace('-', '_');
-//        String subFolder = nombre + "_" + index;
-//        String filePdf = pdfGenerator.generateDocument(pdfContent, subFolder);
-        String filePdf = pdfGenerator.generateDocument(pdfContent);
-        return filePdf;
-    }
 }

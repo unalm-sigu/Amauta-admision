@@ -237,23 +237,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         String dest = src;
-//        try {
-//            PdfReader reader = new PdfReader(src);
-//            PdfDictionary page = reader.getPageN(1);
-//            PdfDictionary resources = page.getAsDict(PdfName.RESOURCES);
-//            PdfDictionary xobjects = resources.getAsDict(PdfName.XOBJECT);
-//            PdfName imgRef = xobjects.getKeys().iterator().next();
-//            PRStream stream = (PRStream) xobjects.getAsStream(imgRef);
-//            PdfImage image = new PdfImage(Image.getInstance(imgBuilt), "", null);
-//            replaceStream(stream, image);
-//            dest = String.format("%s%d.pdf", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
-//
-//            PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
-//            stamper.close();
-//            reader.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
+
         return dest;
     }
 

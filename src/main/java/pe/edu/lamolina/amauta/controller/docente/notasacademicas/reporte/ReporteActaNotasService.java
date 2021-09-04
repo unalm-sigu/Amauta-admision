@@ -9,7 +9,5 @@ public interface ReporteActaNotasService {
     List<String> reporteDeActaDeNotas(Long idDocenteSeccion, DataSessionPivot ds);
 
     String concatPDFs(List<String> pdfFilesStr, String outputStreamStr, boolean paginate);
-    
-    //List<String> reporteProgramacionqq(CicloAcademico ciclo);
 
 }

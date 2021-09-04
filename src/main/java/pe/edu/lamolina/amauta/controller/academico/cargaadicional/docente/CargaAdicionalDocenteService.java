@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.cargaadicional.docente;
 
 import java.util.List;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguraCargaAdicional;
@@ -23,8 +24,8 @@ public interface CargaAdicionalDocenteService {
 
     void saveConfiguracion(ConfiguraCargaAdicional configuraCargaAdicional, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    String reporte(CicloAcademico cicloAcademico);
-
     void cerrar(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    public void reporte(Model model, CicloAcademico cicloAcademico);
 
 }
