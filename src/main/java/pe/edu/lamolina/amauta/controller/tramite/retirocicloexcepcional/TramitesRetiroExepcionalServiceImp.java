@@ -47,7 +47,6 @@ import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,9 +74,6 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
-
-    @Autowired
-    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;

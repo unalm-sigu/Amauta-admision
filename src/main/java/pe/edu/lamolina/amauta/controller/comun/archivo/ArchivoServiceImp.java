@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class ArchivoServiceImp implements ArchivoService {
             String[] imagenFromBase = imageString.split(",");
             String absoluteName;
 
-            byte[] imagenBytes = DatatypeConverter.parseBase64Binary(imagenFromBase[1]);
+            byte[] imagenBytes = Base64.encodeBase64(imagenFromBase[1].getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(imagenBytes);
             BufferedImage image;
 

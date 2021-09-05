@@ -29,77 +29,40 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
-import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.docente.notasacademicas.NotaAcademicaService;
-import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.amauta.dao.academico.EvaluacionPlanDAO;
-import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 
 @Service
-@Deprecated
 @Transactional(readOnly = true)
 public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PdfActaNotasGenerator pdfGenerator;
-
-    @Autowired
     NotaAcademicaService notaAcademicaService;
-
-    @Autowired
-    CursoDAO cursoDAO;
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
-    PlanCalificacionDAO planCalificacionDAO;
-
-    @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    FacultadDAO facultadDAO;
-
-    @Autowired
-    DocenteDAO docenteDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-    @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
-
-    @Autowired
-    AnexoBoletinDAO anexoBoletinDAO;
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
 
     @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
     EvaluacionPlanDAO evaluacionPlanDAO;
 
     @Override
-    public List<String> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
-
-        List<String> pdfs = new ArrayList<>();
+    public List<Context> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -145,6 +108,8 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
 
         Map matriculaCursoMap = notaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
+        
+        List<Context> multipleContext= new ArrayList();
 
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
             ind++;
@@ -165,7 +130,7 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
                 DateTime today = new DateTime();
                 ctx.setVariable("fecha", today.toString("dd/MM/yyyy"));
                 ctx.setVariable("hora", today.toString("HH:mm:ss "));
-                ctx.setVariable("pagina", pdfs.size() + 1);
+                ctx.setVariable("pagina", multipleContext.size() + 1);
 
                 ctx.setVariable("matriculaCurso", matriculaCursoMap);
 
@@ -179,23 +144,11 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
 
                 }
 
-                PdfActaNotasContent pdfContent = new PdfActaNotasContent();
-                pdfContent.setTipoPdfEnum(TipoActaNotasPdfEnum.ACTA_NOTAS);
-                pdfContent.setContext(ctx);
-
-                String subFolder = "acta_notas";
-                String filePdf = pdfGenerator.generateDocument(pdfContent, subFolder);
-                pdfs.add(filePdf);
-                lstMatriculaSeccion = new ArrayList<>();
+                multipleContext.add(ctx);
             }
         }
 
-        return pdfs;
-    }
-
-    @Override
-    public String concatPDFs(List<String> pdfFilesStr, String outputStreamStr, boolean paginate) {
-        return pdfGenerator.concatPDFs(pdfFilesStr, outputStreamStr, paginate);
+        return multipleContext;
     }
 
     private Map<String, ResumenAlumnoEvaluacion> mapearNotas(List<ResumenAlumnoEvaluacion> resumenesAlumnos) {

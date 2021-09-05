@@ -61,7 +61,6 @@ import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.amauta.zelper.CustomRenderer;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
 
 @Service
@@ -78,8 +77,6 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
     PuntajeEncuestaDocenteDAO puntajeEncuestaDocenteDAO;
     @Autowired
     EncuestaDocenteDAO encuestaDocenteDAO;
-    @Autowired
-    PdfActaNotasGenerator pdfGenerator;
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
     @Autowired

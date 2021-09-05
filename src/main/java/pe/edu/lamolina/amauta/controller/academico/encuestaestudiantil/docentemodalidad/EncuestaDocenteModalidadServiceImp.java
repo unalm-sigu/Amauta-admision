@@ -76,7 +76,6 @@ import pe.edu.lamolina.amauta.zelper.CustomRenderer;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasGenerator;
 
 @Service
 @Transactional(readOnly = true)
@@ -99,9 +98,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    PdfActaNotasGenerator pdfGenerator;
 
     @Autowired
     VerificadorService verificadorService;
