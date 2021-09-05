@@ -3,13 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,9 +12,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -66,6 +60,7 @@ import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoSe
 import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("academico/tramiteacademico")
@@ -85,6 +80,8 @@ public class TramitesAcademicosController {
     OficinaService oficinaService;
     @Autowired
     ResolucionService resolucionService;
+    @Autowired
+    PdfHtml pdfHtml;
 
     private String[] alumnoCicloMapper = new String[]{"*",
         "alumno.id",
@@ -598,46 +595,12 @@ public class TramitesAcademicosController {
     }
 
     @RequestMapping("cursodirigido/{id}/reporte")
-    public void cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        try {
-            String fileName = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información.pdf", response);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
-    }
-
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-            DateTime hoy = new DateTime();
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
+        Context ctx = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
+        model.addAllAttributes(ctx.getVariables());
+        return new ModelAndView(pdfHtml);
     }
 
     @ResponseBody

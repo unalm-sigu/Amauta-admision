@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -36,6 +38,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("docente/encuesta")
@@ -45,6 +48,9 @@ public class DocenteEncuestaController {
 
     @Autowired
     DocenteEncuestaService service;
+
+    @Autowired
+    PdfHtml pdfHtml;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -179,43 +185,10 @@ public class DocenteEncuestaController {
     }
 
     @RequestMapping("resumen/{id}/reporte")
-    public void reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
-        try {
-            String fileName = service.reporte(new EncuestaDocenteModalidad(id));
-            pdfResponse(fileName, response);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
+    public ModelAndView reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
+        Context ctx = service.reporte(new EncuestaDocenteModalidad(id));
+        model.addAllAttributes(ctx.getVariables());
+        return new ModelAndView(pdfHtml);
     }
 
-    private void pdfResponse(String name, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-            DateTime hoy = new DateTime();
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
-    }
 }

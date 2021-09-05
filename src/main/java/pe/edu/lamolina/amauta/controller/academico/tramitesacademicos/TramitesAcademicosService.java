@@ -3,6 +3,8 @@ package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import org.joda.time.DateTime;
+import org.springframework.ui.Model;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -36,8 +38,6 @@ public interface TramitesAcademicosService {
 
     void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, AccionTramiteDocumento accionTramiteDocumento, DataSessionPivot ds);
 
-    String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
-
     List<Curso> allCursos();
 
     List<Curso> allCursosByName(String nombre, Integer limit);
@@ -58,10 +58,6 @@ public interface TramitesAcademicosService {
 
     public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds);
 
-    public String allcursoDirigidoFac(Facultad tram, DataSessionPivot ds);
-
-    public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
-
     public AccionTramiteDocumento findAccionTramiteDocumento(AccionTramiteDocumento accionTramiteDoc);
 
     public void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
@@ -69,5 +65,9 @@ public interface TramitesAcademicosService {
     public void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds);
 
     public TipoTramite findTipoTramite(Long id);
+
+    public Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
+
+    public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
 
 }

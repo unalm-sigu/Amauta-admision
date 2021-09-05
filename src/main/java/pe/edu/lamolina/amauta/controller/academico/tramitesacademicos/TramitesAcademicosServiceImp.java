@@ -6,12 +6,10 @@ import pe.edu.lamolina.amauta.zelper.bean.FormDataBean;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -24,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -92,8 +91,6 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.PdfActaNotasContent;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.TipoActaNotasPdfEnum;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejoService;
@@ -605,12 +602,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoCursoDirigidoPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
-    }
+    public Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
 
-    private List<String> createInfoCursoDirigidoPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
 
@@ -692,22 +685,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-        PdfActaNotasContent pdfMatriculados = new PdfActaNotasContent();
-        pdfMatriculados.setContext(ctx);
-        pdfMatriculados.setTipoPdfEnum(TipoActaNotasPdfEnum.CURSOS_MATRICULADOS);
-
-        PdfActaNotasContent pdfHistorial = new PdfActaNotasContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoActaNotasPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-
-        PdfActaNotasContent pdfHorario = new PdfActaNotasContent();
-        pdfHorario.setContext(ctx);
-        pdfHorario.setTipoPdfEnum(TipoActaNotasPdfEnum.HORARIO);
-
-        PdfActaNotasContent pdfCursoDirigido = new PdfActaNotasContent();
-        pdfCursoDirigido.setContext(ctx);
-        pdfCursoDirigido.setTipoPdfEnum(TipoActaNotasPdfEnum.DETALLE_CURSO_DIRIGIDO);
-
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
         List<Hora> horas = findLimiteHoras(hss);
@@ -715,14 +692,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("dias", dias);
         ctx.setVariable("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
 
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfCursoDirigido),
-                pdfGenerator.generateDocument(pdfHistorial),
-                pdfGenerator.generateDocument(pdfMatriculados),
-                pdfGenerator.generateDocument(pdfHorario)
-        );
+        ctx.setVariable("nombrePdf", "Información");
+        ctx.setVariable("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
 
-        return pdfs;
+        return ctx;
+
     }
 
     private List<Hora> findLimiteHoras(List<HorarioSeccion> clases) {
@@ -979,47 +953,35 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Override
     public List<Docente> allByNombre(String nombre) {
+
         return docenteDAO.allByName(nombre);
+
     }
 
     @Override
     public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds) {
-        List<Tramite> tramites = tramiteDAO.allByFacultad(facultad, ds.getCicloAcademico());
-        return tramites;
+
+        return tramiteDAO.allByFacultad(facultad, ds.getCicloAcademico());
+
     }
 
     @Override
-    public String allcursoDirigidoFac(Facultad fac, DataSessionPivot ds) {
-        List<Tramite> tramites = allTramitesByFac(fac, ds);
-        List<String> pdfs = new ArrayList();
+    public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
+        
+        List<Tramite> tramites = allTramitesByFac(facultad, ds);
+        List<Context> multipleContext = new ArrayList();
+        
         for (Tramite tramite : tramites) {
-            pdfs.addAll(createInfoCursoDirigidoPDF(tramite, ds));
+            multipleContext.add(cursoDirigidoReporte(tramite, ds));
         }
-        return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
-    }
+        
+        return multipleContext;
 
-    @Override
-    public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
-        facultad = facultadDAO.find(facultad.getId());
-        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(facultad, ds.getCicloAcademico());
 
-        Context ctx = new Context();
-
-        PdfActaNotasContent pdfList = new PdfActaNotasContent();
-        pdfList.setContext(ctx);
-        pdfList.setTipoPdfEnum(TipoActaNotasPdfEnum.LIST_CURSOS_DIRIGIDOS);
-
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("cursoDirigido", cursoDirigidos);
-        ctx.setVariable("facultad", facultad.getNombre().toUpperCase(Locale.ROOT));
-
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfList)
-        );
-        return pdfGenerator.concatPDFs(pdfs, "ListCursoDirigido", true);
     }
 
     private void vistoBuenoUR(AutorizacionRegistro autorizacionRegistro, Usuario usuario) {
+
         autorizacionRegistro.setFechaAutorizacion(new Date());
         autorizacionRegistro.setIdUserAutoriza(usuario.getId());
         autorizacionRegistroDAO.updateColumns(autorizacionRegistro, "fechaAutorizacion", "idUserAutoriza");

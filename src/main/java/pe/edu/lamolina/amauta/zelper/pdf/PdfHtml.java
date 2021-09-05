@@ -17,6 +17,8 @@ import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +37,10 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 @Component
 public class PdfHtml extends AbstractPdfHtml {
 
+    /**
+     * NO MODIFICAR SE ESTA USANDO EN MULTIPLES REPORTES
+     *
+     */
     @Autowired
     private SpringTemplateEngine templateEngine;
 
@@ -44,10 +50,6 @@ public class PdfHtml extends AbstractPdfHtml {
 
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document documentPdf, PdfWriter writer, HttpServletRequest hsr, HttpServletResponse response) throws Exception {
-
-        Context ctx = new Context();
-
-        ctx.setVariables(model);
 
         String plantillas = (String) model.get("templatePdf");
         if (StringUtils.isBlank(plantillas)) {
@@ -63,6 +65,14 @@ public class PdfHtml extends AbstractPdfHtml {
             nombre = "untitle";
         }
 
+        List<Context> multipleContext = (List) model.get("multipleContext");
+
+        if (multipleContext == null) {
+            Context ctx = new Context();
+            ctx.setVariables(model);
+            multipleContext = Arrays.asList(ctx);
+        }
+
         documentPdf.setPageSize(PageSize.A4);
         documentPdf.addAuthor("AgrariaLaMolina");
         documentPdf.addCreationDate();
@@ -70,40 +80,46 @@ public class PdfHtml extends AbstractPdfHtml {
         documentPdf.addTitle(nombre);
         documentPdf.addSubject(nombre);
 
-        for (String plantilla : plantillasArray) {
+        for (Context ctx : multipleContext) {
 
-            logger.debug("plantilla {}", plantilla);
+            for (String plantilla : plantillasArray) {
 
-            String htmlContent = this.templateEngine.process(templateResolver(plantilla), ctx);
+                logger.debug("plantilla {}", plantilla);
 
-            HtmlCleaner cleaner = new HtmlCleaner();
+                String htmlContent = this.templateEngine.process(templateResolver(plantilla), ctx);
 
-            TagNode node = cleaner.clean(htmlContent);
+                HtmlCleaner cleaner = new HtmlCleaner();
 
-            String resultado = cleaner.getInnerHtml(node);
+                TagNode node = cleaner.clean(htmlContent);
 
-            HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
-            htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
-            htmlContext.setImageProvider(new PdfImageProvider());
+                String resultado = cleaner.getInnerHtml(node);
 
-            CSSResolver cssResolver = new StyleAttrCSSResolver();
-            InputStream csspathtest = this.getClass().getResourceAsStream(GlobalConstantine.PDF_CSS);
+                HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
+                htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+                htmlContext.setImageProvider(new PdfImageProvider());
 
-            CssFile cssfiletest = XMLWorkerHelper.getCSS(csspathtest);
-            cssResolver.addCss(cssfiletest);
-            Pipeline<?> pipeline = new CssResolverPipeline(cssResolver, new HtmlPipeline(htmlContext, new PdfWriterPipeline(documentPdf, writer)));
-            XMLWorker worker = new XMLWorker(pipeline, true);
-            XMLParser p = new XMLParser(worker);
+                CSSResolver cssResolver = new StyleAttrCSSResolver();
+                InputStream csspathtest = this.getClass().getResourceAsStream(GlobalConstantine.PDF_CSS);
 
-            if (resultado != null) {
-                p.parse(new StringReader(resultado));
+                CssFile cssfiletest = XMLWorkerHelper.getCSS(csspathtest);
+                cssResolver.addCss(cssfiletest);
+                Pipeline<?> pipeline = new CssResolverPipeline(cssResolver, new HtmlPipeline(htmlContext, new PdfWriterPipeline(documentPdf, writer)));
+                XMLWorker worker = new XMLWorker(pipeline, true);
+                XMLParser p = new XMLParser(worker);
+
+                if (resultado != null) {
+                    p.parse(new StringReader(resultado));
+                }
+
+                if (plantillasArray.length > 1) {
+
+                    documentPdf.newPage();
+
+                }
+
             }
 
-            if (plantillasArray.length>1) {
-
-                documentPdf.newPage();
-
-            }
+            documentPdf.newPage();
 
         }
 

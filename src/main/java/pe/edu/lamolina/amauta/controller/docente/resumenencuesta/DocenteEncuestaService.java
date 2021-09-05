@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.docente.resumenencuesta;
 
 import java.util.List;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -15,7 +16,7 @@ public interface DocenteEncuestaService {
 
     List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
-    String reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
+    Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
     List<EncuestaDocente> allEncuestaDocente(DynatableFilter filter, CicloAcademico ciclo, Docente docente);
 
