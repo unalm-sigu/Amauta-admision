@@ -78,6 +78,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
@@ -96,6 +97,8 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
@@ -194,6 +197,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     TramiteTituloDAO tramiteTituloDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
@@ -397,6 +403,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
         if (tramiteBachiller != null) {
             alumno.setResolucionBachiller((String) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.numeroVisible"));
+            alumno.setFechaBachiller((Date) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.fecha"));
             logger.debug("{}", alumno.getResolucionBachiller());
         }
 
@@ -404,9 +411,17 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoACEP(alumno);
         if (tramiteTitulo != null) {
             alumno.setResolucionTitulo((String) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.numeroVisible"));
+            alumno.setFechaTitulo((Date) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.fecha"));
             logger.debug("{}", alumno.getResolucionTitulo());
         }
-
+        if (alumno.getCicloActivo() != null) {
+            if (alumno.getSituacionAcademica() != null) {
+                if (alumno.getSituacionAcademica().isEgresado()) {
+                    EventoCicloAcademico eventoEgreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
+                    alumno.setFechaEgreso(eventoEgreso != null ? eventoEgreso.getFechaFin() : null);
+                }
+            }
+        }
         return alumno;
     }
 

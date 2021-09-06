@@ -159,12 +159,31 @@
                             </td>
                         </tr>
                         
+                        
+                        <tr v-if="alumno.fechaEgreso">
+                            <td>
+                                <strong>Fecha Egreso  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.fechaEgreso"></span>
+                            </td>
+                        </tr>
+                        
                         <tr v-if="alumno.resolucionTitulo">
                             <td>
                                 <strong> Título </strong>
                             </td>
                             <td>
                                 <span v-text="alumno.resolucionTitulo"></span>
+                            </td>
+                        </tr>
+                        
+                        <tr v-if="alumno.fechaTitulo">
+                            <td>
+                                <strong>Fecha Título </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.fechaTitulo"></span>
                             </td>
                         </tr>
 
@@ -176,6 +195,16 @@
                                 <span v-text="alumno.resolucionBachiller"></span>
                             </td>
                         </tr>
+
+                        <tr v-if="alumno.fechaBachiller">
+                            <td>
+                                <strong>Fecha Bachiller  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.fechaBachiller"></span>
+                            </td>
+                        </tr>
+
 
                     </tbody>
                 </table>

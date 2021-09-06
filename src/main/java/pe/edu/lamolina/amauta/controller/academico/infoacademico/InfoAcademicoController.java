@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -115,11 +116,9 @@ public class InfoAcademicoController {
         model.addAttribute("puedeCalcular", puedeCalcular);
         model.addAttribute("origen", getOrigen(origen));
 
-        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
-        for (Hora hora : horas) {
-            horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
-        }
+        
+        ArrayNode horasJson = JaneHelper.from(horas).array();
 
         model.addAttribute("horasBD", horasJson);
         return "academico/alumno/infoAcademico";
@@ -660,7 +659,7 @@ public class InfoAcademicoController {
     
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-            "id", "codigo",
+            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso",
             "ciclosRegularesTransient", "ciclosVeranosTransient",
             "promedioCarreraAcumulado", "promedioAcumulado",
             "creditosCarreraAprobados", "creditosCarreraCursados",
