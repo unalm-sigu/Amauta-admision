@@ -88,9 +88,10 @@
                                                                >
                                                                 Editar
                                                             </a>
-                                                            <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir PDF</a>
-                                                            <!--<a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>-->
-                                                            <!--<a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>-->
+                                                            <a class="aceptar-expandir-sistema" 
+                                                               v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" 
+                                                               v-on:click="loadModalSubirDoc(item,$event)" 
+                                                               href="#">Subir PDF</a>
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -254,24 +255,12 @@
                                                                v-if="item.tramite.tipoTramite.esReincorporacionPregrado">
                                                             Reincorporación: {{item.estadoTramite.nombre}}
                                                         </small>
-                                                        <!-- 
-                                                        <small class="block text-muted" 
-                                                               v-if="item.tramiteReunionConsejo">
-                                                            <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
-                                                        </small>
-                                                        -->
                                                     </td> 
                                                     <td>
                                                         {{ item.userRegistro.persona.apellidosNombres}}
                                                         <small class="block text-muted">
                                                             <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
                                                         </small>
-                                                        <!--
-                                                        <a class="btn" 
-                                                           v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
-                                                           type="button"    
-                                                           v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
-                                                           href="#" >Seleccionar</a> -->
                                                     </td>
                                                     <td>
                                                         <label class="switch">
@@ -291,10 +280,12 @@
                         </div>
                     </modal-vik>
 
-
                     <div th:substituteby="academico/resolucion/alumnosResolucionModal"/>
+
                 </section>
+                
             </div>
+                    
             <div th:substituteby="templates/modal"/>
 
         </div>

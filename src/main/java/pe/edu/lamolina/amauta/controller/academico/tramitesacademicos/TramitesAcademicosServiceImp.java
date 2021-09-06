@@ -325,7 +325,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 tramitesReunion.setFechaActualizacion(today.toDate());
                 tramiteReunionConsejoDAO.update(tramitesReunion);
             }
-            flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today, true);
         }
     }
 

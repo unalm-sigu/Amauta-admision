@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -86,30 +87,40 @@ public class ResolucionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/resolucion/resolucion";
     }
+    
+    
+    @ResponseBody
+    @RequestMapping("listResoluciones")
+    public DynatableResponse listResoluciones(DynatableFilter filter, HttpSession session) {
 
-    @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        model.addAttribute("resolucion", new Resolucion());
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "academico/resolucion/resolucionForm";
-    }
+        DynatableResponse json = new DynatableResponse();
 
-    @RequestMapping("{resolucion}/editar")
-    public String editar(@PathVariable("resolucion") Long resolucionId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        Resolucion resolucion = new Resolucion(resolucionId);
-        ObjectNode resolucionJson = JsonHelper.createJson(resolucion, JsonNodeFactory.instance);
-        model.addAttribute("resolucionJson", resolucionJson.toString());
+        try {
 
-        resolucion = service.findResolucion(resolucionId);
-        model.addAttribute("resolucion", resolucion);
-        return "academico/resolucion/resolucionForm";
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter, ds);
+
+            ArrayNode array = JaneHelper.from(resoluciones)
+                    .join("oficina")
+                    .join("tipoResolucion")
+                    .join("userRegistro.persona","apellidosNombres")
+                    .array();
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            json.setTotal(0);
+        }
+        
+        return json;
     }
 
     @ResponseBody
@@ -233,42 +244,6 @@ public class ResolucionController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("listResoluciones")
-    public DynatableResponse listResoluciones(DynatableFilter filter,
-            HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            CicloAcademico ciclo = ds.getCicloAcademico();
-            DateTime today = new DateTime();
-
-            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter, ds);
-            logger.debug("cantidad de resoluciones " + resoluciones.size());
-
-            for (Resolucion resolucionEach : resoluciones) {
-
-                ObjectNode resolucionJson = JsonHelper.createJson(resolucionEach, JsonNodeFactory.instance,
-                        new String[]{
-                            "*",
-                            "oficina.*",
-                            "tipoResolucion.*",
-                            "userRegistro.persona.*"
-                        });
-                array.add(resolucionJson);
-            }
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
 
     @ResponseBody
     @RequestMapping("listTramitesToConfirm")
@@ -279,10 +254,9 @@ public class ResolucionController {
 
         DynatableResponse json = new DynatableResponse();
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-//            CicloAcademico ciclo = ds.getCicloAcademico();
-//            DateTime today = new DateTime();
 
             if (resolucionId == null) {
                 json.setTotal(0);
@@ -535,7 +509,7 @@ public class ResolucionController {
             service.uploadResolucionFile(new Resolucion(resolucionId), file, ds);
             response.setMessage("Archivo cargado.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception ex) {
