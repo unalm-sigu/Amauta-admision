@@ -1,10 +1,9 @@
-package pe.edu.lamolina.amauta.controller.tramite.costo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.costo;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -20,14 +19,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -69,11 +68,16 @@ public class CostoDocumentoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
-        List<Idioma> listIdioma = service.allIdioma();
+        List<TipoDocumentoAcademico> tiposDocumentos = tipoConstanciaService.all();
+        List<Idioma> idiomas = service.allIdioma();
 
-        model.addAttribute("tipoDocumento", list.size() == 0 ? new ArrayList<TipoDocumentoAcademico>() : new TipoDocumentoAcademico().toArrayJson(list));
-        model.addAttribute("idiomas", listIdioma.size() == 0 ? new ArrayList<Idioma>() : new Idioma().toArrayJson(listIdioma));
+        model.addAttribute("tipoDocumento",  JaneHelper.from(tiposDocumentos)
+                    .join("oficinaEmisora")
+                    .array()
+                    .toString());
+        model.addAttribute("idiomas",  JaneHelper.from(idiomas)
+                    .array()
+                    .toString());
         return "tramite/costoDocumento/costoDocumento";
     }
 
@@ -115,12 +119,17 @@ public class CostoDocumentoController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            List<PrecioDocumento> list = service.all(filter);
-            json.setData(new PrecioDocumento().toJsonArray(list));
+            
+            json.setData(JaneHelper.from(service.all(filter))
+                    .join("tipoDocumento")
+                    .join("idioma")
+                    .array()
+                    .toString());
+            
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);

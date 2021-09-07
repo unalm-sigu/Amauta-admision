@@ -265,42 +265,6 @@ public class TramitesAcademicosController {
     }
 
     @ResponseBody
-    @RequestMapping("loadModalAgendar")
-    public JsonResponse loadModalAgendar(
-            @RequestBody Tramite tramite,
-            Model model,
-            HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-            ObjectNode node = new ObjectNode(jsonFactory);
-//            ReunionConsejo reunionConsejo = reunionConsejoService.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
-//            if (reunionConsejo == null) {
-//                reunionConsejo = new ReunionConsejo();
-//                reunionConsejo.setEsOrdinario(BigDecimal.ONE.intValue());
-//            }
-//
-//            node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
-//                "*",
-//                "usuarioRegistro.*",
-//                "usuarioActualizacion.*",}));
-            response.setData(node);
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("listReunionesConsejo/{idOficina}")
     public DynatableResponse listReunionesConsejo(@PathVariable Long idOficina, DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
@@ -338,46 +302,17 @@ public class TramitesAcademicosController {
     }
 
     @ResponseBody
-    @RequestMapping("saveAgendar")
-    public JsonResponse saveAgendar(
-            @RequestParam("reunionConsejo") Long reunionConsejoId,
-            @RequestParam("tramite") Long tramiteId,
-            Model model,
-            HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-            // tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), new ReunionConsejo(reunionConsejoId), ds.getUsuario());
-            response.setMessage("Agendado correctamente.");
-
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("revertirEstadoTramite")
     public JsonResponse revertirEstadoTramite(
             @RequestBody Tramite tramite,
             Model model,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             tramitesAcademicosService.revertTramiteAcademico(tramite, ds);
 
             response.setMessage("Reversión completada");
@@ -442,12 +377,13 @@ public class TramitesAcademicosController {
     @ResponseBody
     @RequestMapping("{tramite}/loadFormProcesar")
     public JsonResponse loadGpoSeccionForm(@PathVariable("tramite") Long tramiteId, HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         JsonResponse response = new JsonResponse();
 
         try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
             Tramite tramite = tramitesAcademicosService.findTramite(tramiteId);
@@ -517,11 +453,10 @@ public class TramitesAcademicosController {
             @RequestParam("tramite") Long tramiteId,
             @RequestParam("accionTramite") Long accionTramiteId,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
             tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
             response.setMessage("Solicitud Procesada.");
 
@@ -596,7 +531,7 @@ public class TramitesAcademicosController {
 
     @RequestMapping("cursodirigido/{id}/reporte")
     public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Context ctx = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
         model.addAllAttributes(ctx.getVariables());

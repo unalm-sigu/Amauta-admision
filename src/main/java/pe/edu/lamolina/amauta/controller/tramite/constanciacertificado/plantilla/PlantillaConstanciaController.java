@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantilla;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -39,7 +39,7 @@ import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia.TipoConstanciaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.Archivo;
@@ -111,11 +111,16 @@ public class PlantillaConstanciaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
-        List<Idioma> listIdioma = service.allIdioma();
-
-        model.addAttribute("tipoDocumento", list.isEmpty() ? list : new TipoDocumentoAcademico().toArrayJson(list));
-        model.addAttribute("idiomas", listIdioma.isEmpty() ? listIdioma : new Idioma().toArrayJson(listIdioma));
+        
+        model.addAttribute("tipoDocumento", JaneHelper.from(tipoConstanciaService.all())
+                    .join("oficinaEmisora")
+                    .array()
+                    .toString());
+        
+        model.addAttribute("idiomas", JaneHelper.from(service.allIdioma())
+                    .array()
+                    .toString());
+        
         return "tramite/plantillaConstancia/plantillaConstancia";
     }
 

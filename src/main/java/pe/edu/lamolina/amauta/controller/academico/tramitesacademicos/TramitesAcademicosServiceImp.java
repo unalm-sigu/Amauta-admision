@@ -67,7 +67,6 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteCorreccionHistorial;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
-import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
@@ -143,9 +142,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     TramiteReunionConsejoDAO tramiteReunionConsejoDAO;
-
-    @Autowired
-    FlujoTramiteAcademicoService flujoTramiteAcademicoService;
 
     @Autowired
     AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;

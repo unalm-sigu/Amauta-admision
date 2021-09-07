@@ -23,7 +23,7 @@ import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaGenerica;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;
@@ -53,8 +53,6 @@ public interface ConstanciaSolicitudService {
     PrecioDocumento findPrecioDocumentoByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma);
 
     List<Alumno> allAlumnoByName(String nombre);
-
-    List<Colaborador> allColaboradorByName(String nombre);
 
     void updateFotoTemporal(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
 

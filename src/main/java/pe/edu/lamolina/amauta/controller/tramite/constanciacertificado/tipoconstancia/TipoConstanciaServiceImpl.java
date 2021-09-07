@@ -1,8 +1,5 @@
-package pe.edu.lamolina.amauta.controller.tramite.constanciatipo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia;
 
-import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
@@ -62,7 +59,12 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         TipoDocumentoAcademico documentoAcademicoDB = tipoConstanciaDAO.find(tramiteDocumentoAcademicoForm);
         documentoAcademicoDB.setNombre(tramiteDocumentoAcademicoForm.getNombre());
         documentoAcademicoDB.setTipo(tramiteDocumentoAcademicoForm.getTipo());
-
+        
+        documentoAcademicoDB.setRequiereEgresado(tramiteDocumentoAcademicoForm.getRequiereEgresado());
+        documentoAcademicoDB.setRequiereFoto(tramiteDocumentoAcademicoForm.getRequiereFoto());
+        documentoAcademicoDB.setRequierePosgrado(tramiteDocumentoAcademicoForm.getRequierePosgrado());
+        documentoAcademicoDB.setRequierePregrado(tramiteDocumentoAcademicoForm.getRequierePregrado());
+       
         if (tramiteDocumentoAcademicoForm.getCostoCiclo() == null) {
             documentoAcademicoDB.setCostoCiclo(0L);
         } else {
@@ -115,6 +117,10 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Override
     @Transactional
     public void save(TipoDocumentoAcademico tramiteDocumentoAcademico, Usuario usuario) {
+        TipoDocumentoAcademico tramiteDocumentoAcademicoCodigo=tipoConstanciaDAO.findByCodigo(tramiteDocumentoAcademico.getCodigo());
+        if(tramiteDocumentoAcademicoCodigo!=null){
+            throw new PhobosException("Código registrado ya existe");
+        }
         
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         if (tramiteDocumentoAcademico.getCostoCiclo() == null) {
@@ -166,7 +172,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     }
 
     @Override
-    public List<TipoDocumentoAcademico> all(DynatableFilter filter) {
+    public List<TipoDocumentoAcademico> allDynatable(DynatableFilter filter) {
         return tipoConstanciaDAO.allDynatable(filter);
     }
 
@@ -210,14 +216,16 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     public TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento) {
         TipoDocumentoAcademico tipoDocumentoAcademico = tipoConstanciaDAO.find(tipoDocumento);
         List<ConfiguracionFirmaDocumento> firmas = configuracionFirmaDocumentoDAO.allByTipoDocumentoAcademico(tipoDocumentoAcademico);
+        for (ConfiguracionFirmaDocumento firma : firmas) {
+            if(firma.getTipoOficina()==null){
+                firma.setTipoOficina(new TipoOficina());
+            }
+            if(firma.getOficina()==null){
+                firma.setOficina(new Oficina());
+            }
+        }
         tipoDocumentoAcademico.setConfiguracionFirmaDocumento(firmas);
         return tipoDocumentoAcademico;
-    }
-
-    @Override
-    public ObjectNode toJson(Object object) {
-        ObjectNode json = JsonHelper.createJson(object, JsonNodeFactory.instance);
-        return json;
     }
 
 }

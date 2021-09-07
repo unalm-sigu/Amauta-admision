@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.costo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.costo;
 
 import java.util.Date;
 import java.util.List;
@@ -41,7 +41,7 @@ public class CostoDocumentoServiceImpl implements CostoDocumentoService {
         PrecioDocumento precioDB = costoDocumentoDAO.findTipoDocAndIdioma(precioDocumento.getTipoDocumento(),precioDocumento.getIdioma());
         Assert.isNull(precioDB, "Existe precio para " + precioDocumento.getTipoDocumento().getNombre());
         precioDocumento.setFechaRegistro(new Date());
-        precioDocumento.setIdUserRegistro(usuario.getId());
+        precioDocumento.setUserRegistro(usuario);
         precioDocumento.setCuentaBancaria(new CuentaBancaria(6));
         costoDocumentoDAO.save(precioDocumento);
     }

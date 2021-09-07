@@ -1,7 +1,5 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantilla;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla;
 
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaConstanciaService;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.AlumnoConstancia;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -19,7 +17,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import static pe.edu.lamolina.amauta.controller.tramite.plantilla.IdiomaEnum.EN;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
@@ -38,7 +35,6 @@ import pe.edu.lamolina.amauta.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PlantillaDocumentoAcademicoDAO;
-import pe.edu.lamolina.model.academico.NombreCiclo;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
@@ -124,7 +120,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         Assert.isNull(plantillaDocumentoAcaDB, "Existe Plantilla en " + plantilla.getIdioma().getNombre() + " para " + plantilla.getTipoDocumentoAcademico().getNombre());
 
         plantilla.setFechaRegistro(new Date());
-        plantilla.setIdUserRegistro(usuario.getId());
+        plantilla.setUserRegistro(usuario);
         plantilla.setContenido("Constancia");
         plantillaConstanciaDAO.save(plantilla);
     }

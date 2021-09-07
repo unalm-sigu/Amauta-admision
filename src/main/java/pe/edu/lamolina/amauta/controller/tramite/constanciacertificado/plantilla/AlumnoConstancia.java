@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.plantilla;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla;
 
 public class AlumnoConstancia {
 

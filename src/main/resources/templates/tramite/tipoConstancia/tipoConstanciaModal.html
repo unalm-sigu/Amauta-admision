@@ -34,11 +34,42 @@
                     </label>
                 </div>
             </div>
+            
             <div class='form-group' >
                 <label class="col-sm-3 control-label">Requiere Foto:</label>
                 <div class="col-sm-9">
                     <label class="switch">
                         <input type="checkbox" name="requiereFoto" value="1"  v-model="tipoConstancia.requiereFoto" ></input>
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class='form-group' >
+                <label class="col-sm-3 control-label">Solo Pregrado:</label>
+                <div class="col-sm-9">
+                    <label class="switch">
+                        <input type="checkbox" name="requierePregrado" value="1"  v-model="tipoConstancia.requierePregrado" ></input>
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class='form-group' >
+                <label class="col-sm-3 control-label">Solo Posgrado:</label>
+                <div class="col-sm-9">
+                    <label class="switch">
+                        <input type="checkbox" name="requierePosgrado" value="1"  v-model="tipoConstancia.requierePosgrado" ></input>
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class='form-group' >
+                <label class="col-sm-3 control-label">Solo Egresado:</label>
+                <div class="col-sm-9">
+                    <label class="switch">
+                        <input type="checkbox" name="requiereEgresado" value="1"  v-model="tipoConstancia.requiereEgresado" ></input>
                         <span></span>
                     </label>
                 </div>

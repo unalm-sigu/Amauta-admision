@@ -38,7 +38,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.IdiomaEnum;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla.IdiomaEnum;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;

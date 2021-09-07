@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.costo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.costo;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;

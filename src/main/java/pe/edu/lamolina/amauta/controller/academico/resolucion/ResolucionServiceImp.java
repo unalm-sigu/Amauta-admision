@@ -51,7 +51,6 @@ import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAcademicosService;
-import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
@@ -133,9 +132,6 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-
-    @Autowired
-    FlujoTramiteAcademicoService flujoTramiteAcademicoService;
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;

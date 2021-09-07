@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.constanciatipo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -29,11 +30,10 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
-import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 
 @Controller
 @RequestMapping("tramite/tipoconstancia")
@@ -75,20 +75,48 @@ public class TipoConstanciaController {
     }
 
     @ResponseBody
+    @RequestMapping("all")
+    public DynatableResponse all(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+
+            List<TipoDocumentoAcademico> tiposDocumentos = service.allDynatable(filter);
+
+            json.setData(JaneHelper.from(tiposDocumentos)
+                    .join("oficinaEmisora")
+                    .array());
+
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (tramiteDocumentoAcademico.getId() == null) {
                 service.save(tramiteDocumentoAcademico, ds.getUsuario());
-                response.setMessage("Se guardó");
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.update(tramiteDocumentoAcademico, ds.getUsuario());
-                response.setMessage("Se actualizó");
+                response.setMessage(GlobalMessages.UPDATED);
             }
+
             response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -98,27 +126,9 @@ public class TipoConstanciaController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse all(DynatableFilter filter, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            List<TipoDocumentoAcademico> list = service.all(filter);
-            json.setData(new TipoDocumentoAcademico().toArrayJson(list));
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
-
-    @ResponseBody
     @RequestMapping("{id}/find")
     public JsonResponse find(@PathVariable("id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             TipoDocumentoAcademico tipoDocumentoAcademico = service.findById(new TipoDocumentoAcademico(id));
             response.setData(tipoDocumentoAcademico);
@@ -135,7 +145,6 @@ public class TipoConstanciaController {
     @RequestMapping("delete")
     public JsonResponse delete(TipoDocumentoAcademico tipoDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.delete(tipoDocumento);
             response.setMessage("Registro removido satisfactoriamente");
@@ -152,10 +161,11 @@ public class TipoConstanciaController {
     @RequestMapping("allOficina")
     public JsonResponse allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             List<Oficina> oficinas = service.allOficina(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             for (Oficina oficina : oficinas) {
@@ -199,33 +209,32 @@ public class TipoConstanciaController {
     }
 
     @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(TipoDocumentoAcademico tipoDocumento) {
+    @RequestMapping("find/{idtipoDocumento}")
+    public JsonResponse update(@PathVariable Long idtipoDocumento) {
         JsonResponse response = new JsonResponse();
         try {
-            TipoDocumentoAcademico tipoDocumentoAcademico = service.findTipoDocumentoAcademico(tipoDocumento);
-            ObjectNode jTipoDocumento = service.toJson(tipoDocumentoAcademico);
-            ArrayNode firmas = new ArrayNode(JsonNodeFactory.instance);
-            for (ConfiguracionFirmaDocumento configuracionFirmaDocumento : tipoDocumentoAcademico.getConfiguracionFirmaDocumento()) {
-                ObjectNode firma = service.toJson(configuracionFirmaDocumento);
-                firma.put("oficina", "");
-                firma.put("tipoOficina", "");
-                if (configuracionFirmaDocumento.getOficina() != null) {
-                    firma.put("oficina", service.toJson(configuracionFirmaDocumento.getOficina()));
-                }
-                if (configuracionFirmaDocumento.getTipoOficina() != null) {
-                    firma.put("tipoOficina", service.toJson(configuracionFirmaDocumento.getTipoOficina()));
-                }
-                firmas.add(firma);
-            }
-            jTipoDocumento.put("firmasDocumento", firmas);
+
+            TipoDocumentoAcademico tipoDocumentoAcademico = service.findTipoDocumentoAcademico(new TipoDocumentoAcademico(idtipoDocumento));
+
+            ObjectNode jTipoDocumento = JaneHelper.from(tipoDocumentoAcademico)
+                    .join("oficinaEmisora").json();
+
+            ArrayNode firmas = JaneHelper.from(tipoDocumentoAcademico.getConfiguracionFirmaDocumento())
+                    .join("oficina")
+                    .join("tipoOficina")
+                    .join("tipoDocumentoAcademico")
+                    .array();
+
+            jTipoDocumento.set("firmasDocumento", firmas);
             response.setData(jTipoDocumento);
             response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+
         return response;
     }
 

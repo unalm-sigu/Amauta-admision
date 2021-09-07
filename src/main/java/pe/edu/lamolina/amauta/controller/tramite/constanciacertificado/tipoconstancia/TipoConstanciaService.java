@@ -1,6 +1,5 @@
-package pe.edu.lamolina.amauta.controller.tramite.constanciatipo;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Oficina;
@@ -14,7 +13,7 @@ public interface TipoConstanciaService {
 
     void save(TipoDocumentoAcademico tramiteDocumentoAcademico, Usuario usuario);
 
-    List<TipoDocumentoAcademico> all(DynatableFilter filte);
+    List<TipoDocumentoAcademico> allDynatable(DynatableFilter filte);
 
     TipoDocumentoAcademico findById(TipoDocumentoAcademico tipoDocumentoAcademico);
 
@@ -27,7 +26,5 @@ public interface TipoConstanciaService {
     List<TipoOficina> allTipoOficina(String nombre);
 
     TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento);
-
-    ObjectNode toJson(Object object);
 
 }

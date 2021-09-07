@@ -17,4 +17,6 @@ public interface TipoDocumentoAcademicoDAO extends EasyDAO<TipoDocumentoAcademic
     
     List<TipoDocumentoAcademico> allWhyPrecios();
 
+    public TipoDocumentoAcademico findByCodigo(String codigo);
+
 }

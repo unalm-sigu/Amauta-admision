@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.incrustacion;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.incrustacion;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;

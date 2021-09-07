@@ -2,6 +2,7 @@ new Vue({
     el: '#main',
     data: {
         tipos: JSON.parse(tiposJson),
+        URL_TIPO_CONSTANCIA:APP.url('tramite/tipoconstancia/all'),
         tipoConstancia: {tipo: {}},
         listTipoDocumento: [],
         copia: '',
@@ -69,8 +70,7 @@ new Vue({
             $("#formTipoConstancia").parsley().destroy();
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/tipoconstancia/update'),
-                data: {id: tipoConstancia.id},
+                url: APP.url('tramite/tipoconstancia/find/'+tipoConstancia.id),
                 success: function(response) {
                     if (response.success) {
                         vue.tipoConstancia = response.data;
@@ -147,7 +147,7 @@ new Vue({
                     if (response.success) {
                         notify(response.message, 'info');
                         vue.$refs.modalAddTipoConstancia.close();
-                        $dynatable.process();
+                        vue.$refs.dynaTable.repreload();
                     } else {
                         notify(response.message, 'error');
                     }

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.incrustacion;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.incrustacion;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

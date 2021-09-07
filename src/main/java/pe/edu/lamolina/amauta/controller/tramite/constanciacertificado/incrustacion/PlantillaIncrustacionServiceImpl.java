@@ -1,6 +1,5 @@
-package pe.edu.lamolina.amauta.controller.tramite.incrustacion;
+package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.incrustacion;
 
-import pe.edu.lamolina.amauta.controller.tramite.incrustacion.PlantillaIncrustacionService;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class PlantillaIncrustacionServiceImpl implements PlantillaIncrustacionSe
 
         documentoAcademico.setTipoEnum(TipoPlantillaDocumentoEnum.PARR);
         documentoAcademico.setFechaRegistro(new Date());
-        documentoAcademico.setIdUserRegistro(usuario.getId());
+        documentoAcademico.setUserRegistro(usuario);
         documentoAcademico.setContenido("");
         documentoAcademicoDAO.save(documentoAcademico);
     }
