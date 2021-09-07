@@ -72,7 +72,7 @@
     module.exports = {
         data() {
             return {
-                URL_COSTO_DOCUMENTO: APP.url('tramite/costodocumento/list'),
+                URL_COSTO_DOCUMENTO: APP.url('tramite/costodocumento/all'),
             };
         },
         mounted: function () {

@@ -80,6 +80,27 @@ public class CostoDocumentoController {
                     .toString());
         return "tramite/costoDocumento/costoDocumento";
     }
+    
+    @ResponseBody
+    @RequestMapping("all")
+    public DynatableResponse all(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+            
+            json.setData(JaneHelper.from(service.all(filter))
+                    .join("tipoDocumento")
+                    .join("idioma")
+                    .array());
+            
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
 
     @ResponseBody
     @RequestMapping("update")
@@ -115,27 +136,6 @@ public class CostoDocumentoController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse all(DynatableFilter filter, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
-        try {
-            
-            json.setData(JaneHelper.from(service.all(filter))
-                    .join("tipoDocumento")
-                    .join("idioma")
-                    .array()
-                    .toString());
-            
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
 
     @ResponseBody
     @RequestMapping("{id}/find")

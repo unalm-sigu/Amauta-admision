@@ -17,90 +17,20 @@
 
                 </header>
 
+                <tipo-constancia-form ref="tipoconstanciaform" />
+
                 <section class="wrapper-lg m-b-xs">
-                    <section class="panel  ">
-                        <section class="panel-body ">
 
-                            <raptor-table ref="dynaTable"
-                                          v-bind:url="URL_TIPO_CONSTANCIA" >
-                                <template scope="props">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th class="v-middle  col-xs-5">Nombre</th>
-                                                <th class="text-center  col-xs-1 v-middle">Costo por ciclo</th>
-                                                <th class="text-center  col-xs-1 v-middle">Solo pregrado</th>
-                                                <th class="text-center  col-xs-1 v-middle">Solo posgrado</th>
-                                                <th class="text-center  col-xs-1 v-middle">Solo egresado</th>
-                                                <th class="v-middle col-xs-2">Tipo</th>
-                                                <th class="text-center  col-xs-1">configurado</th>
-                                                <th class="v-middle"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(item, index ) in props.data"> 
-                                                <td class="v-middle">
-                                                    {{index+1}}
-                                                </td>
-                                                <td class="v-middle">
-                                                    <p v-text="item.nombre" ></p>
-                                                </td>
-                                                <td class="v-middle text-center">
-                                                    <i v-if="item.costoCiclo=='1'" class="fa fa-2x fa-check text-success"></i>
-                                                    <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                                </td>
-                                                
-                                                <td class="v-middle text-center">
-                                                    <i v-if="item.requierePregrado=='1'" class="fa fa-2x fa-check text-success"></i>
-                                                    <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                                </td>
-                                                <td class="v-middle text-center">
-                                                    <i v-if="item.requierePosgrado=='1'" class="fa fa-2x fa-check text-success"></i>
-                                                    <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                                </td>
-                                                <td class="v-middle text-center">
-                                                    <i v-if="item.requiereEgresado=='1'" class="fa fa-2x fa-check text-success"></i>
-                                                    <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                                </td>
-                                                
-                                                <td class="v-middle">
-                                                    <p v-if="item.tipoConstancia=='CONS'">Constancia</p>
-                                                    <p v-else="item.tipoConstancia=='CERT'">Certificado</p>
-                                                </td>
-                                                <td class="text-center">
-                                                    <i v-if="item.configurado==1" class="fa fa-2x fa-check text-success"></i>
-                                                    <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                                </td>
-                                                <td class="v-middle">
-                                                    <div class="dropdown actions">
-                                                        <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="fa fa-cog"></i>
-                                                        </a>
-                                                        <ul class="dropdown-menu pull-right" >
-                                                            <li><a href="#"  class="" v-on:click.prevent="updateTipo(item)">Actualizar</a></li>
-                                                            <li class="divider"></li>
-                                                            <li><a href="#"  class="" v-on:click.prevent="eliminar(item)">Eliminar</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </template>
-                            </raptor-table>
+                    <tipo-constancia-list ref="tipoconstancialist"/>
 
-                        </section>
-                    </section>
                 </section>
-
-                <div th:substituteby="tramite/tipoConstancia/tipoConstanciaModal"></div>
 
             </div>
 
         </div>
 
         <div layout:fragment="js">
+
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var tiposJson = /*[[${tipos.toString()}]]*/ '';
@@ -108,9 +38,43 @@
             </script>
 
             <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
 
-            <script th:src="@{/app/tramite/tipoConstancia/tipoConstanciaDynatable.js}" charset="utf-8"></script>
-            <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+
+                const TipoConstanciaList = httpVueLoader('/app/tramite/tipoConstancia/TipoConstanciaList.vue');
+                const TipoConstanciaForm = httpVueLoader('/app/tramite/tipoConstancia/TipoConstanciaForm.vue');
+
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        tipoConstanciaList: TipoConstanciaList,
+                        tipoConstanciaForm: TipoConstanciaForm,
+                    },
+                    data: {
+                        tipoConstancia: {},
+                    },
+                    methods: {
+                        nuevo() {
+                            this.setTipoConstancia({});
+                            this.$refs.tipoconstanciaform.nuevo();
+                        },
+                        update() {
+                            this.$refs.tipoconstanciaform.updateTipo(this.tipoConstancia);
+                        },
+                        reload() {
+                            this.$refs.tipoconstancialist.reload();
+                        },
+                        setTipoConstancia(tipoConstancia) {
+                            this.tipoConstancia = tipoConstancia;
+                        }
+                    }
+                });
+
+            </script>
+
         </div>
 
     </body>
