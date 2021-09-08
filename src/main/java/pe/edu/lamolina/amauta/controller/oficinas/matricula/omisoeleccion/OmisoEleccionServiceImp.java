@@ -282,15 +282,21 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
 
         JsonResponse json;
-        if (omisionesBD.isEmpty()) {
-            json = aporteAlumnoService.getEliminarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
-        } else {
-            json = aporteAlumnoService.getModificarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
+        try {
+            if (omisionesBD.isEmpty()) {
+                json = aporteAlumnoService.getEliminarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
+            } else {
+                json = aporteAlumnoService.getModificarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
+            }
+
+        } catch (Exception e) {
+            noVotaronService.deshacerAnuladosOmisosSeleccionados(omisionesForm, ds);
+            throw new PhobosException("El servicio no se encuentra disponible en este momento");
         }
 
         if (json != null && !json.getSuccess()) {
             noVotaronService.deshacerAnuladosOmisosSeleccionados(omisionesForm, ds);
-            Assert.isTrue(json.getSuccess(), json.getMessage());
+            throw new PhobosException(json.getMessage());
         }
 
     }
@@ -353,13 +359,13 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         List<ResumenAporteAlumno> resumenes = resumenAporteAlumnoDAO.allByAlumnoInitYear(alumno, 2019);
 
         List<AporteAlumnoCiclo> aportesCiclo = aporteAlumnoCicloDAO.allByResumenAporteAlumno(resumenes);
-        
+
         Map<Long, List<AporteAlumnoCiclo>> aportesCicloXresumen = TypesUtil.convertListToMapList("resumenAporteAlumno.id", aportesCiclo);
-        
+
         for (ResumenAporteAlumno resumene : resumenes) {
             resumene.setAporteAlumnoCiclo(aportesCicloXresumen.getOrDefault(resumene.getId(), new ArrayList()));
         }
-        
+
         return resumenes;
     }
 

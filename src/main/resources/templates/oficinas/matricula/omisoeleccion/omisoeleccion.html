@@ -111,12 +111,13 @@
                     </section>
                 </section>
             </section>
-            <div th:replace="oficinas/matricula/omisoeleccion/aporteAlumnoModal"></div>
             
-            <div th:replace="academico/matriculable/boletaAlumnoModal"></div>
+            <div th:replace="oficinas/matricula/omisoeleccion/aporteAlumnoModal"></div>
+            <div th:replace="oficinas/matricula/omisoeleccion/boletaAlumnoModal"></div>
 
             <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
             <div th:substituteby="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
+            
         </div>
 
         <div layout:fragment="js">

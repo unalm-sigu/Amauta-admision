@@ -144,8 +144,26 @@ public class OmisoEleccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-
+            
             service.saveOmision(omisoEleccion, ds);
+            response.setSuccess(true);
+            response.setMessage("Se realizó el registro.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("modificarAporte")
+    public JsonResponse modificarAporte(@RequestBody AlumnoOmisoEleccion omisoEleccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {
+
             service.modificarAporte(omisoEleccion.getAlumno(), ds);
 
             response.setSuccess(true);
