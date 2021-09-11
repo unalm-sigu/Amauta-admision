@@ -1,12 +1,11 @@
 package pe.edu.lamolina.amauta.controller.tramite.plantilla;
 
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.AlumnoConstancia;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Idioma;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
@@ -14,9 +13,9 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 
 public interface PlantillaConstanciaService {
 
-    void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+    void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds);
 
-    void save(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+    void save(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds);
 
     List<PlantillaDocumentoAcademico> all(DynatableFilter filter);
 
@@ -24,30 +23,30 @@ public interface PlantillaConstanciaService {
 
     List<Idioma> allIdioma();
 
-    PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+    PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds);
 
     Alumno findAlumno(Long idalumno);
 
-    PlantillaGenerica fillPlantilla( PlantillaDocumentoAcademico plantillaForm);
+    PlantillaGenerica fillPlantilla(PlantillaDocumentoAcademico plantillaForm);
 
     List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 
     AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual);
 
-    public List<VariablePlantilla> allVariablePlantilla(PlantillaDocumentoAcademico documentoAcademico);
+    List<VariablePlantilla> allVariablePlantilla(PlantillaDocumentoAcademico documentoAcademico);
 
-    public List<VariableGenerica> allVariableGeneral();
+    List<VariableGenerica> allVariableGeneral();
 
-    public void updateVariable(VariablePlantilla variablePlantilla, Usuario usuario);
+    void updateVariable(VariablePlantilla variablePlantilla, DataSessionPivot ds);
 
-    public void saveVariable( VariablePlantilla variablePlantilla, Usuario usuario);
+    void saveVariable(VariablePlantilla variablePlantilla, DataSessionPivot ds);
 
-    public void deleteVariable(Integer idVariablePlantilla);
+    void deleteVariable(Integer idVariablePlantilla);
 
-    public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+    void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds);
 
-    public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+    void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds);
 
-    public List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
+    List<VariableGenerica> allVariableGeneralFilterByCodigoEnum();
 
 }

@@ -31,7 +31,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -128,10 +127,10 @@ public class PlantillaIncrustacionController {
         try {
 
             if (plantillaDocumentoAcademico.getId() == null) {
-                service.save(plantillaDocumentoAcademico, ds.getUsuario());
+                service.save(plantillaDocumentoAcademico, ds);
                 response.setMessage("Se agregó satisfactoriamente");
             } else {
-                service.update(plantillaDocumentoAcademico, ds.getUsuario());
+                service.update(plantillaDocumentoAcademico, ds);
                 response.setMessage("Se actualizó satisfactoriamente");
             }
             response.setSuccess(true);

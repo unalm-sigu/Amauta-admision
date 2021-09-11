@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -27,7 +28,6 @@ import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.controller.tramite.constanciatipo.TipoConstanciaService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -69,11 +69,11 @@ public class CostoDocumentoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
-        List<Idioma> listIdioma = service.allIdioma();
+        List<TipoDocumentoAcademico> tiposDocumentos = tipoConstanciaService.all();
+        List<Idioma> idiomas = service.allIdioma();
 
-        model.addAttribute("tipoDocumento", list.size() == 0 ? new ArrayList<TipoDocumentoAcademico>() : new TipoDocumentoAcademico().toArrayJson(list));
-        model.addAttribute("idiomas", listIdioma.size() == 0 ? new ArrayList<Idioma>() : new Idioma().toArrayJson(listIdioma));
+        model.addAttribute("tipoDocumento", JaneHelper.from(tiposDocumentos).array());
+        model.addAttribute("idiomas", JaneHelper.from(idiomas).array());
         return "tramite/costoDocumento/costoDocumento";
     }
 
@@ -83,7 +83,7 @@ public class CostoDocumentoController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            service.update(precioDocumento, ds.getUsuario());
+            service.update(precioDocumento, ds);
             response.setMessage("Se actualizó");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -100,7 +100,7 @@ public class CostoDocumentoController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            service.save(precioDocumento, ds.getUsuario());
+            service.save(precioDocumento, ds);
             response.setMessage("Se guardó");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -117,8 +117,8 @@ public class CostoDocumentoController {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            List<PrecioDocumento> list = service.all(filter);
-            json.setData(new PrecioDocumento().toJsonArray(list));
+            List<PrecioDocumento> precios = service.all(filter);
+            json.setData(JaneHelper.from(precios).array());
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
         } catch (Exception e) {

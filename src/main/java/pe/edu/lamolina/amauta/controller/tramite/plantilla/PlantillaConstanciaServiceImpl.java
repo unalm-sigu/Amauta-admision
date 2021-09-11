@@ -1,7 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.plantilla;
 
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaConstanciaService;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.AlumnoConstancia;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -19,14 +17,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import static pe.edu.lamolina.amauta.controller.tramite.plantilla.IdiomaEnum.EN;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.VariableGenericaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
@@ -38,7 +34,7 @@ import pe.edu.lamolina.amauta.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PlantillaDocumentoAcademicoDAO;
-import pe.edu.lamolina.model.academico.NombreCiclo;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
@@ -67,14 +63,13 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
-
+    public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds) {
         plantillaConstanciaDAO.update(plantillaDocumentoAcademico);
     }
 
     @Override
     @Transactional
-    public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
+    public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, DataSessionPivot ds) {
 
         PlantillaDocumentoAcademico plantilla = plantillaConstanciaDAO.find(plantillaDoc.getId());
         plantilla.setContenido(GlobalConstantine.HTML_PRE + plantillaDoc.getContenido() + GlobalConstantine.HTML_SUB);
@@ -105,7 +100,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             if (vp == null) {
                 vp = new VariablePlantilla();
                 vp.setPlantillaDocumentoAcademico(plantilla);
-                vp.setUserRegistro(usuario);
+                vp.setUserRegistro(ds.getUsuario());
                 vp.setVariableGenerica(variable);
                 vp.setFechaRegistro(new Date());
                 allVariableMap.put(variable.getCodigo(), vp);
@@ -117,14 +112,14 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void save(PlantillaDocumentoAcademico plantilla, Usuario usuario) {
+    public void save(PlantillaDocumentoAcademico plantilla, DataSessionPivot ds) {
 
         PlantillaDocumentoAcademico plantillaDocumentoAcaDB = plantillaConstanciaDAO.findTipoDocumento(plantilla.getTipoDocumentoAcademico(), plantilla.getIdioma());
 
         Assert.isNull(plantillaDocumentoAcaDB, "Existe Plantilla en " + plantilla.getIdioma().getNombre() + " para " + plantilla.getTipoDocumentoAcademico().getNombre());
 
         plantilla.setFechaRegistro(new Date());
-        plantilla.setIdUserRegistro(usuario.getId());
+        plantilla.setUserRegistro(ds.getUsuario());
         plantilla.setContenido("Constancia");
         plantillaConstanciaDAO.save(plantilla);
     }
@@ -247,7 +242,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void updateVariable(VariablePlantilla variablePlantillaForm, Usuario usuario) {
+    public void updateVariable(VariablePlantilla variablePlantillaForm, DataSessionPivot ds) {
         VariablePlantilla plantilla = variablePlantillaDAO.find(variablePlantillaForm.getId());
         plantilla.setEjemplo(variablePlantillaForm.getEjemplo());
         plantilla.setEsParametro(variablePlantillaForm.getEsParametro());
@@ -256,8 +251,8 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void saveVariable(VariablePlantilla variablePlantilla, Usuario usuario) {
-        variablePlantilla.setUserRegistro(usuario);
+    public void saveVariable(VariablePlantilla variablePlantilla, DataSessionPivot ds) {
+        variablePlantilla.setUserRegistro(ds.getUsuario());
         variablePlantilla.setFechaRegistro(new Date());
         variablePlantilla.setEsParametro(variablePlantilla.getEsParametro());
         variablePlantillaDAO.save(variablePlantilla);
@@ -271,7 +266,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+    public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds) {
         List< VariablePlantilla> variablePlantillas = variablePlantillaDAO.allByPlantilla(plantillaDocumentoAcademico);
         PlantillaDocumentoAcademico plantillaDocumentoAcademicoDB = plantillaDocumentoAcademicoDAO.find(plantillaDocumentoAcademico);
         for (VariablePlantilla variablePlantilla : variablePlantillas) {
@@ -283,7 +278,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     }
 
     @Override
-    public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+    public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, DataSessionPivot ds) {
     }
 
     @Override

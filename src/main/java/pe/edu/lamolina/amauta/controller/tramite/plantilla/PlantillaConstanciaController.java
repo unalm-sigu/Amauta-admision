@@ -115,11 +115,11 @@ public class PlantillaConstanciaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
-        List<Idioma> listIdioma = service.allIdioma();
+        List<TipoDocumentoAcademico> tiposDocumentos = tipoConstanciaService.all();
+        List<Idioma> idiomas = service.allIdioma();
 
-        model.addAttribute("tipoDocumento", list.isEmpty() ? list : new TipoDocumentoAcademico().toArrayJson(list));
-        model.addAttribute("idiomas", listIdioma.isEmpty() ? listIdioma : new Idioma().toArrayJson(listIdioma));
+        model.addAttribute("tipoDocumento", JaneHelper.from(tiposDocumentos).array());
+        model.addAttribute("idiomas", JaneHelper.from(idiomas).array());
         return "tramite/plantillaConstancia/plantillaConstancia";
     }
 
@@ -132,7 +132,7 @@ public class PlantillaConstanciaController {
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds.getUsuario());
+            PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds);
 
             ObjectNode jPlantillaDocumentoAcademico = JsonHelper.createJson(psa, jsonFactory, true, new String[]{
                 "id",
@@ -160,7 +160,7 @@ public class PlantillaConstanciaController {
         response.setSuccess(false);
         try {
 
-            service.update(plantillaDocumentoAcademico, ds.getUsuario());
+            service.update(plantillaDocumentoAcademico, ds);
             response.setMessage("Se actualizó");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -180,7 +180,7 @@ public class PlantillaConstanciaController {
         response.setSuccess(false);
         try {
             if (variablePlantilla.getId() != null) {
-                service.updateVariable(variablePlantilla, ds.getUsuario());
+                service.updateVariable(variablePlantilla, ds);
                 response.setMessage("Se actualizó satisfactoriamente");
             }
             response.setSuccess(true);
@@ -200,7 +200,7 @@ public class PlantillaConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
-            service.saveVariable(variablePlantilla, ds.getUsuario());
+            service.saveVariable(variablePlantilla, ds);
             response.setMessage("Se guardó satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -264,7 +264,7 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            service.save(plantillaDocumentoAcademico, ds.getUsuario());
+            service.save(plantillaDocumentoAcademico, ds);
             response.setMessage("Se guardó");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -281,9 +281,9 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.deleteVariables(plantillaDocumentoAcademico, ds.getUsuario());
+            service.deleteVariables(plantillaDocumentoAcademico, ds);
 
             response.setMessage("Se eliminó");
             response.setSuccess(Boolean.TRUE);

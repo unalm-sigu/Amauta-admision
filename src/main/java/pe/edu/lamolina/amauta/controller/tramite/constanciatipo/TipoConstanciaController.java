@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -31,7 +32,6 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -104,7 +104,7 @@ public class TipoConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<TipoDocumentoAcademico> list = service.all(filter);
-            json.setData(new TipoDocumentoAcademico().toArrayJson(list));
+            json.setData(JaneHelper.from(list).array());
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
         } catch (Exception e) {
