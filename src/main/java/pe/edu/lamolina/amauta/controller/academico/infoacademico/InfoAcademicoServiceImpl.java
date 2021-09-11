@@ -78,6 +78,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
@@ -92,9 +93,15 @@ import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCursoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Service
 @Transactional(readOnly = true)
@@ -184,6 +191,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
+
+    @Autowired
+    TramiteBachillerDAO tramiteBachillerDAO;
+
+    @Autowired
+    TramiteTituloDAO tramiteTituloDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
@@ -358,9 +374,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
-    public Alumno findWithallInfo(Alumno alumno) {
-        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+    public Alumno findWithallInfo(Alumno alumnoId) {
+
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoId.getId());
+
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
+
         long ciclosRegular = alumnoCiclos.stream()
                 .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
                 .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG)
@@ -373,13 +392,37 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         logger.debug("ciclosRegular {}", ciclosRegular);
         logger.debug("ciclosVerano {}", ciclosVerano);
-        alu.setCiclosRegularesTransient(ciclosRegular);
-        alu.setCiclosVeranosTransient(ciclosVerano);
+        alumno.setCiclosRegularesTransient(ciclosRegular);
+        alumno.setCiclosVeranosTransient(ciclosVerano);
 
-        Carrera carrera = alu.getCarrera();
+        Carrera carrera = alumno.getCarrera();
         List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
         carrera.setOrientacionCarrera(orientaciones);
-        return alu;
+
+        logger.debug("tramiteBachiller");
+        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
+        if (tramiteBachiller != null) {
+            alumno.setResolucionBachiller((String) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.numeroVisible"));
+            alumno.setFechaBachiller((Date) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.fecha"));
+            logger.debug("{}", alumno.getResolucionBachiller());
+        }
+
+        logger.debug("tramiteTitulo");
+        TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoACEP(alumno);
+        if (tramiteTitulo != null) {
+            alumno.setResolucionTitulo((String) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.numeroVisible"));
+            alumno.setFechaTitulo((Date) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.fecha"));
+            logger.debug("{}", alumno.getResolucionTitulo());
+        }
+        if (alumno.getCicloActivo() != null) {
+            if (alumno.getSituacionAcademica() != null) {
+                if (alumno.getSituacionAcademica().isEgresado()) {
+                    EventoCicloAcademico eventoEgreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
+                    alumno.setFechaEgreso(eventoEgreso != null ? eventoEgreso.getFechaFin() : null);
+                }
+            }
+        }
+        return alumno;
     }
 
     @Override

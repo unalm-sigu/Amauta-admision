@@ -290,11 +290,7 @@ public class ProfesorServiceImp implements ProfesorService {
             throw new PhobosException("El correo principal es obligatorio.");
         }
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaForm);
-//        logger.debug("-> Email-Compania validado.");
-//        if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
-//            this.validarEmailConPersona(personaForm.getEmail(), personaForm);
-//            logger.debug("-> Email-Persona validado.");
-//        }
+
         Persona persona = this.getPersonaBDbasic(personaForm);
         logger.debug("-> Dato basicos de persona actualizados");
         if (persona.getFechaValidacionReniec() == null) {
@@ -302,12 +298,15 @@ public class ProfesorServiceImp implements ProfesorService {
             logger.debug("-> Dato basicos de persona actualizados");
         }
 
-        //me indican que solo se debe actualizar foto documento
         Persona personaUpd = new Persona(personaForm.getId());
-        personaUpd.setRutaFotoDocumento(personaForm.getFullRutaFotoTemporalDocumento());
-        // personaUpd.setRutaFotoTemporal(personaForm.getRutaFotoTemporal()); //     
-        personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
-        this.uploadS3(personaUpd.getFoto());
+
+        if (!Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
+            
+            this.uploadS3(personaForm.getRutaFotoTemporal());
+            personaUpd.setRutaFotoDocumento(this.getPathFotoDocente(personaForm.getRutaFotoTemporal()));
+            personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
+
+        }
 
         logger.debug("***Resolviendo en Tabla Docente***");
         Docente docenteBD = docenteDAO.findByDocente(docente);
@@ -616,6 +615,22 @@ public class ProfesorServiceImp implements ProfesorService {
         }
     }
 
+    private String getPathFotoDocente(String fileName) {
+
+        if (!Strings.isNullOrEmpty(fileName)) {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(AcademicoConstantine.S3_URL_ACADEMICO);
+            sb.append(AcademicoConstantine.S3_FOTO_DOCENTE);
+            sb.append(fileName);
+            return sb.toString();
+
+        }
+
+        return "";
+
+    }
+
     @Override
     public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
@@ -674,7 +689,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        return cicloAcademicoDAO.allPregradoByRange(1980,2050);
+        return cicloAcademicoDAO.allPregradoByRange(1980, 2050);
     }
 
     @Override

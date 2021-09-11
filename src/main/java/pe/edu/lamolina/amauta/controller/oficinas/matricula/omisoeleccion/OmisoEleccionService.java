@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
 public interface OmisoEleccionService {
 
@@ -26,8 +27,10 @@ public interface OmisoEleccionService {
 
     void modificarAporte(Alumno alumno, DataSessionPivot ds);
 
-    ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno);
-
     MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico);
+
+    public RetiroCiclo getTramiteRetiro(MatriculaResumen matriculaResumen);
+
+    public List<ResumenAporteAlumno> allResumenAporteAlumno(Alumno alumno,CicloAcademico cicloAcademico);
 
 }

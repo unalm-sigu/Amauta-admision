@@ -279,4 +279,15 @@ public class ResumenAporteAlumnoDAOH extends AbstractEasyDAO<ResumenAporteAlumno
         return all(sql);
     }
 
+    @Override
+    public List<ResumenAporteAlumno> allByAlumnoInitYear(Alumno alumno, int initYear) {
+        Octavia sql = Octavia.query()
+                .from(ResumenAporteAlumno.class, "raa")
+                .join("raa.matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio me", "mr.cicloAcademico ca")
+                .filter("ca.year", ">=", initYear)
+                .filter("alu.id", alumno)
+                .orderBy("ca.codigo desc");
+        return all(sql);
+    }
+
 }

@@ -33,13 +33,16 @@ new Vue({
         omisionAnular: {},
         confAporteAlumno: VUE_MODAL.structInfo({
             id: 'modalAporteAlumno',
-            modalsize: 'modal-lg'
+            modalsize: 'modal-lg',
+            header: true
         }),
         modalBoletaAlumno: VUE_MODAL.structInfo({
             id: 'modalBoletaAlumno',
             title: 'Boletas del Alumno'
         }),
         resumenModal: {},
+        resumenes: [],
+        alumno: {}
     },
     mounted: function () {
         $(".numeric").numeric({negative: false});
@@ -208,6 +211,7 @@ new Vue({
         },
         verAportes(item) {
             let $vue = this;
+            $vue.alumno = {...item};
             $vue.resumenModal = {};
             $vue.$refs.modalAporteAlumno.open();
             $vue.$refs.modalAporteAlumno.showWait("Cargando aportes");
@@ -219,7 +223,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.modalAporteAlumno.hideWait();
-                        $vue.resumenModal = response.data;
+                        $vue.resumenes = response.data;
                     } else {
                         $vue.$refs.modalAporteAlumno.close();
                         notify(response.message, "error");

@@ -75,7 +75,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class)
                 .join("resolucion res")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
-                .left("per.tipoDocumento", "tr.cicloAcademico")
+                .left("per.tipoDocumento", "tr.cicloAcademico", "al.situacionAcademica")
                 .filter("res.id", resolucionDB);
 
         return all(sql);
@@ -87,7 +87,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.cicloAcademico ca")
                 .join("tr.compania", "tr.persona per", "tr.alumno al", "tr.tipoTramite tt")
-                .left("al.carrera car", "car.facultad ", "al.planCurricular")
+                .left("al.carrera car", "car.facultad ", "al.planCurricular", "al.situacionAcademica")
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -102,6 +102,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .left("al.situacionAcademica")
                 .filter("tb.estado", TramiteEstadoEnum.SOL)
                 .orderBy("per.paterno");
 

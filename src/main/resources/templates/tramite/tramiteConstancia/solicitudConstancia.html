@@ -1,7 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Trámites documentarios </title>
-        <link th:substituteby="_layout/includes :: styles-dynatable"/>
     </head>
     <body>
         <div layout:fragment="main">
@@ -25,9 +24,10 @@
                                         <table  class="table table-striped table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th colspan="2">Alumno</th>
-                                                    <th class="col-xs-3">Contacto</th>
-                                                    <th class="col-xs-3">Trámite</th>
+                                                    <th class="col-xs-1"></th>
+                                                    <th class="col-xs-3">Alumno</th>
+                                                    <th class="col-xs-2">Contacto</th>
+                                                    <th class="col-xs-2">Trámite</th>
                                                     <th class="col-xs-2">Documento</th>
                                                     <th class="col-xs-1">Estado</th>
                                                     <th></th>
@@ -67,8 +67,9 @@
                                                     </td>
                                                     
                                                     <td class="v-middle">
-                                                        <p  class="" > {{item.tramite.serie}} - {{item.tramite.numero}} </p>
-                                                        <p v-if="item.correlativoDocumento" class="bold"> Código Documento: {{item.correlativoDocumento}} </p>
+                                                        <p  class="" > Serie:  <b>{{item.tramite.serie}}</b> </p>
+                                                        <p  class="" > Número:<b> {{item.tramite.numero}}</b> </p>
+                                                        <p v-if="item.correlativoDocumento" class=""> Código: <b> {{item.correlativoDocumento}}</b> </p>
                                                         <span v-if="item.comentario" >
                                                             <label class=" bold">Mensaje</label>
                                                             <p v-text="item.comentario"></p>

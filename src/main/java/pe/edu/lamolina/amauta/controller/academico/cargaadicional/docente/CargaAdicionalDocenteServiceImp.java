@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -34,7 +35,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ConfiguraCargaAdicionalEstadoEnum;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum; 
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.amauta.dao.academico.ConfiguraCargaAdicionalDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteCicloDAO;
@@ -44,9 +44,6 @@ import pe.edu.lamolina.amauta.dao.academico.Factor1CargaAdicionalDAO;
 import pe.edu.lamolina.amauta.dao.academico.Factor2CargaAdicionalDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -74,9 +71,6 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    PdfGenerator pdfGenerator;
 
     @Override
     public List<DocenteCiclo> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -302,7 +296,8 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
     }
 
     @Override
-    public String reporte(CicloAcademico cicloAcademico) {
+    public void reporte(Model model, CicloAcademico cicloAcademico) {
+
         ConfiguraCargaAdicional confBD = configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
         Assert.isTrue(confBD.getEstadoEnum() == ConfiguraCargaAdicionalEstadoEnum.MONTO || confBD.getEstadoEnum() == ConfiguraCargaAdicionalEstadoEnum.CERR, "Los montos aun no han sido generados");
 
@@ -326,12 +321,11 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         ctx.setVariable("cicloAcademico", cicloAcademico);
         ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
 
-        PdfContent pdfContent = new PdfContent();
-        pdfContent.setContext(ctx);
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.SUBVENCION_CARGA_ADICIONAL);
+        ctx.setVariable("nombrePdf", String.format("Subvención por carga académica adicional %s", cicloAcademico.getDescripcion()));
+        ctx.setVariable("templatePdf", "subvencionCargaAdicional");
+       
+        model.addAllAttributes(ctx.getVariables());
 
-        String src = pdfGenerator.generateDocument(pdfContent, "tmp");
-        return src;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
@@ -38,9 +36,6 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -92,9 +87,6 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
-
-    @Autowired
-    PdfGenerator pdfGenerator;
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;

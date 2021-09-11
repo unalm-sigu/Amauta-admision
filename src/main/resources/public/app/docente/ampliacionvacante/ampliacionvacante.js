@@ -27,12 +27,39 @@ var app = new Vue({
         let $vue = this;
     },
     methods: {
-        changeVacante(seccion) {
+        changeVacante(seccion,grupoSeccion) {
             let $vue = this;
-            if (!seccion.docentePrincipaTcurLogeado) {
+    
+            if(!grupoSeccion.anexoBoletin.anexoSuperior.codigo){
                 swal({
                     title: " ",
-                    text: "Solo el docente principal del curso de teoría puede ampliar vacantes",
+                    text: "No se puede determinar el anexo boletín",
+                    icon: "warning",
+                    button: {
+                        text: "Aceptar",
+                    },
+                });
+                return;
+            }
+            
+            if(!(grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G01'||
+                    grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G02')){
+                 swal({
+                    title: " ",
+                    text: "Solo se permite ampliación vacante para cursos de pregrado",
+                    icon: "warning",
+                    button: {
+                        text: "Aceptar",
+                    },
+                });
+                return;
+            }
+    
+            if (!seccion.docentePrincipaTcurLogeado) {
+                var nombre=seccion.seccionSuperior.docentePrincipal.persona.emailCompania;
+                swal({
+                    title: " ",
+                    text: "Solo el docente principal del curso de teoría puede ampliar vacantes "+nombre,
                     icon: "warning",
                     button: {
                         text: "Aceptar",

@@ -23,7 +23,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -39,7 +39,7 @@ public class ReadmisionController {
     ReadmisionService service;
 
     @Autowired
-    PdfHtmlSimplified reporteReadmisionPdf;
+    PdfHtml reporteReadmisionPdf;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {

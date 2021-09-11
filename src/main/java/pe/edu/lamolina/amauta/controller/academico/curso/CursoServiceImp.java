@@ -236,16 +236,16 @@ public class CursoServiceImp implements CursoService {
             Assert.isTrue(curso.getTipoCreditoEnum() != null, "Debe indicar el tipo de creditaje del curso");
             if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
                 Assert.isTrue(curso.getCreditos() != null, "Debe indicar los créditos del curso");
-                Assert.isTrue(curso.getCreditos() > 0, "Debe indicar un creditaje mayor a CERO");
+                Assert.isTrue(curso.getCreditos() >= 0, "Debe indicar un creditaje mayor o igual a CERO");
                 Assert.isTrue(curso.getCreditosPractica() != null, "Debe indicar los créditos de práctica");
                 Assert.isTrue(curso.getCreditosTeoria() != null, "Debe indicar los créditos de teoría");
 
                 Assert.isTrue(curso.getTipoCursoEnum() != TipoCursoEnum.NINGUNO, "Debe indicar el tipo de dictado");
                 if (curso.getTipoCursoEnum() == TipoCursoEnum.TEO || curso.getTipoCursoEnum() == TipoCursoEnum.TEOPRA) {
-                    Assert.isTrue(curso.getCreditosTeoria() > 0, "Los créditos de la teoría debe ser mayor a CERO");
+                    Assert.isTrue(curso.getCreditosTeoria() >= 0, "Los créditos de la teoría debe ser mayor a CERO");
                 }
                 if (curso.getTipoCursoEnum() == TipoCursoEnum.PRA || curso.getTipoCursoEnum() == TipoCursoEnum.TEOPRA) {
-                    Assert.isTrue(curso.getCreditosPractica() > 0, "Los créditos de la práctica debe ser mayor a CERO");
+                    Assert.isTrue(curso.getCreditosPractica() >= 0, "Los créditos de la práctica debe ser mayor a CERO");
                 }
 
             } else {

@@ -12,16 +12,16 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
 import pe.edu.lamolina.amauta.controller.reporte.view.HorarioAlumnoCicloPDF;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.ReporteActaNotasService;
 
 @Controller
 @RequestMapping("reporte")
 public class ReporteController {
 
     @Autowired
-    PdfService pdfService;
+    ReporteActaNotasService pdfService;
 
     @Autowired
     BoletinPDF boletinPDF;

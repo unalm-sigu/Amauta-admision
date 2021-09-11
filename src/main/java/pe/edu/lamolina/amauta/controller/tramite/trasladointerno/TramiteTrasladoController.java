@@ -27,7 +27,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -43,7 +43,7 @@ public class TramiteTrasladoController {
     TramiteTrasladoService service;
 
     @Autowired
-    PdfHtmlSimplified reporteTramiteTraslado;
+    PdfHtml reporteTramiteTraslado;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

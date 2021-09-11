@@ -3,13 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.cursoDiri
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,8 +12,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -43,6 +37,7 @@ import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAc
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("academico/cursodirigido")
@@ -56,6 +51,9 @@ public class CursoDirigidoController {
 
     @Autowired
     TramitesAcademicosService tramitesAcademicosService;
+
+    @Autowired
+    PdfHtml pdfHtml;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -174,37 +172,27 @@ public class CursoDirigidoController {
     }
 
     @RequestMapping("repFacDirigido/{id}/reporte")
-    public void cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        try {
+        List<Context> multipleContext = tramitesAcademicosService.allcursoDirigidoFac(new Facultad(id), ds);
 
-            String fileName = tramitesAcademicosService.allcursoDirigidoFac(new Facultad(id), ds);
+        model.addAttribute("multipleContext", multipleContext);
+        model.addAttribute("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
+        model.addAttribute("nombrePdf", "Reporte Facultad" + id);
 
-            pdfResponse(fileName, "Reporte Facultad " + id + ".pdf", response);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
+        return new ModelAndView(pdfHtml);
     }
 
     @RequestMapping("listFacDirigido/{id}/reporte")
-    public void listFacDirigido(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+    public ModelAndView listFacDirigido(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Context ctx = service.alllistCursoDirigidoFac(new Facultad(id), ds);
+        model.addAllAttributes(ctx.getVariables());
+        return new ModelAndView(pdfHtml);
 
-        try {
-
-            String fileName = tramitesAcademicosService.alllistCursoDirigidoFac(new Facultad(id), ds);
-
-            pdfResponse(fileName, "Reporte Facultad " + id + ".pdf", response);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
     }
 
     private ArrayNode createFacultadesJson(List<Facultad> facultades) {
@@ -218,32 +206,4 @@ public class CursoDirigidoController {
         return array;
     }
 
-    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
-        if (!name.isEmpty()) {
-            File filex = new File(name);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-            DateTime hoy = new DateTime();
-
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
-    }
 }

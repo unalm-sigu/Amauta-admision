@@ -52,9 +52,6 @@ var app = new Vue({
         alumnoTramiteCambioPlanCurricular: [],
         tipo: ""
     },
-    created: function () {
-
-    },
     mounted: function () {
         let $vue = this;
 
@@ -344,12 +341,7 @@ var app = new Vue({
             });
         },
         urlAcademico(item) {
-            let $vue = this;
-            return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + $vue.getOrigenURL();
+            return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
-        }
     }
 })

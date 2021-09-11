@@ -150,4 +150,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico);
 
+    public List<Alumno> allDynatableAlumnoOmisoEleccion(DynatableFilter filter);
+
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -311,19 +312,15 @@ public class TramiteCondicionalController {
             @RequestParam(value = "idAlumno", required = true) Long idAlumno,
             @RequestParam(value = "idCiclo", required = true) Long idCiclo,
             HttpSession session) {
+        
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
 
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            List<Curso> lista = service.allCursosByName(nombre, new Alumno(idAlumno), new CicloAcademico(idCiclo), ds);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            for (Curso alum : lista) {
-                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
-                        new String[]{
-                            "*"}));
-            }
+            List<Curso> cursos = service.allCursosByName(nombre, new Alumno(idAlumno), new CicloAcademico(idCiclo), ds);
+            ArrayNode jsonList = JaneHelper.from(cursos).array();
 
             response.setData(jsonList);
             response.setTotal(jsonList.size());

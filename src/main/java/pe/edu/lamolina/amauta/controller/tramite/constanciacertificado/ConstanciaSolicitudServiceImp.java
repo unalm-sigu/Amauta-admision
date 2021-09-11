@@ -25,7 +25,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -41,7 +40,6 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Oficina;
@@ -65,7 +63,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaGenerica;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -425,11 +423,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return alumnoDAO.allByName(nombre);
     }
 
-    @Override
-    public List<Colaborador> allColaboradorByName(String nombre) {
-        return colaboradorDAO.allByName(nombre);
-    }
-
     public void uploadS3(String fileName) {
         logger.debug("upload to s3    {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
@@ -482,6 +475,26 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
 
+        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+
+        if (tipo.getRequiereEgresado() != null) {
+            if (tipo.getRequiereEgresado() > 0) {
+                this.validarAlumnoEgresado(alumno);
+            }
+        }
+
+        if (tipo.getRequierePosgrado() != null) {
+            if (tipo.getRequierePosgrado() > 0) {
+                this.validarAlumnoPosgrado(alumno);
+            }
+        }
+
+        if (tipo.getRequierePregrado() != null) {
+            if (tipo.getRequierePregrado() > 0) {
+                this.validarAlumnoPregrado(alumno);
+            }
+        }
+
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Compania compania = ds.getCompania();
@@ -496,16 +509,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         Persona persona = alumno.getPersona();
 
-        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(alumno, "persona.rutaFotoTemporal");
-        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
-            persona.setRutaFotoTemporal(rutaFotoTemporal);
-            personaDAO.update(persona);
-            this.uploadS3(persona.getRutaFotoTemporal());
-
-            estadoTramite = estadoTramiteDAO.find(16L);
-
-        }
-
         tramite.setAlumno(alumno);
         tramite.setTipoSolicitante(TipoSolicitanteEnum.ALU.name());
         tramite.setCicloAcademico(cicloAcademico);
@@ -519,7 +522,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramite.setPersona(persona);
         tramiteDAO.save(tramite);
 
-        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
         tramiteDocumentoAcademico.setCantidadCiclos(1);
@@ -1113,6 +1115,24 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             return new BigDecimal(precio.getPrecio());
         } catch (Exception e) {
             return ZERO;
+        }
+    }
+
+    private void validarAlumnoEgresado(Alumno alumno) {
+        if (!alumno.getSituacionAcademica().isEgresado()) {
+            throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+        }
+    }
+
+    private void validarAlumnoPosgrado(Alumno alumno) {
+        if (!alumno.getModalidadEstudio().isPostgrado()) {
+            throw new PhobosException("El trámite solo está permitido para alumnos de posgrado");
+        }
+    }
+
+    private void validarAlumnoPregrado(Alumno alumno) {
+        if (!alumno.getModalidadEstudio().isPregrado()) {
+            throw new PhobosException("El trámite solo está permitido para alumnos de pregrado");
         }
     }
 

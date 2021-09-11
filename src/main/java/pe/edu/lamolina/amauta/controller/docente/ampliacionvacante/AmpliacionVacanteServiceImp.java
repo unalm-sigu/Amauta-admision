@@ -121,6 +121,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gruposSeccion);
         List<DocenteSeccion> responsablesseccion = docenteSeccionDAO.allResponsableBySeccionCiclo(secciones, ciclo);
         Map<Long, DocenteSeccion> mapResponsableSeccion = TypesUtil.convertListToMap("seccion.id", responsablesseccion);
+        Map<Long, DocenteSeccion> mapDocenteSeccionXdocente = TypesUtil.convertListToMap("docente.id", responsablesseccion);
 
         Map<Long, Seccion> grupoSeccionTcurMap = secciones
                 .stream()
@@ -141,7 +142,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             seccion.setSolicitudesMatriculaAlt(matriculasSeccionBySeccion.size());
             DocenteSeccion docPrincipal = mapResponsableSeccion.get(seccion.getId());
             seccion.setDocentePrincipal(docPrincipal != null ? docPrincipal.getDocente() : null);
-            seccion.setDocentePrincipalLogeado(ds.getDocente().equals(seccion.getDocentePrincipal()));
+            seccion.setDocentePrincipalLogeado(mapDocenteSeccionXdocente.get(ds.getDocente().getId())!=null);
+            seccion.setDocentePrincipaTcurLogeado(true);
 
             if (seccion.getIsTipoSeccionPCUR()) {
                 Seccion seccionSuper = seccion.getSeccionSuperior();

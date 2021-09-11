@@ -75,10 +75,7 @@ import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.zelper.CustomRenderer;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfImageProvider;
-import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -103,9 +100,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
     @Autowired
-    PdfGenerator pdfGenerator;
-
-    @Autowired
     VerificadorService verificadorService;
 
     @Autowired
@@ -123,7 +117,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     }
 
     @Override
-    public String reporte(EncuestaDocenteModalidad encuestaDocenteModalidad) {
+    public Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad) {
         EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
 
         List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademico(edm.getDocente(), edm.getModalidadEstudio(), edm.getCicloAcademico());
@@ -135,7 +129,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         return buildReport(edm, peds, puntajes, anuladas);
     }
 
-    private String buildReport(
+    private Context buildReport(
             EncuestaDocenteModalidad edm,
             List<PuntajeEncuestaDocente> peds,
             List<PuntajeEncuestaDocenteModalidad> puntajes,
@@ -231,30 +225,10 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         ctx.setVariable("imagenChart", imgBuilt);
         logger.debug("imagenChart {}", imgBuilt);
 
-        PdfContent pdfContent = new PdfContent();
-        pdfContent.setContext(ctx);
-        pdfContent.setTipoPdfEnum(TipoPdfEnum.RESULTADO_ENCUESTA);
+        ctx.setVariable("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
+        ctx.setVariable("templatePdf", "resultadoencuesta");
 
-        String src = pdfGenerator.generateDocument(pdfContent, "tmp");
-        String dest = src;
-//        try {
-//            PdfReader reader = new PdfReader(src);
-//            PdfDictionary page = reader.getPageN(1);
-//            PdfDictionary resources = page.getAsDict(PdfName.RESOURCES);
-//            PdfDictionary xobjects = resources.getAsDict(PdfName.XOBJECT);
-//            PdfName imgRef = xobjects.getKeys().iterator().next();
-//            PRStream stream = (PRStream) xobjects.getAsStream(imgRef);
-//            PdfImage image = new PdfImage(Image.getInstance(imgBuilt), "", null);
-//            replaceStream(stream, image);
-//            dest = String.format("%s%d.pdf", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
-//
-//            PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
-//            stamper.close();
-//            reader.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-        return dest;
+        return ctx;
     }
 
     public static void replaceStream(PRStream orig, PdfStream stream) throws IOException {
@@ -268,7 +242,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     }
 
     @Override
-    public String reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos) {
+    public List<Context> reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos) {
 
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(modalidadEstudioEnum);
 
@@ -288,16 +262,17 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                 .stream()
                 .collect(Collectors.groupingBy(x -> x.getDocenteSeccion().getDocente().getId()));
 
-        List<String> documentos = new ArrayList();
+        List<Context> multipleContext = new ArrayList();
         List dfault = new ArrayList();
         Long key = null;
 
         for (EncuestaDocenteModalidad encuesta : encuestas) {
             key = encuesta.getDocente().getId();
-            documentos.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), mapAnuladas.getOrDefault(key, dfault)));
+            multipleContext.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), mapAnuladas.getOrDefault(key, dfault)));
         }
 
-        return pdfGenerator.concatPDFs(documentos, "resumen", true);
+        return multipleContext;
+        
     }
 
     private String buildPlot(List<PuntajeEncuestaDocenteModalidad> puntajes) {

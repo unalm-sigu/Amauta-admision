@@ -38,9 +38,11 @@
                                     </div>
                                 </div>
                                 <raptor-table v-bind:url="cursoDirigidoURL" ref="load">
+                                    
                                     <template  scope="props" >
 
                                         <table  class="table table-striped table-hover">
+                                            
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-4 text-left" colspan="2">Alumno</th>
@@ -50,6 +52,7 @@
                                                     <th class=" text-center"></th>
                                                 </tr>
                                             </thead>
+                                            
                                             <tbody>
                                                 <tr v-for="item in props.data">
                                                     <td class="v-middle">
@@ -88,16 +91,17 @@
                                                         </span>
                                                     </td>
                                                     <td class="v-middle motivo" id="accordion" >
-                                                        <details>
-                                                       <summary>
-                                                        <span class="bold "> Motivo Solicitud: </span><span> {{item.motivoSolicitud}}</span>
                                                         
-                                                            <span class="hidden" v-text="json(item)"></span>
-                                                           
+                                                        <details>
+                                                            <summary>
+                                                                <span class="bold "> Motivo Solicitud: </span><span> {{item.motivoSolicitud}}</span>
+
+                                                                <span class="hidden" v-text="json(item)"></span>
+
                                                                 <span class="block bold"> Situación actual: </span>
-                                                       </summary>  
-                                                       
-                                                         <div  class="form-group " >
+                                                            </summary>  
+
+                                                            <div  class="form-group " >
                                                                 <div  class=" col-md-12">
                                                                     <label class="bold"> Programación:  </label>
                                                                     <span v-text="item.situacionActual.programado"></span>
@@ -122,12 +126,15 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            
                                                         </details>
-                                                        
+
                                                     </td>
+                                                    
                                                     <td class="v-middle">
-                                                        <span class="block " v-bind:class="classColor(item.estado.codigo)"> {{item.estado.nombre}}</span>
+                                                        <span class="label " v-bind:class="classColor(item.estado.codigo)"> {{item.estado.nombre}}</span>
                                                     </td>
+                                                    
                                                     <td class="v-middle">
                                                         <div class="actions" v-if="item.estado.codigo == 'SOL_CUR_DIR'">
                                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
@@ -139,6 +146,7 @@
                                                             </ul>
                                                         </div>
                                                     </td>
+                                                    
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -157,7 +165,7 @@
                 var facultadesJson = /*[[${facultades}]]*/ '';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_layout/includes :: vuejs"/>
             <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/app/tramite/cursodirigido/cursodirigido.js}" charset="utf-8"></script>

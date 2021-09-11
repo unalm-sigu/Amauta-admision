@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -43,15 +42,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
-import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ESTIMADO;
-import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NOMBRE_PERSONA;
-import pe.edu.lamolina.model.finanzas.CuentaBancaria;
-import pe.edu.lamolina.model.general.Colaborador;
-import pe.edu.lamolina.model.general.Idioma;
-import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
-import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -59,11 +49,10 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.controller.tramite.plantilla.PlantillaGenerica;
+import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;
 
@@ -77,7 +66,7 @@ public class ConstanciaSolicitudController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PdfHtmlView pdfHtmlView;
+    PdfHtml boletaPagoSolicitudConstanciaPDF;
 
     @Autowired
     GeneradorWordSolicitudService generadorWordSolicitudService;
@@ -169,81 +158,6 @@ public class ConstanciaSolicitudController {
         return response;
     }
 
-    @RequestMapping("imprimir")
-    public ModelAndView imprimir(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
-
-        TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramite(tramiteDocumentoAcademicoForm);
-        Persona persona = tramiteDocumentoAcademico.getTramite().getPersona();
-        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-        TipoDocumentoAcademico tipoDocumento = tramiteDocumentoAcademico.getTipoDocumentoAcademico();
-
-        String estimado = persona.esFemenino() ? "Estimada" : "Estimado";
-
-        ContenidoCarta headBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA001);
-        ContenidoCarta footBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA002);
-
-        String cabecera = headBoletaPdf.getContenido();
-        String pieBoleta = footBoletaPdf.getContenido();
-        PrecioDocumento precioDocumento = service.findPrecioDocumentoByTipoIdioma(tipoDocumento, idioma);
-        CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
-        String montoString = precioDocumento.getPrecio().toString();
-
-        cabecera = cabecera.replaceAll(NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
-        cabecera = cabecera.replaceAll(ESTIMADO.getValue(), estimado);
-
-        model.addAttribute("cabecera", cabecera);
-        model.addAttribute("pieBoleta", pieBoleta);
-        model.addAttribute("estimado", estimado);
-        model.addAttribute("persona", persona);
-        model.addAttribute("numero", tramiteDocumentoAcademico.getTramite().getSerie() + "-" + tramiteDocumentoAcademico.getTramite().getNumero());
-        model.addAttribute("cuenta", cuenta);
-        model.addAttribute("numeroDocIdentidad", persona.getNumeroDocIdentidad());
-        model.addAttribute("montoString", montoString);
-        model.addAttribute("formatoEnum", PDFFormatoEnum.BOLETA_PAGO_SOL);
-        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
-
-        return new ModelAndView(pdfHtmlView);
-    }
-
-    @ResponseBody
-    @RequestMapping("searchcolaborador")
-    public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-
-            FotoHelper helper = new FotoHelper();
-            List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
-            ArrayNode jColaborador = new ArrayNode(jsonFactory);
-            for (Colaborador colaborador : colaboradores) {
-
-                ObjectNode json = new ObjectNode(jsonFactory);
-
-                json.put("id", colaborador.getId());
-                json.put("nombre", colaborador.getPersona().getNombreCompleto());
-                json.put("email", colaborador.getPersona().getEmailCompania());
-                json.put("telefono", colaborador.getPersona().getTelefono());
-                json.put("celular", colaborador.getPersona().getCelular());
-                json.put("codigo", colaborador.getCodigo());
-                json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
-                json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
-                json.put("oficina", colaborador.getOficina().getNombre());
-                json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
-                jColaborador.add(json);
-            }
-            response.setData(jColaborador);
-            response.setTotal(jColaborador.size());
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
     @ResponseBody
     @RequestMapping("upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
@@ -293,11 +207,10 @@ public class ConstanciaSolicitudController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
 
-        
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (documentoAcademico.getId() == null) {
                 service.save(documentoAcademico, ds);
@@ -307,20 +220,6 @@ public class ConstanciaSolicitudController {
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("onlyfoto")
-    public JsonResponse onlyfoto(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            service.updateFotoTemporal(tramiteDocumentoAcademico, ds);
-            response.setSuccess(Boolean.TRUE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -357,7 +256,7 @@ public class ConstanciaSolicitudController {
                         .join("tramite.alumno.persona.tipoDocumento")
                         .join("tipoDocumentoAcademico")
                         .json();
-                
+
                 Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
                 logger.debug("idAlumno {}", idAlumno);
                 model.addAttribute("idAlumno", idAlumno);
@@ -755,11 +654,11 @@ public class ConstanciaSolicitudController {
             if (null != egresado) {
 
                 DecimalFormat df = new DecimalFormat("#.00");
-                logger.debug(" === PromedioGraduacion === {}",egresado.getPromedioGraduacion());
+                logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
                 node.put("esEgresado", TRUE);
-                node.put("promedioGraduacion",egresado.getPromedioGraduacion()!=null? df.format(egresado.getPromedioGraduacion()):"0.00");
+                node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
                 response.setSuccess(Boolean.TRUE);
-                
+
             }
 
             response.setData(node);

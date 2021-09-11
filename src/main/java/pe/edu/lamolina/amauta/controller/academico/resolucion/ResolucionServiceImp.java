@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.system.FileHelper;
-import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -52,7 +51,6 @@ import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAcademicosService;
-import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
@@ -81,13 +79,17 @@ import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.Readmision;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -130,9 +132,6 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-
-    @Autowired
-    FlujoTramiteAcademicoService flujoTramiteAcademicoService;
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
@@ -183,14 +182,19 @@ public class ResolucionServiceImp implements ResolucionService {
     ReadmisionDAO readmisionDAO;
 
     @Autowired
+    TramiteBachillerDAO tramiteBachillerDAO;
+
+    @Autowired
     CambioPlanCurricularDAO cambioPlanCurricularDAO;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+        
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
         boolean esTrabajadorOera = verificadorService.isTrabajadorOera(ds);
 
         List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
+        
         for (Resolucion resolucion : resoluciones) {
             resolucion.setAutorizado(Boolean.FALSE);
             if (esTrabajadorOera) {
@@ -361,74 +365,105 @@ public class ResolucionServiceImp implements ResolucionService {
     @Override
     @Transactional(readOnly = false)
     public void uploadResolucionFile(Resolucion resolucion, MultipartFile file, DataSessionPivot ds) {
+
         DateTime today = new DateTime();
+
         String absoluteName = null;
+
         String name;
+
         try {
+
             name = TypesUtil.getUnixTime() + file.getOriginalFilename();
             absoluteName = GlobalConstantine.TMP_DIR + name;
             FileHelper.saveToDisk(file, absoluteName);
+
         } catch (Exception e) {
             throw new PhobosException("Error al guardar el archivo");
         }
+
         resolucion = resolucionDAO.find(resolucion.getId());
+
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
 
         resolucionUpd.setRutaUrl(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_RESOLUCIONES_DIR + name);
         swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
+        
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
 
-        if (resolucion.getEsEstadoCre()) {
-            if (resolucion.getTipoResolucion().isReincorporacion()) {
+        if (resolucion.getTipoResolucion().isTramiteBachiller()) {
 
-                List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
-                for (Reincorporacion reincorporacion : reincorporaciones) {
-                    Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
-                    List<Reincorporacion> reincorporacionesByTram = reincorporacionDAO.allByTramite(tramite);
-                    if (!reincorporacionesByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                        throw new PhobosException("Estado tramite incorrecto");
+            List<TramiteBachiller> tramiteBachillers = tramiteBachillerDAO.allByResolucion(resolucion);
+
+            for (TramiteBachiller tramiteBachiller : tramiteBachillers) {
+
+                Alumno alumno = tramiteBachiller.getTramite().getAlumno();
+                
+                if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_E) {
+
+                    alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+                    alumnoDAO.updateColumns(alumno, "situacionAcademica");
+
+                    AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
+
+                    if (alumnoCiclo.getSituacionFinal() == null
+                            || !alumnoCiclo.getSituacionFinal().isEgresado()) {
+
+                        alumnoCiclo.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+                        alumnoCicloDAO.updateColumns(alumnoCiclo, "situacionFinal");
                     }
-                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
-                }
-            } else if (resolucion.getTipoResolucion().isReadmision()) {
-                List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
-                for (Readmision raedmision : readmisiones) {
-                    Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
-                    List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
-                    if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                        throw new PhobosException("Estado tramite incorrecto");
-                    }
-                }
-            } else if (resolucion.getTipoResolucion().isCambioPlanCurricular()) {
-                List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allByResolucion(resolucion);
-                for (CambioPlanCurricular raedmision : cambioPlanCurriculares) {
-                    Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
-                    List<CambioPlanCurricular> cambioPlanCurricularByTram = cambioPlanCurricularDAO.allByTramite(tramite);
-                    if (!cambioPlanCurricularByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                        throw new PhobosException("Estado tramite incorrecto");
-                    }
-                }
-            } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
-                List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByResolucion(resolucion);
-                for (CursoDirigido cursoDir : cursoDirigidos) {
-                    Tramite tramite = tramiteDAO.find(cursoDir.getTramite().getId());
-                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
-                }
-            } else if (resolucion.getTipoResolucion().isReadmision()) {
-                List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
-                for (Readmision readmision : readmisiones) {
-                    Tramite tramite = tramiteDAO.find(readmision.getTramite().getId());
-                    List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
-                    if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                        throw new PhobosException("Estado tramite incorrecto");
-                    }
-                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
                 }
             }
         }
+
+        if (!resolucion.getEsEstadoCre()) {
+            return;
+        }
+
+        if (resolucion.getTipoResolucion().isReincorporacion()) {
+
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
+            for (Reincorporacion reincorporacion : reincorporaciones) {
+                Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
+                List<Reincorporacion> reincorporacionesByTram = reincorporacionDAO.allByTramite(tramite);
+                if (!reincorporacionesByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                    throw new PhobosException("Estado tramite incorrecto");
+                }
+            }
+
+        }
+
+        if (resolucion.getTipoResolucion().isReadmision()) {
+
+            List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
+            for (Readmision raedmision : readmisiones) {
+                Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
+                List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
+                if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                    throw new PhobosException("Estado tramite incorrecto");
+                }
+
+            }
+
+        }
+
+        if (resolucion.getTipoResolucion().isCambioPlanCurricular()) {
+
+            List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allByResolucion(resolucion);
+            for (CambioPlanCurricular raedmision : cambioPlanCurriculares) {
+
+                Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
+                List<CambioPlanCurricular> cambioPlanCurricularByTram = cambioPlanCurricularDAO.allByTramite(tramite);
+                if (!cambioPlanCurricularByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
+                    throw new PhobosException("Estado tramite incorrecto");
+                }
+            }
+
+        }
+
     }
 
     @Override
@@ -614,12 +649,12 @@ public class ResolucionServiceImp implements ResolucionService {
                 }
                 List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(cursoDirigido.getTramite().getTipoTramite(), cursoDirigido.getEstado());
                 AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigido.getCurso().getDepartamentoAcademico());
-                
-                if(anexoBoletin==null){
-                    
-                    throw new PhobosException( "No existe el anexo boletín para el departamento " + cursoDirigido.getCurso().getDepartamentoAcademico().getNombre());
+
+                if (anexoBoletin == null) {
+
+                    throw new PhobosException("No existe el anexo boletín para el departamento " + cursoDirigido.getCurso().getDepartamentoAcademico().getNombre());
                 }
-                
+
                 List<GrupoSeccion> grupoSeccions = null;
                 GrupoSeccion grupoSeccion = gpoSeccionService.findByCursoAndDocenteDirigido(cursoDirigido.getCurso(), cursoDirigido.getDocenteAsignado(), cicloAcademico);
                 if (grupoSeccion == null) {

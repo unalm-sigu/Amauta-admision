@@ -3,12 +3,7 @@ package pe.edu.lamolina.amauta.controller.docente.notasacademicas;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -19,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -71,12 +66,12 @@ import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
-import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.reporte.view.ReporteActasView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfService;
+import pe.edu.lamolina.amauta.controller.docente.notasacademicas.reporte.ReporteActaNotasService;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("docente/notasacademica")
@@ -88,13 +83,13 @@ public class NotaAcademicaController {
     NotaAcademicaService service;
 
     @Autowired
-    PdfService pdfService;
+    ReporteActaNotasService pdfService;
+
+    @Autowired
+    PdfHtml pdfHtml;
 
     @Autowired
     ReporteActasView reporteActasView;
-
-    @Autowired
-    MatriculableService matriculableService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -985,7 +980,7 @@ public class NotaAcademicaController {
     }
 
     @RequestMapping("reporteDeActas")
-    public void reporteDeActas(HttpServletResponse response,
+    public ModelAndView reporteDeActas(HttpServletResponse response,
             @RequestParam("seccion") Long idSeccion,
             Model model,
             HttpSession session) throws IOException {
@@ -997,35 +992,13 @@ public class NotaAcademicaController {
         Curso cur = secc.getGrupoSeccion().getCurso();
         String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo2();
 
-        List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(secc.getGrupoSeccion().getId(), ds);
+        List<Context> lstPdfFiles = pdfService.reporteDeActaDeNotas(secc.getGrupoSeccion().getId(), ds);
 
-        String fileNameRoot = pdfService.concatPDFs(lstPdfFiles, nom, false);
-        if (!fileNameRoot.isEmpty()) {
-            File filex = new File(fileNameRoot);
-            if (!filex.exists()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
+        model.addAttribute("multipleContext", lstPdfFiles);
+        model.addAttribute("templatePdf", "actaDeNotas");
+        model.addAttribute("nombrePdf", nom);
 
-            response.reset();
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + nom + ".pdf\"");
-
-            BufferedInputStream input = null;
-            BufferedOutputStream output = null;
-
-            try {
-                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                IOUtils.copy(input, output);
-                response.flushBuffer();
-
-            } finally {
-                close(output);
-                close(input);
-            }
-        }
+        return new ModelAndView(pdfHtml);
 
     }
 

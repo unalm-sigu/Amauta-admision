@@ -82,4 +82,14 @@ public class TipoDocumentoAcademicoDAOH extends AbstractEasyDAO<TipoDocumentoAca
         return all(sql);
     }
 
+    @Override
+    public TipoDocumentoAcademico findByCodigo(String codigo) {
+        
+        Octavia sql = new Octavia()
+                .from(TipoDocumentoAcademico.class, "tda")
+                .filter("tda.codigo", codigo)
+                .limit(1);
+        return find(sql);
+    }
+
 }

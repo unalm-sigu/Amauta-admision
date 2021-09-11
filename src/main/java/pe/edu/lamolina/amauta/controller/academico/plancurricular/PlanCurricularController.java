@@ -74,7 +74,7 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlSimplified;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 
 @Controller
 @RequestMapping("academico/planCurricular")
@@ -95,7 +95,7 @@ public class PlanCurricularController {
     DespliegueConfig despliegueConfig;
 
     @Autowired
-    PdfHtmlSimplified reportePlanCurricularPdf;
+    PdfHtml reportePlanCurricularPdf;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {

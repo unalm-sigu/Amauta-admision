@@ -246,7 +246,7 @@
                                         <label>Créditos Práctica</label>
                                         <div class="form-group">
                                             <input name="creditosPractica" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
-                                                   v-on:change="setCreditos()" v-bind:readonly="!isCreditosTeoria()" v-model="curso.creditosPractica" />
+                                                   v-on:change="setCreditos()" v-bind:readonly="!isPractica()" v-model="curso.creditosPractica" />
                                         </div>
                                     </div>  
                                 </template>

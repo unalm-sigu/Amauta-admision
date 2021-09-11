@@ -36,7 +36,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .from(Resolucion.class, "res")
                 .join("tipoResolucion ti", "oficina")
                 .leftJoin("userRegistro ur", "ur.persona per")
-                .searchFields("serie", "numero", "ti.nombre")
+                .searchFields("serie", "numero","numeroVisible", "ti.nombre")
                 .orderBy("res.id desc");
 
         return this.all(sql);
