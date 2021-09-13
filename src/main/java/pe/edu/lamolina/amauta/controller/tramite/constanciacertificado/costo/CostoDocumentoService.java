@@ -2,20 +2,20 @@ package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.costo;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.Idioma;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 
 public interface CostoDocumentoService {
 
-    public PrecioDocumento findById(PrecioDocumento tramiteDocumentoAcademico);
+    PrecioDocumento findById(PrecioDocumento tramiteDocumentoAcademico);
 
-    public List<PrecioDocumento> all(DynatableFilter filter);
+    List<PrecioDocumento> all(DynatableFilter filter);
 
-    public void save(PrecioDocumento tramiteDocumentoAcademico, Usuario usuario);
+    void save(PrecioDocumento tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    public void update(PrecioDocumento tramiteDocumentoAcademico, Usuario usuario);
+    void update(PrecioDocumento tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    public List<Idioma> allIdioma();
+    List<Idioma> allIdioma();
 
 }

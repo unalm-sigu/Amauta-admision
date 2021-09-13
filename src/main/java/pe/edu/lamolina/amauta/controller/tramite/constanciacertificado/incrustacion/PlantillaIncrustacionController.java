@@ -123,10 +123,10 @@ public class PlantillaIncrustacionController {
         try {
 
             if (plantillaDocumentoAcademico.getId() == null) {
-                service.save(plantillaDocumentoAcademico, ds.getUsuario());
+                service.save(plantillaDocumentoAcademico, ds);
                 response.setMessage("Se agregó satisfactoriamente");
             } else {
-                service.update(plantillaDocumentoAcademico, ds.getUsuario());
+                service.update(plantillaDocumentoAcademico, ds);
                 response.setMessage("Se actualizó satisfactoriamente");
             }
             response.setSuccess(true);
