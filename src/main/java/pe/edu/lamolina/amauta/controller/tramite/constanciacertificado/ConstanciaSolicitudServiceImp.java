@@ -1119,9 +1119,16 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     private void validarAlumnoEgresado(Alumno alumno) {
+
         if (!alumno.getSituacionAcademica().isEgresado()) {
-            throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+            
+            Egresado egresado = egresadoDAO.findByAlumno(alumno);
+            
+            if (egresado == null) {
+                throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+            }
         }
+        
     }
 
     private void validarAlumnoPosgrado(Alumno alumno) {
