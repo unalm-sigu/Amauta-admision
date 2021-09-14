@@ -25,14 +25,9 @@ var app = new Vue({
         },
         urlAcademico(item) {
             let $vue = this;
-            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporte(item) {
-            let $vue = this;
             return APP.url('academico/tramiteacademico/tramiteTraslado/' + item.tramite.id + '/reporte');
         },
         nuevo() {
@@ -72,7 +67,6 @@ var app = new Vue({
             if (!$("#form").parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramiteacademico/tramiteTraslado/save'),
@@ -86,7 +80,6 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                     $vue.$refs.modalTraslado.close();
-                    MODAL.hideWait();
                 },
                 error: function () {
                     $vue.$refs.modalTraslado.close();
@@ -96,13 +89,33 @@ var app = new Vue({
         },
         labelColor(item) {
             switch (item) {
-                case  "SOL":
-                    "label label-success"
+                case  'SOL':
+                    return "label label-default"
+                    break;
+                case  'ANU':
+                    return "label label-danger"
                     break;
                 default :
-                    "label label-primary"
+                    return "label label-primary"
                     break;
             }
+        },
+        anularTarmite(item) {
+            let $vue = this;
+            swal({
+                title: "Seguro que desea anular el registro",
+                icon: "warning",
+                buttons: ["Cancelar", "Anular"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    _axios.get(APP.url('academico/tramiteacademico/tramiteTraslado/anular/' + item.id)).
+                            then(({data}) => {
+                                notify(data, 'info');
+                                $vue.$refs.load.loadRemoteData();
+                            },()=>{});
+                }
+            });
         }
     }
 })

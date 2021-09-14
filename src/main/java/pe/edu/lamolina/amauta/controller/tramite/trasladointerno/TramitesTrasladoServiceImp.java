@@ -52,10 +52,12 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -137,7 +139,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS_INT.name());
         Alumno alumnoDB = alumnoDAO.find(tramiteTrasForm.getAlumno());
 
-        TramiteTraslado tramiteTras = tramiteTrasladoDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
+        TramiteTraslado tramiteTras = tramiteTrasladoDAO.findTramiteExistenteByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
 
         if (tramiteTras != null) {
             throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramiteTras.getCicloAcademico().getDescripcion2()));
@@ -272,6 +274,37 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
                 alumnoCicloCurso.setEsCaduco(1);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void anular(Long idTramiteTraslado, Usuario  usuario) {
+
+        TramiteTraslado tramiteTraslado = tramiteTrasladoDAO.findAll(idTramiteTraslado);
+
+        if (tramiteTraslado == null) {
+            throw new PhobosException("El trámite no fue encontrado");
+        }
+
+        if (tramiteTraslado.getEstado().equalsIgnoreCase(ACEP.name())) {
+            throw new PhobosException("El trámite ya fue aceptado");
+        }
+
+        if (tramiteTraslado.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())) {
+            throw new PhobosException("El trámite ya fue anulado");
+        }
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+
+        Tramite tramite = tramiteTraslado.getTramite();
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(usuario);
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setEstadoTramite(estadoTramite);
+        tramiteDAO.updateEstado(tramite);
+
+        tramiteTraslado.setEstado(TramiteEstadoEnum.ANU.name());
+        tramiteTrasladoDAO.updateColumns(tramiteTraslado, "estado");
     }
 
 }

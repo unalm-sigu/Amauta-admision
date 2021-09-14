@@ -22,4 +22,8 @@ public interface TramiteTrasladoDAO extends EasyDAO<TramiteTraslado> {
     public TramiteTraslado findByTramite(Tramite tramite);
 
     public List<TramiteTraslado> findByCiclo(CicloAcademico cicloAcademico);
+
+    public TramiteTraslado findAll(Long idTramiteTraslado);
+
+    public TramiteTraslado findTramiteExistenteByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico);
 }

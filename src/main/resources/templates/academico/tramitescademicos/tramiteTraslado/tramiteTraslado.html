@@ -61,17 +61,21 @@
                                                     <a class="text-success" > {{ item.resolucion.descripcion}}</a>
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                    <small class="" v-bind:class="labelColor(item.tramite.estado)"> {{ item.tramite.estadoEnum.value}}</small>
                                                 </td>
 
-                                                <td>
+                                                <td class="v-middle">
                                                     <div class="dropdown actions" >
+                                                        
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="fa fa-cog"></i>
                                                         </a> 
+                                                        
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li ><a v-bind:href="urlReporte(item)">Reporte</a></li>
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li ><a href="#" v-on:click.prevent="anularTarmite(item)">Anular</a></li>
                                                         </ul>
 
                                                     </div>

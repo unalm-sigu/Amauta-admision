@@ -10,6 +10,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +33,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
@@ -47,15 +51,15 @@ public class TramiteTrasladoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        
+
         List<Carrera> carreras = service.getCarreras(ds);
 
         ArrayNode carrerasJson = JaneHelper.from(carreras).array();
-        
+
         model.addAttribute("carreras", carrerasJson);
-        
+
         return "academico/tramitescademicos/tramiteTraslado/tramiteTraslado";
     }
 
@@ -129,17 +133,27 @@ public class TramiteTrasladoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            
+
             Context context = service.reporte(new Tramite(id), ds);
             model.addAllAttributes(context.getVariables());
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, model);
         }
-        
+
         return new ModelAndView(reporteTramiteTraslado);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anular/{idTramiteTraslado}", method = RequestMethod.GET)
+    public ResponseEntity anular(@PathVariable Long idTramiteTraslado, HttpSession session) {
+        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.anular(idTramiteTraslado, ds.getUsuario());
+        return new ResponseEntity(GlobalMessages.ANNULL,HttpStatus.OK);
+
     }
 
 }
