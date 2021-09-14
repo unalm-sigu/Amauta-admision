@@ -1069,9 +1069,9 @@ URL_UTIL = {
     }
 };
 
-const _axios = axios.create();
+const axios_ = axios.create();
 
-_axios.interceptors.response.use(function (response) {
+axios_.interceptors.response.use(function (response) {
     return response;
 }, function (error) {
     if (error) {
