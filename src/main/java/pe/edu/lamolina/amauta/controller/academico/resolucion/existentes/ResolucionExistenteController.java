@@ -33,8 +33,6 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
-import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -86,13 +84,7 @@ public class ResolucionExistenteController {
     ResolucionExistenteService service;
 
     @Autowired
-    ResolucionService resolucionService;
-
-    @Autowired
     MatriculableService matriculableService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -104,7 +96,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(resolucionService.allOFicinasByUser(ds))
+                .from(service.allOFicinasByUser(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -136,7 +128,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(resolucionService.allOFicinasByUser(ds))
+                .from(service.allOFicinasByUser(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -889,6 +881,28 @@ public class ResolucionExistenteController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allTrasladoInterno")
+    public ArrayNode allTrasladoInterno(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteTraslado> tramiteTraslados = service.allTrasladoInterno(ds.getCicloAcademico());
+        
+        ArrayNode array = JaneHelper.from(tramiteTraslados)
+                .join("carrera","id,nombre")
+                .join("carreraOrigen","id,nombre")
+                .join("cicloAcademico","id,year,codigo,descripcion,descripcion2")
+                .join("alumno","id,codigo")
+                .join("alumno.carrera","id,nombre")
+                .join("alumno.carrera.facultad","id,nombre")
+                .join("alumno.persona","id,apellidosNombres")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+
+        return array;
     }
 
 }

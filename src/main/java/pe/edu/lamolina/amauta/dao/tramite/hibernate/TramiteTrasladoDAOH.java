@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.TRAS_INT;
+import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Tramite;
 
@@ -142,7 +143,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
 
     @Override
     public TramiteTraslado findSolicitadoByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico) {
-        
+
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "cicloAcademico cic")
@@ -155,6 +156,22 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public List<TramiteTraslado> allTrasladoInternoByCicloSolicito(CicloAcademico cicloAcademico) {
+
+        Octavia sql = new Octavia()
+                .from(TramiteTraslado.class, "tras")
+                .join("tramite tra", "cicloAcademico cic","tra.alumno al")
+                .left("carrera ", "carreraOrigen", "resolucion res")
+                .leftJoin("res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
+                .filter("tras.estado", SOL)
+                .filter("tras.tipoTraslado", TipoTramiteTrasladoEnum.TRAS_INT)
+                .filter("cic.id", cicloAcademico)
+                .orderBy("tras.id desc");
+
+        return all(sql);
     }
 
 }

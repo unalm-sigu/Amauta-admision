@@ -91,6 +91,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejoService;
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
@@ -220,6 +221,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
+
+    @Autowired
+    ResolucionService resolucionService;
 
     private DateTime today = new DateTime();
 
@@ -957,16 +961,15 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Override
     public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
-        
+
         List<Tramite> tramites = allTramitesByFac(facultad, ds);
         List<Context> multipleContext = new ArrayList();
-        
+
         for (Tramite tramite : tramites) {
             multipleContext.add(cursoDirigidoReporte(tramite, ds));
         }
-        
-        return multipleContext;
 
+        return multipleContext;
 
     }
 
@@ -1017,6 +1020,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Override
     public TipoTramite findTipoTramite(Long id) {
         return tramiteDAO.find(id).getTipoTramite();
+    }
+
+    @Override
+    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
+        return resolucionService.allOFicinasByUser(ds);
     }
 
 }

@@ -70,6 +70,7 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
@@ -238,6 +239,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Autowired
     CambioPlanCurricularDAO cambioPlanCurricularDAO;
+
+    @Autowired
+    ResolucionService resolucionService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -618,6 +622,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public void saveTramiteTraslado(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
+        logger.debug("save tramite traslado tipo {}", resolucionForm.getTipoResolucion().getNombre());
+
         Resolucion resolucionExistente = resolucionDAO.findByOficinaSerieNumero(resolucionForm.getOficina(), resolucionForm.getSerie(), resolucionForm.getNumero());
         if (resolucionExistente != null) {
             throw new PhobosException(
@@ -778,11 +784,13 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public List<String> updateResolucion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+        
         Resolucion resolucionBD = resolucionDAO.findById(resolucionForm.getId());
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setSerie(resolucionForm.getSerie());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
+        
         if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionBD.getTipoResolucion().getCodigo())) {
             resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
             resolucionDAO.updateColumns(resolucionBD, "fecha", "serie", "numero", "oficina", "cicloAplica");
@@ -1682,7 +1690,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
-                
+
                 if (practicasForm.getCreditos() == null) {
                     throw new PhobosException("Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
                 }
@@ -1712,11 +1720,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Transactional
     private void saveTramitesTrasladoInterno(Resolucion resolucionForm, Resolucion resolucion, DataSessionPivot ds) {
+        logger.debug("solicitantes {}", resolucionForm.getTramiteTraslado().size());
         for (TramiteTraslado tramiteTrasladoForm : resolucionForm.getTramiteTraslado()) {
-
-            if (tramiteTrasladoForm.getId() != null) {
-                continue;
-            }
 
             TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
 
@@ -1733,6 +1738,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             traslado.setResolucion(resolucion);
             traslado.setEstado(tramiteTrasladoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteTrasladoDAO.updateColumns(traslado, "estado", "resolucion");
+
+            logger.debug("success update {}", traslado.getId());
 
         }
     }
@@ -2037,6 +2044,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion) {
         return cambioPlanCurricularDAO.allByResolucion(resolucion);
+    }
+
+    @Override
+    public List<TramiteTraslado> allTrasladoInterno(CicloAcademico cicloAcademico) {
+        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.allTrasladoInternoByCicloSolicito(cicloAcademico);
+        for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
+            tramiteTraslado.setAlumno(tramiteTraslado.getTramite().getAlumno());
+        }
+        return tramiteTraslados;
+    }
+
+    @Override
+    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
+        return resolucionService.allOFicinasByUser(ds);
     }
 
 }

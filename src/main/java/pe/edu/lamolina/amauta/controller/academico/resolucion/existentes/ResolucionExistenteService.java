@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -99,5 +100,9 @@ public interface ResolucionExistenteService {
     public List<Readmision> allReadmisionByResolucion(Resolucion resolucion);
 
     public List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion);
+
+    public List<TramiteTraslado> allTrasladoInterno(CicloAcademico cicloAcademico);
+
+    public List<Oficina> allOFicinasByUser(DataSessionPivot ds);
 
 }
