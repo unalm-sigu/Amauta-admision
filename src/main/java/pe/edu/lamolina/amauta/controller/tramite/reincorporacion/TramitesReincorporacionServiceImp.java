@@ -115,13 +115,14 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     @Override
     public List<Reincorporacion> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
-        return reincorporaciones;
+        return reincorporacionDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
+        
     }
 
     @Override
     @Transactional
     public void saveReincorporacion(Reincorporacion reincorporacionForm, DataSessionPivot ds) {
+        
         Boolean esCondicional = reincorporacionForm.getAlumno().getEsMatriculaCondicional();
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);

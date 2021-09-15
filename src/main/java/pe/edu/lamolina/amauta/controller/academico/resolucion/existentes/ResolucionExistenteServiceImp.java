@@ -1718,7 +1718,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 continue;
             }
 
-            TramiteTraslado traslado = tramiteTrasladoDAO.findByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
 
             if (traslado == null) {
                 throw new PhobosException("El alumno" + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");

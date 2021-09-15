@@ -132,7 +132,24 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .left("carrera ", "carreraOrigen", "resolucion res")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
                 .filter("al.id", alumnoDB)
-                .in("tras.estado",Arrays.asList(SOL,ACEP))
+                .in("tras.estado", Arrays.asList(SOL, ACEP))
+                .filter("cic.id", cicloAcademico)
+                .orderBy("tras.id desc")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
+    public TramiteTraslado findSolicitadoByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico) {
+        
+        Octavia sql = new Octavia()
+                .from(TramiteTraslado.class, "tras")
+                .join("tramite tra", "cicloAcademico cic")
+                .left("carrera ", "carreraOrigen", "resolucion res")
+                .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
+                .filter("al.id", alumnoDB)
+                .filter("tras.estado", SOL)
                 .filter("cic.id", cicloAcademico)
                 .orderBy("tras.id desc")
                 .limit(1);
