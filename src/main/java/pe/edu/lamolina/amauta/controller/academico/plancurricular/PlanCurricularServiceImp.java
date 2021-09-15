@@ -491,6 +491,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurriculaBD.setRequisitosOr(cursoCurricula.getRequisitosOr());
         cursoCurriculaBD.setCreditosRequisito(cursoCurricula.getCreditosRequisito());
         cursoCurriculaBD.setCreditosRequisitosOr(cursoCurricula.getCreditosRequisitosOr());
+        cursoCurriculaBD.setCreditos(cursoCurricula.getCreditos());
         cursoCurriculaDAO.update(cursoCurriculaBD);
 
         List<RequisitoCursoCurricula> requisitosDB = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
@@ -528,7 +529,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         if (diff != 0) {
-            Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
+            Curso curso = cursoDAO.find(cursoCurriculaBD.getCurso().getId());
             if (curso.getCodigo().equals(CODIGO_CURSO_DEP)) {
                 TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
                 cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);

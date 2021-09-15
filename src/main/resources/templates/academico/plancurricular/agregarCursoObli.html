@@ -47,7 +47,7 @@
                        th:value="${cursoCurricula.creditos}"
                        type="text" 
                        required="yes"
-                       th:readonly="${cursoCurricula.id!=null}"
+                       th:readonly="${cursoCurricula.id != null and cursoCurricula.curso.codigo != 'ELC'}"
                        data-parsley-type="digits"/>
 
 
