@@ -52,10 +52,10 @@
 
                                                 </td>
                                                 <td class="v-middle ">
-                                                    <a class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                                    <a v-if="item.resolucion" class="text-success" > {{ item.resolucion.descripcion}}</a>
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                    <span class="" v-bind:class="labelColor(item.tramite.estado)"> {{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
                                                 
                                                 <td>
@@ -94,6 +94,7 @@
                 var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
             </script>
             <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteReincorporacion/tramiteReincorporacion.js}" charset="utf-8"></script>
 
         </div>
