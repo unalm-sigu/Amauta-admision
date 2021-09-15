@@ -6,7 +6,7 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="tramitesAcademicos">
+            <div id="tramitesAcademicos" v-cloak="">
                 <header class="header b-b padder-lg">
                     <h2 th:inline="text">Tramite Titulo  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
                     <div class="pull-right m-t-md">  
@@ -22,19 +22,18 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-2">Trámite</th>
-                                                <th class="col-md-col-md-3">Persona</th>
-                                                <th class="c">Tipo Tramite</th>
-                                                <th class="">Estado</th>
-                                                <th class="col-md-3">Registro</th>
-                                                <th class="text-center"></th>
+                                                <th class="col-xs-2">Trámite</th>
+                                                <th class="col-xs-5">Persona</th>
+                                                <th class="col-xs-2">Estado</th>
+                                                <th class="col-xs-3">Registro</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td class="v-middle">
-                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                    <p class="block text-muted">Serie: {{item.tramite.serie}}</p>
+                                                    <p class="block text-muted">Número: {{item.tramite.numero}}</p>
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <div class="bock ">
@@ -44,23 +43,22 @@
                                                     <div class="bock bold text-primary">
                                                         {{ item.tramite.alumno.codigo}}
                                                     </div>
-                                                    <div class="bock " v-if="item.tramite.alumno.carrera != null">
+                                                    <div class="bock " v-if="item.tramite.alumno.carrera">
                                                         <span class="bold">Facultad</span>
                                                         {{ item.tramite.alumno.carrera.facultad.nombre}}
 
                                                     </div>
 
                                                 </td>
+                                                
                                                 <td class="v-middle text-left">
-                                                    {{ item.tramite.tipoTramite.nombre}}
+                                                    <span v-bind:class="labelColor(item.tramite.estado)">{{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
-                                                <td class="v-middle text-left">
-                                                    <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
-                                                </td>
+                                                
                                                 <td class="v-middle text-left">
                                                     {{item.tramite.userRegistro.persona.apellidosNombres}}
                                                     <small class="block text-muted">
-                                                        <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
+                                                        {{item.tramite.fechaRegistro}}
                                                     </small>
                                                 </td>
                                                 <td class="v-middle">
@@ -92,6 +90,7 @@
         <div layout:fragment="js">
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteTitulo/tramitesTitulo.js}" charset="utf-8"></script>
 
         </div>

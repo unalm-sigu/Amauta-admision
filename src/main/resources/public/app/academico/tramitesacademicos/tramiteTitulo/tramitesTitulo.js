@@ -3,21 +3,11 @@ var app = new Vue({
     el: '#tramitesAcademicos',
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramitetitulo/list'),
-        modalTramTitulo: {
-            id: 'modalTramTitulo',
-            header: true,
-            title: 'Agregar Tramite Título ',
-            okbtn: "Guardar",
-            showaccept: true
-        },
         tramiteTitulo: {},
         alumnos: [],
         isLoading: false
-    }, created: function () {
-
-    }, mounted: function () {
-
-    }, methods: {
+    },
+    methods: {
         nuevo() {
             let $vue = this;
             $vue.tramiteTitulo = {};
@@ -28,65 +18,43 @@ var app = new Vue({
             if (!$("#form").parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/tramiteacademico/tramitetitulo/save'),
-                data: JSON.stringify($vue.tramiteTitulo),
-                contentType: "application/json",
-                success: function (response) {
-                    if (response.success) {
+            axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/save'), $vue.tramiteTitulo).
+                    then(({data}) => {
+                        notify(data, 'success');
                         $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                        notify(response.message, "success");
-                    } else {
-                        notify(response.message, "error");
-                    }
-                    $vue.$refs.modalTramTitulo.close();
-                    MODAL.hideWait();
-                },
-                error: function () {
-                    $vue.$refs.modalTramTitulo.close();
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-        },
-        customLabel( {persona, codigo}){
-            if (persona != null) {
-                return  codigo + " - " + persona.nombreCompleto;
-            }
-            return "";
+                        $vue.$refs.modalTramTitulo.close();
+                    }, () => {
+                        $vue.$refs.modalTramTitulo.stop();
+                    });
         },
         loadAlumno(nombre) {
             let $vue = this;
-            this.isLoading = true
 
-            if (nombre != '' || nombre != null || nombre != undefined) {
+            if (!nombre) {
+                return;
+            }
 
-                $.ajax({
-                    url: APP.url("academico/tramitecondicional/allAlumnoByNombre"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre}
-                }).then(response => {
-                    if (response.success) {
-                        $vue.alumnos = response.data;
-                    }
+            AXIOS.get(APP.url("academico/tramitecondicional/allAlumnoByNombre"), {params: {nombre: nombre}})
+                    .then(({data}) => {
+                        $vue.alumnos = data.data;
+                    });
 
-                    this.isLoading = false;
-                })
-
+        },
+        labelColor(item) {
+            switch (item) {
+                case  'SOL':
+                    return "label label-default"
+                    break;
+                case  'ANU':
+                    return "label label-danger"
+                    break;
+                default :
+                    return "label label-primary"
+                    break;
             }
         },
-        getEstadoClass(estado) {
-            return "label " + APP.getEstadoClass(estado);
-        },
         urlAcademico(item) {
-            let $vue = this;
-            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporteBachiller(item) {
 
@@ -100,26 +68,19 @@ var app = new Vue({
         },
         anular(item) {
             let $vue = this;
-            bootbox.confirm({
-                message: '¿Desea anular el tramite titulo del alumno?',
-                callback: function (result) {
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url("academico/tramiteacademico/tramitetitulo/anular"),
-                            contentType: "application/json",
-                            method: 'POST',
-                            data: JSON.stringify(item)
-                        }).then(response => {
-                            if (response.success) {
+            swal({
+                text: "¿Desea anular el tramite titulo del alumno?",
+                icon: "warning",
+                buttons: ["Cancelar", "Anular"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/anular/'),item).
+                            then(({data}) => {
+                                notify(data, 'info');
                                 $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                                notify(response.message, "success");
-                            } else {
-                                notify(response.message, "error");
-                            }
-                            MODAL.hideWait();
-                        })
-                    }
+                            }, () => {
+                            });
                 }
             });
         }

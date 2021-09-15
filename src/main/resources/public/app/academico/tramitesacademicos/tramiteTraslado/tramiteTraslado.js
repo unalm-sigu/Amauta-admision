@@ -60,7 +60,7 @@ var app = new Vue({
         anularTarmite(item) {
             let $vue = this;
             swal({
-                title: "Seguro que desea anular el registro",
+                text: "Seguro que desea anular el registro",
                 icon: "warning",
                 buttons: ["Cancelar", "Anular"],
                 dangerMode: true,
