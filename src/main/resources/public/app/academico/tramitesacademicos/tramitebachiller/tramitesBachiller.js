@@ -81,12 +81,7 @@ var app = new Vue({
             return "label " + APP.getEstadoClass(estado);
         },
         urlAcademico(item) {
-            let $vue = this;
-            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporteBachiller(item) {
 

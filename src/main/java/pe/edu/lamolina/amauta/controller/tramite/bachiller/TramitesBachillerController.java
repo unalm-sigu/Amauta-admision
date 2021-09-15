@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -52,47 +53,31 @@ public class TramitesBachillerController {
     @RequestMapping("list")
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
+        
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<TramiteBachiller> tramitesBachiller = tramitesBachillerService.allTramitesByFilter(filter, ds);
 
-            String[] mapperTramite = new String[]{
-                "*",
-                "tramite.*",
-                "tramite.persona.*",
-                "tramite.alumno.*",
-                "tramite.alumno.planCurricular.*",
-                "tramite.alumno.carrera.*",
-                "tramite.alumno.carrera.facultad.*",
-                "tramite.compania.*",
-                "tramite.cicloAcademico.*",
-                "tramite.tipoTramite.codigo",
-                "tramite.tipoTramite.nombre",
-                "tramite.tipoTramite.esReincorporacionPregrado",
-                "tramite.tipoTramite.esCursoDirigido",
-                "tramite.tipoTramite.oficina.*",
-                "tramite.userRegistro.*",
-                "tramite.userRegistro.persona.*",
-                "tramite.userRespuesta.*",
-                "tramite.formularioEstadoTramite.*"
-            };
-
-            String[] mapperEstadoTramite = new String[]{
-                "tramite.estadoTramite.nombre",
-                "tramite.estadoTramite.id",
-                "tramite.estadoTramite.nombre"
-            };
-
-            String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
-
-            JsonNodeFactory jc = JsonNodeFactory.instance;
-            for (TramiteBachiller tramite : tramitesBachiller) {
-                ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
-
-                array.add(tramiteJson);
-            }
+            ArrayNode array = JaneHelper.from(tramitesBachiller)
+                    .join("resolucion")
+                    .join("tramite")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.planCurricular")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.cicloAcademico")
+                    .join("tramite.tipoTramite")
+                    .join("tramite.tipoTramite.oficina")
+                    .join("tramite.userRegistro")
+                    .join("tramite.userRegistro.persona")
+                    .join("tramite.userRespuesta")
+                    .join("tramite.formularioEstadoTramite")
+                    .join("tramite.estadoTramite", "id,nombre")
+                    .array();
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -162,13 +147,12 @@ public class TramitesBachillerController {
 
             model.addAllAttributes(context.getVariables());
 
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, model);
         }
-        
+
         return new ModelAndView(reporteTramiteBachiller);
     }
 

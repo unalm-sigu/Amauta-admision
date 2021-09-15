@@ -44,18 +44,8 @@ var app = new Vue({
                         $vue.$refs.modalTraslado.stop();
                     });
         },
-        labelColor(item) {
-            switch (item) {
-                case  'SOL':
-                    return "label label-default"
-                    break;
-                case  'ANU':
-                    return "label label-danger"
-                    break;
-                default :
-                    return "label label-primary"
-                    break;
-            }
+        labelColor(estado) {
+            return "label " + APP.getEstadoClass(estado);
         },
         anularTarmite(item) {
             let $vue = this;

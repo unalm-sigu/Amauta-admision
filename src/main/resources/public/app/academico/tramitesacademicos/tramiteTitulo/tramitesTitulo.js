@@ -40,18 +40,8 @@ var app = new Vue({
                     });
 
         },
-        labelColor(item) {
-            switch (item) {
-                case  'SOL':
-                    return "label label-default"
-                    break;
-                case  'ANU':
-                    return "label label-danger"
-                    break;
-                default :
-                    return "label label-primary"
-                    break;
-            }
+        labelColor(estado) {
+            return "label " + APP.getEstadoClass(estado);
         },
         urlAcademico(item) {
             return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
@@ -75,7 +65,7 @@ var app = new Vue({
                 dangerMode: true,
             }).then((willDelete) => {
                 if (willDelete) {
-                    axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/anular/'),item).
+                    axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/anular/'), item).
                             then(({data}) => {
                                 notify(data, 'info');
                                 $vue.$refs.tblTramitesAcademicos.loadRemoteData();

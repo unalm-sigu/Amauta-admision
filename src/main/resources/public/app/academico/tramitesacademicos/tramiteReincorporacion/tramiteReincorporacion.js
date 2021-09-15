@@ -7,13 +7,12 @@ var app = new Vue({
         reincorporacion: {},
         alumnos: [],
         isLoading: false
-    }, 
+    },
     methods: {
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         },
         urlAcademico(item) {
-            let $vue = this;
             return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporte(item) {
@@ -48,18 +47,8 @@ var app = new Vue({
                         $vue.$refs.modalRincorporacion.stop();
                     });
         },
-        labelColor(item) {
-            switch (item) {
-                case  "SOL":
-                    return "label label-success"
-                    break;
-                case  'ANU':
-                    return "label label-danger"
-                    break;
-                default :
-                    return "label label-primary"
-                    break;
-            }
+        labelColor(estado) {
+            return "label " + APP.getEstadoClass(estado);
         }
     }
 })

@@ -48,7 +48,7 @@ var app = new Vue({
         alumnoTramiteBachiller: [],
         alumnoTramitePracticas: [],
         alumnoTramiteTraslado: {},
-        alumnoTramiteReadmision:[],
+        alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
         tipo: ""
     },
@@ -306,6 +306,10 @@ var app = new Vue({
                 type: 'POST',
                 success: function (response) {
                     if (response.success) {
+                        if (!response.data.length) {
+                            notify("No contiene información de alumnos", "error");
+                            return;
+                        }
                         $vue.tipo = response.data[0].tipo;
                         if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = response.data;

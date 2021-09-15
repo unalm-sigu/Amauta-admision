@@ -7,7 +7,10 @@
         <div layout:fragment="main">
             <div id="retiroExcepcional" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <h2 >Tramite Reincorporación</h2>
+
+
+                    <h2 th:inline="text">Tramite Reincorporación  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 
@@ -34,7 +37,7 @@
                                                     <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
                                                     <small class="block text-muted">Número: {{item.tramite.numero}}</small>
                                                     <small class="block text-muted">Ciclo Reincorporación {{item.cicloReincorporacion.descripcion}}</small>
-                                                    
+
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <div class="bock " >
@@ -52,12 +55,12 @@
 
                                                 </td>
                                                 <td class="v-middle ">
-                                                    <a v-if="item.resolucion" class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                                    <p v-if="item.resolucion" class="text-primary h5" > {{ item.resolucion.descripcion}}</p>
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <span class="" v-bind:class="labelColor(item.tramite.estado)"> {{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
-                                                
+
                                                 <td>
                                                     <div class="dropdown actions" >
                                                         <a class="dropdown-toggle" data-toggle="dropdown">

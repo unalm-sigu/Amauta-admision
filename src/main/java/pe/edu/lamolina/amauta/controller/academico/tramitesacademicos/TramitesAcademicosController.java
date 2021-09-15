@@ -152,12 +152,8 @@ public class TramitesAcademicosController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Oficina> oficinas = tramitesAcademicosService.allOFicinasByUser(ds);
-        for (Oficina oficina : oficinas) {
-            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
-            oficinasJson.add(oficinaJson);
-        }
+        ArrayNode oficinasJson = JaneHelper.from(oficinas).array();
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/tramitescademicos/tramitesAcademicos";

@@ -337,7 +337,7 @@ APP = {
         ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",
         APR: "primary", ACEP: "primary",
         OBS: "warning",
-        SOL: "info",
+        SOL: "default",
         REE: "info"},
     getEstadoClass: function (estadoCode) {
         return "label-" + APP.colorEstado[estadoCode];

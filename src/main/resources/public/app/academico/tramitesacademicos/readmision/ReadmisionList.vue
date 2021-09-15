@@ -37,7 +37,7 @@
                                         </div>
                                     </td>
                                     <td class="v-middle ">
-                                        <a v-if="item.resolucion" class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                        <p v-if="item.resolucion" class="text-primary h5" > {{ item.resolucion.descripcion}}</p>
                                     </td>
                                     <td class="v-middle text-center">
                                         <span class="" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</span>
@@ -79,18 +79,8 @@
             let $vue = this;
         },
         methods: {
-            labelColor(item) {
-                switch (item) {
-                    case  "SOL":
-                        return "label label-success"
-                        break;
-                    case  "ANU":
-                        return "label label-danger"
-                        break;
-                    default :
-                        return "label label-primary"
-                        break;
-                }
+            labelColor(estado) {
+                return "label " + APP.getEstadoClass(estado);
             },
             getReporte(item) {
                 axios_blob.get(APP.url('academico/tramiteacademico/readmision/' + item.id + '/reporte'))

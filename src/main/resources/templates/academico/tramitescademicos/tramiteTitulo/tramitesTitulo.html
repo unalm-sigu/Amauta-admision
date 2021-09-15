@@ -1,5 +1,5 @@
 <html layout:decorator="_layout/layout">
-    
+
     <head>
         <title>Tramites Titulo</title>
     </head>
@@ -24,8 +24,11 @@
                                             <tr>
                                                 <th class="col-xs-2">Trámite</th>
                                                 <th class="col-xs-5">Persona</th>
-                                                <th class="col-xs-2">Estado</th>
+
+                                                <th class="col-xs-2">Resolución</th>
                                                 <th class="col-xs-3">Registro</th>
+
+                                                <th class="col-xs-2">Estado</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -50,16 +53,21 @@
                                                     </div>
 
                                                 </td>
-                                                
+
                                                 <td class="v-middle text-left">
-                                                    <span v-bind:class="labelColor(item.tramite.estado)">{{ item.tramite.estadoEnum.value}}</span>
+                                                    <p v-if="item.resolucion" class="text-primary h5">{{item.resolucion.descripcion}}</p>
                                                 </td>
-                                                
+
                                                 <td class="v-middle text-left">
                                                     {{item.tramite.userRegistro.persona.apellidosNombres}}
                                                     <small class="block text-muted">
                                                         {{item.tramite.fechaRegistro}}
                                                     </small>
+                                                </td>
+
+
+                                                <td class="v-middle text-left">
+                                                    <span v-bind:class="labelColor(item.tramite.estado)">{{ item.tramite.estadoEnum.value}}</span>
                                                 </td>
                                                 <td class="v-middle">
                                                     <div class="dropdown actions" >
@@ -73,6 +81,7 @@
                                                         </ul>
                                                     </div>
                                                 </td>
+
                                             </tr>
                                         </tbody>
                                     </table>

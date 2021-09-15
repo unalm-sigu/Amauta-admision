@@ -91,8 +91,7 @@ public class ResolucionController {
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/resolucion/resolucion";
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("listResoluciones")
     public DynatableResponse listResoluciones(DynatableFilter filter, HttpSession session) {
@@ -108,7 +107,7 @@ public class ResolucionController {
             ArrayNode array = JaneHelper.from(resoluciones)
                     .join("oficina")
                     .join("tipoResolucion")
-                    .join("userRegistro.persona","apellidosNombres")
+                    .join("userRegistro.persona", "apellidosNombres")
                     .array();
 
             json.setData(array);
@@ -118,7 +117,7 @@ public class ResolucionController {
         } catch (Exception e) {
             json.setTotal(0);
         }
-        
+
         return json;
     }
 
@@ -129,8 +128,6 @@ public class ResolucionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
-            response.setSuccess(Boolean.TRUE);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
@@ -152,15 +149,12 @@ public class ResolucionController {
                         "userActualizacion.*",
                         "userActualizacion.persona.*"});
 
-            ArrayNode ciclosJson = new ArrayNode(jc);
-            for (CicloAcademico ciclo : ciclos) {
-                ciclosJson.add(JsonHelper.createJson(ciclo, jc, new String[]{"*"}));
-            }
+            ArrayNode ciclosJson = JaneHelper.from(ciclos).array();
 
             ObjectNode data = new ObjectNode(jc);
             data.set("resolucion", resolucionJson);
             data.set("ciclosToReincorporacion", ciclosJson);
-
+            response.setSuccess(Boolean.TRUE);
             response.setData(data);
 
         } catch (PhobosException e) {
@@ -243,7 +237,6 @@ public class ResolucionController {
         return response;
     }
 
-
     @ResponseBody
     @RequestMapping("listTramitesToConfirm")
     public DynatableResponse listTramitesToConfirm(
@@ -253,7 +246,7 @@ public class ResolucionController {
 
         DynatableResponse json = new DynatableResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -524,21 +517,18 @@ public class ResolucionController {
             @RequestParam("oficina") Long oficinaId,
             HttpSession session,
             Model model) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        ObjectNode nodeResult = new ObjectNode(jsonFactory);
-        try {
-            logger.debug("entro a cambiarOficina");
 
-            ArrayNode reunionesConsejoJson = new ArrayNode(jsonFactory);
+        JsonResponse response = new JsonResponse();
+
+        try {
+            
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode nodeResult = new ObjectNode(jsonFactory);
+
             List<ReunionConsejo> reunionesConsejo = service.allReunionesConsejoByOficina(new Oficina(oficinaId));
-            for (ReunionConsejo reunionConsejo : reunionesConsejo) {
-                reunionesConsejoJson.add(JsonHelper.createJson(reunionConsejo, jsonFactory, false, new String[]{
-                    "*",}));
-            }
+            ArrayNode reunionesConsejoJson = JaneHelper.from(reunionesConsejo).array();
 
             nodeResult.set("reunionesConsejo", reunionesConsejoJson);
-
             response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
 

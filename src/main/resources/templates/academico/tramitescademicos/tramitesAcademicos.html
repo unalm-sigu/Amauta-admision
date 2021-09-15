@@ -1,203 +1,191 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <link rel="stylesheet" href="../../../public/bootstrap/css/bootstrap.css" type="text/css"/>
 
         <title>Tramties Academicos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .td-vacio {
-            padding-right: 4px !important;
-            padding-left: 4px !important;
-        }
-        .bg-row {
-            background-color: #f9fafc;
-        }
-    </style>
-</head>
 
-<body>
-    <div layout:fragment="main">
-        <div id="tramitesAcademicos">
-            <header class="header b-b padder-lg">
-                <div class="pull-right m-t-md">  
-                    <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
-                </div> 
-                <h2 >Trámites Académicos</h2>
-            </header>
-            <section  class="wrapper-lg">
-                <section class="panel">
-                    <section class="panel-body">
-                        <raptor-table ref="tblTramitesAcademicos"
-                                      v-bind:url="URL_TRAMITES" >
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="tramitesAcademicos">
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">  
+                        <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
+                    </div> 
+                    <h2 >Trámites Académicos</h2>
+                </header>
+                <section  class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table ref="tblTramitesAcademicos"
+                                          v-bind:url="URL_TRAMITES" >
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-2">Trámite</th>
+                                                <th class="col-md-col-md-3">Persona</th>
+                                                <th class="c">Tipo Tramite</th>
+                                                <th class="">Estado</th>
+                                                <th class="col-md-3">Registro</th>
+                                                <th class="text-center">
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td> 
+                                                    <p class="block text-muted">Serie: {{item.serie}}</p>
+                                                    <p class="block text-muted">Número: {{item.numero}}</p>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <div class="bock ">
+                                                        {{ item.persona.apellidosNombres}}
+                                                    </div>
+                                                    <div class="bock" v-if="item.alumno.carrera">
+                                                        <span class="bold">Facultad</span>
+                                                        {{ item.alumno.carrera.facultad.nombre}}
+                                                    </div>
+                                                    <div class="bock" v-if="item.cicloAcademico">
+                                                        <span class="bold">Ciclo Solicitado</span>
+                                                        {{ item.cicloAcademico.descripcion}}
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    {{ item.tipoTramite.nombre}}
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <small class="block text-muted">{{ item.estadoEnum.value}}</small>
+                                                    <small class="block text-muted" 
+                                                           v-if="item.tipoTramite.esReincorporacionPregrado">
+                                                        Reincorporación: {{item.estadoTramite.nombre}}
+                                                    </small>
+                                                    <small class="block text-muted" 
+                                                           v-if="item.tipoTramite.esTipoTramiteCurDir">
+                                                        Curso Dirigido: {{item.estadoTramite.nombre}}
+                                                        <br/>
+                                                        Curso : {{item.cursodirigido.curso.nombre}} 
+                                                        <br/>
+                                                    </small>
+                                                    <small class="block text-muted" 
+                                                           v-if="item.tramiteReunionConsejo">
+                                                        <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
+                                                    </small>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    {{item.userRegistro.persona.apellidosNombres}}
+                                                    <small class="block text-muted">
+                                                        <format-date v-bind:datetext="item.fechaRegistro"></format-date>
+                                                    </small>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <div class="dropdown actions" >
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right" > 
+
+                                                            <li v-if="item.accionesTramite &amp;&amp; item.estadoTramite.isVisibleBandeja">
+                                                                <a class="btn-link pointer" 
+                                                                   v-on:click="procesarTramite(item,$event)" v-if="item.formularioEstadoTramite.id">
+                                                                    Procesar</a>
+
+                                                                <a class="btn-link pointer" 
+                                                                   v-on:click="cambiarEstadoReincorporacion(item,accion.id,$event)" v-for="accion in item.accionesTramite" v-if="item.formularioEstadoTramite.id==null">
+                                                                    {{accion.opcion}}</a>
+                                                            </li>
+                                                            
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                        </ul>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+
+                <modal-vik ref="modalAgendar"
+                           modalsize="modal-md"
+                           v-bind="agendarModal"
+                           v-bind:okaction="saveAgendar">
+                    <div slot="body">
+
+
+                        <raptor-table ref="tblReunionesConsejo"
+                                      v-bind:url="URL_REUNIONES" 
+                                      rowsperpage="5"
+                                      v-bind:searcher="false">
+
                             <template scope="props">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="col-md-2">Trámite</th>
-                                            <th class="col-md-col-md-3">Persona</th>
-                                            <th class="c">Tipo Tramite</th>
-                                            <th class="">Estado</th>
-                                            <th class="col-md-3">Registro</th>
-                                            <th class="text-center">
-                                            </th>
+                                            <th>Fecha</th>
+                                            <th>Es Ordinario</th>
+                                            <th>Oficina</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in props.data"> 
-                                            <td> 
-                                                <small class="block text-muted">Serie: {{item.serie}}</small>
-                                                <small class="block text-muted">Número: {{item.numero}}</small>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <div class="bock ">
-                                                    {{ item.persona.apellidosNombres}}
-
-                                                </div>
-                                                <div class="bock " v-if="item.alumno.carrera != null">
-                                                    <span class="bold">Facultad</span>
-                                                    {{ item.alumno.carrera.facultad.nombre}}
-
-                                                </div>
-
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                {{ item.tipoTramite.nombre}}
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum.value}}</small>
-                                                <small class="block text-muted" 
-                                                       v-if="item.tipoTramite.esReincorporacionPregrado">
-                                                    Reincorporación: {{item.estadoTramite.nombre}}
-                                                </small>
-                                                <small class="block text-muted" 
-                                                       v-if="item.tipoTramite.esTipoTramiteCurDir">
-                                                    Curso Dirigido: {{item.estadoTramite.nombre}}
-                                                    <br/>
-                                                    Curso : {{item.cursodirigido.curso.nombre}} 
-                                                    <br/>
-                                                    <!--                                                    Docente Asignado : {{item.cursodirigido.docenteAsignado.persona.apellidosNombres}} 
-                                                                                                        ({{item.cursodirigido.docenteAsignado.codigo}})-->
-                                                </small>
-                                                <small class="block text-muted" 
-                                                       v-if="item.tramiteReunionConsejo">
-                                                    <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
-                                                </small>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                {{item.userRegistro.persona.apellidosNombres}}
-                                                <small class="block text-muted">
-                                                    <format-date v-bind:datetext="item.fechaRegistro"></format-date>
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <div class="dropdown actions" >
-                                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="fa fa-cog"></i>
-                                                    </a> 
-                                                    <ul class="dropdown-menu pull-right" > 
-
-                                                        <li v-if="item.accionesTramite &amp;&amp; item.estadoTramite.isVisibleBandeja">
-                                                            <a class="btn-link pointer" 
-                                                               v-on:click="procesarTramite(item,$event)" v-if="item.formularioEstadoTramite.id">
-                                                                Procesar</a>
-
-                                                            <a class="btn-link pointer" 
-                                                               v-on:click="cambiarEstadoReincorporacion(item,accion.id,$event)" v-for="accion in item.accionesTramite" v-if="item.formularioEstadoTramite.id==null">
-                                                                {{accion.opcion}}</a>
-                                                        </li>
-                                                        <li role="presentation" class="divider"></li>
-                                                        <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-<!--                                                        <li v-if="item.tipoTramite.codigo == 'CURDIR'"><a v-bind:href="urlReporteDirigido(item)">Reporte</a></li>
-                                                        <li v-if="item.tipoTramite.codigo == 'BACHI'"><a v-bind:href="urlReporteBachiller(item)">Reporte</a></li>-->
-                                                    </ul>
-
-                                                </div>
-                                            </td>
-                                        </tr>
+                                            <td>   
+                                    <format-date v-bind:datetext="item.fecha"></format-date>
+                                    </td>
+                                    <td>
+                                        <label class="switch">
+                                            <input  type="checkbox" 
+                                                    value="1"
+                                                    checked="{{item.esOrdinario}}"
+                                                    disabled="true"/>
+                                            <span></span>
+                                        </label>
+                                    </td> 
+                                    <td>
+                                        <span v-if="item.oficina" 
+                                              v-text="item.oficina.nombre"></span>
+                                    </td> 
+                                    <td>
+                                        <a alt="selReunionConsejo"  
+                                           class="btn" 
+                                           v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
+                                           type="button"    
+                                           v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
+                                           href="#" >Seleccionar</a>
+                                    </td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </template>
                         </raptor-table>
 
-                    </section>
-                </section>
-            </section>
+
+                    </div>
+                </modal-vik>
 
 
-            <modal-vik ref="modalAgendar"
-                       modalsize="modal-md"
-                       v-bind="agendarModal"
-                       v-bind:okaction="saveAgendar">
-                <div slot="body">
 
+            </div>
 
-                    <raptor-table ref="tblReunionesConsejo"
-                                  v-bind:url="URL_REUNIONES" 
-                                  rowsperpage="5"
-                                  v-bind:searcher="false">
-
-                        <template scope="props">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Es Ordinario</th>
-                                        <th>Oficina</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in props.data"> 
-                                        <td>   
-                                <format-date v-bind:datetext="item.fecha"></format-date>
-                                </td>
-                                <td>
-                                    <label class="switch">
-                                        <input  type="checkbox" 
-                                                value="1"
-                                                checked="{{item.esOrdinario}}"
-                                                disabled="true"/>
-                                        <span></span>
-                                    </label>
-                                </td> 
-                                <td>
-                                    <span v-if="item.oficina" 
-                                          v-text="item.oficina.nombre"></span>
-                                </td> 
-                                <td>
-                                    <a alt="selReunionConsejo"  
-                                       class="btn" 
-                                       v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
-                                       type="button"    
-                                       v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
-                                       href="#" >Seleccionar</a>
-                                </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </template>
-                    </raptor-table>
-
-
-                </div>
-            </modal-vik>
-
-
+            <div th:substituteby="templates/modal"/>
 
         </div>
 
-        <div th:substituteby="templates/modal"/>
+        <div layout:fragment="js">
 
-    </div>
-
-    <div layout:fragment="js">
-        
-        <div th:substituteby="_modules/vue-raptor-table"/>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script>
-        <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
-    </div>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
+        </div>
 
 
-</body>
+    </body>
 </html>
