@@ -334,7 +334,7 @@ APP = {
     colorEstado: {
         CRE: "default",
         ACT: "success", MAT: "success", ABI: "success",
-        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",
+        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",RCHZ:"danger",
         APR: "primary", ACEP: "primary",
         OBS: "warning",
         SOL: "default",

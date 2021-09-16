@@ -85,7 +85,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado.push({seleccionado: false});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: true});
             },
             del(index) {
                 let $vue = this;
@@ -107,6 +107,8 @@
             },
             allTraslados() {
                 let $vue = this;
+                $vue.resolucion.tramiteTraslado =[];
+                return;
                 $vue.showLoader("Espere un momento por favor");
                 axios_.get(APP.url("academico/resolucion/existentes/allTrasladoInterno"))
                         .then(({data}) => {
