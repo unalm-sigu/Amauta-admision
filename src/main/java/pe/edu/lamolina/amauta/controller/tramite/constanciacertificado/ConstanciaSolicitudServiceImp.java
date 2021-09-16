@@ -157,6 +157,7 @@ import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -1120,15 +1121,18 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     private void validarAlumnoEgresado(Alumno alumno) {
 
-        if (!alumno.getSituacionAcademica().isEgresado()) {
-            
-            Egresado egresado = egresadoDAO.findByAlumno(alumno);
-            
-            if (egresado == null) {
-                throw new PhobosException("El trámite solo está permitido para alumnos egresados");
-            }
-        }
+        Egresado existeComoEgresado = egresadoDAO.findByAlumno(alumno);
+        TramiteBachiller tramiteBachillerAceptado = tramiteBachillerDAO.findByAlumnoACEP(alumno);
         
+        if (!alumno.getSituacionAcademica().isEgresado()) {
+            throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+        }
+        if (existeComoEgresado == null) {
+            throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+        }
+        if (tramiteBachillerAceptado==null) {
+            throw new PhobosException("El trámite solo está permitido para alumnos egresados");
+        }
     }
 
     private void validarAlumnoPosgrado(Alumno alumno) {

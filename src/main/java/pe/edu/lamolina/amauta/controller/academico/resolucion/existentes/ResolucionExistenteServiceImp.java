@@ -121,7 +121,9 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GradoAcademico;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
@@ -784,13 +786,13 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public List<String> updateResolucion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
-        
+
         Resolucion resolucionBD = resolucionDAO.findById(resolucionForm.getId());
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setSerie(resolucionForm.getSerie());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
-        
+
         if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionBD.getTipoResolucion().getCodigo())) {
             resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
             resolucionDAO.updateColumns(resolucionBD, "fecha", "serie", "numero", "oficina", "cicloAplica");
@@ -1497,6 +1499,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 egresado.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
                 egresado.setPuntajeAcumulado(alumnoCiclo.getPuntajeAcumulado());
                 egresadoDAO.update(egresado);
+
+                SituacionAcademica situacionAcademica = alumno.getSituacionAcademica();
+                
+                if ( situacionAcademica == null || (!situacionAcademica.isEgresado()) ) {
+                    alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+                    alumnoDAO.updateColumns(alumno, "situacionAcademica");
+                } 
+
             }
         }
     }
