@@ -123,6 +123,7 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GradoAcademico;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
@@ -340,8 +341,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<CicloAcademico> ciclosAnteriores(int i) {
-        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivoPregrado();
-        return cicloAcademicoDAO.allMenorIgual(i, cicloAcademico);
+        return cicloAcademicoDAO.allUltimosByModalidadEnum(PRE, 50);
     }
 
     @Override
@@ -803,9 +803,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         if (resolucionBD.isTipoReincorporacion()) {
             return Arrays.asList(this.saveReincorporaciones(resolucionForm, resolucionBD, ds));
         } else if (resolucionBD.isTipoReadmision()) {
-            return Arrays.asList(this.saveReadmision(resolucionForm, resolucionBD));
+
         } else if (resolucionBD.isTipoCambioPlanCurricular()) {
-            return Arrays.asList(this.saveCambioPlanCurricular(resolucionForm, resolucionBD));
+
         } else if (resolucionBD.isTipoRetiroCiclo() || resolucionBD.isTipoAnulacionCiclo()) {
             return Arrays.asList(this.saveRetirosCiclos(resolucionForm, resolucionBD, ds));
         } else if (resolucionBD.isTipoCambioNota()) {
@@ -1501,11 +1501,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 egresadoDAO.update(egresado);
 
                 SituacionAcademica situacionAcademica = alumno.getSituacionAcademica();
-                
-                if ( situacionAcademica == null || (!situacionAcademica.isEgresado()) ) {
+
+                if (situacionAcademica == null || (!situacionAcademica.isEgresado())) {
                     alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
                     alumnoDAO.updateColumns(alumno, "situacionAcademica");
-                } 
+                }
 
             }
         }
@@ -1925,7 +1925,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     @Transactional
-    public String saveCambioPlanCurricular(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public void saveCambioPlanCurricular(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
         if (resolucionForm.getCambioPlanCurriculares().isEmpty()) {
             throw new PhobosException("Debe Agregar alumnos.");
@@ -1955,11 +1955,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
-        return this.saveCambioPlanCurricular(resolucionForm, resolucion);
+        this.saveCambioPlanCurricular(resolucionForm, resolucion);
 
     }
 
-    private String saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucion) {
+    private void saveCambioPlanCurricular(Resolucion resolucionForm, Resolucion resolucion) {
 
         if (resolucionForm.getCambioPlanCurriculares().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
@@ -2023,21 +2023,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         }
 
-        String token = "";
-
-        if (!alumnos.isEmpty()) {
-
-            token = RandomStringUtils.randomAlphanumeric(43);
-            String tokenProm = token + TOKEN_PROMEDIOS;
-            String tokenCurri = token + TOKEN_CURRICULA;
-            String tokenMatri = token + TOKEN_MATRICULABLE;
-
-            visorCalculoNotas.createToken(tokenProm, alumnos);
-            visorCalculoNotas.createToken(tokenCurri, alumnos);
-            visorCalculoNotas.createToken(tokenMatri, alumnos);
-        }
-
-        return token;
     }
 
     @Override

@@ -93,7 +93,7 @@ public interface ResolucionExistenteService {
 
     public String saveReadmision(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public String saveCambioPlanCurricular(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    public void saveCambioPlanCurricular(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     public List<CambioPlanCurricular> allCambioPlanCurricular();
 

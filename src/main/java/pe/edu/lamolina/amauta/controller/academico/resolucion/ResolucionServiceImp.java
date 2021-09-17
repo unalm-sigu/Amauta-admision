@@ -452,16 +452,6 @@ public class ResolucionServiceImp implements ResolucionService {
 
         if (resolucion.getTipoResolucion().isCambioPlanCurricular()) {
 
-            List<CambioPlanCurricular> cambioPlanCurriculares = cambioPlanCurricularDAO.allByResolucion(resolucion);
-            for (CambioPlanCurricular raedmision : cambioPlanCurriculares) {
-
-                Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
-                List<CambioPlanCurricular> cambioPlanCurricularByTram = cambioPlanCurricularDAO.allByTramite(tramite);
-                if (!cambioPlanCurricularByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                    throw new PhobosException("Estado tramite incorrecto");
-                }
-            }
-
         }
 
     }

@@ -192,14 +192,19 @@ public class ResolucionExistenteController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
+        
         JsonResponse response = new JsonResponse();
+        
         try {
+            
+            logger.debug("refactorizar");
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<String> msg = new ArrayList();
 
             if (resolucion.isTipoReincorporacion()) {
+                
                 String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 if (!token.isEmpty()) {
                     matriculableService.calcularPromedios(token, ds);
@@ -209,58 +214,70 @@ public class ResolucionExistenteController {
                 }
 
             } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
+                
                 String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
+                
 
             } else if (resolucion.isTipoCambioNota()) {
+                
                 String token = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
+                
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
+                
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
+                
             } else if (resolucion.isTipoNotaBaja()) {
                 String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
+                
             } else if (resolucion.isTipoTramiteBachiller()) {
                 service.saveResolucionTramiteBachiller(resolucion, ds);
+                
             } else if (resolucion.isTipoTramiteTitulo()) {
                 service.saveTramiteTitulo(resolucion, ds);
             } else if (resolucion.isTipoTramitePracticas()) {
+                
                 String token = service.saveResolucionTramitePracticas(resolucion, ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
+                
             } else if (resolucion.isTipoReadmision()) {
+                
                 String token = service.saveReadmision(resolucion, ds.getUsuario(), ds);
+                
                 if (!token.isEmpty()) {
+                    
                     matriculableService.calcularPromedios(token, ds);
                     matriculableService.revisarCurriculaAlumnos(ds, token);
                     matriculableService.revisarMatriculables(ds, token);
                     matriculableService.generarAportes(ds, token);
+                    
                 }
+                
             } else if (resolucion.isTipoCambioPlanCurricular()) {
-                String token = service.saveCambioPlanCurricular(resolucion, ds.getUsuario(), ds);
-                if (!token.isEmpty()) {
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
-                }
+                
+               service.saveCambioPlanCurricular(resolucion, ds.getUsuario(), ds);
+                
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(msg);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -274,12 +291,21 @@ public class ResolucionExistenteController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
+        
         JsonResponse response = new JsonResponse();
+        
         try {
+            
+            if(!(resolucion.isTipoTramiteBachiller()||
+                    resolucion.isTipoTramiteTitulo()||
+                    resolucion.isTipoTramitePracticas())){
+                throw new PhobosException("Solo se permite editar la resolucion de bachiller , titulo y practicas");
+            }
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<String> msg = new ArrayList();
+            
             List<String> respuestas = new ArrayList();
 
             if (resolucion.isTipoReincorporacion()) {
