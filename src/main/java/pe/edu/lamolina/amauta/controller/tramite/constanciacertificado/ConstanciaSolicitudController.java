@@ -655,7 +655,7 @@ public class ConstanciaSolicitudController {
 
                 DecimalFormat df = new DecimalFormat("#.00");
                 logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
-                node.put("esEgresado", TRUE);
+                node.put("esEgresado", egresado.getAlumno().getSituacionAcademica().isEgresado());
                 node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
                 response.setSuccess(Boolean.TRUE);
 

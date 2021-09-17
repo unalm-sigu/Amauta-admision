@@ -28,9 +28,6 @@ Vue.component("inicio-tram-component", {
         }
     },
     methods: {
-        customLabel( { persona, codigo}) {
-            return `${codigo} - ${persona.apellidosNombres}`;
-        },
         searchAlumnos(nombre) {
             let $vue = this;
             if (nombre != null && nombre != "") {
