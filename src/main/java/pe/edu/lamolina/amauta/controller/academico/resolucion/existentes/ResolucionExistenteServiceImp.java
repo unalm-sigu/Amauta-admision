@@ -1745,6 +1745,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private String saveReadmision(Resolucion resolucion) {
 
+        logger.debug("after save tramite readmision {}", resolucion.getId());
+
         if (resolucion.getReadmisiones().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
@@ -1789,6 +1791,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         for (Readmision readmisionForm : resolucion.getReadmisiones()) {
 
             Readmision readmision = readmisionXalumno.get(readmisionForm.getAlumno().getId());
+            if (readmision == null) {
+                throw new PhobosException(String.format("El alumno %s no ha tramitado su readmisión", readmision.getAlumno().getCodigo()));
+            }
             readmision.setAceptado(readmisionForm.isSeleccionado() ? 1 : 0);
             readmision.setResolucion(resolucion);
             readmision.setMotivoRechazo(readmisionForm.getMotivoRechazo());
