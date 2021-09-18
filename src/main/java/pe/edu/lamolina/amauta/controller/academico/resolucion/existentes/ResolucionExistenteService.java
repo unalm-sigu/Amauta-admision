@@ -5,7 +5,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
-import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -27,13 +26,9 @@ public interface ResolucionExistenteService {
 
     List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina);
 
-    String saveReincorporacion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
     Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
 
     List<TipoResolucion> allTipoResolucionByCodigo(List<String> codigos);
-
-    String saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     List<CicloAcademico> ciclosAnteriores(int i);
 
@@ -41,37 +36,21 @@ public interface ResolucionExistenteService {
 
     List<RetiroCiclo> allRetiroCicloByResolucion(Resolucion resolucionDB);
 
-    String saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
     List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
     List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
 
-    List<String> saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
-    void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
-
-    void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     List<Carrera> allCarrera();
 
     void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
 
-    String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds);
-
     List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds);
 
     List<String> updateResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    void saveResolucionTramiteBachiller(Resolucion resolucion, DataSessionPivot ds);
-
     List<ObtencionGrado> allObtencionGrado(Resolucion resolucion);
-
-    public void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds);
-
-    public String saveResolucionTramitePracticas(Resolucion resolucion, DataSessionPivot ds);
 
     public List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
 
@@ -91,10 +70,6 @@ public interface ResolucionExistenteService {
 
     public List<Readmision> allReadmision();
 
-    public String saveReadmision(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
-    public void saveCambioPlanCurricular(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
-
     public List<CambioPlanCurricular> allCambioPlanCurricular();
 
     public List<Readmision> allReadmisionByResolucion(Resolucion resolucion);
@@ -104,5 +79,7 @@ public interface ResolucionExistenteService {
     public List<TramiteTraslado> allTrasladoInterno(CicloAcademico cicloAcademico);
 
     public List<Oficina> allOFicinasByUser(DataSessionPivot ds);
+
+    public List<String> saveResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
 }

@@ -1,6 +1,6 @@
 <template>
     <div>
-
+        
         <div class="row">
             <div class="col-lg-6">
                 <label>Facultad</label>
@@ -99,12 +99,13 @@
             </div> 
 
             <div v-if="resolucion.tipoResolucion">
-                <div class="col-lg-6" v-if="resolucion.tipoResolucion.isCambioNota||resolucion.tipoResolucion.isCursoDirigido||resolucion.tipoResolucion.isTrasladoInterno">
-                    <label>Ciclo
-                        <span v-if='resolucion.tipoResolucion.isTrasladoInterno'> aplica </span>
-                        <span v-if='resolucion.tipoResolucion.isRetiroCiclo'> a retirar</span>
-                        <span v-if='resolucion.tipoResolucion.isReincorporacion'> a reincorporar</span>
-                        <span v-if='resolucion.tipoResolucion.isReadmision'> a readmitir</span>
+                <div class="col-lg-6" 
+                     v-if="!(resolucion.tipoResolucion.isTrasladoExterno||
+                     resolucion.tipoResolucion.isIngresoFisicoHistorial||
+                     resolucion.tipoResolucion.isTramiteBachiller||
+                     resolucion.tipoResolucion.isTramiteTitulo)">
+                    <label>
+                        Ciclo Aplica
                     </label>
                     <div class="form-group">
                         <multiselect 

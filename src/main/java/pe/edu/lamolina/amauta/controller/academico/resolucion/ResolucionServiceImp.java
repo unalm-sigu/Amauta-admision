@@ -394,30 +394,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
 
-        if (resolucion.getTipoResolucion().isTramiteBachiller()) {
 
-            List<TramiteBachiller> tramiteBachillers = tramiteBachillerDAO.allByResolucion(resolucion);
-
-            for (TramiteBachiller tramiteBachiller : tramiteBachillers) {
-
-                Alumno alumno = tramiteBachiller.getTramite().getAlumno();
-                
-                if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_E) {
-
-                    alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                    alumnoDAO.updateColumns(alumno, "situacionAcademica");
-
-                    AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
-
-                    if (alumnoCiclo.getSituacionFinal() == null
-                            || !alumnoCiclo.getSituacionFinal().isEgresado()) {
-
-                        alumnoCiclo.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                        alumnoCicloDAO.updateColumns(alumnoCiclo, "situacionFinal");
-                    }
-                }
-            }
-        }
 
         if (!resolucion.getEsEstadoCre()) {
             return;

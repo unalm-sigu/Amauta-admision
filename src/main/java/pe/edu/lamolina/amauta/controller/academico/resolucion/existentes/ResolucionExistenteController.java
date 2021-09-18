@@ -77,7 +77,8 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.NOTA_BAJA.name(),
             TipoResolucionEnum.BACHI.name(),
             TipoResolucionEnum.TITUL.name(),
-            TipoResolucionEnum.PRACTICAS.name()
+            TipoResolucionEnum.PRACTICAS.name(),
+            TipoResolucionEnum.ING_HIS.name()
     );
 
     @Autowired
@@ -192,92 +193,60 @@ public class ResolucionExistenteController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
-            logger.debug("refactorizar");
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<String> msg = new ArrayList();
 
-            if (resolucion.isTipoReincorporacion()) {
-                
-                String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-                if (!token.isEmpty()) {
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
-                }
+            TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
 
-            } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
-                
-                String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-                
-
-            } else if (resolucion.isTipoCambioNota()) {
-                
-                String token = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-                
-
-            } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
-                service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
-                
-            } else if (resolucion.isTipoCursoDirigido()) {
-                msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
-                
-            } else if (resolucion.isTipoNotaBaja()) {
-                String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-                
-            } else if (resolucion.isTipoTramiteBachiller()) {
-                service.saveResolucionTramiteBachiller(resolucion, ds);
-                
-            } else if (resolucion.isTipoTramiteTitulo()) {
-                service.saveTramiteTitulo(resolucion, ds);
-            } else if (resolucion.isTipoTramitePracticas()) {
-                
-                String token = service.saveResolucionTramitePracticas(resolucion, ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                
-            } else if (resolucion.isTipoReadmision()) {
-                
-                String token = service.saveReadmision(resolucion, ds.getUsuario(), ds);
-                
-                if (!token.isEmpty()) {
-                    
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
-                    
-                }
-                
-            } else if (resolucion.isTipoCambioPlanCurricular()) {
-                
-               service.saveCambioPlanCurricular(resolucion, ds.getUsuario(), ds);
-                
+            switch (tipo) {
+                case REIC:
+                case RCI:
+                case ANCI:
+                case CAM_NOTA:
+                case NOTA_BAJA:
+                case READMISION:
+                    List<String> respuesta = service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    if (!respuesta.isEmpty()) {
+                        matriculableService.calcularPromedios(respuesta.get(0), ds);
+                        matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                        matriculableService.revisarMatriculables(ds, respuesta.get(0));
+                        matriculableService.generarAportes(ds, respuesta.get(0));
+                    }
+                    break;
+                case TRAS_INT:
+                    service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    //service.generarNuevoPlan(resolucion, ds);
+                    break;
+                case TRAS:
+                case INTES:
+                case ING_HIS:
+                case BACHI:
+                case TITUL:
+                case CAMBIO_PLAN_CURRICULAR:
+                    service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    break;
+                case CURDIR:
+                    msg = service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    break;
+                case PRACTICAS:
+                    List<String> respuesta1 = service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    matriculableService.calcularPromedios(respuesta1.get(0), ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, respuesta1.get(0));
+                    break;
+                default:
+                    break;
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(msg);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -291,85 +260,60 @@ public class ResolucionExistenteController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
-            if(!(resolucion.isTipoTramiteBachiller()||
-                    resolucion.isTipoTramiteTitulo()||
-                    resolucion.isTipoTramitePracticas())){
+
+            if (!(resolucion.isTipoTramiteBachiller()
+                    || resolucion.isTipoTramiteTitulo()
+                    || resolucion.isTipoTramitePracticas())) {
                 throw new PhobosException("Solo se permite editar la resolucion de bachiller , titulo y practicas");
             }
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<String> msg = new ArrayList();
-            
-            List<String> respuestas = new ArrayList();
 
-            if (resolucion.isTipoReincorporacion()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
+            TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
 
-            } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (resolucion.isTipoCambioNota()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
-
+            switch (tipo) {
+                case REIC:
+                case RCI:
+                case ANCI:
+                case CAM_NOTA:
+                case NOTA_BAJA:
+                case READMISION:
+                    List<String> respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                    String token = respuestas.get(0);
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+                    matriculableService.generarAportes(ds, token);
+                    break;
+                case TRAS_INT:
+                    service.updateResolucion(resolucion, ds.getUsuario(), ds);
                     service.generarNuevoPlan(resolucion, ds);
-                }
-            } else if (resolucion.isTipoCursoDirigido()) {
-                msg = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoNotaBaja()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            } else if (resolucion.isTipoTramiteBachiller()) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoTramiteTitulo()) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoTramitePracticas()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-            } else if (resolucion.isTipoReadmision()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            } else if (resolucion.isTipoCambioPlanCurricular()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
+                    break;
+                case TRAS:
+                case INTES:
+                case ING_HIS:
+                case BACHI:
+                case TITUL:
+                case CAMBIO_PLAN_CURRICULAR:
+                    service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                    break;
+                case CURDIR:
+                    msg = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                    break;
+                case PRACTICAS:
+                    List<String> respuestas1 = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                    String token1 = respuestas1.get(0);
+                    matriculableService.calcularPromedios(token1, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token1);
+                    break;
+                default:
+                    break;
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -916,15 +860,15 @@ public class ResolucionExistenteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<TramiteTraslado> tramiteTraslados = service.allTrasladoInterno(ds.getCicloAcademico());
-        
+
         ArrayNode array = JaneHelper.from(tramiteTraslados)
-                .join("carrera","id,nombre")
-                .join("carreraOrigen","id,nombre")
-                .join("cicloAcademico","id,year,codigo,descripcion,descripcion2")
-                .join("alumno","id,codigo")
-                .join("alumno.carrera","id,nombre")
-                .join("alumno.carrera.facultad","id,nombre")
-                .join("alumno.persona","id,apellidosNombres")
+                .join("carrera", "id,nombre")
+                .join("carreraOrigen", "id,nombre")
+                .join("cicloAcademico", "id,year,codigo,descripcion,descripcion2")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "id,nombre")
+                .join("alumno.carrera.facultad", "id,nombre")
+                .join("alumno.persona", "id,apellidosNombres")
                 .join("alumno.persona.tipoDocumento")
                 .array();
 
