@@ -49,6 +49,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -204,6 +205,8 @@ public class ResolucionExistenteController {
 
             TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
 
+            List<String> respuesta = service.saveResolucion(resolucion, ds);
+
             switch (tipo) {
                 case REIC:
                 case RCI:
@@ -211,7 +214,6 @@ public class ResolucionExistenteController {
                 case CAM_NOTA:
                 case NOTA_BAJA:
                 case READMISION:
-                    List<String> respuesta = service.saveResolucion(resolucion, ds.getUsuario(), ds);
                     if (!respuesta.isEmpty()) {
                         matriculableService.calcularPromedios(respuesta.get(0), ds);
                         matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
@@ -220,7 +222,6 @@ public class ResolucionExistenteController {
                     }
                     break;
                 case TRAS_INT:
-                    service.saveResolucion(resolucion, ds.getUsuario(), ds);
                     //service.generarNuevoPlan(resolucion, ds);
                     break;
                 case TRAS:
@@ -229,18 +230,16 @@ public class ResolucionExistenteController {
                 case BACHI:
                 case TITUL:
                 case CAMBIO_PLAN_CURRICULAR:
-                    service.saveResolucion(resolucion, ds.getUsuario(), ds);
                     break;
                 case CURDIR:
-                    msg = service.saveResolucion(resolucion, ds.getUsuario(), ds);
+                    msg = respuesta;
                     break;
                 case PRACTICAS:
-                    List<String> respuesta1 = service.saveResolucion(resolucion, ds.getUsuario(), ds);
-                    matriculableService.calcularPromedios(respuesta1.get(0), ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, respuesta1.get(0));
+                    matriculableService.calcularPromedios(respuesta.get(0), ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                     break;
                 default:
-                    break;
+                    throw new PhobosException("Tipo de trámite no soportado");
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -267,8 +266,9 @@ public class ResolucionExistenteController {
 
             if (!(resolucion.isTipoTramiteBachiller()
                     || resolucion.isTipoTramiteTitulo()
-                    || resolucion.isTipoTramitePracticas())) {
-                throw new PhobosException("Solo se permite editar la resolucion de bachiller , titulo y practicas");
+                    || resolucion.isTipoTramitePracticas())
+                    || resolucion.isTipoRetiroCiclo()) {
+                throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
             }
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -277,6 +277,8 @@ public class ResolucionExistenteController {
 
             TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
 
+            List<String> respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+
             switch (tipo) {
                 case REIC:
                 case RCI:
@@ -284,7 +286,6 @@ public class ResolucionExistenteController {
                 case CAM_NOTA:
                 case NOTA_BAJA:
                 case READMISION:
-                    List<String> respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
                     String token = respuestas.get(0);
                     matriculableService.calcularPromedios(token, ds);
                     matriculableService.revisarCurriculaAlumnos(ds, token);
@@ -292,8 +293,7 @@ public class ResolucionExistenteController {
                     matriculableService.generarAportes(ds, token);
                     break;
                 case TRAS_INT:
-                    service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                    service.generarNuevoPlan(resolucion, ds);
+                    //service.generarNuevoPlan(resolucion, ds);
                     break;
                 case TRAS:
                 case INTES:
@@ -301,19 +301,17 @@ public class ResolucionExistenteController {
                 case BACHI:
                 case TITUL:
                 case CAMBIO_PLAN_CURRICULAR:
-                    service.updateResolucion(resolucion, ds.getUsuario(), ds);
                     break;
                 case CURDIR:
-                    msg = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                    msg = respuestas;
                     break;
                 case PRACTICAS:
-                    List<String> respuestas1 = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                    String token1 = respuestas1.get(0);
+                    String token1 = respuestas.get(0);
                     matriculableService.calcularPromedios(token1, ds);
                     matriculableService.revisarCurriculaAlumnos(ds, token1);
                     break;
                 default:
-                    break;
+                    throw new PhobosException("Tipo de trámite no soportado");
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -354,23 +352,25 @@ public class ResolucionExistenteController {
         return response;
     }
 
-    private ObjectNode findDataResolucion(Resolucion resolucionDB) {
+    private ObjectNode findDataResolucion(Resolucion resolucion) {
 
-        List<RetiroCiclo> retiroCiclos = new ArrayList();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        ObjectNode objectNode = JsonHelper.createJson(resolucionDB, JsonNodeFactory.instance, new String[]{
-            "*",
-            "tipoResolucion.*",
-            "oficina.*",
-            "cicloAplica.*"
-        });
+        ObjectNode objectNode = JaneHelper.from(resolucion)
+                .join("tipoResolucion")
+                .join("oficina")
+                .join("cicloAplica")
+                .json();
 
-        if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
-            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucionDB);
+        if (resolucion.getTipoResolucion().getCodigo().equals(BACHI.name())) {
+
+            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucion);
+
             for (TramiteBachiller bachiller : bachillers) {
+
                 Tramite tramite = bachiller.getTramite();
                 bachiller.setAlumno(tramite.getAlumno());
+
                 ObjectNode node = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
                     "*",
                     "alumno.*",
@@ -379,12 +379,17 @@ public class ResolucionExistenteController {
                     "alumno.persona.tipoDocumento.*",
                     "tramite.*"
                 });
+
                 node.put("tipo", BACHI.name());
+
                 array.add(node);
+
             }
+
             objectNode.set("tramiteBachiller", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(TITUL.name())) {
-            List<TramiteTitulo> titulo = service.allTramiteTitulo(resolucionDB);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
+            List<TramiteTitulo> titulo = service.allTramiteTitulo(resolucion);
 
             for (TramiteTitulo tit : titulo) {
                 Tramite tramite = tit.getTramite();
@@ -401,8 +406,8 @@ public class ResolucionExistenteController {
                 array.add(node);
             }
             objectNode.set("tramiteTitulos", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(PRACTICAS.name())) {
-            List<PracticasPreProfesional> practicas = service.allPracticasPreProfesionales(resolucionDB);
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(PRACTICAS.name())) {
+            List<PracticasPreProfesional> practicas = service.allPracticasPreProfesionales(resolucion);
 
             for (PracticasPreProfesional prac : practicas) {
                 Tramite tramite = prac.getTramite();
@@ -419,9 +424,11 @@ public class ResolucionExistenteController {
                 array.add(node);
             }
             objectNode.set("tramitePracticasPreProfesionales", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
 
-            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
+            List<RetiroCiclo> retiroCiclos = new ArrayList();
+
+            retiroCiclos = service.allRetiroCicloByResolucion(resolucion);
             for (RetiroCiclo retiroCiclo : retiroCiclos) {
                 ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
                     "*",

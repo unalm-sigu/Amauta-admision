@@ -80,6 +80,6 @@ public interface ResolucionExistenteService {
 
     public List<Oficina> allOFicinasByUser(DataSessionPivot ds);
 
-    public List<String> saveResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    public List<String> saveResolucion(Resolucion resolucion, DataSessionPivot ds);
 
 }

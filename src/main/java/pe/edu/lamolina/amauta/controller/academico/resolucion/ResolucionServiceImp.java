@@ -394,43 +394,6 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
 
-
-
-        if (!resolucion.getEsEstadoCre()) {
-            return;
-        }
-
-        if (resolucion.getTipoResolucion().isReincorporacion()) {
-
-            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
-            for (Reincorporacion reincorporacion : reincorporaciones) {
-                Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
-                List<Reincorporacion> reincorporacionesByTram = reincorporacionDAO.allByTramite(tramite);
-                if (!reincorporacionesByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                    throw new PhobosException("Estado tramite incorrecto");
-                }
-            }
-
-        }
-
-        if (resolucion.getTipoResolucion().isReadmision()) {
-
-            List<Readmision> readmisiones = readmisionDAO.allByResolucion(resolucion);
-            for (Readmision raedmision : readmisiones) {
-                Tramite tramite = tramiteDAO.find(raedmision.getTramite().getId());
-                List<Readmision> readmisionByTram = readmisionDAO.allByTramite(tramite);
-                if (!readmisionByTram.get(0).getEstadoTramite().getEsResolucionFacultad()) {
-                    throw new PhobosException("Estado tramite incorrecto");
-                }
-
-            }
-
-        }
-
-        if (resolucion.getTipoResolucion().isCambioPlanCurricular()) {
-
-        }
-
     }
 
     @Override
