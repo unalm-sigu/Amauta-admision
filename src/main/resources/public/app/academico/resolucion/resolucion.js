@@ -299,50 +299,43 @@ var app = new Vue({
         },
         allAlumnos(item) {
             let $vue = this;
-            $.ajax({
-                url: APP.url('academico/resolucion/existentes/alumnos/' + item.id),
-                dataType: "json",
-                contentType: "application/json",
-                type: 'POST',
-                success: function (response) {
-                    if (response.success) {
-                        if (!response.data.length) {
+            $vue.tipo = item.tipoResolucion.codigo;
+            axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
+                    .then(({data}) => {
+
+                        if (!data.length) {
                             notify("No contiene información de alumnos", "error");
                             return;
                         }
-                        $vue.tipo = response.data[0].tipo;
+
                         if ($vue.tipo == "REIC") {
-                            $vue.alumnosReincorporacion = response.data;
+                            $vue.alumnosReincorporacion = data;
                         } else if ($vue.tipo == "RCI") {
-                            $vue.alumnosRetiroCiclo = response.data;
+                            $vue.alumnosRetiroCiclo = data;
                         } else if ($vue.tipo == "CAM_NOTA") {
-                            $vue.alumnosCambioNota = response.data;
+                            $vue.alumnosCambioNota = data;
                         } else if ($vue.tipo == "CURDIR") {
-                            $vue.alumnosCursoDirigido = response.data;
+                            $vue.alumnosCursoDirigido = data;
                         } else if ($vue.tipo == "TRAS" || $vue.tipo == "ING_HIS" || $vue.tipo == "INTES") {
-                            $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
+                            $vue.alumnoTramiteTraslado = data[0]; ///retorn solo 1 registro
                         } else if ($vue.tipo == "BACHI") {
-                            $vue.alumnoTramiteBachiller = response.data;
+                            $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "TITUL") {
-                            $vue.alumnoTramiteBachiller = response.data;
+                            $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "PRACTICAS") {
-                            $vue.alumnoTramitePracticas = response.data;
+                            $vue.alumnoTramitePracticas = data;
                         } else if ($vue.tipo == "TRAS_INT") {
-                            $vue.alumnoTramiteTraslado = response.data;
+                            $vue.alumnoTramiteTraslado = data;
                         } else if ($vue.tipo == "READMISION") {
-                            $vue.alumnoTramiteReadmision = response.data;
+                            $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
-                            $vue.alumnoTramiteCambioPlanCurricular = response.data;
+                            $vue.alumnoTramiteCambioPlanCurricular = data;
                         }
+
                         $vue.$refs.modalAlumnos.open();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+
+                    }, () => {});
+
         },
         urlAcademico(item) {
             return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();

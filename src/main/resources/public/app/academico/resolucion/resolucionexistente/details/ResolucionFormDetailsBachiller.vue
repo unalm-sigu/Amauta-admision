@@ -48,7 +48,7 @@
                             <input type="checkbox" 
                                    v-model="bachiller.seleccionado"
                                    checked="1"
-                                   v-bind:disabled="isEdicion &amp;&amp; bachiller.id!=null"/>
+                                   v-bind:disabled="isEdicion &amp;&amp; bachiller.id !=null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
