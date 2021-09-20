@@ -116,12 +116,11 @@
             allBachillers() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allBachiller"))
+                axios_.get(APP.url("academico/resolucion/existentes/allBachiller"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteBachiller = data.data;
+                            $vue.resolucion.tramiteBachiller = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
 

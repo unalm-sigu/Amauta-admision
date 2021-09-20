@@ -504,124 +504,100 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping("allBachiller")
-    public JsonResponse allBachiller(HttpSession session) {
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allBachiller(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         List<TramiteBachiller> tramitesBachiller = service.allBachiller(ds);
 
         for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
-
             tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
             tramiteBachiller.setSeleccionado(Boolean.FALSE);
-
-            array.add(JaneHelper.from(tramiteBachiller)
-                    .join("tramite")
-                    .join("alumno", "id,codigo")
-                    .join("alumno.carrera", "id,codigo,nombre")
-                    .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
-                    .join("alumno.persona", "id,apellidosNombres")
-                    .join("alumno.persona.tipoDocumento")
-                    .json());
-
         }
 
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-        return response;
+        return JaneHelper.from(tramitesBachiller)
+                .join("tramite")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "id,codigo,nombre")
+                .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
+                .join("alumno.persona", "id,apellidosNombres")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+
     }
 
     @ResponseBody
     @RequestMapping("allTitulo")
-    public JsonResponse allTitulo(HttpSession session) {
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allTitulo(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<TramiteTitulo> tramiteTitulos = service.allTitulos(ds);
 
         for (TramiteTitulo tramiteTitulo : tramiteTitulos) {
             tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
             tramiteTitulo.setSeleccionado(Boolean.FALSE);
-            array.add(JaneHelper.from(tramiteTitulo)
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .json());
         }
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-        return response;
+
+        return JaneHelper.from(tramiteTitulos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allPracticas")
-    public JsonResponse allPracticas(HttpSession session) {
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allPracticas(HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<PracticasPreProfesional> practicasPreProfesionals = service.allPracticas(ds);
 
         for (PracticasPreProfesional practicasPreProfesional : practicasPreProfesionals) {
             practicasPreProfesional.setAlumno(practicasPreProfesional.getTramite().getAlumno());
             practicasPreProfesional.setSeleccionado(Boolean.FALSE);
-
-            array.add(JaneHelper.from(practicasPreProfesional)
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .json());
-
         }
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-        return response;
+
+        return JaneHelper.from(practicasPreProfesionals)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allRetiroCiclo")
-    public JsonResponse allRetiroCiclo(HttpSession session) {
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allRetiroCiclo(HttpSession session) {
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<RetiroCiclo> retiroCiclos = service.allRetiroCiclo(ds);
 
         for (RetiroCiclo retiroCiclo : retiroCiclos) {
             retiroCiclo.setAlumno(retiroCiclo.getTramite().getAlumno());
             retiroCiclo.setSeleccionado(Boolean.FALSE);
-
-            array.add(JaneHelper.from(retiroCiclo)
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .json());
-
         }
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-        return response;
+
+        return JaneHelper.from(retiroCiclos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allReincorporacion")
-    public JsonResponse allReincorporacion(HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allReincorporacion(HttpSession session) {
 
         List<Reincorporacion> reincorporaciones = service.allReincorporacion();
 
-        ArrayNode array = JaneHelper.from(reincorporaciones)
+        return JaneHelper.from(reincorporaciones)
                 .join("cicloReincorporacion")
                 .join("alumno")
                 .join("alumno.carrera")
@@ -629,22 +605,15 @@ public class ResolucionExistenteController {
                 .join("alumno.persona")
                 .join("alumno.persona.tipoDocumento")
                 .array();
-
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-
-        return response;
     }
 
     @ResponseBody
     @RequestMapping("allReadmision")
-    public JsonResponse allReadmision(HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allReadmision(HttpSession session) {
 
         List<Readmision> readmisiones = service.allReadmision();
 
-        ArrayNode array = JaneHelper.from(readmisiones)
+        return JaneHelper.from(readmisiones)
                 .join("cicloReadmitido")
                 .join("alumno")
                 .join("alumno.carrera")
@@ -652,22 +621,15 @@ public class ResolucionExistenteController {
                 .join("alumno.persona")
                 .join("alumno.persona.tipoDocumento")
                 .array();
-
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-
-        return response;
     }
 
     @ResponseBody
     @RequestMapping("allCambioPlanCurricular")
-    public JsonResponse allCambioPlanCurricular(HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
+    public ArrayNode allCambioPlanCurricular(HttpSession session) {
 
         List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricular();
 
-        ArrayNode array = JaneHelper.from(cambioPlanCurriculares)
+        return JaneHelper.from(cambioPlanCurriculares)
                 .join("planCurricularOrigen")
                 .join("planCurricularOrigen.cicloInicioVigencia")
                 .join("planCurricularDestino")
@@ -679,11 +641,6 @@ public class ResolucionExistenteController {
                 .join("alumno.persona")
                 .join("alumno.persona.tipoDocumento")
                 .array();
-
-        response.setSuccess(Boolean.TRUE);
-        response.setData(array);
-
-        return response;
     }
 
     @ResponseBody
@@ -694,7 +651,7 @@ public class ResolucionExistenteController {
 
         List<TramiteTraslado> tramiteTraslados = service.allTrasladoInterno(ds.getCicloAcademico());
 
-        ArrayNode array = JaneHelper.from(tramiteTraslados)
+        return JaneHelper.from(tramiteTraslados)
                 .join("carrera", "id,nombre")
                 .join("carreraOrigen", "id,nombre")
                 .join("cicloAcademico", "id,year,codigo,descripcion,descripcion2")
@@ -705,7 +662,6 @@ public class ResolucionExistenteController {
                 .join("alumno.persona.tipoDocumento")
                 .array();
 
-        return array;
     }
 
 }

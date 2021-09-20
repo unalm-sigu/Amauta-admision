@@ -119,12 +119,11 @@
             allTitulos() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allTitulo"))
+                axios_.get(APP.url("academico/resolucion/existentes/allTitulo"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteTitulos = data.data;
+                            $vue.resolucion.tramiteTitulos = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },

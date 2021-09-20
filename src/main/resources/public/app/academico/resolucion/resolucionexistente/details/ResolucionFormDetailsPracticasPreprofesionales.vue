@@ -108,18 +108,16 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                        }
-                        });
+                        }});
             },
             allPracticas() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allPracticas"))
+                axios_.get(APP.url("academico/resolucion/existentes/allPracticas"))
                         .then(({data}) => {
-                            $vue.resolucion.tramitePracticasPreProfesionales = data.data;
+                            $vue.resolucion.tramitePracticasPreProfesionales = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },
