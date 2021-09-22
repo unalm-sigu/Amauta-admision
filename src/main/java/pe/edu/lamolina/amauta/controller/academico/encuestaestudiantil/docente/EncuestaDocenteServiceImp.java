@@ -698,4 +698,23 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     }
 
+    @Override
+    @Transactional
+    public void updatePeriodo(EncuestaEstudiantil encuestaEstudiantil, DataSessionPivot ds) {
+
+        for (PeriodoEncuesta periodoEncuesta : encuestaEstudiantil.getPeriodosEncuesta()) {
+
+            if (periodoEncuesta.getId() == null) {
+                
+                periodoEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
+                periodoEncuesta.setFechaRegsitro(new Date());
+                periodoEncuesta.setUserRegistro(ds.getUsuario());
+                periodoEncuestaDAO.save(periodoEncuesta);
+
+            } 
+
+        }
+
+    }
+
 }

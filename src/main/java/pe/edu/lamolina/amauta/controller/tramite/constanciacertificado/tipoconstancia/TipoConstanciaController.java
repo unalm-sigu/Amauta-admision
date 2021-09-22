@@ -147,7 +147,7 @@ public class TipoConstanciaController {
         JsonResponse response = new JsonResponse();
         try {
             service.delete(tipoDocumento);
-            response.setMessage("Registro removido satisfactoriamente");
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -187,15 +187,12 @@ public class TipoConstanciaController {
     @RequestMapping("allTipoOficina")
     public JsonResponse allTipoOficina(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
+            
             List<TipoOficina> TipoOficinas = service.allTipoOficina(nombre);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-            for (TipoOficina tipoOficina : TipoOficinas) {
-                jsonList.add(JsonHelper.createJson(tipoOficina, jsonFactory, true, new String[]{"*"}));
-            }
+            ArrayNode jsonList = JaneHelper.from(TipoOficinas).array();
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);

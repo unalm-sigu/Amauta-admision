@@ -628,9 +628,7 @@ public class ConstanciaSolicitudController {
             case CICLO_ACADEMICO:
                 List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCiclo(alumno);
                 for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-                    node.add(JsonHelper.createJson(alumnoCiclo.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
-                        "*"
-                    }));
+                    node.add(JaneHelper.from(alumnoCiclo.getCicloAcademico()).json());
                 }
                 break;
         }

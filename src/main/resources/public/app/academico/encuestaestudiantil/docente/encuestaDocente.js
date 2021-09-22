@@ -1,7 +1,11 @@
 Vue.component('date-picker', VueBootstrapDatetimePicker);
 Vue.component("multiselect", window.VueMultiselect.default);
+const EditarPeriodoEncuesta = httpVueLoader('/app/academico/encuestaestudiantil/docente/EditarPeriodoEncuesta.vue');
 new Vue({
     el: '#main',
+    components: {
+        editarPeriodoEncuesta: EditarPeriodoEncuesta,
+    },
     data: {
         indicadorClave: 0,
         generando: false,
@@ -1010,6 +1014,9 @@ new Vue({
             }
 
             $vue.$refs.modalConfirmAction.open();
+        },
+        openAddPeriodo() {
+            this.$refs.editarperiodoencuesta.open();
         }
 
     }

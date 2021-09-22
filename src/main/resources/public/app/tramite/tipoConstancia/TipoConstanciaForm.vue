@@ -186,11 +186,10 @@
                 addTipoConstanciaModal: VUE_MODAL.structFormAjax({
                     id: 'modalAddTipoConstancia',
                     header: true,
-                    title: 'Nuevo Tipo Constancia',
-                    okbtn: 'Agregar Tipo Constancia',
+                    title: 'Nuevo Tipo de Trámite Académico',
+                    okbtn: 'Agregar Tipo',
                     modalsize: 'modal-lg',
                     modalscroll: 'modal-scroll-500'
-
                 }),
             };
         },
