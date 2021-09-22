@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -47,52 +50,49 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteBienestarDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AlumnoBolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.BolsaInvestigacionDAO;
+import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteBienestarDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteSubvencionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.BolsaInvestigacionEstadoEnum;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
-    BolsaInvestigacionDAO bolsaInvestigacionDAO;
-
+    AccionTramiteBienestarDAO accionTramiteBienestarDAO;
     @Autowired
     AlumnoBolsaInvestigacionDAO alumnoBolsaInvestigacionDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-
+    @Autowired
+    AlumnoDAO alumnoDAO;
+    @Autowired
+    BolsaInvestigacionDAO bolsaInvestigacionDAO;
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
+    @Autowired
+    FichaSocioeconomicaDAO fichaSocioeconomicaDAO;
+    @Autowired
+    FlujoTramiteBienestarDAO flujoTramiteBienestarDAO;
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+    @Autowired
+    TramiteDAO tramiteDAO;
     @Autowired
     TramiteSubvencionDAO tramiteSubvencionDAO;
 
     @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    AccionTramiteBienestarDAO accionTramiteBienestarDAO;
-
-    @Autowired
-    TramiteDAO tramiteDAO;
-
-    @Autowired
-    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-
+    OficinaService oficinaService;
     @Autowired
     SerieDocumentoService serieDocumentoService;
-    @Autowired
-    FichaSocioeconomicaDAO fichaSocioeconomicaDAO;
 
     @Override
     @Transactional
@@ -109,7 +109,13 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         AlumnoBolsaInvestigacion alumnoBolsaBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bolsa, alumnoBolsa.getAlumno());
         Assert.isNull(alumnoBolsaBD, "Ya se ha registrado una investigación de este alumno");
 
-        Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), ciclo, facultad).isEmpty(), "Alumno no válido");
+        log.info("checkearAlumno {}", alumnoBolsa.getAlumno().getId());
+        List<String> incumplimientos = checkearAlumno(alumnoBolsa.getAlumno(), ciclo, facultad);
+        if (!incumplimientos.isEmpty()) {
+            String error = "El alumno tiene los siguientes impedimento: \n" + incumplimientos.stream().collect(Collectors.joining(" "));
+            Assert.isTrue(Boolean.FALSE, error);
+        }
+
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
 
@@ -149,6 +155,13 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramite.setFechaRegistro(today.toDate());
         tramiteDAO.save(tramite);
 
+        FlujoTramiteBienestar flujo = new FlujoTramiteBienestar();
+        flujo.setTramite(tramite);
+        flujo.setEstadoEnum(TramiteEstadoEnum.CRE);
+        flujo.setUserRegistro(ds.getUsuario());
+        flujo.setFechaRegistro(today.toDate());
+        flujoTramiteBienestarDAO.save(flujo);
+
         TramiteSubvencion subvencion = new TramiteSubvencion();
         subvencion.setSupervisor(alumnoBolsa.getSupervisor());
         subvencion.setTipoSubvencion(new TipoSubvencion(ID_TIPO_SUBVENCION_INVESTIGACION));
@@ -164,35 +177,48 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         alumnoBolsa.setEstadoEnum(AlumnoBolsaInvestigacionEstadoEnum.CRE);
         alumnoBolsa.setTramiteSubvencion(subvencion);
         alumnoBolsa.setUserRegistro(ds.getUsuario());
-        alumnoBolsa.setFechaRegistro(new Date());
+        alumnoBolsa.setFechaRegistro(today.toDate());
         alumnoBolsaInvestigacionDAO.save(alumnoBolsa);
     }
 
     @Override
-    public List<AlumnoBolsaInvestigacion> allByDynatableFacultadCicloAcademico(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico) {
+    public List<AlumnoBolsaInvestigacion> allByDynatable(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico) {
         BolsaInvestigacion bolsa = findByFacultadCicloAcademico(facultad, cicloAcademico);
-        logger.info("bolsa = {}", bolsa);
+        log.info("bolsa = {}", bolsa);
         if (bolsa == null) {
             return new ArrayList();
         }
-        return alumnoBolsaInvestigacionDAO.allByDynatableBolsaInvestigacion(filter, bolsa);
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+
+        List<AlumnoBolsaInvestigacion> bolsistasBD = alumnoBolsaInvestigacionDAO.allByDynatableBolsaInvestigacion(filter, bolsa);
+        List<AlumnoBolsaInvestigacion> bolsistas = new ArrayList();
+        for (AlumnoBolsaInvestigacion bolsistaBD : bolsistasBD) {
+            AlumnoBolsaInvestigacion bolsista = bolsistaBD.clone();
+            Oficina areaLabora = bolsista.getSupervisor().getOficina();
+            Oficina oficinaMain = oficinaService.findOficinaMain(areaLabora, oficinasOrganizadas);
+            areaLabora.setOficinaSuperior(oficinaMain);
+            bolsistas.add(bolsista);
+        }
+
+        return bolsistas;
     }
 
     @Override
-    public List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico, Facultad facultad) {
+    public List<String> checkearAlumno(Alumno alumnoForm, CicloAcademico cicloAcademico, Facultad facultad) {
         List<String> mensajes = new ArrayList();
 
-        Alumno alum = alumnoDAO.find(alumno);
-        Facultad fac = alum.getCarrera().getFacultad();
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        Facultad fac = alumno.getCarrera().getFacultad();
         if (!fac.getId().equals(facultad.getId())) {
             String valor = "El alumno debe pertenecer a la facultad de " + facultad.getNombre() + ".";
             mensajes.add(valor);
         }
 
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findUltimoCicloRegularByAlumno(alum, cicloAcademico);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allCicloRegularByAlumno(alum);
-        TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findSubvencionByAlumnoCicloAcademico(alumno, cicloAcademico);
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(cicloAcademico, alumno);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findUltimoCicloRegularByAlumno(alumno, cicloAcademico);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allCicloRegularByAlumno(alumno);
+        TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findSubvencionByAlumnoCicloAcademico(alumnoForm, cicloAcademico);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(cicloAcademico, alumnoForm);
 
         if (alumnoCiclo != null) {
             int val = alumnoCiclo.getPromedioCiclo().compareTo(BigDecimal.valueOf(11));
@@ -211,7 +237,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
                 mensajes.add(valor);
             }
         }
-        if (!Arrays.asList("N", "5").contains(alum.getSituacionAcademica().getCodigo())) {
+        if (!Arrays.asList("N", "5").contains(alumno.getSituacionAcademica().getCodigo())) {
             mensajes.add("El alumno no cuenta con una situación académica normal.");
         }
         if (matriculaResumen == null) {
@@ -227,6 +253,12 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         for (AlumnoCiclo alumnoCiclo1 : alumnoCiclos) {
             if (alumnoCiclo1.getCreditosAprobadosCiclo() < 10) {
                 mensajes.add("El alumno no cumple con los 10 creditos aprobados por ciclo.");
+
+                log.info("+++++++");
+                for (String msg : mensajes) {
+                    log.info("- {}", msg);
+                }
+                log.info("+++++++");
                 return mensajes;
             }
         }
@@ -235,6 +267,13 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             String valor = "Ya tiene un registro de tramite de subvención.";
             mensajes.add(valor);
         }
+
+        log.info("+++++++");
+        for (String msg : mensajes) {
+            log.info("- {}", msg);
+        }
+        log.info("+++++++");
+
         return mensajes;
     }
 
@@ -260,6 +299,13 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(today.toDate());
         tramiteDAO.update(tramite);
+
+        FlujoTramiteBienestar flujo = new FlujoTramiteBienestar();
+        flujo.setTramite(tramite);
+        flujo.setEstadoEnum(TramiteEstadoEnum.ANU);
+        flujo.setUserRegistro(ds.getUsuario());
+        flujo.setFechaRegistro(today.toDate());
+        flujoTramiteBienestarDAO.save(flujo);
 
         BolsaInvestigacion bolsa = alumnoBolsaBD.getBolsaInvestigacion();
         bolsa.setPostulantes(bolsa.getPostulantes() - 1);
@@ -320,7 +366,20 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     public List<Colaborador> searchColaboradoresByFacultadNombre(Facultad facultad, String nombre) {
-        return colaboradorDAO.allByName(nombre);
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+
+        List<Colaborador> colaboradoresBD = colaboradorDAO.allByName(nombre);
+        List<Colaborador> colaboradores = new ArrayList();
+
+        for (Colaborador colaboradorBD : colaboradoresBD) {
+            Colaborador colaborador = colaboradorBD.clone();
+            Oficina areaLabora = colaborador.getOficina();
+            Oficina oficinaMain = oficinaService.findOficinaMain(areaLabora, oficinasOrganizadas);
+            areaLabora.setOficinaSuperior(oficinaMain);
+            colaboradores.add(colaborador);
+        }
+
+        return colaboradores;
     }
 
     @Override

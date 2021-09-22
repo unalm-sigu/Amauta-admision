@@ -12,12 +12,13 @@ public interface UsuarioDAO extends EasyDAO<Usuario> {
 
     Usuario findActivoByPersona(Persona persona);
 
+    List<Usuario> allByPersona(Persona persona);
+
     List<Usuario> allByPersonas(List<Persona> personas);
 
     List<Usuario> allByFilter(DynatableFilter filter);
 
     Usuario find(Usuario user);
 
-    Usuario findByPersonaId(Persona persona);
-
+    //Usuario findByPersonaId(Persona persona);
 }

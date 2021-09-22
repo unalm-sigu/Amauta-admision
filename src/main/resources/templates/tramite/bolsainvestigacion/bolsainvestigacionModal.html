@@ -66,7 +66,12 @@
                 v-bind:custom-label="getNombreSupervisor">
                 <template slot="option" slot-scope="props">
                     <span class="block bold">{{ props.option.persona.nombreCompleto }}</span>
-                    <small class="block">Unidad: {{ props.option.oficina.nombre }}</small>
+                    <small class="block" v-if=" props.option.oficina.tipoOficina.nivel != 'OFI' ">
+                        Unidad: {{ props.option.oficina.nombre }}
+                    </small>
+                    <small class="block">
+                        {{ props.option.oficina.oficinaSuperior.nombre }}
+                    </small>
                     <small class="block">Cargo: {{ props.option.cargo.nombre }}</small>
                 </template>
             </multiselect>
