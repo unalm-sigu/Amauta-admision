@@ -56,4 +56,6 @@ public interface EncuestaDocenteService {
 
     public void validarCursosNoEncuestar(DataSessionPivot ds);
 
+    public void updatePeriodo(EncuestaEstudiantil encuestaEstudiantil,DataSessionPivot ds);
+
 }

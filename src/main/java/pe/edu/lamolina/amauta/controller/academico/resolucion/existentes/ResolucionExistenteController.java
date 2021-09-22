@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -33,11 +31,10 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
-import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR;
@@ -55,7 +52,6 @@ import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -79,20 +75,15 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.NOTA_BAJA.name(),
             TipoResolucionEnum.BACHI.name(),
             TipoResolucionEnum.TITUL.name(),
-            TipoResolucionEnum.PRACTICAS.name()
+            TipoResolucionEnum.PRACTICAS.name(),
+            TipoResolucionEnum.ING_HIS.name()
     );
 
     @Autowired
     ResolucionExistenteService service;
 
     @Autowired
-    ResolucionService resolucionService;
-
-    @Autowired
     MatriculableService matriculableService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -104,7 +95,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(resolucionService.allOFicinasByUser(ds))
+                .from(service.allOFicinasByUser(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -136,7 +127,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(resolucionService.allOFicinasByUser(ds))
+                .from(service.allOFicinasByUser(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -171,448 +162,323 @@ public class ResolucionExistenteController {
 
         JsonResponse response = new JsonResponse();
 
-        try {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Alumno> alumnos = service.allAlumnoByOficina(nombre, instanciaOficina);
 
-            List<Alumno> alumnos = service.allAlumnoByOficina(nombre, instanciaOficina);
+        ArrayNode data = JaneHelper.from(alumnos).only("id,codigo")
+                .join("persona", "nombreCompleto,apellidosNombres,numeroDocIdentidad")
+                .join("persona.tipoDocumento")
+                .join("carrera")
+                .join("carrera.facultad")
+                .array();
 
-            ArrayNode data = JaneHelper.from(alumnos).only("id,codigo")
-                    .join("persona", "nombreCompleto,apellidosNombres,numeroDocIdentidad")
-                    .join("persona.tipoDocumento")
-                    .join("carrera")
-                    .join("carrera.facultad")
-                    .array();
+        response.setSuccess(Boolean.TRUE);
+        response.setData(data);
 
-            response.setSuccess(Boolean.TRUE);
-            response.setData(data);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<String> msg = new ArrayList();
+
+        TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
+        List<String> respuesta = service.saveResolucion(resolucion, ds);
+
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        response.setSuccess(Boolean.TRUE);
+        response.setMessage(GlobalMessages.CREATED);
 
-            ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<String> msg = new ArrayList();
-
-            if (resolucion.isTipoReincorporacion()) {
-                String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-                if (!token.isEmpty()) {
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
+        switch (tipo) {
+            case REIC:
+            case RCI:
+            case ANCI:
+            case CAM_NOTA:
+            case NOTA_BAJA:
+            case READMISION:
+                if (!respuesta.isEmpty()) {
+                    matriculableService.calcularPromedios(respuesta.get(0), ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                    matriculableService.revisarMatriculables(ds, respuesta.get(0));
+                    matriculableService.generarAportes(ds, respuesta.get(0));
                 }
-
-            } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
-                String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (resolucion.isTipoCambioNota()) {
-                String token = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
-                service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoCursoDirigido()) {
-                msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoNotaBaja()) {
-                String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            } else if (resolucion.isTipoTramiteBachiller()) {
-                service.saveResolucionTramiteBachiller(resolucion, ds);
-            } else if (resolucion.isTipoTramiteTitulo()) {
-                service.saveTramiteTitulo(resolucion, ds);
-            } else if (resolucion.isTipoTramitePracticas()) {
-                String token = service.saveResolucionTramitePracticas(resolucion, ds);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-            } else if (resolucion.isTipoReadmision()) {
-                String token = service.saveReadmision(resolucion, ds.getUsuario(), ds);
-                if (!token.isEmpty()) {
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
+                break;
+            case TRAS_INT:
+                //service.generarNuevoPlan(resolucion, ds);
+                break;
+            case TRAS:
+            case INTES:
+            case ING_HIS:
+            case BACHI:
+            case TITUL:
+            case CAMBIO_PLAN_CURRICULAR:
+                break;
+            case CURDIR:
+                msg = respuesta;
+                if (!msg.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
                 }
-            } else if (resolucion.isTipoCambioPlanCurricular()) {
-                String token = service.saveCambioPlanCurricular(resolucion, ds.getUsuario(), ds);
-                if (!token.isEmpty()) {
-                    matriculableService.calcularPromedios(token, ds);
-                    matriculableService.revisarCurriculaAlumnos(ds, token);
-                    matriculableService.revisarMatriculables(ds, token);
-                    matriculableService.generarAportes(ds, token);
-                }
-            }
-
-            response.setMessage("Se realizó el registro satisfactoriamente.");
-            response.setSuccess(Boolean.TRUE);
-            response.setData(msg);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+                response.setData(msg);
+                break;
+            case PRACTICAS:
+                matriculableService.calcularPromedios(respuesta.get(0), ds);
+                matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                break;
+            default:
+                throw new PhobosException("Tipo de trámite no soportado");
         }
+
         return response;
     }
 
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-            List<String> msg = new ArrayList();
-            List<String> respuestas = new ArrayList();
-
-            if (resolucion.isTipoReincorporacion()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (resolucion.isTipoCambioNota()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-
-            } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
-
-                    service.generarNuevoPlan(resolucion, ds);
-                }
-            } else if (resolucion.isTipoCursoDirigido()) {
-                msg = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoNotaBaja()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            } else if (resolucion.isTipoTramiteBachiller()) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoTramiteTitulo()) {
-                service.updateResolucion(resolucion, ds.getUsuario(), ds);
-            } else if (resolucion.isTipoTramitePracticas()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-            } else if (resolucion.isTipoReadmision()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            } else if (resolucion.isTipoCambioPlanCurricular()) {
-                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
-                String token = respuestas.get(0);
-                matriculableService.calcularPromedios(token, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token);
-                matriculableService.revisarMatriculables(ds, token);
-                matriculableService.generarAportes(ds, token);
-            }
-
-            response.setMessage("Se realizó el registro satisfactoriamente.");
-            response.setSuccess(Boolean.TRUE);
-            response.setData(msg);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        if (!(resolucion.isTipoTramiteBachiller()
+                || resolucion.isTipoTramiteTitulo()
+                || resolucion.isTipoTramitePracticas())
+                || resolucion.isTipoRetiroCiclo()) {
+            throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
         }
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<String> msg = new ArrayList();
+
+        TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
+
+        List<String> respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.TRUE);
+        response.setMessage(GlobalMessages.UPDATED);
+
+        switch (tipo) {
+            case REIC:
+            case RCI:
+            case ANCI:
+            case CAM_NOTA:
+            case NOTA_BAJA:
+            case READMISION:
+                String token = respuestas.get(0);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
+                break;
+            case TRAS_INT:
+                //service.generarNuevoPlan(resolucion, ds);
+                break;
+            case TRAS:
+            case INTES:
+            case ING_HIS:
+            case BACHI:
+            case TITUL:
+            case CAMBIO_PLAN_CURRICULAR:
+                break;
+            case CURDIR:
+                msg = respuestas;
+                if (!msg.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                }
+                response.setData(msg);
+                break;
+            case PRACTICAS:
+                String token1 = respuestas.get(0);
+                matriculableService.calcularPromedios(token1, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token1);
+                break;
+            default:
+                throw new PhobosException("Tipo de trámite no soportado");
+        }
+
         return response;
     }
 
     @ResponseBody
-    @RequestMapping("alumnos/{idResolucion}")
-    public JsonResponse alumnos(@PathVariable("idResolucion") Long idResolucion, HttpSession session) {
+    @RequestMapping("alumnos")
+    public ArrayNode alumnos(@RequestBody Resolucion resolucion) {
 
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
-            this.findData(array, resolucionDB);
-
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    private ObjectNode findDataResolucion(Resolucion resolucionDB) {
-
-        List<RetiroCiclo> retiroCiclos = new ArrayList();
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-        ObjectNode objectNode = JsonHelper.createJson(resolucionDB, JsonNodeFactory.instance, new String[]{
-            "*",
-            "tipoResolucion.*",
-            "oficina.*",
-            "cicloAplica.*"
-        });
-
-        if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
-            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucionDB);
-            for (TramiteBachiller bachiller : bachillers) {
-                Tramite tramite = bachiller.getTramite();
-                bachiller.setAlumno(tramite.getAlumno());
-                ObjectNode node = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "tramite.*"
-                });
-                node.put("tipo", BACHI.name());
-                array.add(node);
-            }
-            objectNode.set("tramiteBachiller", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(TITUL.name())) {
-            List<TramiteTitulo> titulo = service.allTramiteTitulo(resolucionDB);
-
-            for (TramiteTitulo tit : titulo) {
-                Tramite tramite = tit.getTramite();
-                tit.setAlumno(tramite.getAlumno());
-                ObjectNode node = JsonHelper.createJson(tit, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "tramite.*"
-                });
-                node.put("tipo", TITUL.name());
-                array.add(node);
-            }
-            objectNode.set("tramiteTitulos", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(PRACTICAS.name())) {
-            List<PracticasPreProfesional> practicas = service.allPracticasPreProfesionales(resolucionDB);
-
-            for (PracticasPreProfesional prac : practicas) {
-                Tramite tramite = prac.getTramite();
-                prac.setAlumno(tramite.getAlumno());
-                ObjectNode node = JsonHelper.createJson(prac, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "tramite.*"
-                });
-                node.put("tipo", PRACTICAS.name());
-                array.add(node);
-            }
-            objectNode.set("tramitePracticasPreProfesionales", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
-
-            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
-            for (RetiroCiclo retiroCiclo : retiroCiclos) {
-                ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloAcademico.*"
-                });
-                node.put("tipo", RCI.name());
-                array.add(node);
-            }
-            objectNode.set("retiroCiclo", array);
-        }
-
-        return objectNode;
-    }
-
-    private ArrayNode findData(ArrayNode array, Resolucion resolucion) {
         TipoResolucionEnum tipoResolucionEnum = resolucion.getTipoResolucion().getTipoEnum();
 
-        ObjectNode objectNode;
         if (tipoResolucionEnum == REIC) {
             List<Reincorporacion> reincorporados = service.allReincorporacionByResolucion(resolucion);
-            for (Reincorporacion reicorporacion : reincorporados) {
-                objectNode = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "facultad.*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloReincorporacion.*"
-                });
-                objectNode.put("tipo", REIC.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(reincorporados)
+                    .join("facultad")
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .join("cicloReincorporacion")
+                    .array();
 
         } else if (tipoResolucionEnum == RCI) {
             List<RetiroCiclo> retiradosCiclos = service.allRetiroCicloByResolucion(resolucion);
-            for (RetiroCiclo retiroCiclo : retiradosCiclos) {
-                objectNode = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloAcademico.*"
-                });
-                objectNode.put("tipo", RCI.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(retiradosCiclos)
+                    .join("curso")
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .join("cicloAcademico")
+                    .array();
 
         } else if (tipoResolucionEnum == CAM_NOTA) {
             List<CambioNota> cambiosNotas = service.allCambioNota(resolucion);
-            for (CambioNota cambioNota : cambiosNotas) {
-                objectNode = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "curso.*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloAcademico.*"
-                });
-                objectNode.put("tipo", CAM_NOTA.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(cambiosNotas)
+                    .join("curso")
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .join("cicloAcademico")
+                    .array();
 
         } else if (tipoResolucionEnum == CURDIR) {
             List<CursoDirigido> cursosDirigidos = service.allCursodirigido(resolucion);
-            for (CursoDirigido cursoDir : cursosDirigidos) {
-                objectNode = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "curso.*",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
-                });
-                objectNode.put("tipo", CURDIR.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(cursosDirigidos)
+                    .join("curso")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .array();
 
         } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(tipoResolucionEnum.name())) {
             List<TramiteTraslado> trasladados = service.allTramiteTraslado(resolucion);
-            for (TramiteTraslado traslado : trasladados) {
-                objectNode = JsonHelper.createJson(traslado, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "carrera.*",
-                    "carreraOrigen.*",
-                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*"
-                });
-                objectNode.put("tipo", tipoResolucionEnum.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(trasladados)
+                    .join("carrera")
+                    .join("carreraOrigen")
+                    .join("tramite.cicloAcademico", "id,descripcion")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .array();
 
         } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
             List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
-            for (ObtencionGrado gradux : graduados) {
-                objectNode = JsonHelper.createJson(gradux, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "cicloAcademico.id",
-                    "cicloAcademico.descripcion",
-                    "gradoAcademico.nombre",
-                    "alumno.codigo",
-                    "alumno.persona.numeroDocIdentidad",
-                    "alumno.persona.nombreCompleto",
-                    "alumno.persona.tipoDocumento.simbolo"
-                });
-                objectNode.put("tipo", tipoResolucionEnum.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(graduados)
+                    .join("cicloAcademico", "id,descripcion,nombre")
+                    .join("gradoAcademico", "nombre")
+                    .join("alumno", "codigo")
+                    .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .array();
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
-            for (PracticasPreProfesional prac : practicasPre) {
-                objectNode = JsonHelper.createJson(prac, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "curso.*",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*",});
-                objectNode.put("tipo", PRACTICAS.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(practicasPre)
+                    .join("curso")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .array();
 
         } else if (tipoResolucionEnum == READMISION) {
             List<Readmision> readmisiones = service.allReadmisionByResolucion(resolucion);
-            for (Readmision readmisionn : readmisiones) {
-                objectNode = JaneHelper.from(readmisionn)
-                        .join("facultad")
-                        .join("alumno")
-                        .join("alumno.persona")
-                        .join("alumno.persona.tipoDocumento")
-                        .join("cicloReadmitido")
-                        .json();
-                objectNode.put("tipo", READMISION.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(readmisiones)
+                    .join("facultad")
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .join("cicloReadmitido")
+                    .array();
+
         } else if (tipoResolucionEnum == CAMBIO_PLAN_CURRICULAR) {
             List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricularByResolucion(resolucion);
-            for (CambioPlanCurricular cambioPlanCurricular : cambioPlanCurriculares) {
-                objectNode = JaneHelper.from(cambioPlanCurricular)
-                        .join("facultad")
-                        .join("alumno")
-                        .join("alumno.persona")
-                        .join("alumno.persona.tipoDocumento")
-                        .join("cicloAcademico")
-                        .json();
-                objectNode.put("tipo", CAMBIO_PLAN_CURRICULAR.name());
-                array.add(objectNode);
-            }
+            return JaneHelper.from(cambioPlanCurriculares)
+                    .join("facultad")
+                    .join("alumno")
+                    .join("alumno.persona")
+                    .join("alumno.persona.tipoDocumento")
+                    .join("cicloAcademico")
+                    .array();
         }
 
-        return array;
+        return new ArrayNode(JsonNodeFactory.instance);
+    }
+
+    private ObjectNode findDataResolucion(Resolucion resolucion) {
+
+        ObjectNode objectNode = JaneHelper.from(resolucion)
+                .join("tipoResolucion")
+                .join("oficina")
+                .join("cicloAplica")
+                .json();
+
+        if (resolucion.getTipoResolucion().getCodigo().equals(BACHI.name())) {
+
+            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucion);
+
+            for (TramiteBachiller bachiller : bachillers) {
+                bachiller.setAlumno(bachiller.getTramite().getAlumno());
+            }
+
+            ArrayNode array = JaneHelper.from(bachillers).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("tramiteBachiller", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
+
+            List<TramiteTitulo> tramiteTitulos = service.allTramiteTitulo(resolucion);
+
+            for (TramiteTitulo tit : tramiteTitulos) {
+                tit.setAlumno(tit.getTramite().getAlumno());
+            }
+
+            ArrayNode array = JaneHelper.from(tramiteTitulos).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("tramiteTitulos", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(PRACTICAS.name())) {
+
+            List<PracticasPreProfesional> practicasPreProfesionals = service.allPracticasPreProfesionales(resolucion);
+
+            for (PracticasPreProfesional prac : practicasPreProfesionals) {
+                prac.setAlumno(prac.getTramite().getAlumno());
+            }
+
+            ArrayNode array = JaneHelper.from(practicasPreProfesionals).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("tramitePracticasPreProfesionales", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
+
+            List<RetiroCiclo> retiroCiclos = service.allRetiroCicloByResolucion(resolucion);
+
+            ArrayNode array = JaneHelper.from(retiroCiclos).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .join("cicloAcademico")
+                    .array();
+
+            objectNode.set("retiroCiclo", array);
+
+        }
+
+        return objectNode;
     }
 
     @ResponseBody
@@ -620,275 +486,182 @@ public class ResolucionExistenteController {
     public JsonResponse allCiclosRepetido(@PathVariable(value = "idAlumno") Long idAlumno,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<AlumnoCicloCursoBean> alumnoCicloCursoBeans = service.allCiclosRepetido(idAlumno, ds);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            for (AlumnoCicloCursoBean alumnoCicloCursoBean : alumnoCicloCursoBeans) {
-                array.add(JsonHelper.createJson(alumnoCicloCursoBean, JsonNodeFactory.instance, new String[]{
-                    "alumno.id",
-                    "curso.id",
-                    "curso.nombre",
-                    "curso.codigo",
-                    "cicloAcademico.id",
-                    "cicloAcademico.descripcion",
-                    "nota",
-                    "key",}));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        List<AlumnoCicloCursoBean> alumnoCicloCursoBeans = service.allCiclosRepetido(idAlumno, ds);
+
+        ArrayNode array = JaneHelper.from(alumnoCicloCursoBeans)
+                .join("alumno", "id")
+                .join("curso", "id,nombre,codigo")
+                .join("cicloAcademico", "id,descripcion")
+                .array();
+
+        response.setSuccess(Boolean.TRUE);
+        response.setData(array);
         return response;
     }
 
     @ResponseBody
     @RequestMapping("allBachiller")
-    public JsonResponse allBachiller(HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
+    public ArrayNode allBachiller(HttpSession session) {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<TramiteBachiller> tramitesBachiller = service.allBachiller(ds);
 
-            List<TramiteBachiller> tramitesBachiller = service.allBachiller(ds);
-
-            for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
-
-                tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
-                tramiteBachiller.setSeleccionado(Boolean.FALSE);
-
-                array.add(JaneHelper.from(tramiteBachiller)
-                        .join("tramite")
-                        .join("alumno", "id,codigo")
-                        .join("alumno.carrera", "id,codigo,nombre")
-                        .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
-                        .join("alumno.persona", "id,apellidosNombres")
-                        .join("alumno.persona.tipoDocumento")
-                        .json());
-
-            }
-
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
+            tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
+            tramiteBachiller.setSeleccionado(Boolean.FALSE);
         }
-        return response;
+
+        return JaneHelper.from(tramitesBachiller)
+                .join("tramite")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "id,codigo,nombre")
+                .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
+                .join("alumno.persona", "id,apellidosNombres")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+
     }
 
     @ResponseBody
     @RequestMapping("allTitulo")
-    public JsonResponse allTitulo(HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+    public ArrayNode allTitulo(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<TramiteTitulo> tramiteTitulos = service.allTitulos(ds);
+        List<TramiteTitulo> tramiteTitulos = service.allTitulos(ds);
 
-            for (TramiteTitulo tramiteTitulo : tramiteTitulos) {
-                tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
-                tramiteTitulo.setSeleccionado(Boolean.FALSE);
-                array.add(JsonHelper.createJson(tramiteTitulo, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.carrera.facultad.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.simbolo"
-                }));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        for (TramiteTitulo tramiteTitulo : tramiteTitulos) {
+            tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
+            tramiteTitulo.setSeleccionado(Boolean.FALSE);
         }
-        return response;
+
+        return JaneHelper.from(tramiteTitulos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allPracticas")
-    public JsonResponse allPracticas(HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+    public ArrayNode allPracticas(HttpSession session) {
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<PracticasPreProfesional> practicasPreProfesionals = service.allPracticas(ds);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            for (PracticasPreProfesional ppp : practicasPreProfesionals) {
-                ppp.setAlumno(ppp.getTramite().getAlumno());
-                ppp.setSeleccionado(Boolean.FALSE);
-                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.carrera.facultad.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*"
-                }));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        List<PracticasPreProfesional> practicasPreProfesionals = service.allPracticas(ds);
+
+        for (PracticasPreProfesional practicasPreProfesional : practicasPreProfesionals) {
+            practicasPreProfesional.setAlumno(practicasPreProfesional.getTramite().getAlumno());
+            practicasPreProfesional.setSeleccionado(Boolean.FALSE);
         }
-        return response;
+
+        return JaneHelper.from(practicasPreProfesionals)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allRetiroCiclo")
-    public JsonResponse allRetiroCiclo(HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+    public ArrayNode allRetiroCiclo(HttpSession session) {
+        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<RetiroCiclo> retiroCiclos = service.allRetiroCiclo(ds);
+        List<RetiroCiclo> retiroCiclos = service.allRetiroCiclo(ds);
 
-            for (RetiroCiclo ppp : retiroCiclos) {
-                ppp.setAlumno(ppp.getTramite().getAlumno());
-                ppp.setSeleccionado(Boolean.FALSE);
-                array.add(JsonHelper.createJson(ppp, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.carrera.*",
-                    "alumno.carrera.facultad.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*"
-                }));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        for (RetiroCiclo retiroCiclo : retiroCiclos) {
+            retiroCiclo.setAlumno(retiroCiclo.getTramite().getAlumno());
+            retiroCiclo.setSeleccionado(Boolean.FALSE);
         }
-        return response;
+
+        return JaneHelper.from(retiroCiclos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allReincorporacion")
-    public JsonResponse allReincorporacion(HttpSession session) {
+    public ArrayNode allReincorporacion(HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<Reincorporacion> reincorporaciones = service.allReincorporacion();
 
-        try {
-
-            List<Reincorporacion> reincorporaciones = service.allReincorporacion();
-
-            ArrayNode array = JaneHelper.from(reincorporaciones)
-                    .join("cicloReincorporacion")
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .array();
-
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+        return JaneHelper.from(reincorporaciones)
+                .join("cicloReincorporacion")
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allReadmision")
-    public JsonResponse allReadmision(HttpSession session) {
+    public ArrayNode allReadmision(HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<Readmision> readmisiones = service.allReadmision();
 
-        try {
-
-            List<Readmision> readmisiones = service.allReadmision();
-
-            ArrayNode array = JaneHelper.from(readmisiones)
-                    .join("cicloReadmitido")
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .array();
-
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+        return JaneHelper.from(readmisiones)
+                .join("cicloReadmitido")
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
     }
 
     @ResponseBody
     @RequestMapping("allCambioPlanCurricular")
-    public JsonResponse allCambioPlanCurricular(HttpSession session) {
+    public ArrayNode allCambioPlanCurricular(HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricular();
 
-        try {
+        return JaneHelper.from(cambioPlanCurriculares)
+                .join("planCurricularOrigen")
+                .join("planCurricularOrigen.cicloInicioVigencia")
+                .join("planCurricularDestino")
+                .join("planCurricularDestino.cicloInicioVigencia")
+                .join("cicloAcademico")
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
 
-            List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricular();
+    @ResponseBody
+    @RequestMapping("allTrasladoInterno")
+    public ArrayNode allTrasladoInterno(HttpSession session) {
 
-            ArrayNode array = JaneHelper.from(cambioPlanCurriculares)
-                    .join("planCurricularOrigen")
-                    .join("planCurricularOrigen.cicloInicioVigencia")
-                    .join("planCurricularDestino")
-                    .join("planCurricularDestino.cicloInicioVigencia")
-                    .join("cicloAcademico")
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.carrera.facultad")
-                    .join("alumno.persona")
-                    .join("alumno.persona.tipoDocumento")
-                    .array();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
+        List<TramiteTraslado> tramiteTraslados = service.allTrasladoInterno(ds.getCicloAcademico());
 
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+        return JaneHelper.from(tramiteTraslados)
+                .join("carrera", "id,nombre")
+                .join("carreraOrigen", "id,nombre")
+                .join("cicloAcademico", "id,year,codigo,descripcion,descripcion2")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "id,nombre")
+                .join("alumno.carrera.facultad", "id,nombre")
+                .join("alumno.persona", "id,apellidosNombres")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+
     }
 
 }

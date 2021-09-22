@@ -628,9 +628,7 @@ public class ConstanciaSolicitudController {
             case CICLO_ACADEMICO:
                 List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCiclo(alumno);
                 for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-                    node.add(JsonHelper.createJson(alumnoCiclo.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
-                        "*"
-                    }));
+                    node.add(JaneHelper.from(alumnoCiclo.getCicloAcademico()).json());
                 }
                 break;
         }
@@ -655,7 +653,7 @@ public class ConstanciaSolicitudController {
 
                 DecimalFormat df = new DecimalFormat("#.00");
                 logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
-                node.put("esEgresado", TRUE);
+                node.put("esEgresado", egresado.getAlumno().getSituacionAcademica().isEgresado());
                 node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
                 response.setSuccess(Boolean.TRUE);
 

@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -57,7 +58,6 @@ import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejo
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
@@ -72,14 +72,16 @@ public class TramitesAcademicosController {
 
     @Autowired
     TramitesAcademicosService tramitesAcademicosService;
+    
     @Autowired
     ReunionConsejoService reunionConsejoService;
+    
     @Autowired
     InfoAcademicoService infoAcademicoService;
+    
     @Autowired
     OficinaService oficinaService;
-    @Autowired
-    ResolucionService resolucionService;
+
     @Autowired
     PdfHtml pdfHtml;
 
@@ -150,12 +152,8 @@ public class TramitesAcademicosController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
-        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
-        for (Oficina oficina : oficinas) {
-            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
-            oficinasJson.add(oficinaJson);
-        }
+        List<Oficina> oficinas = tramitesAcademicosService.allOFicinasByUser(ds);
+        ArrayNode oficinasJson = JaneHelper.from(oficinas).array();
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/tramitescademicos/tramitesAcademicos";
@@ -278,16 +276,11 @@ public class TramitesAcademicosController {
                 oficinas.clear();
                 oficinas.add(new Oficina(idOficina));
             }
+            
             List<ReunionConsejo> reunionesConsejo = tramitesAcademicosService.allReunionConsejoByDyna(filter, oficinas);
 
-            JsonNodeFactory nf = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(nf);
-            for (ReunionConsejo reunionConsejo : reunionesConsejo) {
-                array.add(JsonHelper.createJson(reunionConsejo, nf, new String[]{
-                    "*",
-                    "oficina.*"
-                }));
-            }
+            ArrayNode array = JaneHelper.from(reunionesConsejo)
+                    .join("oficina").array();
 
             json.setData(array);
             json.setTotal(filter.getTotal());

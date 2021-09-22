@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -34,6 +35,8 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 
 @Controller
 @RequestMapping("academico/encuestaestudiantil/docente")
@@ -57,15 +60,12 @@ public class EncuestaDocenteController {
         List<ModalidadEstudio> modalidadEstudios = service.allModalidadEstudio();
         List<Facultad> facultades = service.allFacultadesFromDocentes(ciclo, ds, request);
         List<DepartamentoAcademico> departamentos = service.allDepartamentosFromDocentes(ciclo, facultades, ds, request);
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (ModalidadEstudio modalidadEstudio : modalidadEstudios) {
-            arr.add(JsonHelper.createJson(modalidadEstudio, JsonNodeFactory.instance, new String[]{"*"}));
-        }
+        ArrayNode arr = JaneHelper.from(modalidadEstudios).array();
 
         model.addAttribute("modalidadEstudios", arr);
         model.addAttribute("cicloAcademico", ciclo);
         model.addAttribute("visor", visorEncuestaDocente);
-        model.addAttribute("facultadesJson", createFacultadesJson(facultades));
+        model.addAttribute("facultadesJson", JaneHelper.from(facultades).only("id,nombre,codigo").array());
         model.addAttribute("departamentosJson", createDptosAcademicosJson(departamentos));
         model.addAttribute("esEditorEncuestas", verificadorService.isEditorEncuestas(ds));
         model.addAttribute("esRevisorEncuestas", verificadorService.isRevisorEncuestas(ds));
@@ -73,23 +73,13 @@ public class EncuestaDocenteController {
         return "academico/encuestaestudiantil/docente/encuestaDocente";
     }
 
-    private ArrayNode createFacultadesJson(List<Facultad> facultades) {
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        //List<Facultad> facultades = service.allFacultadesFromDocentes(cicloAcademico);
-        for (Facultad fac : facultades) {
-            ObjectNode node = JsonHelper.createJson(fac, JsonNodeFactory.instance, new String[]{"id", "nombre", "codigo"});
-            array.add(node);
-        }
-        return array;
-
-    }
-
     private ArrayNode createDptosAcademicosJson(List<DepartamentoAcademico> departamentos) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (DepartamentoAcademico dpto : departamentos) {
-            ObjectNode node = JsonHelper.createJson(dpto, JsonNodeFactory.instance,
-                    new String[]{"id", "nombre", "codigo", "facultad.id", "facultad.nombre"}
-            );
+            ObjectNode node = JaneHelper.from(dpto)
+                    .only("id,nombre,codigo")
+                    .join("facultad", "id,nombre")
+                    .json();
             node.put("nombreCodigo", dpto.getNombre() + " (" + dpto.getCodigo() + ")");
             array.add(node);
         }
@@ -502,6 +492,41 @@ public class EncuestaDocenteController {
         }
 
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumenPeriodo")
+    public ObjectNode resumenPeriodo(HttpSession session, HttpServletRequest request) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        EncuestaEstudiantil encuestaEstudiantil = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
+
+        if (encuestaEstudiantil.getId() == null) {
+            throw new PhobosException("Solo puede editar el periodo de una encuesta existente.");
+        }
+
+        ObjectNode node = JaneHelper.from(encuestaEstudiantil)
+                .join("configuraEncuesta")
+                .json();
+
+        node.set("periodosEncuesta", JaneHelper
+                .from(encuestaEstudiantil.getPeriodosEncuesta())
+                .join("modalidadEstudio").array());
+
+        return node;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("updatePeriodo")
+    public String updatePeriodo(HttpSession session,@RequestBody EncuestaEstudiantil encuestaEstudiantil) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.updatePeriodo(encuestaEstudiantil,ds);
+        return GlobalMessages.UPDATED;
+
     }
 
 }

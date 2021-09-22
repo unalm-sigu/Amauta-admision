@@ -5,9 +5,11 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="retiroExcepcional">
+            <div id="retiroExcepcional" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <h2 >Tramite Retiro Excepcional</h2>
+                    
+                    <h2 th:inline="text">Tramite Retiro Excepcional  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 

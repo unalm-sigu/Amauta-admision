@@ -7,32 +7,34 @@
         <div layout:fragment="main">
             <div id="tramiteTraslado" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <h2 >Tramite Traslado</h2>
+                    
+                    <h2 th:inline="text">Tramite Traslado Interno  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+                    
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 
+                    
                 </header>
                 <section  class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table ref="load"
-                                          v-bind:url="URL_TRAMITES" >
+                            <raptor-table ref="load" v-bind:url="URL_TRAMITES" >
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-2">Trámite</th>
-                                                <th class="col-md-3">Persona</th>
-                                                <th class="col-md-3">Resolución</th>
-                                                <th class="">Estado</th>
-                                                <th class="text-center"></th>
+                                                <th class="col-xs-2">Trámite</th>
+                                                <th class="col-xs-6">Persona</th>
+                                                <th class="col-xs-3">Resolución</th>
+                                                <th class="col-xs-1 text-center">Estado</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td> 
-                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                    <p class="block text-muted">Serie: {{item.tramite.serie}}</p>
+                                                    <p class="block text-muted">Número: {{item.tramite.numero}}</p>
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <div class="bock " >
@@ -58,20 +60,24 @@
 
                                                 </td>
                                                 <td class="v-middle ">
-                                                    <a class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                                    <p v-if="item.resolucion" class="text-primary h5" > {{ item.resolucion.descripcion}}</p>
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                    <small class="" v-bind:class="labelColor(item.tramite.estado)"> {{ item.tramite.estadoEnum.value}}</small>
                                                 </td>
 
-                                                <td>
+                                                <td class="v-middle">
                                                     <div class="dropdown actions" >
+                                                        
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="fa fa-cog"></i>
                                                         </a> 
+                                                        
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li ><a v-bind:href="urlReporte(item)">Reporte</a></li>
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li ><a href="#" v-on:click.prevent="anularTarmite(item)">Anular</a></li>
                                                         </ul>
 
                                                     </div>
@@ -86,12 +92,9 @@
                     </section>
                 </section>
 
-
-
                 <div th:substituteby="academico/tramitescademicos/tramiteTraslado/tramiteTrasladoModal"/>
+                
             </div>
-
-
 
         </div>
 
@@ -100,6 +103,7 @@
                 var carrerasJson = /*[[${carreras.toString()}]]*/ 'json';
             </script>
             <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteTraslado/tramiteTraslado.js}" charset="utf-8"></script>
 
         </div>

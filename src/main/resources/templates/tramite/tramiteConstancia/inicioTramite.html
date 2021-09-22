@@ -12,18 +12,27 @@
                         v-bind:limit='15'
                         v-on:search-change="searchAlumnos"
                         v-bind:options='alumnos'
-                        placeholder="Ingrese un digito"
-                        v-bind:custom-label="customLabel"
+                        placeholder=" "
                         v-bind:show-labels="false"
                         v-bind:allow-empty="false"
                         track-by="id"
                         v-on:input="clearOption"
                         v-bind:disabled='isUpdate'
                         >
+
+                        <template slot="singleLabel" slot-scope="props">
+                            <div class="option__small">
+                                <span class="option__title">
+                                    {{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} / Convalidados: {{props.option.creditosConvalidados}} 
+                                </span>
+                            </div>
+                        </template>
+
                         <template slot="option" slot-scope="props">
                             <div class="option__desc"><span class="option__title bold">{{ props.option.persona.apellidosNombres }}</span></div>
                             <div class="option__small"><span class="option__title">{{ props.option.codigo }}</span></div>
                             <div class="option__small"><span class="option__title">Carrera: {{ props.option.carrera.nombre }}</span></div>
+                            <div class="option__small"><span class="option__title">Creditos Convalidados: {{ props.option.creditosConvalidados }}</span></div>
                         </template>
                     </multiselect>
                 </div>
@@ -37,7 +46,7 @@
                         v-bind:internal-search='false'
                         v-bind:limit='15'
                         v-bind:options='tiposDocumentoAcademico'
-                        placeholder="Seleccione un tipo de documento"
+                        placeholder=" "
                         label="nombre"
                         v-bind:show-labels="false"
                         v-bind:allow-empty="false"
@@ -58,7 +67,7 @@
                         v-bind:internal-search='false'
                         v-bind:limit='15'
                         v-bind:options='idiomas'
-                        placeholder="Seleccione un idioma"
+                        placeholder=" "
                         label="nombre"
                         v-bind:show-labels="false"
                         v-bind:allow-empty="true"

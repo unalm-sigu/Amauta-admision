@@ -1,6 +1,9 @@
-<modal-vik ref="modalTramTitulo"
-           v-bind="modalTramTitulo"
+<modal-simple ref="modalTramTitulo"
+           okbtn="Guardar"
            v-bind:okaction="saveTramiteTitulo">
+    <div slot="header">
+        <h4 class="modal-title">Agregar Tramite Título</h4>
+    </div>
     <div slot="body">
         <div class="modal-body">
             <form id="form" data-parsley-validate="true">
@@ -11,12 +14,11 @@
                             <multiselect v-model="tramiteTitulo.alumno" 
                                          v-bind:options='alumnos'
                                          v-on:search-change="loadAlumno"
-                                         v-bind:custom-label='customLabel'
                                          track-by='id'
                                          v-bind:show-labels="false"
                                          v-bind:allow-empty="false"
                                          v-bind:internal-search='false'
-                                         placeholder="Ingresa un caracter como mínimo"                                         
+                                         placeholder=" "                                         
                                          required="true" >
                                 <template slot="option" slot-scope="props">
                                     <div class="option__desc">
@@ -24,6 +26,13 @@
                                         <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
                                     </div>
                                 </template>
+
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span class="option__title">
+                                        {{ props.option.codigo }} -   {{ props.option.persona.nombreCompleto }}
+                                    </span>
+                                </template>
+
                             </multiselect>
                             <input v-model="tramiteTitulo.alumno" required="true" type="text" class="hide"/>
                         </div>
@@ -32,4 +41,4 @@
             </form>
         </div>
     </div>
-</modal-vik>
+</modal-simple>

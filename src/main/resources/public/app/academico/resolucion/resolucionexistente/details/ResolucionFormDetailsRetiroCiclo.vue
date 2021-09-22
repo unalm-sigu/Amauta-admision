@@ -131,12 +131,11 @@
             allRetiroCiclo() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allRetiroCiclo"))
+                axios_.get(APP.url("academico/resolucion/existentes/allRetiroCiclo"))
                         .then(({data}) => {
-                            $vue.resolucion.retiroCiclo = data.data;
+                            $vue.resolucion.retiroCiclo = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },

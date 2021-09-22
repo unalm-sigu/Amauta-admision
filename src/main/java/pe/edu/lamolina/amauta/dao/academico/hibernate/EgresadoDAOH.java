@@ -39,6 +39,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         Octavia sql = Octavia.query()
                 .from(Egresado.class, "e")
                 .join("alumno alu", "cicloAcademico")
+                .left("alu.situacionAcademica si")
                 .left("controlMeritoFacultad", "controlMeritoCiclo", "controlMeritoCarrera")
                 .filter("alu.id", alumno);
 
@@ -123,6 +124,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
                 .join("cicloAcademico ca")
                 .join("controlMeritoCiclo control")
+                .left("alu.situacionAcademica si")
                 .filter("control.id", controlBD)
                 .searchFields("alu.codigo", "car.nombre", "fac.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -139,6 +141,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
                 .join("cicloAcademico ca")
                 .join("controlMeritoCarrera control")
+                .left("alu.situacionAcademica si")
                 .filter("control.id", controlBD)
                 .searchFields("alu.codigo", "car.nombre", "fac.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -155,6 +158,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
                 .join("cicloAcademico ca")
                 .join("controlMeritoFacultad control")
+                .left("alu.situacionAcademica si")
                 .filter("control.id", controlBD)
                 .searchFields("alu.codigo", "car.nombre", "fac.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")

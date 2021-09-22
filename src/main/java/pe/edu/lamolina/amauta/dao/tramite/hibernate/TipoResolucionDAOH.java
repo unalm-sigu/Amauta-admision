@@ -31,4 +31,14 @@ public class TipoResolucionDAOH extends AbstractEasyDAO<TipoResolucion> implemen
                 .in("codigo", codigos);
         return all(sql);
     }
+    
+    
+    @Override
+    public TipoResolucion find(Long id) {
+        Octavia sql = new Octavia()
+                .from(TipoResolucion.class, "tr")
+                .left("tipoTramite")
+                .filter("tr.id", id);
+        return find(sql);
+    }
 }

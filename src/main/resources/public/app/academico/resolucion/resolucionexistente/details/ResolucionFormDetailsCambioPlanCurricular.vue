@@ -128,12 +128,11 @@
             allCambioPlanCurricular() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allCambioPlanCurricular"))
+                axios_.get(APP.url("academico/resolucion/existentes/allCambioPlanCurricular"))
                         .then(({data}) => {
-                            $vue.resolucion.cambioPlanCurriculares = data.data;
+                            $vue.resolucion.cambioPlanCurriculares = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },

@@ -59,7 +59,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <div class="text-success">{{item.descripcion}}</div>
+                                                    <p class="text-primary h5">{{item.descripcion}}</p>
                                                     <div v-if="item.rutaUrl" class="block text-muted">
                                                         <a v-bind:href="item.rutaUrl" target="_blank" >
                                                             <i class="fa fa-file-pdf-o text-danger"></i>
@@ -84,7 +84,7 @@
                                                             <a class="aceptar-expandir-sistema"  
                                                                v-on:click="editarResolucionOther(item,$event)" href="#"
                                                                v-if="item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
-                                                               item.isTipoTramitePracticas || item.isTipoRetiroCiclo" 
+                                                               item.isTipoTramitePracticas" 
                                                                >
                                                                 Editar
                                                             </a>

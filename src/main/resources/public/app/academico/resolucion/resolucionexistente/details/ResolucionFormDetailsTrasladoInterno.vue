@@ -66,6 +66,7 @@
 
 <script>
     module.exports = {
+        mixins: [VueLoader],
         computed: {
             ...Vuex.mapState(["resolucion", "isEdicion"])
         },
@@ -84,7 +85,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado.push({seleccionado: false});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: true});
             },
             del(index) {
                 let $vue = this;
@@ -106,7 +107,17 @@
             },
             allTraslados() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado = [];
+                $vue.resolucion.tramiteTraslado =[];
+                return;
+                $vue.showLoader("Espere un momento por favor");
+                axios_.get(APP.url("academico/resolucion/existentes/allTrasladoInterno"))
+                        .then(({data}) => {
+                            $vue.resolucion.tramiteTraslado = data;
+                            $vue.hideLoader();
+                        }, () => {
+                            $vue.hideLoader();
+                        });
+
             }
         }
     };

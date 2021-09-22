@@ -77,6 +77,7 @@
                             <!--<li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>-->
                             <li><a v-if="encuesta.estado != 'CRE' " v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' "><a href="#" v-on:click="openSelectModalidad"> Generar encuestas </a></li>
+                            <li><a href="#"  v-if="encuesta.estado!='CRE'" v-on:click="openAddPeriodo"> Editar Periodo </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
                             <li v-if="encuesta.objetivosEncuesta>0"><a class="pointer" v-on:click="noProcesados"> Docentes no procesados </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
@@ -406,8 +407,12 @@
 
                         </section>
                     </section>
+                    
                     <div th:substituteby="academico/encuestaestudiantil/docente/encuestaDocenteModal"></div>
                     <div th:substituteby="_modules/vue-modal-confirm"></div>
+                    
+                    <editar-periodo-encuesta ref="editarperiodoencuesta"></editar-periodo-encuesta>
+                    
                 </section>
 
             </div>
@@ -431,6 +436,7 @@
             
             
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             
             <script th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocente.js}" charset="utf-8"></script>
         </div>

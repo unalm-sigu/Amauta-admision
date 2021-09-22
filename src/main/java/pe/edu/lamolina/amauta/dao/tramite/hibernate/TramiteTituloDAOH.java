@@ -91,7 +91,8 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("tb.id desc");
 
         return all(sql);
     }

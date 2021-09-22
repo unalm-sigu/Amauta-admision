@@ -133,12 +133,11 @@
             allReincorporacion() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allReincorporacion"))
+                axios_.get(APP.url("academico/resolucion/existentes/allReincorporacion"))
                         .then(({data}) => {
-                            $vue.resolucion.reincorporaciones = data.data;
+                            $vue.resolucion.reincorporaciones = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },

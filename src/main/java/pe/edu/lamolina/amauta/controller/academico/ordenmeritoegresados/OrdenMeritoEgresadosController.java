@@ -129,6 +129,7 @@ public class OrdenMeritoEgresadosController {
             for (Egresado item : list) {
                 array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                     "alumno.persona.nombreCompleto",
+                    "alumno.situacionAcademica.codigo",
                     "alumno.codigo",
                     "carrera.nombre",
                     "carrera.codigo",

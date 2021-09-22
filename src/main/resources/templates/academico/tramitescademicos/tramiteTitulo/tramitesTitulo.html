@@ -1,110 +1,107 @@
 <html layout:decorator="_layout/layout">
+
     <head>
-        <link rel="stylesheet" href="../../../public/bootstrap/css/bootstrap.css" type="text/css"/>
-
         <title>Tramites Titulo</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .td-vacio {
-            padding-right: 4px !important;
-            padding-left: 4px !important;
-        }
-        .bg-row {
-            background-color: #f9fafc;
-        }
-    </style>
-</head>
+    </head>
 
-<body>
-    <div layout:fragment="main">
-        <div id="tramitesAcademicos">
-            <header class="header b-b padder-lg">
-                <h2 th:inline="text">Tramite Titulo  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
-                <div class="pull-right m-t-md">  
-                    <a class="btn btn-info" type="button" v-on:click.prevent="nuevo" href="#" >Nuevo</a>
-                </div> 
-            </header>
-            <section  class="wrapper-lg">
-                <section class="panel">
-                    <section class="panel-body">
-                        <raptor-table ref="tblTramitesAcademicos"
-                                      v-bind:url="URL_TRAMITES" >
-                            <template scope="props">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="col-md-2">Trámite</th>
-                                            <th class="col-md-col-md-3">Persona</th>
-                                            <th class="c">Tipo Tramite</th>
-                                            <th class="">Estado</th>
-                                            <th class="col-md-3">Registro</th>
-                                            <th class="text-center"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in props.data"> 
-                                            <td class="v-middle">
-                                                <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                <small class="block text-muted">Número: {{item.tramite.numero}}</small>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <div class="bock ">
-                                                    {{ item.tramite.persona.apellidosNombres}}
+    <body>
+        <div layout:fragment="main">
+            <div id="tramitesAcademicos" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2 th:inline="text">Tramite Titulo  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
+                    <div class="pull-right m-t-md">  
+                        <a class="btn btn-info" type="button" v-on:click.prevent="nuevo" href="#" >Nuevo</a>
+                    </div> 
+                </header>
+                <section  class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table ref="tblTramitesAcademicos"
+                                          v-bind:url="URL_TRAMITES" >
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-xs-2">Trámite</th>
+                                                <th class="col-xs-5">Persona</th>
 
-                                                </div>
-                                                <div class="bock bold text-primary">
-                                                    {{ item.tramite.alumno.codigo}}
-                                                </div>
-                                                <div class="bock " v-if="item.tramite.alumno.carrera != null">
-                                                    <span class="bold">Facultad</span>
-                                                    {{ item.tramite.alumno.carrera.facultad.nombre}}
+                                                <th class="col-xs-2">Resolución</th>
+                                                <th class="col-xs-3">Registro</th>
 
-                                                </div>
+                                                <th class="col-xs-2">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    <p class="block text-muted">Serie: {{item.tramite.serie}}</p>
+                                                    <p class="block text-muted">Número: {{item.tramite.numero}}</p>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <div class="bock ">
+                                                        {{ item.tramite.persona.apellidosNombres}}
 
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                {{ item.tramite.tipoTramite.nombre}}
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                {{item.tramite.userRegistro.persona.apellidosNombres}}
-                                                <small class="block text-muted">
-                                                    <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
-                                                </small>
-                                            </td>
-                                            <td class="v-middle">
-                                                <div class="dropdown actions" >
-                                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="fa fa-cog"></i>
-                                                    </a> 
-                                                    <ul class="dropdown-menu pull-right" > 
-                                                        <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                        <li v-if="item.tramite.tipoTramite.codigo == 'TIT'"><a v-on:click.prevent="urlReporteBachiller(item)" href="#">Reporte</a></li>
-                                                        <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
+                                                    </div>
+                                                    <div class="bock bold text-primary">
+                                                        {{ item.tramite.alumno.codigo}}
+                                                    </div>
+                                                    <div class="bock " v-if="item.tramite.alumno.carrera">
+                                                        <span class="bold">Facultad</span>
+                                                        {{ item.tramite.alumno.carrera.facultad.nombre}}
 
+                                                    </div>
+
+                                                </td>
+
+                                                <td class="v-middle text-left">
+                                                    <p v-if="item.resolucion" class="text-primary h5">{{item.resolucion.descripcion}}</p>
+                                                </td>
+
+                                                <td class="v-middle text-left">
+                                                    {{item.tramite.userRegistro.persona.apellidosNombres}}
+                                                    <small class="block text-muted">
+                                                        {{item.tramite.fechaRegistro}}
+                                                    </small>
+                                                </td>
+
+
+                                                <td class="v-middle text-left">
+                                                    <span v-bind:class="labelColor(item.tramite.estado)">{{ item.tramite.estadoEnum.value}}</span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <div class="dropdown actions" >
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right" > 
+                                                            <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                            <li v-if="item.tramite.tipoTramite.codigo == 'TIT'"><a v-on:click.prevent="urlReporteBachiller(item)" href="#">Reporte</a></li>
+                                                            <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
                     </section>
                 </section>
-            </section>
-            <div th:substituteby="academico/tramitescademicos/tramiteTitulo/tramiteTituloModal"></div>
+                <div th:substituteby="academico/tramitescademicos/tramiteTitulo/tramiteTituloModal"></div>
+
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
+            <script th:src="@{/app/academico/tramitesacademicos/tramiteTitulo/tramitesTitulo.js}" charset="utf-8"></script>
 
         </div>
-    </div>
-
-    <div layout:fragment="js">
-
-        <div th:substituteby="_modules/vue-raptor-table"></div>
-        <script th:src="@{/app/academico/tramitesacademicos/tramiteTitulo/tramitesTitulo.js}" charset="utf-8"></script>
-
-    </div>
-</body>
+    </body>
 </html>

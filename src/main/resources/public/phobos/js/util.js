@@ -334,10 +334,10 @@ APP = {
     colorEstado: {
         CRE: "default",
         ACT: "success", MAT: "success", ABI: "success",
-        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",
+        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",RCHZ:"danger",
         APR: "primary", ACEP: "primary",
         OBS: "warning",
-        SOL: "info",
+        SOL: "default",
         REE: "info"},
     getEstadoClass: function (estadoCode) {
         return "label-" + APP.colorEstado[estadoCode];
@@ -1017,18 +1017,18 @@ const axios_blob = axios.create({
 });
 
 axios_blob.interceptors.response.use(response => { return response; },
-           error => {
-               if (
-                 error.request.responseType === 'blob' &&
-                 error.response.data instanceof Blob &&
-                 error.response.data.type &&
-                 error.response.data.type.toLowerCase().indexOf('json') != -1
-               )
-               {
+        error => {
+            if (
+                    error.request.responseType === 'blob' &&
+                    error.response.data instanceof Blob &&
+                    error.response.data.type &&
+                    error.response.data.type.toLowerCase().indexOf('json') != -1
+                    )
+            {
 
-                 return new Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     let reader = new FileReader();
-                    
+
                     reader.onload = () => {
                         error.response.data = JSON.parse(reader.result);
                         resolve(Promise.reject(error));
@@ -1039,11 +1039,11 @@ axios_blob.interceptors.response.use(response => { return response; },
                     };
 
                     reader.readAsText(error.response.data);
-                 });
+                });
                };
-               return Promise.reject(error);
-           }
-       );
+            return Promise.reject(error);
+        }
+);
 
 function noty_download(idtoust, titulo) {
     iziToast.show({
@@ -1068,3 +1068,22 @@ URL_UTIL = {
         return "?origen=" + Base64.encode(url);
     }
 };
+
+const axios_ = axios.create();
+
+axios_.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    if (error) {
+        if (error.response) {
+            if (error.response.status) {
+                if (error.response.status == 500) {
+                    notify(error.response.data.message, 'error');
+                    return Promise.reject(error);
+                }
+            }
+        }
+    }
+    notify(Messages.errorComunicacion, 'error');
+    return Promise.reject(error);
+});

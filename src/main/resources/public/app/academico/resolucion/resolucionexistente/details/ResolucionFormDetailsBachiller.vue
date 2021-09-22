@@ -26,7 +26,7 @@
                                          deselect-label="No se puede eliminar este valor"
                                          v-bind:internal-search='false'
                                          placeholder=" " 
-                                         v-bind:disabled="isEdicion &amp;&amp; !bachiller.id">
+                                         v-bind:disabled="isEdicion &amp;&amp; bachiller.id">
 
                                 <template slot="singleLabel" slot-scope="props">
                                     <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
@@ -47,12 +47,13 @@
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="bachiller.seleccionado"
-                                   v-bind:disabled="isEdicion &amp;&amp; !bachiller.id"/>
+                                   checked="1"
+                                   v-bind:disabled="isEdicion &amp;&amp; bachiller.id !=null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td class="v-middle text-center">
-                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; !bachiller.id">
+                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; bachiller.id">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
@@ -90,7 +91,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteBachiller.push({seleccionado: false});
+                $vue.resolucion.tramiteBachiller.push({seleccionado: true});
             },
             del(index) {
                 let $vue = this;
@@ -115,12 +116,11 @@
             allBachillers() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allBachiller"))
+                axios_.get(APP.url("academico/resolucion/existentes/allBachiller"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteBachiller = data.data;
+                            $vue.resolucion.tramiteBachiller = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
 

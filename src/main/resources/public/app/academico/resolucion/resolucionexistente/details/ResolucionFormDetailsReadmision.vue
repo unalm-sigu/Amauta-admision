@@ -128,12 +128,11 @@
             allReadmision() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                AXIOS.get(APP.url("academico/resolucion/existentes/allReadmision"))
+                axios_.get(APP.url("academico/resolucion/existentes/allReadmision"))
                         .then(({data}) => {
-                            $vue.resolucion.readmisiones = data.data;
+                            $vue.resolucion.readmisiones = data;
                             $vue.hideLoader();
                         }, () => {
-                            notify(Messages.errorComunicacion, "error");
                             $vue.hideLoader();
                         });
             },

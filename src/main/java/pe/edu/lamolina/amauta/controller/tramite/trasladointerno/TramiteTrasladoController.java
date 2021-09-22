@@ -1,15 +1,14 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.HttpStatus.OK;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,14 +21,11 @@ import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
@@ -47,15 +43,12 @@ public class TramiteTrasladoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        
-        List<Carrera> carreras = service.getCarreras(ds);
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Carrera> carreras = service.getCarreras(ds);
         ArrayNode carrerasJson = JaneHelper.from(carreras).array();
-        
         model.addAttribute("carreras", carrerasJson);
-        
+
         return "academico/tramitescademicos/tramiteTraslado/tramiteTraslado";
     }
 
@@ -63,40 +56,27 @@ public class TramiteTrasladoController {
     @RequestMapping("list")
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
+        
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<TramiteTraslado> trTraslado = service.allTramitesByFilter(filter, ds);
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            
+            List<TramiteTraslado> tramitesTraslado = service.allTramitesByFilter(filter, ds);
 
-            String[] mapperTramite = new String[]{
-                "*",
-                "universidad.*",
-                "resolucion.*",
-                "carrera.*",
-                "carreraOrigen.*",
-                "tramite.*",
-                "tramite.persona.*",
-                "tramite.alumno.*",
-                "tramite.alumno.carrera.*",
-                "tramite.alumno.carrera.facultad.*",
-                "tramite.cicloAcademico.*"
-            };
-
-            String[] mapperEstadoTramite = new String[]{
-                "tramite.estadoTramite.nombre",
-                "tramite.estadoTramite.id",
-                "tramite.estadoTramite.nombre"
-            };
-
-            String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
-
-            JsonNodeFactory jc = JsonNodeFactory.instance;
-            for (TramiteTraslado tt : trTraslado) {
-                ObjectNode retiroJson = JsonHelper.createJson(tt, jc, false, mapperTramiteComplex);
-
-                array.add(retiroJson);
-            }
+            ArrayNode array = JaneHelper.from(tramitesTraslado)
+                    .join("resolucion", "descripcion")
+                    .join("carrera")
+                    .join("carreraOrigen")
+                    .join("tramite")
+                    .join("tramite.persona")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.cicloAcademico")
+                    .join("tramite.estadoTramite", "id,nombre")
+                    .array();
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -106,40 +86,36 @@ public class TramiteTrasladoController {
             e.printStackTrace();
             json.setTotal(0);
         }
+        
         return json;
     }
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody TramiteTraslado tTrasladoForm, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveTramiteTraslado(tTrasladoForm, ds);
-            response.setMessage("Se registró el tramite satisfactoriamente.");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        }
-        return response;
+    public ResponseEntity save(@RequestBody TramiteTraslado tramiteTrasladoForm, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.saveTramiteTraslado(tramiteTrasladoForm, ds);
+        return new ResponseEntity(GlobalMessages.UPDATED, OK);
     }
 
     @RequestMapping("{id}/reporte")
-    public ModelAndView bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+    public ModelAndView reporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
 
-        try {
-            
-            Context context = service.reporte(new Tramite(id), ds);
-            model.addAllAttributes(context.getVariables());
-            
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
-        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Context context = service.reporte(new Tramite(id), ds);
+        model.addAllAttributes(context.getVariables());
         return new ModelAndView(reporteTramiteTraslado);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anular/{idTramiteTraslado}", method = RequestMethod.GET)
+    public ResponseEntity anular(@PathVariable Long idTramiteTraslado, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.anular(idTramiteTraslado, ds.getUsuario());
+        return new ResponseEntity(GlobalMessages.ANNULL, OK);
+
     }
 
 }

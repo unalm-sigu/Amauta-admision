@@ -170,31 +170,27 @@
                 $vue.showLoader("Espere un momento por favor");
                 $vue.errores = [];
 
-                AXIOS.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
                         .then(({data}) => {
 
-                            if (data.success && data.data.length == 0) {
+                            if (data.success) {
 
                                 $vue.$store.dispatch('newResolucion');
-
                                 notify(data.message, 'info');
 
                             } else {
 
-                                if (data.data != null && data.data.length > 0) {
-                                    $vue.errores = data.data;
-                                    $vue.$refs.modalError.open();
-                                    notify("Algunos alumnos no pudieron ser matriculados.", 'error');
-                                } else {
-                                    notify(data.message, 'error');
-                                }
+                                $vue.errores = data.data;
+                                $vue.$refs.modalError.open();
+                                notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+
                             }
+
                             $vue.hideLoader();
+
                         }, () => {
                             $vue.hideLoader();
-                            notify(Messages.errorComunicacion, "error");
                         });
-
 
             },
             update() {
@@ -218,27 +214,28 @@
                             $vue.showLoader("Espere un momento por favor");
                             $vue.errores = [];
 
-                            AXIOS.post(APP.url('academico/resolucion/existentes/update'), $vue.resolucion)
+                            axios_.post(APP.url('academico/resolucion/existentes/update'), $vue.resolucion)
                                     .then(({data}) => {
-                                        if (data.success && data.data.length == 0) {
+
+                                        if (data.success) {
 
                                             notify(data.message, 'info');
-                                            location.href = APP.url('academico/resolucion');
+                                            setTimeout(() => {
+                                                location.href = APP.url('academico/resolucion');
+                                            }, 500)
 
                                         } else {
 
-                                            if (data.data != null && data.data.length > 0) {
-                                                $vue.errores = data.data;
-                                                $vue.$refs.modalError.open();
-                                                notify("Algunos alumnos no pudieron ser matriculados.", 'error');
-                                            } else {
-                                                notify(data.message, 'error');
-                                            }
+                                            $vue.errores = data.data;
+                                            $vue.$refs.modalError.open();
+                                            notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+
                                         }
+
                                         $vue.hideLoader();
+
                                     }, () => {
                                         $vue.hideLoader();
-                                        notify(Messages.errorComunicacion, "error");
                                     });
 
                         }

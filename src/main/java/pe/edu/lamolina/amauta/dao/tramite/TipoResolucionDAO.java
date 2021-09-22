@@ -9,5 +9,8 @@ public interface TipoResolucionDAO extends EasyDAO<TipoResolucion> {
 
     TipoResolucion finByCodigo(TipoResolucionEnum tipoResolucionEnum);
 
-    public List<TipoResolucion> allByCodigo(List<String> codigos);
+    List<TipoResolucion> allByCodigo(List<String> codigos);
+
+    TipoResolucion find(Long id);
+    
 }

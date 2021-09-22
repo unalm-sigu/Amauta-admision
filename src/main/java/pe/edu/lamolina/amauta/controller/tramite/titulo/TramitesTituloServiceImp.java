@@ -165,6 +165,10 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
 
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+        
+        if(obtencionGrado==null){
+            throw new PhobosException("El trámite no tiene resolución");
+        }
 
         Context ctx = new Context();
 
