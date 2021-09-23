@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +43,7 @@ import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.amauta.dao.bienestar.TipoSubvencionDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.FichaSocioeconomicaDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteBienestarDAO;
@@ -84,6 +83,8 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+    @Autowired
+    TipoSubvencionDAO tipoSubvencionDAO;
     @Autowired
     TramiteDAO tramiteDAO;
     @Autowired
@@ -162,11 +163,14 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         flujo.setFechaRegistro(today.toDate());
         flujoTramiteBienestarDAO.save(flujo);
 
+        TipoSubvencion tipoSubvencion = tipoSubvencionDAO.find(ID_TIPO_SUBVENCION_INVESTIGACION);
+
         TramiteSubvencion subvencion = new TramiteSubvencion();
         subvencion.setSupervisor(alumnoBolsa.getSupervisor());
-        subvencion.setTipoSubvencion(new TipoSubvencion(ID_TIPO_SUBVENCION_INVESTIGACION));
+        subvencion.setTipoSubvencion(tipoSubvencion);
         subvencion.setTramite(tramite);
         subvencion.setVoboSupervisor(true);
+        subvencion.setHoras(tipoSubvencion.getHorasLaborales());
         subvencion.setFichaSocioeconomica(fichaSocioeconomica);
         subvencion.setComentario(alumnoBolsa.getNombreInvestigacion());
         subvencion.setUserRegistro(ds.getUsuario());
