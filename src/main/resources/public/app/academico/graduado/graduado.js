@@ -93,6 +93,23 @@ new Vue({
                 }
             });
 
+        },
+        forzarSituacionEgresado(item) {
+            let $vue = this;
+            swal({
+                title: "Seguro que desea cambiarle la situación académica ha egresado.",
+                icon: "warning",
+                buttons: ["Cancelar", "Aceptar"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    axios_.get(APP.url('academico/graduado/cambiarsituacionacademica/' + item.alumno.id)).
+                            then(({data}) => {
+                                notify(data, "info");
+                            }, () => {});
+
+                }
+            });
         }
     }
 });

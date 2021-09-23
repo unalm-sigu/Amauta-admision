@@ -1113,4 +1113,23 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
+    @Override
+    public boolean isDeveloperOERA(DataSessionPivot ds) {
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

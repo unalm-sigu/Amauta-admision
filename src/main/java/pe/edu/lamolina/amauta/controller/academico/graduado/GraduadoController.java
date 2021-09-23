@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +30,7 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Controller
@@ -46,7 +48,9 @@ public class GraduadoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("isDeveloper", verificadorService.isDeveloperOERA(ds));
         return "academico/graduado/graduado";
     }
 
@@ -157,6 +161,15 @@ public class GraduadoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarsituacionacademica/{idAlumno}")
+    public String cambiarSituacionAcademica(@PathVariable Long idAlumno, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.cambiarSituacionAcademica(idAlumno);
+        return GlobalMessages.UPDATED;
     }
 
 }
