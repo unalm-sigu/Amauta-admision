@@ -103,12 +103,13 @@ public class BolsaInvestigacionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         String codeRequest = verificadorService.generateCodeRequest();
         Facultad facultad = this.getFacultad(request, ds, codeRequest);
+
         logger.info("facultad = {}", ModelUtils.toString(facultad, "id", "codigo", "nombre"));
         logger.info("ciclo = {}", ModelUtils.toString(ds.getCicloAcademico(), "id", "codigo", "descripcion"));
 
         List<AlumnoBolsaInvestigacion> alumnos = new ArrayList();
         if (facultad != null) {
-            alumnos = service.allByDynatableFacultadCicloAcademico(filter, facultad, ds.getCicloAcademico());
+            alumnos = service.allByDynatable(filter, facultad, ds.getCicloAcademico());
         }
 
         DynatableResponse json = new DynatableResponse();
@@ -125,35 +126,11 @@ public class BolsaInvestigacionController {
                 .join("supervisor.persona.tipoDocumento", "id,simbolo")
                 .join("supervisor.cargo", "nombre")
                 .join("supervisor.oficina", "nombre")
+                .join("supervisor.oficina.tipoOficina", "nivel")
+                .join("supervisor.oficina.oficinaSuperior", "nombre")
+                .join("supervisor.oficina.oficinaSuperior.tipoOficina", "nivel")
                 .array();
 
-        /*
-        for (AlumnoBolsaInvestigacion alumno : alumnos) {
-            array.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
-                "id",
-                "alumno.id",
-                "alumno.codigo",
-                "alumno.carrera.codigo",
-                "alumno.carrera.nombre",
-                "alumno.carrera.facultad.codigo",
-                "alumno.persona.id",
-                "alumno.persona.nombreCompleto",
-                "alumno.persona.numeroDocIdentidad",
-                "alumno.persona.tipoDocumento.id",
-                "alumno.persona.tipoDocumento.simbolo",
-                "supervisor.id",
-                "supervisor.persona.id",
-                "supervisor.persona.nombreCompleto",
-                "supervisor.persona.numeroDocIdentidad",
-                "supervisor.persona.tipoDocumento.id",
-                "supervisor.persona.tipoDocumento.simbolo",
-                "supervisor.cargo.nombre",
-                "supervisor.oficina.nombre",
-                "nombreInvestigacion",
-                "estado"
-            }));
-        }
-        ///***/
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
@@ -214,23 +191,19 @@ public class BolsaInvestigacionController {
         try {
             Facultad facultad = this.getFacultad(request, ds, codeRequest);
             List<Colaborador> colaboradores = service.searchColaboradoresByFacultadNombre(facultad, nombre);
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-            for (Colaborador colaborador : colaboradores) {
-                ObjectNode node = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "id",
-                            "persona.id",
-                            "persona.nombreCompleto",
-                            "persona.numeroDocIdentidad",
-                            "persona.tipoDocumento.id",
-                            "persona.tipoDocumento.simbolo",
-                            "cargo.nombre",
-                            "oficina.nombre"
-                        });
+            ArrayNode array = JaneHelper
+                    .from(colaboradores)
+                    .only("id")
+                    .join("persona", "id,nombreCompleto,numeroDocIdentidad")
+                    .join("persona.tipoDocumento", "id,simbolo")
+                    .join("cargo", "nombre")
+                    .join("oficina", "nombre")
+                    .join("oficina.tipoOficina", "nivel")
+                    .join("oficina.oficinaSuperior", "nombre")
+                    .join("oficina.oficinaSuperior.tipoOficina", "nivel")
+                    .array();
 
-                arr.add(node);
-            }
-            response.setData(arr);
+            response.setData(array);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -49,8 +49,8 @@ public class AlumnoBolsaInvestigacionDAOH extends AbstractEasyDAO<AlumnoBolsaInv
                 .from(AlumnoBolsaInvestigacion.class, "abi")
                 .join("supervisor s", "alumno a", "bolsaInvestigacion bi")
                 .join("tramiteSubvencion tsub", "tsub.tramite tra", "tra.tipoTramite", "tsub.tipoSubvencion")
+                .leftJoin("s.oficina", "s.cargo")
                 .filter("bi.id", bolsa)
-                //.filter("abi.estado", "<>", AlumnoBolsaInvestigacionEstadoEnum.ANU)
                 .orderBy("abi.id desc");
 
         return all(sql);

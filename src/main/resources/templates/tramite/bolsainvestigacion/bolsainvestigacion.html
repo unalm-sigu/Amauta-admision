@@ -92,14 +92,17 @@
                                             <td class="v-middle">
                                                 <span class="block text-primary"> {{ item.supervisor.persona.nombreCompleto }} </span> 
                                                 <span class="block small text-muted"> {{ item.supervisor.persona.tipoDocumento.simbolo }} {{ item.supervisor.persona.numeroDocIdentidad }} </span> 
-                                                <span class="block">Unidad: {{ item.supervisor.oficina.nombre }}</span>
+                                                <span class="block" v-if="item.supervisor.oficina.tipoOficina.nivel != 'OFI' ">
+                                                    Unidad: {{ item.supervisor.oficina.nombre }}
+                                                </span>
+                                                <span class="block">{{ item.supervisor.oficina.oficinaSuperior.nombre }}</span>
                                                 <span class="block">Cargo: {{ item.supervisor.cargo.nombre }}</span>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span class="label" v-bind:class="classEstado(item)"> {{ item.estadoEnum.value }} </span> 
                                             </td>
                                             <td class="v-middle"> 
-                                                <div class="dropdown actions" v-if="item.estado !== 'INVI'">                
+                                                <div class="dropdown actions" v-if="item.estado == 'CRE'">                
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                                         <i class="fa fa-cog"></i>
                                                     </a> 

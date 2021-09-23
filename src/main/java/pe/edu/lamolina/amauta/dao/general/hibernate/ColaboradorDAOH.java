@@ -96,6 +96,17 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
 
         return find(sql);
     }
+    
+    @Override
+    public Colaborador findByPersonaOficina(Oficina oficina, Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("persona per", "oficina ofi")
+                .filter("per.id", persona)
+                .filter("ofi.id", oficina);
+
+        return find(sql);
+    }
 
     @Override
     public ResumenColaborador countByOficinas(List<Oficina> oficinas) {
@@ -178,8 +189,9 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "cola")
-                .join("persona per", "oficina ofi", "cargo car")
+                .join("persona per", "oficina ofi", "cargo car", "ofi.tipoOficina")
                 .leftJoin("per.tipoDocumento td")
+                .filter("cola.estado", ColaboradorEstadoEnum.ACT)
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
@@ -192,21 +204,11 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaborador findByPersonaAndEstado(Persona persona) {
-        Octavia sql = Octavia.query()
-                .from(Colaborador.class, "co")
-                .join("persona per")
-                .filter("per.id", persona)
-                .in("co.estado", Arrays.asList(ACT, PER, VAC, DSC));
-        return find(sql);
-    }
-
-    @Override
     public Colaborador findDocenteActivoByPersonaDptoAcademico(Persona persona, DepartamentoAcademico departamento) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
-                .in("estado", Arrays.asList(ColaboradorEstadoEnum.ACT, ColaboradorEstadoEnum.DSC, ColaboradorEstadoEnum.PER, ColaboradorEstadoEnum.VAC))
+                .in("estado", Arrays.asList(ACT, PER, VAC, DSC))
                 .filter("carg.codigo", PerfilColaboradorEnum.DOC)
                 .filter("tip.codigo", TipoOficinaEnum.DPTO)
                 .filter("ofi.instanciaOficina", departamento.getId())

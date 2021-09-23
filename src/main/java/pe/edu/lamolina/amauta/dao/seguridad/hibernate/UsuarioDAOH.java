@@ -44,14 +44,13 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
     }
 
     @Override
-    public Usuario findByPersonaId(Persona persona) {
+    public List<Usuario> allByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
                 .join("persona per")
-                .filter("estado", UserEstadoEnum.ACT)
                 .filter("per.id", persona);
 
-        return find(sql);
+        return all(sql);
     }
 
     @Override

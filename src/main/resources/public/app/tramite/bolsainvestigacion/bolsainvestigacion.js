@@ -131,7 +131,7 @@ new Vue({
                     if (response.success) {
                         this.supervisores = response.data;
                     }
-                },
+                }
             });
         },
         eliminarAlumnoBolsa(item) {

@@ -28,10 +28,10 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
     Colaborador find(Colaborador colaborador);
 
     Colaborador findActivoByPersonaOficina(Oficina oficina, Persona persona);
+    
+    Colaborador findByPersonaOficina(Oficina oficina, Persona persona);
 
     List<Colaborador> allByName(String nombre);
-
-    Colaborador findByPersonaAndEstado(Persona persona);
 
     Colaborador findDocenteActivoByPersonaDptoAcademico(Persona persona, DepartamentoAcademico departamento);
 

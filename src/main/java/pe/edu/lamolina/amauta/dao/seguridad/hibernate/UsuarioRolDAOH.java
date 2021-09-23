@@ -146,20 +146,20 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
         Octavia sql = Octavia.query()
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "oficina ofi")
-                .filter("u.id", usuario.getId())
-                .filter("ofi.id", oficina.getId())
+                .filter("u.id", usuario)
+                .filter("ofi.id", oficina)
                 .filter("ur.estado", ACT);
 
         return find(sql);
     }
 
     @Override
-    public List<UsuarioRol> allByUserOficina(Usuario usuario1, Oficina oficina) {
+    public List<UsuarioRol> allByUserOficina(Usuario usuario, Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "oficina ofi")
-                .filter("u.id", usuario1.getId())
-                .filter("ofi.id", oficina.getId())
+                .filter("u.id", usuario)
+                .filter("ofi.id", oficina)
                 .filter("ur.estado", ACT);
 
         return all(sql);
