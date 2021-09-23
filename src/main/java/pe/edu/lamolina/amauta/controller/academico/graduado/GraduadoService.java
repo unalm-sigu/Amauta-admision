@@ -14,4 +14,6 @@ public interface GraduadoService {
 
     public void anular(ObtencionGrado obtencionGrado, Usuario usuario);
 
+    public void cambiarSituacionAcademica(Long idAlumno);
+
 }

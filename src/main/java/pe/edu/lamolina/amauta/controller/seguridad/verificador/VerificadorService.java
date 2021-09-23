@@ -9,9 +9,10 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp.CantidadItemsEnum;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 
 public interface VerificadorService {
-    
+
     String generateCodeRequest();
 
     void revisarPermiso(HttpServletRequest request, DataSessionPivot ds);
@@ -83,5 +84,7 @@ public interface VerificadorService {
     boolean isRevisorActaNotas(DataSessionPivot ds);
 
     boolean isRolCape(DataSessionPivot ds);
+
+    boolean isDeveloperOERA(DataSessionPivot ds);
 
 }
