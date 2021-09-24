@@ -46,6 +46,9 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.TipoSubvencionDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.FichaSocioeconomicaDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteBienestarDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AlumnoBolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.BolsaInvestigacionDAO;
@@ -55,7 +58,12 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteSubvencionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.BolsaInvestigacionEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
 
 @Slf4j
@@ -82,6 +90,8 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
+    RolDAO rolDAO;
+    @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
     @Autowired
     TipoSubvencionDAO tipoSubvencionDAO;
@@ -89,6 +99,10 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     TramiteDAO tramiteDAO;
     @Autowired
     TramiteSubvencionDAO tramiteSubvencionDAO;
+    @Autowired
+    UsuarioDAO usuarioDAO;
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
 
     @Autowired
     OficinaService oficinaService;
@@ -122,7 +136,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
         Alumno alumno = new Alumno(alumnoBolsa.getAlumno().getId());
         Persona persona = new Persona(alumnoBolsa.getAlumno().getPersona().getId());
-        Colaborador supervisor = new Colaborador(alumnoBolsa.getSupervisor().getId());
+        Colaborador supervisor = checkSupervisor(alumnoBolsa.getSupervisor(), ds);
         alumno.setPersona(persona);
 
         alumnoBolsa.setAlumno(alumno);
@@ -183,6 +197,31 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         alumnoBolsa.setUserRegistro(ds.getUsuario());
         alumnoBolsa.setFechaRegistro(today.toDate());
         alumnoBolsaInvestigacionDAO.save(alumnoBolsa);
+    }
+
+    private Colaborador checkSupervisor(Colaborador supervisor, DataSessionPivot ds) {
+        Colaborador colaborador = colaboradorDAO.find(supervisor);
+        Persona persona = colaborador.getPersona();
+        Usuario user = usuarioDAO.findActivoByPersona(persona);
+        Assert.isNotNull(user, "Este supervisor no tiene usuario asignado en el sistema");
+
+        UsuarioRol userRol = usuarioRolDAO.findByUsuarioRolEnum(user, RolEnum.SUPER_SUBV);
+        if (userRol != null) {
+            return colaborador;
+        }
+
+        Rol rol = rolDAO.findByCode(RolEnum.SUPER_SUBV);
+
+        userRol = new UsuarioRol();
+        userRol.setUsuario(user);
+        userRol.setRol(rol);
+        userRol.setEstadoEnum(UserEstadoEnum.ACT);
+        userRol.setFechaInicio(new Date());
+        userRol.setFechaRegistro(new Date());
+        userRol.setUserRegistro(ds.getUsuario());
+        usuarioRolDAO.save(userRol);
+
+        return colaborador;
     }
 
     @Override

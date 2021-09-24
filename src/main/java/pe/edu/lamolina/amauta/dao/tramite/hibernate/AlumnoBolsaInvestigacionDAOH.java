@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoBolsaInvestigacionEstadoEnum;
 import pe.edu.lamolina.model.tramite.AlumnoBolsaInvestigacion;
 import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
+import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 
 @Repository
 public class AlumnoBolsaInvestigacionDAOH extends AbstractEasyDAO<AlumnoBolsaInvestigacion> implements AlumnoBolsaInvestigacionDAO {
@@ -66,6 +67,16 @@ public class AlumnoBolsaInvestigacionDAOH extends AbstractEasyDAO<AlumnoBolsaInv
                 .filter("a.id", alumno);
 
         return find(sql);
+    }
+
+    @Override
+    public List<AlumnoBolsaInvestigacion> allByTramitesSubvenciones(List<TramiteSubvencion> subvenciones) {
+        Octavia sql = new Octavia()
+                .from(AlumnoBolsaInvestigacion.class, "abi")
+                .join("alumno a", "tramiteSubvencion ts", "bolsaInvestigacion bi")
+                .in("ts.id", subvenciones);
+
+        return all(sql);
     }
 
 }

@@ -245,7 +245,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.28.75</version>
+            <version>0.28.76</version>
         </dependency>
         
     </dependencies>
