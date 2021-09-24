@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,6 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteBienestarDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AlumnoBolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.BolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteBienestarDAO;
@@ -70,46 +70,29 @@ import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
 
 @Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
-    @Autowired
-    AccionTramiteBienestarDAO accionTramiteBienestarDAO;
-    @Autowired
-    AlumnoBolsaInvestigacionDAO alumnoBolsaInvestigacionDAO;
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    BolsaInvestigacionDAO bolsaInvestigacionDAO;
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-    @Autowired
-    FichaSocioeconomicaDAO fichaSocioeconomicaDAO;
-    @Autowired
-    FlujoTramiteBienestarDAO flujoTramiteBienestarDAO;
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-    @Autowired
-    RolDAO rolDAO;
-    @Autowired
-    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-    @Autowired
-    TipoSubvencionDAO tipoSubvencionDAO;
-    @Autowired
-    TramiteDAO tramiteDAO;
-    @Autowired
-    TramiteSubvencionDAO tramiteSubvencionDAO;
-    @Autowired
-    UsuarioDAO usuarioDAO;
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
+    private final AlumnoBolsaInvestigacionDAO alumnoBolsaInvestigacionDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final BolsaInvestigacionDAO bolsaInvestigacionDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final FichaSocioeconomicaDAO fichaSocioeconomicaDAO;
+    private final FlujoTramiteBienestarDAO flujoTramiteBienestarDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final RolDAO rolDAO;
+    private final TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+    private final TipoSubvencionDAO tipoSubvencionDAO;
+    private final TramiteDAO tramiteDAO;
+    private final TramiteSubvencionDAO tramiteSubvencionDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    OficinaService oficinaService;
-    @Autowired
-    SerieDocumentoService serieDocumentoService;
+    private final OficinaService oficinaService;
+    private final SerieDocumentoService serieDocumentoService;
 
     @Override
     @Transactional
@@ -265,7 +248,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findSubvencionByAlumnoCicloAcademico(alumnoForm, cicloAcademico);
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(cicloAcademico, alumnoForm);
 
-        BigDecimal prom = BigDecimal.ZERO;
+        BigDecimal prom;
         if (ultimoCiclo != null) {
             prom = ultimoCiclo.getPromedioCiclo().divide(BigDecimal.ONE, 2, RoundingMode.HALF_UP);
             int val = ultimoCiclo.getPromedioCiclo().compareTo(BigDecimal.valueOf(11));
@@ -321,6 +304,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
                 log.info("+++++++");
                 return mensajes;
             }
+            break;
         }
 
         if (tramiteSub != null && tramiteSub.getTramite().getEstadoEnum() != TramiteEstadoEnum.ANU) {
