@@ -25,6 +25,7 @@
                                               track-by="id"
                                               v-bind:options="tabGrupos['regulares'].tipoGrupoHorasOpts"
                                               label='descripcion'
+                                                  :allow-empty="false"
                                               v-on:input="cambiarCboTipoGrupoHorReg"
                                               v-if="tabGrupos['regulares'].tipoGrupoHorasOpts!=null"
                                               >
