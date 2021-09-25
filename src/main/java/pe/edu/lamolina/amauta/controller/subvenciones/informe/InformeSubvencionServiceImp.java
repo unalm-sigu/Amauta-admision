@@ -69,6 +69,7 @@ public class InformeSubvencionServiceImp implements InformeSubvencionService {
 
         informeBD.setEstadoEnum(ACEPTADO);
         informeBD.setFechaVoBo(new Date());
+        informeBD.setSupervisorVoBo(informeBD.getSupervisorVoBo());
         informeSubvencionadoDAO.update(informeBD);
 
     }

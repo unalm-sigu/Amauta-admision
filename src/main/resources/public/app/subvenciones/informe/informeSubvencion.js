@@ -19,7 +19,7 @@ new Vue({
     },
     methods: {
         classEstado(item) {
-            let estilos = {'PENDIENTE': 'danger', 'ACEPTADO': 'success', 'OBSERVA': 'warning', 'ANULADO': 'dark', 'VENCIDO': 'danger'};
+            let estilos = {'PENDIENTE': 'danger', 'PAGADO': 'success', 'OBSERVA': 'warning', 'ANULADO': 'dark', 'VENCIDO': 'danger'};
             let rpta = estilos[item.estado];
             if (rpta === undefined) {
                 return "label-primary";
