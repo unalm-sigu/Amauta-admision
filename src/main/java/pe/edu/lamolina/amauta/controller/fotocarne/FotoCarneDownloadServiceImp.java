@@ -279,7 +279,7 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
             if (StringUtils.isBlank(alumno.getPersona().getFoto())) {
 
                 fotosCarneLoteDown.getErrores()
-                        .add(new MsjError("Error descargando foto : " + name));
+                        .add(new MsjError("Error sin foto : " + name + " cod: " + alumno.getCodigo()));
                 continue;
             }
 
