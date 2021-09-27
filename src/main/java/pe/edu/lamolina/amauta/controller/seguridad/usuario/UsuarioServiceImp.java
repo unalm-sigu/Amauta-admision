@@ -315,7 +315,7 @@ public class UsuarioServiceImp implements UsuarioService {
             throw new PhobosException("Este usuario no se encuentra activo. Ya no puede modificarse sus perfiles.");
         }
 
-        UsuarioRol usuarioRol = usuarioRolDAO.findByUsuarioRol(usuario, rol);
+        UsuarioRol usuarioRol = usuarioRolDAO.findSinFechaFinByUsuarioRol(usuario, rol);
         if (usuarioRol != null && usuarioRol.getEstadoEnum() == UserEstadoEnum.ACT) {
             throw new PhobosException("El rol seleccionado ya se encuentra asignado");
         }

@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.seguridad;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
@@ -15,8 +16,6 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     List<UsuarioRol> allByUsuarioMenu(Usuario u, Menu menu);
 
-    UsuarioRol findByUsuarioAndRol(Usuario usuario, Rol rol);
-
     void deleteByUsuarioRol(Usuario usuario, List<Long> roles);
 
     List<UsuarioRol> allByUser(Usuario user);
@@ -25,13 +24,17 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     UsuarioRol findByUsuarioRol(Usuario usuario, Rol rol);
 
+    UsuarioRol findSinFechaFinByUsuarioRol(Usuario usuario, Rol rol);
+
+    UsuarioRol findByUsuarioRolEnum(Usuario usuario, RolEnum rolEnum);
+
     List<UsuarioRol> allByUsuarioRol(Usuario usuario, Rol rol);
 
     UsuarioRol find(UsuarioRol userRol);
 
-    UsuarioRol findByUserOficina(Usuario usuario1, Oficina oficina);
+    UsuarioRol findByUserOficina(Usuario usuario, Oficina oficina);
 
-    List<UsuarioRol> allByUserOficina(Usuario usuario1, Oficina oficina);
+    List<UsuarioRol> allByUserOficina(Usuario usuario, Oficina oficina);
 
     void updateInactivar(Colaborador colaborador, Usuario usuario);
 

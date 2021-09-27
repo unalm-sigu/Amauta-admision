@@ -10,6 +10,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -43,18 +44,6 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .linkedBy("r1.id", "r2.id");
 
         return all(sql);
-    }
-
-    @Override
-    public UsuarioRol findByUsuarioAndRol(Usuario usuario, Rol rol) {
-        Octavia sql = Octavia.query()
-                .from(UsuarioRol.class, "ur")
-                .join("rol rol", "usuario u")
-                .filter("rol.id", rol)
-                .filter("u.id", usuario);
-
-        return find(sql);
-
     }
 
     @Override
@@ -111,10 +100,33 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     public UsuarioRol findByUsuarioRol(Usuario usuario, Rol rol) {
         Octavia sql = Octavia.query()
                 .from(UsuarioRol.class, "ur")
+                .join("rol rol", "usuario u")
+                .filter("rol.id", rol)
+                .filter("u.id", usuario);
+
+        return find(sql);
+
+    }
+
+    @Override
+    public UsuarioRol findSinFechaFinByUsuarioRol(Usuario usuario, Rol rol) {
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol rol")
+                .filter("rol.id", rol)
+                .filter("u.id", usuario)
+                .isNull("ur.fechaFin");
+
+        return find(sql);
+    }
+
+    @Override
+    public UsuarioRol findByUsuarioRolEnum(Usuario usuario, RolEnum rolEnum) {
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
                 .join("usuario u", "rol r")
                 .filter("u.id", usuario)
-                .isNull("ur.fechaFin")
-                .filter("r.id", rol);
+                .filter("r.codigo", rolEnum);
 
         return find(sql);
     }

@@ -1,0 +1,131 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Informe de subvenciones</title>
+        <style>
+            .label-status {
+                padding: .4em .6em .4em;
+                font-size: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="informesVUE" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <p class="h2 m-b-n" th:inline="text"> Revisión de Informes de Subvención [[${ciclo.descripcion}]] </p>
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel  ">           
+                        <section class="panel-body ">
+
+                            <raptor-table url="/subvenciones/informe/list" ref="raptorInformes">
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4">Alumno</th>
+                                                <th class="col-md-4">Tipo subvención</th>
+                                                <th class="col-md-3 text-center">Informe</th>
+                                                <th class="col-md-1 text-center">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    <span class="block text-primary h5 m-t-xs m-b-xs"> {{ item.alumnoSubvencionado.alumno.persona.apellidosNombres }} </span> 
+                                                    <span class="block"
+                                                          v-if="item.alumnoSubvencionado.alumno.carrera.codigo != item.alumnoSubvencionado.alumno.carrera.facultad.codigo"> 
+                                                        Especialidad: {{ item.alumnoSubvencionado.alumno.carrera.nombre }}
+                                                    </span> 
+                                                    <span class="block"> 
+                                                        Facultad: {{ item.alumnoSubvencionado.alumno.carrera.facultad.nombre }}
+                                                    </span> 
+                                                    <span class="block"> Matrícula: {{ item.alumnoSubvencionado.alumno.codigo }} </span> 
+                                                    <span class="block small text-muted"
+                                                          v-if="item.alumnoSubvencionado.alumno.persona.tipoDocumento.simbolo"> 
+                                                        <span v-if="item.alumnoSubvencionado.alumno.persona.numeroDocIdentidad != '' ">
+                                                            {{ item.alumnoSubvencionado.alumno.persona.tipoDocumento.simbolo }} 
+                                                        </span>
+                                                        {{ item.alumnoSubvencionado.alumno.persona.numeroDocIdentidad }} 
+                                                    </span> 
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="d-block text-primary bold">{{item.alumnoSubvencionado.tipoSubvencion.nombre}}</div>
+                                                    <div v-if="item.tituloInvestigacion" class="d-block">
+                                                        <b>Título:</b> {{item.tituloInvestigacion}}
+                                                    </div>
+                                                    <div class="d-block text-primary">
+                                                        <b>Periodo:</b>
+                                                        {{item.calendarioInforme.year}}
+                                                        {{item.calendarioInforme.mes.nombre}}
+                                                    </div>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.archivoInforme" class="block">
+                                                        <a v-on:click="verTemporal(item.archivoInforme)" class="pointer">
+                                                            <i class="fa fa-file-word-o fa-2x text-primary"></i>
+                                                        </a>
+                                                    </span>
+
+                                                    <div v-if="item.estado == 'ENTREGADO' " class="m-t-md">
+                                                        <a v-on:click="verAprobar(item)" class="label label-success label-status">
+                                                            <i class="fa fa-check fa-lg"></i>
+                                                        </a>
+                                                        <a v-on:click="verDesaprobar(item)" class="label label-danger label-status">
+                                                            <i class="fa fa-times fa-lg"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="label" v-bind:class="classEstado(item)"> {{ item.estadoEnum.value }} </span>
+
+                                                    <a v-if="item.observaciones " class="btn btn-danger btn-xs m-t-md"
+                                                       v-on:click="verObservacion(item)">
+                                                        Ver observacion
+                                                    </a>
+                                                </td>
+
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions">                
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a href="#" >Editar</a></li>
+                                                        </ul>                
+                                                    </div>
+                                                </td>        
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <div th:substituteby="subvenciones/informe/_modalObservarInforme"/>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var rutaModulo = /*[[${rutaModulo}]]*/ null;
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/subvenciones/informe/informeSubvencion.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -252,7 +252,7 @@ public class ProfesorServiceImp implements ProfesorService {
         }
 
         Rol rol = rolDAO.findByCode(RolEnum.DOC);
-        UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+        UsuarioRol userRol = usuarioRolDAO.findByUsuarioRol(usuarioDb, rol);
         if (userRol == null) {
             userRol = new UsuarioRol();
             userRol.setEstadoEnum(UserEstadoEnum.ACT);
