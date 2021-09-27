@@ -152,4 +152,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> allDynatableAlumnoOmisoEleccion(DynatableFilter filter);
 
+    public List<Alumno> allByCodigos(List<String> codigosMatricula);
+
 }

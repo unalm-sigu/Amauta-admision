@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,6 +52,9 @@ public class FotoCarneController {
 
     @Autowired
     FotosCarneDown fotosCarneDownComponent;
+
+    @Autowired
+    FotosCarneLoteDown fotosCarneDownLoteComponent;
 
     @Autowired
     FotosCarneUpload fotosCarneUploadComponent;
@@ -146,6 +150,12 @@ public class FotoCarneController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "infoDownLote", method = RequestMethod.GET)
+    public ObjectNode infoDownLote(HttpSession session) {
+        return JaneHelper.from(fotosCarneDownLoteComponent).join("errores").json();
+    }
+
+    @ResponseBody
     @RequestMapping(value = "infoUp", method = RequestMethod.GET)
     public ObjectNode infoUp(HttpSession session) {
         return JaneHelper.from(fotosCarneUploadComponent).join("errores").json();
@@ -185,7 +195,7 @@ public class FotoCarneController {
 
             for (Carrera carrera : carreras) {
                 if (carrera.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                    if("99".equalsIgnoreCase(carrera.getCodigo())){
+                    if ("99".equalsIgnoreCase(carrera.getCodigo())) {
                         continue;
                     }
                     if (carrera.getTipoEnum().equals(TipoCarreraEnum.DOC)) {
@@ -210,6 +220,32 @@ public class FotoCarneController {
         }
 
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "descargarLote", method = RequestMethod.POST)
+    public void descargarLote(HttpServletResponse response, @RequestBody FotosCarneDto fotosCarneDto) throws IOException {
+
+        String resultado = service.descargarLote(fotosCarneDto);
+
+        response.reset();
+        response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=fotos.zip");
+
+        BufferedInputStream input = null;
+        BufferedOutputStream output = null;
+
+        try {
+            input = new BufferedInputStream(new FileInputStream(resultado), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            IOUtils.copy(input, output);
+            response.flushBuffer();
+        } finally {
+            close(output);
+            close(input);
+        }
+
     }
 
 }

@@ -10,7 +10,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Component
-public class FotosCarneDown {
+public class FotosCarneLoteDown {
 
     private Integer total;
 
@@ -26,7 +26,7 @@ public class FotosCarneDown {
 
     private String pathFile;
 
-    public FotosCarneDown() {
+    public FotosCarneLoteDown() {
         this.total = 0;
         this.avance = 0;
         this.iniciado = false;
@@ -52,18 +52,19 @@ public class FotosCarneDown {
         this.perAvance = perAvance;
     }
 
-    public void iniciarProceso(List<MatriculaResumen> matriculaResumens) {
+    public void iniciarProceso(List<Alumno> alumnos) {
         if (this.iniciado) {
             return;
         }
         this.iniciado = true;
-        this.matriculaResumens = matriculaResumens;
-        this.total = matriculaResumens.size();
+        this.total = alumnos.size();
         this.avance = 0;
         this.perAvance = ZERO;
         this.pathFile = "";
         this.errores = new ArrayList();
     }
+    
+    
 
     public void finalizarProceso() {
         this.iniciado = false;

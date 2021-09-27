@@ -6,4 +6,6 @@ public interface FotoCarneDownloadService {
 
     void compilarInformacion(DataSessionPivot ds, String carrera);
 
+    public String descargarLote(FotosCarneDto fotosCarneDto);
+
 }
