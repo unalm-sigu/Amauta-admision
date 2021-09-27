@@ -1480,19 +1480,21 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
                 Alumno alumno = alumnoDAO.find(tramiteBachiller.getTramite().getAlumno());
                 GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
-                ObtencionGrado obtencionGrado = new ObtencionGrado();
-                obtencionGrado.setAlumno(alumno);
-                obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
-                obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
-                obtencionGrado.setFechaRegistro(new Date());
-                obtencionGrado.setGradoAcademico(gradoAcademico);
-                obtencionGrado.setResolucion(resolucion);
-                obtencionGrado.setFechaObtencion(resolucion.getFecha());
-                obtencionGrado.setTramite(tramite);
-                obtencionGrado.setUserObtencion(ds.getUsuario());
-                obtencionGrado.setUserRegistro(ds.getUsuario());
-                obtencionGradoDAO.save(obtencionGrado);
-
+                ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumno, gradoAcademico);
+                if (obtencionGradoRegistrado == null) {
+                    ObtencionGrado obtencionGrado = new ObtencionGrado();
+                    obtencionGrado.setAlumno(alumno);
+                    obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
+                    obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
+                    obtencionGrado.setFechaRegistro(new Date());
+                    obtencionGrado.setGradoAcademico(gradoAcademico);
+                    obtencionGrado.setResolucion(resolucion);
+                    obtencionGrado.setFechaObtencion(resolucion.getFecha());
+                    obtencionGrado.setTramite(tramite);
+                    obtencionGrado.setUserObtencion(ds.getUsuario());
+                    obtencionGrado.setUserRegistro(ds.getUsuario());
+                    obtencionGradoDAO.save(obtencionGrado);
+                }
                 BigDecimal sumNotasCreditos = BigDecimal.ZERO;
                 BigDecimal sumCreditos = BigDecimal.ZERO;
 
@@ -1592,18 +1594,21 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
                 Alumno alumno = tramiteTitulo.getTramite().getAlumno();
                 GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.TIT, alumno.getCarrera());
-                ObtencionGrado obtencionGrado = new ObtencionGrado();
-                obtencionGrado.setAlumno(alumno);
-                obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
-                obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
-                obtencionGrado.setFechaRegistro(new Date());
-                obtencionGrado.setGradoAcademico(gradoAcademico);
-                obtencionGrado.setResolucion(resolucion);
-                obtencionGrado.setTramite(tramite);
-                obtencionGrado.setUserObtencion(ds.getUsuario());
-                obtencionGrado.setUserRegistro(ds.getUsuario());
-                obtencionGrado.setFechaObtencion(resolucion.getFecha());
-                obtencionGradoDAO.save(obtencionGrado);
+                ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumno, gradoAcademico);
+                if (obtencionGradoRegistrado == null) {
+                    ObtencionGrado obtencionGrado = new ObtencionGrado();
+                    obtencionGrado.setAlumno(alumno);
+                    obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
+                    obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
+                    obtencionGrado.setFechaRegistro(new Date());
+                    obtencionGrado.setGradoAcademico(gradoAcademico);
+                    obtencionGrado.setResolucion(resolucion);
+                    obtencionGrado.setTramite(tramite);
+                    obtencionGrado.setUserObtencion(ds.getUsuario());
+                    obtencionGrado.setUserRegistro(ds.getUsuario());
+                    obtencionGrado.setFechaObtencion(resolucion.getFecha());
+                    obtencionGradoDAO.save(obtencionGrado);
+                }
 
                 Egresado egresado = egresadoDAO.findByAlumno(alumno);
                 egresado.setPromedioAcumulado(alumno.getPromedioAcumulado());

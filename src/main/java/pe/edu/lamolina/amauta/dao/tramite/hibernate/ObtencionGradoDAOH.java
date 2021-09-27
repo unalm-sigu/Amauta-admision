@@ -15,6 +15,7 @@ import pe.edu.lamolina.amauta.controller.academico.graduado.GraduadoResumen;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.GradoAcademico;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.BACH;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.DOC;
@@ -141,6 +142,20 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .filter("et.codigo", "!=", ANU)
                 .filter("alu.id", alumno);
 
+        return find(sql);
+    }
+
+    @Override
+    public ObtencionGrado getByAlumnoGrado(Alumno alumno, GradoAcademico gradoAcademico) {
+        Octavia sql = Octavia.query()
+                .from(ObtencionGrado.class, "og")
+                .join("resolucion re", "alumno alu", "alu.persona per", "alu.carrera ca", "ca.facultad")
+                .join("cicloAcademico", "gradoAcademico ga")
+                .join("estadoTramite et")
+                .filter("ga.id", gradoAcademico)
+                .filter("et.codigo", "!=", ANU)
+                .filter("alu.id", alumno)
+                .limit(1);
         return find(sql);
     }
 

@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.amauta.controller.academico.graduado.GraduadoResumen;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.GradoAcademico;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -19,5 +20,7 @@ public interface ObtencionGradoDAO extends EasyDAO<ObtencionGrado> {
     GraduadoResumen findResumenGraduados(List<Carrera> carreras, String todo);
 
     public ObtencionGrado findByAlumnoAndTipo(Alumno alumno, TipoGradoAcademicoEnum tipoGradoAcademicoEnum);
+
+    public ObtencionGrado getByAlumnoGrado(Alumno alumno, GradoAcademico gradoAcademico);
 
 }
