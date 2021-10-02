@@ -1307,7 +1307,18 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .orderBy("al.id");
 
         return all(sql);
-        
+
+    }
+
+    @Override
+    public List<Alumno> allByCodigos(List<String> codigosMatricula) {
+
+        Octavia query = new Octavia()
+                .from(Alumno.class, "al")
+                .join("persona per", "per.tipoDocumento tipo")
+                .in("al.codigo", codigosMatricula);
+        return all(query);
+
     }
 
 }

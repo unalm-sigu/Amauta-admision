@@ -7,7 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
@@ -15,12 +19,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -33,7 +39,13 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
     FotosCarneDown fotosCarneComponent;
 
     @Autowired
+    FotosCarneLoteDown fotosCarneLoteDown;
+
+    @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -93,7 +105,7 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
             if (StringUtils.isBlank(matriculaResumen.getAlumno().getPersona().getNumeroDocIdentidad())) {
 
                 fotosCarneComponent.getErrores()
-                        .add(new MsjError("Alumno sin numero de documento "+matriculaResumen.getAlumno().getCodigo()));
+                        .add(new MsjError("Alumno sin numero de documento " + matriculaResumen.getAlumno().getCodigo()));
                 continue;
             }
 
@@ -197,6 +209,118 @@ public class FotoCarneDownloadServiceImp implements FotoCarneDownloadService {
             return "5_";
         }
         return String.format("%s_", tipoDocumento.getSunedu());
+    }
+
+    @Override
+    public String descargarLote(FotosCarneDto fotosCarneDto) {
+
+        if (StringUtils.isBlank(fotosCarneDto.getCodigos())) {
+            throw new PhobosException("Debe de ingresar por lo menos un código de alumno");
+        }
+
+        logger.debug("codigosMatricula {}", fotosCarneDto.getCodigos());
+
+        List<String> codigosMatricula = Arrays.asList(fotosCarneDto.getCodigos().split(","));
+
+        codigosMatricula = codigosMatricula.stream().map(x -> x.trim()).collect(Collectors.toList());
+
+        logger.debug("codigosMatricula size {}", codigosMatricula.size());
+
+        List<Alumno> alumnos = alumnoDAO.allByCodigos(codigosMatricula);
+
+        logger.debug("alumnos size {}", alumnos.size());
+
+        fotosCarneLoteDown.iniciarProceso(alumnos);
+
+        logger.debug("total de matriculas resumen {}", alumnos.size());
+
+        String folder = GlobalConstantine.TMP_DIR + "foto-lote-" + System.currentTimeMillis() + File.separator;
+
+        File directoryWorkSpace = new File(folder);
+
+        try {
+            FileUtils.deleteDirectory(directoryWorkSpace);
+        } catch (IOException ex) {
+            logger.debug("no existe workspace");
+        }
+
+        directoryWorkSpace.mkdir();
+
+        String hash = TypesUtil.toMD5(System.currentTimeMillis() + "");
+
+        String fotosZipPath = GlobalConstantine.TMP_DIR + "fotos-carnet-" + hash + ".zip";
+
+        File fotosZip = new File(fotosZipPath);
+
+        if (fotosZip.exists()) {
+
+            fotosZip.delete();
+
+        }
+
+        for (Alumno alumno : alumnos) {
+
+            logger.debug(" index {}", alumnos.indexOf(alumno));
+
+            String codigo = this.getTipoDocumentoSUNEDU(alumno.getPersona().getTipoDocumento());
+
+            if (StringUtils.isBlank(alumno.getPersona().getNumeroDocIdentidad())) {
+
+                fotosCarneLoteDown.getErrores()
+                        .add(new MsjError("Alumno sin numero de documento " + alumno.getCodigo()));
+                continue;
+
+            }
+
+            String name = codigo + alumno.getPersona().getNumeroDocIdentidad() + ".jpg";
+
+            File file = new File(folder + name);
+
+            if (StringUtils.isBlank(alumno.getPersona().getFoto())) {
+
+                fotosCarneLoteDown.getErrores()
+                        .add(new MsjError("Error sin foto : " + name + " cod: " + alumno.getCodigo()));
+                continue;
+            }
+
+            logger.debug("{}", alumno.getPersona().getFoto());
+
+            try {
+
+                URL url = new URL(alumno.getPersona().getFoto());
+                FileUtils.copyURLToFile(url, file);
+
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+
+                fotosCarneLoteDown.getErrores()
+                        .add(new MsjError("Error descargando foto : " + name));
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+                fotosCarneLoteDown.getErrores()
+                        .add(new MsjError("Error descargando foto : " + name));
+
+            }
+
+            fotosCarneLoteDown.setAvance(fotosCarneLoteDown.getAvance() + 1);
+
+        }
+
+        logger.debug("finalizo descarga {}", fotosZip.getPath());
+
+        logger.debug("comprimirArchivo {}", fotosZip.getPath());
+
+        comprimirArchivo(fotosZip, folder);
+
+        fotosCarneLoteDown.setPathFile(fotosZipPath);
+
+        fotosCarneLoteDown.finalizarProceso();
+
+        return fotosZipPath;
+
     }
 
 }
