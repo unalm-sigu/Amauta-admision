@@ -46,11 +46,12 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.TipoSubvencionDAO;
-import pe.edu.lamolina.amauta.dao.encuesta.FichaSocioeconomicaDAO;
+import pe.edu.lamolina.amauta.dao.socioeconomico.FichaSocioeconomicaDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.amauta.dao.socioeconomico.FlujoFichaSocioeconomicaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AlumnoBolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.BolsaInvestigacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteBienestarDAO;
@@ -66,6 +67,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.model.socioeconomico.FlujoFichaSocioeconomica;
 import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
 
 @Slf4j
@@ -81,6 +83,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     private final BolsaInvestigacionDAO bolsaInvestigacionDAO;
     private final ColaboradorDAO colaboradorDAO;
     private final FichaSocioeconomicaDAO fichaSocioeconomicaDAO;
+    private final FlujoFichaSocioeconomicaDAO flujoFichaSocioeconomicaDAO;
     private final FlujoTramiteBienestarDAO flujoTramiteBienestarDAO;
     private final MatriculaResumenDAO matriculaResumenDAO;
     private final RolDAO rolDAO;
@@ -128,17 +131,26 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         alumnoBolsa.setSupervisor(supervisor);
 
         FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), ciclo);
+        FichaSocioeconomicaEstadoEnum estadoFicha = FichaSocioeconomicaEstadoEnum.PEND;
         if (fichaSocioeconomica == null) {
             fichaSocioeconomica = new FichaSocioeconomica();
             fichaSocioeconomica.setAlumno(alumnoBolsa.getAlumno());
             fichaSocioeconomica.setCicloAcademico(ciclo);
-            fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
+            fichaSocioeconomica.setEstadoEnum(estadoFicha);
             fichaSocioeconomica.setFechaRegistro(today.toDate());
             fichaSocioeconomicaDAO.save(fichaSocioeconomica);
+
         } else {
-            fichaSocioeconomica.setEstado(FichaSocioeconomicaEstadoEnum.PEND.name());
+            fichaSocioeconomica.setEstadoEnum(estadoFicha);
             fichaSocioeconomicaDAO.update(fichaSocioeconomica);
         }
+
+        FlujoFichaSocioeconomica flujoFicha = new FlujoFichaSocioeconomica();
+        flujoFicha.setFichaSocioeconomica(fichaSocioeconomica);
+        flujoFicha.setEstadoEnum(estadoFicha);
+        flujoFicha.setUserRegistrado(ds.getUsuario());
+        flujoFicha.setFechaRegistro(today.toDate());
+        flujoFichaSocioeconomicaDAO.save(flujoFicha);
 
         Tramite tramite = new Tramite();
         tramite.setSerie(Long.parseLong(serie.getNumeroSerie()));

@@ -1,9 +1,8 @@
-package pe.edu.lamolina.amauta.controller.subvenciones.informe;
+package pe.edu.lamolina.amauta.controller.subvenciones.viajes;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,12 +23,11 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Slf4j
 @Controller
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
-@RequestMapping("subvenciones/informe")
-public class InformeSubvencionController {
+@RequestMapping("subvenciones/viajes")
+public class SubvencionViajesController {
 
-    private final InformeSubvencionService service;
+    @Autowired
+    SubvencionViajesService service;
 
     private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
@@ -39,37 +37,48 @@ public class InformeSubvencionController {
 
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("rutaModulo", rutaModulo);
-        return "subvenciones/informe/informeSubvencion";
+        return "subvenciones/viajes/subvencionViajes";
     }
 
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(HttpSession session, DynatableFilter filter) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<InformeSubvencionado> informes = service.allInformesByDynatble(ds.getPersona(), ds.getCicloAcademico(), filter);
+        DynatableResponse json = new DynatableResponse();
+        try {
 
-        ArrayNode array = JaneHelper
-                .from(informes)
-                .only("id,importeAsignado,motivoCambioImporte,observaciones,estado,estadoEnum,tituloInvestigacion,fechaInforme")
-                .join("archivoInforme", "id,ruta")
-                .join("alumnoSubvencionado", "horasLaborales")
-                .join("alumnoSubvencionado.tipoSubvencion", "nombre,codigo")
-                .join("alumnoSubvencionado.alumno", "id,codigo")
-                .join("alumnoSubvencionado.alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
-                .join("alumnoSubvencionado.alumno.persona.tipoDocumento", "simbolo")
-                .join("alumnoSubvencionado.alumno.carrera", "id,codigo,nombre")
-                .join("alumnoSubvencionado.alumno.carrera.facultad", "id,codigo,nombre")
-                .join("personaCuentaBancaria", "id,numeroCuenta,cuentaInterbancaria,esBcp")
-                .join("personaCuentaBancaria.banco", "nombre")
-                .join("personaCuentaBancaria.banco.empresa", "razonSocial")
-                .join("calendarioInforme", "year")
-                .join("calendarioInforme.mes", "nombre")
-                .join("supervisorVoBo", "id")
-                .join("supervisorVoBo.persona", "id")
-                .array();
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<InformeSubvencionado> informes = service.allInformesByDynatble(ds.getPersona(), ds.getCicloAcademico(), filter);
 
-        return filter.getDynatableResponse(array);
+            ArrayNode array = JaneHelper
+                    .from(informes)
+                    .only("id,importeAsignado,motivoCambioImporte,observaciones,estado,estadoEnum,tituloInvestigacion,fechaInforme")
+                    .join("archivoInforme", "id,ruta")
+                    .join("alumnoSubvencionado", "horasLaborales")
+                    .join("alumnoSubvencionado.tipoSubvencion", "nombre,codigo")
+                    .join("alumnoSubvencionado.alumno", "id,codigo")
+                    .join("alumnoSubvencionado.alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumnoSubvencionado.alumno.persona.tipoDocumento", "simbolo")
+                    .join("alumnoSubvencionado.alumno.carrera", "id,codigo,nombre")
+                    .join("alumnoSubvencionado.alumno.carrera.facultad", "id,codigo,nombre")
+                    .join("personaCuentaBancaria", "id,numeroCuenta,cuentaInterbancaria,esBcp")
+                    .join("personaCuentaBancaria.banco", "nombre")
+                    .join("personaCuentaBancaria.banco.empresa", "razonSocial")
+                    .join("calendarioInforme", "year")
+                    .join("calendarioInforme.mes", "nombre")
+                    .join("supervisorVoBo", "id")
+                    .join("supervisorVoBo.persona", "id")
+                    .array();
+
+            json.setData(array);
+            json.setTotal(informes.size());
+            json.setFiltered(informes.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
     }
 
     @ResponseBody

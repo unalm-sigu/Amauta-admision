@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.dao.encuesta;
+package pe.edu.lamolina.amauta.dao.socioeconomico;
 
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
