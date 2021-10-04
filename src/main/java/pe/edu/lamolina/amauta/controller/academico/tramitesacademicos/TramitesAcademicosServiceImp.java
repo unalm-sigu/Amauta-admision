@@ -433,7 +433,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         if (tramite.getTipoTramite().getEsCursoDirigido()) {
             CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
-            Oficina oficinaDestino = oficinaDAO.findByTipoAndFacultad(FAC, cursoDirigido.getFacultad());
+            Oficina oficinaDestino = oficinaDAO.findByTipoOficinaFacultad(FAC, cursoDirigido.getFacultad());
             accionTramiteAcademico.setOficinaDestino(oficinaDestino);
             accionTramiteAcademico.setOficinaOrigen(oficinaDestino);
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
@@ -37,7 +38,9 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allByCompania(Compania compania);
 
-    Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad);
+    Oficina findByTipoOficinaFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad);
+
+    Oficina findByTipoOficinaDptoAcademico(TipoOficinaEnum tipoOficinaEnum, DepartamentoAcademico departamento);
 
     Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno);
 

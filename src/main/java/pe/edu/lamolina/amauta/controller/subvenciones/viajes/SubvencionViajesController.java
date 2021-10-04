@@ -18,7 +18,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.bienestar.InformeSubvencionado;
+import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Slf4j
@@ -48,10 +48,10 @@ public class SubvencionViajesController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<InformeSubvencionado> informes = service.allInformesByDynatble(ds.getPersona(), ds.getCicloAcademico(), filter);
+            List<ViajeCurso> viajes = service.allViajesByDynatble(ds.getDocente(), ds.getCicloAcademico(), filter);
 
             ArrayNode array = JaneHelper
-                    .from(informes)
+                    .from(viajes)
                     .only("id,importeAsignado,motivoCambioImporte,observaciones,estado,estadoEnum,tituloInvestigacion,fechaInforme")
                     .join("archivoInforme", "id,ruta")
                     .join("alumnoSubvencionado", "horasLaborales")
@@ -71,8 +71,8 @@ public class SubvencionViajesController {
                     .array();
 
             json.setData(array);
-            json.setTotal(informes.size());
-            json.setFiltered(informes.size());
+            json.setTotal(viajes.size());
+            json.setFiltered(viajes.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,12 +82,16 @@ public class SubvencionViajesController {
     }
 
     @ResponseBody
-    @RequestMapping("aprobarInforme")
-    public JsonResponse aprobarInforme(@RequestBody InformeSubvencionado informe, HttpSession session) {
+    @RequestMapping("saveViaje")
+    public JsonResponse saveViaje(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.aprobarInforme(informe, ds.getPersona(), ds);
+            if (viajeCurso.getId() == null) {
+                service.saveViaje(viajeCurso, ds.getCicloAcademico(), ds);
+            } else {
+                service.updateViaje(viajeCurso, ds.getCicloAcademico(), ds);
+            }
 
             response.setSuccess(true);
             response.setMessage("Se aprobó satisfactoriamente el informe");
@@ -102,15 +106,55 @@ public class SubvencionViajesController {
     }
 
     @ResponseBody
-    @RequestMapping("observarInforme")
-    public JsonResponse observarInforme(@RequestBody InformeSubvencionado informe, HttpSession session) {
+    @RequestMapping("solicitarAprobarViaje")
+    public JsonResponse solicitarAprobarViaje(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.observarInforme(informe, ds.getPersona(), ds);
+            service.solicitarAprobarViaje(viajeCurso, ds);
 
             response.setSuccess(true);
-            response.setMessage("Se observó satisfactoriamente el informe");
+            response.setMessage("Se aprobó satisfactoriamente el informe");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("aprobarViaje")
+    public JsonResponse aprobarViaje(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.aprobarViaje(viajeCurso, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se aprobó satisfactoriamente el informe");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("aprobarJustificacion")
+    public JsonResponse aprobarJustificacion(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.aprobarJustificacion(viajeCurso, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se aprobó satisfactoriamente el informe");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

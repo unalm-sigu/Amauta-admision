@@ -340,7 +340,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         Oficina oficinaEPG = oficinaDAO.findByCode(OficinaEnum.EPG.name());
         Oficina oficinaUR = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Oficina oficinaOREA = oficinaDAO.findByCode(OficinaEnum.OERA.name());
-        Oficina oficinaFacultad = oficinaDAO.findByTipoAndFacultad(TipoOficinaEnum.FAC, alumno.getCarrera().getFacultad());
+        Oficina oficinaFacultad = oficinaDAO.findByTipoOficinaFacultad(TipoOficinaEnum.FAC, alumno.getCarrera().getFacultad());
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
 

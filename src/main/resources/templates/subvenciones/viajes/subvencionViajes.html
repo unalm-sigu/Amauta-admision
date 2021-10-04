@@ -1,0 +1,90 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Viajes Curso</title>
+        <style>
+            .label-status {
+                padding: .4em .6em .4em;
+                font-size: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="informesVUE" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <p class="h2 m-b-n" th:inline="text"> Viajes de curso [[${ciclo.descripcion}]] </p>
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel  ">           
+                        <section class="panel-body ">
+
+                            <raptor-table url="/subvenciones/informe/list" ref="raptorInformes">
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4">Curso</th>
+                                                <th class="col-md-4">Sección</th>
+                                                <th class="col-md-3 text-center">Delegado</th>
+                                                <th class="col-md-1 text-center">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    
+                                                </td>
+
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions">                
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a href="#" >Editar</a></li>
+                                                        </ul>                
+                                                    </div>
+                                                </td>        
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <!--<div th:substituteby="subvenciones/informe/_modalObservarInforme"/>-->
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var rutaModulo = /*[[${rutaModulo}]]*/ null;
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/subvenciones/viajes/subvencionViajes.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

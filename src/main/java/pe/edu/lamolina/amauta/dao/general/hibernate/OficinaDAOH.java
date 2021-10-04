@@ -13,6 +13,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -200,7 +201,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     }
 
     @Override
-    public Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad) {
+    public Oficina findByTipoOficinaFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "o")
                 .join("tipoOficina to")
@@ -212,13 +213,26 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     }
 
     @Override
+    public Oficina findByTipoOficinaDptoAcademico(TipoOficinaEnum tipoOficinaEnum, DepartamentoAcademico departamento) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .leftJoin("personaJefe", "jefeEncargado")
+                .filter("to.codigo", tipoOficinaEnum)
+                .filter("o.instanciaOficina", departamento)
+                .filter("codigo", departamento.getCodigo());
+
+        return (Oficina) sql.find(getCurrentSession());
+    }
+
+    @Override
     public Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno) {
         Oficina oficinaOrigen = null;
         if (ObjectUtil.getParentTree(accionTramiteAcademico, "oficinaOrigen.id") != null) {
             oficinaOrigen = this.find(accionTramiteAcademico.getOficinaOrigen().getId());
         } else {
             if (accionTramiteAcademico.getTipoOficinaOrigen().isTipoFacultad()) {
-                oficinaOrigen = this.findByTipoAndFacultad(
+                oficinaOrigen = this.findByTipoOficinaFacultad(
                         TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaOrigen().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
@@ -228,7 +242,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
             oficinaDestino = this.find(accionTramiteAcademico.getOficinaDestino().getId());
         } else {
             if (accionTramiteAcademico.getTipoOficinaDestino().isTipoFacultad()) {
-                oficinaDestino = this.findByTipoAndFacultad(
+                oficinaDestino = this.findByTipoOficinaFacultad(
                         TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaDestino().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
@@ -246,7 +260,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
             oficinaOrigen = this.find(accionTramiteDoc.getOficinaOrigen().getId());
         } else {
             if (accionTramiteDoc.getTipoOficinaOrigen().isTipoFacultad()) {
-                oficinaOrigen = this.findByTipoAndFacultad(
+                oficinaOrigen = this.findByTipoOficinaFacultad(
                         TipoOficinaEnum.valueOf(accionTramiteDoc.getTipoOficinaOrigen().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
@@ -256,7 +270,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
             oficinaDestino = this.find(accionTramiteDoc.getOficinaDestino().getId());
         } else {
             if (accionTramiteDoc.getTipoOficinaDestino().isTipoFacultad()) {
-                oficinaDestino = this.findByTipoAndFacultad(
+                oficinaDestino = this.findByTipoOficinaFacultad(
                         TipoOficinaEnum.valueOf(accionTramiteDoc.getTipoOficinaDestino().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
