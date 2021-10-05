@@ -235,8 +235,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         int factorHoras = 0;
         if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG) {
             factorHoras = 1;
-        } else if (cicloDestino.getTipoEnum() == TipoCicloEnum.NIV) {
+        } else if (cicloDestino.getTipoEnum() == TipoCicloEnum.NIV && cicloDestino.getNumeroCiclo().equalsIgnoreCase("0")) {
             factorHoras = 3;
+        } else if (cicloDestino.getTipoEnum() == TipoCicloEnum.NIV && !cicloDestino.getNumeroCiclo().equalsIgnoreCase("0")) {
+            factorHoras = 4;
         }
 
         EventoCicloAcademico eventoDictadoVeranoInviernoPregrado = this.getEventoDictadoClases(cicloDestino);
