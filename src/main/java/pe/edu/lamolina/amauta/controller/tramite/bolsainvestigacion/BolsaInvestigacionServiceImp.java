@@ -148,7 +148,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         FlujoFichaSocioeconomica flujoFicha = new FlujoFichaSocioeconomica();
         flujoFicha.setFichaSocioeconomica(fichaSocioeconomica);
         flujoFicha.setEstadoEnum(estadoFicha);
-        flujoFicha.setUserRegistro(ds.getUsuario());
+        flujoFicha.setUserRegistrado(ds.getUsuario());
         flujoFicha.setFechaRegistro(today.toDate());
         flujoFichaSocioeconomicaDAO.save(flujoFicha);
 

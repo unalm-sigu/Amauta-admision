@@ -74,7 +74,7 @@
                                                     <span class="block m-t-xs" v-if="item.codigo"> {{ item.codigo }}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <span class="label" v-bind:class="label[item.estado]"> {{ labelText[item.estado] }}</span>
+                                                    <span class="label" v-bind:class="label[item.estado]"> {{ item.estadoEnum.value }}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
