@@ -129,7 +129,8 @@ new Vue({
         docentesSeccionesNoEncuLista: [],
         pageNoProcesados: {currentPage: 1},
         paginationNoProcesados: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true},
-        modalidadEstudio: null
+        modalidadEstudio: null,
+        label: {'INA': 'label-danger', 'ACT': 'label-success', 'FECH': 'label-danger', 'TEO': 'label-warning', 'ANU': 'label-default', 'CER': 'label-primary'},
     },
     mounted: function () {
         let $vue = this;
@@ -1017,6 +1018,18 @@ new Vue({
         },
         openAddPeriodo() {
             this.$refs.editarperiodoencuesta.open();
+        },
+        openPop($event, title) {
+            $($event.target).popover({
+                content: title
+            });
+            $($event.target).popover('show');
+        },
+        closePop($event) {
+            $($event.target).popover('hide');
+        },
+        afterLoad() {
+            $('[data-toggle="popover"]').popover("destroy");
         }
 
     }

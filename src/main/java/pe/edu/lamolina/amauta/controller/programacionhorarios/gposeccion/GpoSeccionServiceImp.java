@@ -1140,10 +1140,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<AmpliacionVacantes> ampliacioness = ampliacionVacanteDAO.allBySeccion(seccionBD);
 
         if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty()) {
+            logger.debug("seccionBD {} revisar en saco de anular on encuestas", seccionBD.getId());
+            logger.debug("seccionBD {}", seccionBD.getId());
             this.deleteDependenciasSeccion(seccionBD);
             seccionDAO.delete(seccionBD);
-
+            logger.debug("seccion eliminada {}");
             List<Seccion> seccionesAll = seccionDAO.allByGpoSeccion(grupoSeccion);
+            logger.debug("seccionesAll {}", seccionesAll.size());
             if (seccionesAll.size() <= 1) {
                 for (Seccion seccion : seccionesAll) {
                     this.deleteDependenciasSeccion(seccion);
@@ -2476,7 +2479,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionaModalidadEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionaModalidadEach);
             }
-            
+
             for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
                 restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionCarreraEach.setFechaModificacion(today.toDate());
@@ -2964,9 +2967,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int factorHoras = 0;
         if (ciclo.getTipoEnum() == TipoCicloEnum.REG) {
             factorHoras = 1;
-        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && !ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
+        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("0")) {
             factorHoras = 3;
-        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && ciclo.getNumeroCiclo().equalsIgnoreCase("1.5")) {
+        } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV && !ciclo.getNumeroCiclo().equalsIgnoreCase("0")) {
             factorHoras = 4;
         }
 
@@ -3086,9 +3089,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoria());
             cca.setHorasSemanalesPractica(cursoBD.getHorasPractica());
 
-        } else if (cicloBD.getTipoEnum() == TipoCicloEnum.NIV) {
+        } else if (cicloBD.getTipoEnum() == TipoCicloEnum.NIV && cicloBD.getNumeroCiclo().equalsIgnoreCase("0")) {
             cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoriaVerano());
             cca.setHorasSemanalesPractica(cursoBD.getHorasPracticaVerano());
+        } else if (cicloBD.getTipoEnum() == TipoCicloEnum.NIV && !cicloBD.getNumeroCiclo().equalsIgnoreCase("0")) {
+            cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoria() * 4);
+            cca.setHorasSemanalesPractica(cursoBD.getHorasPractica() * 4);
         }
         cursoCicloAcademicoDAO.save(cca);
 

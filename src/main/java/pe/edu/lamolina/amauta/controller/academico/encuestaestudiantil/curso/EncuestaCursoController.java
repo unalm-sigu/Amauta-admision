@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -27,7 +28,6 @@ import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -53,10 +53,7 @@ public class EncuestaCursoController {
         List<ModalidadEstudio> modalidadEstudios = service.allModalidadEstudio();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (ModalidadEstudio modalidadEstudio : modalidadEstudios) {
-            arr.add(JsonHelper.createJson(modalidadEstudio, JsonNodeFactory.instance, new String[]{"*"}));
-        }
+        ArrayNode arr = JaneHelper.from(modalidadEstudios).array();
 
         model.addAttribute("modalidadEstudios", arr);
         model.addAttribute("cicloAcademico", cicloAcademico);
@@ -68,13 +65,9 @@ public class EncuestaCursoController {
     }
 
     private ArrayNode createFacultadesJson(CicloAcademico cicloAcademico) {
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
         List<Facultad> facultades = service.allFacultadesFromCursos(cicloAcademico);
-        for (Facultad fac : facultades) {
-            ObjectNode node = JsonHelper.createJson(fac, JsonNodeFactory.instance, new String[]{"id", "nombre", "codigo"});
-            array.add(node);
-        }
-        return array;
+        return JaneHelper.from(facultades).only("id,nombre,codigo").array();
 
     }
 
@@ -82,9 +75,10 @@ public class EncuestaCursoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<DepartamentoAcademico> departamentos = service.allDepartamentosFromCursos(cicloAcademico);
         for (DepartamentoAcademico dpto : departamentos) {
-            ObjectNode node = JsonHelper.createJson(dpto, JsonNodeFactory.instance,
-                    new String[]{"id", "nombre", "codigo", "facultad.id", "facultad.nombre"}
-            );
+            ObjectNode node = JaneHelper.from(dpto)
+                    .only("id,nombre,codigo")
+                    .join("facultad", "id,nombre")
+                    .json();
             node.put("nombreCodigo", dpto.getNombre() + " (" + dpto.getCodigo() + ")");
             array.add(node);
         }
@@ -160,9 +154,11 @@ public class EncuestaCursoController {
         JsonResponse response = new JsonResponse();
 
         try {
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(cicloAcademico);
+            
+            EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(ds.getCicloAcademico());
+            
             ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
                 "*",
                 "configuraEncuesta.*",

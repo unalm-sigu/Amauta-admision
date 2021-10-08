@@ -209,7 +209,7 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="encuestaURL" ref="raptorEncu" v-bind:preload="false">
+                            <raptor-table v-bind:url="encuestaURL" ref="raptorEncu" v-bind:preload="false" v-bind:afterprocess="afterLoad">
 
                                 <div slot="header">
                                     <div class="col-sm-5">
@@ -387,11 +387,15 @@
 
                                                 <td class="v-middle text-center">
 
-                                                    <span v-if="item.estado=='ACT'" class="label pointer label-success" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='INA'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='TEO'" class="label pointer label-warning" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='ANU'" class="label pointer label-default" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='CER'" class="label pointer label-primary" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span data-container="body" 
+                                                          data-toggle="popover" 
+                                                          data-placement="left" 
+                                                          v-bind:data-content="item.descripcion" 
+                                                          v-bind:class="label[item.estado]"
+                                                          class="label pointer"
+                                                          v-on:mouseover="openPop($event,item.descripcion)"
+                                                          v-on:mouseleave="closePop($event)"
+                                                          >{{item.estadoEnum.value}}</span>
 
                                                 </td>
 
@@ -439,10 +443,10 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
-            
-            
+
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            
+
             <script th:src="@{/app/academico/encuestaestudiantil/curso/encuestaCurso.js}" charset="utf-8"></script>
         </div>
 
