@@ -1,8 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentemodalidad;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -14,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.context.Context;
@@ -24,7 +23,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
@@ -32,7 +30,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
-import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
@@ -78,9 +75,10 @@ public class EncuestaDocenteModalidadController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        String codeRequest = verificadorService.generateCodeRequest();
 
         try {
+
+            String codeRequest = verificadorService.generateCodeRequest();
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -88,23 +86,15 @@ public class EncuestaDocenteModalidadController {
             List<Facultad> facultades = service.allAccesoFacultades(ds, request, codeRequest);
             List<DepartamentoAcademico> departamentos = service.allAccesoDepartamentos(ds, facultades, ciclo, request, codeRequest);
             List<EncuestaDocenteModalidad> encuestas = service.allByDynatableCicloAcademico(filter, ciclo, departamentos, ds);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (EncuestaDocenteModalidad encu : encuestas) {
-
-                ObjectNode node = JsonHelper.createJson(encu, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "docente.codigo",
-                            "docente.departamentoAcademico.nombre",
-                            "docente.departamentoAcademico.facultad.nombre",
-                            "docente.persona.apellidosNombres",
-                            "docente.persona.tipoDocumento.simbolo",
-                            "docente.persona.numeroDocIdentidad",
-                            "modalidadEstudio.nombre"
-                        });
-                array.add(node);
-            }
+            ArrayNode array = JaneHelper.from(encuestas)
+                    .join("docente", "codigo")
+                    .join("docente.departamentoAcademico", "nombre")
+                    .join("docente.departamentoAcademico.facultad", "nombre")
+                    .join("docente.persona", "apellidosNombres,numeroDocIdentidad")
+                    .join("docente.persona.tipoDocumento", "simbolo")
+                    .join("modalidadEstudio", "nombre")
+                    .array();
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -122,18 +112,13 @@ public class EncuestaDocenteModalidadController {
     public JsonResponse resumenTemas(@PathVariable Long id) {
         JsonResponse response = new JsonResponse();
         try {
-            List<PuntajeEncuestaDocenteModalidad> lista = service.resumenTemas(new EncuestaDocenteModalidad(id));
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
 
-            for (PuntajeEncuestaDocenteModalidad item : lista) {
-                arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                    "puntaje",
-                    "desviacionStandar",
-                    "temaEncuesta.nombre"
-                }));
-            }
+            ArrayNode arr = JaneHelper.from(service.resumenTemas(new EncuestaDocenteModalidad(id)))
+                    .join("temaEncuesta", "nombre").array();
+
             response.setData(arr);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -152,25 +137,22 @@ public class EncuestaDocenteModalidadController {
     }
 
     @RequestMapping("reporte/todos")
-    public ModelAndView reporteTodos(@RequestParam(value = "departamento", required = false) Long departamentoId,
-            @RequestParam("tipoGrado") String tipoGrado,
-            @RequestParam(value = "cicloAcademico", required = false) Long cicloAcademicoId,
-            @RequestParam(value = "facultad", required = false) Long facultadId,
+    public ModelAndView reporteTodos(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
 
         String codeRequest = verificadorService.generateCodeRequest();
 
-        ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(tipoGrado);
+        ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(filtro.getTipoGrado());
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
-        if (facultadId != null) {
+        if (filtro.getFacultad()!= null) {
 
             List<DepartamentoAcademico> departamentosXfacutad = departamentos
                     .stream()
-                    .filter(x -> x.getFacultad().getId() == facultadId)
+                    .filter(x -> x.getFacultad().getId() == filtro.getFacultad())
                     .collect(Collectors.toList());
 
             if (!departamentosXfacutad.isEmpty()) {
@@ -179,14 +161,30 @@ public class EncuestaDocenteModalidadController {
 
         }
 
-        if (departamentoId != null) {
-            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
+        if (filtro.getDepartamento()!= null) {
+            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
         }
 
-        CicloAcademico ciclo = cicloAcademicoId != null ? new CicloAcademico(cicloAcademicoId) : ds.getCicloAcademico();
+        List<CicloAcademico> ciclos = new ArrayList();
 
-        List<Context> mulitpleContext = service.reporteTodos(ciclo, modalidadEstudioEnum, departamentos);
-        model.addAttribute("multipleContext", mulitpleContext);
+        if (filtro.hasCiclo()) {
+            ciclos.addAll(filtro.getCicloAcademicos());
+        } else {
+            ciclos.add(ds.getCicloAcademico());
+        }
+
+        if (filtro.getDocente()!= null) {
+
+            List<Context> mulitpleContext = service.reporteUnicoDocenteMultipleCiclo(ciclos, modalidadEstudioEnum, departamentos, filtro.getDocente());
+            model.addAttribute("multipleContext", mulitpleContext);
+
+        } else {
+
+            List<Context> mulitpleContext = service.reporteTodos(ciclos.get(0), modalidadEstudioEnum, departamentos);
+            model.addAttribute("multipleContext", mulitpleContext);
+
+        }
+
         model.addAttribute("templatePdf", "resultadoencuesta");
         model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
 

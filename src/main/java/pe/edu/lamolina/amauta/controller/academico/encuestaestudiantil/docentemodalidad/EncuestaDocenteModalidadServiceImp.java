@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -272,7 +273,43 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         }
 
         return multipleContext;
-        
+
+    }
+
+    @Override
+    public List<Context> reporteUnicoDocenteMultipleCiclo(List<CicloAcademico> cicloAcademicos, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos, Long idDocente) {
+
+        List<Context> multipleContext = new ArrayList();
+
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(modalidadEstudioEnum);
+
+        for (CicloAcademico cicloAcademico : cicloAcademicos) {
+
+            List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCicloDocente(cicloAcademico, modalidadEstudio, departamentos, new Docente(idDocente));
+
+            List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademico(new Docente(idDocente), modalidadEstudio, cicloAcademico);
+
+            Map<Long, List<PuntajeEncuestaDocente>> pedsXdocente = peds.stream()
+                    .collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getDocente().getId()));
+
+            List<PuntajeEncuestaDocenteModalidad> puntajes = puntajeEncuestaDocenteModalidadDAO.allByEncuestasDocenteModalidad(encuestas);
+
+            Map<Long, List<PuntajeEncuestaDocenteModalidad>> puntajesXencuesta = puntajes.stream()
+                    .collect(Collectors.groupingBy(x -> x.getEncuestaDocenteModalidad().getDocente().getId()));
+
+            List<EncuestaDocente> anuladas = encuestaDocenteDAO.allAnuladaByModalidadEstudioDocenteCicloAcademico(modalidadEstudio, new Docente(idDocente), cicloAcademico);
+
+            List dfault = new ArrayList();
+            Long key = null;
+
+            for (EncuestaDocenteModalidad encuesta : encuestas) {
+                key = encuesta.getDocente().getId();
+                multipleContext.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), anuladas));
+            }
+        }
+
+        return multipleContext;
+
     }
 
     private String buildPlot(List<PuntajeEncuestaDocenteModalidad> puntajes) {

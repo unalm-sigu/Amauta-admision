@@ -14,7 +14,9 @@ new Vue({
         facultad: null,
         departamento: null,
         tipoGrado: {id: 'PRE', nombre: 'Pregrado'},
-        grados: [{id: 'PRE', nombre: 'Pregrado'}, {id: 'EPG', nombre: 'Posgrado'}]
+        grados: [{id: 'PRE', nombre: 'Pregrado'}, {id: 'EPG', nombre: 'Posgrado'}],
+        docente: null,
+        docentes: []
     },
     methods: {
         findTemas(item) {
@@ -34,14 +36,14 @@ new Vue({
         },
         downloadReporteTotal() {
             let vue = this;
-            let data = {params: {
-                    cicloAcademico: vue.ciclo?vue.ciclo.id:'',
+            let data = {
+                    cicloAcademicos: vue.ciclo,
                     departamento: vue.departamento ? vue.departamento.id : '',
                     tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
                     facultad: vue.facultad ? vue.facultad.id : '',
-                }};
-
-            axios_blob.get("/academico/encuestaestudiantil/docentemodalidad/reporte/todos", data)
+                    docente: vue.docente ? vue.docente.id : '',
+                };
+            axios_blob.post("/academico/encuestaestudiantil/docentemodalidad/reporte/todos", data)
                     .then(response => {
                         UTIL_BLOB.save(response);
                         vue.$refs.reporteGeneralModal.close();
@@ -49,7 +51,6 @@ new Vue({
                         vue.$refs.reporteGeneralModal.stop();
                         notify(Messages.errorComunicacion, 'error')
                     });
-
         },
         changeFacultad() {
             let $vue = this;
@@ -68,6 +69,17 @@ new Vue({
                 $vue.departamentosSelectos;
 
             }
+        },
+        searchDocente(nombre) {
+            let $vue = this;
+            if (!nombre) {
+                return;
+            }
+            axios.get(APP.url("academico/profesor/searchDocente"),
+                    {params: {nombre: nombre}})
+                    .then(response => {
+                        $vue.docentes = response.data;
+                    });
         }
     }
 });

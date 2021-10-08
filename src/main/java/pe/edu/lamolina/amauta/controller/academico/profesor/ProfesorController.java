@@ -29,6 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,7 +49,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.academico.profesor.view.DocenteCargaAcademicaPDF;
+import pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentemodalidad.FiltroEncuestaCargaAcademicaDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -60,6 +61,7 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.amauta.controller.docente.notasacademicas.NotaAcademicaService;
@@ -97,8 +99,8 @@ public class ProfesorController {
     ProfesoresPDF profesoresPDF;
 
     @Autowired
-    DocenteCargaAcademicaPDF docenteCargaAcademicaPDF;
-
+    ReporteCargaAcademicaPDF reporte;
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @InitBinder
@@ -612,11 +614,7 @@ public class ProfesorController {
     }
 
     @RequestMapping("reporteCargaAcademica")
-    public ModelAndView reporteCargaAcademica(@RequestParam(value = "departamento", required = false) Long departamentoId,
-            @RequestParam(value = "tipoGrado", required = false) String tipoGrado,
-            @RequestParam(value = "cicloAcademico", required = false) Long idCicloAcademico,
-            @RequestParam(value = "facultad", required = false) Long facultadId,
-            @RequestParam(value = "docente", required = false) Long idDocente,
+    public ModelAndView reporteCargaAcademica(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -624,17 +622,11 @@ public class ProfesorController {
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-        if (idCicloAcademico != null) {
-            cicloAcademico = service.findCicloAcademico(idCicloAcademico);
-        }
-
-        if (facultadId != null) {
+        if (filtro.getFacultad() != null) {
 
             List<DepartamentoAcademico> departamentosXfacutad = departamentos
                     .stream()
-                    .filter(x -> x.getFacultad().getId() == facultadId)
+                    .filter(x -> x.getFacultad().getId() == filtro.getFacultad())
                     .collect(Collectors.toList());
 
             if (!departamentosXfacutad.isEmpty()) {
@@ -643,37 +635,34 @@ public class ProfesorController {
 
         }
 
-        if (departamentoId != null) {
-            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(departamentoId)));
+        if (filtro.getDepartamento() != null) {
+            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
         }
 
         List<Docente> docentes = new ArrayList<>();
-        
-        if (idDocente != null) {
-            docentes.add(service.find(new Docente(idDocente)));
+
+        if (filtro.getDocente() != null) {
+            docentes.add(service.find(new Docente(filtro.getDocente())));
         } else {
             docentes = service.allDocenteByDepartamentosAcademicoEstado(departamentos, EnteAcademicoEstadoEnum.ACT);
         }
 
-        List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclo(docentes, cicloAcademico);
+        List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionActivosByDocentesCiclos(docentes, filtro.getCicloAcademicos());
 
         List<Seccion> secciones = docentesSecciones.stream().map(x -> x.getSeccion())
                 .distinct().collect(Collectors.toList());
 
         List<HorarioSeccion> horarioSecciones = service.allHorarioSeccionBySecciones(secciones);
 
-        Oficina oficina = service.findOficina(OficinaEnum.OERA);
-
-        model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("oficina", oficina);
-        model.addAttribute("tipoGrado", tipoGrado);
+        model.addAttribute("cicloAcademicos", filtro.getCicloAcademicos());
+        model.addAttribute("tipoGrado", filtro.getTipoGrado());
 
         model.addAttribute("docentes", docentes);
 
         model.addAttribute("docentesSecciones", docentesSecciones);
         model.addAttribute("horarioSecciones", horarioSecciones);
 
-        return new ModelAndView(docenteCargaAcademicaPDF);
+        return new ModelAndView(reporte);
     }
 
     @ResponseBody

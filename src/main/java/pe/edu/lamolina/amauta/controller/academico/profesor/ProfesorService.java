@@ -71,4 +71,6 @@ public interface ProfesorService {
 
     public List<Docente> allByNombre(String nombre);
 
+    public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclos(List<Docente> docentes, List<CicloAcademico> cicloAcademicos);
+
 }

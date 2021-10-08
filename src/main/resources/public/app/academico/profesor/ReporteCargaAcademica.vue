@@ -17,6 +17,7 @@
                                  placeholder="Seleccione el ciclo académico"
                                  deselect-label=" "
                                  select-label=" "
+                                 v-bind:multiple="true"
                                  track-by='id'
                                  v-bind:allow-empty="true"
                                  v-bind:options='ciclos'>
@@ -134,14 +135,14 @@
             },
             downloadReporteCargaAcademica() {
                 let vue = this;
-                let data = {params: {
+                let data = {
                         departamento: vue.departamento ? vue.departamento.id : '',
                         tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
                         facultad: vue.facultad ? vue.facultad.id : '',
-                        cicloAcademico: vue.ciclo ? vue.ciclo.id : '',
+                        cicloAcademicos: vue.ciclo,
                         docente: vue.docente ? vue.docente.id : '',
-                    }};
-                axios_blob.get("/academico/profesor/reporteCargaAcademica", data)
+                    };
+                axios_blob.post("/academico/profesor/reporteCargaAcademica", data)
                         .then(response => {
                             UTIL_BLOB.save(response);
                             vue.$refs.modalReporteCargaAcademica.close();

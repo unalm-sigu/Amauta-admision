@@ -34,6 +34,7 @@
             <label class="bold">Ciclo Académico</label>
 
             <multiselect v-model='ciclo'
+                         v-bind:multiple="true"
                          label='descripcion'
                          placeholder="Seleccione un ciclo "
                          deselect-label=""
@@ -84,6 +85,37 @@
                          v-bind:allow-empty="false"
                          v-bind:options='grados'>
             </multiselect>
+        </div>
+
+        <div class="form-group m-b-xs">
+            <label class="bold">Docente</label>
+
+            <multiselect 
+                v-model="docente" 
+                v-bind:options="docentes"
+                v-on:search-change="searchDocente"
+                placeholder=" "
+                v-bind:allow-empty="true"
+                deselect-label=" "
+                v-bind:internal-search='false'
+                track-by="id" 
+                required="true"
+                v-bind:showNoOptions="true"
+                v-bind:show-labels="false" >
+
+                <template slot="singleLabel" slot-scope="props">
+                    <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                </template>
+
+                <template slot="option" slot-scope="props">
+                    <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                </template>
+
+                <template slot="noOptions">&nbsp;</template>
+                <template slot="noResult">&nbsp;</template>
+
+            </multiselect>
+
         </div>
 
     </div>
