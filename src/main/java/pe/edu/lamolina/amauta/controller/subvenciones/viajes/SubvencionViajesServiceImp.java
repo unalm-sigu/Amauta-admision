@@ -31,15 +31,15 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.model.enums.SubvencionViajeEstadoEnum;
+import pe.edu.lamolina.model.enums.subvenciones.SubvencionViajeEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
-import pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.APROBADO;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.CREADO;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.DESAPROBADO;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.JUSTIFICADO;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.PENDIENTE;
-import static pe.edu.lamolina.model.enums.ViajeCursoEstadoEnum.VB_JUSTIFICACION;
+import pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.APROBADO;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.CREADO;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.DESAPROBADO;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.JUSTIFICADO;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.PENDIENTE;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.VB_JUSTIFICACION;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -62,6 +62,8 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
     @Override
     public List<ViajeCurso> allViajesByDynatble(Docente docente, CicloAcademico ciclo, DynatableFilter filter) {
         List<ViajeCurso> viajes = viajeCursoDAO.allByDocenteCiclo(docente, ciclo, filter);
+
+        
 
         return viajes;
     }
@@ -120,21 +122,27 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         Assert.isTrue(ciclo.getId().equals(cicloBD.getId()), "El ciclo de la sección no corresponde al ciclo activo de su sesión");
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccionBD);
-        int regs = docentesSeccion.stream()
+        int docentes = docentesSeccion.stream()
                 .filter(x -> x.getEstadoEnum() == SeccionEstadoEnum.ACT)
                 .filter(x -> x.getDocente().getId().equals(docente.getId()))
                 .collect(Collectors.toList())
                 .size();
-        Assert.isTrue(regs > 0, "Usted no está asignado como docente de esta sección");
+        Assert.isTrue(docentes > 0, "Usted no está asignado como docente de esta sección");
 
         List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allBySeccion(seccionBD);
-        int mats = matriculadosSeccion.stream()
+        int delegados = matriculadosSeccion.stream()
                 .filter(x -> x.getEstadoEnum() == EstadoMatriculaEnum.MAT)
                 .map(x -> x.getMatriculaResumen().getAlumno())
                 .filter(x -> x.getId().equals(alumnoForm.getId()))
                 .collect(Collectors.toList())
                 .size();
-        Assert.isTrue(mats > 0, "El alumno delegado no está matriculado en esta sección");
+        Assert.isTrue(delegados > 0, "El alumno delegado no está matriculado en esta sección");
+
+        int matriculados = matriculadosSeccion.stream()
+                .filter(x -> x.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .collect(Collectors.toList())
+                .size();
+        viajeCurso.setCantidadAlumnosMatriculados(matriculados);
     }
 
     @Override
@@ -155,6 +163,14 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         CicloAcademico cicloBD = viajeCursoBD.getCicloAcademico();
         Assert.isTrue(cicloBD.getId().equals(ciclo.getId()), "Este registro corresponde a otro ciclo académico");
 
+        Seccion seccionBD = viajeCursoBD.getSeccion();
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allBySeccion(seccionBD);
+        int matriculados = matriculadosSeccion.stream()
+                .filter(x -> x.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .collect(Collectors.toList())
+                .size();
+
+        viajeCursoBD.setCantidadAlumnosMatriculados(matriculados);
         viajeCursoBD.setCurso(viajeCursoForm.getCurso());
         viajeCursoBD.setSeccion(viajeCursoForm.getSeccion());
         viajeCursoBD.setAlumnoDelegado(viajeCursoForm.getAlumnoDelegado());
@@ -177,6 +193,14 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         Docente docenteCreador = viajeCursoBD.getDocenteCreador();
         Assert.isTrue(docenteCreador.getId().equals(docente.getId()), "Este registro corresponde a otro docente");
 
+        Seccion seccionBD = viajeCursoBD.getSeccion();
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allBySeccion(seccionBD);
+        int matriculados = matriculadosSeccion.stream()
+                .filter(x -> x.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .collect(Collectors.toList())
+                .size();
+
+        viajeCursoBD.setCantidadAlumnosMatriculados(matriculados);
         viajeCursoBD.setEstadoViajeEnum(PENDIENTE);
         viajeCursoBD.setFechaCreacion(today.toDate());
         viajeCursoDAO.update(viajeCursoBD);
