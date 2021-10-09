@@ -51,6 +51,8 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
     private final String autor = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String creator = "Universidad Nacional Agraria La Molina";
     private final String oficina = "Oficina de Estudios y Registros Académicos";
+    private final BaseColor BLUE_LIGHT = new BaseColor(191, 224, 255);
+    private final BaseColor BLUE_DEEP = new BaseColor(191, 218, 255);
 
     private final List<String> tituloItems = Arrays.asList(
             "Curso",
@@ -128,7 +130,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
             for (Docente docente : docentes) {
 
-                float[] columnWidths = new float[]{50f, 15f, 15f, 10f, 10f, 25f, 15f};
+                float[] columnWidths = new float[]{45f, 15f, 20f, 10f, 10f, 17f, 13f};
                 tableBody = new PdfPTable(columnWidths);
                 tableBody.setWidths(columnWidths);
                 tableBody.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
@@ -165,6 +167,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 Facultad facultad = departamentoAcademico.getFacultad();
 
                 this.textCenter(tableBody, "CARGA ACADÉMICA  " + ciclo.getDescripcion());
+                this.addSpace(tableBody);
 
                 this.cellFullColumn(tableBody, "Facultad de " + facultad.getNombre());
                 this.cellFullColumn(tableBody, "Departamento de " + departamentoAcademico.getNombre());
@@ -172,7 +175,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
                 if (total.grupoPregrado.size() > 0) {
 
-                    this.cellFullColumn(tableBody, "Cursos de Pregrado");
+                    this.cellSubtitleColumn(tableBody, "Cursos de Pregrado");
 
                     this.tituloItem(tableBody, 1, tituloItems);
 
@@ -183,16 +186,16 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                     this.fillSecciones(grupoSeccion, tableBody);
 
                 }
-                
+
                 if (total.grupoPregrado.size() > 0) {
-                    
+
                     this.rowTotal(tableBody, total.creditosPregrado);
 
                 }
 
                 if (total.grupoPosgrado.size() > 0) {
 
-                    this.cellFullColumn(tableBody, "Cursos de Posgrado");
+                    this.cellSubtitleColumn(tableBody, "Cursos de Posgrado");
 
                     this.tituloItem(tableBody, 1, tituloItems);
 
@@ -225,7 +228,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
         }
 
         if (countCiclosConInformacion < 1) {
-            document.add(new Chunk("No hay resultados para mostrar.", new Font(Font.FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
+            document.add(new Chunk("No hay resultados para mostrar.", new Font(Font.FontFamily.TIMES_ROMAN, 1, Font.NORMAL, BaseColor.WHITE)));
             document.newPage();
         }
 
@@ -235,11 +238,13 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         for (String nombreItem : nombreItems) {
 
-            Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+            Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.BOLD);
             PdfPCell cell = new PdfPCell(new Phrase(nombreItem, font));
             cell.setRowspan(1);
-            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+            cell.setBackgroundColor(new BaseColor(191, 224, 255));
+            cell.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
+            cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            cell.setBorderColor(BLUE_DEEP);
             tableBody.addCell(cell);
 
         }
@@ -248,7 +253,17 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
     private void cellFullColumn(PdfPTable tableBody, String str) {
 
-        Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD);
+        PdfPCell cell = new PdfPCell(new Phrase(str, font));
+        cell.setColspan(7);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        tableBody.addCell(cell);
+
+    }
+
+    private void cellSubtitleColumn(PdfPTable tableBody, String str) {
+
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.BOLD);
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
         cell.setPaddingBottom(10f);
         cell.setPaddingTop(10f);
@@ -260,10 +275,22 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
     private void textCenter(PdfPTable tableBody, String str) {
 
-        Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
         cell.setColspan(7);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        tableBody.addCell(cell);
+
+    }
+
+    private void addSpace(PdfPTable tableBody) {
+
+        PdfPCell cell = new PdfPCell(new Phrase(".", new Font(Font.FontFamily.TIMES_ROMAN, 1, Font.NORMAL, BaseColor.WHITE)));
+        cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+        cell.setColspan(7);
+        cell.setPaddingBottom(10f);
+        cell.setPaddingTop(10f);
         cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
@@ -280,49 +307,23 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             sj.add(" ");
             sj.add(grupoSeccion.getCurso().getTpc());
 
-            Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-            PdfPCell cell = new PdfPCell(new Phrase(sj.toString(), font));
-            cell.setPaddingBottom(5f);
-            cell.setPaddingTop(5f);
-            cell.setRowspan(1);
-            tableBody.addCell(cell);
+            this.textCell(tableBody, sj.toString(), false);
 
             sj = new StringJoiner("\n");
             sj.add(seccion.getCodigo2());
             sj.add(tipoSeccion(seccion));
 
-            font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-            cell = new PdfPCell(new Phrase(sj.toString(), font));
-            cell.setPaddingBottom(5f);
-            cell.setPaddingTop(5f);
-            cell.setRowspan(1);
-            tableBody.addCell(cell);
+            this.textCellCenter(tableBody, sj.toString());
 
-            font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-            cell = new PdfPCell(new Phrase(seccion.getHorarioTexto(), font));
-            cell.setPaddingBottom(5f);
-            cell.setPaddingTop(5f);
-            cell.setRowspan(1);
-            tableBody.addCell(cell);
+            this.textCell(tableBody, seccion.getHorarioTexto(), false);
 
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
 
                 String porcentajeCarga = docenteSeccion.getPorcentajeCarga() != null ? docenteSeccion.getPorcentajeCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
                 String creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
 
-                font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-                cell = new PdfPCell(new Phrase(porcentajeCarga, font));
-                cell.setPaddingBottom(5f);
-                cell.setPaddingTop(5f);
-                cell.setRowspan(1);
-                tableBody.addCell(cell);
-
-                font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-                cell = new PdfPCell(new Phrase(creditosCarga, font));
-                cell.setPaddingBottom(5f);
-                cell.setPaddingTop(5f);
-                cell.setRowspan(1);
-                tableBody.addCell(cell);
+                this.textCell(tableBody, porcentajeCarga, true);
+                this.textCell(tableBody, creditosCarga, true);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 
@@ -337,45 +338,63 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                     sj.add(sdf.format(docenteSeccion.getFechaFin()));
                 }
 
-                font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-                cell = new PdfPCell(new Phrase(sj.toString(), font));
-                cell.setPaddingBottom(5f);
-                cell.setPaddingTop(5f);
-                cell.setRowspan(1);
-                tableBody.addCell(cell);
+                this.textCellCenter(tableBody, sj.toString());
 
             }
 
-            font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-            cell = new PdfPCell(new Phrase(seccion.getMatriculados().toString(), font));
-            cell.setPaddingBottom(5f);
-            cell.setPaddingTop(5f);
-            cell.setRowspan(1);
-            tableBody.addCell(cell);
+            this.textCell(tableBody, seccion.getMatriculados().toString(), true);
 
         }
     }
 
     private void rowTotal(PdfPTable tableBody, BigDecimal creditos) {
 
-        Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
         PdfPCell cell = new PdfPCell(new Phrase("Total créditos carga", font));
         cell.setColspan(4);
+        cell.setBorder(PdfPCell.NO_BORDER);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
         tableBody.addCell(cell);
 
         String creditosStr = creditos != null ? creditos.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
 
-        font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+        font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
         cell = new PdfPCell(new Phrase(creditosStr, font));
         cell.setColspan(1);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        cell.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
         tableBody.addCell(cell);
 
-        font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+        font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
         cell = new PdfPCell(new Phrase("", font));
         cell.setColspan(2);
+        cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
+    }
+
+    private void textCell(PdfPTable tableBody, String txt, boolean right) {
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
+        PdfPCell cell = new PdfPCell(new Phrase(txt, font));
+        cell.setPaddingBottom(5f);
+        cell.setPaddingTop(5f);
+        if (right) {
+            cell.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
+        }
+        cell.setBorderColor(BLUE_DEEP);
+        cell.setRowspan(1);
+        tableBody.addCell(cell);
+    }
+
+    private void textCellCenter(PdfPTable tableBody, String txt) {
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
+        PdfPCell cell = new PdfPCell(new Phrase(txt, font));
+        cell.setPaddingBottom(5f);
+        cell.setPaddingTop(5f);
+        cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+        cell.setBorderColor(BLUE_DEEP);
+        cell.setRowspan(1);
+        tableBody.addCell(cell);
     }
 
     public class Total {

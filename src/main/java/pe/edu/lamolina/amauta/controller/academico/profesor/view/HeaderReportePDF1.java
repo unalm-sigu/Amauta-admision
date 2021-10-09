@@ -112,7 +112,7 @@ public class HeaderReportePDF1 extends PdfPageEventHelper {
             ct.setSimpleColumn(-30, 0, 620, 820);
             ct.go();
 
-            font = new Font(Font.FontFamily.HELVETICA, 9, Font.ITALIC, BaseColor.BLACK);
+            font = new Font(Font.FontFamily.COURIER, 8, Font.NORMAL, BaseColor.BLACK);
             ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, new Phrase("Página " + document.getPageNumber(), font), 520, 20, 0);
 
         } catch (BadElementException ex) {
