@@ -4,7 +4,6 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Phrase;
@@ -51,8 +50,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
     private final String autor = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String creator = "Universidad Nacional Agraria La Molina";
     private final String oficina = "Oficina de Estudios y Registros Académicos";
-    private final BaseColor BLUE_LIGHT = new BaseColor(191, 224, 255);
-    private final BaseColor BLUE_DEEP = new BaseColor(191, 218, 255);
+    private final BaseColor GRAY_LIGHT = new BaseColor(219, 219, 219);
 
     private final List<String> tituloItems = Arrays.asList(
             "Curso",
@@ -241,10 +239,10 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.BOLD);
             PdfPCell cell = new PdfPCell(new Phrase(nombreItem, font));
             cell.setRowspan(1);
-            cell.setBackgroundColor(new BaseColor(191, 224, 255));
+            cell.setBackgroundColor(GRAY_LIGHT);
             cell.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
             cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-            cell.setBorderColor(BLUE_DEEP);
+            cell.setBorderColor(GRAY_LIGHT);
             tableBody.addCell(cell);
 
         }
@@ -381,7 +379,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
         if (right) {
             cell.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
         }
-        cell.setBorderColor(BLUE_DEEP);
+        cell.setBorderColor(GRAY_LIGHT);
         cell.setRowspan(1);
         tableBody.addCell(cell);
     }
@@ -392,7 +390,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
         cell.setPaddingBottom(5f);
         cell.setPaddingTop(5f);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-        cell.setBorderColor(BLUE_DEEP);
+        cell.setBorderColor(GRAY_LIGHT);
         cell.setRowspan(1);
         tableBody.addCell(cell);
     }
