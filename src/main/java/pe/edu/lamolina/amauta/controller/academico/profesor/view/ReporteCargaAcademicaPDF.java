@@ -108,14 +108,6 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         for (CicloAcademico ciclo : ciclos) {
 
-            float[] columnWidths = new float[]{50f, 15f, 15f, 10f, 10f, 25f, 15f};
-            tableBody = new PdfPTable(columnWidths);
-
-            tableBody.setWidths(columnWidths);
-            tableBody.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
-            //table use complete document
-            tableBody.setWidthPercentage(100);
-
             List<DocenteSeccion> misDocentesSecciones = docentesSeccionesXciclo.get(ciclo.getId());
 
             if (misDocentesSecciones == null) {
@@ -135,6 +127,12 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             int size = docentes.size();
 
             for (Docente docente : docentes) {
+
+                float[] columnWidths = new float[]{50f, 15f, 15f, 10f, 10f, 25f, 15f};
+                tableBody = new PdfPTable(columnWidths);
+                tableBody.setWidths(columnWidths);
+                tableBody.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
+                tableBody.setWidthPercentage(100);
 
                 indice++;
 
@@ -176,25 +174,29 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
                     this.cellFullColumn(tableBody, "Cursos de Pregrado");
 
-                }
+                    this.tituloItem(tableBody, 1, tituloItems);
 
-                this.tituloItem(tableBody, 1, tituloItems);
+                }
 
                 for (GrupoSeccion grupoSeccion : total.grupoPregrado) {
 
                     this.fillSecciones(grupoSeccion, tableBody);
 
                 }
-
-                this.rowTotal(tableBody, total.creditosPregrado);
-
+                
                 if (total.grupoPregrado.size() > 0) {
-
-                    this.cellFullColumn(tableBody, "Cursos de Posgrado");
+                    
+                    this.rowTotal(tableBody, total.creditosPregrado);
 
                 }
 
-                this.tituloItem(tableBody, 1, tituloItems);
+                if (total.grupoPosgrado.size() > 0) {
+
+                    this.cellFullColumn(tableBody, "Cursos de Posgrado");
+
+                    this.tituloItem(tableBody, 1, tituloItems);
+
+                }
 
                 for (GrupoSeccion grupoSeccion : total.grupoPosgrado) {
 
@@ -202,13 +204,19 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
                 }
 
-                this.rowTotal(tableBody, total.creditosPosgrado);
+                if (total.grupoPosgrado.size() > 0) {
+
+                    this.rowTotal(tableBody, total.creditosPosgrado);
+
+                }
 
                 if (total.grupoPregrado.size() <= 0 && total.grupoPosgrado.size() <= 0) {
                     this.cellFullColumn(tableBody, "Docente sin carga académica");
                 }
 
                 document.add(tableBody);
+
+                document.newPage();
 
             }
 

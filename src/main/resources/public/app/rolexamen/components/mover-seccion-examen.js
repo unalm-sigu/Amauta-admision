@@ -85,6 +85,11 @@ Vue.component("mover-seccion-examen", {
         }, cambiarTipoDestinoGrupo() {
             MODAL.showWait("Espere un momento por favor");
             this.grupoHorarioDestino = null;
+            if (!this.seccionRolExamenes.grupoHorasExamen) {
+                notify("No tiene asignado su hora examen", "error");
+                MODAL.hideWait();
+                return;
+            }
             AXIOS.post(`${this.URL}/cambiarTipoDestinoGrupo/${this.tipoDestinoGrupoExamenes.code}`, this.seccionRolExamenes.grupoHorasExamen)
                     .then(response => {
                         if (response.data.success) {
@@ -103,6 +108,10 @@ Vue.component("mover-seccion-examen", {
                         MODAL.hideWait();
                     });
         }, moverSeccion() {
+            if (!this.seccionRolExamenes.grupoHorasExamen) {
+                notify("No tiene asignado su hora examen", "error");
+                return;
+            }
             MODAL.showWait("Espere un momento por favor");
             let cambioHorarioExamenSeccion = {
                 tipoGrupoRolExamenOrigen: this.tipoorigen,
