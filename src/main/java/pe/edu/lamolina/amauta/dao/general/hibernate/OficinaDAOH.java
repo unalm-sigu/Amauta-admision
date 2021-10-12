@@ -73,6 +73,21 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     }
 
     @Override
+    public List<Oficina> allByJefeTipoOficinaEnum(Persona persona, TipoOficinaEnum tipoOficina) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tofi")
+                .leftJoin("personaJefe pj", "jefeEncargado je")
+                .filter("tofi.codigo", tipoOficina)
+                .beginBlock()
+                .__().filter("pj.id", persona)
+                .__().filter("je.id", persona)
+                .endBlock();
+
+        return all(sql);
+    }
+
+    @Override
     public List<Oficina> allByFilter(DynatableFilter filter, List<Oficina> oficinasAcceso, Compania compania) {
 
         DynatableSql sql = new DynatableSql(filter)

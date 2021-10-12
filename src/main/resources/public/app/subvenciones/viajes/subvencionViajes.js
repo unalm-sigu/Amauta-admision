@@ -1,21 +1,28 @@
-Vue.component("multiselect", window.VueMultiselect.default)
+Vue.component("multiselect", window.VueMultiselect.default);
 
 new Vue({
-    el: '#informesVUE',
+    el: '#viajesVUE',
     data: {
         itemSelect: {},
-        modalObservaInforme: VUE_MODAL.structFormAjax({
-            id: "id-modal-observaciones",
+        modalAddCurso: VUE_MODAL.structFormAjax({
+            id: "id-modal-add-curso",
             header: true,
-            title: 'Observar informe',
-            okbtn: 'Enviar observación',
-            okclass: "btn-danger"
+            title: 'Crear Viaje de Curso',
+            okbtn: 'Crear viaje',
+            okclass: "btn-primary",
+            form: "id-form-crear-viaje"
         }),
         configConfirmAction: VUE_MODAL.structConfirm({
-            id: "id-modal-confirm",
-        })
+            id: "id-modal-confirm"
+        }),
+        cursos: [],
+        secciones: [],
+        alumnos: [],
+        viajeCursoSelect: {}
     },
     mounted() {
+        let $vue = this;
+        $vue.loadCursos();
     },
     methods: {
         classEstado(item) {
@@ -26,77 +33,211 @@ new Vue({
             }
             return "label-" + rpta;
         },
-        verTemporal(bean) {
+        loadCursos() {
             let $vue = this;
-            let ruta = "";
+            axios.post(`/${rutaModulo}/allCursos`).then(response => {
+                if (response.data.success) {
+                    $vue.cursos = response.data.data;
+                } else {
+                    notify(response.message, "warning");
+                }
+            }).catch(e => {
+                notify(Messages.errorComunicacion, "error");
+            });
+        },
+        loadSecciones(curso) {
+            let $vue = this;
+            $vue.secciones = [];
+            let cursoSend = {
+                id: curso.id
+            };
 
-            if (bean.id) {
-                ruta = bean.ruta;
-            } else {
-                ruta = APP.url("archivo/verArchivoTemporal/") + bean.nombre;
+            axios.post(`/${rutaModulo}/allSecciones`, cursoSend).then(response => {
+                if (response.data.success) {
+                    $vue.secciones = response.data.data;
+                } else {
+                    notify(response.message, "warning");
+                }
+            }).catch(e => {
+                notify(Messages.errorComunicacion, "error");
+            });
+        },
+        loadAlumnos(seccion) {
+            let $vue = this;
+            $vue.alumnos = [];
+            let seccionSend = {
+                id: seccion.id
+            };
+
+            axios.post(`/${rutaModulo}/allAlumnos`, seccionSend).then(response => {
+                if (response.data.success) {
+                    $vue.alumnos = response.data.data;
+                } else {
+                    notify(response.message, "warning");
+                }
+            }).catch(e => {
+                notify(Messages.errorComunicacion, "error");
+            });
+        },
+        verViajeNuevo() {
+            let $vue = this;
+
+            $vue.viajeCursoSelect = {};
+            $vue.secciones = [];
+            $vue.alumnos = [];
+            $vue.$refs.modalAddCurso.open();
+        },
+        verEditarViaje(item) {
+            let $vue = this;
+
+            $vue.viajeCursoSelect = JSON.parse(JSON.stringify(item));
+            let nombreAlumno = item.alumnoDelegado.persona.apellidosNombres;
+            $vue.viajeCursoSelect.alumnoDelegado.apellidosNombres = nombreAlumno;
+
+            $vue.loadSecciones($vue.viajeCursoSelect.curso);
+            $vue.loadAlumnos($vue.viajeCursoSelect.seccion);
+            $vue.$refs.modalAddCurso.open();
+        },
+        saveViaje() {
+            let $vue = this;
+
+            var form = $("#" + $vue.modalAddCurso.form);
+            if (!form.parsley().validate()) {
+                return;
             }
 
-            var linkPdf = document.createElement('A');
-            linkPdf.href = ruta;
-            linkPdf.download = ruta.substr(ruta.lastIndexOf('/') + 1);
-            document.body.appendChild(linkPdf);
-            linkPdf.target = "_blank";
-            linkPdf.click();
-            document.body.removeChild(linkPdf);
-
+            $vue.$refs.modalAddCurso.beginProcessing();
+            axios.post(`/${rutaModulo}/saveViaje`, $vue.viajeCursoSelect).then(response => {
+                $vue.$refs.modalAddCurso.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.$refs.raptorViajes.loadRemoteData();
+                } else {
+                    notify(response.message, "warning");
+                }
+            }).catch(e => {
+                $vue.$refs.modalAddCurso.confirmReaction(false);
+                notify(Messages.errorComunicacion, "error");
+            });
         },
-        verAprobar(item) {
+        verSolicitarAprobacion(item) {
             let $vue = this;
-            $vue.itemSelect = JSON.parse(JSON.stringify(item));
+            $vue.viajeCursoSelect = JSON.parse(JSON.stringify(item));
 
-            $vue.configConfirmAction.message = "¿Está seguro que desea APROBAR este informe?";
-            $vue.configConfirmAction.okbtn = "Si, aprobar";
+            $vue.configConfirmAction.message = "¿Está seguro que desea solicitar la aprobación de este viaje de curso al Departamento Académico?";
+            $vue.configConfirmAction.okbtn = "Si, solicitar";
             $vue.configConfirmAction.okclass = "btn-success";
-            $vue.configConfirmAction.okaction = $vue.aprobar;
+            $vue.configConfirmAction.okaction = $vue.solicitarAprobacion;
             $vue.$refs.modalConfirmAction.open();
         },
-        verDesaprobar(item) {
+        solicitarAprobacion() {
             let $vue = this;
-            $vue.itemSelect = JSON.parse(JSON.stringify(item));
-            $vue.$refs.modalObservaInforme.open();
-        },
-        aprobar(item) {
-            let $vue = this;
+            let viaje = {
+                id: $vue.viajeCursoSelect.id
+            };
 
-            axios.post(APP.url(`${rutaModulo}/aprobarInforme`), $vue.itemSelect).then(response => {
+            axios.post(`/${rutaModulo}/solicitarAprobarViaje`, viaje).then(response => {
                 $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                 if (response.data.success) {
-                    $vue.$refs.raptorInformes.loadRemoteData();
-                    notify(response.data.message, "info");
-
+                    $vue.$refs.raptorViajes.loadRemoteData();
                 } else {
-                    notify(response.data.message, "warning");
+                    notify(response.message, "warning");
                 }
             }).catch(e => {
                 $vue.$refs.modalConfirmAction.confirmReaction(false);
                 notify(Messages.errorComunicacion, "error");
             });
         },
-        saveObservar(item) {
+        verAprobar(item) {
             let $vue = this;
+            $vue.viajeCursoSelect = JSON.parse(JSON.stringify(item));
 
-            $vue.$refs.modalObservaInforme.beginProcessing();
-            axios.post(APP.url(`${rutaModulo}/observarInforme`), $vue.itemSelect).then(response => {
-                $vue.$refs.modalObservaInforme.confirmReaction(response.data.success);
+            $vue.configConfirmAction.message = "¿Está seguro que desea aprobar esta solicitud de Viaje de Curso?";
+            $vue.configConfirmAction.okbtn = "Si, aprobar";
+            $vue.configConfirmAction.okclass = "btn-success";
+            $vue.configConfirmAction.okaction = $vue.aprobarViaje;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        aprobarViaje() {
+            let $vue = this;
+            let viaje = {
+                id: $vue.viajeCursoSelect.id,
+                estadoViaje: "APROBADO"
+            };
+
+            axios.post(`/${rutaModulo}/aprobarViaje`, viaje).then(response => {
+                $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                 if (response.data.success) {
-                    $vue.$refs.raptorInformes.loadRemoteData();
-                    notify(response.data.message, "warning");
-
+                    $vue.$refs.raptorViajes.loadRemoteData();
                 } else {
-                    notify(response.data.message, "warning");
+                    notify(response.message, "warning");
                 }
             }).catch(e => {
-                $vue.$refs.modalObservaInforme.confirmReaction(false);
+                $vue.$refs.modalConfirmAction.confirmReaction(false);
                 notify(Messages.errorComunicacion, "error");
             });
         },
-        verObservacion(item) {
-            swal({title: item.observaciones, type: "warning", showConfirmButton: false});
+        verDesaprobar(item) {
+            let $vue = this;
+            $vue.viajeCursoSelect = JSON.parse(JSON.stringify(item));
+
+            $vue.configConfirmAction.message = "¿Está seguro que desea desaprobar esta solicitud de Viaje de Curso?";
+            $vue.configConfirmAction.okbtn = "Si, desaprobar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = $vue.desaprobarViaje;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        desaprobarViaje() {
+            let $vue = this;
+            let viaje = {
+                id: $vue.viajeCursoSelect.id,
+                estadoViaje: "DESAPROBADO"
+            };
+
+            axios.post(`/${rutaModulo}/aprobarViaje`, viaje).then(response => {
+                $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.$refs.raptorViajes.loadRemoteData();
+                } else {
+                    notify(response.message, "warning");
+                }
+            }).catch(e => {
+                $vue.$refs.modalConfirmAction.confirmReaction(false);
+                notify(Messages.errorComunicacion, "error");
+            });
+        },
+        puedeEditarse(item) {
+            if (item.esDocente && item.estadoViaje === "CREADO") {
+                return true;
+            }
+            return false;
+        },
+        puedeAprobarse(item) {
+            if (item.esJefeDpto && item.estadoViaje === "PENDIENTE") {
+                return true;
+            }
+            return false;
+        },
+        puedeDesaprobarse(item) {
+            if (item.esJefeDpto && item.estadoViaje === "PENDIENTE") {
+                return true;
+            }
+            return false;
+        },
+        getObjectId(obj) {
+            if (obj === undefined) {
+                return "";
+            }
+            if (obj === null) {
+                return "";
+            }
+            if (obj.id === undefined) {
+                return "";
+            }
+            if (obj.id === null) {
+                return "";
+            }
+
+            return obj.id;
         }
     }
 });

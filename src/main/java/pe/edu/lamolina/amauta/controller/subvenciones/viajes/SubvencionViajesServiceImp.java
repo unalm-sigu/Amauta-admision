@@ -1,7 +1,9 @@
 package pe.edu.lamolina.amauta.controller.subvenciones.viajes;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
@@ -53,6 +56,7 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
     private final ColaboradorDAO colaboradorDAO;
     private final CursoDAO cursoDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
     private final DocenteSeccionDAO docenteSeccionDAO;
     private final MatriculaSeccionDAO matriculaSeccionDAO;
     private final OficinaDAO oficinaDAO;
@@ -60,12 +64,87 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
     private final ViajeCursoDAO viajeCursoDAO;
 
     @Override
-    public List<ViajeCurso> allViajesByDynatble(Docente docente, CicloAcademico ciclo, DynatableFilter filter) {
-        List<ViajeCurso> viajes = viajeCursoDAO.allByDocenteCiclo(docente, ciclo, filter);
+    public List<DepartamentoAcademico> allDptosAcademicos(DataSessionPivot ds) {
+        Persona persona = ds.getPersona();
 
-        
+        List<Oficina> oficinas = oficinaDAO.allByJefeTipoOficinaEnum(persona, TipoOficinaEnum.DPTO);
+        log.info("jefe-dptos-academicos={}", oficinas.size());
 
-        return viajes;
+        if (oficinas.isEmpty()) {
+            return new ArrayList();
+        }
+
+        List<Long> idDptos = oficinas.stream()
+                .map(ofi -> ofi.getInstanciaOficina())
+                .collect(Collectors.toList());
+        log.info("dptos-academicos-id={}", idDptos);
+
+        return departamentoAcademicoDAO.allByIds(idDptos);
+    }
+
+    @Override
+    public List<ViajeCurso> allDynatbleByDocente(Docente docente, List<DepartamentoAcademico> dptos, CicloAcademico ciclo, DynatableFilter filter) {
+        log.info("dptos-academicos={}", dptos.size());
+        log.info("docente={}", docente);
+
+        if (docente == null && dptos.isEmpty()) {
+            log.info("se retorna lista vacia");
+            return new ArrayList();
+        }
+
+        return viajeCursoDAO.allByDocenteDptosCiclo(docente, dptos, ciclo, filter);
+    }
+
+    @Override
+    public List<Curso> allCursos(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+        log.info("docente={}", docente);
+        log.info("ciclo={}", ciclo);
+
+        if (docente == null) {
+            return new ArrayList();
+        }
+
+        List<DocenteSeccion> seccionesByDocente = docenteSeccionDAO.allByDocente(docente, ciclo);
+
+        return seccionesByDocente.stream()
+                .filter(docSec -> docSec.getPrincipal() == 1)
+                .filter(docSec -> docSec.getSeccion().getEstadoEnum() == SeccionEstadoEnum.ACT)
+                .filter(docSec -> docSec.getSeccion().getMatriculados() > 0)
+                .filter(docSec -> !docSec.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCulturalesDeportes())
+                .filter(docSec -> !docSec.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
+                .map(docSec -> docSec.getSeccion().getGrupoSeccion().getCurso())
+                .filter(cur -> cur.getModalidadEstudio().isPregrado())
+                .distinct()
+                .sorted(Comparator.comparing(Curso::getNombre))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Seccion> allSecciones(Curso curso, Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<DocenteSeccion> seccionesByDocente = docenteSeccionDAO.allByDocente(docente, ciclo);
+
+        return seccionesByDocente.stream()
+                .filter(docSec -> docSec.getPrincipal() == 1)
+                .map(docSec -> docSec.getSeccion())
+                .filter(sec -> sec.getEstadoEnum() == SeccionEstadoEnum.ACT)
+                .filter(sec -> sec.getMatriculados() > 0)
+                .filter(sec -> !sec.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCulturalesDeportes())
+                .filter(sec -> !sec.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
+                .filter(sec -> sec.getGrupoSeccion().getCurso().getId().equals(curso.getId()))
+                .distinct()
+                .sorted(Comparator.comparing(Seccion::getCodigo2))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Alumno> allAlumnos(Seccion seccion, DataSessionPivot ds) {
+        List<MatriculaSeccion> matriculados = matriculaSeccionDAO.allBySeccion(seccion);
+
+        return matriculados.stream()
+                .filter(matSecc -> matSecc.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .map(matSecc -> matSecc.getMatriculaResumen().getAlumno())
+                .filter(alu -> alu.getModalidadEstudio().isPregrado())
+                .collect(Collectors.toList());
     }
 
     @Override
