@@ -47,6 +47,16 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
     }
 
     @Override
+    public List<DepartamentoAcademico> allByIds(List<Long> idDptos) {
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa")
+                .in("da.id", idDptos);
+
+        return all(sql);
+    }
+
+    @Override
     public List<DepartamentoAcademico> all() {
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "da")

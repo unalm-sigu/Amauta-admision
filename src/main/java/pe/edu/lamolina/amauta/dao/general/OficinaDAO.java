@@ -20,6 +20,8 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allByJefe(Persona persona);
 
+    List<Oficina> allByJefeTipoOficinaEnum(Persona persona, TipoOficinaEnum tipoOficina);
+
     List<Oficina> allByFilter(DynatableFilter filter, List<Oficina> oficinasAcceso, Compania compania);
 
     List<Oficina> allUnidadSuperior(String nombre, Compania compania);

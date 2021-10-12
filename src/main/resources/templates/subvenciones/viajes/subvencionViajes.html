@@ -10,24 +10,24 @@
     </head>
     <body>
         <div layout:fragment="main">
-            <div id="informesVUE" v-cloak="">
+            <div id="viajesVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <p class="h2 m-b-n" th:inline="text"> Viajes de curso [[${ciclo.descripcion}]] </p>
+                    <p class="h2 m-b" th:inline="text"> Viajes de curso [[${ciclo.descripcion}]] </p>
                 </header>
 
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel  ">           
                         <section class="panel-body ">
 
-                            <raptor-table url="/subvenciones/informe/list" ref="raptorInformes">
+                            <raptor-table url="/subvenciones/viajes/list" ref="raptorViajes">
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
                                                 <th class="col-md-4">Curso</th>
-                                                <th class="col-md-4">Sección</th>
-                                                <th class="col-md-3 text-center">Delegado</th>
+                                                <th class="col-md-2">Sección</th>
+                                                <th class="col-md-5 text-center">Datos del viaje de curso</th>
                                                 <th class="col-md-1 text-center">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -35,19 +35,31 @@
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td class="v-middle">
-                                                    
+                                                    <div class="block h4 text-primary m-b-xs">{{item.curso.nombre}}</div>
+                                                    <div class="block">
+                                                        {{item.curso.codigo}} &nbsp;
+                                                        <i class="fa fa-bookmark text-primary"></i> {{item.curso.tpc}}</div>
+                                                    <div class="block"><b>Dpto.Acad.:</b> {{item.curso.departamentoAcademico.nombre}}</div>
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    
+                                                    <div class="block text-primary bold">{{item.seccion.codigo2}}</div>
+                                                    <div class="block">Gpo: {{item.seccion.grupoHoras.codigo}}</div>
+                                                    <div class="block">{{item.seccion.tipoSeccionEnum.value}}</div>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="block"><b>Delegado:</b> {{item.alumnoDelegado.persona.apellidosNombres}}</div>
+                                                    <small th:unless="${isProduccion}" class="block"><b>DNI:</b> {{item.alumnoDelegado.persona.numeroDocIdentidad}}</small>
+                                                    <small class="block text-muted m-b-xs"><b>Matrícula:</b> {{item.alumnoDelegado.codigo}}</small>
+
+                                                    <div class="block text-primary"><b>Docente:</b> {{item.docenteCreador.persona.apellidosNombres}}</div>
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    
-                                                </td>
-
-                                                <td class="v-middle text-center">
-                                                    
+                                                    <span class="label label-primary">
+                                                        {{item.estadoViajeEnum.value}}
+                                                    </span>
                                                 </td>
 
                                                 <td class="v-middle"> 
@@ -56,7 +68,11 @@
                                                             <i class="fa fa-cog"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a href="#" >Editar</a></li>
+                                                            <li><a v-if="puedeEditarse(item)" href="#" v-on:click="verEditarViaje(item)">Editar</a></li>
+                                                            <li><a v-if="puedeEditarse(item)" href="#" v-on:click="verSolicitarAprobacion(item)">Solicitar aprobación</a></li>
+                                                            <li><a v-if="puedeAprobarse(item)" href="#" v-on:click="verAprobar(item)">Aprobar</a></li>
+                                                            <li><a v-if="puedeDesaprobarse(item)" href="#" v-on:click="verDesaprobar(item)">Desaprobar</a></li>
+                                                            <li><a href="#" >Ver detalle</a></li>
                                                         </ul>                
                                                     </div>
                                                 </td>        
@@ -71,7 +87,7 @@
                 </section>
 
                 <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <!--<div th:substituteby="subvenciones/informe/_modalObservarInforme"/>-->
+                <div th:substituteby="subvenciones/viajes/_modalAddCurso"/>
             </div>
         </div>
 

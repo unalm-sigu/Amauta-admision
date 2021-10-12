@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 
 @Configuration
 @ConfigurationProperties(prefix = "despliegue")
@@ -120,6 +121,18 @@ public class DespliegueConfig {
 
     public void setUsuarioSistema(String usuarioSistema) {
         this.usuarioSistema = usuarioSistema;
+    }
+
+    public boolean isProduccion() {
+        return this.ambiente.equalsIgnoreCase(AmbienteAplicacionEnum.PROD.name());
+    }
+
+    public boolean isTesting() {
+        return this.ambiente.equalsIgnoreCase(AmbienteAplicacionEnum.TEST.name());
+    }
+
+    public boolean isDevel() {
+        return this.ambiente.equalsIgnoreCase(AmbienteAplicacionEnum.DESA.name());
     }
 
 }
