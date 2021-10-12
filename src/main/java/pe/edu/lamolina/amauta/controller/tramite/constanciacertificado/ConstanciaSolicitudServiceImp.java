@@ -303,21 +303,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
-        List<FormularioEstadoTramite> formulariosEstadoTramite = formularioEstadoTramiteDAO.all();
-        List<TramiteDocumentoAcademico> documentoAcademicos = tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
-        for (TramiteDocumentoAcademico documentoAcademico : documentoAcademicos) {
-            FormularioEstadoTramite formularioEstadoTramite = formulariosEstadoTramite.stream().filter(x
-                    -> x.getEstadoTramite().equals(documentoAcademico.getEstadoTramite())
-                    && x.getTipoTramite().equals(documentoAcademico.getTramite().getTipoTramite())).findFirst().orElse(null);
 
-            documentoAcademico.getTramite().setFormularioEstadoTramite(formularioEstadoTramite);
-        }
         return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
-    }
-
-    private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.NOTIFYSOLICITUD);
-        mailerService.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico, contenidoCarta);
     }
 
     @Override

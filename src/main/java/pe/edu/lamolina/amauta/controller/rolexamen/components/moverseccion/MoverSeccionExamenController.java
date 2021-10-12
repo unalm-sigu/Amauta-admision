@@ -170,7 +170,7 @@ public class MoverSeccionExamenController {
     public JsonResponse cambiarTipoDestinoGrupo(
             @PathVariable("tipoDestino") String tipoDestino,
             @RequestBody GrupoHorasExamen grupoHorasExamenOrigen, HttpSession session, HttpServletRequest request) {
-
+        
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         try {

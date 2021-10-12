@@ -20,6 +20,8 @@ public interface EncuestaDocenteModalidadService {
 
     List<Context> reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos);
 
+    List<Context> reporteUnicoDocenteMultipleCiclo(List<CicloAcademico> cicloAcademicos, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos, Long idDocente);
+
     List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
     List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request, String codeRequest);

@@ -301,7 +301,7 @@ public class ProfesorServiceImp implements ProfesorService {
         Persona personaUpd = new Persona(personaForm.getId());
 
         if (!Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
-            
+
             this.uploadS3(personaForm.getRutaFotoTemporal());
             personaUpd.setRutaFotoDocumento(this.getPathFotoDocente(personaForm.getRutaFotoTemporal()));
             personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
@@ -670,6 +670,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<Docente> allDocenteByDepartamentosAcademicoEstado(List<DepartamentoAcademico> departamentos, EnteAcademicoEstadoEnum enteAcademicoEstadoEnum) {
         return docenteDAO.allByDepartamentosAcademicoEstado(departamentos, enteAcademicoEstadoEnum);
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclos(List<Docente> docentes, List<CicloAcademico> cicloAcademicos) {
+        return docenteSeccionDAO.allActivosByDocentesCiclosCodigo(docentes, cicloAcademicos);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
     }
 
     @Override
-    public List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio,List<DepartamentoAcademico> departamentos) {
+    public List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, List<DepartamentoAcademico> departamentos) {
         Octavia sql = Octavia.query()
                 .from(EncuestaDocenteModalidad.class, "edm")
                 .join("docente d", "modalidadEstudio me", "cicloAcademico ca", "d.persona per", "d.departamentoAcademico da", "da.facultad f")
@@ -52,7 +52,7 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
                 .in("da.id", departamentos)
                 .filter("edm.alumnosEncuestados", ">", 0)
                 .filter("ca.id", cicloAcademico)
-                .orderBy("f.nombre","da.nombre","per.paterno");
+                .orderBy("f.nombre", "da.nombre", "per.paterno");
 
         return all(sql);
     }
@@ -98,6 +98,21 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
                 .filter("ca.id", ciclo)
                 .filter("d.id", docente)
                 .orderBy("edm.id desc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<EncuestaDocenteModalidad> allConEncuestadosByCicloDocente(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, List<DepartamentoAcademico> departamentos, Docente docente) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocenteModalidad.class, "edm")
+                .join("docente d", "modalidadEstudio me", "cicloAcademico ca", "d.persona per", "d.departamentoAcademico da", "da.facultad f")
+                .filter("me.id", modalidadEstudio)
+                .in("da.id", departamentos)
+                .filter("d.id", docente)
+                .filter("edm.alumnosEncuestados", ">", 0)
+                .filter("ca.id", cicloAcademico)
+                .orderBy("f.nombre", "da.nombre", "per.paterno");
 
         return all(sql);
     }
