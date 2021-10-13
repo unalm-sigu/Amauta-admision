@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.resumen;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.SEM;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
@@ -55,6 +58,8 @@ public class EncuestaResumenServiceImp implements EncuestaResumenService {
 
     @Override
     public EncuestaEstudiantil findEncuestaCursoWithResumen(CicloAcademico cicloAcademico) {
+        logger.debug("ciclo encuesta {}",cicloAcademico.getId());
+        logger.debug("ciclo encuesta {}",cicloAcademico.getCodigo());
         logger.debug("TipoExamenVirtual");
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
@@ -115,23 +120,14 @@ public class EncuestaResumenServiceImp implements EncuestaResumenService {
         int modulares = 0;
         int semestrales = 0;
 
-        int encuestadosPregrado = 0;
-        int encuestadosPosgrado = 0;
-
         for (EncuestaCurso encCurso : encCursos) {
             switch (encCurso.getEstadoEnum()) {
                 case ACT:
                     activos++;
                     if (encCurso.getModalidadEstudio().isPostgrado()) {
-                        if (encCurso.getFechaFin() != null) {
-                            encuestadosPosgrado++;
-                        }
                         posgrados++;
                     }
                     if (encCurso.getModalidadEstudio().isPregrado()) {
-                        if (encCurso.getFechaFin() != null) {
-                            encuestadosPregrado++;
-                        }
                         pregrados++;
                     }
 
@@ -176,9 +172,22 @@ public class EncuestaResumenServiceImp implements EncuestaResumenService {
         encuesta.setEncuestasModulares(modulares);
         encuesta.setEncuestasSemestrales(semestrales);
 
-        encuesta.setEncuestadosPregrado(encuestadosPregrado);
-        encuesta.setEncuestadosPosgrado(encuestadosPosgrado);
+        Long totalEncuestaAlumnoPregrado = encuestaEstudiantilDAO.countEncuestaAlumno(cicloAcademico, ModalidadEstudioEnum.PRE, null).longValue();
+        Long pendienteEncuestaAlumnoPregrado = encuestaEstudiantilDAO.countEncuestaAlumno(cicloAcademico, ModalidadEstudioEnum.PRE, EncuestaEstudiantilEstadoEnum.PEND).longValue();
+        Long totalEncuestaAlumnoPosgrado = encuestaEstudiantilDAO.countEncuestaAlumno(cicloAcademico, ModalidadEstudioEnum.EPG, null).longValue();
+        Long pendienteEncuestaAlumnoPosgrado = encuestaEstudiantilDAO.countEncuestaAlumno(cicloAcademico, ModalidadEstudioEnum.EPG,  EncuestaEstudiantilEstadoEnum.PEND).longValue();
 
+        logger.debug("totalEncuestaAlumnoPregrado {}", totalEncuestaAlumnoPregrado);
+        logger.debug("pendienteEncuestaAlumnoPregrado {}", pendienteEncuestaAlumnoPregrado);
+        logger.debug("totalEncuestaAlumnoPosgrado {}", totalEncuestaAlumnoPosgrado);
+        logger.debug("pendienteEncuestaAlumnoPosgrado {}", pendienteEncuestaAlumnoPosgrado);
+
+        encuesta.setTotalEncuestaAlumnoPregrado(totalEncuestaAlumnoPregrado);
+        encuesta.setPendienteEncuestaAlumnoPregrado(pendienteEncuestaAlumnoPregrado);
+        
+        encuesta.setTotalEncuestaAlumnoPosgrado(totalEncuestaAlumnoPosgrado);
+        encuesta.setPendienteEncuestaAlumnoPosgrado(pendienteEncuestaAlumnoPosgrado);
+                
         logger.debug("activos {}", activos);
         logger.debug("anulados {}", anulados);
         logger.debug("innecesa {}", innecesa);
@@ -188,9 +197,6 @@ public class EncuestaResumenServiceImp implements EncuestaResumenService {
         logger.debug("pregrados {}", pregrados);
         logger.debug("modulares {}", modulares);
         logger.debug("semestrales {}", semestrales);
-
-        logger.debug("encuestadosPregrado {}", encuestadosPregrado);
-        logger.debug("encuestadosPosgrado {}", encuestadosPosgrado);
 
         logger.debug("getObjetivosEncuestados {}", encuesta.getObjetivosEncuestados());
         logger.debug("getEncuestasProgramadas {}", encuesta.getEncuestasProgramadas());

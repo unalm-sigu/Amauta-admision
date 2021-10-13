@@ -33,13 +33,14 @@ new Vue({
 
             let $vue = this;
 
-            let totalPregrado = $vue.encuesta.encuestasPregrado ? $vue.encuesta.encuestasPregrado : 0;
-            let encuestadosPregrado = $vue.encuesta.encuestadosPregrado ? $vue.encuesta.encuestadosPregrado : 0;
-            let noEncuestadosPregrado = totalPregrado-encuestadosPregrado;
+
+            let totalPregrado = $vue.encuesta.totalEncuestaAlumnoPregrado ? $vue.encuesta.totalEncuestaAlumnoPregrado : 0;
+            let noEncuestadosPregrado = $vue.encuesta.pendienteEncuestaAlumnoPregrado ? $vue.encuesta.pendienteEncuestaAlumnoPregrado : 0;
+            let encuestadosPregrado = totalPregrado - noEncuestadosPregrado;
 
             let porcentajePregrado = 100 * encuestadosPregrado / totalPregrado;
             let faltantePregrado = 100 - porcentajePregrado;
-
+            
             Highcharts.chart('containerPRE', {
                 chart: {
                     plotBackgroundColor: null,
@@ -78,13 +79,13 @@ new Vue({
                         name: 'Cantidad',
                         colorByPoint: true,
                         data: [{
-                                name: 'Encuestado '+encuestadosPregrado,
+                                name: 'Encuestado ' + encuestadosPregrado,
                                 y: porcentajePregrado,
                                 sliced: true,
                                 selected: true
                             },
                             {
-                                name: 'Pendiente '+noEncuestadosPregrado,
+                                name: 'Pendiente ' + noEncuestadosPregrado,
                                 y: faltantePregrado,
                                 sliced: true,
                                 selected: true
@@ -93,10 +94,9 @@ new Vue({
                     }]
             });
 
-
-            let totalPosgrado = $vue.encuesta.encuestasPosgrado ? $vue.encuesta.encuestasPosgrado : 0;
-            let encuestadosPosgrado = $vue.encuesta.encuestadosPosgrado ? $vue.encuesta.encuestadosPosgrado : 0;
-            let noEncuestadosPosgrado = totalPosgrado-encuestadosPosgrado;
+            let totalPosgrado = $vue.encuesta.totalEncuestaAlumnoPosgrado ? $vue.encuesta.totalEncuestaAlumnoPosgrado : 0;
+            let noEncuestadosPosgrado = $vue.encuesta.pendienteEncuestaAlumnoPosgrado ? $vue.encuesta.pendienteEncuestaAlumnoPosgrado : 0;
+            let encuestadosPosgrado = totalPosgrado - noEncuestadosPosgrado;
 
             let porcentajePosgrado = 100 * encuestadosPosgrado / totalPosgrado;
             let faltantePosgrado = 100 - porcentajePosgrado;

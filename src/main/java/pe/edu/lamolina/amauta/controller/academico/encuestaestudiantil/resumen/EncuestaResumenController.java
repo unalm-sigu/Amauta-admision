@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.resumen;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -11,10 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -39,14 +35,11 @@ public class EncuestaResumenController {
     public ObjectNode resumen(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
         EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(ds.getCicloAcademico());
 
-        ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
-            "*",
-            "configuraEncuesta.*",
-            "periodosEncuesta.*"
-        });
+        ObjectNode node = JaneHelper.from(encuesta).json();
+        node.set("configuraEncuesta", JaneHelper.from(encuesta.getConfiguraEncuesta()).array());
+        node.set("periodosEncuesta", JaneHelper.from(encuesta.getPeriodosEncuesta()).array());
 
         return node;
 
