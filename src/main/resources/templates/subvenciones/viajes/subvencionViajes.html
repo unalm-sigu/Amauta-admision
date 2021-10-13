@@ -13,6 +13,13 @@
             <div id="viajesVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                
+                        <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
+                        <ul class="dropdown-menu pointer">
+                            <li><a v-on:click="verViajeNuevo"> Crear viaje </a></li>
+                        </ul>
+                    </div> 
+                    
                     <p class="h2 m-b" th:inline="text"> Viajes de curso [[${ciclo.descripcion}]] </p>
                 </header>
 
