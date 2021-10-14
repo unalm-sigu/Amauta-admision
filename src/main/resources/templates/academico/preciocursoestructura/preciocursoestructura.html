@@ -32,7 +32,10 @@
                                 </label> 
                             </div>
                             
-                            <div class="col-md-4" v-if="editar">
+                            <div class="col-md-3">
+                                <a class="btn btn-warning btn-sm" v-on:click.prevent="actualizar"> Actualizar nuevos TPC</a>
+                            </div>
+                            <div class="col-md-2" v-if="editar">
                                 <a class="btn btn-success btn-sm" v-on:click.prevent="guardar"> Guardar </a>
                             </div>
                             

@@ -86,5 +86,23 @@ public class PrecioCursoEstructuraController {
 
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST, value = "/actualizarTPC")
+    public JsonResponse actualizarTPC(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+            service.actualizarTPC(ds);
+            response.setMessage("Estructura de cursos actualizados");
+            response.setSuccess(true);
+        } catch (PhobosException pex) {
+            ExceptionHandler.handlePhobosEx(pex, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+
+        return response;
+    }
 
 }

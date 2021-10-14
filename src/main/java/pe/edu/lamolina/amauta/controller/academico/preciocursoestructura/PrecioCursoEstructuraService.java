@@ -11,4 +11,6 @@ public interface PrecioCursoEstructuraService {
 
     void saveAll(List<PrecioCursoEstructura> listaPrecios, CicloAcademico ciclo, DataSessionPivot ds);
 
+    void actualizarTPC(DataSessionPivot ds);
+
 }
