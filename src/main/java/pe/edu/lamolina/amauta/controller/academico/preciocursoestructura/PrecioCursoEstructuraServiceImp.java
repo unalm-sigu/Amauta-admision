@@ -20,6 +20,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Curso;
 
 @Service
 @Transactional(readOnly = true)
@@ -88,6 +89,32 @@ public class PrecioCursoEstructuraServiceImp implements PrecioCursoEstructuraSer
 
         cursoCicloAcademicoDAO.updateList(cursosCicloUpd, "precio");
         seccionDAO.updateList(seccionesUps, "precio", "precioBase", "abonoVerano", "descuentoPrecio");
+    }
+
+    @Override
+    @Transactional
+    public void actualizarTPC(DataSessionPivot ds) {
+        List<CursoCicloAcademico> cursosCA = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico());
+        List<Curso> cursos = cursosCA.stream().map(CursoCicloAcademico::getCurso).distinct().collect(Collectors.toList());
+        
+        List<PrecioCursoEstructura> preciosCursoBD = precioCursoEstructuraDAO.allByCicloAcademico(ds.getCicloAcademico());
+        List<String> tpcs = preciosCursoBD.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toList());
+        
+        for (Curso cur : cursos) {
+            if(!tpcs.contains(cur.getTpc())){
+                PrecioCursoEstructura cursoEstructura = new PrecioCursoEstructura();
+                cursoEstructura.setCicloAcademico(ds.getCicloAcademico());
+                cursoEstructura.setTpc(cur.getTpc());
+                cursoEstructura.setCreditos(cur.getCreditos());
+                cursoEstructura.setEstado("ACT");
+                cursoEstructura.setPrecio(BigDecimal.ZERO);
+                cursoEstructura.setUserPrecio(ds.getUsuario());
+                cursoEstructura.setFechaPrecio(new Date());
+                precioCursoEstructuraDAO.save(cursoEstructura);
+            }
+        }
+        
+
     }
 
 }

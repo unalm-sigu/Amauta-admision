@@ -16,4 +16,6 @@ public interface PrecioCursoEstructuraDAO extends EasyDAO<PrecioCursoEstructura>
     PrecioCursoEstructura findByTpcCiclo(String tpc, CicloAcademico ciclo);
 
     int saveList(List<PrecioCursoEstructura> preciosTpc);
+
+    List<PrecioCursoEstructura> allByCicloAcademico(CicloAcademico cicloAcademico);
 }
