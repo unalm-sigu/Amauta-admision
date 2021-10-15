@@ -154,4 +154,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> allByCodigos(List<String> codigosMatricula);
 
+    public Alumno findFirstByPersona(Persona persona);
+
 }

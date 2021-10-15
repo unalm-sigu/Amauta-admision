@@ -1,0 +1,86 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Ingreso Alumno Histórico</title>
+        <style>
+            .nav-pills > li.active > a {
+                color: #0275D8 !important;
+                background-color: #FFF;
+                border-bottom-style: solid ;
+                border-bottom-color: #0275D8 !important;
+                border-width: 2px;
+            }
+            .nav-pills > li > a {
+                color: #0275D8 !important;
+            }
+            .nav-pills > li.active > a:hover {
+                color: #0275D8 !important;
+                background-color: #E5E7EE;
+            }
+            .nav-pills > li.active > a:focus {
+                color: #0275D8 !important;
+                background-color: #FFF;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">
+
+                        <button type="button" v-on:click="regresar" class="btn btn-default">
+                            Regresar
+                        </button>
+
+                    </div>
+
+                    <h2>Ingreso Alumno al Historial</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <alumno-registro></alumno-registro>
+
+                </section>
+
+
+            </div>
+        </div>
+        <div layout:fragment="js">
+
+            <script th:src="@{/app/academico/historico/alumnohistorico.js}" charset="utf-8"></script>
+
+            <script charset="utf-8">
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('date-picker', VueBootstrapDatetimePicker);
+
+
+                const AlumnoRegistro = httpVueLoader('/app/academico/historico/AlumnoRegistro.vue');
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        alumnoRegistro: AlumnoRegistro,
+                    },
+                    data: {
+                    },
+                    methods: {
+                        regresar() {
+                            location.href = APP.url('academico/historico/alumno');
+                        }
+                    }
+                });
+
+            </script>
+
+        </div>
+    </body>
+
+</html>

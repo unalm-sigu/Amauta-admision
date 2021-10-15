@@ -1321,4 +1321,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     }
 
+    @Override
+    public Alumno findFirstByPersona(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per")
+                .filter("per.id", persona)
+                .limit(1);
+        return find(sql);
+    }
+
 }
