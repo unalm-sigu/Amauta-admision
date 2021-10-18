@@ -159,8 +159,8 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>País</label>
-                    
-                    <pre>{{alumno.persona.paisNacer}}</pre>
+
+
 
 
                     <multiselect
@@ -353,7 +353,7 @@
                     <label>Correo Electrónico UNALM</label>
 
                     <input type="text"
-                           v-model="alumno.persona.emailEmpresa"
+                           v-model="alumno.persona.emailCompania"
                            class="form-control verificar-email"/>
 
                 </div>
@@ -740,7 +740,7 @@
                     format: "DD/MM/YYYY",
                     useCurrent: false
                 },
-                persona:{},
+                persona: {},
                 tiposDocumentos: [],
                 paises: [],
                 ubicaciones: [],
@@ -770,32 +770,30 @@
                 var $vue = this;
                 $vue.showLoader();
 
-                var isvalid = $vue.persona.tipoDocumento ? true : false;
-                isvalid &= $vue.persona.numeroDocIdentidad ? true : false;
+                var isvalid = $vue.alumno.persona.tipoDocumento ? true : false;
+                isvalid &= $vue.alumno.persona.numeroDocIdentidad ? true : false;
 
                 if (!isvalid) {
                     $vue.hideLoader();
                     return;
                 }
 
-                axios_.post(APP.url('academico/historico/alumno/existealumno'), $vue.persona).
+                let postPersona = {...$vue.alumno.persona};
+                
+                axios_.post(APP.url('academico/historico/alumno/existealumno'), postPersona).
                         then(({data}) => {
                             if (data.id) {
-                                $vue.persona.paterno = data.paterno;
-                                $vue.persona.materno = data.materno;
-                                $vue.persona.nombres = data.nombres;
-                                $vue.persona.direccion = data.direccion;
-                                $vue.persona.telefono = data.telefono;
-                                $vue.persona.celular = data.celular;
-                                $vue.persona.fechaNacer = data.fechaNacer;
-                                $vue.persona.sexo = data.sexo;
-                                $vue.persona.email = data.email;
-                                $vue.persona.id = data.id;
+                                $vue.alumno.persona = {...data};
                                 $vue.$forceUpdate();
+                            } else {
+                                $vue.alumno.persona = {};
+                                $vue.alumno.persona.numeroDocIdentidad = postPersona.numeroDocIdentidad;
+                                $vue.alumno.persona.tipoDocumento = postPersona.tipoDocumento;
                             }
                             $vue.hideLoader();
                         }, () => {
-                            $vue.persona = {};
+                            $vue.alumno.persona = {};
+                            $vue.alumno.persona.tipoDocumento = postPersona.tipoDocumento;
                             $vue.hideLoader();
                         });
             },
@@ -815,11 +813,8 @@
                 if ($('#formAlumno').parsley().validate() != true) {
                     return;
                 }
-
                 $vue.showLoader();
-                let alumnoPost = {...$vue.alumno};
-                alumnoPost.persona = {...$vue.persona};
-                axios_.post(APP.url('academico/historico/alumno/save'), alumnoPost).
+                axios_.post(APP.url('academico/historico/alumno/save'), {...$vue.alumno}).
                         then(({data}) => {
                             notify(data.message, "info");
                             $vue.updateAlumano(data.id);

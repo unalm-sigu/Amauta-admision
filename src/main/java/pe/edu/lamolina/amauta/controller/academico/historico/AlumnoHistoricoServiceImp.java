@@ -171,6 +171,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     }
 
     @Override
+    @Transactional
     public void save(Alumno alumnoForm, DataSessionPivot ds) {
 
         Persona personaForm = alumnoForm.getPersona();
@@ -305,7 +306,9 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
         personaBD.setNacionalidad(personaForm.getNacionalidad());
         personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
+
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
+        personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
 
         personaBD.setNombres(personaForm.getNombres());
         personaBD.setPaterno(personaForm.getPaterno());
@@ -317,7 +320,6 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         personaBD.setTelefono(personaForm.getTelefono());
         personaBD.setEmail(personaForm.getEmail());
         personaBD.setEmailCompania(personaForm.getEmailCompania());
-        personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
 
         personaDAO.update(personaBD);
 

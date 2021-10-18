@@ -119,6 +119,7 @@ public class AlumnoHistoricoController {
                 .join("persona.paisNacer")
                 .join("persona.paisDomicilio")
                 .join("persona.ubicacionDomicilio")
+                .join("persona.ubicacionNacer")
                 .join("persona.paisNacer")
                 .json();
 
@@ -160,6 +161,13 @@ public class AlumnoHistoricoController {
 
         Persona persona = service.validarAlumnoDocumento(personaDocumento);
         return JaneHelper.from(persona)
+                .join("tipoDocumento")
+                .join("nacionalidad")
+                .join("paisNacer")
+                .join("paisDomicilio")
+                .join("ubicacionDomicilio")
+                .join("ubicacionNacer")
+                .join("paisNacer")
                 .json();
 
     }
