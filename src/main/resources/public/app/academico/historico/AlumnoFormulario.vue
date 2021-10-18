@@ -14,7 +14,7 @@
                     <label>Tipo de documento de identidad</label>
 
                     <multiselect
-                        v-model="persona.tipoDocumento"
+                        v-model="alumno.persona.tipoDocumento"
                         v-bind:options="tiposDocumentos"
                         v-bind:allow-empty="true"
                         track-by="id"
@@ -43,7 +43,7 @@
                     </multiselect>
 
                     <input type="text"
-                           v-model="persona.tipoDocumento"
+                           v-model="alumno.persona.tipoDocumento"
                            class="hide" required="true"/>
 
                 </div>
@@ -56,7 +56,7 @@
 
                     <input type="text"
                            v-on:blur="cambiarNumDoc"
-                           v-model="persona.numeroDocIdentidad"
+                           v-model="alumno.persona.numeroDocIdentidad"
                            class="form-control" required="true"/>
 
                 </div>
@@ -72,7 +72,7 @@
 
                             <input type="text"
                                    required="true"
-                                   v-model="persona.paterno"
+                                   v-model="alumno.persona.paterno"
                                    v-on:change="nombrePersona"
                                    class="form-control"/>
 
@@ -85,7 +85,7 @@
                             <label>Apellido Materno</label>
 
                             <input type="text"
-                                   v-model="persona.materno"
+                                   v-model="alumno.persona.materno"
                                    v-on:change="nombrePersona"
                                    class="form-control"/>
 
@@ -98,7 +98,7 @@
 
                             <input type="text"
                                    required="true"
-                                   v-model="persona.nombres"
+                                   v-model="alumno.persona.nombres"
                                    v-on:change="nombrePersona"
                                    class="form-control"/>
 
@@ -125,10 +125,10 @@
 
                                     <input  type="radio"
                                             required="true"
-                                            name="persona.sexo"
+                                            name="alumno.persona.sexo"
                                             id="inlineCheckbox1"
                                             value="M"
-                                            v-model="persona.sexo"
+                                            v-model="alumno.persona.sexo"
                                             /> Masculino
                                 </label>
 
@@ -138,10 +138,10 @@
                                 <label class="radio inline">
                                     <input  type="radio"
                                             required="true"
-                                            name="persona.sexo"
+                                            name="alumno.persona.sexo"
                                             id="inlineCheckbox2"
                                             value="F"
-                                            v-model="persona.sexo"
+                                            v-model="alumno.persona.sexo"
                                             /> Femenino
                                 </label>
 
@@ -159,10 +159,12 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>País</label>
+                    
+                    <pre>{{alumno.persona.paisNacer}}</pre>
 
 
                     <multiselect
-                        v-model="persona.paisNacer"
+                        v-model="alumno.persona.paisNacer"
                         v-bind:options="paises"
                         v-bind:allow-empty="true"
                         v-on:search-change="searchPais"
@@ -191,7 +193,7 @@
                     </multiselect>
 
                     <input type="text"
-                           v-model="persona.paisNacer"
+                           v-model="alumno.persona.paisNacer"
                            class="hide" required="true"/>
 
 
@@ -206,7 +208,7 @@
 
 
                     <multiselect
-                        v-model="persona.ubicacionNacer"
+                        v-model="alumno.persona.ubicacionNacer"
                         v-bind:options="ubicaciones"
                         v-bind:allow-empty="true"
                         v-on:search-change="searchUbicacion"
@@ -244,7 +246,7 @@
                     <label>Fecha ( día / mes / año )</label>
 
                     <div class="input-group date">
-                        <date-picker v-model="persona.fechaNacer" 
+                        <date-picker v-model="alumno.persona.fechaNacer" 
                                      required="true" 
                                      v-bind:config="configDate" 
                                      data-parsley-id="2" 
@@ -266,7 +268,7 @@
 
 
                     <multiselect
-                        v-model="persona.nacionalidad"
+                        v-model="alumno.persona.nacionalidad"
                         v-bind:options="paises"
                         v-bind:allow-empty="true"
                         v-on:search-change="searchPais"
@@ -297,7 +299,7 @@
 
 
                     <input type="text"
-                           v-model="persona.nacionalidad"
+                           v-model="alumno.persona.nacionalidad"
                            class="hide" required="true"/>
 
 
@@ -315,7 +317,7 @@
                     <label>Teléfono</label>
 
                     <input type="text"
-                           v-model="persona.telefono"
+                           v-model="alumno.persona.telefono"
                            class="form-control sin-espacios numerico"/>
 
                 </div>
@@ -327,7 +329,7 @@
                     <label>Celular</label>
 
                     <input type="text"
-                           v-model="persona.celular"
+                           v-model="alumno.persona.celular"
                            class="form-control sin-espacios numerico"/>
 
                 </div>
@@ -339,7 +341,7 @@
                     <label>Correo Electrónico Personal</label>
 
                     <input type="text"
-                           v-model="persona.email"
+                           v-model="alumno.persona.email"
                            class="form-control verificar-email"/>
 
                 </div>
@@ -351,7 +353,7 @@
                     <label>Correo Electrónico UNALM</label>
 
                     <input type="text"
-                           v-model="persona.emailEmpresa"
+                           v-model="alumno.persona.emailEmpresa"
                            class="form-control verificar-email"/>
 
                 </div>
@@ -366,7 +368,7 @@
                     <label>País Domicilio</label>
 
                     <multiselect
-                        v-model="persona.paisDomicilio"
+                        v-model="alumno.persona.paisDomicilio"
                         v-bind:options="paises"
                         v-bind:allow-empty="true"
                         v-on:search-change="searchPais"
@@ -395,7 +397,7 @@
                     </multiselect>
 
                     <input type="text"
-                           v-model="persona.paisDomicilio"
+                           v-model="alumno.persona.paisDomicilio"
                            class="hide" required="true"/>
 
 
@@ -408,7 +410,7 @@
                     <label>Ubicación Domicilio (Perú)</label>
 
                     <multiselect
-                        v-model="persona.ubicacionDomicilio"
+                        v-model="alumno.persona.ubicacionDomicilio"
                         v-bind:options="ubicaciones"
                         v-bind:allow-empty="true"
                         v-on:search-change="searchUbicacion"
@@ -449,7 +451,7 @@
 
                     <input type="text"
                            class="form-control"
-                           v-model="persona.direccion"
+                           v-model="alumno.persona.direccion"
                            data-trigger="change" required="true" />
 
                 </div>
@@ -459,6 +461,20 @@
 
             <div class="m-b-md m-t-md col-xs-12 bold">
                 <h4>Académico</h4>
+            </div>
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+
+                    <label class="bold">Código matrícula</label>
+
+                    <input type="text"
+                           class="form-control"
+                           v-model="alumno.codigo"
+                           data-trigger="change" required="true" />
+
+                </div>
             </div>
 
 
@@ -498,6 +514,9 @@
                     </multiselect>
 
 
+                    <input type="text"
+                           class="hide"
+                           v-model="alumno.cicloIngreso" required="true" />
 
 
                 </div>
@@ -546,18 +565,6 @@
             </div>
 
 
-            <div class="col-sm-6">
-                <div class="form-group">
-
-                    <label class="bold">Código matrícula</label>
-
-                    <input type="text"
-                           class="form-control"
-                           v-model="alumno.codigo"
-                           data-trigger="change" required="true" />
-
-                </div>
-            </div>
 
             <div class="col-sm-6">
                 <div class="form-group">
@@ -569,6 +576,7 @@
                         v-bind:options="situaciones"
                         v-bind:allow-empty="true"
                         track-by="id"
+                        label='nombre'
                         placeholder=" "
                         v-bind:internal-search="true"
                         v-bind:hide-selected="false"
@@ -584,7 +592,6 @@
                         <template slot="option" slot-scope="props">
                             <span class="option_title">
                                 {{props.option.nombre}}
-                                <small>{{props.option.descripcion}}</small>
                             </span> 
                         </template>
 
@@ -594,7 +601,7 @@
                     </multiselect>
 
                     <input type="text"
-                           class="form-control"
+                           class="hide"
                            v-model="alumno.situacionAcademica"
                            data-trigger="change" required="true" />
 
@@ -610,6 +617,7 @@
                         v-model="alumno.modalidadEstudio"
                         v-bind:options="modalidades"
                         v-bind:allow-empty="true"
+                        label='nombre'
                         track-by="id"
                         placeholder=" "
                         v-bind:internal-search="true"
@@ -633,6 +641,11 @@
                         <template slot="noResult">&nbsp</template>
 
                     </multiselect>
+
+
+                    <input type="text"
+                           class="hide"
+                           v-model="alumno.modalidadEstudio" required="true" />
 
                 </div>
             </div>
@@ -641,15 +654,15 @@
                 <div class="form-group">
 
                     <label class="bold">Carrera</label>
-                    
-                    
+
                     <multiselect
                         v-model="alumno.carrera"
                         v-bind:options="carreras"
                         v-bind:allow-empty="true"
+                        v-on:search-change="searchCarrera"
                         track-by="id"
                         placeholder=" "
-                        v-bind:internal-search="true"
+                        v-bind:internal-search='false'
                         v-bind:hide-selected="false"
                         v-bind:showNoOptions="true"
                         v-bind:show-labels="false">
@@ -670,6 +683,12 @@
                         <template slot="noResult">&nbsp</template>
 
                     </multiselect>
+
+
+                    <input type="text"
+                           class="hide"
+                           v-model="alumno.carrera" required="true" />
+
 
                 </div>
             </div>
@@ -678,36 +697,8 @@
                 <div class="form-group">
 
                     <label class="bold">Orientación Carrera</label>
-                    
-                                        
-                    <multiselect
-                        v-model="alumno.orientacionCarrera"
-                        v-bind:options="orientaciones"
-                        v-bind:allow-empty="true"
-                        track-by="id"
-                        placeholder=" "
-                        v-bind:internal-search="true"
-                        v-bind:hide-selected="false"
-                        v-bind:showNoOptions="true"
-                        v-bind:show-labels="false">
 
-                        <template slot="singleLabel" slot-scope="props">
-                            <span class="option__title">
-                                {{ props.option.nombre }}
-                            </span>
-                        </template>
 
-                        <template slot="option" slot-scope="props">
-                            <span class="option_title">
-                                {{props.option.nombre}}
-                            </span> 
-                        </template>
-
-                        <template slot="noOptions">&nbsp</template>
-                        <template slot="noResult">&nbsp</template>
-
-                    </multiselect>
-                    
 
                 </div>
             </div>
@@ -716,34 +707,8 @@
                 <div class="form-group">
 
                     <label class="bold">Plan Curricular</label>
-                         
-                    <multiselect
-                        v-model="alumno.planCurricular"
-                        v-bind:options="planes"
-                        v-bind:allow-empty="true"
-                        track-by="id"
-                        placeholder=" "
-                        v-bind:internal-search="true"
-                        v-bind:hide-selected="false"
-                        v-bind:showNoOptions="true"
-                        v-bind:show-labels="false">
 
-                        <template slot="singleLabel" slot-scope="props">
-                            <span class="option__title">
-                                {{ props.option.nombre }}
-                            </span>
-                        </template>
 
-                        <template slot="option" slot-scope="props">
-                            <span class="option_title">
-                                {{props.option.nombre}}
-                            </span> 
-                        </template>
-
-                        <template slot="noOptions">&nbsp</template>
-                        <template slot="noResult">&nbsp</template>
-
-                    </multiselect>
 
                 </div>
             </div>
@@ -751,10 +716,10 @@
 
             <div class="col-xs-12 text-center m-t-md m-b-md">
 
-                <button type="button" 
+                <button type="button" v-if="!alumno.id"
                         class="btn btn-primary" 
-                        v-text="persona.id?'Actualizar':'Guardar'"  
-                        v-on:click.prevent="submitForm">Guardar</button>
+                        v-text="alumno.id?'Actualizar':'Guardar'"  
+                        v-on:click.prevent="submitForm">Guardar Alumno</button>
 
             </div>
 
@@ -775,21 +740,28 @@
                     format: "DD/MM/YYYY",
                     useCurrent: false
                 },
-                persona: {},
-                alumno: {},
+                persona:{},
                 tiposDocumentos: [],
                 paises: [],
                 ubicaciones: [],
                 situaciones: [],
                 ciclos: [],
+                carreras: [],
+                modalidades: [],
             };
+        },
+        computed: {
+            ...Vuex.mapState(["alumno"])
         },
         mounted: function () {
             let $vue = this;
             $vue.loadData();
+            if (ID_ALUMNO) {
+                $vue.fetchAlumno();
+            }
         },
         methods: {
-
+            ...Vuex.mapActions(['fetchAlumno']),
             nombrePersona() {
 
             },
@@ -830,9 +802,11 @@
             loadData() {
                 let $vue = this;
                 axios_.get(APP.url('academico/historico/alumno/datos')).
-                        then(response => {
-                            $vue.tiposDocumentos = response.data.tiposDocumentos;
-                            $vue.ciclos = response.data.ciclos;
+                        then(({data}) => {
+                            $vue.tiposDocumentos = data.tiposDocumentos;
+                            $vue.ciclos = data.ciclos;
+                            $vue.modalidades = data.modalidades;
+                            $vue.situaciones = data.situaciones;
                         }, () => {
                         });
             },
@@ -841,15 +815,18 @@
                 if ($('#formAlumno').parsley().validate() != true) {
                     return;
                 }
+
                 $vue.showLoader();
-                axios_.post(APP.url('academico/historico/alumno/save'), $vue.alumno).
+                let alumnoPost = {...$vue.alumno};
+                alumnoPost.persona = {...$vue.persona};
+                axios_.post(APP.url('academico/historico/alumno/save'), alumnoPost).
                         then(({data}) => {
-                            notify(data, "info");
+                            notify(data.message, "info");
+                            $vue.updateAlumano(data.id);
                             $vue.hideLoader();
                         }, () => {
                             $vue.hideLoader();
                         });
-
             },
             searchPais(nombre) {
                 let $vue = this;
@@ -857,8 +834,8 @@
                     return;
                 }
                 axios.get("/comun/buscar/allPaises", {params: {nombre: nombre}})
-                        .then(response => {
-                            $vue.paises = response.data.data;
+                        .then(({data}) => {
+                            $vue.paises = data.data;
                         });
             },
             searchUbicacion(nombre) {
@@ -867,10 +844,25 @@
                     return;
                 }
                 axios.get("/comun/buscar/allDistritos", {params: {nombre: nombre}})
-                        .then(response => {
-                            $vue.ubicaciones = response.data.data;
+                        .then(({data}) => {
+                            $vue.ubicaciones = data.data;
                         });
             },
+            searchCarrera(nombre) {
+                let $vue = this;
+                if (!nombre) {
+                    return;
+                }
+                axios.get("/comun/buscar/allCarrera", {params: {nombre: nombre}})
+                        .then(({data}) => {
+                            $vue.carreras = data.data;
+                        });
+            },
+            updateAlumano(id) {
+                let $vue = this;
+                ID_ALUMNO = id;
+                $vue.fetchAlumno();
+            }
         }
     };
 </script>

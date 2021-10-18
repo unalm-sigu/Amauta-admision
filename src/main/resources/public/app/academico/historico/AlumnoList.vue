@@ -85,6 +85,8 @@
                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                             <ul class="dropdown-menu pull-right">
                                                 <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                
+                                                <li><a v-bind:href="updateAlumno(item)">Actualizar</a></li>
                                             </ul>
                                         </div>
                                     </td>
@@ -123,6 +125,9 @@
             },
             urlAcademico(item) {
                 return APP.url('academico/alumno/' + item.id + '/infoacademico') + URL_UTIL.getOrigenURL();
+            },
+            updateAlumno(item) {
+                return APP.url('academico/historico/alumno/' + item.id + '/update') + URL_UTIL.getOrigenURL();
             },
             verNota(notax) {
                 return APP.verNota(notax);

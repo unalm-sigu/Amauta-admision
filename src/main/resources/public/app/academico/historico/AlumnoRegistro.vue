@@ -39,9 +39,7 @@
         },
         data() {
             return {
-
                 state: 1
-
             };
         },
         mounted: function () {

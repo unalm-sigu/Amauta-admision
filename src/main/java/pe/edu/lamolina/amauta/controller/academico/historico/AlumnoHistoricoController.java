@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -29,6 +30,8 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 
@@ -93,7 +96,7 @@ public class AlumnoHistoricoController {
         return "academico/historico/alumnohistoricoregistro";
     }
 
-    @RequestMapping("{idAlumno}/update")
+    @RequestMapping(value = "{idAlumno}/update", method = RequestMethod.GET)
     public String update(@PathVariable("idAlumno") Long idAlumno, Model model) {
         model.addAttribute("idAlumno", idAlumno);
         return "academico/historico/alumnohistoricoregistro";
@@ -106,8 +109,17 @@ public class AlumnoHistoricoController {
         Alumno alumno = service.findAlumno(idAlumno);
 
         ObjectNode jAlumno = JaneHelper.from(alumno)
+                .join("carrera")
+                .join("situacionAcademica")
+                .join("modalidadEstudio")
+                .join("cicloIngreso")
                 .join("persona")
                 .join("persona.tipoDocumento")
+                .join("persona.nacionalidad")
+                .join("persona.paisNacer")
+                .join("persona.paisDomicilio")
+                .join("persona.ubicacionDomicilio")
+                .join("persona.paisNacer")
                 .json();
 
         return jAlumno;
@@ -115,15 +127,18 @@ public class AlumnoHistoricoController {
 
     @ResponseBody
     @RequestMapping("save")
-    public String save(@RequestBody Alumno alumno, HttpSession session) {
+    public Map save(@RequestBody Alumno alumno, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.save(alumno, ds);
-        return GlobalMessages.CREATED;
+        Map response = new LinkedHashMap();
+        response.put("message", GlobalMessages.CREATED);
+        response.put("id", alumno.getId());
+        return response;
     }
 
     @ResponseBody
-    @RequestMapping("update")
+    @RequestMapping(value = "update", method = RequestMethod.POST)
     public String update(@RequestBody Alumno alumno, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -142,11 +157,11 @@ public class AlumnoHistoricoController {
     @ResponseBody
     @RequestMapping("existealumno")
     public ObjectNode existealumno(@RequestBody Persona personaDocumento) {
-        
+
         Persona persona = service.validarAlumnoDocumento(personaDocumento);
         return JaneHelper.from(persona)
                 .json();
-        
+
     }
 
     @ResponseBody
@@ -155,10 +170,14 @@ public class AlumnoHistoricoController {
 
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         List<TipoDocIdentidad> tiposDocumentos = service.allTiposDocIdentidad();
+        List<ModalidadEstudio> modalidades = service.allModalidad();
+        List<SituacionAcademica> situaciones = service.allSituacionAcademica();
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.set("tiposDocumentos", JaneHelper.from(tiposDocumentos).only("id,simbolo,nombre").array());
         node.set("ciclos", JaneHelper.from(ciclos).only("id,descripcion").array());
+        node.set("modalidades", JaneHelper.from(modalidades).only("id,nombre").array());
+        node.set("situaciones", JaneHelper.from(situaciones).only("id,nombre").array());
         return node;
 
     }
