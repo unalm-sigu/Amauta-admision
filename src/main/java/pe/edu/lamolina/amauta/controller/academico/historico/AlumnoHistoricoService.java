@@ -34,12 +34,12 @@ public interface AlumnoHistoricoService {
 
     public void update(Alumno alumno, DataSessionPivot ds);
 
-    public void delete(Alumno alumno);
-
     public Persona validarAlumnoDocumento(Persona persona);
 
     public List<ModalidadEstudio> allModalidad();
 
     public List<SituacionAcademica> allSituacionAcademica();
+
+    public void deleteAlumnoHistorico(Long idAlumno);
 
 }

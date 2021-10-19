@@ -148,10 +148,10 @@ public class AlumnoHistoricoController {
     }
 
     @ResponseBody
-    @RequestMapping("delete")
-    public String delete(Alumno alumno) {
+    @RequestMapping("{idAlumno}/delete")
+    public String delete(@PathVariable("idAlumno") Long idAlumno) {
 
-        service.delete(alumno);
+        service.deleteAlumnoHistorico(idAlumno);
         return GlobalMessages.DELETED;
     }
 

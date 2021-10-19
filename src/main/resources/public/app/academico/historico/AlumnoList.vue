@@ -3,7 +3,7 @@
         <section class="panel">
             <section class="panel-body">
                 <raptor-table v-bind:url="alumnosURL" v-bind:preload="false" ref="load">
-                    
+
                     <div slot="header"></div>
 
                     <template scope="props" >
@@ -65,9 +65,9 @@
                                     </td>
 
                                     <td class="v-middle text-center">
-                                        <span v-if="item.ppa != '' " class="block"><b>ppa:</b> {{verNota(item.promedioAcumulado)}}</span>
-                                        <span v-if="item.cca != '' " class="block"><b>cca:</b> {{item.creditosCursados}}</span>
-                                        <span v-if="item.capa != '' " class="block"><b>capa:</b> {{item.creditosAprobados}}</span>
+                                        <span v-if="item.ppa" class="block"><b>ppa:</b> {{verNota(item.promedioAcumulado)}}</span>
+                                        <span v-if="item.cca" class="block"><b>cca:</b> {{item.creditosCursados}}</span>
+                                        <span v-if="item.capa" class="block"><b>capa:</b> {{item.creditosAprobados}}</span>
                                     </td>
 
                                     <td class="text-center v-middle">
@@ -85,8 +85,9 @@
                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                             <ul class="dropdown-menu pull-right">
                                                 <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                
+
                                                 <li><a v-bind:href="updateAlumno(item)">Actualizar</a></li>
+                                                <li><a href="#" v-on:click.prevent="eliminarAlumno(item)">Eliminar</a></li>
                                             </ul>
                                         </div>
                                     </td>
@@ -132,6 +133,28 @@
             verNota(notax) {
                 return APP.verNota(notax);
             },
+            eliminarAlumno(item) {
+
+                swal({
+                    title: "Seguro que desea eliminar el registro",
+                    icon: "warning",
+                    buttons: ["Cancelar", "Eliminar"],
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+
+                        let $vue = this;
+                        axios.delete(APP.url('academico/historico/alumno/' + item.id + "/delete")).
+                                then(({data}) => {
+                                    notify(data, 'info');
+                                    $vue.$refs.load.loadRemoteData();
+                                }, () => {
+                                });
+
+                    }
+                });
+
+            }
         }
     };
 </script>

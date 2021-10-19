@@ -156,4 +156,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public Alumno findFirstByPersona(Persona persona);
 
+    public List<Alumno> allAlumnoHistoricoByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
+
 }

@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,49 +43,36 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private TipoDocIdentidadDAO tipoDocIdentidadDAO;
 
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private PersonaDAO personaDAO;
 
-    @Autowired
-    PersonaDAO personaDAO;
+    private AlumnoVisitanteDAO alumnoVisitanteDAO;
 
-    @Autowired
-    AlumnoVisitanteDAO alumnoVisitanteDAO;
+    private AlumnoDAO alumnoDAO;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
+    private UsuarioDAO usuarioDAO;
 
-    @Autowired
-    UsuarioDAO usuarioDAO;
+    private PersonaService personaService;
 
-    @Autowired
-    PersonaService personaService;
+    private CicloAcademicoDAO cicloAcademicoDAO;
 
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
+    private CarreraDAO carreraDAO;
 
-    @Autowired
-    CarreraDAO carreraDAO;
+    private ModalidadEstudioDAO modalidadEstudioDAO;
 
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
+    private SituacionAcademicaDAO situacionAcademicaDAO;
 
-    @Autowired
-    SituacionAcademicaDAO situacionAcademicaDAO;
+    private ContenidoCartaDAO contenidoCartaDAO;
 
-    @Autowired
-    ContenidoCartaDAO contenidoCartaDAO;
+    private MatriculaResumenDAO matriculaResumenDAO;
 
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    VerificadorService verificadorService;
+    private VerificadorService verificadorService;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -95,14 +82,14 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Override
     public List<CicloAcademico> allCicloAcademico() {
         int year = new DateTime().getYear();
-        int yearinit = year - 4;
+        int yearinit = year - 10;
         int yearend = year + 5;
         return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
 
     @Override
     public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras, String todo) {
-        return alumnoDAO.allByCarrerasDynatable(filter, carreras, todo);
+        return alumnoDAO.allAlumnoHistoricoByCarrerasDynatable(filter, carreras, todo);
     }
 
     @Override
@@ -178,7 +165,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
         this.verificarDatosPersona(personaForm);
 
-        logger.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+        log.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
 
         Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
 
@@ -212,8 +199,16 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     }
 
     @Override
-    public void delete(Alumno alumno) {
-        alumnoDAO.update(alumno);
+    @Transactional
+    public void deleteAlumnoHistorico(Long idAlumno) {
+        Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
+        if(StringUtils.isBlank(alumno.getIngresoAlumnoHistorico())){
+            throw new PhobosException("Esta opción no está permitido para este alumno");
+        }
+        if(!"SI".equalsIgnoreCase(alumno.getIngresoAlumnoHistorico())){
+            throw new PhobosException("Esta opción no está permitido para este alumno");
+        }
+        alumnoDAO.delete(idAlumno);
     }
 
     @Override
@@ -387,6 +382,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
         alumno.setUserRegistro(ds.getUsuario());
         alumno.setFechaRegistro(new Date());
+        alumno.setIngresoAlumnoHistorico("SI");
 
         alumnoDAO.save(alumno);
 
