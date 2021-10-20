@@ -22,8 +22,8 @@
                         placeholder=" "
                         v-bind:internal-search="true"
                         v-bind:hide-selected="false"
-                        v-bind:showNoOptions="true"
-                        v-bind:show-labels="false">
+                        v-bind:showNoOptions="false"
+                        >
 
                         <template slot="singleLabel" slot-scope="props">
                             <span class="option__title">
@@ -779,7 +779,7 @@
                 }
 
                 let postPersona = {...$vue.alumno.persona};
-                
+
                 axios_.post(APP.url('academico/historico/alumno/existealumno'), postPersona).
                         then(({data}) => {
                             if (data.id) {

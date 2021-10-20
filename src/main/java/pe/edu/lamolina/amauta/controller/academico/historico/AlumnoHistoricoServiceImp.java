@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -20,6 +21,8 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoVisitanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
@@ -32,10 +35,15 @@ import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -45,7 +53,8 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
-@AllArgsConstructor(onConstructor = @__(@Autowired))
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
     private TipoDocIdentidadDAO tipoDocIdentidadDAO;
@@ -73,6 +82,10 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     private MatriculaResumenDAO matriculaResumenDAO;
 
     private VerificadorService verificadorService;
+
+    private AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    private AlumnoCicloDAO alumnoCicloDAO;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -202,10 +215,10 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Transactional
     public void deleteAlumnoHistorico(Long idAlumno) {
         Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
-        if(StringUtils.isBlank(alumno.getIngresoAlumnoHistorico())){
+        if (StringUtils.isBlank(alumno.getIngresoAlumnoHistorico())) {
             throw new PhobosException("Esta opción no está permitido para este alumno");
         }
-        if(!"SI".equalsIgnoreCase(alumno.getIngresoAlumnoHistorico())){
+        if (!"SI".equalsIgnoreCase(alumno.getIngresoAlumnoHistorico())) {
             throw new PhobosException("Esta opción no está permitido para este alumno");
         }
         alumnoDAO.delete(idAlumno);
@@ -407,6 +420,42 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Override
     public List<SituacionAcademica> allSituacionAcademica() {
         return situacionAcademicaDAO.all();
+    }
+
+    @Override
+    @Transactional
+    public void saveCicloAlumno(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
+
+        alumnoCiclo.defaultValuesToCreate(alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico(), ds.getUsuario());
+        alumnoCiclo.setUserRegistro(ds.getUsuario());
+        alumnoCiclo.setFechaRegistro(new Date());
+        alumnoCiclo.setCarrera(alumnoCiclo.getAlumno().getCarrera());
+        alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.MAT);
+        alumnoCiclo.setEstaAprobado(1);
+        alumnoCiclo.setCursosAprobados(0);
+        alumnoCiclo.setCursosInscritos(0);
+        alumnoCiclo.setPromedioAcumulado(BigDecimal.ZERO);
+        alumnoCiclo.setPromedioCiclo(BigDecimal.ZERO);
+        alumnoCiclo.setCreditosConvalidados(0);
+        alumnoCiclo.setCreditosAprobadosAcumulados(0);
+        alumnoCiclo.setCreditosAprobadosCiclo(0);
+        alumnoCiclo.setCreditosCursadosCiclo(0);
+        alumnoCiclo.setCreditosAcumulados(0);
+        alumnoCicloDAO.save(alumnoCiclo);
+
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCiclo.getAlumnoCicloCurso()) {
+
+            alumnoCicloCurso.setEstaAprobado(1);
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            alumnoCicloCurso.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
+            alumnoCicloCurso.setFechaRegistro(new Date());
+            alumnoCicloCurso.setRegistroActivo(1);
+            alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
+            alumnoCicloCurso.setVecesCursado(1);
+            alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
+            alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
+            alumnoCicloCursoDAO.save(alumnoCicloCurso);
+        }
     }
 
 }

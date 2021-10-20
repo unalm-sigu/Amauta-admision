@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -183,11 +184,20 @@ public class AlumnoHistoricoController {
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.set("tiposDocumentos", JaneHelper.from(tiposDocumentos).only("id,simbolo,nombre").array());
-        node.set("ciclos", JaneHelper.from(ciclos).only("id,descripcion").array());
+        node.set("ciclos", JaneHelper.from(ciclos).only("id,descripcion").join("modalidadEstudio", "id,nombre").array());
         node.set("modalidades", JaneHelper.from(modalidades).only("id,nombre").array());
         node.set("situaciones", JaneHelper.from(situaciones).only("id,nombre").array());
         return node;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("saveCicloAlumno")
+    public String saveCicloAlumno(@RequestBody AlumnoCiclo alumnoCiclo, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.saveCicloAlumno(alumnoCiclo, ds);
+        return GlobalMessages.CREATED;
     }
 
 }

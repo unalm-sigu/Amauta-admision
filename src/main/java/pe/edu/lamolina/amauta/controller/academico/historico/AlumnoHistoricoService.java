@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -41,5 +42,7 @@ public interface AlumnoHistoricoService {
     public List<SituacionAcademica> allSituacionAcademica();
 
     public void deleteAlumnoHistorico(Long idAlumno);
+
+    public void saveCicloAlumno(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 
 }
