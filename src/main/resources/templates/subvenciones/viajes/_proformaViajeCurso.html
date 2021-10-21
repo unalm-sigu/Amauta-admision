@@ -1,0 +1,73 @@
+
+<h4 class="text-primary m-b-md">Proforma del viaje</h4>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="text-primary bold">Importe proforma</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeProforma)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="text-primary bold">Importe solicitado</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeSolicitado)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary bold">Importe por alumno</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeAlumno)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary bold">Matriculados</label>
+            <div class="item-form-control item-form-gray text-primary">{{viajeCurso.cantidadAlumnosMatriculados}}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary bold">Registrados</label>
+            <div class="item-form-control item-form-gray text-primary">{{viajeCurso.cantidadAlumnosRegistrados}}</div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th class="wd-10 text-center">Orden</th>
+            <th class="wd-65">Motivo</th>
+            <th class="wd-20 text-right">Importe</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr v-for="item in viajeCurso.proformasViaje" >
+
+            <td class="v-middle text-center">
+                <span class="badge badge-primary label-numeric">{{item.orden}}</span>
+            </td>
+
+            <td class="v-middle">
+                <div>{{item.descripcion}}</div>
+            </td>
+
+            <td class="v-middle text-right">
+                <div class="">{{commas(item.importe)}}</div>
+            </td>
+
+        </tr>
+
+        <tr v-if="viajeCurso.importeProforma">
+            <td></td>
+            <td colspan="3" class="text-right">
+                <div class="mr-2"><b>TOTAL:</b> &nbsp;&nbsp; S/. {{commas(viajeCurso.importeProforma)}}</div>
+            </td>
+        </tr>
+    </tbody>
+</table>

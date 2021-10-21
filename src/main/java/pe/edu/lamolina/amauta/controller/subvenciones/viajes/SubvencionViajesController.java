@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.subvenciones.viajes;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -10,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -21,14 +24,22 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bienestar.AlumnoViajeCurso;
+import pe.edu.lamolina.model.bienestar.CronogramaEventoSubvencionado;
+import pe.edu.lamolina.model.bienestar.ProformaEventoSubvencionado;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.contabilidad.ItemJustificacionGasto;
+import pe.edu.lamolina.model.contabilidad.JustificacionGasto;
+import pe.edu.lamolina.model.contabilidad.JustificacionGastoAlumno;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.JUSTIFICADO;
 
 @Slf4j
 @Controller
@@ -39,6 +50,7 @@ public class SubvencionViajesController {
 
     private final SubvencionViajesService service;
     private final DespliegueConfig despliegueConfig;
+    private final VerificadorService verificadorService;
 
     private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
@@ -282,5 +294,216 @@ public class SubvencionViajesController {
 
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("observaJustificacion")
+    public JsonResponse observaJustificacion(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.observaJustificacion(viajeCurso, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se registró la observación satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @RequestMapping("{idViajeCurso}/configurar")
+    public String configurar(
+            @RequestParam("origen") String origen,
+            @PathVariable("idViajeCurso") Long idViajeCurso, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        ViajeCurso viajeCurso = service.findViaje(new ViajeCurso(idViajeCurso), ds);
+
+        Boolean aprobable = Arrays.asList(JUSTIFICADO).contains(viajeCurso.getEstadoViajeEnum());
+
+        ObjectNode viajeCursoJson = this.createViajeCursoJson(viajeCurso);
+
+        JustificacionGasto justificacion = service.findJustificacion(viajeCurso, ds);
+        ObjectNode justificacionJson = this.createJustificacionJson(justificacion);
+
+        List<AlumnoViajeCurso> alumnosviaje = service.allAlumnosByViaje(viajeCurso);
+        ArrayNode alumnosViajeJson = createAlumnosViajeJson(alumnosviaje);
+
+        model.addAttribute("viajeCurso", viajeCurso);
+        model.addAttribute("viajeCursoJson", viajeCursoJson.toString());
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("aprobable", aprobable);
+        model.addAttribute("justificacionJson", justificacionJson.toString());
+        model.addAttribute("alumnosViajeJson", alumnosViajeJson.toString());
+        model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/subvenciones/viajes"));
+
+        return "subvenciones/viajes/configuraViajeCurso";
+    }
+
+    private ArrayNode createAlumnosViajeJson(List<AlumnoViajeCurso> alumnosByViaje) {
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoViajeCurso alumnoViaje : alumnosByViaje) {
+            ViajeCurso viaje = alumnoViaje.getViajeCurso();
+
+            Boolean aprobable = Arrays.asList(JUSTIFICADO).contains(viaje.getEstadoViajeEnum());
+
+            ObjectNode node = JaneHelper
+                    .from(alumnoViaje)
+                    .only("id,estado,estadoSalud,estadoAsistencia,estadoEnum,estadoSaludEnum,estadoAsistenciaEnum,importeAsignado,importeJustificado,importeDevuelto")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.persona", "apellidosNombres,emailCompania,numeroDocIdentidad")
+                    .join("viajeCurso", "id,fechaFinRegistroAlumnos,estadoViaje,estadoSubvencion,estadoViajeEnum,estadoSubvencionEnum")
+                    .join("viajeCurso.curso", "id,codigo,nombre,tpc")
+                    .join("viajeCurso.curso.departamentoAcademico", "nombre")
+                    .join("viajeCurso.seccion", "id,codigo2,tipoSeccionEnum")
+                    .join("viajeCurso.seccion.grupoHoras", "id,codigo")
+                    .join("viajeCurso.docenteCreador", "codigo")
+                    .join("viajeCurso.docenteCreador.persona", "apellidosNombres,emailCompania")
+                    .join("viajeCurso.alumnoDelegado", "id,codigo")
+                    .join("viajeCurso.alumnoDelegado.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("viajeCurso.alumnoDelegado.persona.tipoDocumento", "simbolo")
+                    .join("personaCuentaBancaria", "id,numeroCuenta,cuentaInterbancaria,esBcp")
+                    .join("personaCuentaBancaria.banco", "nombre")
+                    .join("personaCuentaBancaria.banco.empresa", "razonSocial")
+                    .json();
+            node.put("aprobable", aprobable);
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ObjectNode createJustificacionJson(JustificacionGasto justifica) {
+        ObjectNode node = JaneHelper
+                .from(justifica)
+                .json();
+
+        List<ItemJustificacionGasto> itemsJustica = justifica.getItemsJustificacion();
+
+        ArrayNode arrayItems = new ArrayNode(JsonNodeFactory.instance);
+        for (ItemJustificacionGasto item : itemsJustica) {
+            ObjectNode nodeItem = JaneHelper
+                    .from(item)
+                    .only("id,estadoJustificacion,estadoEnum,descripcion,tipoGrupoAlumnos,tipoGrupoAlumnosEnum,observaciones,cantidadAlumnos,importe,importeAlumno,fechaAnulacion")
+                    .join("factura", "id,ruta,nombre")
+                    .json();
+
+            List<JustificacionGastoAlumno> gastosAlumnos = item.getJustificacionesAlumnos();
+            ArrayNode arrayAlumnos = JaneHelper
+                    .from(gastosAlumnos)
+                    .only("id,importeJustificado,fechaAnulacion")
+                    .join("alumno", "codigo")
+                    .join("alumno.persona", "apellidosNombres")
+                    .array();
+
+            nodeItem.set("justificacionesAlumnos", arrayAlumnos);
+
+            arrayItems.add(nodeItem);
+        }
+
+        node.set("itemsJustificacion", arrayItems);
+        return node;
+    }
+
+    private ObjectNode createViajeCursoJson(ViajeCurso viajeCurso) {
+
+        Boolean aprobable = Arrays.asList(JUSTIFICADO)
+                .contains(viajeCurso.getEstadoViajeEnum());
+
+        ObjectNode viajeCursoJson = JaneHelper
+                .from(viajeCurso)
+                .only("id,observacion,descripcionViaje,importeSolicitado,importeProforma,importeAlumno,estadoViaje,estadoSubvencion,estadoViajeEnum,estadoSubvencionEnum,cantidadAlumnosMatriculados,cantidadAlumnosRegistrados")
+                .join("curso", "id,codigo,nombre,tpc")
+                .join("curso.departamentoAcademico", "nombre")
+                .join("seccion", "id,codigo2,tipoSeccionEnum")
+                .join("seccion.grupoHoras", "id,codigo")
+                .join("docenteCreador", "codigo")
+                .join("docenteCreador.persona", "apellidosNombres")
+                .join("alumnoDelegado", "id,codigo")
+                .join("alumnoDelegado.persona", "id,apellidosNombres,numeroDocIdentidad")
+                .join("alumnoDelegado.persona.tipoDocumento", "simbolo")
+                .json();
+
+        viajeCursoJson.put("aprobable", aprobable);
+
+        ArrayNode cronogramasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<CronogramaEventoSubvencionado> cronogramas = viajeCurso.getCronogramasViaje();
+        cronogramas.forEach(crono -> {
+            ObjectNode cronoJson = JaneHelper
+                    .from(crono)
+                    .only("id,orden,descripcion,fecha,obligatorio")
+                    .json();
+
+            cronogramasJson.add(cronoJson);
+        });
+
+        ArrayNode proformasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<ProformaEventoSubvencionado> proformas = viajeCurso.getProformasViaje();
+        proformas.forEach(crono -> {
+            ObjectNode itemJson = JaneHelper
+                    .from(crono)
+                    .only("id,orden,descripcion,importe")
+                    .json();
+
+            proformasJson.add(itemJson);
+        });
+
+        viajeCursoJson.set("cronogramasViaje", cronogramasJson);
+        viajeCursoJson.set("proformasViaje", proformasJson);
+        return viajeCursoJson;
+    }
+
+    @ResponseBody
+    @RequestMapping("findJustificacion")
+    public JsonResponse findJustificacion(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            JustificacionGasto justificacion = service.findJustificacion(viajeCurso, ds);
+            ObjectNode justificacionJson = this.createJustificacionJson(justificacion);
+
+            response.setData(justificacionJson);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("findViaje")
+    public JsonResponse findViaje(@RequestBody ViajeCurso viajeCursoForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            ViajeCurso viajeCursoBD = service.findViaje(viajeCursoForm, ds);
+            ObjectNode viajeCursoJson = this.createViajeCursoJson(viajeCursoBD);
+
+            response.setData(viajeCursoJson);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    
 
 }

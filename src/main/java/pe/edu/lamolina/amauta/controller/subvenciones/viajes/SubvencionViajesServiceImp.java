@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +15,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.bienestar.AlumnoViajeCursoDAO;
+import pe.edu.lamolina.amauta.dao.bienestar.CronogramaEventoSubvencionadoDAO;
+import pe.edu.lamolina.amauta.dao.bienestar.ProformaEventoSubvencionadoDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.ViajeCursoDAO;
+import pe.edu.lamolina.amauta.dao.contabilidad.ItemJustificacionGastoDAO;
+import pe.edu.lamolina.amauta.dao.contabilidad.JustificacionGastoAlumnoDAO;
+import pe.edu.lamolina.amauta.dao.contabilidad.JustificacionGastoDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -31,16 +39,24 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bienestar.AlumnoViajeCurso;
+import pe.edu.lamolina.model.bienestar.CronogramaEventoSubvencionado;
+import pe.edu.lamolina.model.bienestar.ProformaEventoSubvencionado;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
+import pe.edu.lamolina.model.contabilidad.ItemJustificacionGasto;
+import pe.edu.lamolina.model.contabilidad.JustificacionGasto;
+import pe.edu.lamolina.model.contabilidad.JustificacionGastoAlumno;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.subvenciones.SubvencionViajeEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.subvenciones.JustificacionEstadoEnum;
 import pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.APROBADO;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.CREADO;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.DESAPROBADO;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.JUSTIFICADO;
+import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.OBSERVA_DOCENTE;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.PENDIENTE;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.VB_JUSTIFICACION;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -54,12 +70,18 @@ import pe.edu.lamolina.model.general.Persona;
 @Transactional(readOnly = true)
 public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
+    private final AlumnoViajeCursoDAO alumnoViajeCursoDAO;
     private final ColaboradorDAO colaboradorDAO;
+    private final CronogramaEventoSubvencionadoDAO cronogramaEventoSubvencionadoDAO;
     private final CursoDAO cursoDAO;
     private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
     private final DocenteSeccionDAO docenteSeccionDAO;
+    private final ItemJustificacionGastoDAO itemJustificacionGastoDAO;
+    private final JustificacionGastoDAO justificacionGastoDAO;
+    private final JustificacionGastoAlumnoDAO justificacionGastoAlumnoDAO;
     private final MatriculaSeccionDAO matriculaSeccionDAO;
     private final OficinaDAO oficinaDAO;
+    private final ProformaEventoSubvencionadoDAO proformaEventoSubvencionadoDAO;
     private final SeccionDAO seccionDAO;
     private final ViajeCursoDAO viajeCursoDAO;
 
@@ -342,8 +364,78 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         Assert.isTrue(docenteCreador.getId().equals(docente.getId()), "Este registro corresponde a otro docente");
 
         viajeCursoBD.setEstadoViajeEnum(VB_JUSTIFICACION);
-        viajeCursoBD.setFechaVoBoAsistencia(today.toDate());
+        viajeCursoBD.setObservacion(null);
         viajeCursoDAO.update(viajeCursoBD);
+    }
+
+    @Override
+    @Transactional
+    public void observaJustificacion(ViajeCurso viajeCursoForm, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        Docente docente = ds.getDocente();
+        Assert.isNotNull(docente, "Usted no es docente");
+
+        ViajeCurso viajeCursoBD = viajeCursoDAO.find(viajeCursoForm.getId());
+        ViajeCursoEstadoEnum estadoActual = viajeCursoBD.getEstadoViajeEnum();
+        Assert.isTrue(estadoActual == JUSTIFICADO, "El registro del Viaje debe estar en estado " + JUSTIFICADO.getValue());
+
+        Docente docenteCreador = viajeCursoBD.getDocenteCreador();
+        Assert.isTrue(docenteCreador.getId().equals(docente.getId()), "Este registro corresponde a otro docente");
+
+        viajeCursoBD.setEstadoViajeEnum(OBSERVA_DOCENTE);
+        viajeCursoBD.setObservacion(viajeCursoForm.getObservacion());
+        viajeCursoBD.setUserObservacion(ds.getUsuario());
+        viajeCursoBD.setFechaObservacion(today.toDate());
+        viajeCursoDAO.update(viajeCursoBD);
+
+        JustificacionGasto justificacion = justificacionGastoDAO.findByViajeCurso(viajeCursoBD);
+        justificacion.setEstadoEnum(JustificacionEstadoEnum.ABIERTA);
+        justificacionGastoDAO.update(justificacion);
+    }
+
+    @Override
+    public ViajeCurso findViaje(ViajeCurso viajeCursoForm, DataSessionPivot ds) {
+        ViajeCurso viajeCursoBD = viajeCursoDAO.find(viajeCursoForm.getId());
+
+        List<CronogramaEventoSubvencionado> cronogramasBD = cronogramaEventoSubvencionadoDAO.allByViajeCurso(viajeCursoForm);
+        viajeCursoBD.setCronogramasViaje(cronogramasBD);
+
+        List<ProformaEventoSubvencionado> proformasBD = proformaEventoSubvencionadoDAO.allByViajeCurso(viajeCursoForm);
+        viajeCursoBD.setProformasViaje(proformasBD);
+
+        return viajeCursoBD;
+    }
+
+    @Override
+    public JustificacionGasto findJustificacion(ViajeCurso viajeCurso, DataSessionPivot ds) {
+        JustificacionGasto justificacion = justificacionGastoDAO.findByViajeCurso(viajeCurso);
+        if (justificacion == null) {
+            ViajeCurso viajeCursoBD = viajeCursoDAO.find(viajeCurso.getId());
+
+            justificacion = new JustificacionGasto();
+            justificacion.setImporteAceptado(BigDecimal.ZERO);
+            justificacion.setImporteJustificado(BigDecimal.ZERO);
+            justificacion.setItemsJustificacion(new ArrayList());
+            justificacion.setViajeCurso(viajeCursoBD);
+            return justificacion;
+        }
+
+        List<JustificacionGastoAlumno> gastosAlumnos = justificacionGastoAlumnoDAO.allByJustificacion(justificacion);
+        Map<Long, List<JustificacionGastoAlumno>> mapGastoAlumno = TypesUtil.convertListToMapList("itemJustificacionGasto.id", gastosAlumnos);
+
+        List<ItemJustificacionGasto> itemsGastos = itemJustificacionGastoDAO.allByJustificacion(justificacion);
+        for (ItemJustificacionGasto item : itemsGastos) {
+            List<JustificacionGastoAlumno> gastosItem = TypesUtil.getListNotNull(mapGastoAlumno.get(item.getId()));
+            item.setJustificacionesAlumnos(gastosItem);
+        }
+
+        justificacion.setItemsJustificacion(itemsGastos);
+        return justificacion;
+    }
+
+    @Override
+    public List<AlumnoViajeCurso> allAlumnosByViaje(ViajeCurso viajeCurso) {
+        return alumnoViajeCursoDAO.allByViajeCurso(viajeCurso);
     }
 
 }

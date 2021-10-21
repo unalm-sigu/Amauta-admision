@@ -1,0 +1,30 @@
+
+<h4 class="text-primary m-b-md">Cronograma del viaje</h4>
+
+<table class="table table-condensed table-hover">
+    <thead>
+        <tr>
+            <th class="wd-10 text-center">Orden</th>
+            <th class="wd-70">Evento</th>
+            <th class="wd-20 text-center">Fecha</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr v-for="item in viajeCurso.cronogramasViaje" >
+
+            <td class="align-middle text-center">
+                <span class="badge badge-primary label-numeric">{{item.orden}}</span>
+            </td>
+
+            <td class="align-middle">
+                <div>{{item.descripcion}}</div>
+            </td>
+
+            <td class="align-middle text-center">
+                <div>{{item.fecha}}</div>
+            </td>
+
+        </tr>
+    </tbody>
+</table>

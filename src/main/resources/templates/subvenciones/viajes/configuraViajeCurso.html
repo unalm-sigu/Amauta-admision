@@ -1,0 +1,184 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Viajes Curso</title>
+        <style>
+            .label-status {
+                padding: .4em .6em .4em;
+                font-size: 100%;
+            }
+            .btn-mov {
+                border-radius: 1rem;
+                font-size: 10px;
+            }
+            .label-numeric {
+                padding: .4em .6em .4em;
+                border-radius: 1rem;
+                font-size: 90%;
+            }
+            .item-form-gray {
+                background: #F5F7F9;
+            }
+            .btn-gray {
+                color: #212529;
+                background-color: #F5F7F9;
+                border-color: #cbd5dd;
+            }
+            .text-commentario {
+                white-space: pre-line;
+            }
+        </style>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="configViajeVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right dropdown">
+                        <a th:href="${origen}" class="btn btn-primary btn-sm">Regresar</a>
+                    </div>
+
+                    <p class="h2 m-b" th:inline="text"> Configuración de Viaje de Curso [[${ciclo.descripcion}]] </p>
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel  ">           
+                        <section class="panel-body ">
+
+                            <div class="row">
+                                <div class="col-md-2 d-bold text-primary">Curso:</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.curso.nombre}}</div>
+                                    <div class="block">
+                                        {{viajeCurso.curso.codigo}} &nbsp; <i class="fa fa-bookmark text-primary"></i> {{viajeCurso.curso.tpc}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-1">
+                                <div class="col-md-2 d-bold text-primary">Sección:</div>
+                                <div class="col-md-10">
+                                    <div class="block">
+                                        {{viajeCurso.seccion.codigo2}} |
+                                        Gpo: {{viajeCurso.seccion.grupoHoras.codigo}} |
+                                        Alumnos: {{viajeCurso.cantidadAlumnosMatriculados}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-xs">
+                                <div class="col-md-2 d-bold text-primary">Departamento Académico:</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.curso.departamentoAcademico.nombre}}</div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-xs">
+                                <div class="col-md-2 d-bold text-primary">Docente:</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.docenteCreador.persona.apellidosNombres}}</div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-xs">
+                                <div class="col-md-2 d-bold text-primary">Delegado:</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.alumnoDelegado.persona.apellidosNombres}}</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-2 d-bold text-primary">Matrícula:</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.alumnoDelegado.codigo}}</div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-2 d-bold text-primary">Estado del viaje</div>
+                                <div class="col-md-10">
+                                    <div class="block">{{viajeCurso.estadoViajeEnum.value}}</div>
+                                </div>
+                            </div>
+
+                        </section>
+                    </section>
+
+                    <section class="panel  ">           
+                        <section class="panel-body ">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Descripción del viaje</label>
+                                        <div class="item-form-control text-primary">
+                                            {{viajeCurso.descripcionViaje}}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div>
+
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <template v-if="aprobable || justificacion.id">
+                                        <li role="presentation" class="active"><a href="#justifica" aria-controls="home" role="tab" data-toggle="tab">Justificación</a></li>
+                                        <li role="presentation"><a href="#cronograma" aria-controls="profile" role="tab" data-toggle="tab">Cronograma</a></li>
+                                    </template>
+                                    <li v-else="" class="active" role="presentation"><a href="#cronograma" aria-controls="profile" role="tab" data-toggle="tab">Cronograma</a></li>
+
+                                    <li role="presentation"><a href="#proforma" aria-controls="messages" role="tab" data-toggle="tab">Proforma</a></li>
+                                    <li role="presentation"><a href="#alumnos" aria-controls="settings" role="tab" data-toggle="tab">Alumnos</a></li>
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <template v-if="aprobable || justificacion.id">
+                                        <div role="tabpanel" class="tab-pane active" id="justifica"> 
+                                            <th:block th:replace="subvenciones/viajes/_justificacionViajeCurso"/>
+
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="cronograma">
+                                            <th:block th:replace="subvenciones/viajes/_cronogramaViajeCurso"/>
+                                        </div>
+                                    </template>
+                                    <div v-else=""  role="tabpanel" class="tab-pane active" id="cronograma">
+                                        <th:block th:replace="subvenciones/viajes/_cronogramaViajeCurso"/>
+                                    </div>
+
+                                    <div role="tabpanel" class="tab-pane" id="proforma"> 
+                                        <th:block th:replace="subvenciones/viajes/_proformaViajeCurso"/>
+                                    </div>
+                                    
+                                    <div role="tabpanel" class="tab-pane" id="alumnos"> 
+                                        <th:block th:replace="subvenciones/viajes/_alumnosViajeCurso"/>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <div th:substituteby="subvenciones/viajes/_modalObservaJustifica"></div>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var rutaModulo = /*[[${rutaModulo}]]*/ null;
+                var viajeCurso = /*[[${viajeCursoJson}]]*/ null;
+                var justificacion = /*[[${justificacionJson}]]*/ null;
+                var alumnosViaje = /*[[${alumnosViajeJson}]]*/ null;
+                var aprobable = /*[[${aprobable}]]*/ null;
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <script th:src="@{/app/subvenciones/viajes/configuraViajeCurso.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

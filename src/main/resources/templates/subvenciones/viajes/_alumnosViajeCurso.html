@@ -1,0 +1,39 @@
+
+<h4 class="text-primary m-b-md">Alumnos </h4>
+
+<table class="table table-condensed table-striped">
+    <thead>
+        <tr>
+            <th class="v-middle wd-70">Alumno</th>
+            <th class="v-middle wd-10">Estado subvención</th>
+            <th class="v-middle wd-10">Estado salud</th>
+            <th class="v-middle wd-10">Asistencia viaje</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="item in alumnosViaje">
+            <td class="v-middle">
+                <div class="block text-primary h5 m-t-xs m-b-xs">{{item.alumno.persona.apellidosNombres}}</div>
+                <div class="block">
+                    <small>
+                        <i class="fa fa-graduation-cap"></i> {{item.alumno.codigo}} &nbsp;&nbsp;
+                        <i class="fa fa-id-card"></i> {{item.alumno.persona.numeroDocIdentidad}}
+                    </small>
+                </div>
+                <div class="block">
+                    <small>
+                        <i class="fa fa-envelope"></i> {{item.alumno.persona.emailCompania}} 
+                    </small>
+                </div>
+                <div class="block text-primary bold" v-if="item.alumno.id == viajeCurso.alumnoDelegado.id">
+                    Delegado
+                </div>
+            </td>
+
+            <td v-bind:class="classEstadoAlumno(item)" class="v-middle">{{item.estadoEnum.value}}</td>
+            <td class="v-middle">{{item.estadoSaludEnum.value}}</td>
+            <td class="v-middle">{{item.estadoAsistenciaEnum.value}}</td>
+            
+        </tr>
+    </tbody>
+</table>
