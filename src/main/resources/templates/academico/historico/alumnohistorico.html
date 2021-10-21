@@ -1,0 +1,59 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Ingreso Alumno Histórico</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">
+
+                        <button type="button" v-on:click="nuevo" class="btn btn-primary">
+                            Ingresar Alumno
+                        </button>
+
+                    </div>
+
+                    <h2>Ingreso Alumno al Historial</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <alumno-list></alumno-list>
+
+                </section>
+
+            </div>
+        </div>
+        <div layout:fragment="js">
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+
+            <script>
+
+                const AlumnoList = httpVueLoader('/app/academico/historico/AlumnoList.vue');
+
+                
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        alumnoList: AlumnoList
+                    },
+                    methods: {
+                        nuevo() {
+                            location.href=APP.url('academico/historico/alumno/registro');
+                        }
+                    }
+                });
+
+            </script>
+
+        </div>
+    </body>
+
+</html>

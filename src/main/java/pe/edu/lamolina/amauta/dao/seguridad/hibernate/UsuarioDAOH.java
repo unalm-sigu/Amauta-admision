@@ -9,7 +9,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -112,6 +111,17 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
                 .filter("u.id", user);
 
         return find(sql);
+    }
+
+    @Override
+    public List<Usuario> allByEmailEmpresaGoogle(String email) {
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("u.google", email);
+
+        return all(sql);
     }
 
 }

@@ -1,0 +1,72 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Ingreso Alumno Histórico</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">
+
+                        <button type="button" v-on:click="regresar" class="btn btn-default">
+                            Regresar
+                        </button>
+
+                    </div>
+
+                    <h2>Ingreso Alumno al Historial</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <alumno-registro></alumno-registro>
+
+                </section>
+
+
+            </div>
+        </div>
+        <div layout:fragment="js">
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var ID_ALUMNO = /*[[${idAlumno}]]*/'';
+                /*]]>*/
+            </script>
+
+            <script th:src="@{/app/academico/historico/alumnohistorico.js}" charset="utf-8"></script>
+
+            <script charset="utf-8">
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+                Vue.component('date-picker', VueBootstrapDatetimePicker);
+
+
+                const AlumnoRegistro = httpVueLoader('/app/academico/historico/AlumnoRegistro.vue');
+
+                var root = new Vue({
+                    store: store,
+                    el: '#main',
+                    components: {
+                        alumnoRegistro: AlumnoRegistro,
+                    },
+                    data: {
+                    },
+                    methods: {
+                        regresar() {
+                            location.href = APP.url('academico/historico/alumno');
+                        }
+                    }
+                });
+
+            </script>
+
+        </div>
+    </body>
+
+</html>

@@ -42,7 +42,7 @@ new Vue({
                                         $vue.list();
                                         $vue.editar = false;
                                         $vue.guardando = false;
-                                        
+
                                     } else {
                                         $(".btn-modal").prop('disabled', false);
                                         $(".btn-procesar").html('Si');
@@ -55,6 +55,18 @@ new Vue({
                 }
             });
 
+        },
+        actualizar() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/actualizarTPC`)
+                    .then(response => {
+                        if (response.data.success) {
+//                            notify(response.message, "info");
+                            $vue.list();
+                        } else {
+                            notify("Error en la actualización", "error");
+                        }
+                    });
         }
     }
 });
