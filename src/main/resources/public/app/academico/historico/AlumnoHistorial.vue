@@ -84,7 +84,7 @@
                 alumnoCiclos: [],
                 ciclos: [],
                 ciclo: {},
-                active: -1
+                active: 0
             };
         },
         computed: {
