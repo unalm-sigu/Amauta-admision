@@ -333,7 +333,7 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
         Assert.isTrue(validado, "Usted no es Jefe del Departamento del curso seleccionado");
 
-        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficina, persona);
+        Colaborador colaborador = colaboradorDAO.findJefeByPersonaOficina(oficina, persona);
 
         ViajeCursoEstadoEnum estadoActual = viajeCursoBD.getEstadoViajeEnum();
         Assert.isTrue(estadoActual == PENDIENTE, "El registro del Viaje debe estar en estado " + PENDIENTE.getValue());
