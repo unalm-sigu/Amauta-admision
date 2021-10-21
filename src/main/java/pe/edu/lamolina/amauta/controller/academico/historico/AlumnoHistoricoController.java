@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.historico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -125,6 +126,37 @@ public class AlumnoHistoricoController {
                 .json();
 
         return jAlumno;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idAlumno}/historial")
+    public ArrayNode historial(@PathVariable("idAlumno") Long idAlumno) {
+
+        List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCiclo(idAlumno);
+        ArrayNode alumnoCiclosArray = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+
+            ObjectNode node = JaneHelper.from(alumnoCiclo)
+                    .join("carrera")
+                    .join("situacionInicio")
+                    .join("alumno")
+                    .join("alumno.carrera")
+                    .join("alumno.modalidadEstudio")
+                    .join("alumno.situacionAcademica")
+                    .join("alumno.cicloIngreso")
+                    .join("cicloAcademico")
+                    .json();
+
+            node.set("alumnoCicloCurso", JaneHelper.from(alumnoCiclo.getAlumnoCicloCurso())
+                    .join("curso")
+                    .join("alumnoCiclo")
+                    .array());
+
+            alumnoCiclosArray.add(node);
+        }
+
+        return alumnoCiclosArray;
     }
 
     @ResponseBody

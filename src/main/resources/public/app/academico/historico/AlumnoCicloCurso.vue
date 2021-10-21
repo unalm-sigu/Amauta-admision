@@ -36,11 +36,11 @@
 
                         </td>
                     </tr>
-                    <tr v-for="( alumnoCicloCurso, jindex ) in alumnoCiclo.alumnoCicloCursos">
+                    <tr v-for="( itemAlumnoCicloCurso, jindex ) in alumnoCiclo.alumnoCicloCurso">
                         <td class="v-middle text-center" >
                             <div>
                                 <multiselect  
-                                    v-model="alumnoCicloCurso.curso" 
+                                    v-model="itemAlumnoCicloCurso.curso" 
                                     v-bind:options='cursos'
                                     v-on:search-change="searchCurso"
                                     label='nombre'
@@ -73,40 +73,40 @@
                                     <template slot="noResult">&nbsp</template>
                                 </multiselect>
 
-                                <input type="text" class="hide" required="true"  v-model="alumnoCicloCurso.curso"  />
+                                <input type="text" class="hide" required="true"  v-model="itemAlumnoCicloCurso.curso"  />
 
                             </div>
                         </td>
                         <td class="v-middle text-center">
-                            <input class="form-control numerico" required="true"  v-model="alumnoCicloCurso.creditos" v-bind:disabled="alumnoCicloCurso.isEstadoNotaModificada"/>
-                            <span v-else="" v-text="alumnoCicloCurso.creditos"></span>
+                            <input class="form-control numerico" required="true"  v-model="itemAlumnoCicloCurso.creditos" v-bind:disabled="itemAlumnoCicloCurso.isEstadoNotaModificada"/>
+                            <span v-else="" v-text="itemAlumnoCicloCurso.creditos"></span>
                         </td>
                         <td class="v-middle text-center">
-                            <input class="form-control numerico" required="true"   v-model="alumnoCicloCurso.nota" v-bind:disabled="alumnoCicloCurso.isEstadoNotaModificada"/>
-                            <span v-else="" v-text="alumnoCicloCurso.nota"></span>
+                            <input class="form-control numerico" required="true"   v-model="itemAlumnoCicloCurso.nota" v-bind:disabled="itemAlumnoCicloCurso.isEstadoNotaModificada"/>
+                            <span v-else="" v-text="itemAlumnoCicloCurso.nota"></span>
                         </td>
                         <td class="v-middle text-center"  >
-                            <span v-if='alumnoCicloCurso.estadoEnum' v-text="alumnoCicloCurso.estadoEnum.value"></span>
+                            <span v-if='itemAlumnoCicloCurso.estadoEnum' v-text="itemAlumnoCicloCurso.estadoEnum.value"></span>
                         </td>
                         <td class="v-middle text-center">
-                            <i class="fa fa-check-circle text-success fa-lg" v-if="alumnoCicloCurso.estaAprobado==1"></i>
-                            <i class="fa fa-times-circle text-danger fa-lg" v-if="alumnoCicloCurso.estaAprobado==0"></i>
+                            <i class="fa fa-check-circle text-success fa-lg" v-if="itemAlumnoCicloCurso.estaAprobado==1"></i>
+                            <i class="fa fa-times-circle text-danger fa-lg" v-if="itemAlumnoCicloCurso.estaAprobado==0"></i>
                         </td>
-                        <td class="v-middle text-center" >{{alumnoCicloCurso.vecesCursado}}</td>
+                        <td class="v-middle text-center" >{{itemAlumnoCicloCurso.vecesCursado}}</td>
                         <td  class="v-middle text-center" >
-                            <span v-if="alumnoCicloCurso.estaActivo"> Sí</span>
-                            <span v-if="!alumnoCicloCurso.estaActivo"> No</span>
+                            <span v-if="itemAlumnoCicloCurso.estaActivo"> Sí</span>
+                            <span v-if="!itemAlumnoCicloCurso.estaActivo"> No</span>
                         </td>
                         <td class="v-middle">
                             <a href="#" >
                                 <i class="fa fa-trash-o text-danger fa-2x"
-                                   v-on:click.prevent="removerAlumnoCicloCurso( jindex, alumnoCiclo.alumnoCicloCursos )"></i>
+                                   v-on:click.prevent="removerAlumnoCicloCurso( jindex, alumnoCiclo.alumnoCicloCurso )"></i>
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="8" class="text-center">
-                            <a class="btn btn-default"  v-on:click.prevent="addCurso(alumnoCiclo.alumnoCicloCursos)"  href="#">Nuevo Curso</a>
+                            <a class="btn btn-default"  v-on:click.prevent="addCurso(alumnoCiclo.alumnoCicloCurso)"  href="#">Nuevo Curso</a>
                             <a class="btn btn-primary"  v-on:click.prevent="saveAlumnoCiclo(alumnoCiclo)"  href="#">Grabar {{alumnoCiclo.cicloAcademico.descripcion}}</a>
                             <a class="btn btn-danger"  v-on:click.prevent="removeAlumnoCiclo()"  href="#">Eliminar ciclo {{alumnoCiclo.cicloAcademico.descripcion}}</a>
                         </td>
@@ -138,8 +138,8 @@
             $(".numerico").numeric({negative: false});
         },
         methods: {
-            removerAlumnoCicloCurso(jindex, alumnoCicloCursos) {
-                alumnoCicloCursos.splice(jindex, 1);
+            removerAlumnoCicloCurso(jindex, alumnoCicloCurso) {
+                alumnoCicloCurso.splice(jindex, 1);
             },
             removeAlumnoCiclo() {
                 let $vue = this;
@@ -150,7 +150,6 @@
                 if ($($vue.$refs.formCurso).parsley().validate() != true) {
                     return;
                 }
-                $vue.alumnoCiclo.alumnoCicloCurso=$vue.alumnoCiclo.alumnoCicloCursos
                 axios_.post(APP.url('academico/historico/alumno/saveCicloAlumno'), $vue.alumnoCiclo)
                         .then(({data}) => {
                            notify(data,'info');

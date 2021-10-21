@@ -91,7 +91,7 @@
         },
         mounted: function () {
             let $vue = this;
-            if ($vue.alumno.id) {
+            if (ID_ALUMNO) {
                 $vue.cargaHistorial();
             }
         },
@@ -113,15 +113,14 @@
                     notify("El ciclo ya se encuentra agregado", "error");
                     return;
                 }
-                $vue.alumnoCiclos.push({cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}, alumnoCicloCursos: []});
+                $vue.alumnoCiclos.push({cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}, alumnoCicloCurso: []});
             },
             cargaHistorial() {
                 let $vue = this;
-                axios.get(APP.url('academico/alumno/' + $vue.alumno.id + '/historial'))
+                axios.get(APP.url('academico/historico/alumno/' + ID_ALUMNO + '/historial'))
                         .then(({data}) => {
-                            $vue.promedios = data.data.promedios;
-                            $vue.aluCicCursos = data.data.cursos;
-                            $vue.cicloSelect = {};
+                            $vue.alumnoCiclos = data;
+                            $vue.$forceUpdate();
                         }, () => {
                         });
             },

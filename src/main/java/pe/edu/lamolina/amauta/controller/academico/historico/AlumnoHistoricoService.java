@@ -45,4 +45,6 @@ public interface AlumnoHistoricoService {
 
     public void saveCicloAlumno(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 
+    public List<AlumnoCiclo> allAlumnoCiclo(Long idAlumno);
+
 }

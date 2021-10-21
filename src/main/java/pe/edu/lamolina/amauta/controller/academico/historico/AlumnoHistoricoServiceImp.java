@@ -1,8 +1,12 @@
 package pe.edu.lamolina.amauta.controller.academico.historico;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -42,9 +45,9 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoMigracionEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
@@ -441,6 +444,8 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         alumnoCiclo.setCreditosAprobadosCiclo(0);
         alumnoCiclo.setCreditosCursadosCiclo(0);
         alumnoCiclo.setCreditosAcumulados(0);
+        alumnoCiclo.setSituacionInicio(alumnoCiclo.getAlumno().getSituacionAcademica());
+        alumnoCiclo.setTipoMigracion(TipoMigracionEnum.AREG);
         alumnoCicloDAO.save(alumnoCiclo);
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCiclo.getAlumnoCicloCurso()) {
@@ -454,8 +459,26 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
             alumnoCicloCurso.setVecesCursado(1);
             alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
+            alumnoCicloCurso.setTipoMigracion(TipoMigracionEnum.AREG);
             alumnoCicloCursoDAO.save(alumnoCicloCurso);
         }
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCiclo(Long idAlumno) {
+
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(new Alumno(idAlumno));
+
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumno(new Alumno(idAlumno));
+
+        Map<Long, List<AlumnoCicloCurso>> alumnoCicloCursoXalumnoCiclo = alumnoCicloCursos.stream()
+                .collect(groupingBy(x->x.getAlumnoCiclo().getId(), toList()));
+        
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            alumnoCiclo.setAlumnoCicloCurso(alumnoCicloCursoXalumnoCiclo.getOrDefault(alumnoCiclo.getId(), new ArrayList()));
+        }
+        
+        return alumnoCiclos;
     }
 
 }
