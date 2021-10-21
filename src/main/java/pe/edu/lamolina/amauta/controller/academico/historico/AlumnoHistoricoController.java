@@ -3,7 +3,6 @@ package pe.edu.lamolina.amauta.controller.academico.historico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +31,7 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -133,30 +133,29 @@ public class AlumnoHistoricoController {
     public ArrayNode historial(@PathVariable("idAlumno") Long idAlumno) {
 
         List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCiclo(idAlumno);
-        ArrayNode alumnoCiclosArray = new ArrayNode(JsonNodeFactory.instance);
+        return JaneHelper.from(alumnoCiclos)
+                .join("carrera")
+                .join("situacionInicio")
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.modalidadEstudio")
+                .join("alumno.situacionAcademica")
+                .join("alumno.cicloIngreso")
+                .join("cicloAcademico")
+                .array();
+        
+    }
 
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+    @ResponseBody
+    @RequestMapping("{idAlumnoCiclo}/alumnoCicloCurso")
+    public ArrayNode alumnoCicloCurso(@PathVariable("idAlumnoCiclo") Long idAlumnoCiclo) {
 
-            ObjectNode node = JaneHelper.from(alumnoCiclo)
-                    .join("carrera")
-                    .join("situacionInicio")
-                    .join("alumno")
-                    .join("alumno.carrera")
-                    .join("alumno.modalidadEstudio")
-                    .join("alumno.situacionAcademica")
-                    .join("alumno.cicloIngreso")
-                    .join("cicloAcademico")
-                    .json();
-
-            node.set("alumnoCicloCurso", JaneHelper.from(alumnoCiclo.getAlumnoCicloCurso())
+        List<AlumnoCicloCurso> alumnoCicloCursos = service.allAlumnoCicloCurso(idAlumnoCiclo);
+        return JaneHelper.from(alumnoCicloCursos)
                     .join("curso")
                     .join("alumnoCiclo")
-                    .array());
-
-            alumnoCiclosArray.add(node);
-        }
-
-        return alumnoCiclosArray;
+                    .array();
+        
     }
 
     @ResponseBody
@@ -185,6 +184,22 @@ public class AlumnoHistoricoController {
     public String delete(@PathVariable("idAlumno") Long idAlumno) {
 
         service.deleteAlumnoHistorico(idAlumno);
+        return GlobalMessages.DELETED;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idAlumnoCiclo}/deleteAlumnoCiclo")
+    public String deleteAlumnoCiclo(@PathVariable("idAlumnoCiclo") Long idAlumnoCiclo) {
+
+        service.deleteAlumnoCiclo(idAlumnoCiclo);
+        return GlobalMessages.DELETED;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idAlumnoCicloCurso}/deleteAlumnoCicloCurso")
+    public String deleteAlumnoCicloCurso(@PathVariable("idAlumnoCicloCurso") Long idAlumnoCicloCurso) {
+
+        service.deleteAlumnoCicloCurso(idAlumnoCicloCurso);
         return GlobalMessages.DELETED;
     }
 
@@ -230,6 +245,15 @@ public class AlumnoHistoricoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.saveCicloAlumno(alumnoCiclo, ds);
         return GlobalMessages.CREATED;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveCicloAlumnoCurso")
+    public String saveCicloAlumnoCurso(@RequestBody AlumnoCiclo alumnoCiclo, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.saveCicloAlumnoCurso(alumnoCiclo, ds);
+        return GlobalMessages.UPDATED;
     }
 
 }

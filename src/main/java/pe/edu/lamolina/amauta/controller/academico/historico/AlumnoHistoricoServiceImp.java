@@ -1,12 +1,8 @@
 package pe.edu.lamolina.amauta.controller.academico.historico;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -446,7 +442,14 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         alumnoCiclo.setCreditosAcumulados(0);
         alumnoCiclo.setSituacionInicio(alumnoCiclo.getAlumno().getSituacionAcademica());
         alumnoCiclo.setTipoMigracion(TipoMigracionEnum.AREG);
+
         alumnoCicloDAO.save(alumnoCiclo);
+
+    }
+
+    @Override
+    @Transactional
+    public void saveCicloAlumnoCurso(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCiclo.getAlumnoCicloCurso()) {
 
@@ -460,25 +463,37 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
             alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
             alumnoCicloCurso.setTipoMigracion(TipoMigracionEnum.AREG);
-            alumnoCicloCursoDAO.save(alumnoCicloCurso);
+
+            if (alumnoCicloCurso.getId() == null) {
+                alumnoCicloCursoDAO.save(alumnoCicloCurso);
+            } else {
+                alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "curso", "nota", "creditos");
+            }
+
         }
+
     }
 
     @Override
     public List<AlumnoCiclo> allAlumnoCiclo(Long idAlumno) {
+        return alumnoCicloDAO.allByAlumno(new Alumno(idAlumno));
+    }
 
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(new Alumno(idAlumno));
+    @Override
+    public List<AlumnoCicloCurso> allAlumnoCicloCurso(Long idAlumnoCiclo) {
+        return alumnoCicloCursoDAO.allByAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo));
+    }
 
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumno(new Alumno(idAlumno));
+    @Override
+    @Transactional
+    public void deleteAlumnoCiclo(Long idAlumnoCiclo) {
+        alumnoCicloDAO.delete(idAlumnoCiclo);
+    }
 
-        Map<Long, List<AlumnoCicloCurso>> alumnoCicloCursoXalumnoCiclo = alumnoCicloCursos.stream()
-                .collect(groupingBy(x->x.getAlumnoCiclo().getId(), toList()));
-        
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            alumnoCiclo.setAlumnoCicloCurso(alumnoCicloCursoXalumnoCiclo.getOrDefault(alumnoCiclo.getId(), new ArrayList()));
-        }
-        
-        return alumnoCiclos;
+    @Override
+    @Transactional
+    public void deleteAlumnoCicloCurso(Long idAlumnoCicloCurso) {
+        alumnoCicloCursoDAO.delete(idAlumnoCicloCurso);
     }
 
 }

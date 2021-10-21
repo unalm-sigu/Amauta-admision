@@ -36,7 +36,7 @@
 
                         </td>
                     </tr>
-                    <tr v-for="( itemAlumnoCicloCurso, jindex ) in alumnoCiclo.alumnoCicloCurso">
+                    <tr v-for="( itemAlumnoCicloCurso, jindex ) in alumnoCicloCurso">
                         <td class="v-middle text-center" >
                             <div>
                                 <multiselect  
@@ -100,14 +100,14 @@
                         <td class="v-middle">
                             <a href="#" >
                                 <i class="fa fa-trash-o text-danger fa-2x"
-                                   v-on:click.prevent="removerAlumnoCicloCurso( jindex, alumnoCiclo.alumnoCicloCurso )"></i>
+                                   v-on:click.prevent="removerAlumnoCicloCurso( jindex, itemAlumnoCicloCurso )"></i>
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="8" class="text-center">
-                            <a class="btn btn-default"  v-on:click.prevent="addCurso(alumnoCiclo.alumnoCicloCurso)"  href="#">Nuevo Curso</a>
-                            <a class="btn btn-primary"  v-on:click.prevent="saveAlumnoCiclo(alumnoCiclo)"  href="#">Grabar {{alumnoCiclo.cicloAcademico.descripcion}}</a>
+                            <a class="btn btn-default"  v-on:click.prevent="addCurso()"  href="#">Nuevo Curso</a>
+                            <a class="btn btn-primary"  v-on:click.prevent="saveAlumnoCicloCurso(alumnoCiclo)"  href="#">Grabar {{alumnoCiclo.cicloAcademico.descripcion}}</a>
                             <a class="btn btn-danger"  v-on:click.prevent="removeAlumnoCiclo()"  href="#">Eliminar ciclo {{alumnoCiclo.cicloAcademico.descripcion}}</a>
                         </td>
                     </tr>
@@ -119,6 +119,7 @@
 
 <script>
     module.exports = {
+        mixins: [VueLoader],
         props: {
             alumnoCiclo: {type: Object, default: {}},
             index: {type: Number, default: 0},
@@ -126,38 +127,77 @@
         data() {
             return {
                 cursos: [],
+                alumnoCicloCurso: [],
             };
         },
         computed: {
             ...Vuex.mapState(["alumno"])
         },
         mounted: function () {
-            $(".numerico").numeric({negative: false});
+            let $vue = this;
+            $vue.allAlumnoCicloCurso();
         },
         updated: function () {
             $(".numerico").numeric({negative: false});
         },
         methods: {
-            removerAlumnoCicloCurso(jindex, alumnoCicloCurso) {
-                alumnoCicloCurso.splice(jindex, 1);
+            removerAlumnoCicloCurso(jindex, itemAlumnoCicloCurso) {
+                let $vue = this;
+                if (itemAlumnoCicloCurso.id) {
+
+                    swal('¿Seguro que desea eliminar el curso?', {
+                        icon: "warning",
+                        closeOnClickOutside: false,
+                        closeOnEsc: false,
+                        dangerMode: true,
+                        buttons: {
+                            cancel: {text: "Cancelar", closeModal: true, visible: true},
+                            confirm: {text: "Aceptar", closeModal: false}
+                        }}).then((value) => {
+
+                        if (value != true) {
+                            return;
+                        }
+
+                        axios_.get(APP.url('academico/historico/alumno/' + itemAlumnoCicloCurso.id + '/deleteAlumnoCicloCurso'))
+                                .then(({data}) => {
+                                    notify(data, 'info');
+                                    $vue.allAlumnoCicloCurso();
+                                    swal.stopLoading();
+                                    swal.close();
+                                }, () => {
+                                    swal.stopLoading();
+                                    swal.close();
+                                });
+
+                    });
+
+                } else {
+                    $vue.alumnoCicloCurso.splice(jindex, 1);
+                }
             },
             removeAlumnoCiclo() {
                 let $vue = this;
                 $vue.$parent.removeAlumnoCiclo($vue.index);
             },
-            saveAlumnoCiclo() {
+            saveAlumnoCicloCurso() {
                 let $vue = this;
                 if ($($vue.$refs.formCurso).parsley().validate() != true) {
                     return;
                 }
-                axios_.post(APP.url('academico/historico/alumno/saveCicloAlumno'), $vue.alumnoCiclo)
+                $vue.showLoader();
+                axios_.post(APP.url('academico/historico/alumno/saveCicloAlumnoCurso'), {...$vue.alumnoCiclo, alumnoCicloCurso: $vue.alumnoCicloCurso})
                         .then(({data}) => {
-                           notify(data,'info');
+                            notify(data, 'info');
+                            $vue.allAlumnoCicloCurso();
+                            $vue.hideLoader();
                         }, () => {
+                            $vue.hideLoader();
                         });
             },
-            addCurso(alumnoCicloCursos) {
-                alumnoCicloCursos.push({});
+            addCurso() {
+                let $vue = this;
+                $vue.alumnoCicloCurso.push({});
             },
             searchCurso(nombre) {
                 let $vue = this;
@@ -167,6 +207,15 @@
                         }, () => {
                         });
             },
+            allAlumnoCicloCurso() {
+                let $vue = this;
+                axios_.get(APP.url('academico/historico/alumno/' + $vue.alumnoCiclo.id + '/alumnoCicloCurso'))
+                        .then(({data}) => {
+                            $vue.alumnoCicloCurso = data;
+                            $vue.$forceUpdate();
+                        }, () => {
+                        });
+            }
         }
     };
 </script>

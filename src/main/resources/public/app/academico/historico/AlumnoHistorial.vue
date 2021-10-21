@@ -75,6 +75,7 @@
 <script>
     const AlumnoCicloCurso = httpVueLoader('/app/academico/historico/AlumnoCicloCurso.vue');
     module.exports = {
+        mixins: [VueLoader],
         components: {
             alumnoCicloCurso: AlumnoCicloCurso,
         },
@@ -83,7 +84,7 @@
                 alumnoCiclos: [],
                 ciclos: [],
                 ciclo: {},
-                active: 0
+                active: -1
             };
         },
         computed: {
@@ -113,7 +114,15 @@
                     notify("El ciclo ya se encuentra agregado", "error");
                     return;
                 }
-                $vue.alumnoCiclos.push({cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}, alumnoCicloCurso: []});
+                $vue.showLoader();
+                axios.post(APP.url('academico/historico/alumno/saveCicloAlumno'), {cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}})
+                        .then(() => {
+                            $vue.cargaHistorial();
+                            $vue.hideLoader();
+                        }, () => {
+                            $vue.hideLoader();
+                        });
+
             },
             cargaHistorial() {
                 let $vue = this;
