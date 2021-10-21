@@ -123,10 +123,14 @@ new Vue({
             let $vue = this;
             $vue.viajeCursoSelect = JSON.parse(JSON.stringify(item));
 
-            $vue.configConfirmAction.message = "¿Está seguro que desea solicitar la aprobación de este viaje de curso al Departamento Académico?";
-            $vue.configConfirmAction.okbtn = "Si, solicitar";
-            $vue.configConfirmAction.okclass = "btn-success";
-            $vue.configConfirmAction.okaction = $vue.solicitarAprobacion;
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                id: "id-modal-confirm",
+                message: "¿Está seguro que desea solicitar la aprobación de este viaje de curso al Departamento Académico?",
+                okbtn: "Si, solicitar",
+                okclass: "btn-success",
+                okaction: $vue.solicitarAprobacion
+            });
+
             $vue.$refs.modalConfirmAction.open();
         },
         solicitarAprobacion() {
@@ -223,6 +227,19 @@ new Vue({
             }
             return false;
         },
+        verDetalle(item) {
+            let $vue = this;
+            location.href = APP.url(`${rutaModulo}/${item.id}/configurar`) + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        activarNumeric() {
+            setTimeout(function () {
+                $('.numeric').numeric({negative: false});
+            }, 800);
+        },
         getObjectId(obj) {
             if (obj === undefined) {
                 return "";
@@ -238,6 +255,13 @@ new Vue({
             }
 
             return obj.id;
+        },
+        commas(n) {
+            var options = {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            };
+            return Number(n).toLocaleString('en', options);
         }
     }
 });

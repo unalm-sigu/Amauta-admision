@@ -1,0 +1,126 @@
+
+<h4 class="text-primary m-b-md">Justificación de Gastos</h4>
+
+<div v-if="aprobable" class="row">
+    <div class="col-md-12">
+        <div class="pull-right m-b-lg pull-right">
+            <button v-on:click.prevent="verAprobarJustifica" class="btn btn-primary">Aprobar justificación</button>
+            <button v-on:click.prevent="verDesaprobarJustifica" class="btn btn-danger">Observar justificación</button>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-danger" v-if="viajeCurso.observacion">
+    <h4>Observación a la justificación</h4>
+    <p class="text-commentario">{{viajeCurso.observacion}}</p>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="text-primary d-bold">Importe proforma</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeProforma)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="text-primary d-bold">Importe solicitado</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeSolicitado)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary d-bold">Importe por alumno</label>
+            <div class="item-form-control item-form-gray text-primary">{{commas(viajeCurso.importeAlumno)}}</div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary d-bold">Matriculados</label>
+            <div class="item-form-control item-form-gray text-primary">{{viajeCurso.cantidadAlumnosMatriculados}}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group">
+            <label class="text-primary d-bold">Registrados</label>
+            <div class="item-form-control item-form-gray text-primary">{{viajeCurso.cantidadAlumnosRegistrados}}</div>
+        </div>
+    </div>
+</div>
+
+<form id="form-justifica-viaje">
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th class="wd-10">Tipo</th>
+                <th class="wd-15 text-center">Factura/Boleta</th>
+                <th class="wd-40">Descripción</th>
+                <th class="text-center">Alumnos</th>
+                <th class="wd-10 text-right">Por alumno</th>
+                <th class="wd-10 text-right">Importe</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        <template v-for="(item,idx) in justificacion.itemsJustificacion" >
+            <tr>
+
+                <td class="align-middle">
+                    <div>{{item.tipoGrupoAlumnosEnum.value}}</div>
+                </td>
+
+                <td class="align-middle text-center">
+                    <a v-on:click="verTemporal(item.factura)" class="text-primary pointer">
+                        <i class="fa fa-external-link fa-2x"></i>
+                    </a>
+                </td>
+
+                <td class="align-middle">
+                    <div class="text-primary bold h5 m-t-xs m-b-xs">{{item.descripcion}}</div>
+                </td>
+
+                <td class="align-middle text-center">
+                    {{item.cantidadAlumnos}}
+                </td>
+
+                <td class="align-middle text-right">
+                    <div v-if="!item.modificar">{{commas(item.importeAlumno)}}</div>
+                </td>
+
+                <td class="align-middle text-right">
+                    <div>{{commas(item.importe)}}</div>
+                </td>
+            </tr>
+
+            <tr v-if="item.tipoGrupoAlumnos == 'PARCIAL' "
+                v-for="(alu,row) in item.justificacionesAlumnos">
+                <td></td>
+                <td class="align-middle text-center">
+                    {{alu.alumno.codigo}}
+                </td>
+
+                <td colspan="2" class="align-middle">
+                    {{alu.alumno.persona.apellidosNombres}}
+                </td>
+
+                <td class="align-middle text-right">
+                    <div>{{commas(alu.importeJustificado)}}</div>
+                </td>
+
+                <td></td>
+            </tr>
+
+        </template>
+
+        <tr>
+            <td colspan="5" class="text-right">
+                <div class="mr-2"><b>TOTAL:</b> &nbsp;&nbsp; S/. {{commas(justificacion.importeJustificado)}}</div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</form>

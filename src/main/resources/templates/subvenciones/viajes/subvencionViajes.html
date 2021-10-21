@@ -19,7 +19,7 @@
                             <li><a v-on:click="verViajeNuevo"> Crear viaje </a></li>
                         </ul>
                     </div> 
-                    
+
                     <p class="h2 m-b" th:inline="text"> Viajes de curso [[${ciclo.descripcion}]] </p>
                 </header>
 
@@ -75,14 +75,34 @@
                                                             <i class="fa fa-cog"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a v-if="puedeEditarse(item)" href="#" v-on:click="verEditarViaje(item)">Editar</a></li>
-                                                            <li><a v-if="puedeEditarse(item)" href="#" v-on:click="verSolicitarAprobacion(item)">Solicitar aprobación</a></li>
-                                                            <li><a v-if="puedeAprobarse(item)" href="#" v-on:click="verAprobar(item)">Aprobar</a></li>
-                                                            <li><a v-if="puedeDesaprobarse(item)" href="#" v-on:click="verDesaprobar(item)">Desaprobar</a></li>
-                                                            <li><a href="#" >Ver detalle</a></li>
+                                                            <li>
+                                                                <a v-if="puedeEditarse(item)" href="#" v-on:click="verEditarViaje(item)">
+                                                                    Editar
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a v-if="puedeEditarse(item)" href="#" v-on:click="verSolicitarAprobacion(item)">
+                                                                    Solicitar aprobación
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a v-if="puedeAprobarse(item)" href="#" v-on:click="verAprobar(item)">
+                                                                    Aprobar
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a v-if="puedeDesaprobarse(item)" href="#" v-on:click="verDesaprobar(item)">
+                                                                    Desaprobar
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a v-on:click.prevent="verDetalle(item)" href="#" >
+                                                                    Ver detalle
+                                                                </a>
+                                                            </li>
                                                         </ul>                
                                                     </div>
-                                                </td>        
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

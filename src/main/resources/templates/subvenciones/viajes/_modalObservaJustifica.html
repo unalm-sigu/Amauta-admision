@@ -1,0 +1,14 @@
+<modal-vik ref="modalObservaJustifica"
+           v-bind="modalObservaJustifica"
+           v-bind:okaction="saveObservaJustifica">
+    <div slot="body">
+        <form v-bind:id="modalObservaJustifica.form">
+
+            <div class="form-group">
+                <label>Motivo de la observación</label>
+                <textarea v-model="observacion" class="form-control" rows="4" required="yes"></textarea>
+            </div>
+            
+        </form>
+    </div>
+</modal-vik>
