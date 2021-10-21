@@ -8,11 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.pac4j.core.profile.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -40,11 +40,12 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoMigracionEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
@@ -441,7 +442,16 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         alumnoCiclo.setCreditosAprobadosCiclo(0);
         alumnoCiclo.setCreditosCursadosCiclo(0);
         alumnoCiclo.setCreditosAcumulados(0);
+        alumnoCiclo.setSituacionInicio(alumnoCiclo.getAlumno().getSituacionAcademica());
+        alumnoCiclo.setTipoMigracion(TipoMigracionEnum.AREG);
+
         alumnoCicloDAO.save(alumnoCiclo);
+
+    }
+
+    @Override
+    @Transactional
+    public void saveCicloAlumnoCurso(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCiclo.getAlumnoCicloCurso()) {
 
@@ -454,8 +464,43 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
             alumnoCicloCurso.setVecesCursado(1);
             alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
-            alumnoCicloCursoDAO.save(alumnoCicloCurso);
+            alumnoCicloCurso.setTipoMigracion(TipoMigracionEnum.AREG);
+
+            if (alumnoCicloCurso.getId() == null) {
+                alumnoCicloCursoDAO.save(alumnoCicloCurso);
+            } else {
+                alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "curso", "nota", "creditos");
+            }
+
         }
+
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCiclo(Long idAlumno) {
+        return alumnoCicloDAO.allByAlumno(new Alumno(idAlumno));
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allAlumnoCicloCurso(Long idAlumnoCiclo) {
+        return alumnoCicloCursoDAO.allByAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo));
+    }
+
+    @Override
+    @Transactional
+    public void deleteAlumnoCiclo(Long idAlumnoCiclo) {
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo));
+        if (alumnoCicloCursos.isEmpty()) {
+            alumnoCicloDAO.delete(idAlumnoCiclo);
+            return;
+        }
+        throw new PhobosException(GlobalMessages.FK_ERROR_DELETE);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAlumnoCicloCurso(Long idAlumnoCicloCurso) {
+        alumnoCicloCursoDAO.delete(idAlumnoCicloCurso);
     }
 
 }

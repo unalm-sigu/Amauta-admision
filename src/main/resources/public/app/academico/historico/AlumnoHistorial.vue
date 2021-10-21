@@ -75,6 +75,7 @@
 <script>
     const AlumnoCicloCurso = httpVueLoader('/app/academico/historico/AlumnoCicloCurso.vue');
     module.exports = {
+        mixins: [VueLoader],
         components: {
             alumnoCicloCurso: AlumnoCicloCurso,
         },
@@ -91,15 +92,11 @@
         },
         mounted: function () {
             let $vue = this;
-            if ($vue.alumno.id) {
+            if (ID_ALUMNO) {
                 $vue.cargaHistorial();
             }
         },
         methods: {
-            removeAlumnoCiclo(index) {
-                let $vue = this;
-                $vue.alumnoCiclos.splice(index, 1);
-            },
             addAlumnoCiclo() {
                 let $vue = this;
                 if (!$vue.ciclo) {
@@ -113,15 +110,22 @@
                     notify("El ciclo ya se encuentra agregado", "error");
                     return;
                 }
-                $vue.alumnoCiclos.push({cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}, alumnoCicloCursos: []});
+                $vue.showLoader();
+                axios.post(APP.url('academico/historico/alumno/saveCicloAlumno'), {cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}})
+                        .then(() => {
+                            $vue.cargaHistorial();
+                            $vue.hideLoader();
+                        }, () => {
+                            $vue.hideLoader();
+                        });
+
             },
             cargaHistorial() {
                 let $vue = this;
-                axios.get(APP.url('academico/alumno/' + $vue.alumno.id + '/historial'))
+                axios.get(APP.url('academico/historico/alumno/' + ID_ALUMNO + '/historial'))
                         .then(({data}) => {
-                            $vue.promedios = data.data.promedios;
-                            $vue.aluCicCursos = data.data.cursos;
-                            $vue.cicloSelect = {};
+                            $vue.alumnoCiclos = data;
+                            $vue.$forceUpdate();
                         }, () => {
                         });
             },
