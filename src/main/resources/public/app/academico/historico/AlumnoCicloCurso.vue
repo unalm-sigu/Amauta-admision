@@ -178,7 +178,32 @@
             },
             removeAlumnoCiclo() {
                 let $vue = this;
-                $vue.$parent.removeAlumnoCiclo($vue.index);
+                swal('¿Seguro que desea eliminar el ciclo académico?', {
+                    icon: "warning",
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                    dangerMode: true,
+                    buttons: {
+                        cancel: {text: "Cancelar", closeModal: true, visible: true},
+                        confirm: {text: "Aceptar", closeModal: false}
+                    }}).then((value) => {
+
+                    if (value != true) {
+                        return;
+                    }
+                    axios_.get(APP.url('academico/historico/alumno/' + $vue.alumnoCiclo.id + '/deleteAlumnoCiclo'))
+                            .then(({data}) => {
+                                notify(data, 'info');
+                        
+                                $vue.$parent.cargaHistorial();
+                                
+                                swal.stopLoading();
+                                swal.close();
+                            }, () => {
+                                swal.stopLoading();
+                                swal.close();
+                            });
+                });
             },
             saveAlumnoCicloCurso() {
                 let $vue = this;

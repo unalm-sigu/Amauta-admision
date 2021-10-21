@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.pac4j.core.profile.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -487,7 +489,12 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Override
     @Transactional
     public void deleteAlumnoCiclo(Long idAlumnoCiclo) {
-        alumnoCicloDAO.delete(idAlumnoCiclo);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo));
+        if (alumnoCicloCursos.isEmpty()) {
+            alumnoCicloDAO.delete(idAlumnoCiclo);
+            return;
+        }
+        throw new PhobosException(GlobalMessages.FK_ERROR_DELETE);
     }
 
     @Override

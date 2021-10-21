@@ -97,10 +97,6 @@
             }
         },
         methods: {
-            removeAlumnoCiclo(index) {
-                let $vue = this;
-                $vue.alumnoCiclos.splice(index, 1);
-            },
             addAlumnoCiclo() {
                 let $vue = this;
                 if (!$vue.ciclo) {
