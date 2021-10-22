@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -490,10 +491,17 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         resolucion.setTipoResolucion(tipoResolucion);
 
-        logger.debug("tipoResolucion {}", tipoResolucion.getCodigo());
+        logger.debug("oficina {}", resolucion.getOficina().getId());
+        logger.debug("serie {}", resolucion.getSerie());
+        logger.debug("numero {}", resolucion.getNumero());
         logger.debug("tipoResolucion {}", tipoResolucion.getTipoEnum().name());
 
+        resolucion.setSerie(cleanNumero(resolucion.getSerie()));
+        resolucion.setNumero(cleanNumero(resolucion.getNumero()));
+
         Resolucion resolucionValidacion = resolucionDAO.findByOficinaSerieNumero(resolucion.getOficina(), resolucion.getSerie(), resolucion.getNumero());
+
+        logger.debug("tipoResolucion existe {}", resolucionValidacion != null);
 
         if (resolucionValidacion != null) {
             throw new PhobosException(
@@ -1907,6 +1915,27 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             visorCalculoNotas.createToken(tokenProm, alumnos);
             visorCalculoNotas.createToken(tokenCurri, alumnos);
             visorCalculoNotas.createToken(tokenMatri, alumnos);
+        }
+
+    }
+
+    private String cleanNumero(String numeroString) {
+        if (StringUtils.isBlank(numeroString)) {
+            throw new PhobosException("La serie o número es incorrecto");
+        }
+
+        try {
+
+            Long numeroLong = new Long(numeroString);
+
+            if (numeroLong < 1) {
+                throw new PhobosException("La serie o número es incorrecto");
+            }
+
+            return numeroLong.toString();
+
+        } catch (Exception e) {
+            throw new PhobosException("La serie o número es incorrecto");
         }
 
     }
