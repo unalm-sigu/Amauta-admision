@@ -86,6 +86,19 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
+    public Colaborador findJefeByPersonaOficina(Oficina oficina, Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("persona per", "oficina ofi")
+                .filter("per.id", persona)
+                .filter("ofi.id", oficina)
+                .filter("esJefeOficina", Boolean.TRUE)
+                .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
+
+        return find(sql);
+    }
+
+    @Override
     public Colaborador findActivoByPersonaOficina(Oficina oficina, Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
@@ -96,7 +109,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
 
         return find(sql);
     }
-    
+
     @Override
     public Colaborador findByPersonaOficina(Oficina oficina, Persona persona) {
         Octavia sql = Octavia.query()
