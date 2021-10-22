@@ -35,6 +35,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -72,13 +73,13 @@ public class TramitesAcademicosController {
 
     @Autowired
     TramitesAcademicosService tramitesAcademicosService;
-    
+
     @Autowired
     ReunionConsejoService reunionConsejoService;
-    
+
     @Autowired
     InfoAcademicoService infoAcademicoService;
-    
+
     @Autowired
     OficinaService oficinaService;
 
@@ -258,7 +259,7 @@ public class TramitesAcademicosController {
         if (oficinas.isEmpty()) {
             return "redirect:/academico/tramiteacademico";
         }
-        model.addAttribute("oficinas", jsonArrayNode(oficinas));
+        model.addAttribute("oficinas", JaneHelper.from(oficinas).array().toString());
         return "academico/reunionconsejo/reunionconsejo";
     }
 
@@ -276,7 +277,7 @@ public class TramitesAcademicosController {
                 oficinas.clear();
                 oficinas.add(new Oficina(idOficina));
             }
-            
+
             List<ReunionConsejo> reunionesConsejo = tramitesAcademicosService.allReunionConsejoByDyna(filter, oficinas);
 
             ArrayNode array = JaneHelper.from(reunionesConsejo)
@@ -340,7 +341,7 @@ public class TramitesAcademicosController {
         if (oficinas.isEmpty()) {
             return "redirect:/academico/tramiteacademico";
         }
-        model.addAttribute("oficinas", jsonArrayNode(oficinas));
+        model.addAttribute("oficinas", JaneHelper.from(oficinas).array().toString());
         model.addAttribute("horasBD", horasJson.toString());
 
         return "academico/tramitescademicos/proceso/procesarTramite";
@@ -361,7 +362,7 @@ public class TramitesAcademicosController {
         if (oficinas.isEmpty()) {
             return "redirect:/academico/tramiteacademico";
         }
-        model.addAttribute("oficinas", jsonArrayNode(oficinas));
+        model.addAttribute("oficinas",  JaneHelper.from(oficinas).array().toString());
         model.addAttribute("horasBD", horasJson.toString());
 
         return "academico/tramitescademicos/proceso/procesarNotas";
@@ -448,7 +449,7 @@ public class TramitesAcademicosController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
             response.setMessage("Solicitud Procesada.");
@@ -807,41 +808,14 @@ public class TramitesAcademicosController {
         return oficinas;
     }
 
-    private ArrayNode jsonArrayNode(List<Oficina> oficinas) {
-        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        for (Oficina oficina : oficinas) {
-            arrayNode.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"}));
-        }
-        return arrayNode;
-    }
-
-    // Temporal
     @ResponseBody
     @RequestMapping("findDocente")
-    public JsonResponse findAlumno(
-            @RequestParam("nombre") String nombre,
-            HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ArrayNode arrDocentes = new ArrayNode(JsonNodeFactory.instance);
-            List<Docente> docentes = tramitesAcademicosService.allByNombre(nombre);
-            for (Docente docente : docentes) {
-                arrDocentes.add(JsonHelper.createJson(docente, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "persona.*"
-                }));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(arrDocentes);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+    public ArrayNode findAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        List<Docente> docentes = tramitesAcademicosService.allByNombre(nombre);
+        return JaneHelper.from(docentes)
+                .join("persona").array();
+        
     }
 
 }
