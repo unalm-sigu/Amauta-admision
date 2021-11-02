@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,10 +60,12 @@ import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.general.PersonaCargoDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.medico.MedicoDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
+import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Slf4j
 @Service
@@ -134,6 +134,9 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Autowired
     VerificadorService verificadorService;
+
+    @Autowired
+    PersonaHistorialDAO personaHistorialDAO;
 
     @Override
     public Oficina findOficina(Oficina oficina) {
@@ -378,6 +381,19 @@ public class ColaboradorServiceImp implements ColaboradorService {
         Persona personaForm = colaboradorForm.getPersona();
 
         Persona personaBD = personaDAO.find(personaForm.getId());
+
+        PersonaHistorial personaHistorial = PersonaHistorial.builder()
+                .usuario(ds.getUsuario())
+                .persona(personaBD)
+                .fecha(new Date())
+                .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
+                .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
+                .tipoDocumentoFrom(personaBD.getTipoDocumento())
+                .tipoDocumentoTo(personaForm.getTipoDocumento())
+                .build();
+
+        personaHistorialDAO.save(personaHistorial);
+
         personaBD.setPaterno(personaForm.getPaterno());
         personaBD.setMaterno(personaForm.getMaterno());
         personaBD.setNombres(personaForm.getNombres());

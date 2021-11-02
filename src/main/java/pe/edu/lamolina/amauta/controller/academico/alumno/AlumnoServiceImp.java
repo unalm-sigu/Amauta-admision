@@ -91,6 +91,7 @@ import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
@@ -106,6 +107,7 @@ import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Service
 @Transactional(readOnly = true)
@@ -187,6 +189,8 @@ public class AlumnoServiceImp implements AlumnoService {
     FacultadDAO facultadDAO;
     @Autowired
     DocenteDAO docenteDAO;
+    @Autowired
+    PersonaHistorialDAO personaHistorialDAO;
 
     @Autowired
     UploadFileS3 uploadFileS3;
@@ -295,6 +299,18 @@ public class AlumnoServiceImp implements AlumnoService {
         if (alumnoDB != null) {
             throw new PhobosException("El documento ya pertenece a otro alumno");
         }
+
+        PersonaHistorial personaHistorial = PersonaHistorial.builder()
+                .usuario(usuario)
+                .persona(personaDB)
+                .fecha(new Date())
+                .numeroDocumentoFrom(personaDB.getNumeroDocIdentidad())
+                .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
+                .tipoDocumentoFrom(personaDB.getTipoDocumento())
+                .tipoDocumentoTo(personaForm.getTipoDocumento())
+                .build();
+                
+        personaHistorialDAO.save(personaHistorial);
 
         this.updatePersona(personaDB, personaForm);
 
@@ -625,6 +641,18 @@ public class AlumnoServiceImp implements AlumnoService {
             }
 
         }
+
+        PersonaHistorial personaHistorial = PersonaHistorial.builder()
+                .usuario(usuario)
+                .persona(personaBD)
+                .fecha(new Date())
+                .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
+                .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
+                .tipoDocumentoFrom(personaBD.getTipoDocumento())
+                .tipoDocumentoTo(personaForm.getTipoDocumento())
+                .build();
+        
+        personaHistorialDAO.save(personaHistorial);
 
         this.updatePersona(personaBD, personaForm);
     }

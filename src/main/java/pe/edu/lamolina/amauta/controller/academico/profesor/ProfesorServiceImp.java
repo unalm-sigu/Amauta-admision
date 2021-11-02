@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +52,7 @@ import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.general.PaisDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
@@ -62,6 +62,7 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.general.PersonaHistorial;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Service
@@ -112,6 +113,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    PersonaHistorialDAO personaHistorialDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -213,6 +217,21 @@ public class ProfesorServiceImp implements ProfesorService {
             Persona persona = this.getPersonaBDbasic(personaForm);
 
             if (persona.getFechaValidacionReniec() == null) {
+
+                Persona personaBD = personaDAO.find(persona.getId());
+
+                PersonaHistorial personaHistorial = PersonaHistorial.builder()
+                        .usuario(ds.getUsuario())
+                        .persona(personaBD)
+                        .fecha(new Date())
+                        .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
+                        .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
+                        .tipoDocumentoFrom(personaBD.getTipoDocumento())
+                        .tipoDocumentoTo(personaForm.getTipoDocumento())
+                        .build();
+
+                personaHistorialDAO.save(personaHistorial);
+
                 persona = this.getPersonaBDreniec(personaForm);
             }
             persona.setFoto(personaForm.getFoto());
@@ -294,6 +313,21 @@ public class ProfesorServiceImp implements ProfesorService {
         Persona persona = this.getPersonaBDbasic(personaForm);
         logger.debug("-> Dato basicos de persona actualizados");
         if (persona.getFechaValidacionReniec() == null) {
+
+            Persona personaBD = personaDAO.find(persona.getId());
+
+            PersonaHistorial personaHistorial = PersonaHistorial.builder()
+                    .usuario(ds.getUsuario())
+                    .persona(personaBD)
+                    .fecha(new Date())
+                    .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
+                    .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
+                    .tipoDocumentoFrom(personaBD.getTipoDocumento())
+                    .tipoDocumentoTo(personaForm.getTipoDocumento())
+                    .build();
+
+            personaHistorialDAO.save(personaHistorial);
+
             persona = this.getPersonaBDreniec(personaForm);
             logger.debug("-> Dato basicos de persona actualizados");
         }
