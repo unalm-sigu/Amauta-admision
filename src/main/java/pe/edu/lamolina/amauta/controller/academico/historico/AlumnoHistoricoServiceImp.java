@@ -88,7 +88,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     private AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     private AlumnoCicloDAO alumnoCicloDAO;
-    
+
     private PersonaHistorialDAO personaHistorialDAO;
 
     @Override
@@ -202,16 +202,14 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
             }
 
-            PersonaHistorial personaHistorial = PersonaHistorial.builder()
-                    .usuario(ds.getUsuario())
-                    .persona(personaDB)
-                    .fecha(new Date())
-                    .numeroDocumentoFrom(personaDB.getNumeroDocIdentidad())
-                    .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
-                    .tipoDocumentoFrom(personaDB.getTipoDocumento())
-                    .tipoDocumentoTo(personaForm.getTipoDocumento())
-                    .build();
-
+            PersonaHistorial personaHistorial = new PersonaHistorial();
+            personaHistorial.setUsuario(ds.getUsuario());
+            personaHistorial.setPersona(personaDB);
+            personaHistorial.setFecha(new Date());
+            personaHistorial.setNumeroDocumentoFrom(personaDB.getNumeroDocIdentidad());
+            personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+            personaHistorial.setTipoDocumentoFrom(personaDB.getTipoDocumento());
+            personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
             personaHistorialDAO.save(personaHistorial);
 
             Persona persona = this.updatePersona(personaDB, personaForm, ds);

@@ -382,16 +382,14 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         Persona personaBD = personaDAO.find(personaForm.getId());
 
-        PersonaHistorial personaHistorial = PersonaHistorial.builder()
-                .usuario(ds.getUsuario())
-                .persona(personaBD)
-                .fecha(new Date())
-                .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
-                .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
-                .tipoDocumentoFrom(personaBD.getTipoDocumento())
-                .tipoDocumentoTo(personaForm.getTipoDocumento())
-                .build();
-
+        PersonaHistorial personaHistorial = new PersonaHistorial();
+        personaHistorial.setUsuario(ds.getUsuario());
+        personaHistorial.setPersona(personaBD);
+        personaHistorial.setFecha(new Date());
+        personaHistorial.setNumeroDocumentoFrom(personaBD.getNumeroDocIdentidad());
+        personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+        personaHistorial.setTipoDocumentoFrom(personaBD.getTipoDocumento());
+        personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
         personaHistorialDAO.save(personaHistorial);
 
         personaBD.setPaterno(personaForm.getPaterno());

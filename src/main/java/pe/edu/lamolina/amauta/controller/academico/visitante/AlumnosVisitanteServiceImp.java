@@ -131,16 +131,14 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
                 throw new PhobosException("El documento ya pertenece a otro alumno visitante");
             }
 
-            PersonaHistorial personaHistorial = PersonaHistorial.builder()
-                    .usuario(dataSessionPivot.getUsuario())
-                    .persona(personaDB)
-                    .fecha(new Date())
-                    .numeroDocumentoFrom(personaDB.getNumeroDocIdentidad())
-                    .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
-                    .tipoDocumentoFrom(personaDB.getTipoDocumento())
-                    .tipoDocumentoTo(personaForm.getTipoDocumento())
-                    .build();
-
+            PersonaHistorial personaHistorial = new PersonaHistorial();
+            personaHistorial.setUsuario(dataSessionPivot.getUsuario());
+            personaHistorial.setPersona(personaDB);
+            personaHistorial.setFecha(new Date());
+            personaHistorial.setNumeroDocumentoFrom(personaDB.getNumeroDocIdentidad());
+            personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+            personaHistorial.setTipoDocumentoFrom(personaDB.getTipoDocumento());
+            personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
             personaHistorialDAO.save(personaHistorial);
 
             personaDB = this.updatePersona(personaDB, personaForm);
@@ -518,16 +516,14 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (personaBD == null) {
             throw new PhobosException("Alumno visitante sin persona registrada.");
         }
-        PersonaHistorial personaHistorial = PersonaHistorial.builder()
-                .usuario(ds.getUsuario())
-                .persona(personaBD)
-                .fecha(new Date())
-                .numeroDocumentoFrom(personaBD.getNumeroDocIdentidad())
-                .numeroDocumentoTo(personaForm.getNumeroDocIdentidad())
-                .tipoDocumentoFrom(personaBD.getTipoDocumento())
-                .tipoDocumentoTo(personaForm.getTipoDocumento())
-                .build();
-
+        PersonaHistorial personaHistorial = new PersonaHistorial();
+        personaHistorial.setUsuario(ds.getUsuario());
+        personaHistorial.setPersona(personaBD);
+        personaHistorial.setFecha(new Date());
+        personaHistorial.setNumeroDocumentoFrom(personaBD.getNumeroDocIdentidad());
+        personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+        personaHistorial.setTipoDocumentoFrom(personaBD.getTipoDocumento());
+        personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
         personaHistorialDAO.save(personaHistorial);
 
         this.updatePersona(personaBD, personaForm);
