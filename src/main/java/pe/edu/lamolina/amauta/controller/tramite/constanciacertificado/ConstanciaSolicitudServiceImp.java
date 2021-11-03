@@ -534,7 +534,19 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
-        return tipoDocumentoAcademicoDAO.allWhyPrecios();
+
+        List<TipoDocumentoAcademico> tipoDocumentoAcademicos = tipoDocumentoAcademicoDAO.allWhyPrecios();
+
+        List<PrecioDocumento> precioDocumentos = precioDocumentoDAO.allByTipoDocumentoAcademicoSinCuenta(tipoDocumentoAcademicos);
+
+        Map<Long, List<PrecioDocumento>> precioDocumentosXtipo = precioDocumentos.stream()
+                .collect(Collectors.groupingBy(x -> x.getTipoDocumento().getId()));
+
+        for (TipoDocumentoAcademico tipoDocumentoAcademico : tipoDocumentoAcademicos) {
+            tipoDocumentoAcademico.setPrecioDocumento(precioDocumentosXtipo.getOrDefault(tipoDocumentoAcademico.getId(), new ArrayList<>()));
+        }
+
+        return tipoDocumentoAcademicos;
     }
 
     @Override
@@ -1108,15 +1120,15 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     private void validarAlumnoEgresado(Alumno alumno) {
 
         Egresado existeComoEgresado = egresadoDAO.findByAlumno(alumno);
-        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno,TipoGradoAcademicoEnum.BACH);
-        
+        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+
         if (!alumno.getSituacionAcademica().isEgresado()) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
         if (existeComoEgresado == null) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
-        if (obtencionGrado==null) {
+        if (obtencionGrado == null) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
     }

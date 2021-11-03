@@ -235,69 +235,58 @@ public class ConstanciaSolicitudController {
     @RequestMapping("solicitud/{idSolicitud}")
     public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
-        try {
+        List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
 
-            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+        TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
 
-            TramiteDocumentoAcademico documentoAcademico = idSolicitud == null ? null : service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        if (documentoAcademico != null) {
 
-            if (documentoAcademico != null) {
+            node = JaneHelper.from(documentoAcademico)
+                    .join("idioma")
+                    .join("tramite")
+                    .join("estadoTramite")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .join("tipoDocumentoAcademico")
+                    .json();
 
-                node = JaneHelper.from(documentoAcademico)
-                        .join("idioma")
-                        .join("tramite")
-                        .join("estadoTramite")
-                        .join("tramite.alumno")
-                        .join("tramite.alumno.carrera")
-                        .join("tramite.alumno.carrera.facultad")
-                        .join("tramite.alumno.persona")
-                        .join("tramite.alumno.persona.tipoDocumento")
-                        .join("tipoDocumentoAcademico")
-                        .json();
-
-                Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
-                logger.debug("idAlumno {}", idAlumno);
-                model.addAttribute("idAlumno", idAlumno);
-            }
-
-            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-
-            for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
-
-                ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
-
-                ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
-
-                ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
-
-                for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
-
-                    arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
-
-                    arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
-
-                }
-
-                objectNode.set("idiomas", arrayIdiomas);
-
-                objectNode.set("precioDocumento", arrayPrecios);
-
-                arrayNode.add(objectNode);
-            }
-
-            model.addAttribute("tiposDocumentoAcademico", arrayNode);
-            model.addAttribute("solicitud", node);
-
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+            Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
+            logger.debug("idAlumno {}", idAlumno);
+            model.addAttribute("idAlumno", idAlumno);
         }
 
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+
+        for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+
+            ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
+
+            ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
+
+            ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
+
+            for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
+
+                arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
+
+                arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
+
+            }
+
+            objectNode.set("idiomas", arrayIdiomas);
+
+            objectNode.set("precioDocumento", arrayPrecios);
+
+            arrayNode.add(objectNode);
+        }
+
+        model.addAttribute("tiposDocumentoAcademico", arrayNode);
+        model.addAttribute("solicitud", node);
         return "tramite/tramiteConstancia/solicitud";
     }
 
