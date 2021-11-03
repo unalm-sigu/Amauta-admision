@@ -527,6 +527,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setCostoTotal(monto);
         tramiteDocumentoAcademico.setCostoUnitario(precio.getPrecio());
+        tramiteDocumentoAcademico.setTipoDocumentoCompania(tipoDocumentoCompania);
         tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
 
     }
