@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,6 +98,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
@@ -421,6 +423,14 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                     alumno.setFechaEgreso(eventoEgreso != null ? eventoEgreso.getFechaFin() : null);
                 }
             }
+        }
+
+        if (alumno.getSituacionAcademica().isEgresado()) {
+
+            Egresado egresado = egresadoDAO.findByAlumno(alumno);
+            DecimalFormat df = new DecimalFormat("#.00");
+            alumno.setPromedioPonderadoGraduacion(egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
+
         }
         return alumno;
     }

@@ -281,12 +281,12 @@
                                 <span v-text='alumno.ciclosVeranosTransient'></span>
                             </td>
                         </tr>
-                        <tr v-if="esEgresado">
+                        <tr v-if="alumno.situacionAcademica.egresado">
                             <td>
                                 <strong> Promedio ponderado egresado  </strong>
                             </td>
                             <td>
-                                <span v-text='promedioGraduacion'></span>
+                                <span v-text='alumno.promedioPonderadoGraduacion'>{{alumno.promedioPonderadoGraduacion}}</span>
                             </td>
                         </tr>
                     </tbody>

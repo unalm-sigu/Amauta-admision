@@ -624,38 +624,4 @@ public class ConstanciaSolicitudController {
         return node;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "promedioGraduacion/{idAlumno}", method = RequestMethod.GET)
-    public JsonResponse promedioGraduacion(@PathVariable Long idAlumno) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            response.setSuccess(Boolean.FALSE);
-
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-            Egresado egresado = service.getEgresadoByIdPersona(idAlumno);
-
-            if (null != egresado) {
-
-                DecimalFormat df = new DecimalFormat("#.00");
-                logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
-                node.put("esEgresado", egresado.getAlumno().getSituacionAcademica().isEgresado());
-                node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
-                response.setSuccess(Boolean.TRUE);
-
-            }
-
-            response.setData(node);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
 }
