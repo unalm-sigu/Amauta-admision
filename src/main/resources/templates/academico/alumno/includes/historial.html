@@ -167,8 +167,17 @@
                                     <tbody>
                                         <tr>
                                             <td v-bind:colspan="colspanResumen(tab)+4" class="text-center">
-                                                Situación Académica: <span class="estado-red">{{tab.situacionFinal.nombre}}</span>
+                                                Situación Académica Inicial
+                                                <span class="estado-red">{{tab.situacionInicio.nombre}}</span>
                                             </td>
+                                     
+                                        </tr>
+                                        <tr>
+                                            <td v-bind:colspan="colspanResumen(tab)+4" class="text-center">
+                                                Situación Académica Final 
+                                                <span class="estado-red">{{tab.situacionFinal.nombre}}</span>
+                                            </td>
+                                     
                                         </tr>
 
                                         <tr class="">

@@ -14,5 +14,8 @@ public interface PrecioDocumentoDAO extends EasyDAO<PrecioDocumento> {
 
     public List<PrecioDocumento> allByTipoDocumentoAcademico(List<TipoDocumentoAcademico> tipos);
 
+    public List<PrecioDocumento> allByTipoDocumentoAcademicoSinCuenta(List<TipoDocumentoAcademico> tipos);
+
     public List<PrecioDocumento> allByTipoDocumentoAcademico(TipoDocumentoAcademico tipo);
+
 }

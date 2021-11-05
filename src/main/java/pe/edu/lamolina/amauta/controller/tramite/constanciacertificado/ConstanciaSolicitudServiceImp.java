@@ -51,7 +51,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.FlujoTramiteDocumento;
-import pe.edu.lamolina.model.tramite.FormularioEstadoTramite;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -157,7 +156,6 @@ import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -513,11 +511,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
         tramiteDocumentoAcademico.setCantidadCiclos(1);
-        BigDecimal monto = new BigDecimal(precio.getPrecio());
+        BigDecimal monto = precio.getPrecio();
         if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
             Long count = alumnoCicloDAO.countCiclosRegularTotal(alumno);
             tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
-            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+            monto = precio.getPrecio().multiply(new BigDecimal(count));
         }
 
         OficinaEnum oficinaEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
@@ -528,14 +526,27 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setTramite(tramite);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setCostoTotal(monto);
-        tramiteDocumentoAcademico.setCostoUnitario(new BigDecimal(precio.getPrecio()));
+        tramiteDocumentoAcademico.setCostoUnitario(precio.getPrecio());
+        tramiteDocumentoAcademico.setTipoDocumentoCompania(tipoDocumentoCompania);
         tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
 
     }
 
     @Override
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
-        return tipoDocumentoAcademicoDAO.allWhyPrecios();
+
+        List<TipoDocumentoAcademico> tipoDocumentoAcademicos = tipoDocumentoAcademicoDAO.allWhyPrecios();
+
+        List<PrecioDocumento> precioDocumentos = precioDocumentoDAO.allByTipoDocumentoAcademicoSinCuenta(tipoDocumentoAcademicos);
+
+        Map<Long, List<PrecioDocumento>> precioDocumentosXtipo = precioDocumentos.stream()
+                .collect(Collectors.groupingBy(x -> x.getTipoDocumento().getId()));
+
+        for (TipoDocumentoAcademico tipoDocumentoAcademico : tipoDocumentoAcademicos) {
+            tipoDocumentoAcademico.setPrecioDocumento(precioDocumentosXtipo.getOrDefault(tipoDocumentoAcademico.getId(), new ArrayList<>()));
+        }
+
+        return tipoDocumentoAcademicos;
     }
 
     @Override
@@ -1048,18 +1059,18 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
             PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, tramiteDocumentoAcademico.getIdioma());
-            return new BigDecimal(precio.getPrecio());
+            return precio.getPrecio();
         }
 
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
 
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
 
-        BigDecimal monto = new BigDecimal(precio.getPrecio());
+        BigDecimal monto = precio.getPrecio();
 
         if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
             tramiteDocumentoAcademico.setCantidadCiclos(cantidadCiclos.intValue());
-            return new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(cantidadCiclos));
+            return monto.multiply(new BigDecimal(cantidadCiclos));
         }
 
         return null;
@@ -1083,14 +1094,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
             PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, tramiteDocumentoAcademico.getIdioma());
-            return new BigDecimal(precio.getPrecio());
+            return precio.getPrecio();
         }
 
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
 
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipoDocumentoAcademico, idioma);
 
-        return new BigDecimal(precio.getPrecio());
+        return precio.getPrecio();
     }
 
     @Override
@@ -1100,7 +1111,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             return ZERO;
         }
         try {
-            return new BigDecimal(precio.getPrecio());
+            return precio.getPrecio();
         } catch (Exception e) {
             return ZERO;
         }
@@ -1109,15 +1120,15 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     private void validarAlumnoEgresado(Alumno alumno) {
 
         Egresado existeComoEgresado = egresadoDAO.findByAlumno(alumno);
-        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno,TipoGradoAcademicoEnum.BACH);
-        
+        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+
         if (!alumno.getSituacionAcademica().isEgresado()) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
         if (existeComoEgresado == null) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
-        if (obtencionGrado==null) {
+        if (obtencionGrado == null) {
             throw new PhobosException("El trámite solo está permitido para alumnos egresados");
         }
     }

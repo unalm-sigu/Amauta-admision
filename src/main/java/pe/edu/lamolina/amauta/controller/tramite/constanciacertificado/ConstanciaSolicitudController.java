@@ -235,69 +235,58 @@ public class ConstanciaSolicitudController {
     @RequestMapping("solicitud/{idSolicitud}")
     public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
-        try {
+        List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
 
-            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+        TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
 
-            TramiteDocumentoAcademico documentoAcademico = idSolicitud == null ? null : service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        if (documentoAcademico != null) {
 
-            if (documentoAcademico != null) {
+            node = JaneHelper.from(documentoAcademico)
+                    .join("idioma")
+                    .join("tramite")
+                    .join("estadoTramite")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .join("tipoDocumentoAcademico")
+                    .json();
 
-                node = JaneHelper.from(documentoAcademico)
-                        .join("idioma")
-                        .join("tramite")
-                        .join("estadoTramite")
-                        .join("tramite.alumno")
-                        .join("tramite.alumno.carrera")
-                        .join("tramite.alumno.carrera.facultad")
-                        .join("tramite.alumno.persona")
-                        .join("tramite.alumno.persona.tipoDocumento")
-                        .join("tipoDocumentoAcademico")
-                        .json();
-
-                Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
-                logger.debug("idAlumno {}", idAlumno);
-                model.addAttribute("idAlumno", idAlumno);
-            }
-
-            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-
-            for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
-
-                ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
-
-                ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
-
-                ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
-
-                for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
-
-                    arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
-
-                    arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
-
-                }
-
-                objectNode.set("idiomas", arrayIdiomas);
-
-                objectNode.set("precioDocumento", arrayPrecios);
-
-                arrayNode.add(objectNode);
-            }
-
-            model.addAttribute("tiposDocumentoAcademico", arrayNode);
-            model.addAttribute("solicitud", node);
-
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+            Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
+            logger.debug("idAlumno {}", idAlumno);
+            model.addAttribute("idAlumno", idAlumno);
         }
 
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+
+        for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+
+            ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
+
+            ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
+
+            ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
+
+            for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
+
+                arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
+
+                arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
+
+            }
+
+            objectNode.set("idiomas", arrayIdiomas);
+
+            objectNode.set("precioDocumento", arrayPrecios);
+
+            arrayNode.add(objectNode);
+        }
+
+        model.addAttribute("tiposDocumentoAcademico", arrayNode);
+        model.addAttribute("solicitud", node);
         return "tramite/tramiteConstancia/solicitud";
     }
 
@@ -633,40 +622,6 @@ public class ConstanciaSolicitudController {
                 break;
         }
         return node;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "promedioGraduacion/{idAlumno}", method = RequestMethod.GET)
-    public JsonResponse promedioGraduacion(@PathVariable Long idAlumno) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            response.setSuccess(Boolean.FALSE);
-
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-            Egresado egresado = service.getEgresadoByIdPersona(idAlumno);
-
-            if (null != egresado) {
-
-                DecimalFormat df = new DecimalFormat("#.00");
-                logger.debug(" === PromedioGraduacion === {}", egresado.getPromedioGraduacion());
-                node.put("esEgresado", egresado.getAlumno().getSituacionAcademica().isEgresado());
-                node.put("promedioGraduacion", egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
-                response.setSuccess(Boolean.TRUE);
-
-            }
-
-            response.setData(node);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
     }
 
 }

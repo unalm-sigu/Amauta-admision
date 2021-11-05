@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,10 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -97,6 +98,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
@@ -422,6 +424,14 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 }
             }
         }
+
+        if (alumno.getSituacionAcademica().isEgresado()) {
+
+            Egresado egresado = egresadoDAO.findByAlumno(alumno);
+            DecimalFormat df = new DecimalFormat("#.00");
+            alumno.setPromedioPonderadoGraduacion(egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
+
+        }
         return alumno;
     }
 
@@ -552,11 +562,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void cambiarPlan(Alumno alumno, PlanCurricular planCurricular, DataSessionPivot ds) {
         Alumno alumnoBD = alumnoDAO.find(alumno);
         PlanCurricular planCurricularBD = planCurricularDAO.find(planCurricular.getId());
-        Assert.isTrue(planCurricularBD != null, "No existe el plan curricular indicado");
+        if (planCurricularBD == null) {
+            throw new PhobosException("No existe el plan curricular indicado");
+        }
 
         Carrera carreraAlu = alumnoBD.getCarrera();
         Carrera carreraPlan = planCurricularBD.getCarrera();
-        Assert.isTrue(carreraAlu.getId().longValue() == carreraPlan.getId(), "El cambio de plan no corresponde a la misma especialidad del alumno");
+        if (carreraAlu.getId().longValue() != carreraPlan.getId()) {
+            throw new PhobosException("El cambio de plan no corresponde a la misma especialidad del alumno");
+        }
 
         alumnoBD.setPlanCurricular(planCurricularBD);
         alumnoDAO.update(alumnoBD);
@@ -572,8 +586,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
-        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
-
+        if (!puedeCalcular) {
+            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+        }
         alumno = alumnoDAO.find(alumno);
         if (alumno.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
@@ -711,8 +726,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
-        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
-
+        if (!puedeCalcular) {
+            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+        }
         Alumno alumno = alumnoDAO.find(alumnoForm);
         promedioService.calcularSituacionAcademica(alumno, ds);
     }
@@ -720,7 +736,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     public void calcularPromedios(DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
-        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
+        if (!puedeCalcular) {
+            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+        }
         List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
 
         logger.debug("alumnos:::: {}", alumnos.size());
@@ -974,12 +992,21 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacion, DataSessionPivot ds) {
         Alumno alumnoBD = alumnoDAO.find(alumno);
         OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
-        Assert.isTrue(alumnoBD != null, "El alumno no existe en la base de datos");
-        Assert.isTrue(orientacionBD != null, "La orientación no existe en la base de datos");
+
+        if (alumnoBD == null) {
+            throw new PhobosException("El alumno no existe en la base de datos");
+        }
+
+        if (orientacionBD == null) {
+            throw new PhobosException("La orientación no existe en la base de datos");
+        }
 
         Carrera carrAlu = alumnoBD.getCarrera();
         Carrera carrOri = orientacionBD.getCarrera();
-        Assert.isTrue(carrAlu.getId() == carrOri.getId().longValue(), "La orientación no corresponde a la especialidad del alumno");
+
+        if (carrAlu.getId() != carrOri.getId().longValue()) {
+            throw new PhobosException("La orientación no corresponde a la especialidad del alumno");
+        }
 
         alumnoBD.setOrientacionCarrera(orientacionBD);
         alumnoDAO.update(alumnoBD);
@@ -1011,7 +1038,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumnoBD.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
         } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
-            Assert.isNotNull(alumnoBD.getPlanCurricular(), "La orientación no cuenta con plan curricular.");
+
+            if (alumnoBD.getPlanCurricular() == null) {
+                throw new PhobosException("La orientación no cuenta con plan curricular.");
+            }
+
             avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumnoBD, ds);
 
         }
@@ -1080,7 +1111,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Transactional
     public Alumno aplicarRetiroCiclo(RetiroCiclo retiroForm, DataSessionPivot ds) {
         RetiroCiclo retiroBD = retiroCicloDAO.find(retiroForm.getId());
-        Assert.isNotNull(retiroBD, "No se ha ubicado el retiro de ciclo");
+        if (retiroBD == null) {
+            throw new PhobosException("No se ha ubicado el retiro de ciclo");
+        }
 
         Alumno alumno = alumnoDAO.find(retiroBD.getAlumno());
         CicloAcademico ciclo = retiroBD.getCicloAcademico();

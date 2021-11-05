@@ -58,4 +58,13 @@ public class PrecioDocumentoDAOH extends AbstractEasyDAO<PrecioDocumento> implem
         return all(sql);
     }
 
+    @Override
+    public List<PrecioDocumento> allByTipoDocumentoAcademicoSinCuenta(List<TipoDocumentoAcademico> tipos) {
+        Octavia sql = Octavia.query()
+                .from(PrecioDocumento.class, "pd")
+                .join("tipoDocumento td", "idioma idi")
+                .in("td.id", tipos);
+        return all(sql);
+    }
+
 }

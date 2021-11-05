@@ -60,6 +60,9 @@
                                     deselect-label="No se puede eliminar este valor"
                                     track-by="id" 
                                     required="true"
+                                    v-bind:internal-search="false"
+                                    v-bind:hide-selected="true"
+                                    v-bind:showNoOptions="true"
                                     v-bind:disabled="isEdicion &amp;&amp; !cursoDirigido.id" >
 
                                     <template slot="singleLabel" slot-scope="props">
@@ -154,15 +157,12 @@
             },
             findDocente(nombre) {
                 let $vue = this;
-                AXIOS.get(APP.url("academico/tramiteacademico/findDocente"),
+                axios_.get(APP.url("academico/tramiteacademico/findDocente"),
                         {params: {nombre: nombre}})
                         .then(({data}) => {
-                            if (data.success) {
-                                $vue.docentes = data.data;
-                        }
-                        }, error => {
+                            $vue.docentes = data;
+                        }, () => {
                         });
-
             },
             cambioRechazado(cursoDirigido) {
                 cursoDirigido.seleccionado = false;

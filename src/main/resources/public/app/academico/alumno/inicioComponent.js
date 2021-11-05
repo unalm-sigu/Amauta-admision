@@ -21,11 +21,6 @@ Vue.component("inicio-component", {
         if (vue.alumno != null) {
             vue.orientacionTmp = vue.alumno.orientacionCarrera;
         }
-        if (ID_ALUMNO) {
-            console.debug('ID_ALUMNO');
-            console.debug(ID_ALUMNO);
-            this.loadPPG()
-        }
     },
     methods: {
         changeOrientacion(orientacion) {
@@ -78,16 +73,6 @@ Vue.component("inicio-component", {
         },
         verNota(notax) {
             return APP.verNota(notax);
-        },
-        loadPPG() {
-            let $vue = this;
-            axios.get('/tramite/solicitudconstancia/promedioGraduacion/' + ID_ALUMNO)
-                    .then(response => {
-                        if (response.data.success) {
-                            $vue.esEgresado = response.data.data.esEgresado;
-                            $vue.promedioGraduacion = response.data.data.promedioGraduacion;
-                        }
-                    });
         }
     }
 });

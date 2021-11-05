@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.pac4j.core.profile.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -49,6 +49,7 @@ import pe.edu.lamolina.model.enums.TipoMigracionEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaHistorial;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Service
@@ -87,6 +88,8 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     private AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     private AlumnoCicloDAO alumnoCicloDAO;
+
+    private PersonaHistorialDAO personaHistorialDAO;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -198,6 +201,16 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
                 throw new PhobosException("El documento ya pertenece a otro alumno");
 
             }
+
+            PersonaHistorial personaHistorial = new PersonaHistorial();
+            personaHistorial.setUsuario(ds.getUsuario());
+            personaHistorial.setPersona(personaDB);
+            personaHistorial.setFecha(new Date());
+            personaHistorial.setNumeroDocumentoFrom(personaDB.getNumeroDocIdentidad());
+            personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+            personaHistorial.setTipoDocumentoFrom(personaDB.getTipoDocumento());
+            personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
+            personaHistorialDAO.save(personaHistorial);
 
             Persona persona = this.updatePersona(personaDB, personaForm, ds);
 

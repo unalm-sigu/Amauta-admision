@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -102,13 +101,13 @@ public class InfoAcademicoController {
 
         logger.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
         logger.debug("ciclosVerano  =  {}", alumno.getCiclosVeranosTransient());
+        logger.debug("situacion  =  {}", alumno.getSituacionAcademica().isEgresado());
         ObjectNode alumnoJson = createAlumnoJson(alumno);
         ArrayNode planesJson = createPlanesJson(planes);
         ObjectNode cicloJson = createCicloJson(ciclo);
 
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
-        model.addAttribute("idAlumno", idAlumno);
         model.addAttribute("alumno", alumnoJson);
         model.addAttribute("alumnoTmp", alumno);
         model.addAttribute("ciclo", cicloJson);
@@ -163,7 +162,7 @@ public class InfoAcademicoController {
 
         try {
             List<AlumnoCicloCurso> cursosHisto = service.allHistorialAlumno(new Alumno(idAlumno));
-            System.out.println("cursosHisto.size=" + cursosHisto.size());
+            logger.debug("cursosHisto.size {}",cursosHisto.size());
             ArrayNode promediosJson = service.allPromediosJson(cursosHisto);
             ArrayNode cursosJson = service.allCursosJson(cursosHisto);
 
@@ -659,7 +658,7 @@ public class InfoAcademicoController {
     
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso",
+            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso","promedioPonderadoGraduacion",
             "ciclosRegularesTransient", "ciclosVeranosTransient",
             "promedioCarreraAcumulado", "promedioAcumulado",
             "creditosCarreraAprobados", "creditosCarreraCursados",
@@ -682,6 +681,7 @@ public class InfoAcademicoController {
             "cicloActivoRegular.descripcion",
             "situacionAcademica.codigo",
             "situacionAcademica.nombre",
+            "situacionAcademica.egresado",
             "postulantePregrado.modalidadIngreso.nombre",
             "planCurricular.id",
             "planCurricular.carrera.nombre",

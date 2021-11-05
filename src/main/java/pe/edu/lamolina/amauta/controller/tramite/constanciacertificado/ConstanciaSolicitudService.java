@@ -103,4 +103,5 @@ public interface ConstanciaSolicitudService {
     public void entregarTramite(TramiteDocumentoAcademico tramiteDocumentoAcademico) ;
 
     public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico);
+
 }
