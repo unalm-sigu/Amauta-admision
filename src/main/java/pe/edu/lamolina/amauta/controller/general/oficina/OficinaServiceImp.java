@@ -82,6 +82,7 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -547,7 +548,13 @@ public class OficinaServiceImp implements OficinaService {
         ausenciaJefeDAO.save(ausenciaJefe);
 
         oficinaBD.setEmpleadoEncargado(Boolean.TRUE);
-        Colaborador colaborador = colaboradorDAO.findByPersonaOficina(oficina, jefeEncargadoBD);
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficina, jefeEncargadoBD);
+        if (colaborador != null) {
+            if (colaborador.getCargo().getCodigoEnum() == PerfilColaboradorEnum.DOC) {
+                colaborador = null;
+            }
+        }
+        
         if (colaborador == null) {
             colaborador = new Colaborador();
             colaborador.setOficina(oficina);
@@ -589,7 +596,7 @@ public class OficinaServiceImp implements OficinaService {
         if (userEncargado == null) {
             userEncargado = createUser(jefeEncargadoBD, ds);
         }
-        
+
         Assert.isNotNull(userEncargado, "La persona que esta siendo asignado como jefe(a) no tiene usuario");
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(userEncargado, oficina);
         Map<Long, List<UsuarioRol>> mapUserRol = TypesUtil.convertListToMapList("rol.id", userRoles);
