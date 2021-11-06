@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,41 +41,23 @@ import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.existentes.ResolucionExistenteService;
-import pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte.AporteAlumnoService;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/tramitecondicional")
 public class TramiteCondicionalController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    TramiteCondicionalService service;
-
-    @Autowired
-    ResolucionExistenteService existenteService;
-
-    @Autowired
-    MatriculableService matriculableService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-
-    @Autowired
-    ResolucionService resolucionService;
-
-    @Autowired
-    AporteAlumnoService aporteAlumnoService;
-
-    @Autowired
-    PromedioService promedioService;
+    private final MatriculableService matriculableService;
+    private final OficinaService oficinaService;
+    private final PromedioService promedioService;
+    private final TramiteCondicionalService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -122,7 +104,7 @@ public class TramiteCondicionalController {
             arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
                 "*"}));
         }
-        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
+        List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
         for (Oficina oficina : oficinas) {
             ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
             oficinasJson.add(oficinaJson);
@@ -312,7 +294,7 @@ public class TramiteCondicionalController {
             @RequestParam(value = "idAlumno", required = true) Long idAlumno,
             @RequestParam(value = "idCiclo", required = true) Long idCiclo,
             HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {

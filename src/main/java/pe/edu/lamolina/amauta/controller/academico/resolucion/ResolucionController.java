@@ -10,10 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -47,16 +48,15 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/resolucion")
 public class ResolucionController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    ResolucionService service;
-
-    private MultipartFile resolucionFile;
+    private final ResolucionService service;
+    private final OficinaService oficinaService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -184,7 +184,6 @@ public class ResolucionController {
             if (resolucionId != null) {
                 resolucion = service.findResolucion(resolucionId);
             } else {
-                resolucionFile = null;
                 resolucion.setFecha(new Date());
             }
 
@@ -218,7 +217,7 @@ public class ResolucionController {
             data.set("tiposResolucionesJson", tiposResolucionesJson);
 
             ArrayNode oficinasJson = new ArrayNode(jc);
-            List<Oficina> oficinas = service.allOFicinasByUser(ds);
+            List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
             for (Oficina oficina : oficinas) {
                 ObjectNode oficinaJson = JsonHelper.createJson(oficina, jc, true, new String[]{"*"});
                 oficinasJson.add(oficinaJson);
@@ -258,7 +257,7 @@ public class ResolucionController {
             Resolucion resolucion = service.findResolucion(resolucionId);
             if (resolucion.getTipoResolucion().isReincorporacion()) {
                 List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
-                logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
+                log.debug("cantidad de reincorporaciones " + reincorporaciones.size());
 
                 for (Reincorporacion reincorporacion : reincorporaciones) {
                     ObjectNode reincorporacionJson = JsonHelper.createJson(reincorporacion, JsonNodeFactory.instance,
@@ -314,7 +313,7 @@ public class ResolucionController {
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        logger.debug(" Reunion Consejo Id {} ", reunionConsejoId);
+        log.debug(" Reunion Consejo Id {} ", reunionConsejoId);
         if (reunionConsejoId == null && tipoResolucionId == null) {
             json.setTotal(0);
             return json;
@@ -325,7 +324,7 @@ public class ResolucionController {
             DateTime today = new DateTime();
 
             List<TramiteReunionConsejo> alumnosReunionConsejo = service.allTramiteReunionConsejoByReunion(new ReunionConsejo(reunionConsejoId), new TipoResolucion(tipoResolucionId));
-            logger.debug("alumnos reunion consejo " + alumnosReunionConsejo.size());
+            log.debug("alumnos reunion consejo " + alumnosReunionConsejo.size());
             //reunionConsejo alumno
 
             String[] mapperTramite = new String[]{
@@ -497,7 +496,7 @@ public class ResolucionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            logger.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
+            log.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
             service.uploadResolucionFile(new Resolucion(resolucionId), file, ds);
             response.setMessage("Archivo cargado.");
             response.setSuccess(true);
@@ -521,7 +520,7 @@ public class ResolucionController {
         JsonResponse response = new JsonResponse();
 
         try {
-            
+
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
 

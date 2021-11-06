@@ -46,8 +46,6 @@ public interface ResolucionService {
 
     List<CicloAcademico> allCiclosToReincorporacion();
 
-    List<Oficina> allOFicinasByUser(DataSessionPivot ds);
-
-    public List<CursoDirigido> allCursoDirigido(DynatableFilter filter, Resolucion resolucion);
+    List<CursoDirigido> allCursoDirigido(DynatableFilter filter, Resolucion resolucion);
 
 }

@@ -52,34 +52,32 @@ public interface ResolucionExistenteService {
 
     List<ObtencionGrado> allObtencionGrado(Resolucion resolucion);
 
-    public List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
+    List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
 
-    public List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB);
+    List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB);
 
-    public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB);
+    List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB);
 
-    public List<TramiteBachiller> allBachiller(DataSessionPivot ds);
+    List<TramiteBachiller> allBachiller(DataSessionPivot ds);
 
-    public List<TramiteTitulo> allTitulos(DataSessionPivot ds);
+    List<TramiteTitulo> allTitulos(DataSessionPivot ds);
 
-    public List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
+    List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 
-    public List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
+    List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
 
-    public List<Reincorporacion> allReincorporacion();
+    List<Reincorporacion> allReincorporacion();
 
-    public List<Readmision> allReadmision();
+    List<Readmision> allReadmision();
 
-    public List<CambioPlanCurricular> allCambioPlanCurricular();
+    List<CambioPlanCurricular> allCambioPlanCurricular();
 
-    public List<Readmision> allReadmisionByResolucion(Resolucion resolucion);
+    List<Readmision> allReadmisionByResolucion(Resolucion resolucion);
 
-    public List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion);
+    List<CambioPlanCurricular> allCambioPlanCurricularByResolucion(Resolucion resolucion);
 
-    public List<TramiteTraslado> allTrasladoInterno(CicloAcademico cicloAcademico);
+    List<TramiteTraslado> allTrasladoInterno(CicloAcademico cicloAcademico);
 
-    public List<Oficina> allOFicinasByUser(DataSessionPivot ds);
-
-    public List<String> saveResolucion(Resolucion resolucion, DataSessionPivot ds);
+    List<String> saveResolucion(Resolucion resolucion, DataSessionPivot ds);
 
 }

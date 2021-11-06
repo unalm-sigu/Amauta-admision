@@ -2,10 +2,10 @@ package pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.amplia
 
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -19,32 +19,25 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.academico.AmpliacionVacantesDAO;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final SeccionDAO seccionDAO;
+    private final AmpliacionVacantesDAO ampliacionVacanteDAO;
+    private final ColaboradorDAO colaboradorDAO;
 
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    AmpliacionVacantesDAO ampliacionVacanteDAO;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    ResponseRestService responseRestService;
+    private final OficinaService oficinaService;
+    private final ResponseRestService responseRestService;
 
     @Override
     public List<AmpliacionVacantes> allAmpliacionVacante(Seccion seccion) {

@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +65,6 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
-import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
@@ -89,7 +88,6 @@ import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
-import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
@@ -105,103 +103,43 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final CursoCurriculaDAO cursoCurriculaDAO;
+    private final CursoEquivalenteDAO cursoEquivalenteDAO;
+    private final DiaDAO diaDAO;
+    private final DocenteSeccionDAO docenteSeccionDAO;
+    private final EgresadoDAO egresadoDAO;
+    private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final HoraDAO horaDAO;
+    private final HorarioSeccionDAO horarioSeccionDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final OrientacionCarreraDAO orientacionCarreraDAO;
+    private final PlanCurricularDAO planCurricularDAO;
+    private final RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
+    private final ResumenPlanCurricularDAO resumenPlanCurricularDAO;
+    private final RetiroCicloDAO retiroCicloDAO;
+    private final RetiroCursoDAO retiroCursoDAO;
+    private final TramiteBachillerDAO tramiteBachillerDAO;
+    private final TramiteTituloDAO tramiteTituloDAO;
 
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
-    ParametroDAO parametroDAO;
-
-    @Autowired
-    HoraDAO horaDAO;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    PlanCurricularDAO planCurricularDAO;
-
-    @Autowired
-    CursoCurriculaDAO cursoCurriculaDAO;
-
-    @Autowired
-    PromedioService promedioService;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    OrientacionCarreraDAO orientacionCarreraDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
-
-    @Autowired
-    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
-
-    @Autowired
-    DiaDAO diaDAO;
-
-    @Autowired
-    AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
-
-    @Autowired
-    AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
-
-    @Autowired
-    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
-
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-
-    @Autowired
-    RetiroCursoDAO retiroCursoDAO;
-
-    @Autowired
-    DespliegueConfig despliegueConfig;
-
-    @Autowired
-    CursoEquivalenteDAO cursoEquivalenteDAO;
-
-    @Autowired
-    TramiteBachillerDAO tramiteBachillerDAO;
-
-    @Autowired
-    TramiteTituloDAO tramiteTituloDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final AvanceCurricularService avanceCurricularService;
+    private final PromedioService promedioService;
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
@@ -221,7 +159,6 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
 
         List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
-//             cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
         AlumnoCursoCurricula max = ciclosAlumno.stream().max(Comparator.comparing(AlumnoCursoCurricula::getNumeroCiclo)).get();
         Map<Integer, Long> counters = ciclosAlumno.stream()
                 .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
@@ -392,8 +329,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.NIV)
                 .count();
 
-        logger.debug("ciclosRegular {}", ciclosRegular);
-        logger.debug("ciclosVerano {}", ciclosVerano);
+        log.debug("ciclosRegular {}", ciclosRegular);
+        log.debug("ciclosVerano {}", ciclosVerano);
         alumno.setCiclosRegularesTransient(ciclosRegular);
         alumno.setCiclosVeranosTransient(ciclosVerano);
 
@@ -401,20 +338,20 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
         carrera.setOrientacionCarrera(orientaciones);
 
-        logger.debug("tramiteBachiller");
+        log.debug("tramiteBachiller");
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
         if (tramiteBachiller != null) {
             alumno.setResolucionBachiller((String) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.numeroVisible"));
             alumno.setFechaBachiller((Date) ObjectUtil.getParentTree(tramiteBachiller, "resolucion.fecha"));
-            logger.debug("{}", alumno.getResolucionBachiller());
+            log.debug("{}", alumno.getResolucionBachiller());
         }
 
-        logger.debug("tramiteTitulo");
+        log.debug("tramiteTitulo");
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoACEP(alumno);
         if (tramiteTitulo != null) {
             alumno.setResolucionTitulo((String) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.numeroVisible"));
             alumno.setFechaTitulo((Date) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.fecha"));
-            logger.debug("{}", alumno.getResolucionTitulo());
+            log.debug("{}", alumno.getResolucionTitulo());
         }
         if (alumno.getCicloActivo() != null) {
             if (alumno.getSituacionAcademica() != null) {
@@ -741,7 +678,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
 
-        logger.debug("alumnos:::: {}", alumnos.size());
+        log.debug("alumnos:::: {}", alumnos.size());
         for (Alumno alumno : alumnos) {
             promedioService.calcularSituacionAcademica(alumno, ds);
         }
@@ -954,7 +891,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                     seccionJson.put("horasContinuas", horariosSecc.size());
                     seccionJson.put("horaInicial", nroHora == hora.getNumero());
 
-                    logger.debug("idHorario:{}, idSeccion:{}", horarioSeccion.getId(), horarioSeccion.getSeccion().getId());
+                    log.debug("idHorario:{}, idSeccion:{}", horarioSeccion.getId(), horarioSeccion.getSeccion().getId());
 
                     DocenteSeccion profeSecc = mapProfeSecc.get(horarioSeccion.getSeccion().getId());
                     seccionJson.put("docente", (String) ObjectUtil.getParentTree(profeSecc, "docente.persona.letraNomPaterno"));

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
@@ -55,13 +56,18 @@ import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/resolucion/existentes")
 public class ResolucionExistenteController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ResolucionExistenteService service;
+    private final OficinaService oficinaService;
+    private final MatriculableService matriculableService;
 
-    static List<String> TIPOS_RESOLUCIONES = Arrays.asList(
+    private final static List<String> TIPOS_RESOLUCIONES = Arrays.asList(
             TipoResolucionEnum.READMISION.name(),
             TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR.name(),
             TipoResolucionEnum.TRAS_INT.name(),
@@ -79,12 +85,6 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.ING_HIS.name()
     );
 
-    @Autowired
-    ResolucionExistenteService service;
-
-    @Autowired
-    MatriculableService matriculableService;
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
@@ -95,7 +95,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(service.allOFicinasByUser(ds))
+                .from(oficinaService.allOficinasMainByPersona(ds.getPersona()))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -127,7 +127,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(service.allOFicinasByUser(ds))
+                .from(oficinaService.allOficinasMainByPersona(ds.getPersona()))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -572,7 +572,7 @@ public class ResolucionExistenteController {
     @ResponseBody
     @RequestMapping("allRetiroCiclo")
     public ArrayNode allRetiroCiclo(HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<RetiroCiclo> retiroCiclos = service.allRetiroCiclo(ds);

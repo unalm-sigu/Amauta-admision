@@ -6,12 +6,13 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,42 +38,30 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
-import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class VerificadorServiceImp implements VerificadorService {
 
-    @Autowired
-    AnexoBoletinDAO anexoBoletinDAO;
-    @Autowired
-    CarreraDAO carreraDAO;
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-    @Autowired
-    FacultadDAO facultadDAO;
-    @Autowired
-    MenuRolDAO menuRolDAO;
-    @Autowired
-    OficinaDAO oficinaDAO;
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
+    private final AnexoBoletinDAO anexoBoletinDAO;
+    private final CarreraDAO carreraDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final FacultadDAO facultadDAO;
+    private final OficinaDAO oficinaDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    OficinaService oficinaService;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final OficinaService oficinaService;
 
     public enum CantidadItemsEnum {
         TODOS, PARCIAL, SIN_PERMISO
@@ -173,7 +162,7 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoSolicitud, HttpServletRequest request, DataSessionPivot ds, String codeRequest) {
-        logger.info("RQ={} iniclio allInstanciasByMenuRol", codeRequest);
+        log.info("RQ={} iniclio allInstanciasByMenuRol", codeRequest);
 
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
@@ -234,21 +223,21 @@ public class VerificadorServiceImp implements VerificadorService {
         Map<Long, DepartamentoAcademico> mapDepartamento = TypesUtil.convertListToMap("id", departamentos);
         Map<Long, List<DepartamentoAcademico>> mapDepartamentoByFacultad = TypesUtil.convertListToMapList("facultad.id", departamentos);
 
-        logger.info("RQ={} tipoSolicitud={} listaInicial.size={}", codeRequest, tipoSolicitud, lista.size());
+        log.info("RQ={} tipoSolicitud={} listaInicial.size={}", codeRequest, tipoSolicitud, lista.size());
 
         for (Oficina oficina : oficinas) {
             TipoOficinaEnum tipoOficinaEnum = oficina.getTipoOficina().getCodigoEnum();
-            logger.info("RQ={} tipoOficinaEnum={}", codeRequest, tipoOficinaEnum.getClazz());
+            log.info("RQ={} tipoOficinaEnum={}", codeRequest, tipoOficinaEnum.getClazz());
 
             if (tipoSolicitud == ESP && tipoOficinaEnum.getClazz() == Carrera.class) {
                 Carrera carreraPregrado = mapCarrerasPregado.get(oficina.getInstanciaOficina());
                 if (carreraPregrado != null) {
-                    logger.info("RQ={} agregando-carrera-pregado={}", codeRequest, carreraPregrado.getCodigo());
+                    log.info("RQ={} agregando-carrera-pregado={}", codeRequest, carreraPregrado.getCodigo());
                     lista.add(carreraPregrado);
                 }
                 Carrera carreraPosgrado = mapCarrerasPosgado.get(oficina.getInstanciaOficina());
                 if (carreraPosgrado != null) {
-                    logger.info("RQ={} agregando-carrera-posgado={}", codeRequest, carreraPosgrado.getCodigo());
+                    log.info("RQ={} agregando-carrera-posgado={}", codeRequest, carreraPosgrado.getCodigo());
                     lista.add(carreraPosgrado);
                 }
 
@@ -259,19 +248,19 @@ public class VerificadorServiceImp implements VerificadorService {
                     List<Carrera> carrerasEpg = TypesUtil.getListNotNull(mapCarrerasPosgradoByFacultad.get(facultad.getId()));
                     lista.addAll(carrerasPre);
                     lista.addAll(carrerasEpg);
-                    logger.info("RQ={} agregando-count-carreras-pre={} desde-facultad={}", codeRequest, carrerasPre.size(), facultad.getCodigo());
-                    logger.info("RQ={} agregando-count-carreras-epg={} desde-facultad={}", codeRequest, carrerasEpg.size(), facultad.getCodigo());
+                    log.info("RQ={} agregando-count-carreras-pre={} desde-facultad={}", codeRequest, carrerasPre.size(), facultad.getCodigo());
+                    log.info("RQ={} agregando-count-carreras-epg={} desde-facultad={}", codeRequest, carrerasEpg.size(), facultad.getCodigo());
                 }
 
             } else if (tipoSolicitud == FAC && tipoOficinaEnum.getClazz() == Carrera.class) {
-                logger.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
+                log.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
                 // IMPLEMENTAR LOGICA
 
             } else if (tipoSolicitud == FAC && tipoOficinaEnum.getClazz() == Facultad.class) {
                 Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
                 if (facultad != null) {
                     lista.add(facultad);
-                    logger.info("RQ={} agregando-facultad={}", codeRequest, facultad.getCodigo());
+                    log.info("RQ={} agregando-facultad={}", codeRequest, facultad.getCodigo());
                 }
 
             } else if (tipoSolicitud == DPTO && tipoOficinaEnum.getClazz() == Facultad.class) {
@@ -279,22 +268,22 @@ public class VerificadorServiceImp implements VerificadorService {
                 if (facultad != null) {
                     List<DepartamentoAcademico> dptos = TypesUtil.getListNotNull(mapDepartamentoByFacultad.get(facultad.getId()));
                     lista.addAll(dptos);
-                    logger.info("RQ={} agregando-count-dptos={} desde-facultad={}", codeRequest, dptos.size(), facultad.getCodigo());
+                    log.info("RQ={} agregando-count-dptos={} desde-facultad={}", codeRequest, dptos.size(), facultad.getCodigo());
                 }
 
             } else if (tipoSolicitud == DPTO && tipoOficinaEnum.getClazz() == DepartamentoAcademico.class) {
                 DepartamentoAcademico dpto = mapDepartamento.get(oficina.getInstanciaOficina());
                 if (dpto != null) {
                     lista.add(dpto);
-                    logger.info("RQ={} agregando-dpto-academico={}", codeRequest, dpto.getCodigo());
+                    log.info("RQ={} agregando-dpto-academico={}", codeRequest, dpto.getCodigo());
                 }
 
             } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
-                logger.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
+                log.info("RQ={} sin-implementar clazz={}", codeRequest, tipoOficinaEnum.getClazz());
                 // IMPLEMENTAR LOGICA
             }
         }
-        logger.info("listaFinal.size={}", lista.size());
+        log.info("listaFinal.size={}", lista.size());
         return lista;
     }
 
@@ -465,25 +454,63 @@ public class VerificadorServiceImp implements VerificadorService {
     @Override
     public List<Oficina> allOficinasAcceso(DataSessionPivot ds) {
         List<Oficina> oficinas = new ArrayList();
+        List<Oficina> oficinasAll = oficinaService.allOficinasOrganizadas();
+
+        List<UsuarioRol> userRolesAll = usuarioRolDAO.allWithOfficeByUserRoles(ds.getUsuario(), ds.getRoles());
+        Map<Long, List<UsuarioRol>> mapUserRol = TypesUtil.convertListToMapList("rol.id", userRolesAll);
+
         for (Rol rol : ds.getRoles()) {
+            List<UsuarioRol> usuarioRoles = TypesUtil.getListNotNull(mapUserRol.get(rol.getId()));
+
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
-                List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
-                for (UsuarioRol ur : usuarioRol) {
-                    oficinas.add(ur.getOficina());
+                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
+                for (UsuarioRol ur : usuarioRoles) {
+                    Oficina oficinaArea = ur.getOficina();
+                    Oficina oficinaMain = oficinaService.findOficinaMain(oficinaArea, oficinasAll);
+                    log.info("-oficinaMain.id={} oficinaMain.codigo={} oficinaMain.nombre={}", oficinaMain.getId(), oficinaMain.getCodigo(), oficinaMain.getNombre());
+                    oficinas.add(oficinaMain);
+                }
+
+                if (usuarioRoles.isEmpty()) {
+                    log.info("-Usuario {} no tiene el rol {} en alguna oficina", ds.getUsuario().getId(), rol.getCodigo());
                 }
             }
 
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
-                List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
-                List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
+                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
+                Optional<Oficina> escuela = usuarioRoles.stream()
+                        .map(ur -> ur.getOficina())
+                        .filter(oficina -> oficinaService.findOficinaMain(oficina, oficinasAll).getCodigoEnum() == EPG)
+                        .findFirst();
 
-                oficinas.addAll(direccionesPosgrado);
-                oficinas.addAll(especialidadesPosgrado);
+                if (escuela.isPresent()) {
+                    log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId());
+                    List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
+                    List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
+
+                    oficinas.addAll(direccionesPosgrado);
+                    oficinas.addAll(especialidadesPosgrado);
+
+                } else {
+                    log.info("-Usuario {} no tiene el rol {} en la EPG", ds.getUsuario().getId(), rol.getCodigo());
+                }
             }
 
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
-                oficinas.add(oficinaUNA);
+                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
+                Optional<Oficina> estudios = usuarioRoles.stream()
+                        .map(ur -> ur.getOficina())
+                        .filter(oficina -> oficinaService.findOficinaMain(oficina, oficinasAll).getCodigoEnum() == OERA)
+                        .findFirst();
+
+                if (estudios.isPresent()) {
+                    log.info("-Usuario {} tiene el rol {} en OERA", ds.getUsuario().getId());
+                    Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
+                    oficinas.add(oficinaUNA);
+
+                } else {
+                    log.info("-Usuario {} no tiene el rol {} en OERA", ds.getUsuario().getId(), rol.getCodigo());
+                }
             }
         }
         return oficinas;

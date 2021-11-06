@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +27,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -97,9 +97,7 @@ import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.ListBeanPromedios;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioLoadDataService;
-import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioReviewService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
-import pe.edu.lamolina.amauta.controller.academico.promedio.ReincorporadosService;
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.amauta.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
@@ -110,19 +108,14 @@ import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_HIS
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_MATRICULABLE;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfiguracionTurnosAtencionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
-import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
@@ -138,89 +131,40 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class MatriculableServiceImp implements MatriculableService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AcreenciaDAO acreenciaDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+    private final CambioNotaDAO cambioNotaDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
+    private final DeudaAlumnoDAO deudaAlumnoDAO;
+    private final EgresadoDAO egresadoDAO;
+    private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final MatriculableConnector matriculableConector;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final ReincorporacionDAO reincorporacionDAO;
+    private final RespositorVisor respositorVisor;
+    private final ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+    private final RetiroCicloDAO retiroCicloDAO;
+    private final TurnoAtencionDAO turnoAtencionDAO;
+    private final VisorCalculaSituacion visorCalculaSituacion;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-    @Autowired
-    SituacionAcademicaDAO situacionAcademicaDAO;
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-    @Autowired
-    TurnoAtencionDAO turnoAtencionDAO;
-    @Autowired
-    CarreraDAO carreraDAO;
-    @Autowired
-    FacultadDAO facultadDAO;
-    @Autowired
-    EgresadoDAO egresadoDAO;
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    @Autowired
-    ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-    @Autowired
-    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-    @Autowired
-    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
-    @Autowired
-    DeudaAlumnoDAO deudaAlumnoDAO;
-    @Autowired
-    AcreenciaDAO acreenciaDAO;
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    VisorCalculaSituacion visorCalculaSituacion;
-
-    @Autowired
-    MatriculableConnector matriculableConector;
-
-    @Autowired
-    ConfiguracionMatriculaService configuracionMatriculaService;
-
-    @Autowired
-    PromedioService promedioService;
-    @Autowired
-    PromedioLoadDataService promedioLoadDataService;
-
-    @Autowired
-    PromedioReviewService promedioReviewService;
-
-    @Autowired
-    AporteAlumnoService aporteAlumnoService;
-
-    @Autowired
-    CambioNotaDAO cambioNotaDAO;
-
-    @Autowired
-    ResponseRestService responseRestService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-    @Autowired
-    ReincorporadosService reincorporadosService;
-
-    @Autowired
-    RespositorVisor respositorVisor;
-
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
+    private final AporteAlumnoService aporteAlumnoService;
+    private final AvanceCurricularService avanceCurricularService;
+    private final ConfiguracionMatriculaService configuracionMatriculaService;
+    private final PromedioLoadDataService promedioLoadDataService;
+    private final PromedioService promedioService;
+    private final ResponseRestService responseRestService;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -234,37 +178,37 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
-        
+
         long t10 = System.currentTimeMillis();
         long t1 = System.currentTimeMillis();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloCarrerasDynatable(filter, cicloAcademico, carreras, todo);
         long t2 = System.currentTimeMillis();
-        logger.debug("Consulta main ejecutada en {} mseg con {} registros", (t2 - t1), matriculaResumens.size());
+        log.debug("Consulta main ejecutada en {} mseg con {} registros", (t2 - t1), matriculaResumens.size());
 
-        logger.debug("cicloAcademico {}", cicloAcademico.getCodigo());
+        log.debug("cicloAcademico {}", cicloAcademico.getCodigo());
         t1 = System.currentTimeMillis();
         List<ResumenAporteAlumno> resumenAporteAlumnos = resumenAporteAlumnoDAO.allByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
         t2 = System.currentTimeMillis();
-        logger.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
+        log.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
 
         List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         t1 = System.currentTimeMillis();
         List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
         t2 = System.currentTimeMillis();
-        logger.debug("boletas {} ejecutada en {} mseg", boletas.size(), (t2 - t1));
+        log.debug("boletas {} ejecutada en {} mseg", boletas.size(), (t2 - t1));
         Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
 
         t1 = System.currentTimeMillis();
         List<AporteAlumnoCiclo> aportesCarnetAlumnos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
         t2 = System.currentTimeMillis();
-        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
+        log.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
         t1 = System.currentTimeMillis();
         List<AporteAlumnoCiclo> aportesDuplicadoCarnetAlumnos = aporteAlumnoCicloDAO.allAporteDuplicadoCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
         t2 = System.currentTimeMillis();
-        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
+        log.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteDuplicadoCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesDuplicadoCarnetAlumnos);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
@@ -295,7 +239,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         long t20 = System.currentTimeMillis();
-        logger.debug("Query de {} matriculables ejecutado en {} mseg", matriculaResumens.size(), (t20 - t10));
+        log.debug("Query de {} matriculables ejecutado en {} mseg", matriculaResumens.size(), (t20 - t10));
         return matriculaResumens;
     }
 
@@ -490,7 +434,7 @@ public class MatriculableServiceImp implements MatriculableService {
         String tokenHisto = token22 + TOKEN_HISTORIAL;
         for (;;) {
             if (visorCalculoNotas.estaCompletoToken(tokenHisto)) {
-                logger.info("Terminó Historial ....");
+                log.info("Terminó Historial ....");
                 break;
             }
         }
@@ -558,7 +502,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 break;
             }
         }
-        logger.info("Terminó promedios ....");
+        log.info("Terminó promedios ....");
 
         visorCalculoNotas.destroyToken(tokenProm);
         TypesUtil.delay(2000);
@@ -579,7 +523,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 break;
             }
         }
-        logger.info("Terminó curricula ....");
+        log.info("Terminó curricula ....");
         TypesUtil.delay(2000);
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
@@ -592,7 +536,7 @@ public class MatriculableServiceImp implements MatriculableService {
         if (eventoCicloAcademico != null && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
             String tokenMat = token22 + TOKEN_MATRICULABLE;
             this.recalcularPrioridad(alumnos, ds.getUsuario(), tokenMat);
-            logger.info("Se terminó el ingreso a matriculables ... ");
+            log.info("Se terminó el ingreso a matriculables ... ");
         }
     }
 
@@ -740,7 +684,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void loadEgresados(MultipartFile file) {
-        logger.debug("Service File {}");
+        log.debug("Service File {}");
         String rutaFile = saveEgresados(file);
         cargarEgresados(rutaFile);
     }
@@ -786,77 +730,11 @@ public class MatriculableServiceImp implements MatriculableService {
                 String codigoFacultad = getCellValue(2, row);
                 String codigoCarrera = getCellValue(3, row);
                 String codigoCiclo = getCellValue(4, row);
-//                Integer creditosAcumulados = TypesUtil.getInt(getCellValue(5, row));
-//                Integer creditosAprobadosAcumulados = TypesUtil.getInt(getCellValue(8, row));
-//                Integer puntajeAcumulado = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(9, row)) ? getCellValue(9, row) : null);
-//                BigDecimal promedioPonderadoAcumulado = TypesUtil.getBigDecimal(getCellValue(10, row));
-//                //  BigDecimal promedioAcumuladoMerito= TypesUtil.getBigDecimal(getCellValue(10, row));
-//                BigDecimal promedioGraduacion = TypesUtil.getBigDecimal(StringUtils.isNotBlank(getCellValue(11, row)) ? getCellValue(11, row) : null);
-//                Integer omg = TypesUtil.getInt(getCellValue(14, row));
-//                Integer omgf = TypesUtil.getInt(getCellValue(12, row));
-//                Integer omgCarrera = TypesUtil.getInt(getCellValue(13, row));
-//                Integer cuadrohonorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(28, row)) ? getCellValue(28, row) : null);
-//                Integer quintoSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(27, row)) ? getCellValue(27, row) : null);
-//                Integer tercioSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(26, row)) ? getCellValue(26, row) : null);
-//
-//                Integer cuadroHonorFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(25, row)) ? getCellValue(25, row) : null);
-//                Integer quintoSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(18, row)) ? getCellValue(18, row) : null);
-//                Integer tercioSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
-//
-//                Integer cuadroHonorCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(24, row)) ? getCellValue(24, row) : null);
-//                Integer quintoSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(19, row)) ? getCellValue(19, row) : null);
-//                Integer tercioSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
-                /*
-                Date fechaEgresado;
-                GradoAcademico grado;
-                Date fechaGraduacion;
-                TituloAcademico tituloAcademico;
-                Date fechaTitulacion;
-
-                Usuario usuarioRegistroEgresado;
-                Date fechaRegistroEgresado;
-                Usuario usuarioRegistroGraduado;
-                Date fechaRegistroGraduado;
-                Usuario usuarioRegistroTitulado;
-                Date fechaRegistroTitulado;
-                 */
-
                 Egresado egresado = new Egresado();
-
-//                egresado.setCreditosAcumulados(creditosAcumulados);
-//                egresado.setCreditosAprobadosAcumulados(creditosAprobadosAcumulados);
-//                egresado.setCuadroHonorCarrera(cuadroHonorCarrera);
-//                egresado.setCuadroHonorCiclo(cuadrohonorCiclo);
-//                egresado.setCuadroHonorFacultad(cuadroHonorFacultad);
                 egresado.setEsPrincipal(BigDecimal.ZERO.intValue());
-
-                // egresado.setFechaEgresado(fechaEgresado);
-                // egresado.setFechaGraduacion(fechaGraduacion);
-                // egresado.setFechaRegistroEgresado(fechaRegistroEgresado);
-                // egresado.setFechaRegistroGraduado(fechaRegistroGraduado);
-                //egresado.setFechaRegistroTitulado(fechaRegistroTitulado);
-                // egresado.setFechaTitulacion(fechaTitulacion);
-                // egresado.setGrado(grado);
-//                egresado.setOrdenMeritoCarrera(omgCarrera);
-//                egresado.setOrdenMeritoCiclo(omg);
-//                egresado.setOrdenMeritoFacultad(omgf);
-//                egresado.setPromedioAcumulado(promedioPonderadoAcumulado);
-                //  egresado.setPromedioAcumuladoMerito(promedioGraduacion);
-//                egresado.setPromedioGraduacion(promedioGraduacion);
-//                egresado.setPuntajeAcumulado(puntajeAcumulado);
-//                egresado.setQuintoSuperiorCarrera(quintoSupCarrera);
-//                egresado.setQuintoSuperiorCiclo(quintoSuperiorCiclo);
-//                egresado.setQuintoSuperiorFacultad(quintoSupFacultad);
-//                egresado.setTercioSuperiorCarrera(tercioSupCarrera);
-//                egresado.setTercioSuperiorCiclo(tercioSuperiorCiclo);
-//                egresado.setTercioSuperiorFacultad(tercioSupFacultad);
-                // egresado.setTitulo(titulo);
-                // egresado.setUserRegistroEgresado(Long.MIN_VALUE);
-                // egresado.setUserRegistroGraduado(Long.MIN_VALUE);
-                // egresado.setUserRegistroTitulado(Long.MIN_VALUE);
                 matriculableConector.procesarEgresado(codigoAlumno, codigoCarrera, codigoFacultad, codigoCiclo, egresado);
             }
-            logger.debug("Se han leido un total de {} filas", loop);
+            log.debug("Se han leido un total de {} filas", loop);
         } catch (FileNotFoundException ex) {
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
@@ -999,7 +877,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
             CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
             aporteAlumnoService.generarAportes(alumno, ciclo, matriculaResumen, ds);
-            logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matriculaResumen.getId());
+            log.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matriculaResumen.getId());
         }
     }
 
@@ -1605,8 +1483,8 @@ public class MatriculableServiceImp implements MatriculableService {
             List<AlumnoCicloCurso> alumnoCicloCursosAll = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
             Egresado egresado = mapEgresados.get(alumno.getId());
             List<Reincorporacion> reincorporados = TypesUtil.getListNotNull(mapReincorporaciones.get(alumno.getId()));
-            logger.info("Alumno codigo {}", alumno.getCodigo());
-            logger.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+            log.info("Alumno codigo {}", alumno.getCodigo());
+            log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 
             promedioService.promediarAllCicloAsync(
                     alumno,
@@ -1625,7 +1503,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
                     System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
 //                    respositorVisor.incrementar();
-                    logger.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+                    log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
                 } else {
                     break;
                 }

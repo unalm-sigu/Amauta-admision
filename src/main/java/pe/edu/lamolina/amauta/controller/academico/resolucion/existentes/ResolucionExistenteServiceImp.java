@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,8 +72,6 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
-import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
-import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
@@ -87,7 +85,6 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
@@ -95,12 +92,10 @@ import pe.edu.lamolina.amauta.dao.academico.GradoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CambioNotaMasBajaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
@@ -139,143 +134,53 @@ import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ResolucionExistenteServiceImp implements ResolucionExistenteService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AnexoBoletinDAO anexoBoletinDAO;
+    private final CambioNotaDAO cambioNotaDAO;
+    private final CambioNotaMasBajaDAO cambioNotaMasBajaDAO;
+    private final CambioPlanCurricularDAO cambioPlanCurricularDAO;
+    private final CarreraDAO carreraDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final CursoDirigidoDAO cursoDirigidoDAO;
+    private final CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+    private final EgresadoDAO egresadoDAO;
+    private final EstadoTramiteDAO estadoTramiteDAO;
+    private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final GradoAcademicoDAO gradoAcademicoDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final ObtencionGradoDAO obtencionGradoDAO;
+    private final OficinaDAO oficinaDAO;
+    private final ReadmisionDAO readmisionDAO;
+    private final ReincorporacionDAO reincorporacionDAO;
+    private final ResolucionDAO resolucionDAO;
+    private final RetiroCicloDAO retiroCicloDAO;
+    private final SeccionDAO seccionDAO;
+    private final TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+    private final TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+    private final TipoResolucionDAO tipoResolucionDAO;
+    private final TipoTramiteDAO tipoTramiteDAO;
+    private final TramiteBachillerDAO tramiteBachillerDAO;
+    private final TramiteDAO tramiteDAO;
+    private final TramitePracticaPreProfesionalesDAO practicaPreProfesionalesDAO;
+    private final TramiteTituloDAO tramiteTituloDAO;
+    private final TramiteTrasladoDAO tramiteTrasladoDAO;
+    private final VisorCalculoNotas visorCalculoNotas;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    PlanCurricularDAO planCurricularDAO;
-
-    @Autowired
-    TipoResolucionDAO tipoResolucionDAO;
-
-    @Autowired
-    ResolucionDAO resolucionDAO;
-
-    @Autowired
-    CursoDirigidoDAO cursoDirigidoDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    EstadoTramiteDAO estadoTramiteDAO;
-
-    @Autowired
-    TramiteDAO tramiteDAO;
-
-    @Autowired
-    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-
-    @Autowired
-    TipoTramiteDAO tipoTramiteDAO;
-
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    CambioNotaDAO cambioNotaDAO;
-
-    @Autowired
-    AnexoBoletinDAO anexoBoletinDAO;
-
-    @Autowired
-    AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    TramiteTrasladoDAO tramiteTrasladoDAO;
-
-    @Autowired
-    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
-    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    CambioNotaMasBajaDAO cambioNotaMasBajaDAO;
-
-    @Autowired
-    ObtencionGradoDAO obtencionGradoDAO;
-
-    @Autowired
-    TramiteBachillerDAO tramiteBachillerDAO;
-
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
-    @Autowired
-    GradoAcademicoDAO gradoAcademicoDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
-    TramiteTituloDAO tramiteTituloDAO;
-
-    @Autowired
-    CursoCurriculaDAO cursoCurriculaDAO;
-
-    @Autowired
-    TramitePracticaPreProfesionalesDAO practicaPreProfesionalesDAO;
-
-    @Autowired
-    ReadmisionDAO readmisionDAO;
-
-    @Autowired
-    CambioPlanCurricularDAO cambioPlanCurricularDAO;
-
-    @Autowired
-    ResolucionService resolucionService;
-
-    @Autowired
-    MatriculableService matriculableService;
-
-    @Autowired
-    SerieDocumentoService serieDocumentoService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-
-    @Autowired
-    GpoSeccionService gpoSeccionService;
+    private final AvanceCurricularService avanceCurricularService;
+    private final GpoSeccionService gpoSeccionService;
+    private final SerieDocumentoService serieDocumentoService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -362,11 +267,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<Carrera> allCarrera() {
         return carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
-    }
-
-    @Override
-    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
-        return resolucionService.allOFicinasByUser(ds);
     }
 
     @Override
@@ -491,17 +391,17 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         resolucion.setTipoResolucion(tipoResolucion);
 
-        logger.debug("oficina {}", resolucion.getOficina().getId());
-        logger.debug("serie {}", resolucion.getSerie());
-        logger.debug("numero {}", resolucion.getNumero());
-        logger.debug("tipoResolucion {}", tipoResolucion.getTipoEnum().name());
+        log.debug("oficina {}", resolucion.getOficina().getId());
+        log.debug("serie {}", resolucion.getSerie());
+        log.debug("numero {}", resolucion.getNumero());
+        log.debug("tipoResolucion {}", tipoResolucion.getTipoEnum().name());
 
         resolucion.setSerie(cleanNumero(resolucion.getSerie()));
         resolucion.setNumero(cleanNumero(resolucion.getNumero()));
 
         Resolucion resolucionValidacion = resolucionDAO.findByOficinaSerieNumero(resolucion.getOficina(), resolucion.getSerie(), resolucion.getNumero());
 
-        logger.debug("tipoResolucion existe {}", resolucionValidacion != null);
+        log.debug("tipoResolucion existe {}", resolucionValidacion != null);
 
         if (resolucionValidacion != null) {
             throw new PhobosException(
@@ -1467,7 +1367,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
 
             if (!tramiteBachiller.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                logger.debug("Solo esta permitido agregar alumnos en modo edición");
+                log.debug("Solo esta permitido agregar alumnos en modo edición");
                 continue;
             }
 
@@ -1582,7 +1482,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
 
             if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                logger.debug("Solo esta permitido agregar alumnos en modo edición");
+                log.debug("Solo esta permitido agregar alumnos en modo edición");
                 continue;
             }
 
@@ -1732,7 +1632,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         if (resolucion.getTramiteTraslado().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
-        logger.debug("solicitantes {}", resolucion.getTramiteTraslado().size());
+        log.debug("solicitantes {}", resolucion.getTramiteTraslado().size());
         for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
 
             TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
@@ -1751,14 +1651,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             traslado.setEstado(tramiteTrasladoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteTrasladoDAO.updateColumns(traslado, "estado", "resolucion");
 
-            logger.debug("success update {}", traslado.getId());
+            log.debug("success update {}", traslado.getId());
 
         }
     }
 
     private String saveReadmision(Resolucion resolucion) {
 
-        logger.debug("after save tramite readmision {}", resolucion.getId());
+        log.debug("after save tramite readmision {}", resolucion.getId());
 
         if (resolucion.getReadmisiones().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
