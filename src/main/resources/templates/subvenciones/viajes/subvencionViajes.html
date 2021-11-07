@@ -13,10 +13,10 @@
             <div id="viajesVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <div class="pull-right m-t-md">                
+                    <div th:if="${isDocenteUser}" class="pull-right m-t-md">                
                         <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
                         <ul class="dropdown-menu pointer">
-                            <li><a v-on:click="verViajeNuevo"> Crear viaje </a></li>
+                            <li><a v-on:click="verViajeNuevo"> Crear viaje QQ</a></li>
                         </ul>
                     </div> 
 

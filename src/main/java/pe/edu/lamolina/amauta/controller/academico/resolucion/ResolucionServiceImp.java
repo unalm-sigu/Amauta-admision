@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -51,7 +50,6 @@ import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAcademicosService;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
@@ -68,133 +66,62 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
-import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReadmisionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
-import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ResolucionServiceImp implements ResolucionService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AnexoBoletinDAO anexoBoletinDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final CursoDirigidoDAO cursoDirigidoDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final ReincorporacionDAO reincorporacionDAO;
+    private final ResolucionDAO resolucionDAO;
+    private final ReunionConsejoDAO reunionConsejoDAO;
+    private final SeccionDAO seccionDAO;
+    private final StorageService swiftService;
+    private final TipoResolucionDAO tipoResolucionDAO;
+    private final TipoTramiteDAO tipoTramiteDAO;
+    private final TramiteDAO tramiteDAO;
+    private final TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
 
-    @Autowired
-    ResolucionDAO resolucionDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
-    TipoResolucionDAO tipoResolucionDAO;
-
-    @Autowired
-    TramiteDAO tramiteDAO;
-
-    @Autowired
-    StorageService swiftService;
-
-    @Autowired
-    EstadoTramiteDAO estadoTramiteDAO;
-
-    @Autowired
-    ReunionConsejoDAO reunionConsejoDAO;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    TipoTramiteDAO tipoTramiteDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    CursoDirigidoDAO cursoDirigidoDAO;
-
-    @Autowired
-    AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    AnexoBoletinDAO anexoBoletinDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    TramitesAcademicosService tramitesAcademicosService;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    MatriculableService matriculableService;
-
-    @Autowired
-    GpoSeccionService gpoSeccionService;
-
-    @Autowired
-    VerificadorService verificadorService;
-
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
-    @Autowired
-    ReadmisionDAO readmisionDAO;
-
-    @Autowired
-    TramiteBachillerDAO tramiteBachillerDAO;
-
-    @Autowired
-    CambioPlanCurricularDAO cambioPlanCurricularDAO;
+    private final GpoSeccionService gpoSeccionService;
+    private final MatriculableService matriculableService;
+    private final OficinaService oficinaService;
+    private final TramitesAcademicosService tramitesAcademicosService;
+    private final VerificadorService verificadorService;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
-        
+
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
         boolean esTrabajadorOera = verificadorService.isTrabajadorOera(ds);
 
         List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
-        
+
         for (Resolucion resolucion : resoluciones) {
             resolucion.setAutorizado(Boolean.FALSE);
             if (esTrabajadorOera) {
@@ -337,21 +264,12 @@ public class ResolucionServiceImp implements ResolucionService {
                     reincorporacion.setAceptado(BigDecimal.ONE.intValue());
                     reincorporacion.setResolucion(resolucion);
                     reincorporacionDAO.update(reincorporacion);
-                    /*
-                Reincorporacion reincorporacionUpd = new Reincorporacion();
-                reincorporacionUpd.setId(reincorporacion.getId());
-                reincorporacionUpd.setAceptado(BigDecimal.ONE.intValue());
-                reincorporacionUpd.setResolucion(resolucion);
-                reincorporacionDAO.updateAceptado(reincorporacionUpd);*/
+
                 } else {
                     reincorporacion.setAceptado(BigDecimal.ZERO.intValue());
                     reincorporacion.setResolucion(resolucion);
                     reincorporacionDAO.update(reincorporacion);
-                    /*   Reincorporacion reincorporacionUpd = new Reincorporacion();
-                reincorporacionUpd.setId(reincorporacion.getId());
-                reincorporacionUpd.setAceptado(BigDecimal.ZERO.intValue());
-                reincorporacionUpd.setResolucion(resolucion);
-                reincorporacionDAO.updateAceptado(reincorporacionUpd);*/
+
                 }
             } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramiteReunionConsejo.getTramite());
@@ -388,7 +306,7 @@ public class ResolucionServiceImp implements ResolucionService {
 
         resolucionUpd.setRutaUrl(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_RESOLUCIONES_DIR + name);
         swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
-        
+
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
@@ -567,8 +485,6 @@ public class ResolucionServiceImp implements ResolucionService {
                     throw new PhobosException("Estado tramite incorrecto");
                 }
 
-                /*  reincorporacion.setCicloReincorporacion(cicloReincorporacion);
-                reincorporacionDAO.update(reincorporacion);*/
                 tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
         } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
@@ -612,24 +528,6 @@ public class ResolucionServiceImp implements ResolucionService {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allUltimosByNext(5, ciclosActivos);
         return ciclos;
-    }
-
-    @Override
-    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
-        List<Oficina> oficinasResUser = new ArrayList();
-        List<Oficina> oficinasResolucion = oficinaDAO.allForResoluciones();
-        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasResolucion);
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
-                return oficinasResolucion;
-            }
-            Oficina ofiRes = mapOficina.get(oficina.getId());
-            if (ofiRes != null) {
-                oficinasResUser.add(oficina);
-            }
-        }
-        return oficinasResUser;
     }
 
     @Override

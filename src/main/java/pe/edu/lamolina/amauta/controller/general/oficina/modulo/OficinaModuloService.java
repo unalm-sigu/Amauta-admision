@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.general.oficina;
+package pe.edu.lamolina.amauta.controller.general.oficina.modulo;
 
 import pe.edu.lamolina.amauta.controller.general.oficina.colaborador.ResumenColaborador;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,7 +18,7 @@ import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
-public interface OficinaService {
+public interface OficinaModuloService {
 
     List<Oficina> allByDynatable(DynatableFilter filter, List<Oficina> oficinas, Compania compania);
 
@@ -74,8 +74,6 @@ public interface OficinaService {
 
     List<TipoDocIdentidad> allDocumentosIdentidad();
 
-    List<Oficina> allOficinasByOficinaMain(Oficina oficina);
-
     List<PerfilCompania> allCargos(Oficina oficina);
 
     void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);
@@ -101,15 +99,5 @@ public interface OficinaService {
     List<PerfilCompania> allFuncionByOficina(Oficina oficina);
 
     List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
-
-    List<Oficina> allOficinasMainByPersona(Persona persona);
-
-    Oficina findOficinaHija(Persona persona, Oficina oficinaMain);
-
-    List<Oficina> allOficinasOrganizadas();
-
-    Oficina findOficinaMain(Oficina oficinaHija);
-
-    Oficina findOficinaMain(Oficina oficinaHija, List<Oficina> oficinasTodas);
 
 }

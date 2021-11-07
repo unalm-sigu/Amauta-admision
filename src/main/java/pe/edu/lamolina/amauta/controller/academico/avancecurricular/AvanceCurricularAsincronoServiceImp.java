@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -64,86 +64,28 @@ import pe.edu.lamolina.amauta.controller.academico.plancurricular.VisorAsignaCur
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteElectivoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
-import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
-import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CPRO;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsincronoService {
 
-    @Autowired
-    PlanCurricularDAO planCurricularDAO;
+    private final AlumnoAvanceCurricularDAO avanceCurricularDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
+    private final AlumnoDAO alumnoDAO;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
-    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
-
-    @Autowired
-    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
-
-    @Autowired
-    CursoCurriculaDAO cursoCurriculaDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
-
-    @Autowired
-    CursoEquivalenteDAO cursoEquivalenteDAO;
-
-    @Autowired
-    CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
-
-    @Autowired
-    AlumnoAvanceCurricularDAO avanceCurricularDAO;
-
-    @Autowired
-    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-
-    @Autowired
-    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
-
-    @Autowired
-    VisorAsignaCurricula visorAsignaCurricula;
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final VisorAsignaCurricula visorAsignaCurricula;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     private final List<String> tipoCursoELCEnums = Arrays.asList("CULT", "ELC", "PROD", "TECIND");
     private final List<CursoCurriculaEstadoEnum> estadosAprobados = Arrays.asList(APR, CONV, EQUIV);
@@ -205,11 +147,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     mapCursoCurriculaAll,
                     mapRequisitoCursoOpcionals,
                     ds, false);
-            logger.debug("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
+            log.debug("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
             visorCalculoNotas.incrementarToken(token);
 
         } catch (Exception e) {
-            logger.error("Error en revision avance curricular del alumno {}", alumno.getCodigo());
+            log.error("Error en revision avance curricular del alumno {}", alumno.getCodigo());
             visorCalculoNotas.incrementarToken(token);
         }
 
@@ -1195,7 +1137,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoSimultaneo.setFechaRegistro(new Date());
                 alumnoCursoSimultaneo.setUserRegistro(ds.getUsuario());
                 if (showLogger) {
-                    logger.info("\tevaluado.curso={}  evaluado.id={}", evaluado.getCurso().getCodigo(), evaluado.getId());
+                    log.info("\tevaluado.curso={}  evaluado.id={}", evaluado.getCurso().getCodigo(), evaluado.getId());
                 }
                 simultaneos.add(alumnoCursoSimultaneo);
 
@@ -1326,7 +1268,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         Carrera carrera = alumno.getCarrera();
         if (alumno.getPlanCurricular() == null) {
-            logger.debug("LE CAMBIAREMOS PLAN CURRICULAR");
+            log.debug("LE CAMBIAREMOS PLAN CURRICULAR");
             this.settingPlanCurricular(alumno, planBD);
         }
 
@@ -1535,7 +1477,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoElcCarreraNew.add(alumnoCursoCurricula);
                 cursoHabilEscuela.setAgregado(Boolean.TRUE);
             }
-            logger.debug("Alumno {}. Curso {} ", alumno.getCodigo(), cursosAprobado.getCurso().getCodigo());
+            log.debug("Alumno {}. Curso {} ", alumno.getCodigo(), cursosAprobado.getCurso().getCodigo());
         }
     }
 
@@ -1716,9 +1658,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         return false;
     }
 
-    private void printLogger(String log, boolean showLogger) {
+    private void printLogger(String logging, boolean showLogger) {
         if (showLogger) {
-            logger.info(log);
+            log.info(logging);
         }
     }
 }

@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -26,7 +26,6 @@ import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.CambioAulaGrupoDAO;
 import pe.edu.lamolina.amauta.dao.general.AulaDAO;
@@ -37,39 +36,25 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final SeccionDAO seccionDAO;
+    private final CambioAulaGrupoDAO cambioAulaGrupoDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final AulaDAO aulaDAO;
+    private final GrupoHorasDAO grupoHorasDAO;
+    private final HorarioSeccionDAO horarioSeccionDAO;
+    private final HorarioAulaDAO horarioAulaDAO;
+    private final DiaHoraGrupoDAO diaHoraGrupoDAO;
 
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    CambioAulaGrupoDAO cambioAulaGrupoDAO;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    AulaDAO aulaDAO;
-
-    @Autowired
-    GrupoHorasDAO grupoHorasDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
-
-    @Autowired
-    HorarioAulaDAO horarioAulaDAO;
-
-    @Autowired
-    DiaHoraGrupoDAO diaHoraGrupoDAO;
+    private final OficinaService oficinaService;
 
     @Override
     public List<CambioAulaGrupo> allAulaGrupos(Seccion seccion) {
@@ -112,7 +97,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         System.out.println("horas::" + cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
 
         if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo() != null) {
-            logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
+            log.debug("grupoHoraFin.getDiaHoraGrupo size {}", cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
             if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size() != seccionBD.getHorasSemanales().intValue()) {
                 throw new PhobosException("Asignar la cantidad de horas requeridas para la sección.");
             }
@@ -121,11 +106,11 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         }
 
         Date hoy = new Date();
-        logger.debug("init reserva with Today {}", hoy);
-        logger.debug("seccion {}", seccionBD.getId());
-        logger.debug("seccion horas semanales {}", seccionBD.getHorasSemanales());
-        logger.debug("grupo seccion {}", seccionBD.getGrupoSeccion().getId());
-        logger.debug("ciclo academico {}", ciclo.getId());
+        log.debug("init reserva with Today {}", hoy);
+        log.debug("seccion {}", seccionBD.getId());
+        log.debug("seccion horas semanales {}", seccionBD.getHorasSemanales());
+        log.debug("grupo seccion {}", seccionBD.getGrupoSeccion().getId());
+        log.debug("ciclo academico {}", ciclo.getId());
 
         GrupoHoras grupoHoraFin = cambioAulaGrupo.getGrupoHorasFin();
 
@@ -161,20 +146,20 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horSeccionPend.setFechaFin(fechaFin);
                 horSeccionPend.setReservado("Y");
                 horarioSeccionDAO.save(horSeccionPend);
-                logger.debug("creado horario seccion {}", horSeccionPend.getId());
+                log.debug("creado horario seccion {}", horSeccionPend.getId());
 
                 horarioSeccion.setFechaFin(hoy);
                 horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                 horarioSeccion.setReservado("Y");
                 horarioSeccionDAO.update(horarioSeccion);
-                logger.debug("updated horario seccion {}", horarioSeccion.getId());
+                log.debug("updated horario seccion {}", horarioSeccion.getId());
 
             } else {
 
                 horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
                 horarioSeccion.setReservado("Y");
                 horarioSeccionDAO.update(horarioSeccion);
-                logger.debug("only updated horario seccion {}", horarioSeccion.getId());
+                log.debug("only updated horario seccion {}", horarioSeccion.getId());
 
             }
 
@@ -195,33 +180,32 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horAulaPend.setFechaFin(fechaFin);
                 horAulaPend.setReservado("Y");
                 horarioAulaDAO.save(horAulaPend);
-                logger.debug("creado horario aula {}", horAulaPend.getId());
+                log.debug("creado horario aula {}", horAulaPend.getId());
 
                 horarioAula.setFechaFin(hoy);
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                 horarioAula.setReservado("Y");
                 horarioAulaDAO.update(horarioAula);
-                logger.debug("updated horario aula {}", horarioAula.getId());
+                log.debug("updated horario aula {}", horarioAula.getId());
 
             } else {
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
                 horarioAula.setReservado("Y");
                 horarioAulaDAO.update(horarioAula);
-                logger.debug("only updated horario aula {}", horarioAula.getId());
+                log.debug("only updated horario aula {}", horarioAula.getId());
 
             }
 
         }
 
-        logger.debug("grupoHoraFin.getDiaHoraGrupo  {}", grupoHoraFin.getDiaHoraGrupo() != null);
+        log.debug("grupoHoraFin.getDiaHoraGrupo  {}", grupoHoraFin.getDiaHoraGrupo() != null);
         if (grupoHoraFin.getDiaHoraGrupo() != null) {
-            logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", grupoHoraFin.getDiaHoraGrupo().size());
+            log.debug("grupoHoraFin.getDiaHoraGrupo size {}", grupoHoraFin.getDiaHoraGrupo().size());
 
-            //List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByDiaHoraGrupo(grupoHoraFin.getDiaHoraGrupo());
             List<String> idsDiasHoras = grupoHoraFin.getDiaHoraGrupo().stream().map(x -> x.getKey()).collect(Collectors.toList());
             List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByIdsDiasHoras(idsDiasHoras, ciclo);
             for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
-                logger.debug("***** new DiaHoraGrupo {}", diaHoraGrupo.getId());
+                log.debug("***** new DiaHoraGrupo {}", diaHoraGrupo.getId());
 
                 HorarioSeccion horSeccion = new HorarioSeccion();
                 horSeccion.setEstadoEnum(EstadoHorarioAulaEnum.SOL);

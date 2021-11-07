@@ -3,6 +3,8 @@ package pe.edu.lamolina.amauta.controller.academico.reunionconsejo;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,27 +14,21 @@ import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
-import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ReunionConsejoServiceImp implements ReunionConsejoService {
 
-    @Autowired
-    ReunionConsejoDAO reunionConsejoDAO;
-
-    @Autowired
-    TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
+    private final ReunionConsejoDAO reunionConsejoDAO;
+    private final OficinaDAO oficinaDAO;
 
     @Override
     public ReunionConsejo findReunionConsejoByFechaAndOficina(Date fecha, Oficina oficina) {

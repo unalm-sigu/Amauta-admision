@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,11 +41,9 @@ import pe.edu.lamolina.amauta.controller.academico.plancurricular.VisorAsignaCur
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteElectivoDAO;
@@ -60,73 +58,33 @@ import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final CursoCurriculaDAO cursoCurriculaDAO;
+    private final CursoEquivalenteDAO cursoEquivalenteDAO;
+    private final CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
+    private final CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
+    private final CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final PlanCurricularDAO planCurricularDAO;
+    private final RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
+    private final RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
+    private final ResumenPlanCurricularDAO resumenPlanCurricularDAO;
+    private final TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
 
-    @Autowired
-    PlanCurricularDAO planCurricularDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
-    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
-
-    @Autowired
-    CursoCurriculaDAO cursoCurriculaDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
-
-    @Autowired
-    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
-
-    @Autowired
-    AvanceCurricularAsincronoService avanceCurricularAsincronoService;
-
-    @Autowired
-    CursoEquivalenteDAO cursoEquivalenteDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
-
-    @Autowired
-    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
-    AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
-
-    @Autowired
-    CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
-
-    @Autowired
-    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
-
-    @Autowired
-    RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
-
-    @Autowired
-    VisorAsignaCurricula visorAsignaCurricula;
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
+    private final AvanceCurricularAsincronoService avanceCurricularAsincronoService;
+    private final VisorAsignaCurricula visorAsignaCurricula;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     @Override
     @Transactional
@@ -248,7 +206,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             List<CursoOpcionalCurricula> opcionalCurriculas = mapCursoOpcional.get(planBD.getId());
             List<CursoEquivalenteElectivo> equivalenteElectivos = mapEquivalenteElectivo.get(planBD.getId());
             visorAsignaCurricula.incrementar(carrera);
-            logger.debug("ALUMNO -------------------------------> {}", alumno.getCodigo());
+            log.debug("ALUMNO -------------------------------> {}", alumno.getCodigo());
             avanceCurricularAsincronoService.crearAvanceCurricular(
                     alumno,
                     planBD,

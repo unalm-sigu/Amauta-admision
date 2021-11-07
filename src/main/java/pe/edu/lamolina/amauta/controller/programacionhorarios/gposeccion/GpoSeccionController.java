@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -79,7 +78,6 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
@@ -88,27 +86,19 @@ import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/gposeccion")
 public class GpoSeccionController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    GpoSeccionService service;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    SpringTemplateEngine springHtml;
-
-    @Autowired
-    BoletinAcademicoExcelView boletinAcademicoExcelView;
-
-    @Autowired
-    VerificadorService verificadorService;
+    private final GpoSeccionService service;
+    private final OficinaService oficinaService;
+    private final BoletinAcademicoExcelView boletinAcademicoExcelView;
+    private final VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -947,7 +937,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico(), ds);
-            logger.debug("Docente Seccion {}", docSeccionId);
+            log.debug("Docente Seccion {}", docSeccionId);
 
             String message = "Docente eliminado.";
             response.setSuccess(true);
@@ -1092,7 +1082,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            logger.debug("seccion {}, vacantes {}", seccionId, vacantes);
+            log.debug("seccion {}, vacantes {}", seccionId, vacantes);
 
             Seccion seccion = new Seccion(seccionId);
             seccion.setVacantes(vacantes);
@@ -1120,7 +1110,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            logger.debug("seccion {}, capa {}", seccionId, capa);
+            log.debug("seccion {}, capa {}", seccionId, capa);
 
             Seccion seccion = new Seccion(seccionId);
             seccion.setRestriccionCapa(capa);
@@ -1546,7 +1536,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         ObjectNode nodeResult = new ObjectNode(jsonFactory);
         try {
-            logger.debug("entro a cambiarTipoRestriccion");
+            log.debug("entro a cambiarTipoRestriccion");
 
             TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
             Seccion seccion = service.findSeccionWithRestriccions(seccionId);
@@ -2349,7 +2339,7 @@ public class GpoSeccionController {
             ArrayNode argAulas = new ArrayNode(nc);
             List<Aula> aulas = service.allAulasByPabellon(seccion, new Aula(pabellonId), ds.getCicloAcademico());
             for (Aula aulaEach : aulas) {
-//                logger.debug("aula {}, disponible {}, secciones {}", aulaEach.getId(), aulaEach.isDisponible(), aulaEach.getSeccion() == null ? 0 : aulaEach.getSeccion().size());
+//                log.debug("aula {}, disponible {}, secciones {}", aulaEach.getId(), aulaEach.isDisponible(), aulaEach.getSeccion() == null ? 0 : aulaEach.getSeccion().size());
                 ObjectNode aulaJson = JsonHelper.createJson(aulaEach, nc, true, new String[]{"*"});
                 aulaJson.put("seleccionado", Boolean.FALSE);
 

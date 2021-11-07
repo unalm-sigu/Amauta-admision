@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -69,6 +68,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.socioeconomico.FlujoFichaSocioeconomica;
 import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
 @Slf4j
 @Service

@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,28 +36,22 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
-import pe.edu.lamolina.amauta.controller.academico.facultad.FacultadService;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/reunionconsejo")
 public class ReunionConsejoController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final OficinaService oficinaService;
+    private final ReunionConsejoService service;
 
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    ReunionConsejoService reunionConsejoService;
-
-    @Autowired
-    FacultadService facultadService;
-
-    Oficina oficinaAux = new Oficina(8L);
+    private final Oficina oficinaAux = new Oficina(8L);
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -113,7 +107,7 @@ public class ReunionConsejoController {
 
             ObjectNode node = new ObjectNode(jsonFactory);
 
-            ReunionConsejo reunionConsejo = reunionConsejoService.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
+            ReunionConsejo reunionConsejo = service.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
             if (reunionConsejo == null) {
                 reunionConsejo = new ReunionConsejo();
                 reunionConsejo.setEsOrdinario(true);
@@ -143,14 +137,14 @@ public class ReunionConsejoController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            logger.debug("fecha " + reunionConsejo.getFecha());
+            log.debug("fecha " + reunionConsejo.getFecha());
             List<Oficina> oficinas = new ArrayList();
 
             if (reunionConsejo.getId() == null) {
-                reunionConsejoService.saveReunionConsejo(reunionConsejo, reunionConsejo.getOficina(), ds);
+                service.saveReunionConsejo(reunionConsejo, reunionConsejo.getOficina(), ds);
             } else {
 //                reunionConsejo.setOficina(oficinaAux);
-                reunionConsejoService.updateReunionConsejo(reunionConsejo, ds);
+                service.updateReunionConsejo(reunionConsejo, ds);
             }
             String message = "Reunion consejo grabada correctamente.";
             response.setSuccess(true);
@@ -185,7 +179,7 @@ public class ReunionConsejoController {
                 oficinas.clear();
                 oficinas.add(new Oficina(idOficina));
             }
-            List<EventCalendar> eventos = reunionConsejoService.allcalendar(ciclo, oficinas);
+            List<EventCalendar> eventos = service.allcalendar(ciclo, oficinas);
             for (EventCalendar evento : eventos) {
                 jsonList.add(evento.toJson());
             }
@@ -215,7 +209,7 @@ public class ReunionConsejoController {
                 oficinas.clear();
                 oficinas.add(new Oficina(idOficina));
             }
-            List<ReunionConsejo> reunionesConsejo = reunionConsejoService.allReunionConsejoByDyna(filter, oficinas);
+            List<ReunionConsejo> reunionesConsejo = service.allReunionConsejoByDyna(filter, oficinas);
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
@@ -242,11 +236,11 @@ public class ReunionConsejoController {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
 
         for (Oficina oficina : oficinasMain) {
-            logger.debug("codigo oficina es {}", oficina.getCodigo());
-            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+            log.debug("codigo oficina es {}", oficina.getCodigo());
+            log.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
 
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
-                oficinas.addAll(reunionConsejoService.allOficinaFac());
+                oficinas.addAll(service.allOficinaFac());
                 break;
             }
             if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {

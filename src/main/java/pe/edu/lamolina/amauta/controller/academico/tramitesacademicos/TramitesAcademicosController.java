@@ -12,9 +12,9 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,7 +35,6 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -59,34 +58,24 @@ import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejo
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/tramiteacademico")
 public class TramitesAcademicosController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final TramitesAcademicosService service;
+    private final ReunionConsejoService reunionConsejoService;
+    private final InfoAcademicoService infoAcademicoService;
+    private final OficinaService oficinaService;
+    private final PdfHtml pdfHtml;
 
-    Oficina oficinaAux = new Oficina(8L);
-
-    @Autowired
-    TramitesAcademicosService tramitesAcademicosService;
-
-    @Autowired
-    ReunionConsejoService reunionConsejoService;
-
-    @Autowired
-    InfoAcademicoService infoAcademicoService;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    PdfHtml pdfHtml;
-
-    private String[] alumnoCicloMapper = new String[]{"*",
+    private final String[] alumnoCicloMapper = new String[]{"*",
         "alumno.id",
         "alumno.codigo",
         "alumno.persona.id",
@@ -153,7 +142,7 @@ public class TramitesAcademicosController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<Oficina> oficinas = tramitesAcademicosService.allOFicinasByUser(ds);
+        List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
         ArrayNode oficinasJson = JaneHelper.from(oficinas).array();
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("ciclo", ds.getCicloAcademico());
@@ -168,7 +157,7 @@ public class TramitesAcademicosController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter, ds);
+            List<Tramite> tramites = service.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
                 "*",
@@ -278,7 +267,7 @@ public class TramitesAcademicosController {
                 oficinas.add(new Oficina(idOficina));
             }
 
-            List<ReunionConsejo> reunionesConsejo = tramitesAcademicosService.allReunionConsejoByDyna(filter, oficinas);
+            List<ReunionConsejo> reunionesConsejo = service.allReunionConsejoByDyna(filter, oficinas);
 
             ArrayNode array = JaneHelper.from(reunionesConsejo)
                     .join("oficina").array();
@@ -307,7 +296,7 @@ public class TramitesAcademicosController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            tramitesAcademicosService.revertTramiteAcademico(tramite, ds);
+            service.revertTramiteAcademico(tramite, ds);
 
             response.setMessage("Reversión completada");
             response.setSuccess(Boolean.TRUE);
@@ -362,7 +351,7 @@ public class TramitesAcademicosController {
         if (oficinas.isEmpty()) {
             return "redirect:/academico/tramiteacademico";
         }
-        model.addAttribute("oficinas",  JaneHelper.from(oficinas).array().toString());
+        model.addAttribute("oficinas", JaneHelper.from(oficinas).array().toString());
         model.addAttribute("horasBD", horasJson.toString());
 
         return "academico/tramitescademicos/proceso/procesarNotas";
@@ -380,7 +369,7 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(jsonFactory);
-            Tramite tramite = tramitesAcademicosService.findTramite(tramiteId);
+            Tramite tramite = service.findTramite(tramiteId);
 
             String[] mapperTramite = new String[]{
                 "*",
@@ -451,7 +440,7 @@ public class TramitesAcademicosController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
+            service.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
             response.setMessage("Solicitud Procesada.");
 
             response.setSuccess(Boolean.TRUE);
@@ -479,9 +468,9 @@ public class TramitesAcademicosController {
             AccionTramiteAcademico accionTramiteAcademico = null;
             AccionTramiteDocumento accionTramiteDocumento = null;
 
-            accionTramiteAcademico = tramitesAcademicosService.findAccionTramiteAcademico(new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong()));
+            accionTramiteAcademico = service.findAccionTramiteAcademico(new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong()));
             if (accionTramiteAcademico == null) {
-                accionTramiteDocumento = tramitesAcademicosService.findAccionTramiteDocumento(new AccionTramiteDocumento(tramiteNode.get("accionTramiteDoc").asLong()));
+                accionTramiteDocumento = service.findAccionTramiteDocumento(new AccionTramiteDocumento(tramiteNode.get("accionTramiteDoc").asLong()));
             }
 
             if (tramiteNode.get("motivo") != null) {
@@ -492,7 +481,7 @@ public class TramitesAcademicosController {
                 tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
             }
 
-            tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, accionTramiteDocumento, ds);
+            service.procesarTramite(tramite, accionTramiteAcademico, accionTramiteDocumento, ds);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -508,7 +497,7 @@ public class TramitesAcademicosController {
 
     @RequestMapping("{id}/successProcess")
     public String successProcess(@PathVariable Long id, RedirectAttributes redirectAttr, HttpSession session) {
-        TipoTramite tipoTramite = tramitesAcademicosService.findTipoTramite(id);
+        TipoTramite tipoTramite = service.findTipoTramite(id);
         Notificaciones.crearMsg("Tramite procesado correctamente.", redirectAttr);
         switch (tipoTramite.getCodigoEnum()) {
             case CERT:
@@ -527,7 +516,7 @@ public class TramitesAcademicosController {
     public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Context ctx = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
+        Context ctx = service.cursoDirigidoReporte(new Tramite(id), ds);
         model.addAllAttributes(ctx.getVariables());
         return new ModelAndView(pdfHtml);
     }
@@ -538,7 +527,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            List<Curso> cursos = tramitesAcademicosService.allCursos();
+            List<Curso> cursos = service.allCursos();
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
 
@@ -567,7 +556,7 @@ public class TramitesAcademicosController {
     public JsonResponse loadConfirmarHistorialComponent(@PathVariable("alumno") Long alumnoId, @PathVariable("tramite") Long tramiteId, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            List<Curso> cursos = tramitesAcademicosService.allCursos();
+            List<Curso> cursos = service.allCursos();
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
 
@@ -602,7 +591,7 @@ public class TramitesAcademicosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<Curso> cursos = tramitesAcademicosService.allCursosByName(nombreCurso, 10);
+            List<Curso> cursos = service.allCursosByName(nombreCurso, 10);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Curso curso : cursos) {
@@ -634,7 +623,7 @@ public class TramitesAcademicosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<CicloAcademico> ciclos = tramitesAcademicosService.allCiclosAcademicosByName(nombreCiclo, new Alumno(alumnoId));
+            List<CicloAcademico> ciclos = service.allCiclosAcademicosByName(nombreCiclo, new Alumno(alumnoId));
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (CicloAcademico ciclo : ciclos) {
@@ -659,7 +648,7 @@ public class TramitesAcademicosController {
     public JsonResponse alumnoHistorial(@PathVariable("idTramite") Long idTramite, @PathVariable("idAlumnoCiclo") Long idAlumnoCiclo, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            AlumnoCiclo alumnoCiclo = tramitesAcademicosService.findAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo), new Tramite(idTramite));
+            AlumnoCiclo alumnoCiclo = service.findAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo), new Tramite(idTramite));
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             ObjectNode alumnoCicloJson = JsonHelper.createJson(alumnoCiclo, JsonNodeFactory.instance,
@@ -683,7 +672,7 @@ public class TramitesAcademicosController {
     public JsonResponse alumnoHistorialAll(@PathVariable("idTramite") Long idTramite, @PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            List<AlumnoCiclo> alumnoCiclos = tramitesAcademicosService.allAlumnoCicloByAlumno(new Alumno(idAlumno), new Tramite(idTramite));
+            List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCicloByAlumno(new Alumno(idAlumno), new Tramite(idTramite));
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
 
@@ -721,7 +710,7 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Save Seccion Grupo.";
 
-            tramitesAcademicosService.saveAlumnoCicloFromRevision(alumnoCiclo, idTramite, ds);
+            service.saveAlumnoCicloFromRevision(alumnoCiclo, idTramite, ds);
 
             response.setSuccess(true);
             response.setMessage(message);
@@ -747,7 +736,7 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Se actualizó el historial.";
 
-            tramitesAcademicosService.revertirCambioHistorial(alumnoCiclo, ds);
+            service.revertirCambioHistorial(alumnoCiclo, ds);
 
             response.setSuccess(true);
             response.setMessage(message);
@@ -774,7 +763,7 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Se actualizó el historial.";
 
-            tramitesAcademicosService.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
+            service.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
 
             response.setSuccess(true);
             response.setMessage(message);
@@ -793,8 +782,8 @@ public class TramitesAcademicosController {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
 
         for (Oficina oficina : oficinasMain) {
-            logger.debug("codigo oficina es {}", oficina.getCodigo());
-            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+            log.debug("codigo oficina es {}", oficina.getCodigo());
+            log.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
 
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 oficinas.addAll(reunionConsejoService.allOficinaFac());
@@ -812,10 +801,10 @@ public class TramitesAcademicosController {
     @RequestMapping("findDocente")
     public ArrayNode findAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        List<Docente> docentes = tramitesAcademicosService.allByNombre(nombre);
+        List<Docente> docentes = service.allByNombre(nombre);
         return JaneHelper.from(docentes)
                 .join("persona").array();
-        
+
     }
 
 }

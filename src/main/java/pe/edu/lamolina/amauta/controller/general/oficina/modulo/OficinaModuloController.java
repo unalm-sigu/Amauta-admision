@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.general.oficina;
+package pe.edu.lamolina.amauta.controller.general.oficina.modulo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -47,14 +48,16 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("general/oficina")
-public class OficinaController {
+public class OficinaModuloController {
 
-    @Autowired
-    OficinaService service;
-    @Autowired
-    VerificadorService verificadorService;
+    private final OficinaModuloService service;
+    private final OficinaService oficinaService;
+    private final VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -81,8 +84,6 @@ public class OficinaController {
             }
         });
     }
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -121,7 +122,7 @@ public class OficinaController {
                     oficinas = service.allByDynatable(filter, oficinasAcceso, compania);
                 } else {
                     for (Oficina oficina : oficinasMain) {
-                        List<Oficina> oficinasSub = service.allOficinasByOficinaMain(oficina);
+                        List<Oficina> oficinasSub = oficinaService.allOficinasByOficinaMain(oficina);
                         oficinasAcceso.addAll(oficinasSub);
                     }
                     oficinasAcceso.addAll(oficinasMain);

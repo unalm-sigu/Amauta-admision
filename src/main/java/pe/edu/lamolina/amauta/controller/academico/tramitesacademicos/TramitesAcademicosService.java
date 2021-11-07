@@ -53,22 +53,20 @@ public interface TramitesAcademicosService {
 
     AccionTramiteAcademico findAccionTramiteAcademico(AccionTramiteAcademico accionTramiteAcademico);
 
-    public List<Docente> allByNombre(String nombre);
+    List<Docente> allByNombre(String nombre);
 
-    public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds);
+    List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds);
 
-    public AccionTramiteDocumento findAccionTramiteDocumento(AccionTramiteDocumento accionTramiteDoc);
+    AccionTramiteDocumento findAccionTramiteDocumento(AccionTramiteDocumento accionTramiteDoc);
 
-    public void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
+    void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 
-    public void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds);
+    void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds);
 
-    public TipoTramite findTipoTramite(Long id);
+    TipoTramite findTipoTramite(Long id);
 
-    public Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
+    Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
 
-    public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
-
-    public List<Oficina> allOFicinasByUser(DataSessionPivot ds);
+    List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
 
 }

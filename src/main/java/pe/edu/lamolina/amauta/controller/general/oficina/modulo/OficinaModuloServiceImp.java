@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.general.oficina;
+package pe.edu.lamolina.amauta.controller.general.oficina.modulo;
 
 import pe.edu.lamolina.amauta.controller.general.oficina.colaborador.ResumenColaborador;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,10 +10,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -69,7 +70,6 @@ import pe.edu.lamolina.amauta.dao.general.FuncionColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -83,79 +83,39 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
-public class OficinaServiceImp implements OficinaService {
+public class OficinaModuloServiceImp implements OficinaModuloService {
 
-    @Autowired
-    OficinaDAO oficinaDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AusenciaJefeDAO ausenciaJefeDAO;
+    private final CarreraDAO carreraDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final ColaboradorEstadoDAO colaboradorEstadoDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final DocenteDAO docenteDAO;
+    private final FacultadDAO facultadDAO;
+    private final FuncionColaboradorDAO funcionColaboradorDAO;
+    private final FuncionRolDAO funcionRolDAO;
+    private final MedicoDAO medicoDAO;
+    private final OficinaDAO oficinaDAO;
+    private final PerfilCompaniaDAO perfilCompaniaDAO;
+    private final PersonaCargoDAO personaPerfilDAO;
+    private final PersonaDAO personaDAO;
+    private final PersonaHistorialDAO personaHistorialDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final TipoOficinaDAO tipoOficinaDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    FacultadDAO facultadDAO;
-
-    @Autowired
-    PersonaDAO personaDAO;
-
-    @Autowired
-    PerfilCompaniaDAO perfilCompaniaDAO;
-
-    @Autowired
-    AusenciaJefeDAO ausenciaJefeDAO;
-
-    @Autowired
-    PersonaCargoDAO personaPerfilDAO;
-
-    @Autowired
-    DocenteDAO docenteDAO;
-
-    @Autowired
-    UsuarioDAO usuarioDAO;
-
-    @Autowired
-    RolDAO rolDAO;
-
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-
-    @Autowired
-    FuncionColaboradorDAO funcionColaboradorDAO;
-
-    @Autowired
-    TipoOficinaDAO tipoOficinaDAO;
-
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
-    @Autowired
-    FuncionRolDAO funcionRolDAO;
-
-    @Autowired
-    ColaboradorEstadoDAO colaboradorEstadoDAO;
-
-    @Autowired
-    MedicoDAO medicoDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    VerificadorService verificadorService;
-
-    @Autowired
-    PersonaHistorialDAO personaHistorialDAO;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final VerificadorService verificadorService;
+    private final OficinaService oficinaService;
 
     @Override
     public List<Oficina> allByDynatable(DynatableFilter filter, List<Oficina> oficinasAcceso, Compania compania) {
@@ -552,7 +512,13 @@ public class OficinaServiceImp implements OficinaService {
         ausenciaJefeDAO.save(ausenciaJefe);
 
         oficinaBD.setEmpleadoEncargado(Boolean.TRUE);
-        Colaborador colaborador = colaboradorDAO.findByPersonaOficina(oficina, jefeEncargadoBD);
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficina, jefeEncargadoBD);
+        if (colaborador != null) {
+            if (colaborador.getCargo().getCodigoEnum() == PerfilColaboradorEnum.DOC) {
+                colaborador = null;
+            }
+        }
+
         if (colaborador == null) {
             colaborador = new Colaborador();
             colaborador.setOficina(oficina);
@@ -736,7 +702,7 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
-        List<Oficina> oficinasTodas = allOficinasOrganizadas();
+        List<Oficina> oficinasTodas = oficinaService.allOficinasOrganizadas();
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
 
         Oficina oficinaBD = mapOficina.get(oficinaMain.getId());
@@ -752,83 +718,6 @@ public class OficinaServiceImp implements OficinaService {
             oficinas.add(oficinasDependiente);
             agregarOficinasHijas(oficinasDependiente, oficinas);
         }
-    }
-
-    @Override
-    public List<Oficina> allOficinasMainByPersona(Persona persona) {
-        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
-        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
-        List<Oficina> areasLaboraPersona = new ArrayList(mapOficinas.values());
-        List<Oficina> oficinasMain = new ArrayList();
-
-        List<Oficina> oficinasTodas = allOficinasOrganizadas();
-        for (Oficina ofi : areasLaboraPersona) {
-            Oficina main = findOficinaMain(ofi, oficinasTodas);
-            oficinasMain.add(main);
-        }
-        return oficinasMain;
-
-    }
-
-    @Override
-    public Oficina findOficinaMain(Oficina oficinaHija) {
-        List<Oficina> oficinasTodas = allOficinasOrganizadas();
-        Oficina oficinaHijaBD = oficinaDAO.find(oficinaHija);
-        return findOficinaMain(oficinaHijaBD, oficinasTodas);
-    }
-
-    @Override
-    public Oficina findOficinaMain(Oficina oficinaHija, List<Oficina> oficinasTodas) {
-        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
-        Oficina oficinaTempo = mapOficina.get(oficinaHija.getId());
-        if (oficinaTempo.getTipoOficina().getNivelEnum() == NivelOficinaEnum.OFI) {
-            return oficinaTempo;
-        }
-        for (;;) {
-            Oficina sup = oficinaTempo.getOficinaSuperior();
-            if (sup == null) {
-                return null;
-            }
-            if (sup.getTipoOficina().getNivelEnum() == NivelOficinaEnum.OFI) {
-                return sup;
-            }
-            oficinaTempo = sup;
-        }
-
-    }
-
-    @Override
-    public Oficina findOficinaHija(Persona persona, Oficina oficinaMain) {
-        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
-        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
-        List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());
-
-        List<Oficina> oficinasTodas = allOficinasOrganizadas();
-        for (Oficina ofi : oficinasHijas) {
-            Oficina main = findOficinaMain(ofi, oficinasTodas);
-            if (main.getId() == oficinaMain.getId().longValue()) {
-                return ofi;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public List<Oficina> allOficinasOrganizadas() {
-        List<Oficina> oficinasTodas = oficinaDAO.all();
-        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
-
-        for (Oficina oficina : oficinasTodas) {
-            oficina.setOficinasDependientes(new ArrayList());
-        }
-        for (Oficina oficina : oficinasTodas) {
-            if (oficina.getOficinaSuperior() != null) {
-                Oficina sup = mapOficina.get(oficina.getOficinaSuperior().getId());
-                sup.getOficinasDependientes().add(oficina);
-                oficina.setOficinaSuperior(sup);
-            }
-        }
-        return oficinasTodas;
     }
 
     public Long getCodigoColaborador() {
@@ -916,20 +805,15 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public List<Oficina> allOficinasByOficinaMain(Oficina oficina) {
-        return allOficinasByMain(oficina);
-    }
-
-    @Override
     public List<PerfilCompania> allCargos(Oficina oficina) {
         List<PerfilCompania> oficinaCompanias = perfilCompaniaDAO.allTipoCargoByOfi(oficina);
-        logger.debug("CANTIDAD DE FUNCS = {}", oficinaCompanias.size());
+        log.debug("CANTIDAD DE FUNCS = {}", oficinaCompanias.size());
         List<PerfilCompania> companias = perfilCompaniaDAO.allTipoCargo();
         List<PerfilCompania> allCompanias = new ArrayList<PerfilCompania>();
 
         allCompanias.addAll(oficinaCompanias);
         allCompanias.addAll(companias);
-        logger.debug("CANTIDAD DE total = {}", allCompanias.size());
+        log.debug("CANTIDAD DE total = {}", allCompanias.size());
         return allCompanias;
     }
 
@@ -1146,13 +1030,13 @@ public class OficinaServiceImp implements OficinaService {
     private void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMain, Usuario Usuario, Colaborador colaborador, DataSessionPivot ds) {
         oficinaMain = oficinaDAO.find(oficinaMain.getId());
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfiles(perfilesCompania);
-        logger.debug("funcionRol size {}", funcionRol.size());
+        log.debug("funcionRol size {}", funcionRol.size());
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
-        logger.debug("mapRol size {}", mapRol.size());
+        log.debug("mapRol size {}", mapRol.size());
 
         for (PerfilCompania perfilComp : perfilesCompania) {
             List<Rol> roless = mapRol.get(perfilComp.getId());
-            logger.debug("mapRol size {} {}  ", perfilComp.getId(), roless);
+            log.debug("mapRol size {} {}  ", perfilComp.getId(), roless);
             if (roless == null) {
                 continue;
             }
@@ -1291,7 +1175,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Transactional
     private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
-        logger.info("ENTRA A UPDATE USER ROL");
+        log.info("ENTRA A UPDATE USER ROL");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfiles(perfilesCompaniaNuevos);
         System.out.println("funcionRolNuevos ::: " + funcionRolNuevos.size());
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
@@ -1301,7 +1185,7 @@ public class OficinaServiceImp implements OficinaService {
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
-            logger.info("ENTRA AL PRIMER LOOP");
+            log.info("ENTRA AL PRIMER LOOP");
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
@@ -1311,9 +1195,9 @@ public class OficinaServiceImp implements OficinaService {
         }
 
         for (FuncionRol funcionRolNuevo : funcionRolNuevos) {
-            logger.info("ENTRA AL SEGUNDO LOOP");
+            log.info("ENTRA AL SEGUNDO LOOP");
             if (!mapRolTengo.containsKey(funcionRolNuevo.getRol().getId())) {
-                logger.info("ENTRA AL IF");
+                log.info("ENTRA AL IF");
 
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);

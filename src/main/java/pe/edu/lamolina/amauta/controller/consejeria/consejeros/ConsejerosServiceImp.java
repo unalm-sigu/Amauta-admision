@@ -10,10 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +44,6 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
@@ -56,11 +55,8 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorEstadoDAO;
-import pe.edu.lamolina.amauta.dao.general.FuncionColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
-import pe.edu.lamolina.amauta.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaCargoDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
@@ -75,54 +71,33 @@ import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ConsejerosServiceImp implements ConsejerosService {
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    AlumnoConsejeroDAO alumnoConsejeroDAO;
-    @Autowired
-    ConsejeriaResumenDAO consejeriaResumenDAO;
-    @Autowired
-    ConsejeroDAO consejeroDAO;
-    @Autowired
-    CarreraDAO carreraDAO;
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-    @Autowired
-    DocenteDAO docenteDAO;
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-    @Autowired
-    ColaboradorEstadoDAO colaboradorEstadoDAO;
-    @Autowired
-    PersonaCargoDAO personaCargoDAO;
-    @Autowired
-    OficinaDAO oficinaDAO;
-    @Autowired
-    PerfilCompaniaDAO perfilDAO;
-    @Autowired
-    FuncionColaboradorDAO funcionColaboradorDAO;
-    @Autowired
-    UsuarioDAO usuarioDAO;
-    @Autowired
-    FuncionRolDAO funcionRolDAO;
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-    @Autowired
-    RolDAO rolDAO;
+    private final AlumnoConsejeroDAO alumnoConsejeroDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final CarreraDAO carreraDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final ColaboradorEstadoDAO colaboradorEstadoDAO;
+    private final ConsejeriaResumenDAO consejeriaResumenDAO;
+    private final ConsejeroDAO consejeroDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final DocenteDAO docenteDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final OficinaDAO oficinaDAO;
+    private final PersonaCargoDAO personaCargoDAO;
+    private final RolDAO rolDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    OficinaService oficinaService;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final OficinaService oficinaService;
 
     private final List<EstadoMatriculaEnum> estadosMatriculables = Arrays.asList(MAT, NMAT, PMAT, RCI);
 
@@ -181,14 +156,14 @@ public class ConsejerosServiceImp implements ConsejerosService {
     public List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico ciclo) {
         List<Facultad> facultades = new ArrayList();
         List<Carrera> carreras = new ArrayList();
-        logger.debug("***ciclo academico {}", ciclo.getDescripcion());
+        log.debug("***ciclo academico {}", ciclo.getDescripcion());
 
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(persona);
-        logger.debug("***cantidad oficina es {}", oficinasMain.size());
+        log.debug("***cantidad oficina es {}", oficinasMain.size());
 
         for (Oficina oficina : oficinasMain) {
-            logger.debug("codigo oficina es {}", oficina.getCodigo());
-            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+            log.debug("codigo oficina es {}", oficina.getCodigo());
+            log.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
 
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 return carreraDAO.allPregradoByCicloMatriculables(ciclo);
@@ -201,7 +176,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
             }
         }
 
-        logger.debug("Carreras previas es {} {} {}", carreras.size());
+        log.debug("Carreras previas es {} {} {}", carreras.size());
         if (!carreras.isEmpty()) {
             List<Carrera> carrerasCiclo = carreraDAO.allByMatriculablesCicloCarreras(carreras, ciclo);
             carreras.addAll(carrerasCiclo);
@@ -314,7 +289,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
                 addUserRoll(oficinaColaborador, user, colaborador, ds);
             }
         } else {
-            addUserRoll( oficinaColaborador, user, colaborador, ds);
+            addUserRoll(oficinaColaborador, user, colaborador, ds);
         }
     }
 
@@ -335,18 +310,18 @@ public class ConsejerosServiceImp implements ConsejerosService {
             Usuario userColaborador,
             Colaborador colaborador, DataSessionPivot ds) {
 
-                Rol rol= rolDAO.findByCode(RolEnum.TUTO);
-                UsuarioRol usuarioRol = new UsuarioRol();
-                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
-                usuarioRol.setFechaInicio(colaborador.getFechaInicio());
-                usuarioRol.setFechaRegistro(new Date());
-                usuarioRol.setOficina(oficinaMain);
-                usuarioRol.setIdInstancia(oficinaMain.getInstanciaOficina());
-                usuarioRol.setTipoOficina(oficinaMain.getTipoOficina().getCodigo());
-                usuarioRol.setRol(rol);
-                usuarioRol.setUserRegistro(ds.getUsuario());
-                usuarioRol.setUsuario(userColaborador);
-                usuarioRolDAO.save(usuarioRol);
+        Rol rol = rolDAO.findByCode(RolEnum.TUTO);
+        UsuarioRol usuarioRol = new UsuarioRol();
+        usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
+        usuarioRol.setFechaInicio(colaborador.getFechaInicio());
+        usuarioRol.setFechaRegistro(new Date());
+        usuarioRol.setOficina(oficinaMain);
+        usuarioRol.setIdInstancia(oficinaMain.getInstanciaOficina());
+        usuarioRol.setTipoOficina(oficinaMain.getTipoOficina().getCodigo());
+        usuarioRol.setRol(rol);
+        usuarioRol.setUserRegistro(ds.getUsuario());
+        usuarioRol.setUsuario(userColaborador);
+        usuarioRolDAO.save(usuarioRol);
 
     }
 

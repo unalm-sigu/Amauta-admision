@@ -9,8 +9,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -60,95 +60,43 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.NIV;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.amauta.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.amauta.controller.auditor.AuditorService;
-import pe.edu.lamolina.amauta.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.VisorCalculaSituacion;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
-import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class PromedioServiceImp implements PromedioService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
 
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    CursoDAO cursoDAO;
-
-    @Autowired
-    SituacionAcademicaDAO situacionAcademicaDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    AuditorService auditorService;
-    @Autowired
-    AlumnoService alumnoService;
-    @Autowired
-    InterceptorService interceptorService;
-    @Autowired
-    PromedioLoadDataService promedioLoadDataService;
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-    @Autowired
-    VisorCalculaSituacion visorCalculaSituacion;
-    @Autowired
-    SituacionAcademicaService situacionAcademicaService;
-    @Autowired
-    RespositorVisor respositorVisor;
+    private final AuditorService auditorService;
+    private final PromedioLoadDataService promedioLoadDataService;
+    private final RespositorVisor respositorVisor;
+    private final SituacionAcademicaService situacionAcademicaService;
+    private final VisorCalculaSituacion visorCalculaSituacion;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     private final Integer VECES_TRIKA = 3;
-
     private final Integer CICLO_INICIA_TRIKA = 200320;
-
     private final Integer CICLO_INICIA_SUSPENCION_TRIKA = 201810;
-
-    private final int MAX_INTERCALADOS_NMAT = 6;
 
     @Async
     @Override
@@ -190,7 +138,6 @@ public class PromedioServiceImp implements PromedioService {
             tramaAlumno += tramaCiclo;
         }
 
-        //System.out.println(tramaAlumno);
         visorCalculoNotas.incrementarToken(token);
     }
 
@@ -255,7 +202,7 @@ public class PromedioServiceImp implements PromedioService {
             boolean throwError, boolean showError) {
 
         long t1 = System.currentTimeMillis();
-        logger.debug("Inicia calculo de promedios de {} en el momento {} time", alumnix.getCodigo(), t1);
+        log.debug("Inicia calculo de promedios de {} en el momento {} time", alumnix.getCodigo(), t1);
 
         Alumno alumno = alumnix.clone();
         CicloAcademico cicloIngreso = alumno.getCicloIngreso();
@@ -424,8 +371,8 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             if (ultimoAlumnoCiclo != null && ultimoAlumnoCiclo.isRegistroValido()) {
-                //logger.debug("Id de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getId());
-                //logger.debug("situacion de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getSituacionFinal().getCodigo());
+                //log.debug("Id de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getId());
+                //log.debug("situacion de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getSituacionFinal().getCodigo());
                 alumno.setSituacionAcademica(ultimoAlumnoCiclo.getSituacionFinal());
             }
 
@@ -458,7 +405,7 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             String error = "####Error en el hilo alumno " + alumno.getCodigo() + " ciclo activo " + ObjectUtil.getParentTree(alumno, "cicloActivo.codigo");
-            logger.error(error);
+            log.error(error);
             if (!throwError) {
                 throw new PhobosException();
             }
@@ -468,7 +415,7 @@ public class PromedioServiceImp implements PromedioService {
         }
         long t2 = System.currentTimeMillis();
         if (showError) {
-            logger.debug("Calculo de promedios de {} demoro {} mseg", alumno.getCodigo(), (t2 - t1));
+            log.debug("Calculo de promedios de {} demoro {} mseg", alumno.getCodigo(), (t2 - t1));
         }
         return 1;
 
@@ -832,7 +779,7 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
         alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         alumnoCiclo.setRegistroValido(true);
-        //logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+        //log.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
         if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
             return null;
         }
@@ -1028,7 +975,7 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico cicloAcademico = alumnoCiclo.getCicloAcademico();
 
         if (showLog) {
-            logger.debug("ciclo={}, estado-mat={}, sit.inicio={}, consec={}, altern={}, aprobado={}, ingreso={}, ciclosEstudiados={}",
+            log.debug("ciclo={}, estado-mat={}, sit.inicio={}, consec={}, altern={}, aprobado={}, ingreso={}, ciclosEstudiados={}",
                     cicloAcademico.getCodigo(),
                     alumnoCiclo.getEstado(),
                     alumnoCiclo.getSituacionInicio() == null ? "" : alumnoCiclo.getSituacionInicio().getCodigo(),
@@ -1333,8 +1280,8 @@ public class PromedioServiceImp implements PromedioService {
 
         if (situacionAcademicaFinal == null) {
             if (showLog) {
-                logger.debug("\tProblemas en calculo situacion academica final:");
-                logger.debug("\tSituacion inicio:{} aprobado:{}, capa:{}",
+                log.debug("\tProblemas en calculo situacion academica final:");
+                log.debug("\tSituacion inicio:{} aprobado:{}, capa:{}",
                         alumnoCiclo.getSituacionInicio() == null ? "" : alumnoCiclo.getSituacionInicio().getCodigo(),
                         alumnoCiclo.isAprobado(),
                         alumnoCiclo.getCreditosAprobadosAcumulados());
@@ -1617,7 +1564,7 @@ public class PromedioServiceImp implements PromedioService {
             String excepcion = this.messageException(e);
             String error = "####Error en el hilo alumno " + alumno.getId()
                     + " ciclo " + ciclo.getId();
-            logger.error(error);//, e 
+            log.error(error);//, e 
 
             auditorService.auditTrasladoNotasToHistorial(alumno, curso, ciclo, matriculaCurso, ds, e);
             e.printStackTrace();
@@ -2186,7 +2133,7 @@ public class PromedioServiceImp implements PromedioService {
         if (!show) {
             return;
         }
-        logger.debug(msg);
+        log.debug(msg);
     }
 
     private void printSystem(String msg, boolean show) {
