@@ -130,27 +130,20 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         alumnoBolsa.setAlumno(alumno);
         alumnoBolsa.setSupervisor(supervisor);
 
-        FichaSocioeconomica fichaSocioeconomica = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), ciclo);
+        FichaSocioeconomica ficha = fichaSocioeconomicaDAO.findByAlumno(alumnoBolsa.getAlumno(), ciclo);
         FichaSocioeconomicaEstadoEnum estadoFicha = FichaSocioeconomicaEstadoEnum.PEND;
-        if (fichaSocioeconomica == null) {
-            fichaSocioeconomica = new FichaSocioeconomica();
-            fichaSocioeconomica.setAlumno(alumnoBolsa.getAlumno());
-            fichaSocioeconomica.setCicloAcademico(ciclo);
-            fichaSocioeconomica.setEstadoEnum(estadoFicha);
-            fichaSocioeconomica.setFechaRegistro(today.toDate());
-            fichaSocioeconomicaDAO.save(fichaSocioeconomica);
+        if (ficha == null) {
+            ficha = new FichaSocioeconomica();
+            ficha.setAlumno(alumnoBolsa.getAlumno());
+            ficha.setCicloAcademico(ciclo);
+            ficha.setEstadoEnum(estadoFicha);
+            ficha.setFechaRegistro(today.toDate());
+            fichaSocioeconomicaDAO.save(ficha);
 
         } else {
-            fichaSocioeconomica.setEstadoEnum(estadoFicha);
-            fichaSocioeconomicaDAO.update(fichaSocioeconomica);
+            ficha.setEstadoEnum(estadoFicha);
+            fichaSocioeconomicaDAO.update(ficha);
         }
-
-        FlujoFichaSocioeconomica flujoFicha = new FlujoFichaSocioeconomica();
-        flujoFicha.setFichaSocioeconomica(fichaSocioeconomica);
-        flujoFicha.setEstadoEnum(estadoFicha);
-        flujoFicha.setUserRegistro(ds.getUsuario());
-        flujoFicha.setFechaRegistro(today.toDate());
-        flujoFichaSocioeconomicaDAO.save(flujoFicha);
 
         Tramite tramite = new Tramite();
         tramite.setSerie(Long.parseLong(serie.getNumeroSerie()));
@@ -161,7 +154,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramite.setEstadoEnum(TramiteEstadoEnum.CRE);
         tramite.setPersona(alumnoBolsa.getAlumno().getPersona());
         tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
-        tramite.setFichaSocioeconomica(fichaSocioeconomica);
+        tramite.setFichaSocioeconomica(ficha);
 
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setFechaRegistro(today.toDate());
@@ -174,6 +167,17 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         flujo.setFechaRegistro(today.toDate());
         flujoTramiteBienestarDAO.save(flujo);
 
+        FlujoFichaSocioeconomica flujoFicha = new FlujoFichaSocioeconomica();
+        flujoFicha.setFichaSocioeconomica(ficha);
+        flujoFicha.setTramite(tramite);
+        flujoFicha.setEstadoEnum(estadoFicha);
+        flujoFicha.setUserRegistro(ds.getUsuario());
+        flujoFicha.setFechaRegistro(today.toDate());
+        flujoFichaSocioeconomicaDAO.save(flujoFicha);
+
+        ficha.setTramiteProcesando(tramite);
+        fichaSocioeconomicaDAO.update(ficha);
+
         TipoSubvencion tipoSubvencion = tipoSubvencionDAO.find(ID_TIPO_SUBVENCION_INVESTIGACION);
 
         TramiteSubvencion subvencion = new TramiteSubvencion();
@@ -182,8 +186,8 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         subvencion.setTramite(tramite);
         subvencion.setVoboSupervisor(true);
         subvencion.setHoras(tipoSubvencion.getHorasLaborales());
-        subvencion.setFichaSocioeconomica(fichaSocioeconomica);
-        subvencion.setComentario(alumnoBolsa.getNombreInvestigacion());
+        subvencion.setFichaSocioeconomica(ficha);
+        subvencion.setMotivo(alumnoBolsa.getNombreInvestigacion());
         subvencion.setUserRegistro(ds.getUsuario());
         subvencion.setFechaRegistro(today.toDate());
         tramiteSubvencionDAO.save(subvencion);

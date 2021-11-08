@@ -178,6 +178,7 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
         this.validarDataViaje(viajeCurso, ciclo, docente);
 
+        viajeCurso.setSolicitarSubvencion(Boolean.TRUE);
         viajeCurso.setEstadoViajeEnum(CREADO);
         viajeCurso.setEstadoSubvencionEnum(SubvencionViajeEstadoEnum.SIN_PRESUPUESTO);
         viajeCurso.setCicloAcademico(ciclo);

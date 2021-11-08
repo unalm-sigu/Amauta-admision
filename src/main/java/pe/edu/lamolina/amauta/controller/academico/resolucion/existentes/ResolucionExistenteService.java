@@ -80,4 +80,6 @@ public interface ResolucionExistenteService {
 
     List<String> saveResolucion(Resolucion resolucion, DataSessionPivot ds);
 
+    List<Oficina> allOficinasResolucion(DataSessionPivot ds);
+
 }

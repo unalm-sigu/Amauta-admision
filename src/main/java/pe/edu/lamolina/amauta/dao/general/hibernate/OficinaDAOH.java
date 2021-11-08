@@ -441,4 +441,15 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         return all(sql);
     }
 
+    @Override
+    public List<Oficina> allByTiposOficinas(List<TipoOficinaEnum> tiposEnum) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tof")
+                .in("tof.codigo", tiposEnum)
+                .orderBy("ofi.nombre");
+
+        return all(sql);
+    }
+
 }
