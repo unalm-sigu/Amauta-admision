@@ -1,5 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.profesor.contratoprofesor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -8,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -21,9 +24,16 @@ import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.rrhh.CategoriaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.rrhh.ContratoDocenteDAO;
+import pe.edu.lamolina.amauta.dao.rrhh.DedicacionDocenteDAO;
+import pe.edu.lamolina.amauta.dao.rrhh.SituacionDocenteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.rrhh.CategoriaDocente;
+import pe.edu.lamolina.model.rrhh.DedicacionDocente;
+import pe.edu.lamolina.model.rrhh.SituacionDocente;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,6 +55,15 @@ public class ContratoServiceImp implements ContratoService {
 
     @Autowired
     DocenteDAO docenteDAO;
+
+    @Autowired
+    SituacionDocenteDAO situacionDocenteDAO;
+
+    @Autowired
+    CategoriaDocenteDAO categoriaDocenteDAO;
+
+    @Autowired
+    DedicacionDocenteDAO dedicacionDocenteDAO;
 
     @Override
     @Transactional
@@ -169,6 +188,131 @@ public class ContratoServiceImp implements ContratoService {
     public List<Resolucion> searchResolucionFacultad(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return resolucionDAO.allByNombre(nombre);
+    }
+
+    @Override
+    @Transactional
+    public void generarGeneral(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        if (cicloOrigen.getCodigo().equalsIgnoreCase(cicloDestino.getCodigo())) {
+            throw new PhobosException("El ciclo no puede ser el mismo");
+        }
+
+        if (!contratoDocenteDAO.allByPeriodoInicio(cicloDestino).isEmpty()) {
+            throw new PhobosException("Existen contratos activos en el ciclo destino " + cicloDestino.getCodigo());
+        }
+
+        List<ContratoDocente> contratoDocenteAnteriores = contratoDocenteDAO.allByPeriodoInicio(cicloOrigen);
+
+        if (contratoDocenteAnteriores.isEmpty()) {
+            throw new PhobosException("Existen contratos en el ciclo origen " + cicloOrigen.getCodigo());
+        }
+
+        for (ContratoDocente contratoDocente : contratoDocenteAnteriores) {
+
+            try {
+
+                ContratoDocente contratoDocenteNew = objectMapper
+                        .readValue(JaneHelper.from(contratoDocente)
+                                .only("estado,fechaVobo,fechaFacultad,fechaConsejo,fechaRegistro")
+                                .join("docente", "id")
+                                .join("categoria", "id")
+                                .join("dedicacion", "id")
+                                .join("situacion", "id")
+                                .join("userVobo", "id")
+                                .join("resolucionFacultad", "id")
+                                .join("userFacultad", "id")
+                                .join("resolucionConsejo", "id")
+                                .join("userConsejo", "id")
+                                .json()
+                                .toString(), ContratoDocente.class);
+
+                contratoDocenteNew.setId(null);
+                contratoDocenteNew.setCicloInicioContrato(cicloDestino);
+                contratoDocenteNew.setCicloFinContrato(cicloDestino);
+                contratoDocenteNew.setUserRegistro(ds.getUsuario());
+                contratoDocenteNew.setFechaRegistro(new Date());
+                contratoDocenteDAO.save(contratoDocenteNew);
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+                logger.debug("Imposible clonar el registro pe.edu.lamolina.model.rrhh.ContratoDocente id {}", contratoDocente.getId());
+
+            }
+
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void eliminarGeneral(CicloAcademico cicloEliminar) {
+        try {
+
+            List<ContratoDocente> contratoDocenteAnteriores = contratoDocenteDAO.allByPeriodoInicio(cicloEliminar);
+
+            for (ContratoDocente contratoDocenteAnteriore : contratoDocenteAnteriores) {
+
+                contratoDocenteDAO.delete(contratoDocenteAnteriore.getId());
+
+            }
+
+        } catch (Exception ex) {
+
+            throw new PhobosException(GlobalMessages.FK_ERROR_DELETE);
+
+        }
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademicoContrato() {
+        return cicloAcademicoDAO.allContrato();
+    }
+
+    @Override
+    @Transactional
+    public void eliminarContratoDocente(ContratoDocente contratoDocente) {
+        contratoDocenteDAO.delete(contratoDocente.getId());
+    }
+
+    @Override
+    @Transactional
+    public void updateContratoDocente(DataSessionPivot ds, ContratoDocente contratoDocenteForm) {
+
+        ContratoDocente contratoDocente = contratoDocenteDAO.find(contratoDocenteForm.getId());
+
+        if (contratoDocente.getEstadoEnum() != ContratoDocenteEstadoEnum.PEND) {
+
+            throw new PhobosException("Solo puede actualizar contratos pendientes");
+
+        }
+
+        contratoDocenteDAO.updateColumns(contratoDocenteForm, "categoria", "situacion", "dedicacion", "cicloInicioContrato", "cicloFinContrato");
+
+    }
+
+    @Override
+    public List<SituacionDocente> allSituaciones() {
+        return situacionDocenteDAO.all();
+    }
+
+    @Override
+    public List<CategoriaDocente> allCategorias() {
+        return categoriaDocenteDAO.all();
+    }
+
+    @Override
+    public List<DedicacionDocente> allDedicaciones() {
+        return dedicacionDocenteDAO.all();
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademico() {
+        return cicloAcademicoDAO.allPregradoByRange(1980, 2050);
     }
 
 }

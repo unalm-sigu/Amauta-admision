@@ -6,7 +6,7 @@
     <body>
         <div layout:fragment="main">
 
-            <div id="main">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg" >
 
@@ -20,12 +20,18 @@
                             <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademica" >Reporte Carga Académica</a></li>
+                            <li><a type="button" href="#" v-on:click.prevent="openModalCopiarContratoDocente" >Copiar Contrato Docente</a></li>
+                            <li><a type="button" href="#" v-on:click.prevent="openModalEliminarContratoDocente" >Eliminar Contrato Docente</a></li>
                         </ul>
                     </div>
 
                     <reporte-materiales ref='reportemateriales'></reporte-materiales>
 
                     <reporte-carga-academica ref='reportecargaacademica'></reporte-carga-academica>
+                    
+                    <copiar-contrato-docente ref='copiar'></copiar-contrato-docente>
+                    
+                    <eliminar-contrato-docente ref='eliminar'></eliminar-contrato-docente>
 
                 </header>
 
@@ -50,6 +56,7 @@
                 var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
                 var jCicloAcademicos = /*[[${jCicloAcademicos}]]*/ {};
                 var PUEDE_ACTIVAR = /*[[${puedeActivar}]]*/ {};
+                var CICLO_ACADEMICO_DESCRIPCION = /*[[${session["SESSION_USUARIO"].cicloAcademico.descripcion}]]*/ {};
             </script>
 
             <div th:substituteby="_modules/vue-raptor-table"/>
@@ -60,12 +67,17 @@
                 const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');
                 const ReporteMateriales = httpVueLoader('/app/academico/profesor/ReporteMateriales.vue');
                 const ReporteCargaAcademica = httpVueLoader('/app/academico/profesor/ReporteCargaAcademica.vue');
+                const CopiarContratoDocente = httpVueLoader('/app/academico/profesor/CopiarContratoDocente.vue');
+                const EliminarContratoDocente = httpVueLoader('/app/academico/profesor/EliminarContratoDocente.vue');
+                
                 var root = new Vue({
                     el: '#main',
                     components: {
                         profesorList: ProfesorList,
                         reporteMateriales: ReporteMateriales,
                         reporteCargaAcademica: ReporteCargaAcademica,
+                        copiarContratoDocente: CopiarContratoDocente,
+                        eliminarContratoDocente: EliminarContratoDocente,
                     },
                     methods: {
                         openModalReporte() {
@@ -73,7 +85,13 @@
                         },
                         openModalReporteCargaAcademica() {
                             this.$refs.reportecargaacademica.open();
-                        }
+                        },
+                        openModalCopiarContratoDocente() {
+                            this.$refs.copiar.open();
+                        },
+                        openModalEliminarContratoDocente() {
+                            this.$refs.eliminar.open();
+                        },
                     }
                 });
             </script>

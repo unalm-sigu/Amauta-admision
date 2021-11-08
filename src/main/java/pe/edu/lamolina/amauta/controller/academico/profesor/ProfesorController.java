@@ -72,8 +72,6 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Controller

@@ -1,6 +1,10 @@
 Vue.component('multiselect', {mixins: [window.VueMultiselect.default]});
+const EditarContratoDocente = httpVueLoader('/app/academico/profesor/EditarContratoDocente.vue');
 new Vue({
     el: '#main',
+    components: {
+        editarContratoDocente: EditarContratoDocente,
+    },
     data: {
         actualizar: false,
         stepactivo: 1,
@@ -342,6 +346,40 @@ new Vue({
         addResolucionConsejo(item) {
             this.resolucion.id = item.id;
             this.$refs.modalResolucionConsejo.open();
+        },
+        actualizarContratoDocente(item) {
+            this.$refs.myActualizarContratoDocente.open(item);
+        },
+        eliminarContratoDocente(item) {
+            swal('¿Seguro que desea eliminar el contrato del docente ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Eliminar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                axios_.get("/academico/profesor/eliminar/contrato/docente/" + item.id)
+                        .then(({data}) => {
+                            notify(data, 'info');
+                            this.$refs.raptorContratos.loadRemoteData();
+                            return swal({text: data, icon: "success", button: false, timer: 1000});
+                        }, () => {
+                            return swal(APP.errorComunicacion, "error");
+                        });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
         },
         saveResolucionFacultad() {
             let form = $('#formResolucionFacultad');

@@ -25,6 +25,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
+import pe.edu.lamolina.model.rrhh.ContratoDocente;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -833,6 +834,17 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .filter("ca.estado", ACT)
                 .filter("me.codigo", modalidadEnum);
         return find(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allContrato() {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ci")
+                .from(ContratoDocente.class, "ca")
+                .join("cicloInicioContrato ci")
+                .join("ci.modalidadEstudio me")
+                .filter("me.codigo", ModalidadEstudioEnum.PRE);
+        return all(sql);
     }
 
 }
