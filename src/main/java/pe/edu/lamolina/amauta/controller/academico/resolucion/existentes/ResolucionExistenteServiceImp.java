@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +73,7 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
@@ -127,6 +129,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
+import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -180,6 +183,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private final AvanceCurricularService avanceCurricularService;
     private final GpoSeccionService gpoSeccionService;
+    private final OficinaService oficinaService;
     private final SerieDocumentoService serieDocumentoService;
 
     @Override
@@ -1838,6 +1842,49 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             throw new PhobosException("La serie o número es incorrecto");
         }
 
+    }
+
+    @Override
+    public List<Oficina> allOficinasResolucion(DataSessionPivot ds) {
+        List<TipoOficinaEnum> tiposEnum = Arrays.asList(
+                TipoOficinaEnum.CUN,
+                TipoOficinaEnum.FAC,
+                TipoOficinaEnum.EPG
+        );
+
+        List<Oficina> oficinasMainUser = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
+        Optional<Oficina> estudios = oficinasMainUser.stream()
+                .filter(ofi -> ofi.getCodigoEnum() == OficinaEnum.OERA)
+                .findFirst();
+
+        if (estudios.isPresent()) {
+            return oficinaDAO.allByTiposOficinas(tiposEnum);
+        }
+
+        Optional<TipoOficina> tipoEscuela = oficinasMainUser.stream()
+                .filter(ofi -> ofi.getCodigoEnum() == OficinaEnum.EPG)
+                .map(ofi -> ofi.getTipoOficina())
+                .findFirst();
+
+        List<TipoOficina> tiposOficinas = oficinasMainUser.stream()
+                .map(ofi -> ofi.getTipoOficina())
+                .filter(tipo -> tipo.getCodigoEnum() == TipoOficinaEnum.FAC)
+                .collect(Collectors.toList());
+
+        if (tipoEscuela.isPresent()) {
+            tiposOficinas.add(tipoEscuela.get());
+        }
+
+        if (tiposOficinas.isEmpty()) {
+            return new ArrayList();
+        }
+
+        tiposEnum = tiposOficinas.stream()
+                .map(tipo -> tipo.getCodigoEnum())
+                .collect(Collectors.toList());
+
+        return oficinaDAO.allByTiposOficinas(tiposEnum);
     }
 
 }

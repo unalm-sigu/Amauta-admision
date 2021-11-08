@@ -63,6 +63,7 @@ public class SubvencionViajesController {
         model.addAttribute("isProduccion", despliegueConfig.isProduccion());
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("rutaModulo", rutaModulo);
+        
         return "subvenciones/viajes/subvencionViajes";
     }
 

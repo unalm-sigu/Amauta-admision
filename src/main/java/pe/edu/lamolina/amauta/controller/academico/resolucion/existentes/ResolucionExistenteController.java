@@ -64,7 +64,6 @@ import pe.edu.lamolina.model.tramite.TramiteTitulo;
 public class ResolucionExistenteController {
 
     private final ResolucionExistenteService service;
-    private final OficinaService oficinaService;
     private final MatriculableService matriculableService;
 
     private final static List<String> TIPOS_RESOLUCIONES = Arrays.asList(
@@ -95,7 +94,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(oficinaService.allOficinasMainByPersona(ds.getPersona()))
+                .from(service.allOficinasResolucion(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 
@@ -127,7 +126,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode oficinasJson = JaneHelper
-                .from(oficinaService.allOficinasMainByPersona(ds.getPersona()))
+                .from(service.allOficinasResolucion(ds))
                 .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
                 .array();
 

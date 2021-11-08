@@ -465,17 +465,18 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("alumno al", "cicloAcademico ci")
                 .filter("al.id", alum)
                 .filter("ci.tipo", TipoCicloEnum.REG)
+                .notIn("ac.estado", Arrays.asList(NMAT.name(), RCI.name(), INH.name()))
                 .orderBy("ci.codigo DESC");
 
         return sql.all(getCurrentSession());
     }
 
     @Override
-    public AlumnoCiclo findUltimoCicloRegularByAlumno(Alumno alum, CicloAcademico cicloAcademico) {
+    public AlumnoCiclo findUltimoCicloRegularByAlumno(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno al", "cicloAcademico ca")
-                .filter("al.id", alum)
+                .filter("al.id", alumno)
                 .filter("ca.tipo", TipoCicloEnum.REG)
                 .orderBy("ca.codigo desc")
                 .limit(1);
