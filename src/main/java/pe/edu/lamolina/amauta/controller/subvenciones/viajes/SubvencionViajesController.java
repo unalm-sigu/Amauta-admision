@@ -358,7 +358,7 @@ public class SubvencionViajesController {
 
             ObjectNode node = JaneHelper
                     .from(alumnoViaje)
-                    .only("id,estado,estadoSalud,estadoAsistencia,estadoEnum,estadoSaludEnum,estadoAsistenciaEnum,importeAsignado,importeJustificado,importeDevuelto")
+                    .only("id,estado,estadoSubvencion,estadoSalud,estadoAsistencia,estadoEnum,estadoSubvencionEnum,estadoSaludEnum,estadoAsistenciaEnum,importeAsignado,importeJustificado,importeDevuelto")
                     .join("alumno", "id,codigo")
                     .join("alumno.persona", "apellidosNombres,emailCompania,numeroDocIdentidad")
                     .join("viajeCurso", "id,fechaFinRegistroAlumnos,estadoViaje,estadoSubvencion,estadoViajeEnum,estadoSubvencionEnum")
