@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.profesor.contratoprofesor;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -9,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -23,9 +26,9 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
 import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 
 @Controller
 @RequestMapping("academico/profesor")
@@ -254,4 +257,58 @@ public class ContratoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/generar/general", method = RequestMethod.POST)
+    public String generar(@RequestBody CicloAcademico cicloOrigen, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.generarGeneral(cicloOrigen, ds.getCicloAcademico(), ds);
+        return GlobalMessages.CREATED;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/eliminar/general", method = RequestMethod.GET)
+    public String eliminar(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.eliminarGeneral(ds.getCicloAcademico());
+        return GlobalMessages.DELETED;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/eliminar/contrato/docente/{idContratoDocente}", method = RequestMethod.GET)
+    public String eliminarContratoDocente(HttpSession session, @PathVariable("idContratoDocente") Long idContratoDocente) {
+
+        service.eliminarContratoDocente(new ContratoDocente(idContratoDocente));
+        return GlobalMessages.DELETED;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/all/ciclo/contrato", method = RequestMethod.GET)
+    public ArrayNode allCiclo(HttpSession session) {
+
+        return JaneHelper.from(service.allCicloAcademicoContrato())
+                .only("id,descripcion,codigo")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/all/data/contrato", method = RequestMethod.GET)
+    public ObjectNode data(HttpSession session) {
+        ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+        objectNode.set("ciclos", JaneHelper.from(service.allCicloAcademico()).only("id,codigo,descripcion").array());
+        objectNode.set("categorias", JaneHelper.from(service.allCategorias()).array());
+        objectNode.set("situaciones", JaneHelper.from(service.allSituaciones()).array());
+        objectNode.set("dedicaciones", JaneHelper.from(service.allDedicaciones()).array());
+        return objectNode;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/contrato/update/profesor", method = RequestMethod.POST)
+    public String updateContratoDocente(@RequestBody ContratoDocente contratoDocente, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.updateContratoDocente(ds, contratoDocente);
+        return GlobalMessages.UPDATED;
+    }
 }

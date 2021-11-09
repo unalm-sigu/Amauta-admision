@@ -67,4 +67,15 @@ public class ContratoDocenteDAOH extends AbstractEasyDAO<ContratoDocente> implem
         return all(sql);
     }
 
+    @Override
+    public List<ContratoDocente> allByPeriodoInicio(CicloAcademico cicloFin) {
+        
+        Octavia sql = Octavia.query(ContratoDocente.class, "cd")
+                .join("docente d")
+                .join("cicloInicioContrato ci", "cicloFinContrato cf")
+                .filter("ci.id",cicloFin);
+        return all(sql);
+        
+    }
+
 }
