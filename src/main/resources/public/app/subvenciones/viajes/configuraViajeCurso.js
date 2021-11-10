@@ -203,10 +203,13 @@ new Vue({
         classEstadoAlumno(item) {
             let estilos = {
                 'RENUNCIA': 'text-danger',
+                'SEPARADO': 'text-danger',
                 'SALUD_NO_OK': 'text-danger',
                 'DENEGADO_EDAD': 'text-danger',
                 'DENEGADO_CURRICULA': 'text-danger',
-                'FICHA_SEC_OK': 'text-primary d-bold'};
+                'FICHA_SEC_OK': 'text-primary d-bold',
+                'INSCRITO': 'text-primary d-bold'
+            };
             let rpta = estilos[item.estado];
             if (rpta === undefined) {
                 return "";

@@ -4,7 +4,8 @@
 <table class="table table-condensed table-striped">
     <thead>
         <tr>
-            <th class="v-middle wd-70">Alumno</th>
+            <th class="v-middle wd-60">Alumno</th>
+            <th class="v-middle wd-10">Estado proceso</th>
             <th class="v-middle wd-10">Estado subvención</th>
             <th class="v-middle wd-10">Estado salud</th>
             <th class="v-middle wd-10">Asistencia viaje</th>
@@ -31,6 +32,7 @@
             </td>
 
             <td v-bind:class="classEstadoAlumno(item)" class="v-middle">{{item.estadoEnum.value}}</td>
+            <td class="v-middle">{{item.estadoSubvencionEnum.value}}</td>
             <td class="v-middle">{{item.estadoSaludEnum.value}}</td>
             <td class="v-middle">{{item.estadoAsistenciaEnum.value}}</td>
             
