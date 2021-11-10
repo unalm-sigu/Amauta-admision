@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -196,18 +197,18 @@ public class ContratoServiceImp implements ContratoService {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (cicloOrigen.getCodigo().equalsIgnoreCase(cicloDestino.getCodigo())) {
+        if (cicloOrigen.getId() == cicloDestino.getId().longValue()) {
             throw new PhobosException("El ciclo no puede ser el mismo");
         }
 
         if (!contratoDocenteDAO.allByPeriodoInicio(cicloDestino).isEmpty()) {
-            throw new PhobosException("Existen contratos activos en el ciclo destino " + cicloDestino.getCodigo());
+            throw new PhobosException("Existen contratos activos en el ciclo destino ");
         }
 
         List<ContratoDocente> contratoDocenteAnteriores = contratoDocenteDAO.allByPeriodoInicio(cicloOrigen);
 
         if (contratoDocenteAnteriores.isEmpty()) {
-            throw new PhobosException("Existen contratos en el ciclo origen " + cicloOrigen.getCodigo());
+            throw new PhobosException("No existen contratos en el ciclo origen");
         }
 
         for (ContratoDocente contratoDocente : contratoDocenteAnteriores) {
@@ -284,6 +285,11 @@ public class ContratoServiceImp implements ContratoService {
     public void updateContratoDocente(DataSessionPivot ds, ContratoDocente contratoDocenteForm) {
 
         ContratoDocente contratoDocente = contratoDocenteDAO.find(contratoDocenteForm.getId());
+
+        if (contratoDocenteForm.getCicloFinContrato() != null) {
+            Assert.isTrue(contratoDocenteForm.getCicloInicioContrato().getCodigo()
+                    .compareTo(contratoDocenteForm.getCicloFinContrato().getCodigo()) <= 0, "El ciclo final no puede ser menor que el inicial");
+        }
 
         if (contratoDocente.getEstadoEnum() != ContratoDocenteEstadoEnum.PEND) {
 

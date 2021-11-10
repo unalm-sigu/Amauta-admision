@@ -48,32 +48,17 @@ public class ContratoController {
         try {
 
             List<ContratoDocente> contratos = service.allByDynatable(filter, new Docente(id));
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (ContratoDocente cd : contratos) {
-                array.add(JsonHelper.createJson(cd, JsonNodeFactory.instance, new String[]{
-                    "id",
-                    "categoria.*",
-                    "situacion.*",
-                    "dedicacion.*",
-                    "estadoEnum",
-                    "resolucionFacultad.id",
-                    "resolucionFacultad.serie",
-                    "resolucionFacultad.numero",
-                    "resolucionFacultad.descripcion",
-                    "resolucionFacultad.fechaRegistro",
-                    "resolucionConsejo.id",
-                    "resolucionConsejo.serie",
-                    "resolucionConsejo.numero",
-                    "resolucionConsejo.descripcion",
-                    "resolucionConsejo.fechaRegistro",
-                    "cicloInicioContrato.id",
-                    "cicloInicioContrato.descripcion",
-                    "cicloFinContrato.id",
-                    "cicloFinContrato.descripcion"
-                }));
-            }
-
+            
+            ArrayNode array = JaneHelper.from(contratos).only("id,estadoEnum")
+                    .join("categoria")
+                    .join("situacion")
+                    .join("dedicacion")
+                    .join("resolucionFacultad","id,serie,numero,descripcion,fechaRegistro")
+                    .join("resolucionConsejo","id,serie,numero,descripcion,fechaRegistro")
+                    .join("cicloInicioContrato","id,descripcion,codigo")
+                    .join("cicloFinContrato","id,descripcion,codigo")
+                    .array(); 
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -116,6 +101,7 @@ public class ContratoController {
             for (CicloAcademico ciclo : ciclos) {
                 jCiclo.add(JsonHelper.createJson(ciclo, jsonFactory, new String[]{
                     "id",
+                    "codigo",
                     "descripcion",
                     "descripcion2"
                 }));
@@ -258,11 +244,11 @@ public class ContratoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/generar/general", method = RequestMethod.POST)
-    public String generar(@RequestBody CicloAcademico cicloOrigen, HttpSession session) {
+    @RequestMapping(value = "/generar/{idCicloOrigen}/{idCicloDestino}", method = RequestMethod.GET)
+    public String generar(@PathVariable("idCicloOrigen") Long idCicloOrigen, @PathVariable("idCicloDestino") Long idCicloDestino, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.generarGeneral(cicloOrigen, ds.getCicloAcademico(), ds);
+        service.generarGeneral(new CicloAcademico(idCicloOrigen),new CicloAcademico(idCicloDestino), ds);
         return GlobalMessages.CREATED;
     }
 
@@ -284,18 +270,10 @@ public class ContratoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/all/ciclo/contrato", method = RequestMethod.GET)
-    public ArrayNode allCiclo(HttpSession session) {
-
-        return JaneHelper.from(service.allCicloAcademicoContrato())
-                .only("id,descripcion,codigo")
-                .array();
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/all/data/contrato", method = RequestMethod.GET)
     public ObjectNode data(HttpSession session) {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+        objectNode.set("ciclosOrigen", JaneHelper.from(service.allCicloAcademicoContrato()).only("id,codigo,descripcion").array());
         objectNode.set("ciclos", JaneHelper.from(service.allCicloAcademico()).only("id,codigo,descripcion").array());
         objectNode.set("categorias", JaneHelper.from(service.allCategorias()).array());
         objectNode.set("situaciones", JaneHelper.from(service.allSituaciones()).array());

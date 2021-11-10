@@ -20,10 +20,10 @@
             <tbody>
                 <tr v-for="item in props.data"> 
                     <td class="v-middle text-center">
-                        <span>  {{ item.cicloInicioContrato.descripcion }} </span> 
+                        <span v-if="item.cicloInicioContrato">  {{ item.cicloInicioContrato.descripcion }} </span> 
                     </td>
                     <td class="v-middle text-center">
-                        <span>  {{ item.cicloFinContrato.descripcion }} </span> 
+                        <span v-if="item.cicloFinContrato">  {{ item.cicloFinContrato.descripcion }} </span> 
 
                     </td>
                     <td class="v-middle">
@@ -39,13 +39,13 @@
                         <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
                     </td>
                     <td class="v-middle">
-                        <div v-if="item.resolucionFacultad.id">
+                        <div v-if="item.resolucionFacultad">
                             <a class="block pointer bold text-info-dk"> {{ item.resolucionFacultad.descripcion }} </a>
                             <span class="block small text-muted"> {{ item.resolucionFacultad.fechaRegistro }} </span>
                         </div>
                     </td>
                     <td class="v-middle">
-                        <div v-if="item.resolucionConsejo.id">
+                        <div v-if="item.resolucionConsejo">
                             <a class="block pointer bold"> {{ item.resolucionConsejo.descripcion }} </a>
                             <span class="block small text-muted"> {{ item.resolucionConsejo.fechaRegistro }} </span>
                         </div>
@@ -55,16 +55,16 @@
 
                     </td>
                     <td class="v-middle">
-                        <div class="dropdown actions" v-if=" item.estadoEnum.name === 'RESL' || !item.resolucionFacultad.id || !item.resolucionConsejo.id || item.estadoEnum.name==='ACT'">
+                        <div class="dropdown actions" v-if=" item.estadoEnum.name === 'RESL' || !item.resolucionFacultad || !item.resolucionConsejo || item.estadoEnum.name==='ACT'">
                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                             <ul class="dropdown-menu pull-right" >
                                 <li role="presentation" v-if="item.estadoEnum.name === 'RESL'">
                                     <a href="#" v-on:click="addVistoBueno(item)">Visto bueno de Estudios</a>
                                 </li>
-                                <li role="presentation" v-if="!item.resolucionFacultad.id">
+                                <li role="presentation" v-if="!item.resolucionFacultad">
                                     <a href="#" v-on:click="addResolucionFacultad(item)">Agregar Resolución de Facultad</a>
                                 </li>
-                                <li role="presentation" v-if="!item.resolucionConsejo.id">
+                                <li role="presentation" v-if="!item.resolucionConsejo">
                                     <a href="#" v-on:click="addResolucionConsejo(item)">Agregar Resolución de CUN</a>
                                 </li>
                                 <li role="presentation" v-if="item.estadoEnum.name === 'ACT'">
