@@ -321,4 +321,11 @@ public class ContratoServiceImp implements ContratoService {
         return cicloAcademicoDAO.allPregradoByRange(1980, 2050);
     }
 
+    @Override
+    public List<ContratoDocente> allContratoDocenteByCiclo(CicloAcademico cicloAcademico) {
+
+        return contratoDocenteDAO.allByPeriodoInicio(cicloAcademico);
+        
+    }
+
 }

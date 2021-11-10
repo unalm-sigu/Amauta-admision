@@ -49,4 +49,6 @@ public interface ContratoService {
 
     public List<CicloAcademico> allCicloAcademico();
 
+    public List<ContratoDocente> allContratoDocenteByCiclo(CicloAcademico cicloAcademico);
+
 }
