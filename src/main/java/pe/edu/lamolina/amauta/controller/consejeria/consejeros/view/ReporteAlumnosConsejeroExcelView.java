@@ -201,7 +201,7 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
                 MatriculaResumen matriculaResumen = matriculadosGroupByAlumno.get(alumno.getId());
                 column = 0;
                 excelUtil.replaceVal(irow, column++, num, estiloNumero);
-                excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo());
+                excelUtil.replaceVal(irow, column++, consejero.getDocente() != null ? consejero.getDocente().getCodigo() : "");
                 excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
                 excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
                 excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
