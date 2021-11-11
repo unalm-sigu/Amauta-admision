@@ -405,65 +405,52 @@ public class VerificadorServiceImp implements VerificadorService {
     @Override
     public List<Oficina> allOficinasAcceso(DataSessionPivot ds) {
         List<Oficina> oficinas = new ArrayList();
-        List<Oficina> oficinasAll = oficinaService.allOficinasOrganizadas();
 
-        List<UsuarioRol> userRolesAll = usuarioRolDAO.allWithOfficeByUserRoles(ds.getUsuario(), ds.getRoles());
-        Map<Long, List<UsuarioRol>> mapUserRol = TypesUtil.convertListToMapList("rol.id", userRolesAll);
+        {
+            boolean esGestorEPG = this.esTrabajadorEpgConRol(RolEnum.GESTOR_OFICINA_EPG, ds);
+            if (esGestorEPG) {
+                log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId());
+                List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
+                List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
 
-        for (Rol rol : ds.getRoles()) {
-            List<UsuarioRol> usuarioRoles = TypesUtil.getListNotNull(mapUserRol.get(rol.getId()));
+                oficinas.addAll(direccionesPosgrado);
+                oficinas.addAll(especialidadesPosgrado);
 
-            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
-                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
-                for (UsuarioRol ur : usuarioRoles) {
-                    Oficina oficinaArea = ur.getOficina();
-                    Oficina oficinaMain = oficinaService.findOficinaMain(oficinaArea, oficinasAll);
-                    log.info("-oficinaMain.id={} oficinaMain.codigo={} oficinaMain.nombre={}", oficinaMain.getId(), oficinaMain.getCodigo(), oficinaMain.getNombre());
-                    oficinas.add(oficinaMain);
-                }
-
-                if (usuarioRoles.isEmpty()) {
-                    log.info("-Usuario {} no tiene el rol {} en alguna oficina", ds.getUsuario().getId(), rol.getCodigo());
-                }
-            }
-
-            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
-                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
-                Optional<Oficina> escuela = usuarioRoles.stream()
-                        .map(ur -> ur.getOficina())
-                        .filter(oficina -> oficinaService.findOficinaMain(oficina, oficinasAll).getCodigoEnum() == EPG)
-                        .findFirst();
-
-                if (escuela.isPresent()) {
-                    log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId());
-                    List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
-                    List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
-
-                    oficinas.addAll(direccionesPosgrado);
-                    oficinas.addAll(especialidadesPosgrado);
-
-                } else {
-                    log.info("-Usuario {} no tiene el rol {} en la EPG", ds.getUsuario().getId(), rol.getCodigo());
-                }
-            }
-
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                log.info("analizando el rol {} del usuario {}", rol.getCodigo(), ds.getUsuario().getId());
-                Optional<Oficina> estudios = usuarioRoles.stream()
-                        .map(ur -> ur.getOficina())
-                        .filter(oficina -> oficinaService.findOficinaMain(oficina, oficinasAll).getCodigoEnum() == OERA)
-                        .findFirst();
-
-                if (estudios.isPresent()) {
-                    log.info("-Usuario {} tiene el rol {} en OERA", ds.getUsuario().getId());
-                    Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
-                    oficinas.add(oficinaUNA);
-
-                } else {
-                    log.info("-Usuario {} no tiene el rol {} en OERA", ds.getUsuario().getId(), rol.getCodigo());
-                }
+            } else {
+                log.info("-Usuario {} no tiene el rol {} en la EPG", ds.getUsuario().getId(), RolEnum.GESTOR_OFICINA_EPG.name());
             }
         }
+
+        {
+            boolean esInformaticoOERA = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+            if (!esInformaticoOERA) {
+                Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());
+                esInformaticoOERA = this.esJefeOrEncargadoOficina(areaSistemasOERA, ds);
+            }
+
+            if (esInformaticoOERA) {
+                Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
+                oficinas.add(oficinaUNA);
+
+            } else {
+                log.info("-Usuario {} no tiene el rol {} en OERA", ds.getUsuario().getId(), RolEnum.IOREA.name());
+            }
+        }
+
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                continue;
+            }
+            if (oficina.getCodigoEnum() == OERA) {
+                continue;
+            }
+            boolean esGestorOficina = this.esTrabajadorOficinaConRol(oficina, RolEnum.GESTOR_OFICINA, ds);
+            if (esGestorOficina) {
+                oficinas.add(oficina);
+            }
+        }
+
         return oficinas;
     }
 
