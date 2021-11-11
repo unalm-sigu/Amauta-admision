@@ -4,17 +4,21 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -22,6 +26,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteContratoLaboralPDF;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
@@ -39,49 +44,30 @@ public class ContratoController {
     @Autowired
     ContratoService service;
 
+    @Autowired
+    ReporteContratoLaboralPDF reporte;
+
     @ResponseBody
     @RequestMapping("/{id}/contratos")
     public DynatableResponse list(DynatableFilter filter, @PathVariable Long id) {
 
         DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
 
-        try {
+        List<ContratoDocente> contratos = service.allByDynatable(filter, new Docente(id));
+        ArrayNode array = JaneHelper.from(contratos).only("id,estadoEnum")
+                .join("categoria")
+                .join("situacion")
+                .join("dedicacion")
+                .join("resolucionFacultad", "id,serie,numero,descripcion,fechaRegistro")
+                .join("resolucionConsejo", "id,serie,numero,descripcion,fechaRegistro")
+                .join("cicloInicioContrato", "id,descripcion,codigo")
+                .join("cicloFinContrato", "id,descripcion,codigo")
+                .array();
 
-            List<ContratoDocente> contratos = service.allByDynatable(filter, new Docente(id));
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (ContratoDocente cd : contratos) {
-                array.add(JsonHelper.createJson(cd, JsonNodeFactory.instance, new String[]{
-                    "id",
-                    "categoria.*",
-                    "situacion.*",
-                    "dedicacion.*",
-                    "estadoEnum",
-                    "resolucionFacultad.id",
-                    "resolucionFacultad.serie",
-                    "resolucionFacultad.numero",
-                    "resolucionFacultad.descripcion",
-                    "resolucionFacultad.fechaRegistro",
-                    "resolucionConsejo.id",
-                    "resolucionConsejo.serie",
-                    "resolucionConsejo.numero",
-                    "resolucionConsejo.descripcion",
-                    "resolucionConsejo.fechaRegistro",
-                    "cicloInicioContrato.id",
-                    "cicloInicioContrato.descripcion",
-                    "cicloFinContrato.id",
-                    "cicloFinContrato.descripcion"
-                }));
-            }
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
         return json;
     }
 
@@ -116,6 +102,7 @@ public class ContratoController {
             for (CicloAcademico ciclo : ciclos) {
                 jCiclo.add(JsonHelper.createJson(ciclo, jsonFactory, new String[]{
                     "id",
+                    "codigo",
                     "descripcion",
                     "descripcion2"
                 }));
@@ -134,17 +121,14 @@ public class ContratoController {
     @ResponseBody
     @RequestMapping("/contrato/searchresolucionconsejo")
     public JsonResponse searchresolucionconsejo(@RequestParam("nombre") String nombre) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
             List<Resolucion> resoluciones = service.searchResolucionConsejo(nombre);
-            ArrayNode jCiclo = new ArrayNode(jsonFactory);
-            for (Resolucion resolucion : resoluciones) {
-                jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
-                    "id", "descripcion"}));
-            }
-            response.setData(jCiclo);
-            response.setTotal(jCiclo.size());
+            ArrayNode jresoluciones = JaneHelper.from(resoluciones)
+                    .only("id,descripcion")
+                    .array();
+            response.setData(jresoluciones);
+            response.setTotal(jresoluciones.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -157,18 +141,14 @@ public class ContratoController {
     @ResponseBody
     @RequestMapping("/contrato/searchresolucionfacultad")
     public JsonResponse searchresolucionfacultad(@RequestParam("nombre") String nombre) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
             List<Resolucion> resoluciones = service.searchResolucionFacultad(nombre);
-            ArrayNode jCiclo = new ArrayNode(jsonFactory);
-            for (Resolucion resolucion : resoluciones) {
-                System.out.println("Descripcion ::" + resolucion.getDescripcion());
-                jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
-                    "id", "descripcion"}));
-            }
-            response.setData(jCiclo);
-            response.setTotal(jCiclo.size());
+            ArrayNode jresoluciones = JaneHelper.from(resoluciones)
+                    .only("id,descripcion")
+                    .array();
+            response.setData(jresoluciones);
+            response.setTotal(jresoluciones.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -258,11 +238,11 @@ public class ContratoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/generar/general", method = RequestMethod.POST)
-    public String generar(@RequestBody CicloAcademico cicloOrigen, HttpSession session) {
+    @RequestMapping(value = "/generar/{idCicloOrigen}/{idCicloDestino}", method = RequestMethod.GET)
+    public String generar(@PathVariable("idCicloOrigen") Long idCicloOrigen, @PathVariable("idCicloDestino") Long idCicloDestino, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.generarGeneral(cicloOrigen, ds.getCicloAcademico(), ds);
+        service.generarGeneral(new CicloAcademico(idCicloOrigen), new CicloAcademico(idCicloDestino), ds);
         return GlobalMessages.CREATED;
     }
 
@@ -284,18 +264,10 @@ public class ContratoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/all/ciclo/contrato", method = RequestMethod.GET)
-    public ArrayNode allCiclo(HttpSession session) {
-
-        return JaneHelper.from(service.allCicloAcademicoContrato())
-                .only("id,descripcion,codigo")
-                .array();
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/all/data/contrato", method = RequestMethod.GET)
     public ObjectNode data(HttpSession session) {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+        objectNode.set("ciclosOrigen", JaneHelper.from(service.allCicloAcademicoContrato()).only("id,codigo,descripcion").array());
         objectNode.set("ciclos", JaneHelper.from(service.allCicloAcademico()).only("id,codigo,descripcion").array());
         objectNode.set("categorias", JaneHelper.from(service.allCategorias()).array());
         objectNode.set("situaciones", JaneHelper.from(service.allSituaciones()).array());
@@ -310,5 +282,16 @@ public class ContratoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.updateContratoDocente(ds, contratoDocente);
         return GlobalMessages.UPDATED;
+    }
+
+    @RequestMapping("reporteContratoLaboral")
+    public ModelAndView reporteContratoLaboral(Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<ContratoDocente> contratoDocentes = service.allContratoDocenteByCiclo(ds.getCicloAcademico());
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("contratoDocentes", contratoDocentes);
+        return new ModelAndView(reporte);
     }
 }

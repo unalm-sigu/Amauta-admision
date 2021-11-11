@@ -20,7 +20,7 @@
                                      select-label=" "
                                      track-by='id'
                                      v-bind:allow-empty="true"
-                                     v-bind:options='ciclos'>
+                                     v-bind:options='ciclosOrigen'>
                         </multiselect>
 
                         <input required="true" class="hide" type="text" v-model="cicloOrigen" />
@@ -31,7 +31,17 @@
                     <div class="form-group">
                         <label class="bold">Ciclo Académico Destino</label>
 
-                        <p class="form-control-static" >{{CICLO_ACADEMICO_DESCRIPCION}}</p>
+                        <multiselect v-model='cicloDestino'
+                                     label='descripcion'
+                                     placeholder=" "
+                                     deselect-label=" "
+                                     select-label=" "
+                                     track-by='id'
+                                     v-bind:allow-empty="true"
+                                     v-bind:options='ciclos'>
+                        </multiselect>
+
+                        <input required="true" class="hide" type="text" v-model="cicloDestino" />
 
                     </div>      
                 </form>
@@ -48,8 +58,9 @@
         data() {
             return {
                 ciclos: [],
+                ciclosOrigen: [],
                 cicloOrigen: null,
-                CICLO_ACADEMICO_DESCRIPCION: CICLO_ACADEMICO_DESCRIPCION
+                cicloDestino: null,
             };
         },
         mounted: function () {
@@ -63,7 +74,12 @@
             },
             copiarContratoDocente() {
                 let $vue = this;
-                axios_.post("/academico/profesor/generar/general", $vue.cicloOrigen)
+                if ($vue.cicloOrigen.codigo >= $vue.cicloDestino.codigo) {
+                    notify("El ciclo de origen no debe ser mayor o igual al ciclo de destino.");
+                    $vue.$refs.modalCopiarContratoDocente.stop();
+                    return;
+                }
+                axios_.get(`/academico/profesor/generar/${$vue.cicloOrigen.id}/${$vue.cicloDestino.id}`)
                         .then(({data}) => {
                             notify(data, 'info')
                             $vue.$refs.modalCopiarContratoDocente.close();
@@ -73,9 +89,10 @@
             },
             allCiclo() {
                 let $vue = this;
-                axios_.get("/academico/profesor/all/ciclo/contrato")
+                axios_.get("/academico/profesor/all/data/contrato")
                         .then(({data}) => {
-                            $vue.ciclos=data;
+                            $vue.ciclosOrigen = data.ciclosOrigen;
+                            $vue.ciclos = data.ciclos;
                         }, () => {
                         });
             }
