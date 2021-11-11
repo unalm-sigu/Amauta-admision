@@ -59,8 +59,6 @@ public class ActaServiceImpl implements ActaService {
 
     @Override
     public List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico cicloAcademico) {
-        
-        
         return departamentoAcademicoDAO.allActiveByDyna(filter, dptos, cicloAcademico);
     }
 
@@ -240,7 +238,7 @@ public class ActaServiceImpl implements ActaService {
 
     @Override
     public List<DepartamentoAcademico> allDepartamentosAcademicos() {
-       return departamentoAcademicoDAO.all();
+        return departamentoAcademicoDAO.all();
     }
 
 }

@@ -46,6 +46,9 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import static pe.edu.lamolina.model.enums.OficinaEnum.ASOERA;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OBUAE;
+import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
 @Service
@@ -74,55 +77,12 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isOperadorActaNotas(DataSessionPivot ds) {
-        boolean esTrabajadorEPG = false;
-        boolean esTrabajadorOERA = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == EPG) {
-                esTrabajadorEPG = true;
-            } else if (oficina.getCodigoEnum() == OERA) {
-                esTrabajadorOERA = true;
-            }
-        }
-        if (esTrabajadorEPG) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_EPG) {
-                    return false;
-                }
-            }
-        }
-        if (esTrabajadorOERA) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.OPER_ACTANOTAS_OERA) {
-                    return true;
-                } else if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
-                    return false;
-                }
-            }
-        }
-
-        return false;
+        return this.esTrabajadorOeraConRol(RolEnum.OPER_ACTANOTAS_OERA, ds);
     }
 
     @Override
     public boolean isOperadorGastoPosgrado(DataSessionPivot ds) {
-        boolean esTrabajadorEPG = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == EPG) {
-                esTrabajadorEPG = true;
-            }
-        }
-        if (!esTrabajadorEPG) {
-            return false;
-        }
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.OPER_GASTOS_EPG) {
-                return true;
-            }
-        }
-        return false;
-
+        return this.esTrabajadorEpgConRol(RolEnum.OPER_GASTOS_EPG, ds);
     }
 
     @Override
@@ -325,76 +285,68 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean puedeOperarMatricula(DataSessionPivot ds) {
-        boolean puedeOperar = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.OPER_MATRICULA_OERA) {
-                puedeOperar = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puedeOperar = true;
-                break;
-            }
+        boolean puedeOperar = this.esTrabajadorOeraConRol(RolEnum.OPER_MATRICULA_OERA, ds);
+        if (puedeOperar) {
+            return puedeOperar;
         }
-        return puedeOperar;
+
+        puedeOperar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (puedeOperar) {
+            return puedeOperar;
+        }
+
+        Oficina areaSistemasOera = oficinaDAO.findByCode(ASOERA.name());
+        return this.esJefeOrEncargadoOficina(areaSistemasOera, ds);
     }
 
     @Override
     public boolean puedeMatricularPosgrado(DataSessionPivot ds) {
+        boolean puedeMatricular = this.esTrabajadorEpgConRol(RolEnum.OPER_MATRICULA_EPG, ds);
+        if (puedeMatricular) {
+            return puedeMatricular;
+        }
+
         List<Carrera> maestrias = carreraDAO.allByModalidadEnum(ModalidadEstudioEnum.EPG);
         Map<Long, Carrera> mapMaestrias = TypesUtil.convertListToMap("id", maestrias);
-        boolean puedeApoyar = false;
 
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == EPG) {
-                return true;
-            }
-        }
+        Optional<Oficina> oficinaMaestria = oficinasMain.stream()
+                .filter(oficina -> oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP)
+                .filter(oficina -> mapMaestrias.get(oficina.getInstanciaOficina()) != null)
+                .filter(maestria -> this.puedeMatricularMaestria(maestria, ds))
+                .findFirst();
 
-        boolean esTrabajadorMaestria = false;
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
-                Carrera maestria = mapMaestrias.get(oficina.getInstanciaOficina());
-                if (maestria != null) {
-                    esTrabajadorMaestria = true;
-                }
-            }
-        }
+        return oficinaMaestria.isPresent();
+    }
 
-        if (esTrabajadorMaestria) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.COORD_ESP_EPG) {
-                    puedeApoyar = true;
-                    break;
-                }
-                if (rol.getCodigoEnum() == RolEnum.OPER_MATRICULA_ESP_EPG) {
-                    puedeApoyar = true;
-                    break;
-                }
-            }
+    private boolean puedeMatricularMaestria(Oficina maestria, DataSessionPivot ds) {
+        boolean puedeMatricular = this.esTrabajadorOficinaConRol(maestria, RolEnum.OPER_MATRICULA_ESP_EPG, ds);
+        if (puedeMatricular) {
+            return puedeMatricular;
         }
-        return puedeApoyar;
+        puedeMatricular = this.esTrabajadorOficinaConRol(maestria, RolEnum.COORD_ESP_EPG, ds);
+        return puedeMatricular;
     }
 
     @Override
     public boolean puedeEditarAlumno(DataSessionPivot ds) {
-        boolean puedeEditar = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.EDITOR_ALUMNO_OERA) {
-                puedeEditar = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.EDITOR_ALUMNO_EPG) {
-                puedeEditar = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puedeEditar = true;
-                break;
-            }
+        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.EDITOR_ALUMNO_OERA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
         }
-        return puedeEditar;
+
+        puedeEditar = this.esTrabajadorEpgConRol(RolEnum.EDITOR_ALUMNO_EPG, ds);
+        if (puedeEditar) {
+            return puedeEditar;
+        }
+
+        puedeEditar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
+        }
+
+        Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());
+        return this.esJefeOrEncargadoOficina(areaSistemasOERA, ds);
     }
 
     @Override
@@ -419,14 +371,13 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean puedeEditarOficinas(DataSessionPivot ds) {
-        boolean puede = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puede = true;
-                break;
-            }
+        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
         }
-        return puede;
+
+        Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());
+        return this.esJefeOrEncargadoOficina(areaSistemasOERA, ds);
     }
 
     @Override
@@ -533,33 +484,12 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isGestorOficinaEPG(DataSessionPivot ds) {
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
-                return true;
-            }
-        }
-        return false;
+        return this.esTrabajadorEpgConRol(RolEnum.GESTOR_OFICINA_EPG, ds);
     }
 
     @Override
     public boolean isEditorEncuestas(DataSessionPivot ds) {
-        boolean esTrabajadorOERA = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
-                esTrabajadorOERA = true;
-            }
-        }
-
-        if (esTrabajadorOERA) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.EDITOR_ENCU) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return this.esTrabajadorOeraConRol(RolEnum.EDITOR_ENCU, ds);
     }
 
     @Override
@@ -631,39 +561,14 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isEditorCurriculasAll(DataSessionPivot ds) {
-        boolean esTrabajadorOERA = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
-                esTrabajadorOERA = true;
-            }
-        }
-
-        if (esTrabajadorOERA) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return this.esTrabajadorOeraConRol(RolEnum.EDITOR_CURRICULA, ds);
     }
 
     @Override
     public boolean isEditorCurriculasEpg(DataSessionPivot ds) {
-        boolean esTrabajadorEPG = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == EPG) {
-                esTrabajadorEPG = true;
-            }
-        }
-        if (esTrabajadorEPG) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_EPG) {
-                    return true;
-                }
-            }
+        boolean esEditor = this.esTrabajadorEpgConRol(RolEnum.EDITOR_CURRICULA_EPG, ds);
+        if (esEditor) {
+            return esEditor;
         }
 
         List<UsuarioRol> userRolesAll = usuarioRolDAO.allActivosByUser(ds.getUsuario());
@@ -1120,18 +1025,11 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isRevisorActaNotas(DataSessionPivot ds) {
-
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
-                return true;
-            }
-        }
-        return false;
+        return this.esTrabajadorOeraConRol(RolEnum.REVISOR_ACTANOTAS_OERA, ds);
     }
 
     @Override
     public boolean isRolCape(DataSessionPivot ds) {
-
         for (Rol rol : ds.getRoles()) {
             if (rol.getCodigoEnum() == RolEnum.CAPE) {
                 return true;
@@ -1142,20 +1040,133 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isDeveloperOERA(DataSessionPivot ds) {
-        boolean esTrabajadorOERA = false;
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
-                esTrabajadorOERA = true;
-            }
+        boolean esInformaticoOera = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (esInformaticoOera) {
+            return esInformaticoOera;
         }
-        if (esTrabajadorOERA) {
-            for (Rol rol : ds.getRoles()) {
-                if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                    return true;
-                }
-            }
+
+        Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());
+        return this.esJefeOrEncargadoOficina(areaSistemasOERA, ds);
+    }
+
+    private boolean esTrabajadorOeraConRol(RolEnum rolEnum, DataSessionPivot ds) {
+        log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+        List<UsuarioRol> rolesUser = usuarioRolDAO.allWithOfficeByUserRolEnum(ds.getUsuario(), rolEnum);
+        log.info("roles-user-size = {}", rolesUser.size());
+
+        for (UsuarioRol userRol : rolesUser) {
+            log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
         }
+
+        Optional<UsuarioRol> rolBuscado = rolesUser.stream()
+                .filter(userRol -> areaDentroOERA(userRol.getOficina(), oficinasOrganizadas))
+                .findFirst();
+
+        log.info("rolBuscado = {}", rolBuscado.orElse(null));
+
+        return rolBuscado.isPresent();
+    }
+
+    private boolean esTrabajadorEpgConRol(RolEnum rolEnum, DataSessionPivot ds) {
+        log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+        List<UsuarioRol> rolesUser = usuarioRolDAO.allWithOfficeByUserRolEnum(ds.getUsuario(), rolEnum);
+        log.info("roles-user-size = {}", rolesUser.size());
+
+        for (UsuarioRol userRol : rolesUser) {
+            log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
+        }
+
+        Optional<UsuarioRol> rolBuscado = rolesUser.stream()
+                .filter(userRol -> areaDentroEPG(userRol.getOficina(), oficinasOrganizadas))
+                .findFirst();
+
+        log.info("rolBuscado = {}", rolBuscado.orElse(null));
+
+        return rolBuscado.isPresent();
+    }
+
+    private boolean esTrabajadorObuaeConRol(RolEnum rolEnum, DataSessionPivot ds) {
+        log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+        List<UsuarioRol> rolesUser = usuarioRolDAO.allWithOfficeByUserRolEnum(ds.getUsuario(), rolEnum);
+        log.info("roles-user-size = {}", rolesUser.size());
+
+        for (UsuarioRol userRol : rolesUser) {
+            log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
+        }
+
+        Optional<UsuarioRol> rolBuscado = rolesUser.stream()
+                .filter(userRol -> areaDentroOBUAE(userRol.getOficina(), oficinasOrganizadas))
+                .findFirst();
+
+        log.info("rolBuscado = {}", rolBuscado.orElse(null));
+
+        return rolBuscado.isPresent();
+    }
+
+    private boolean esTrabajadorOficinaConRol(Oficina oficinaMain, RolEnum rolEnum, DataSessionPivot ds) {
+        log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+        List<UsuarioRol> rolesUser = usuarioRolDAO.allWithOfficeByUserRolEnum(ds.getUsuario(), rolEnum);
+        log.info("roles-user-size = {}", rolesUser.size());
+
+        for (UsuarioRol userRol : rolesUser) {
+            log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
+        }
+
+        Optional<UsuarioRol> rolBuscado = rolesUser.stream()
+                .filter(userRol -> areaDentroOficinaMain(userRol.getOficina(), oficinasOrganizadas, oficinaMain))
+                .findFirst();
+
+        log.info("rolBuscado = {}", rolBuscado.orElse(null));
+
+        return rolBuscado.isPresent();
+    }
+
+    private boolean areaDentroOficinaMain(Oficina area, List<Oficina> oficinasOrganizadas, OficinaEnum oficinaEnum) {
+        log.info("verificando-oficina={} dentro-oficina-main={}", area.getCodigo(), oficinaEnum.name());
+        boolean dentroOficina = oficinaService.findOficinaMain(area, oficinasOrganizadas).getCodigoEnum() == oficinaEnum;
+        log.info("dentro-oficina {}", dentroOficina);
+        return dentroOficina;
+    }
+
+    private boolean areaDentroOficinaMain(Oficina area, List<Oficina> oficinasOrganizadas, Oficina oficina) {
+        log.info("verificando-oficina={} dentro-oficina-main={}", area.getCodigo(), oficina.getCodigo());
+        boolean dentroOficina = oficinaService.findOficinaMain(area, oficinasOrganizadas).getCodigoEnum() == oficina.getCodigoEnum();
+        log.info("dentro-oficina {}", dentroOficina);
+        return dentroOficina;
+    }
+
+    private boolean areaDentroOBUAE(Oficina area, List<Oficina> oficinasOrganizadas) {
+        return areaDentroOficinaMain(area, oficinasOrganizadas, OBUAE);
+    }
+
+    private boolean areaDentroOERA(Oficina area, List<Oficina> oficinasOrganizadas) {
+        return areaDentroOficinaMain(area, oficinasOrganizadas, OERA);
+    }
+
+    private boolean areaDentroEPG(Oficina area, List<Oficina> oficinasOrganizadas) {
+        return areaDentroOficinaMain(area, oficinasOrganizadas, EPG);
+    }
+
+    private boolean esJefeOrEncargadoOficina(Oficina oficina, DataSessionPivot ds) {
+
+        Persona jefe = oficina.getPersonaJefe();
+        if (jefe != null && jefe.getId().equals(ds.getPersona().getId())) {
+            return true;
+        }
+
+        Persona enbcargado = oficina.getJefeEncargado();
+        if (enbcargado != null && enbcargado.getId().equals(ds.getPersona().getId())) {
+            return true;
+        }
+
         return false;
     }
 
