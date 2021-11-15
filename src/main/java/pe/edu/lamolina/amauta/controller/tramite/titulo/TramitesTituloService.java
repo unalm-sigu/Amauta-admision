@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 public interface TramitesTituloService {
 
-    public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds);
+    public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter);
 
     public Context reporte(Long tramite, DataSessionPivot ds);
 

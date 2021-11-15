@@ -128,9 +128,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     CursoCurriculaDAO cursoCurriculaDAO;
 
     @Override
-    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
 
-        return tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
+        return tramiteBachillerDAO.allByDynatable(filter);
+        
     }
 
     @Override

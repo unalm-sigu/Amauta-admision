@@ -101,9 +101,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Override
-    public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter) {
 
-        return tramiteTituloDAO.allByDynatable(filter, ds.getCicloAcademico());
+        return tramiteTituloDAO.allByDynatable(filter);
     }
 
     @Override

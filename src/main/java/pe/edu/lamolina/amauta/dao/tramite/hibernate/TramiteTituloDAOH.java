@@ -8,7 +8,6 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -82,7 +81,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
-    public List<TramiteTitulo> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<TramiteTitulo> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.cicloAcademico ca")
@@ -91,8 +90,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico)
-                .orderBy("tb.id desc");
+                .orderBy("ca.codigo desc","tb.id desc");
 
         return all(sql);
     }

@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
-import static java.lang.Boolean.TRUE;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -53,7 +51,6 @@ import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
-import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.general.Archivo;
 
 @Controller

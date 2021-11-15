@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 public interface TramitesBachillerService {
 
-    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds);
+    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter);
 
     public Context reporte(Long tramite, DataSessionPivot ds);
 
