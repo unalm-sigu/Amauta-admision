@@ -504,7 +504,7 @@ public class PromedioServiceImp implements PromedioService {
             } else {
                 CicloAcademico cicloSgte = null;
                 if (cicloAnalizar != null) {
-                    cicloSgte = findCicloSiguienteRegularActivo(cicloAnalizar, modalidadEnum, mapCiclo);
+                    cicloSgte = findCicloSiguienteRegularActivo(cicloAnalizar, modalidadEnum, mapCiclo);////
                 }
 
                 if (cicloSgte != null) {
@@ -1612,9 +1612,10 @@ public class PromedioServiceImp implements PromedioService {
             nroCiclo = "10";
         } else if (nroCiclo.equals("0")) {
             nroCiclo = "10";
-        } else if (nroCiclo.equals("1.5")) {
-            nroCiclo = "20";
-        } else {
+        } else if (nroCiclo.equals("1.5") && ciclo.getCodigo().equals("202025") ) {//Por el orden que se programo el primer invierno del 2020 
+            nroCiclo = "10";
+        } 
+        else {
             nroCiclo = "20";
         }
 
