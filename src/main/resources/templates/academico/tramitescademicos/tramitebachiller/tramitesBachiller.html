@@ -58,6 +58,7 @@
                                                 </td>
 
                                                 <td class="v-middle text-left">
+                                                    <p class="bold">{{item.tramite.cicloAcademico.descripcion}}</p>
                                                     {{item.tramite.userRegistro.persona.apellidosNombres}}
                                                     <small class="block text-muted">
                                                         {{item.tramite.fechaRegistro}}
@@ -75,7 +76,7 @@
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                            <li v-if="item.tramite.tipoTramite.codigo == 'BACHI'"><a v-bind:href="urlReporteBachiller(item)">Reporte</a></li>
+                                                            <li v-if="item.tramite.tipoTramite.codigo == 'BACHI'"><a href="#" v-on:click.prevent="urlReporteBachiller(item)">Reporte</a></li>
                                                             <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                         </ul>
 
@@ -98,6 +99,7 @@
         <div layout:fragment="js">
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <script th:src="@{/app/academico/tramitesacademicos/tramitebachiller/tramitesBachiller.js}" charset="utf-8"></script>
 
         </div>

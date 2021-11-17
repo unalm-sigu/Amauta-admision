@@ -1353,4 +1353,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Alumno> correccionNivelacion(CicloAcademico cicloAcademico) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select alu.id ");
+        sb.append(" from aca_alumno_ciclo ac ");
+        sb.append(" join aca_alumno alu on ac.id_alumno = alu.id ");
+        sb.append(" join aca_modalidad_estudio me on alu.id_modalidad_estudio =  me.id ");
+        sb.append(" join aca_ciclo_academico ca on ac.id_ciclo_academico = ca.id ");
+        sb.append(" where  ca.id = :CICLO_SESSION ");
+        sb.append(" and ac.estado = :ESTADO_MAT ");
+        sb.append(" and me.codigo = :MODALIDAD ");
+
+        Query query = getCurrentSession().createSQLQuery(sb.toString())
+                .addScalar("id", LongType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(Alumno.class));
+        query.setParameter("CICLO_SESSION", cicloAcademico.getId());
+        query.setParameter("ESTADO_MAT", EstadoMatriculaEnum.MAT.name());
+        query.setParameter("MODALIDAD", ModalidadEstudioEnum.PRE.name());
+        return query.list();
+    }
+
 }

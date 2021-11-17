@@ -58,22 +58,35 @@ var app = new Vue({
         },
         anular(item) {
             let $vue = this;
-            swal({
-                text: "¿Desea anular el tramite titulo del alumno?",
+
+            swal('¿Desea anular el trámite título del alumno?', {
                 icon: "warning",
-                buttons: ["Cancelar", "Anular"],
+                closeOnClickOutside: false,
+                closeOnEsc: false,
                 dangerMode: true,
-            }).then((willDelete) => {
-                if (willDelete) {
-                    axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/anular/'), item).
-                            then(({data}) => {
-                                notify(data, 'info');
-                                $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                            }, () => {
-                            });
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Anular", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                axios_.post(APP.url('academico/tramiteacademico/tramitetitulo/anular/'), item)
+                        .then(({data}) => {
+                            $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                            return swal({text: data, icon: "success", button: false, timer: 1700});
+                        }, () => {
+                            return swal(APP.errorComunicacion, "error");
+                        });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
                 }
             });
         }
-
     }
 })

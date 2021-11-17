@@ -298,6 +298,25 @@ public class InfoAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("corregirsituacionacademica")
+    public JsonResponse corregirsituacionacademica(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+            service.calcularPromediosNivelacion(ds);
+            //corrige la situacion acadmica del ciclo de nivelacion
+            //ubicarse en el ciclo de nivelacion session
+            response.setSuccess(true);
+            response.setMessage("Se calculó el promedio satisfactoriamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("{idAlumno}/aportes")
     public JsonResponse aportes(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();

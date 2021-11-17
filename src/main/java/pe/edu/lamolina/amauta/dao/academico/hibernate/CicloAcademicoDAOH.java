@@ -840,9 +840,10 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public List<CicloAcademico> allContrato() {
         Octavia sql = Octavia.query()
                 .selectDistinct("ci")
-                .from(ContratoDocente.class, "ca")
+                .from(ContratoDocente.class, "cd")
                 .join("cicloInicioContrato ci")
                 .join("ci.modalidadEstudio me")
+                .filter("ci.tipo", TipoCicloEnum.REG)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE);
         return all(sql);
     }

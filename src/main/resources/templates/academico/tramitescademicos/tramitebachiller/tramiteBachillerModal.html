@@ -1,6 +1,9 @@
-<modal-vik ref="modalTramBachiller"
-           v-bind="modalTramBachiller"
+<modal-simple ref="modalTramBachiller"
+           okbtn="Guardar"
            v-bind:okaction="saveTramiteBachiller">
+    <div slot="header">
+        <h4 class="modal-title">Agregar Tramite Bachiller</h4>
+    </div>
     <div slot="body">
         <div class="modal-body">
             <form id="form" data-parsley-validate="true">
@@ -32,4 +35,4 @@
             </form>
         </div>
     </div>
-</modal-vik>
+</modal-simple>

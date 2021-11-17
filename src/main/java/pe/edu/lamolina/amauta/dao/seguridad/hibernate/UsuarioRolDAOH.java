@@ -228,6 +228,19 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     }
 
     @Override
+    public List<UsuarioRol> allWithOfficeByUserRolEnum(Usuario usuario, RolEnum rolEnum) {
+        Octavia sql = new Octavia()
+                .from(UsuarioRol.class, "ur")
+                .join("oficina ofi", "ofi.tipoOficina tof", "usuario us", "rol rol")
+                .filter("us.id", usuario)
+                .filter("rol.codigo", rolEnum)
+                .filter("ofi.estado", ACT)
+                .filter("ur.estado", ACT);
+
+        return all(sql);
+    }
+
+    @Override
     public List<UsuarioRol> allWithOfficeByUserRoles(Usuario usuario, List<Rol> roles) {
         Octavia sql = new Octavia()
                 .from(UsuarioRol.class, "ur")

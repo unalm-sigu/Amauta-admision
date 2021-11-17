@@ -3,13 +3,6 @@ var app = new Vue({
     el: '#tramitesAcademicos',
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramitebachiller/list'),
-        modalTramBachiller: {
-            id: 'modalTramBachiller',
-            header: true,
-            title: 'Agregar Tramite Bachiller ',
-            okbtn: "Guardar",
-            showaccept: true
-        },
         tramiteBachiller: {},
         alumnos: [],
         isLoading: false
@@ -28,27 +21,16 @@ var app = new Vue({
             if (!$("#form").parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/tramiteacademico/tramitebachiller/save'),
-                data: JSON.stringify($vue.tramiteBachiller),
-                contentType: "application/json",
-                success: function (response) {
-                    if (response.success) {
+
+            axios_.post(APP.url('academico/tramiteacademico/tramitebachiller/save'), $vue.tramiteBachiller)
+                    .then(response => {
+                        notify(response.data, "success");
                         $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                        notify(response.message, "success");
-                    } else {
-                        notify(response.message, "error");
-                    }
-                    $vue.$refs.modalTramBachiller.close();
-                    MODAL.hideWait();
-                },
-                error: function () {
-                    $vue.$refs.modalTramBachiller.close();
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+                        $vue.$refs.modalTramBachiller.close();
+                    }, () => {
+                        $vue.$refs.modalTramBachiller.stop();
+                    });
+
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
@@ -58,24 +40,15 @@ var app = new Vue({
         },
         loadAlumno(nombre) {
             let $vue = this;
-            this.isLoading = true
 
-            if (nombre != '' || nombre != null || nombre != undefined) {
-
-                $.ajax({
-                    url: APP.url("academico/tramitecondicional/allAlumnoByNombre"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre}
-                }).then(response => {
-                    if (response.success) {
-                        $vue.alumnos = response.data;
-                    }
-
-                    this.isLoading = false;
-                })
-
+            if (!nombre) {
+                return;
             }
+
+            AXIOS.get(APP.url("academico/tramitecondicional/allAlumnoByNombre"), {params: {nombre: nombre}})
+                    .then(({data}) => {
+                        $vue.alumnos = data.data;
+                    });
         },
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
@@ -85,32 +58,45 @@ var app = new Vue({
         },
         urlReporteBachiller(item) {
 
-            return APP.url('academico/tramiteacademico/tramitebachiller/' + item.tramite.id + '/reporte');
+            axios_blob.get(APP.url('academico/tramiteacademico/tramitebachiller/' + item.tramite.id + '/reporte'))
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                    }, (error) => {
+                        notify(error.response.data.message, 'error')
+                    });
+
         },
         anular(item) {
             let $vue = this;
-            bootbox.confirm({
-                message: '¿Desea anular el tramite bachiller del alumno?',
-                callback: function (result) {
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url("academico/tramiteacademico/tramitebachiller/anular"),
-                            contentType: "application/json",
-                            method: 'POST',
-                            data: JSON.stringify(item)
-                        }).then(response => {
-                            if (response.success) {
-                                $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                                notify(response.message, "success");
-                            } else {
-                                notify(response.message, "error");
-                            }
-                            MODAL.hideWait();
-                        })
-                    }
+            swal('¿Desea anular el tramite bachiller del alumno?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Anular", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                axios_.post(APP.url("academico/tramiteacademico/tramitebachiller/anular"), item)
+                        .then(({data}) => {
+                            $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                            return swal({text: data, icon: "success", button: false, timer: 1700});
+                        }, () => {
+                            return swal(APP.errorComunicacion, "error");
+                        });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
                 }
             });
+
         }
     }
 })

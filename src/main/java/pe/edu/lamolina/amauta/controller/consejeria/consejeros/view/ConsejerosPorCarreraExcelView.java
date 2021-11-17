@@ -197,7 +197,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         for (Consejero consejero : consejeros) {
             column = 0;
             excelUtil.replaceVal(irow, column++, num++, estiloNumero);
-            excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, consejero.getDocente() != null ? consejero.getDocente().getCodigo() : "", estiloGeneral);
             excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, consejero.getDocente().getDepartamentoAcademico().getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, consejero.getAconsejadosMat() + consejero.getAconsejadosNmat(), estiloGeneral);

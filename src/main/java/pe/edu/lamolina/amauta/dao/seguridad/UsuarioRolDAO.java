@@ -46,6 +46,8 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     List<UsuarioRol> allWithOfficeByUserRol(Usuario usuario, Rol rol);
 
+    List<UsuarioRol> allWithOfficeByUserRolEnum(Usuario usuario, RolEnum rolEnum);
+
     List<UsuarioRol> allWithOfficeByUserRoles(Usuario usuario, List<Rol> roles);
 
     UsuarioRol findByOficinaRolUser(OficinaEnum oficinaEnum, Rol role, Usuario usuario);

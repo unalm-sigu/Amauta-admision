@@ -128,9 +128,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     CursoCurriculaDAO cursoCurriculaDAO;
 
     @Override
-    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
 
-        return tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
+        return tramiteBachillerDAO.allByDynatable(filter);
+        
     }
 
     @Override
@@ -145,6 +146,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        
+        if(alumno.getPlanCurricular()==null){
+            throw new PhobosException("El plan de estudios no está especificado");
+        }
 
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(alumno.getPlanCurricular());
         Map<Long, CursoCurricula> mapCursoCurricula = TypesUtil.convertListToMap("curso.id", cursoCurriculas);

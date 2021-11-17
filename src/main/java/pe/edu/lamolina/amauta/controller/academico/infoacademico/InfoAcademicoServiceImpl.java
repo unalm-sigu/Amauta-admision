@@ -1145,4 +1145,23 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return cursosEquiv;
     }
 
+    @Override
+    @Transactional
+    public void calcularPromediosNivelacion(DataSessionPivot ds) {
+
+        Boolean puedeCalcular = usuarioPuedeCalcular(ds);
+        if (!puedeCalcular) {
+            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+        }
+        
+        List<Alumno> alumnos = alumnoDAO.correccionNivelacion(ds.getCicloAcademico());
+
+        log.debug("se van ha corregir {} alumnos", alumnos.size());
+        
+        for (Alumno alumno : alumnos) {
+            promedioService.calcularSituacionAcademica(alumno, ds);
+        }
+
+    }
+
 }

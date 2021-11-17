@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +68,9 @@ import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.medico.MedicoDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Slf4j
@@ -406,6 +412,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaboradorForm.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaboradorForm.setCodigo(getCodigoColaborador() + "");
         colaboradorForm.setEsJefeOficina(false);
+        this.setCodigoColaboradorDocente(colaboradorForm, personaBD, oficinaColaborador);
         colaboradorDAO.save(colaboradorForm);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
@@ -877,6 +884,83 @@ public class ColaboradorServiceImp implements ColaboradorService {
             funciones.add(value);
         }
         return funciones;
+    }
+
+    private void setCodigoColaboradorDocente(Colaborador colaboradorForm, Persona personaBD, Oficina oficinaColaborador) {
+
+        PerfilCompania perfilCompaniaDocente = perfilCompaniaDAO.findByCodigo(PerfilColaboradorEnum.DOC);
+
+        if (perfilCompaniaDocente == null) {
+            throw new PhobosException("No hay forma de determinar si es un docente");
+        }
+
+        if (perfilCompaniaDocente.getId() != colaboradorForm.getCargo().getId().longValue()) {
+            log.debug("El cargo que ocupa no necesita asociarse al docente");
+            return;
+        }
+
+        List<Docente> docentes = docenteDAO.allByPersona(personaBD);
+
+        if (docentes.isEmpty()) {
+            log.debug("El colaborador no tiene registros de docentes");
+            return;
+        }
+
+        List<Docente> docentesActivos = docentes.stream()
+                .filter(x -> x.getEstadoEnum() == DocenteEstadoEnum.ACT)
+                .collect(Collectors.toList());
+
+        if (docentesActivos.isEmpty()) {
+            log.debug("El colaborador no tiene registros de docentes activos");
+            return;
+        }
+
+        if (oficinaColaborador.getTipoOficina().getCodigoEnum() != TipoOficinaEnum.DPTO) {
+            log.debug("La oficina no es del tipo de departamento académico");
+            return;
+        }
+
+        DepartamentoAcademico departamentoAcademicoOficina = departamentoAcademicoDAO.find(oficinaColaborador.getInstanciaOficina());
+
+        if (departamentoAcademicoOficina == null) {
+            log.debug("La oficina no es del tipo de departamento académico");
+            return;
+        }
+
+        if (docentesActivos.size() == 1) {
+
+            log.debug("El colaborador  tiene un registros de docente activo");
+
+            if (StringUtils.isBlank(docentesActivos.get(0).getCodigo())) {
+                throw new PhobosException("El código del docente no fue correctamente configurado");
+            }
+
+            DepartamentoAcademico departamentoAcademico = docentesActivos.get(0).getDepartamentoAcademico();
+
+            if (departamentoAcademico == null) {
+                throw new PhobosException("El docente no trabaja en este departamento académico");
+            }
+
+            if (departamentoAcademico.getId() != departamentoAcademicoOficina.getId().longValue()) {
+                throw new PhobosException("El docente no trabaja en este departamento académico");
+            }
+
+            colaboradorForm.setCodigo(docentesActivos.get(0).getCodigo());
+            return;
+        }
+
+        Optional<Docente> docenteOptional = docentesActivos.stream()
+                .filter(x -> x.getDepartamentoAcademico().getId() == departamentoAcademicoOficina.getId().longValue())
+                .findFirst();
+
+        if (!docenteOptional.isPresent()) {
+
+            throw new PhobosException("El docente no trabaja en este departamento académico");
+
+        }
+
+        colaboradorForm.setCodigo(docenteOptional.get().getCodigo());
+
     }
 
 }

@@ -50,40 +50,31 @@ public class TramitesTituloController {
     public DynatableResponse listTramites(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
+        List<TramiteTitulo> tramitesTitulos = tramitesTituloService.allTramitesByFilter(filter);
 
-        try {
+        ArrayNode array = JaneHelper.from(tramitesTitulos)
+                .join("tramite")
+                .join("resolucion")
+                .join("tramite.persona", "apellidosNombres")
+                .join("tramite.alumno", "codigo")
+                .join("tramite.alumno.planCurricular")
+                .join("tramite.alumno.carrera")
+                .join("tramite.alumno.carrera.facultad", "nombre")
+                .join("tramite.compania")
+                .join("tramite.cicloAcademico")
+                .join("tramite.tipoTramite")
+                .join("tramite.tipoTramite.oficina")
+                .join("tramite.userRegistro")
+                .join("tramite.userRegistro.persona")
+                .join("tramite.userRespuesta")
+                .join("tramite.formularioEstadoTramite")
+                .join("tramite.estadoTramite", "id,nombre")
+                .array();
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            
-            List<TramiteTitulo> tramitesTitulos = tramitesTituloService.allTramitesByFilter(filter, ds);
-            
-            ArrayNode array = JaneHelper.from(tramitesTitulos)
-                    .join("tramite")
-                    .join("resolucion")
-                    .join("tramite.persona","apellidosNombres")
-                    .join("tramite.alumno","codigo")
-                    .join("tramite.alumno.planCurricular")
-                    .join("tramite.alumno.carrera")
-                    .join("tramite.alumno.carrera.facultad","nombre")
-                    .join("tramite.compania")
-                    .join("tramite.cicloAcademico")
-                    .join("tramite.tipoTramite")
-                    .join("tramite.tipoTramite.oficina")
-                    .join("tramite.userRegistro")
-                    .join("tramite.userRegistro.persona")
-                    .join("tramite.userRespuesta")
-                    .join("tramite.formularioEstadoTramite")
-                    .join("tramite.estadoTramite", "id,nombre")
-                    .array();
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
         return json;
     }
 
