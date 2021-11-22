@@ -13,7 +13,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -192,8 +192,14 @@
                                                             <i class="fa fa-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
+                                                            
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
+
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li th:if="${puedeEditarOficinas}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
+
                                                         </ul>
+
                                                     </div>
                                                 </td>
                                             </tr>

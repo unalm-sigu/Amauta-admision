@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
-import static groovy.util.Eval.x;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -132,4 +131,11 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         aconsejadoEstadoBean.setAlumnosConsejeros(alumnosTutor);
         return aconsejadoEstadoBean;
     }
+
+    @Override
+    @Transactional
+    public void eliminarAlumnoConsejero(Long idAlumnoConsejero) {
+        alumnoConsejeroDAO.delete(idAlumnoConsejero);
+    }
+
 }

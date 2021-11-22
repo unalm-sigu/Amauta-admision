@@ -13,7 +13,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -92,7 +92,7 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                        
+
                                                 <td class="v-middle">
                                                     <div class="pull-left">
                                                         <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
@@ -111,7 +111,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    
+
                                                     <a v-bind:href="urlAcademico(item.alumno)"
                                                        class="block text-primary bold h5 m-b-xs m-t-xs" >
                                                         {{item.alumno.persona.apellidosNombres}}
@@ -135,6 +135,11 @@
                                                 </td>
 
                                                 <td class="v-middle">
+
+                                                    <span class="block" v-if="item.consejero">                                                            
+                                                        <span class=" bold"> Consejero: </span>
+                                                        {{item.consejero.colaborador.codigo}}
+                                                    </span>
                                                     <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
                                                         <span class=" bold"> Ciclo Ingreso: </span>
                                                         {{item.alumno.cicloIngreso.descripcion}}
@@ -157,9 +162,9 @@
                                                     </span>
                                                 </td>
 
-<!--                                                <td class="v-middle text-center">
-                                                    <input type="checkbox" id="chkbox" v-model="item.estadoMatriculaAutorizacion" onclick="return false;" v-on:click="matriculatAutoriazacion(item)"/>
-                                                </td>-->
+                                                <!--                                                <td class="v-middle text-center">
+                                                                                                    <input type="checkbox" id="chkbox" v-model="item.estadoMatriculaAutorizacion" onclick="return false;" v-on:click="matriculatAutoriazacion(item)"/>
+                                                                                                </td>-->
                                                 <td class="v-middle text-center">
                                                     <span v-if="item.estadoMatriculableEnum.name == 'MAT'">
                                                         <small class="block">Créditos: {{item.creditosMatriculados}}</small>
@@ -200,7 +205,7 @@
                 var rutaModulo = 'consejeria/aconsejadostutor';
                 /*]]>*/
             </script>
-            
+
             <script th:src="@{/app/consejeria/aconsejadostutor/aconsejadosTutor.js}" charset="utf-8"></script>
         </div>
 

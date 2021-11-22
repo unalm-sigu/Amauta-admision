@@ -23,4 +23,6 @@ public interface AconsejadosTutorService {
     public Persona findPersona(Long idPersona);
 
     public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera);
+
+    public void eliminarAlumnoConsejero(Long idAlumnoConsejero);
 }

@@ -22,10 +22,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ReporteAconsejadosTutorExcelView;
 import pe.edu.lamolina.amauta.controller.matricula.tutorsolicitud.TutorSolicitudService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -33,6 +35,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.general.Persona;
 
 @Controller
@@ -50,14 +53,17 @@ public class AconsejadosTutorController {
     @Autowired
     ReporteAconsejadosTutorExcelView reporteAlumnosConsejeroExcelView;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("ciclo", JaneHelper.from(ds.getCicloAcademico()).json());
         model.addAttribute("persona", ds.getPersona());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-
         return "consejeria/aconsejadostutor/aconsejadosTutor";
     }
 
@@ -74,6 +80,7 @@ public class AconsejadosTutorController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
 
         return "consejeria/viewCoordinador/viewCoordinador";
     }
@@ -112,6 +119,7 @@ public class AconsejadosTutorController {
                             "alumno.carrera.nombre",
                             "alumno.carrera.facultad.nombre",
                             "consejero.*",
+                            "consejero.colaborador.codigo",
                             "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
@@ -165,6 +173,7 @@ public class AconsejadosTutorController {
                             "alumno.carrera.nombre",
                             "alumno.carrera.facultad.nombre",
                             "consejero.*",
+                            "consejero.colaborador.codigo",
                             "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
@@ -194,9 +203,6 @@ public class AconsejadosTutorController {
         try {
 
             AconsejadoEstadoBean aconsejadoEstadoBean = service.allByPersona(ds.getPersona(), ds.getCicloAcademico());
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
             json.setData(JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"}));
             json.setMessage("Búsqueda Exitosa");
 
@@ -333,6 +339,13 @@ public class AconsejadosTutorController {
         byte[] decoded = Base64.getMimeDecoder().decode(origen);
         String output = new String(decoded);
         return output;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminar/{idAlumnoConsejero}")
+    public String eliminar(@PathVariable("idAlumnoConsejero") Long idAlumnoConsejero, Model model, HttpSession session) {
+        service.eliminarAlumnoConsejero(idAlumnoConsejero);
+        return GlobalMessages.DELETED;
     }
 
 }

@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {sinconsejero: '', activo: ''},
-        aconsejadosURL: APP.url(rutaModulo + '/list'),
+        aconsejadosURL: APP.url('consejeria/aconsejadostutor/list'),
         ciclo: JSON.parse(cicloJson),
         isLoading: false,
         consejeroModal: {
@@ -54,7 +54,7 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url(rutaModulo + "/countData"),
+                url: APP.url("consejeria/aconsejadostutor/countData"),
                 data: {idCarrera: $vue.carreraSelect.id},
                 dataType: 'json',
                 type: 'post',
@@ -63,12 +63,7 @@ new Vue({
             });
         },
         urlAcademico(item) {
-            let $vue = this;
-            return APP.url('academico/alumno/' + item.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         matriculatAutoriazacion(item) {
             let $vue = this;
@@ -87,7 +82,7 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url(rutaModulo + "/matriculaAutorizacion"),
+                            url: APP.url("consejeria/aconsejadostutor/matriculaAutorizacion"),
                             data: JSON.stringify({
                                 alumno: item.alumno,
                                 autorizacionMatricula: matriculaAutorizacion
@@ -133,7 +128,7 @@ new Vue({
                 }
                 $.ajax({
                     method: 'POST',
-                    url: APP.url(rutaModulo + "/solicitudBeneficio"),
+                    url: APP.url("consejeria/aconsejadostutor/solicitudBeneficio"),
                     data: JSON.stringify(item),
                     contentType: "application/json",
                     success: function (response) {
