@@ -13,7 +13,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -173,7 +173,9 @@
                                                             <i class="fa fa-envelope"></i>
                                                             {{item.consejero.colaborador.persona.emailCompania}}
                                                         </span> 
-                                                        <span class=" bold"> Fecha Asignación: </span>
+                                                        <span class=" block"> <b>Código:</b>    <span v-text="item.consejero.colaborador.codigo"></span> </span>
+                                                       
+                                                        <span class=" bold block"> Fecha Asignación: </span>
                                                         <span v-text="item.fechaAsigna"></span>
                                                     </span>
                                                     <span v-else="" class="text-danger h5 bold">
@@ -236,7 +238,7 @@
                 var rutaModulo = 'consejeria/aconsejadoscarrera';
                 /*]]>*/
             </script>
-            
+
             <script th:src="@{/app/consejeria/aconsejadoscarrera/aconsejadosCarrera.js}" charset="utf-8"></script>
         </div>
 

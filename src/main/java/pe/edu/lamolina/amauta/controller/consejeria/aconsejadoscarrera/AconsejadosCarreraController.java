@@ -30,7 +30,6 @@ import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -103,6 +102,7 @@ public class AconsejadosCarreraController {
                             "alumno.carrera.nombre",
                             "alumno.carrera.facultad.nombre",
                             "consejero.*",
+                            "consejero.colaborador.codigo",
                             "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
