@@ -48,6 +48,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import static pe.edu.lamolina.model.enums.OficinaEnum.ASOERA;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OBUAE;
+import static pe.edu.lamolina.model.enums.RolEnum.COORD_TUTO;
 import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
@@ -378,6 +379,15 @@ public class VerificadorServiceImp implements VerificadorService {
 
         Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());
         return this.esJefeOrEncargadoOficina(areaSistemasOERA, ds);
+    }
+
+    @Override
+    public boolean esCoordinadorIOREA(DataSessionPivot ds) {
+        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
+        }
+        return this.esJefeOrEncargadoOficina(oficinaDAO.findByCode(COORD_TUTO.name()), ds);
     }
 
     @Override

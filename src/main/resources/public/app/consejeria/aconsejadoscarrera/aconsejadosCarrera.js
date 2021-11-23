@@ -217,6 +217,41 @@ new Vue({
                 }
             });
 
+        },
+        eliminarTutorado(item) {
+
+            let $vue = this;
+
+            swal('¿Seguro que desea eliminar el tutorado ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Eliminar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                axios_.get("/consejeria/aconsejadostutor/eliminar/" + item.id)
+                        .then(({data}) => {
+                            notify(data, 'info');
+                            $vue.$refs.raptorAconsejados.loadRemoteData();
+                            return swal({text: data, icon: "success", button: false, timer: 1000});
+                        }, () => {
+                            return swal(APP.errorComunicacion, "error");
+                        });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+
         }
     }
 });

@@ -174,7 +174,7 @@
                                                             {{item.consejero.colaborador.persona.emailCompania}}
                                                         </span> 
                                                         <span class=" block"> <b>Código:</b>    <span v-text="item.consejero.colaborador.codigo"></span> </span>
-                                                       
+
                                                         <span class=" bold block"> Fecha Asignación: </span>
                                                         <span v-text="item.fechaAsigna"></span>
                                                     </span>
@@ -201,6 +201,11 @@
                                                             <li  ><a v-on:click="model(item)">Cambiar Tutor</a></li>
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
                                                             <li v-if='item.beneficioUtlimoCiclo == 0' class="pointer"><a v-on:click="solicitudBeneficio(item)">Beneficio útimo ciclo</a></li>
+
+
+                                                            <li th:if="${esCoordinadorIOREA}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esCoordinadorIOREA}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
+
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -213,6 +218,7 @@
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
                                                         </ul>
+
                                                     </div>
                                                 </td>
                                             </tr>

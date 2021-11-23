@@ -27,7 +27,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ReporteAconsejadosTutorExcelView;
 import pe.edu.lamolina.amauta.controller.matricula.tutorsolicitud.TutorSolicitudService;
-import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -53,9 +52,6 @@ public class AconsejadosTutorController {
     @Autowired
     ReporteAconsejadosTutorExcelView reporteAlumnosConsejeroExcelView;
 
-    @Autowired
-    VerificadorService verificadorService;
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
@@ -80,8 +76,6 @@ public class AconsejadosTutorController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("origen", getOrigen(origen));
-        model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
-
         return "consejeria/viewCoordinador/viewCoordinador";
     }
 

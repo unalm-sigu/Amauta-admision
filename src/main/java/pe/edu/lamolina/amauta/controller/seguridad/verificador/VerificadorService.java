@@ -86,4 +86,6 @@ public interface VerificadorService {
 
     boolean isDeveloperOERA(DataSessionPivot ds);
 
+    public boolean esCoordinadorIOREA(DataSessionPivot ds);
+
 }

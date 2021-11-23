@@ -61,6 +61,8 @@ public class AconsejadosCarreraController {
         model.addAttribute("restriccionCape", restriccionCape);
 
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
+        
+        model.addAttribute("esCoordinadorIOREA", verificadorService.esCoordinadorIOREA(ds));
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
     }

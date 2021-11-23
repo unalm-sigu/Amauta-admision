@@ -23,7 +23,7 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 @Service
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
 
     @Autowired
