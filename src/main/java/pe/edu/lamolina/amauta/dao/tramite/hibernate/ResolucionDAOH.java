@@ -121,8 +121,8 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .join("oficina ofi", "tipoResolucion tr", "userRegistro ur", "ur.persona")
                 .left("reunionConsejo re", "cicloAplica")
                 .filter("ofi.id", oficina.getId())
-                .like("res.serie", serie)
-                .like("res.numero", numero)
+                .filter("res.serie", serie)
+                .filter("res.numero", numero)
                 .limit(1);
         return this.find(sql);
     }
