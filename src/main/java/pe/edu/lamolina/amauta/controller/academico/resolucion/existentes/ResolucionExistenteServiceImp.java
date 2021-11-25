@@ -1568,6 +1568,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 throw new PhobosException("El alumno " + alumno.getCodigo() + " no tiene Practicas habilitadas");
             }
 
+            log.debug("alumnoCursoCurricula {}", alumnoCursoCurricula.getId());
+
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
 
             Integer creditos = practicasForm.getCreditos() == null ? cursoCurricula.getCreditos() : practicasForm.getCreditos();
@@ -1604,8 +1606,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
 
-                if (practicasForm.getCreditos() == null) {
-                    throw new PhobosException("Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
+                if (resolucion.getOficina().getCodigo().equalsIgnoreCase("F040")) {
+                    if (practicasForm.getCreditos() == null) {
+                        throw new PhobosException("Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
+                    }
                 }
 
                 Integer sumaCreditos = alumnoCicloCurso.getCreditos() + creditos;
