@@ -142,7 +142,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             seccion.setSolicitudesMatriculaAlt(matriculasSeccionBySeccion.size());
             DocenteSeccion docPrincipal = mapResponsableSeccion.get(seccion.getId());
             seccion.setDocentePrincipal(docPrincipal != null ? docPrincipal.getDocente() : null);
-            seccion.setDocentePrincipalLogeado(mapDocenteSeccionXdocente.get(ds.getDocente().getId())!=null);
+            seccion.setDocentePrincipalLogeado(mapDocenteSeccionXdocente.get(ds.getDocente().getId()) != null);
             seccion.setDocentePrincipaTcurLogeado(true);
 
             if (seccion.getIsTipoSeccionPCUR()) {
@@ -495,6 +495,16 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             if (alumnoCursoCurricula == null || !matriculasCursos.isEmpty()) {
 
                 throw new PhobosException(String.format("Alumno %s solo puede matricularse a un curso trikeado", alumno.getPersona().getApellidosNombres()));
+            }
+
+        } else if (matriculaResumen.getCicloAcademico().isTipoRegular() && matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
+            AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaNoTrikeados.stream()
+                    .filter(x -> x.getCurso().getId().equals(curso.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (alumnoCursoCurricula == null || !matriculasCursos.isEmpty()) {
+
+                throw new PhobosException(String.format("Alumno %s solo puede matricularse en cursos trikeados", alumno.getPersona().getApellidosNombres()));
             }
 
         } else if (matriculaResumen.getCicloAcademico().isTipoNivelacion()) {
