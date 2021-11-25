@@ -387,7 +387,12 @@ public class VerificadorServiceImp implements VerificadorService {
         if (puedeEditar) {
             return puedeEditar;
         }
-        return this.esJefeOrEncargadoOficina(oficinaDAO.findByCode(COORD_TUTO.name()), ds);
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.COORD_TUTO) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
