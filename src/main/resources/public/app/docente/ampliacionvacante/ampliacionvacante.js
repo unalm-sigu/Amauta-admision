@@ -43,7 +43,8 @@ var app = new Vue({
             }
             
             if(!(grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G01'||
-                    grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G02')){
+                    grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G02'||
+                    grupoSeccion.anexoBoletin.anexoSuperior.codigo=='G03')){
                  swal({
                     title: " ",
                     text: "Solo se permite ampliación vacante para cursos de pregrado",
