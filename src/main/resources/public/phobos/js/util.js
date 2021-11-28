@@ -334,7 +334,7 @@ APP = {
     colorEstado: {
         CRE: "default",
         ACT: "success", MAT: "success", ABI: "success",
-        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",RCHZ:"danger",
+        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger", RCHZ: "danger",
         APR: "primary", ACEP: "primary",
         OBS: "warning",
         SOL: "default",
@@ -729,7 +729,87 @@ VUE_MODAL = {
     structInfo(params) {
         return VUE_MODAL.structByType("INFO", params);
     }
-}
+};
+
+VUE_AXIOS = {
+    dataGetData: {
+        beginProcessing: false,
+        notificar: false,
+        notificarError: true,
+        notificarErrorCatch: true,
+        open: false,
+        close: false
+    },
+    dataModalOpen: {
+        beginProcessing: false,
+        notificar: false,
+        notificarError: true,
+        notificarErrorCatch: true,
+        open: true,
+        close: false
+    },
+    dataModalClose: {
+        beginProcessing: true,
+        notificar: true,
+        notificarError: true,
+        notificarErrorCatch: true,
+        open: false,
+        close: true
+    },
+    dataModalWait: {
+        beginProcessing: true,
+        notificar: true,
+        notificarError: true,
+        notificarErrorCatch: true,
+        open: false,
+        close: false
+    },
+    dataModalConfirm: {
+        beginProcessing: false,
+        notificar: true,
+        notificarError: true,
+        notificarErrorCatch: true,
+        open: false,
+        close: true
+    },
+    structByType(type, params) {
+        var data = {};
+
+        if (type === "GET-DATA") {
+            data = Object.assign({}, VUE_AXIOS.dataGetData);
+        } else if (type === "MODAL-OPEN") {
+            data = Object.assign({}, VUE_AXIOS.dataModalOpen);
+        } else if (type === "MODAL-CLOSE") {
+            data = Object.assign({}, VUE_AXIOS.dataModalClose);
+        } else if (type === "MODAL-WAIT") {
+            data = Object.assign({}, VUE_AXIOS.dataModalWait);
+        } else if (type === "MODAL-CONFIRM") {
+            data = Object.assign({}, VUE_AXIOS.dataModalConfirm);
+        }
+
+        var keys = Object.keys(params);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            data[key] = params[key];
+        }
+        return data;
+    },
+    structGetData(params) {
+        return VUE_AXIOS.structByType("GET-DATA", params);
+    },
+    structModalOpen(params) {
+        return VUE_AXIOS.structByType("MODAL-OPEN", params);
+    },
+    structModalClose(params) {
+        return VUE_AXIOS.structByType("MODAL-CLOSE", params);
+    },
+    structModalWait(params) {
+        return VUE_AXIOS.structByType("MODAL-WAIT", params);
+    },
+    structModalConfirm(params) {
+        return VUE_AXIOS.structByType("MODAL-CONFIRM", params);
+    }
+};
 
 const Messages = {
     errorComunicacion: 'Error de conexión con el servidor.',
@@ -1016,7 +1096,9 @@ const axios_blob = axios.create({
     responseType: 'blob', // important
 });
 
-axios_blob.interceptors.response.use(response => { return response; },
+axios_blob.interceptors.response.use(response => {
+    return response;
+},
         error => {
             if (
                     error.request.responseType === 'blob' &&
@@ -1040,7 +1122,8 @@ axios_blob.interceptors.response.use(response => { return response; },
 
                     reader.readAsText(error.response.data);
                 });
-               };
+            }
+            ;
             return Promise.reject(error);
         }
 );
