@@ -2,25 +2,17 @@ new Vue({
     el: '#main',
     data: {
         cursos: [],
-        modalDataZoom: {
-            id: 'modalDataZoom',
-            header: true,
-            title: "Data Zoom",
-            showaccept: false,
-            cancelbtn: 'Cerrar',
-            cancelclass: 'btn btn-link'
-        },
-        aulaDataZoom: {}
+        aulaDataZoom: {},
+        seccionMain: {}
     },
     mounted: function () {
         let $vue = this;
         $vue.loadData();
     },
     methods: {
-
         loadData() {
             let $vue = this;
-            axios.get(rutaModulo + '/list')
+            axios.get('/docente/cargaacademica/list')
                     .then(response => {
                         if (response.data.success) {
                             $vue.cursos.push({
@@ -46,15 +38,9 @@ new Vue({
             return text.replace(" y ", "<br/>");
         },
         verAlumnos(item) {
-            let $vue = this;
-            location.href = APP.url('academico/docente/alumnosDocente/') + item.id + '/alumnosDocente' + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            location.href = APP.url('academico/docente/alumnosDocente/') + item.id + '/alumnosDocente' + URL_UTIL.getOrigenURL();
         },
         download(item) {
-            console.log(item);
             location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
         },
         downloadOfFoto(seccion) {
@@ -64,6 +50,15 @@ new Vue({
             let $vue = this;
             $vue.aulaDataZoom = item;
             $vue.$refs.modalDataZoom.open();
+        },
+        linkZoomModal(seccion) {
+            let $vue = this;
+            $vue.seccionMain = {...seccion};
+            $vue.$refs.modalLinkZoom.open();
+        },
+        copiarLink() {
+            let $vue = this;
+            navigator.clipboard.writeText($vue.seccionMain.linkZoom);
         }
     }
 

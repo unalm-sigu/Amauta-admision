@@ -9,7 +9,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -103,6 +103,9 @@
                                     <td class="v-middle text-center">
                                         <span class="block">{{seccion.codigo2}}</span>
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+
+                                        <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+
                                     </td>
 
                                     <td class="v-middle text-center">
@@ -203,13 +206,13 @@
                                         </div>
                                     </td>
                                     <td class="text-center v-middle">
-                                            <div class="pointer " v-on:click="downloadOfFoto(seccion)">
-                                                <span class="fa-stack fa-2x text-danger">
-                                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                                    <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
-                                                </span>
-                                            </div>
-                                        </td>
+                                        <div class="pointer " v-on:click="downloadOfFoto(seccion)">
+                                            <span class="fa-stack fa-2x text-danger">
+                                                <i class="fa fa-circle fa-stack-2x"></i>
+                                                <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
+                                            </span>
+                                        </div>
+                                    </td>
                                 </template>
                                 </tr>
                                 </tbody>
@@ -227,18 +230,21 @@
                         </section>
                     </section>
                 </section>
+                
                 <div th:substituteby="docente/dataZoomModal"></div>
+                
             </div>
-            <div th:substituteby="templates/modal"/>
+            
         </section>
+        
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var iddocente = /*[[${docente.id}]]*/'';
-                var rutaModulo = '/docente/cargaacademica';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
             <script th:src="@{/app/docente/cargaacademica.js}" charset="utf-8"></script>
         </div>
 

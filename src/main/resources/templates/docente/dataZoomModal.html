@@ -1,6 +1,10 @@
-<modal-vik ref="modalDataZoom"
-           v-bind="modalDataZoom">
+<modal-simple ref="modalDataZoom"
+              cancelbtn='Cerrar'
+              v-bind:showaccept='false'>
 
+    <div slot="header">
+        <h4 class="modal-title">Data Zoom</h4>
+    </div>
     <div slot="body" id="modalDataZoom">
         <div class="row">
             <div class="col-md-6 ">
@@ -13,4 +17,24 @@
             </div>
         </div>
     </div>
-</modal-vik>
+</modal-simple>
+
+<modal-simple ref="modalLinkZoom"
+              cancelbtn='Cerrar'
+              v-bind:showaccept='false'>
+
+    <div slot="header">
+        <h4 class="modal-title">Link Zoom</h4>
+    </div>
+    
+    <div slot="body" >
+        
+        <p class="bold" v-text="seccionMain.linkZoom"></p>
+        
+        <a href="#" v-on:click.prevent="copiarLink()" class="btn btn-link"> <i class="fa fa-copy"></i> Copiar</a>
+        
+        <a v-bind:href="seccionMain.linkZoom" target="_blank" class="btn btn-link"> <i class="fa fa-external-link"></i> Abrir</a>
+        
+    </div>
+    
+</modal-simple>

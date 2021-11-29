@@ -101,7 +101,7 @@ public class CargaAcademicaController {
                 for (Seccion seccion : seccionesByGpoSecc) {
                     ObjectNode nodeSeccion = JaneHelper
                             .from(seccion)
-                            .only("id,tipoSeccionEnum,codigo2,matriculados,verInformacion,horarioTexto")
+                            .only("id,tipoSeccionEnum,codigo2,matriculados,verInformacion,horarioTexto,linkZoom")
                             .join("aula", "codigo,nombre,usuarioZoom,passZoom")
                             .join("grupoHoras", "codigo")
                             .json();
