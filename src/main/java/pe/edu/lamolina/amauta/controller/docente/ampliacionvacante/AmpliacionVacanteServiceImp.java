@@ -267,13 +267,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             throw new PhobosException(responseRest.getMessage());
         }
 
-        for (Alumno alumno : alumnos) {
-
-            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-
-            this.calcularMatriculaResumenInfoMatriculas(matriculaResumen);
-        }
-
     }
 
     public Map<Long, DocenteSeccion> getMapDocentesSeccionGroupBySeccion(GrupoSeccion grupoSeccion) {
@@ -320,24 +313,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         seccionUpd.setAmpliacionVacante(ampliacionesMatricula != null ? ampliacionesMatricula.size() : BigDecimal.ZERO.intValue());
         seccionUpd.setMatriculados(matriculas != null ? matriculas.size() : BigDecimal.ZERO.intValue());
         seccionDAO.updateColumns(seccionUpd, "solicitudesMatricula", "ampliacionVacante", "matriculados");
-    }
-
-    public void calcularMatriculaResumenInfoMatriculas(MatriculaResumen matriculaResumen) {
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
-        List<MatriculaCurso> matriculados = matriculasCurso.stream()
-                .filter(x -> x.isEstadoMAT())
-                .collect(Collectors.toList());
-        Integer creditosMatriculados = BigDecimal.ZERO.intValue();
-        if (matriculados != null) {
-            for (MatriculaCurso matriculado : matriculados) {
-                creditosMatriculados = creditosMatriculados + matriculado.getCreditos();
-            }
-        }
-        MatriculaResumen matriculaResumenUpd = new MatriculaResumen(matriculaResumen.getId());
-        matriculaResumenUpd.setCursosMatriculados(matriculados != null ? matriculados.size() : BigDecimal.ZERO.intValue());
-        matriculaResumenUpd.setCreditosMatriculados(creditosMatriculados);
-        matriculaResumenUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
-        matriculaResumenDAO.updateColumns(matriculaResumenUpd, "cursosMatriculados", "creditosMatriculados", "estado");
     }
 
     private Date cleanDate(Date fecha) {
