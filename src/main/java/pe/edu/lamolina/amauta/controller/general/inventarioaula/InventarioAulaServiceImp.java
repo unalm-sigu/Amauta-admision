@@ -248,7 +248,6 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
 
         Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
         if (archivo != null) {
-            this.deleteArchivoS3(archivo.getNombre());
             archivoDAO.delete(archivo);
         }
 
@@ -327,10 +326,6 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             throw new PhobosException("No existe el archivo en el servidor");
         }
         swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
-    }
-
-    private void deleteArchivoS3(String nombreArchivo) {
-        swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, nombreArchivo);
     }
 
     @Override
