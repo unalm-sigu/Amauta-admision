@@ -1,24 +1,17 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
-import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.general.ConfiguracionFirmaDocumentoDAO;
@@ -33,7 +26,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Autowired
-    TipoDocumentoAcademicoDAO tipoConstanciaDAO;
+    TipoDocumentoAcademicoDAO tipoDocumentoAcademicoDAO;
 
     @Autowired
     OficinaDAO oficinaDAO;
@@ -54,74 +47,17 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Override
     @Transactional
-    public void update(TipoDocumentoAcademico tramiteDocumentoAcademicoForm, Usuario usuario) {
-
-        TipoDocumentoAcademico documentoAcademicoDB = tipoConstanciaDAO.find(tramiteDocumentoAcademicoForm);
-        documentoAcademicoDB.setNombre(tramiteDocumentoAcademicoForm.getNombre());
-        documentoAcademicoDB.setTipo(tramiteDocumentoAcademicoForm.getTipo());
-        
-        documentoAcademicoDB.setRequiereEgresado(tramiteDocumentoAcademicoForm.getRequiereEgresado());
-        documentoAcademicoDB.setRequiereFoto(tramiteDocumentoAcademicoForm.getRequiereFoto());
-        documentoAcademicoDB.setRequierePosgrado(tramiteDocumentoAcademicoForm.getRequierePosgrado());
-        documentoAcademicoDB.setRequierePregrado(tramiteDocumentoAcademicoForm.getRequierePregrado());
-       
-        if (tramiteDocumentoAcademicoForm.getCostoCiclo() == null) {
-            documentoAcademicoDB.setCostoCiclo(0L);
-        } else {
-            documentoAcademicoDB.setCostoCiclo(tramiteDocumentoAcademicoForm.getCostoCiclo());
-        }
-
-        tipoConstanciaDAO.update(documentoAcademicoDB);
-
-        List<ConfiguracionFirmaDocumento> configuracion = tramiteDocumentoAcademicoForm.getConfiguracionFirmaDocumento();
-        List<ConfiguracionFirmaDocumento> configuracionDB = configuracionFirmaDocumentoDAO.allByTipoDocumentoAcademico(tramiteDocumentoAcademicoForm);
-
-        logger.debug("existen  {} configuracion en db", configuracionDB.size());
-
-        if (!configuracionDB.isEmpty()) {
-            List<Long> configuracioness = new ArrayList();
-            for (ConfiguracionFirmaDocumento firma : configuracion) {
-                if (firma.getId() != null) {
-                    configuracioness.add(firma.getId());
-                }
-            }
-
-            Map<Long, ConfiguracionFirmaDocumento> configuracionFirmaDocumentoMap = TypesUtil.convertListToMap("id", configuracionDB);
-            List<ConfiguracionFirmaDocumento> configuracionDelete = new ArrayList();
-            for (Map.Entry<Long, ConfiguracionFirmaDocumento> entry : configuracionFirmaDocumentoMap.entrySet()) {
-                Long key = entry.getKey();
-                if (!configuracioness.contains(key)) {
-                    configuracionDelete.add(entry.getValue());
-                }
-            }
-
-            for (ConfiguracionFirmaDocumento firma : configuracionDelete) {
-                logger.debug("remove ConfiguracionFirmaDocumento {}", firma.getId());
-                configuracionFirmaDocumentoDAO.delete(firma);
-            }
-        }
-
-        for (ConfiguracionFirmaDocumento configuracionFirmaDocumento : configuracion) {
-            ObjectUtil.eliminarAttrSinId(configuracionFirmaDocumento, "oficina");
-            ObjectUtil.eliminarAttrSinId(configuracionFirmaDocumento, "tipoOficina");
-            configuracionFirmaDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademicoForm);
-            if (configuracionFirmaDocumento.getId() != null) {
-                configuracionFirmaDocumentoDAO.save(configuracionFirmaDocumento);
-            } else {
-                configuracionFirmaDocumentoDAO.update(configuracionFirmaDocumento);
-            }
-        }
-
-    }
-
-    @Override
-    @Transactional
     public void save(TipoDocumentoAcademico tramiteDocumentoAcademico, Usuario usuario) {
-        TipoDocumentoAcademico tramiteDocumentoAcademicoCodigo=tipoConstanciaDAO.findByCodigo(tramiteDocumentoAcademico.getCodigo());
-        if(tramiteDocumentoAcademicoCodigo!=null){
-            throw new PhobosException("Código registrado ya existe");
+
+        tramiteDocumentoAcademico.setCodigo(tramiteDocumentoAcademico.getTipo() + System.currentTimeMillis());
+
+        TipoDocumentoAcademico tramiteDocumentoAcademicoCodigo = tipoDocumentoAcademicoDAO.findByCodigo(tramiteDocumentoAcademico.getCodigo());
+
+        while (tramiteDocumentoAcademicoCodigo != null) {
+            tramiteDocumentoAcademico.setCodigo(tramiteDocumentoAcademico.getTipo() + System.currentTimeMillis());
+            tramiteDocumentoAcademicoCodigo = tipoDocumentoAcademicoDAO.findByCodigo(tramiteDocumentoAcademico.getCodigo());
         }
-        
+
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         if (tramiteDocumentoAcademico.getCostoCiclo() == null) {
             tramiteDocumentoAcademico.setCostoCiclo(0L);
@@ -130,60 +66,70 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
             tramiteDocumentoAcademico.setPlazoDiasPago(0);
         }
         if (tramiteDocumentoAcademico.getRequiereFoto() == null) {
-            tramiteDocumentoAcademico.setRequiereFoto(1);
+            tramiteDocumentoAcademico.setRequiereFoto(0);
         }
+        if (tramiteDocumentoAcademico.getRequiereEgresado() == null) {
+            tramiteDocumentoAcademico.setRequiereEgresado(0);
+        }
+        if (tramiteDocumentoAcademico.getRequierePosgrado() == null) {
+            tramiteDocumentoAcademico.setRequierePosgrado(0);
+        }
+        if (tramiteDocumentoAcademico.getRequierePregrado() == null) {
+            tramiteDocumentoAcademico.setRequierePregrado(0);
+        }
+
         tramiteDocumentoAcademico.setOficinaEmisora(oficina);
-        tramiteDocumentoAcademico.setConfigurado(0l);
-        tipoConstanciaDAO.save(tramiteDocumentoAcademico);
-        List<ConfiguracionFirmaDocumento> configuracion = tramiteDocumentoAcademico.getConfiguracionFirmaDocumento();
-        for (ConfiguracionFirmaDocumento configuracionFirmaDocumento : configuracion) {
-            ObjectUtil.eliminarAttrSinId(configuracionFirmaDocumento, "oficina");
-            ObjectUtil.eliminarAttrSinId(configuracionFirmaDocumento, "tipoOficina");
-            configuracionFirmaDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
-            configuracionFirmaDocumentoDAO.save(configuracionFirmaDocumento);
+        tramiteDocumentoAcademico.setConfigurado(0L);
+        tipoDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void update(TipoDocumentoAcademico tramiteDocumentoAcademicoForm, Usuario usuario) {
+
+        if (tramiteDocumentoAcademicoForm.getCostoCiclo() == null) {
+            tramiteDocumentoAcademicoForm.setCostoCiclo(0L);
+        }
+        if (tramiteDocumentoAcademicoForm.getPlazoDiasPago() == null) {
+            tramiteDocumentoAcademicoForm.setPlazoDiasPago(0);
+        }
+        if (tramiteDocumentoAcademicoForm.getRequiereFoto() == null) {
+            tramiteDocumentoAcademicoForm.setRequiereFoto(0);
+        }
+        if (tramiteDocumentoAcademicoForm.getRequiereEgresado() == null) {
+            tramiteDocumentoAcademicoForm.setRequiereEgresado(0);
+        }
+        if (tramiteDocumentoAcademicoForm.getRequierePosgrado() == null) {
+            tramiteDocumentoAcademicoForm.setRequierePosgrado(0);
+        }
+        if (tramiteDocumentoAcademicoForm.getRequierePregrado() == null) {
+            tramiteDocumentoAcademicoForm.setRequierePregrado(0);
         }
 
-        List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipo(tramiteDocumentoAcademico.getTipo());
-        Long idTipoDoc = accionTramiteDocumentos.get(0).getTipoDocumentoAcademico().getId();
-        for (AccionTramiteDocumento accionTramiteDocumentoDB : accionTramiteDocumentos) {
-            if (Objects.equals(idTipoDoc, accionTramiteDocumentoDB.getTipoDocumentoAcademico().getId())) {
+        tipoDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm,
+                "costoCiclo",
+                "requiereFoto",
+                "requiereEgresado",
+                "requierePosgrado",
+                "requierePregrado",
+                "nombre",
+                "tipo");
 
-                AccionTramiteDocumento accionTramiteDocumento = new AccionTramiteDocumento();
-                accionTramiteDocumento.setEsFinal(accionTramiteDocumentoDB.getEsFinal());
-                accionTramiteDocumento.setEstadoTramite(accionTramiteDocumentoDB.getEstadoTramite());
-                accionTramiteDocumento.setEstadoTramiteFinal(accionTramiteDocumentoDB.getEstadoTramiteFinal());
-                accionTramiteDocumento.setIdioma(accionTramiteDocumentoDB.getIdioma());
-                accionTramiteDocumento.setMotivo(accionTramiteDocumentoDB.getMotivo());
-                accionTramiteDocumento.setOficinaDestino(accionTramiteDocumentoDB.getOficinaDestino());
-                accionTramiteDocumento.setOficinaOrigen(accionTramiteDocumentoDB.getOficinaOrigen());
-                accionTramiteDocumento.setOpcion(accionTramiteDocumentoDB.getOpcion());
-                accionTramiteDocumento.setOrden(accionTramiteDocumentoDB.getOrden());
-                accionTramiteDocumento.setRespuesta(accionTramiteDocumentoDB.getRespuesta());
-                accionTramiteDocumento.setSolicitaMotivo(accionTramiteDocumentoDB.getSolicitaMotivo());
-                accionTramiteDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
-                accionTramiteDocumento.setTipoOficinaDestino(accionTramiteDocumentoDB.getTipoOficinaDestino());
-                accionTramiteDocumento.setTipoOficinaOrigen(accionTramiteDocumentoDB.getTipoOficinaOrigen());
-                accionTramiteDocumento.setUrl(accionTramiteDocumentoDB.getUrl());
-                accionTramiteDocumentoDAO.save(accionTramiteDocumento);
-            } else {
-                break;
-            }
-        }
     }
 
     @Override
     public List<TipoDocumentoAcademico> allDynatable(DynatableFilter filter) {
-        return tipoConstanciaDAO.allDynatable(filter);
+        return tipoDocumentoAcademicoDAO.allDynatable(filter);
     }
 
     @Override
     public TipoDocumentoAcademico findById(TipoDocumentoAcademico tipoDocumentoAcademico) {
-        return tipoConstanciaDAO.find(tipoDocumentoAcademico.getId());
+        return tipoDocumentoAcademicoDAO.find(tipoDocumentoAcademico.getId());
     }
 
     @Override
     public List<TipoDocumentoAcademico> all() {
-        return tipoConstanciaDAO.allTipoDocumento();
+        return tipoDocumentoAcademicoDAO.allTipoDocumento();
     }
 
     @Override
@@ -198,8 +144,8 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         for (PrecioDocumento precioDocumento : precioDocumentos) {
             precioDocumentoDAO.delete(precioDocumento);
         }
-        TipoDocumentoAcademico tipoDocumentoAcademicoDB = tipoConstanciaDAO.find(tipoDocumento);
-        tipoConstanciaDAO.delete(tipoDocumentoAcademicoDB);
+        TipoDocumentoAcademico tipoDocumentoAcademicoDB = tipoDocumentoAcademicoDAO.find(tipoDocumento);
+        tipoDocumentoAcademicoDAO.delete(tipoDocumentoAcademicoDB);
     }
 
     @Override
@@ -214,18 +160,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Override
     public TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento) {
-        TipoDocumentoAcademico tipoDocumentoAcademico = tipoConstanciaDAO.find(tipoDocumento);
-        List<ConfiguracionFirmaDocumento> firmas = configuracionFirmaDocumentoDAO.allByTipoDocumentoAcademico(tipoDocumentoAcademico);
-        for (ConfiguracionFirmaDocumento firma : firmas) {
-            if(firma.getTipoOficina()==null){
-                firma.setTipoOficina(new TipoOficina());
-            }
-            if(firma.getOficina()==null){
-                firma.setOficina(new Oficina());
-            }
-        }
-        tipoDocumentoAcademico.setConfiguracionFirmaDocumento(firmas);
-        return tipoDocumentoAcademico;
+        return tipoDocumentoAcademicoDAO.find(tipoDocumento);
     }
 
 }
