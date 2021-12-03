@@ -134,4 +134,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     public List<CicloAcademico> allContrato();
 
+    public List<CicloAcademico> allPregradoFuturosByRange(int yearinit, int yearend);
+
 }

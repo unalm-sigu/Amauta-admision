@@ -99,7 +99,7 @@ public class ResolucionExistenteController {
                 .array();
 
         ArrayNode ciclosJson = JaneHelper
-                .from(service.ciclosAnteriores(40))
+                .from(service.allCicloAplica(ds))
                 .only("id,codigo,descripcion")
                 .array();
 

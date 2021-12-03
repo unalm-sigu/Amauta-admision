@@ -82,4 +82,6 @@ public interface ResolucionExistenteService {
 
     List<Oficina> allOficinasResolucion(DataSessionPivot ds);
 
+    List<CicloAcademico> allCicloAplica( DataSessionPivot ds);
+
 }
