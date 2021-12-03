@@ -131,7 +131,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
 
         return tramiteBachillerDAO.allByDynatable(filter);
-        
+
     }
 
     @Override
@@ -146,8 +146,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        
-        if(alumno.getPlanCurricular()==null){
+
+        if (alumno.getPlanCurricular() == null) {
             throw new PhobosException("El plan de estudios no está especificado");
         }
 
@@ -220,7 +220,14 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         }
 
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
+        if (eventoActual == null) {
+            throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", alumno.getCicloActivo().getDescripcion()));
+        }
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
+        if (eventoIngreso == null) {
+            throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", cicloInicio.getDescripcion()));
+        }
+        
         Oficina oficinaColaborador = null;
 
         alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
