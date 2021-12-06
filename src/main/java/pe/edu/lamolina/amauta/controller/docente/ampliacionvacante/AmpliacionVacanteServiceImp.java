@@ -473,11 +473,11 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
 
         } else if (matriculaResumen.getCicloAcademico().isTipoRegular() && matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
-            AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaNoTrikeados.stream()
+            AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursosCurriculaTrikeados.stream()
                     .filter(x -> x.getCurso().getId().equals(curso.getId()))
                     .findFirst()
                     .orElse(null);
-            if (alumnoCursoCurricula == null || !matriculasCursos.isEmpty()) {
+            if (alumnoCursoCurricula == null) {
 
                 throw new PhobosException(String.format("Alumno %s solo puede matricularse en cursos trikeados", alumno.getPersona().getApellidosNombres()));
             }
