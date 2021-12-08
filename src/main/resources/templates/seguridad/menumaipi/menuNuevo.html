@@ -1,0 +1,140 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 th:unless="${menu.id==null}">
+            <span th:inline="text" class="block"><strong>Recurso:</strong> [[${menu.nombre}]]</span>
+            <span th:inline="text" class="block"><strong>ID:</strong> [[${menu.clave}]]</span>
+        </h3>
+        <h3 th:if='${menu.id==null}'>Nuevo menú</h3>
+    </div>
+    <div class="panel-body">
+
+        <form  data-parsley-validate="true">
+
+            <input type="hidden" name="id" th:value="${menu.id}"/>
+            <input type="hidden" name="menuSuperior.id"
+                   th:if="${menuSuperior}"
+                   th:value="${menuSuperior.id}"/>
+
+            <div th:if="${menuSuperior}" class="form-group">
+                <label>Menu superior</label>
+                <input type="text" class="form-control input-sm" readonly="yes" th:value="${menuSuperior.rutaCompleta}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="form-control input-sm" name="tipo"  th:disabled="${editable!=null?editable:false}">
+                    <option th:each="item : ${tipos}"
+                            th:value="${item.name()}"
+                            th:text="${item.value}"
+                            th:selected="${menu.tipoEnum==item}">TITULO</option>
+                </select>
+                <input  type="hidden" 
+                        name="tipo"
+                        th:if="${editable!=null?editable:false}"
+                        th:value="${menu.tipo}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre</label>
+                <input  type="text" class="form-control  input-sm"
+                        name="nombre" th:value="${menu.nombre}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Ruta</label>
+                <input  type="text" class="form-control  input-sm"
+                        name="ruta"  th:value="${menu.ruta}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Icono</label>
+                <div class="input-group">
+                    <input  type="text" class="form-control  input-sm"
+                            name="icono"  th:value="${menu.icono}"/>
+                    <div class="input-group-addon"> <i th:class="${menu.icono}" aria-hidden="true"></i></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Estado</label>
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="radio"
+                                    required="true"
+                                    name="estado"
+                                    th:checked="${menu.estado == 'ACT' }"
+                                    value="ACT"
+                                    /> Activo
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-danger">
+                            <input  type="radio"
+                                    required="true"
+                                    name="estado"
+                                    th:checked="${menu.estado == 'INA' }"
+                                    value="INA"
+                                    /> Inactivo
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Modalidades</label>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="checkbox"
+                                    name="pregrado"
+                                    th:checked="${menu.pregrado == 'ACT' }"
+                                    value="ACT"
+                                    /> Pregrado
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="checkbox"
+                                    name="posgrado"
+                                    th:checked="${menu.posgrado == 'ACT' }"
+                                    value="ACT"
+                                    /> Posgrado
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="checkbox"
+                                    name="especial"
+                                    th:checked="${menu.especial == 'ACT' }"
+                                    value="ACT"
+                                    /> Especial
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="radio inline text-primary">
+                            <input  type="checkbox"
+                                    name="visitante"
+                                    th:checked="${menu.visitante == 'ACT' }"
+                                    value="ACT"
+                                    /> Visitante
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="panel-footer">
+        <div class='text-center m-t-sm'>
+            <a href='#' id="cancelarMenu" class='btn btn-link btn-sm'>Cancelar</a>
+            <button class='btn btn-primary btn-sm' id="btnSaveMenu" type='button' th:inline="text" >
+                [[${menu.id!=null?'Actualizar Menú':'Crear Menú'}]]
+            </button>
+        </div>
+
+    </div>
+</div>

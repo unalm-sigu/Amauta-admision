@@ -1,0 +1,77 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Menú Maipi</title>
+        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
+        <style>
+            .m1 {
+                display: flex;
+                overflow: hidden;
+                height: calc(100vh - 150px);
+                margin-top: -100px;
+                padding-top: 100px;
+                padding-bottom: 40px;
+                position: relative;
+                width: 100%;
+                backface-visibility: hidden;
+                will-change: overflow;
+                border: #fff none thin;
+
+            }
+            .m2 {
+                overflow: auto;
+                height: auto;
+                padding: .5rem;
+                -webkit-overflow-scrolling: touch;
+                -ms-overflow-style: none;
+                flex: 1;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <header class="header b-b padder-lg">
+                <h2>Menú del Maipi</h2>
+            </header>
+
+            <section class="panel">
+                <section class="panel-body">
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="m1">
+                                <div class="m2">
+                                    <a class="btn btn-primary" id="nuevoTitulo"  href="#" >Nuevo Título</a>
+                                    <div id="tree"  class="tree"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4" id="formMenu"></div>
+
+                    </div>
+                </section>
+            </section>
+
+            <script id="titulotemplate" type="text/x-template" class="hide">
+                <div th:substituteby="seguridad/menumaipi/tituloTemplate"></div>
+            </script>
+
+            <script id="menuSistemaTemplate" type="text/x-template" class="hide">
+                <div th:substituteby="seguridad/menumaipi/menuSistemaTemplate"></div>
+            </script>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var rutaModulo = /*[[${rutaModulo}]]*/ null;
+                /*]]>*/
+            </script>
+            <script th:src="@{/app/seguridad/menumaipi/menuMaipi.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
