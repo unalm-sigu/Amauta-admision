@@ -116,13 +116,13 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     public List<Reincorporacion> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
         return reincorporacionDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
-        
+
     }
 
     @Override
     @Transactional
     public void saveReincorporacion(Reincorporacion reincorporacionForm, DataSessionPivot ds) {
-        
+
         Boolean esCondicional = reincorporacionForm.getAlumno().getEsMatriculaCondicional();
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
@@ -250,7 +250,9 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     @Override
     public List<CicloAcademico> getCiclos(DataSessionPivot ds) {
 
-        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 3);
+        CicloAcademico ca = ds.getCicloAcademico();
+        int rango = 10;
+        return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 3);
     }
 
     private void validadCaducos(Map<Long, CursoCurricula> mapCursoCurricula, List<AlumnoCicloCurso> alumnoCicloCursos) {
@@ -261,11 +263,6 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
             }
         }
 
-    }
-
-    @Override
-    public List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds) {
-        return cicloAcademicoDAO.allUltimosByModalidadEnum(ModalidadEstudioEnum.PRE, 20);
     }
 
     public Tramite findByTramite(Long id) {

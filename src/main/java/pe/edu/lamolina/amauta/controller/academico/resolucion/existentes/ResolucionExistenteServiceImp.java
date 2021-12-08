@@ -1891,4 +1891,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         return oficinaDAO.allByTiposOficinas(tiposEnum);
     }
 
+    @Override
+    public List<CicloAcademico> allCicloAplica(DataSessionPivot ds) {
+        CicloAcademico ca = ds.getCicloAcademico();
+        int rango = 10;
+        return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 3);
+    }
+
 }

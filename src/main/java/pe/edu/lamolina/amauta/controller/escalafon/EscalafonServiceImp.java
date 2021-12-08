@@ -204,9 +204,6 @@ public class EscalafonServiceImp implements EscalafonService {
         escalafonBD.setFechaActualizacion(new Date());
         escalafonDAO.update(escalafonBD);
 
-        if (isChange) {
-            uploadFileS3.deleteFile(urlArchivoForm);
-        }
         return escalafonBD;
     }
 

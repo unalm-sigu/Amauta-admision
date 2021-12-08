@@ -72,7 +72,6 @@ public class ConvenioServiceImp implements ConvenioService {
         convenioBeca.setFechaRegistro(convenioBecaDB.getFechaRegistro());
         convenioBeca.setEstado(convenioBecaDB.getEstado());
         this.saveArchivoS3(convenioBeca.getRutaDocumento());
-        this.deleteArchivoS3(convenioBecaDB, convenioBeca);
         convenioBecaDAO.update(convenioBeca);
         carreraConvenioDAO.deleteByConvenioBeca(convenioBeca);
         List<CarreraConvenio> carreraConvenios = convenioBeca.getCarreraConvenio();
@@ -159,13 +158,6 @@ public class ConvenioServiceImp implements ConvenioService {
         logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + rutaDocumento), (file.exists()));
         if (file.exists()) {
             swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
-        }
-    }
-
-    private void deleteArchivoS3(ConvenioBeca convenioBecaDB, ConvenioBeca convenioBeca) {
-        boolean requiereDelete = convenioBecaDB.getRutaDocumento().equalsIgnoreCase(convenioBeca.getRutaDocumento());
-        if (!requiereDelete) {
-            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
         }
     }
 

@@ -34,22 +34,22 @@ public class UploadFileS3Imp implements UploadFileS3 {
 
     @Override
     public void deleteFile(String dirName, String fileName) {
-        if (despliegueConfig.getStorage()) {
-            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
-        } else {
-            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
-        }
+//        if (despliegueConfig.getStorage()) {
+//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
+//        } else {
+//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
+//        }
     }
 
     @Override
     public void deleteFile(String fileName) {
-        if (despliegueConfig.getStorage()) {
-            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
-        } else {
-            if (fileName.startsWith("trash")) {
-                swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
-            }
-        }
+//        if (despliegueConfig.getStorage()) {
+//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
+//        } else {
+//            if (fileName.startsWith("trash")) {
+//                swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
+//            }
+//        }
     }
 
     @Override

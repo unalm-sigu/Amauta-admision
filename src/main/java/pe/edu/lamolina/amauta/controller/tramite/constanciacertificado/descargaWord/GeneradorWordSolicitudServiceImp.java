@@ -192,11 +192,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.find(archivo.getIdInstancia());
 
         Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(plantilla.getId(), TRAM_PLANTILLA_DOCUMENTO_ACADEMICO);
-        if (!Objects.equal(archivoDB, null)) {
+        
+        if (archivoDB!=null) {
             archivoDAO.delete(archivoDB);
         }
 
         uploadFileS3.uploadSync(AcademicoConstantine.S3_PLANTILLA_WORD, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
+        
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_PLANTILLA_WORD, archivo.getNombre());
 
         Archivo newarchivo = new Archivo();
@@ -213,7 +215,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         plantillaDocumentoAcademicoDAO.update(plantilla);
 
         TipoDocumentoAcademico documentoAcademico = plantilla.getTipoDocumentoAcademico();
-        documentoAcademico.setConfigurado(1l);
+        documentoAcademico.setConfigurado(1L);
         documentoAcademicoDAO.update(documentoAcademico);
 
     }
