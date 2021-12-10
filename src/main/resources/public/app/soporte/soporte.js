@@ -1,54 +1,46 @@
-
-Vue.component("multiselect", window.VueMultiselect.default)
-
 new Vue({
     el: '#soporteVue',
     data: {
         URL_SOPORTE: APP.url('academico/soporte/list'),
-        modalSoporte: {
-            id: 'modalSoporte',
-            header: true,
-            title: 'Responder Observacion',
-            okbtn: "Guardar",
-            showaccept: true
-        },
-        soporteForm: {}
+        soporteForm: {},
+        generandoReporte: false
     },
     mounted() {
     },
     methods: {
         modal(item) {
             let $vue = this;
-            $vue.soporteForm = Object.assign(item, {});
+            $vue.soporteForm = {...item};
             $vue.$refs.modalSoporte.open();
         },
         responder() {
             let $vue = this;
-
             var form = $("#frmSoporteModal");
             form.parsley().destroy();
             form.parsley();
             if (!form.parsley().validate()) {
                 return;
             }
-
-            $.ajax({
-                url: APP.url('academico/soporte/responder'),
-                type: 'POST',
-                contentType: "application/json",
-                data: JSON.stringify($vue.soporteForm),
-                success: function (response) {
-                    if (response.success) {
-                        $vue.soporteForm = {};
+            axios_.post(APP.url('academico/soporte/responder'), $vue.soporteForm)
+                    .then(({data}) => {
                         $vue.$refs.listSoporte.loadRemoteData();
-                        notify(response.message, "success");
-                    }
-                },
-                error: function () {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-            $vue.$refs.modalSoporte.close();
+                        notify(data, "success");
+                        $vue.$refs.modalSoporte.close();
+                    }, () => {
+                        $vue.$refs.modalSoporte.stop();
+                    });
+        },
+        generarReporte() {
+            let $vue = this;
+            $vue.generandoReporte = true;
+            axios_blob.get(APP.url('academico/soporte/reporte'))
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        $vue.generandoReporte = false;
+                    }, () => {
+                        $vue.generandoReporte = false;
+                        notify(Messages.errorComunicacion, 'error')
+                    });
         }
     }
 });

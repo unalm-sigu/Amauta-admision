@@ -26,12 +26,18 @@ public class SoporteServiceImp implements SoporteService {
         soporte.setFechaAtencion(new Date());
         soporte.setUserAtencion(ds.getUsuario());
         soporteDAO.updateColumns(soporte, "estado", "fechaAtencion", "userAtencion", "respuesta");
+
     }
 
     @Override
-    public List<Soporte> list(DynatableFilter filter) {
+    public List<Soporte> allDyanatable(DynatableFilter filter) {
 
         return soporteDAO.allDyanatable(filter);
+    }
+
+    @Override
+    public List<Soporte> allSoporte() {
+        return soporteDAO.all();
     }
 
 }

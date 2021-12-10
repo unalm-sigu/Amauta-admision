@@ -4,35 +4,43 @@
 
     </head>
     <body>
+
         <div layout:fragment="main" id="soporteVue" v-cloak="">
 
             <header class="header">
-                <div class="row">
-                    <div class="col-md-11">
-                        <h2> Soporte </h2>
-                    </div>
-                </div>
+
+                <button v-bind:disabled="generandoReporte" v-on:click="generarReporte" class="btn btn-primary pull-right">
+                    <span v-if="generandoReporte"><i class="fa fa-spinner fa-pulse fa-fw"></i></span>
+                    Generar Reporte
+                </button>
+
+                <h2> Soporte </h2>
+
             </header>
+
             <section  class="wrapper-lg">
                 <section class="panel">
                     <section class="panel-body">
+
                         <raptor-table ref="listSoporte"
                                       v-bind:url="URL_SOPORTE" >
                             <template scope="props">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="col-md-7" colspan="2"></th>                                            
-                                            <th class="col-md-3">Título</th>
-                                            <th class="col-md-1">Fecha Registro</th>
-                                            <th class="col-md-1">Estado</th>
-                                            <th class="col-md-1"></th>
+                                            <th class="col-xs-3"></th>                                            
+                                            <th class="col-xs-4">Título</th>
+                                            <th class="col-xs-2">Fecha Registró</th>
+                                            <th class="col-xs-2">Respuesta</th>
+                                            <th class="col-xs-1">Estado</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in props.data"> 
                                             <td class="v-middle">
-                                                <div class="pull-left">
+
+                                                <div class="text-center">
                                                     <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
                                                          class="img-responsive img-thumbnail img-circle div-foto-list">
                                                         <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
@@ -46,30 +54,53 @@
                                                          class="img-foto-tempo img-responsive img-thumbnail img-circle" 
                                                          v-bind:src="item.alumno.persona.rutaFoto" />
                                                 </div>
+
+                                                <div class="text-center">
+
+                                                    <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                        {{item.alumno.persona.apellidosNombres}}
+                                                    </a>
+                                                    <span class="block">
+                                                        Matrícula: {{item.alumno.codigo}}
+                                                    </span>
+                                                    <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
+                                                        {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
+                                                    </small>
+
+                                                </div>
+
                                             </td>
-                                            <td class="v-middle">
-                                                <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
-                                                    {{item.alumno.persona.apellidosNombres}}
-                                                </a>
-                                                <span class="block">
-                                                    Matrícula: {{item.alumno.codigo}}
-                                                </span>
-                                                <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
-                                                    {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
-                                                </small>
-                                            </td>
+
                                             <td class="v-middle ">
+
                                                 <span class="block bold">   {{ item.titulo}}</span>
                                                 <span class="block"> {{ item.comentario}}</span>
+
                                             </td>
+
                                             <td class="v-middle">
-                                                <span class="block">  {{ item.fechaRegistro}}</span>
+
+                                                <p v-if="item.fechaRegistro" class="block">Registró: <span class=" bold">{{ item.fechaRegistro}}</span></p>
+
                                             </td>
+
                                             <td class="v-middle">
-                                                <span class="block text-primary">  {{ item.estadoEnum.value}}</span>
+
+                                                <p v-if="item.fechaAtencion" class="block">Fecha: <span class=" bold">{{ item.fechaAtencion}}</span></p>
+
+                                                <p v-if="item.userAtencion" class="block">Respondio: <span class=" bold">{{ item.userAtencion.persona.nombreCompleto}}</span></p>
+
                                             </td>
-                                            <td>
-                                                <div class="dropdown actions" v-if="item.estado='PEN'">
+
+                                            <td class="v-middle">
+
+                                                <span v-if="item.estado=='ATEN'" class="label label-primary">  {{ item.estadoEnum.value}}</span>
+                                                <span v-if="item.estado=='PEN'" class="label label-danger">  {{ item.estadoEnum.value}}</span>
+
+                                            </td>
+
+                                            <td class="v-middle">
+                                                <div class="dropdown actions" v-if="item.estado=='PEN'">
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                                         <i class="fa fa-cog"></i>
                                                     </a> 
@@ -83,6 +114,7 @@
 
                                                 </div>
                                             </td>
+
                                         </tr>
                                     </tbody>
                                 </table>
@@ -92,14 +124,18 @@
                     </section>
                 </section>
             </section>
+
             <div th:replace="soporte/soporteModal"></div>
+
         </div>
 
         <div layout:fragment="js">
 
-            
             <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
+
             <script th:src="@{/app/soporte/soporte.js}" charset="utf-8"></script>
+
         </div>
     </body>
 </html>

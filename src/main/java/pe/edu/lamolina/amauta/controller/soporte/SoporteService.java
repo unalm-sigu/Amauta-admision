@@ -9,9 +9,8 @@ public interface SoporteService {
 
     public void responder(Soporte soporte, DataSessionPivot ds);
 
-    public List<Soporte> list(DynatableFilter filter);
+    public List<Soporte> allDyanatable(DynatableFilter filter);
 
-    
-
+    public List<Soporte> allSoporte();
 
 }

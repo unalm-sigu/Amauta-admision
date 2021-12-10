@@ -6,9 +6,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Soporte;
 import pe.edu.lamolina.amauta.dao.academico.SoporteDAO;
+import pe.edu.lamolina.model.academico.SilaboCurso;
 
 @Repository
 public class SoporteDAOH extends AbstractEasyDAO<Soporte> implements SoporteDAO {
@@ -36,6 +36,17 @@ public class SoporteDAOH extends AbstractEasyDAO<Soporte> implements SoporteDAO 
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("so.id desc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Soporte> all() {
+        Octavia sql = Octavia.query(Soporte.class, "so")
+                .join("alumno al", "al.persona per", "al.carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .leftJoin("al.situacionAcademica sita", "per.tipoDocumento tdoc")
+                .leftJoin("so.userAtencion user", "user.persona peper")
                 .orderBy("so.id desc");
 
         return all(sql);
