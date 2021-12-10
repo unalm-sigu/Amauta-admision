@@ -290,13 +290,8 @@ public class OAuthController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = cicloAcademicoService.getCicloAcademico(idCiclo);
-        ObjectUtil.printAttr(ciclo);
 
         EventoCicloAcademico eventoEncuesta = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.ENCU_GEN);
-        ObjectUtil.printAttr(eventoEncuesta);
-        ObjectUtil.printAttr(ds);
-        ObjectUtil.printAttr(ds.getRolActivo());
-
         Date today = LocalDate.now().toDate();
 
         if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoEncuesta != null && today.compareTo(eventoEncuesta.getFechaInicio()) >= 0
