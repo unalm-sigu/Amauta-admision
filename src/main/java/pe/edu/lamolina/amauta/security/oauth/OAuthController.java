@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
@@ -285,16 +286,21 @@ public class OAuthController {
 
     @ResponseBody
     @RequestMapping(value = "cicloland", method = RequestMethod.POST)
-    public void cicloland(HttpSession session, @RequestParam("ciclo") Long ciclo) throws Exception {
+    public void cicloland(HttpSession session, @RequestParam("ciclo") Long idCiclo) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
+        CicloAcademico ciclo = cicloAcademicoService.getCicloAcademico(idCiclo);
+        ObjectUtil.printAttr(ciclo);
 
-        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_GEN);
+        EventoCicloAcademico eventoEncuesta = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.ENCU_GEN);
+        ObjectUtil.printAttr(eventoEncuesta);
+        ObjectUtil.printAttr(ds);
+        ObjectUtil.printAttr(ds.getRolActivo());
+
         Date today = LocalDate.now().toDate();
 
-        if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
-                && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+        if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoEncuesta != null && today.compareTo(eventoEncuesta.getFechaInicio()) >= 0
+                && eventoEncuesta.getFechaFin().compareTo(today) >= 0) {
             AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
 
             Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
@@ -304,7 +310,7 @@ public class OAuthController {
             }
         }
 
-        ds.setCicloAcademico(cicloAcademico);
+        ds.setCicloAcademico(ciclo);
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
 
     }
