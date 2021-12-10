@@ -1,37 +1,76 @@
-<modal-vik ref="modalSoporte"
-           v-bind="modalSoporte"
-           v-bind:okaction="responder">
+<modal-simple ref="modalSoporte"
+              okbtn="Responder"
+              v-bind:header="false"
+              v-bind:okaction="responder">
+
+    <div slot="header">
+
+        <h4 class="modal-title text-white">Responder Observacion</h4>
+
+    </div>
+
     <div slot="body">
+
         <div class="modal-body">
-            <form id="frmSoporteModal" data-parsley-validate="">
+
+            <form id="frmSoporteModal" data-parsley-validate="true">
                 <div class="row">
                     <div class="form-group m-b">
-                        <div class="form-group row" >
-                            <label   class="col-sm-3 control-label">Alumno</label>
-                            <div class="col-sm-9" v-if="soporteForm.alumno != null">
-                                <input class="form-control" v-model="soporteForm.alumno.persona.apellidosNombres" disabled=""></input>
+
+                        <div class="form-group " v-if="soporteForm.alumno" >
+
+                            <div class="text-center">
+                                <div v-if="soporteForm.alumno.persona.tipoFoto=='POSTUL' "
+                                     class="img-responsive img-thumbnail img-circle div-foto-list">
+                                    <img class="img-foto-list" v-bind:src="soporteForm.alumno.persona.rutaFoto" />
+                                </div>
+
+                                <img v-else-if="soporteForm.alumno.persona.tipoFoto=='COMUN' " 
+                                     class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                     v-bind:src="soporteForm.alumno.persona.rutaFoto" />
+
+                                <img v-else="" 
+                                     class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                     v-bind:src="soporteForm.alumno.persona.rutaFoto" />
                             </div>
-                        </div>
-                        <div class="form-group row" >
-                            <label   class="col-sm-3 control-label">Observación</label>
-                            <div class="col-sm-9">
-                                <textarea class="form-control" v-model="soporteForm.comentario"  disabled=""></textarea>
+
+                            <div class="text-center">
+
+                                <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                    {{soporteForm.alumno.persona.apellidosNombres}}
+                                </a>
+                                <span class="block">
+                                    Matrícula: {{soporteForm.alumno.codigo}}
+                                </span>
+
+                                <small v-if="soporteForm.alumno.persona.numeroDocIdentidad" class="block bold">
+                                    {{soporteForm.alumno.persona.tipoDocumento.simbolo}} {{soporteForm.alumno.persona.numeroDocIdentidad}}
+                                </small>
+
                             </div>
+
                         </div>
 
-                        <div class="form-group row">
+                        <div class="form-group" >
 
-                            <label class="col-sm-3 control-label">Respuesta</label>
-                            <div class="col-sm-9">
-                                <textarea class="form-control" v-model="soporteForm.respuesta"
-                                          maxlength="200" required="true" ></textarea>
-                            </div>
+                            <label class="control-label">{{ soporteForm.fechaRegistro}}  <b>{{soporteForm.titulo}} </b> </label>
+
+                            <p v-text="soporteForm.comentario"></p>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label class="control-label"><b>Respuesta</b></label>
+                            <textarea class="form-control" v-model="soporteForm.respuesta"
+                                      maxlength="200" required="true" ></textarea>
 
                         </div>
 
                     </div>
                 </div>
             </form>
+
         </div>
     </div>
-</modal-vik>
+</modal-simple>
