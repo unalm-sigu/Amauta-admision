@@ -29,9 +29,8 @@
                                     <thead>
                                         <tr>
                                             <th class="col-xs-3"></th>                                            
-                                            <th class="col-xs-4">Título</th>
-                                            <th class="col-xs-2">Fecha Registró</th>
-                                            <th class="col-xs-2">Respuesta</th>
+                                            <th class="col-xs-4">Consulta</th>
+                                            <th class="col-xs-4">Respuesta</th>
                                             <th class="col-xs-1">Estado</th>
                                             <th></th>
                                         </tr>
@@ -73,14 +72,9 @@
 
                                             <td class="v-middle ">
 
-                                                <span class="block bold">   {{ item.titulo}}</span>
+                                                <span class="block ">Fecha: <span class=" bold">{{ item.fechaRegistro}}</span></span>
+                                                <span class="block ">Título: <span class=" bold">{{ item.titulo}}</span></span>
                                                 <span class="block"> {{ item.comentario}}</span>
-
-                                            </td>
-
-                                            <td class="v-middle">
-
-                                                <p v-if="item.fechaRegistro" class="block">Registró: <span class=" bold">{{ item.fechaRegistro}}</span></p>
 
                                             </td>
 
@@ -89,6 +83,8 @@
                                                 <p v-if="item.fechaAtencion" class="block">Fecha: <span class=" bold">{{ item.fechaAtencion}}</span></p>
 
                                                 <p v-if="item.userAtencion" class="block">Respondio: <span class=" bold">{{ item.userAtencion.persona.nombreCompleto}}</span></p>
+                                                
+                                                <p v-if="item.userAtencion" class="block">{{ item.respuesta}}</p>
 
                                             </td>
 
