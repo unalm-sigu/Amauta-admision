@@ -361,6 +361,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 }
             }
         }
+        
+        if (alumno.getCicloIngreso() != null) {
+            if (alumno.getSituacionAcademica() != null) {
+                EventoCicloAcademico eventoMatricula = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloIngreso(), EventoAcademicoEnum.FECHAS_BACH);
+                alumno.setFechaMatricula(eventoMatricula != null ? eventoMatricula.getFechaInicio() : null);
+            }
+        }
 
         if (alumno.getSituacionAcademica().isEgresado()) {
 
@@ -1153,11 +1160,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (!puedeCalcular) {
             throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
         }
-        
+
         List<Alumno> alumnos = alumnoDAO.correccionNivelacion(ds.getCicloAcademico());
 
         log.debug("se van ha corregir {} alumnos", alumnos.size());
-        
+
         for (Alumno alumno : alumnos) {
             promedioService.calcularSituacionAcademica(alumno, ds);
         }

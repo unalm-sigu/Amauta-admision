@@ -677,7 +677,7 @@ public class InfoAcademicoController {
     
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso","promedioPonderadoGraduacion",
+            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso","fechaMatricula","promedioPonderadoGraduacion",
             "ciclosRegularesTransient", "ciclosVeranosTransient",
             "promedioCarreraAcumulado", "promedioAcumulado",
             "creditosCarreraAprobados", "creditosCarreraCursados",
