@@ -110,6 +110,7 @@ public class MenuMaipiController {
             jmenu.put("icono", menu.getIcono());
             jmenu.put("tipo", menu.getTipo());
             jmenu.put("estado", menu.getEstado());
+            jmenu.put("bucleActivar", menu.getBucleActivar());
             jmenu.put("modalidades", "[" + menu.getModalidades().replaceAll(",", " / ") + "]");
 
             if (!menu.getMenus().isEmpty()) {
@@ -161,19 +162,19 @@ public class MenuMaipiController {
 
             Menu menuBD = service.find(menu);
             boolean editable = menuBD.getMenus().size() > 0;
-            
+
             log.debug("CANTIDAD {}", menuBD.getMenus().size());
             log.debug("EDITABLE {}", editable);
 
             List<MenuTipoEnum> tipos = service.allTiposMenuBySuperior(menuBD.getMenuSuperior());
-            
+
             Context ctx = new Context();
             ctx.setVariable("editable", editable);
             ctx.setVariable("menu", menuBD);
             ctx.setVariable("menuSuperior", menuBD.getMenuSuperior());
             ctx.setVariable("tipos", tipos);
-            
-            String htmlContent = springHtml.process("seguridad/menumaipi/menuNuevo", ctx);
+
+            String htmlContent = springHtml.process("seguridad/menumaipi/menuNuevoMaipi", ctx);
 
             response.setData(htmlContent);
             response.setSuccess(true);
@@ -200,6 +201,7 @@ public class MenuMaipiController {
             menuNuevo.setPosgrado(EstadoEnum.ACT.name());
             menuNuevo.setEspecial(EstadoEnum.ACT.name());
             menuNuevo.setVisitante(EstadoEnum.ACT.name());
+            menuNuevo.setBucleActivar("NO");
 
             Menu menuSuperior = service.getMenu(new Menu(idMenuSuperior));
             List<MenuTipoEnum> tipos = service.allTiposMenuBySuperior(menuSuperior);
@@ -209,7 +211,7 @@ public class MenuMaipiController {
             ctx.setVariable("menuSuperior", menuSuperior);
             ctx.setVariable("tipos", tipos);
 
-            String htmlContent = springHtml.process("seguridad/menumaipi/menuNuevo", ctx);
+            String htmlContent = springHtml.process("seguridad/menumaipi/menuNuevoMaipi", ctx);
 
             response.setData(htmlContent);
             response.setSuccess(true);

@@ -82,10 +82,10 @@ public class MenuMaipiServiceImp implements MenuMaipiService {
         menu.setClave(RandomStringUtils.randomAlphanumeric(20));
         menu.setEntornos(GlobalConstantine.AMBIENTES);
         menu.setModalidades(GlobalConstantine.MODALIDADES);
-        
+
         this.setEstadoMenu(menu, menu);
         this.setModalidades(menu, menu);
-        
+
         menuDAO.save(menu);
     }
 
@@ -96,6 +96,7 @@ public class MenuMaipiServiceImp implements MenuMaipiService {
         menuBD.setIcono(menu.getIcono());
         menuBD.setRuta(menu.getRuta());
         menuBD.setNombre(menu.getNombre());
+        menuBD.setBucleActivar(menu.getBucleActivar());
         menuBD.setTipoEnum(menu.getTipoEnum());
 
         this.setEstadoMenu(menu, menuBD);

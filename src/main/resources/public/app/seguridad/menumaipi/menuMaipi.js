@@ -135,9 +135,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         $('#formMenu').html(response.data);
-                        $('#formMenu').find('[name="tipo"]').select2({});
-                        $('#formMenu').find('[name="icono"]').iconpicker();
                         $('#formMenu').find('[name="tipo"]').trigger('change');
+                        $('#formMenu').find('[name="icono"]').iconpicker();
+                        $('#formMenu').find('[name="tipo"]').select2();
                     } else {
                         notify(response.message, "error");
                     }
@@ -166,7 +166,7 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         $('#formMenu').html(response.data);
-                        $('#formMenu').find('[name="tipo"]').select2({});
+                        $('#formMenu').find('[name="tipo"]').select2();
                         $('#formMenu').find('[name="icono"]').iconpicker();
                         //$('#formMenu').find('[name="menuSuperior.id"]').val(menuSuperior);
                     } else {
@@ -392,6 +392,19 @@ $(function () {
                 $('#formMenu').find('[name="ruta"]').parents('.form-group:first').show();
             }
         },
+        menuchange: function (e) {
+            var self = $(e.currentTarget);
+            var tipoValor = self.val();
+            var fruits = ["SUB_MENU", "MENU", "OPCION", "BOTON"];
+            var a = fruits.indexOf(tipoValor);
+            if (a < 0) {
+                $('#formMenu').find('.form-estado:first').hide();
+                $('#formMenu').find('.form-modalidad:first').hide();
+            } else {
+                $('#formMenu').find('.form-estado:first').show();
+                $('#formMenu').find('.form-modalidad:first').show();
+            }
+        },
         itemUp: function (e) {
             e.preventDefault();
             var self = $(e.currentTarget);
@@ -480,6 +493,7 @@ $(function () {
     MenuForm.body.delegate('[name="tipo"]', 'change', function (e) {
         MenuForm.tipochange(e);
         MenuForm.rutachange(e);
+        MenuForm.menuchange(e);
     });
     MenuForm.body.delegate('.btn-up', 'click', function (e) {
         MenuForm.itemUp(e);

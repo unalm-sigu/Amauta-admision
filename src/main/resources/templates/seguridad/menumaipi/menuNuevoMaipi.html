@@ -45,7 +45,7 @@
                 <input  type="text" class="form-control  input-sm"
                         name="ruta"  th:value="${menu.ruta}"/>
             </div>
-
+            
             <div class="form-group">
                 <label>Icono</label>
                 <div class="input-group">
@@ -55,34 +55,67 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Estado</label>
-                <div class="row">
-                    <div class="col-sm-1"></div>
-                    <div class="col-sm-3">
-                        <label class="radio inline text-primary">
-                            <input  type="radio"
-                                    required="true"
-                                    name="estado"
-                                    th:checked="${menu.estado == 'ACT' }"
-                                    value="ACT"
-                                    /> Activo
-                        </label>
+            <div class="row form-estado">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-5">
+                                <label class="radio inline text-primary">
+                                    <input  type="radio"
+                                            required="true"
+                                            name="estado"
+                                            th:checked="${menu.estado == 'ACT' }"
+                                            value="ACT"
+                                            /> Activo
+                                </label>
+                            </div>
+                            <div class="col-sm-5">
+                                <label class="radio inline text-danger">
+                                    <input  type="radio"
+                                            required="true"
+                                            name="estado"
+                                            th:checked="${menu.estado == 'INA' }"
+                                            value="INA"
+                                            /> Inactivo
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-sm-3">
-                        <label class="radio inline text-danger">
-                            <input  type="radio"
-                                    required="true"
-                                    name="estado"
-                                    th:checked="${menu.estado == 'INA' }"
-                                    value="INA"
-                                    /> Inactivo
-                        </label>
+                </div>
+
+                <div class="col-md-6 b-l">
+                    <div class="form-group">
+                        <label>Bucle activación</label>
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-5">
+                                <label class="radio inline">
+                                    <input  type="radio"
+                                            required="true"
+                                            name="bucleActivar"
+                                            th:checked="${menu.bucleActivar == 'SI' }"
+                                            value="SI"
+                                            /> Activo
+                                </label>
+                            </div>
+                            <div class="col-sm-5">
+                                <label class="radio inline">
+                                    <input  type="radio"
+                                            required="true"
+                                            name="bucleActivar"
+                                            th:checked="${menu.bucleActivar == 'NO' }"
+                                            value="NO"
+                                            /> Inactivo
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="form-group">
+
+            <div class="form-group m-t-sm form-modalidad">
                 <label>Modalidades</label>
                 <div class="row">
                     <div class="col-sm-3">
