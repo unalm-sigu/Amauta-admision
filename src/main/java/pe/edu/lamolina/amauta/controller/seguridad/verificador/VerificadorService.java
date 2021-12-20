@@ -88,4 +88,6 @@ public interface VerificadorService {
 
     public boolean esCoordinadorIOREA(DataSessionPivot ds);
 
+    public boolean isRevisorActaNotasDepartamento(DataSessionPivot ds);
+
 }

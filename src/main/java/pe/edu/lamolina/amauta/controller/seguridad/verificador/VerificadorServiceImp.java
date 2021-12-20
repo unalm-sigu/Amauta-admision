@@ -1172,4 +1172,14 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
+    @Override
+    public boolean isRevisorActaNotasDepartamento(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -46,6 +46,9 @@
             <td class="v-middle text-center">
                 <span class="block">{{seccion.codigo2}}</span>
                 <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+
+                <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+
             </td>
 
             <td class="v-middle text-center">
@@ -108,6 +111,8 @@
             <td class="v-middle text-center">
                 <span class="block">{{seccion.codigo2}}</span>
                 <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+
             </td>
             <td class="v-middle text-center">
                 <span class="block" v-if="seccion.aula"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>

@@ -78,7 +78,9 @@ new Vue({
             showaccept: true
         },
         personaDuplicado: null,
-        idDocente: null
+        idDocente: null,
+        aulaDataZoom: {},
+        seccionMain: {},
     },
     mounted: function () {
         let $vue = this;
@@ -596,6 +598,20 @@ new Vue({
                 }
             });
 
+        },
+        dataZoomModal(item) {
+            let $vue = this;
+            $vue.aulaDataZoom = item;
+            $vue.$refs.modalDataZoom.open();
+        },
+        linkZoomModal(seccion) {
+            let $vue = this;
+            $vue.seccionMain = {...seccion};
+            $vue.$refs.modalLinkZoom.open();
+        },
+        copiarLink() {
+            let $vue = this;
+            navigator.clipboard.writeText($vue.seccionMain.linkZoom);
         }
     }
 });

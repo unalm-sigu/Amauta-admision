@@ -187,7 +187,7 @@ public class ActaController {
         Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
         logger.debug("esOperadorEditor {}", esOperadorEditor);
 
-        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotas(ds);
+        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotasDepartamento(ds);
         logger.debug("isRevisorActaNotas {}", isRevisorActaNotas);
 
         model.addAttribute("resumen", resumen);
