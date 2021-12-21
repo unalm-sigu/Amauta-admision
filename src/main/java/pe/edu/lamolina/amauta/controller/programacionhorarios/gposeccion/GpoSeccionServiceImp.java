@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -2468,6 +2469,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         return horarioAulaDAO.allByAula(aula, cicloAcademico);
     }
 
+    public Date addOneDay(Date day) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(day);
+        c.add(Calendar.DATE, 1);
+        return c.getTime();
+    }
+
     @Override
     public List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico) {
         List<String> diaHoras = new ArrayList();
@@ -2489,6 +2497,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         log.debug("***pabellon *** {}", pabellon.getId());
         if (!diaHoras.isEmpty()) {
             if (eventoAcademico != null) {
+                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
                 horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
             }
         }
