@@ -1491,7 +1491,7 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.desactivarPlanCurricular(plan);
 
-            response.setMessage("Plan curricular eliminado satisfactoriamente");
+            response.setMessage("Plan curricular desactivado satisfactoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -1513,7 +1513,7 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activarPlanCurricular(plan);
 
-            response.setMessage("Plan curricular eliminado satisfactoriamente");
+            response.setMessage("Plan curricular activado satisfactoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -1537,6 +1537,7 @@ public class PlanCurricularController {
 
             response.setData(planBD.getId());
             response.setSuccess(true);
+            response.setMessage("Plan curricular clonado satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

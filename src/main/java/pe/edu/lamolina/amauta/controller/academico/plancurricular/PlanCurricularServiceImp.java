@@ -398,11 +398,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void updatePlanCurricular(PlanCurricular planForm) {
-        
+
         ObjectUtil.eliminarAttrSinId(planForm);
-        
+
         PlanCurricular planBD = planCurricularDAO.find(planForm.getId());
-       
+
         if (planBD.getEstadoEnum() == CRE) {
             planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
             planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
@@ -1289,6 +1289,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cc.setUserRegistro(ds.getUsuario());
             cc.setCursosCurricula(new ArrayList());
             cc.setRequisitosOr(curso.getRequisitosOr());
+            cc.setCreditosRequisitosOr(curso.getCreditosRequisitosOr());
+            cc.setEstado(curso.getEstado());
 
             mapCursoCurricula.put(cc.getCurso().getId(), cc);
             cursoCurriculaDAO.save(cc);
@@ -1317,6 +1319,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             coc.setUserRegistro(ds.getUsuario());
             coc.setRequisitosCursoOpcionales(new ArrayList());
             coc.setRequisitosOr(opc.getRequisitosOr());
+            coc.setCreditosRequisitosOr(opc.getCreditosRequisitosOr());
 
             mapCursoOpcional.put(coc.getCurso().getId(), coc);
             cursoOpcionalCurriculaDAO.save(coc);
