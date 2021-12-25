@@ -61,13 +61,17 @@ public class EncuestaDocenteModalidadController {
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
-
+        
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
-        model.addAttribute("cicloAcademico", JaneHelper.from(ciclo).json().toString());
+        model.addAttribute("cicloAcademico", JaneHelper.from(ciclo)
+                .only("id,codigo,descripcion,descripcion2")
+                .json().toString());
         model.addAttribute("isDocente", ds.getDocente() != null);
-        model.addAttribute("ciclos", JaneHelper.from(ciclos).array().toString());
+        model.addAttribute("ciclos", JaneHelper.from(ciclos)
+                .only("id,codigo,descripcion,descripcion2")
+                .array().toString());
         return "academico/encuestaestudiantil/docentemodalidad/encuestadocentemodalidad";
     }
 
