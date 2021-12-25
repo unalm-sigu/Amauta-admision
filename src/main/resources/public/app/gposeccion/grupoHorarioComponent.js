@@ -346,7 +346,6 @@ Vue.component("grupohorario-component", {
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoEspecial) {
                     diaHoraGrupo.seleccionado = seleccionado;
-
                     if (this.tabGrupos['especial'].tblHorarios != null) {
                         let cantSelecteds = 0;
                         for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
@@ -359,7 +358,7 @@ Vue.component("grupohorario-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = null;
+                            this.tabGrupos.grupoHorarioSel = {};
                         }
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
