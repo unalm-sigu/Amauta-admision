@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -9,6 +10,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -90,7 +92,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ca.codigo desc","tb.id desc");
+                .orderBy("ca.codigo desc", "tb.id desc");
 
         return all(sql);
     }
@@ -104,6 +106,18 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .left("al.situacionAcademica")
                 .filter("tb.estado", TramiteEstadoEnum.SOL)
                 .orderBy("per.paterno");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<TramiteBachiller> allByAlumnosAct(List<Alumno> alumnos) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
+                .join("car.facultad")
+                .in("tb.estado", Arrays.asList(SOL, ACEP))
+                .in("al.id", alumnos);
 
         return all(sql);
     }

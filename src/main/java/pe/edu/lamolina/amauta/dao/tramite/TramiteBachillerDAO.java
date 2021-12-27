@@ -10,18 +10,20 @@ import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
 
-    public TramiteBachiller findByTramite(Tramite tramite);
+    TramiteBachiller findByTramite(Tramite tramite);
 
-    public List<TramiteBachiller> allByTramites(List<Tramite> tramites);
+    List<TramiteBachiller> allByTramites(List<Tramite> tramites);
 
-    public TramiteBachiller findByAlumnoAct(Alumno alumno);
+    TramiteBachiller findByAlumnoAct(Alumno alumno);
 
-    public List<TramiteBachiller> allByResolucion(Resolucion resolucionDB);
+    List<TramiteBachiller> allByResolucion(Resolucion resolucionDB);
 
-    public List<TramiteBachiller> allByDynatable(DynatableFilter filter);
+    List<TramiteBachiller> allByDynatable(DynatableFilter filter);
 
-    public TramiteBachiller findByAlumnoACEP(Alumno alumno);
+    TramiteBachiller findByAlumnoACEP(Alumno alumno);
 
-    public List<TramiteBachiller> allBySolicitados();
+    List<TramiteBachiller> allBySolicitados();
+
+    List<TramiteBachiller> allByAlumnosAct(List<Alumno> alumnos);
 
 }

@@ -29,6 +29,13 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 
 @Service
 public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implements AlumnoConsejeroDAO {
@@ -342,7 +349,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .from(AlumnoConsejero.class, "ac")
                 .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
                 .join("al.persona per", "al.carrera car", "car.facultad")
-                .join("al.situacionAcademica ", "cicloAcademico ca")
+                .join("al.situacionAcademica sa", "cicloAcademico ca")
                 .leftJoin("per.tipoDocumento", "al.cicloIngreso", "perc.tipoDocumento")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -350,6 +357,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .filter("estado", EstadoEnum.ACT)
                 .filter("perc.id", tutor)
                 .filter("ca.id", cicloAcademico)
+                .notIn("sa.codigo", Arrays.asList(S_D.getValue(),S_4.getValue(),S_X.getValue(),S_XD.getValue(),S_4U.getValue(),S_4T.getValue(),S_E.getValue()))
                 .orderBy("ac.id desc");
         sql.beginRelativeFilters();
         setCondicionDynatablePersonaTutor(filter, sql, cicloAcademico);
