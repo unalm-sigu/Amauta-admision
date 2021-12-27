@@ -2669,8 +2669,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
+
         if (StringUtils.isEmpty(code)) {
             return null;
+        }
+
+        if (seccion.getHorasSemanales() == 0) {
+            throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
         }
 
         GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoEnum());
@@ -2678,15 +2683,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("Grupo Horario ingresado no existe");
         }
 
-        List<Dia> dias = diaDAO.all();
-        List<DiaHoraGrupo> diasHorasGpo = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
-        if (seccion.getHorasSemanales() == 0) {
-            throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
+        if (grupoHorario.getTipoGrupoHoras().isTipoGrupoZeta()) {
+            List<DiaHoraGrupo> diasHorasGpo = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
+            Collections.sort(diasHorasGpo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
+            grupoHorario.setDiaHoraGrupo(diasHorasGpo);
+            return grupoHorario;
         }
-        List<DiaHoraGrupo> diasGrupoSecc = searchDiasHorasByHorasSemanales(diasHorasGpo, seccion.getHorasSemanales(), dias);
-        grupoHorario.setDiaHoraGrupo(diasGrupoSecc);
 
-        return grupoHorario;
+        List<GrupoHoras> GrupoHorasList = allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, grupoHorario.getTipoGrupoHoras(), cicloAcademico);
+        
+        log.debug("GrupoHorasList {}",GrupoHorasList.size());
+
+        for (GrupoHoras grupoHorasItem : GrupoHorasList) {
+            if (grupoHorasItem.getId().longValue() == grupoHorario.getId()) {
+                return grupoHorasItem;
+            }
+        }
+
+        throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
+
     }
 
     @Override
