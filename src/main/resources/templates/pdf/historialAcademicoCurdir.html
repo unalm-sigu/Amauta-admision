@@ -145,6 +145,12 @@
                             <span th:with="numStr=(${alumnoCiclo.promedioAcumulado + ''})" th:text="${#strings.substring(numStr,0,5)}" > creditos cursados semestral </span>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="text-center"> 
+                            <span > Ciclos Estudiados: </span>
+                            <span th:text="${ciclosRegularesEstudiados}" > 0 </span>
+                        </td>
+                    </tr>
                 </tbody>
             </th:block>
         </table>

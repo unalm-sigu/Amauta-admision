@@ -46,8 +46,10 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -187,6 +189,14 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         historialSorted.putAll(historial);
 
         List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
+        
+        Map<Long,AlumnoCiclo> alumnosCiclosFiltrados=alumnosCiclos.stream()
+                .collect(Collectors.toMap(x->x.getId(),y->y,(w,z)->w));
+
+        long ciclosRegular = alumnosCiclosFiltrados.values().stream()
+                .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG)
+                .count();
 
         int creditosConvalidados = 0;
 
@@ -227,7 +237,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         if (eventoIngreso == null) {
             throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", cicloInicio.getDescripcion()));
         }
-        
+
         Oficina oficinaColaborador = null;
 
         alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
@@ -248,6 +258,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("bachiller", tramiteBachiller);
         ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
+        ctx.setVariable("ciclosRegularesEstudiados", ciclosRegular);
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
