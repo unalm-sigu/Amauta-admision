@@ -1161,6 +1161,16 @@ var app = new Vue({
         },
         showModalAula(seccion) {
             let $vue = this;
+
+            if (!seccion.grupoHoras) {
+                notify("No puede asignarle un aula si la sección no tiene definido un horario", "error");
+                return;
+            }
+            if (!seccion.grupoHoras.id) {
+                notify("No puede asignarle un aula si la sección no tiene definido un horario", "error");
+                return;
+            }
+
             var tabs = $("#tab-aula");
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
