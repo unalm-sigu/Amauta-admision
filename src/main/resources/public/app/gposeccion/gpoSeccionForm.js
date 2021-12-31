@@ -18,6 +18,7 @@ Vue.component("seccion-det-component", {
 Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#pageGpoSeccion',
+    mixins: [VueLoader],
     data: {
         SIN_RESTRICCION_TEXT: "Todos",
         ciclo: {},
@@ -235,7 +236,6 @@ var app = new Vue({
         this.loadDataPantalla();
         this.departamento = this.grupoSeccion.curso.departamentoAcademico;
 
-        console.log(this.grupoSeccion);
     },
     mounted: function () {
         let $vue = this;
@@ -1160,31 +1160,28 @@ var app = new Vue({
             });
         },
         showModalAula(seccion) {
+
             let $vue = this;
+            $vue.showLoader("Validando horario de seccón");
+            axios_.post(APP.url('academico/gposeccion/validarHorarioSeccion'), seccion).then(() => {
 
-            if (!seccion.grupoHoras) {
-                notify("No puede asignarle un aula si la sección no tiene definido un horario", "error");
-                return;
-            }
-            if (!seccion.grupoHoras.id) {
-                notify("No puede asignarle un aula si la sección no tiene definido un horario", "error");
-                return;
-            }
+                var tabs = $("#tab-aula");
+                tabs.find("li").removeClass("active");
+                tabs.find(".tab-pane").removeClass("active");
 
-            var tabs = $("#tab-aula");
-            tabs.find("li").removeClass("active");
-            tabs.find(".tab-pane").removeClass("active");
-
-            this.$refs.aulaComponent.loadAula(seccion);
-            $vue.aulaModal.showaccept = true;
+                this.$refs.aulaComponent.loadAula(seccion);
+                $vue.aulaModal.showaccept = true;
 //            if (seccion.matriculados > 0) {
 //                $vue.aulaModal.showaccept = false;
 //            } else {
 //                $vue.aulaModal.showaccept = true;
 //            }
-            this.$refs.modalAula.open();
+                $vue.hideLoader();
+                this.$refs.modalAula.open();
 
-
+            }, () => {
+                $vue.hideLoader();
+            });
         },
         showModalAulaHorario(aula) {
             let $vue = this;

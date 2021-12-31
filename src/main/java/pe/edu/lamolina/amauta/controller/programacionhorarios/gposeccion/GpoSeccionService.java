@@ -236,4 +236,6 @@ public interface GpoSeccionService {
 
     public void updateLinkZoom(Seccion seccion, DataSessionPivot ds);
 
+    public void validarHorarioSeccion(Seccion seccion);
+
 }

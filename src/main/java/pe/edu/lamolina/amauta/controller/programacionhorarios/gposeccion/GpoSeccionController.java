@@ -2293,7 +2293,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             String message = "Aula asignado correctamente.";
@@ -2960,6 +2960,13 @@ public class GpoSeccionController {
         } finally {
             return response;
         }
+    }
+
+    @ResponseBody
+    @RequestMapping("validarHorarioSeccion")
+    public void validarHorarioSeccion(@RequestBody Seccion seccion) {
+        
+        service.validarHorarioSeccion(seccion);
     }
 
 }
