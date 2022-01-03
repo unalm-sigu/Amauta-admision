@@ -516,7 +516,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setCantidadCiclos(1);
         BigDecimal monto = precio.getPrecio();
         if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-            Long count = alumnoCicloDAO.countCiclosRegularTotal(alumno);
+            Long count = this.cantidadCiclosRegularAprobado(alumno);
             tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
             monto = precio.getPrecio().multiply(new BigDecimal(count));
         }
