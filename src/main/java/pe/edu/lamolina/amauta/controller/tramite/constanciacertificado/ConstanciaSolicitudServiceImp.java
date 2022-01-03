@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +157,9 @@ import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ULTIMO_CICLO_MATR
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -1083,7 +1087,18 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public Long cantidadCiclosRegularAprobado(Alumno alumno) {
-        return alumnoCicloDAO.countCiclosRegularTotal(alumno);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = alumnoCicloCursos.stream()
+                .collect(toMap(x -> x.getAlumnoCiclo().getId(), y -> y.getAlumnoCiclo(), (w, z) -> w));
+
+        List<AlumnoCiclo> alumnoCiclos = mapAlumnoCiclo.values().stream().collect(toList());;
+
+        long ciclosRegular = alumnoCiclos.stream()
+                .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG)
+                .count();
+        return ciclosRegular;
     }
 
     @Override
