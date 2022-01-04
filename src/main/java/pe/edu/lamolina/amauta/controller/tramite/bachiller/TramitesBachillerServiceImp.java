@@ -264,7 +264,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
         ctx.setVariable("nombrePdf", "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoCurdir");
+        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoBachiller");
 
         return ctx;
     }
