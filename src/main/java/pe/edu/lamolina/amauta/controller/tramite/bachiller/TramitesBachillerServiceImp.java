@@ -29,6 +29,7 @@ import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.SerieDocumentoDAO;
@@ -60,6 +61,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -128,6 +130,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
+
+    @Autowired
+    PostulanteDAO postulanteDAO;
 
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
@@ -249,6 +254,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
+        
+        Postulante postulante=postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(),alumno.getCicloIngreso());
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
@@ -260,6 +267,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
         ctx.setVariable("ciclosRegularesEstudiados", ciclosRegular);
+        ctx.setVariable("modalidadIngreso",postulante!=null? postulante.getModalidadIngreso().getNombre():null);
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 

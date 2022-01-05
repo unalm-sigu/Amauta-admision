@@ -6,6 +6,7 @@ import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.PostulanteEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.PostulanteEstadoEnum.REN;
 import pe.edu.lamolina.model.general.Persona;
@@ -67,6 +68,21 @@ public class PostulanteDAOH extends AbstractEasyDAO<Postulante> implements Postu
                 .filter("td.id", tipoDoc)
                 .filter("per.numeroDocIdentidad", nroDoc)
                 .filter("cip.id", ciclo);
+
+        return find(sql);
+    }
+    
+    
+    @Override
+    public Postulante findByPersonaCicloAcademico(Persona persona, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Postulante.class, "po")
+                .join("cicloPostula cip", "cip.cicloAcademico ca", "persona per", "per.tipoDocumento td")
+                .leftJoin("modalidadIngreso mod", "colegioProcedencia col", "col.ubicacion uc", "col.gestion", "universidadProcedencia uni", "uni.pais")
+                .filter("po.estado", "<>", ANU.name())
+                .filter("per.id", persona)
+                .filter("ca.id", cicloAcademico)
+                .limit(1);
 
         return find(sql);
     }
