@@ -1,21 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Reserva de Ambiente</title>
-        <style>
-            .div-variable {
-                border-radius: 5px;
-                border: 1px solid #AEBDCD;
-                zoom: 1;
-            }
-            .div-variable>h1, 
-            .div-variable>h2,
-            .div-variable>h3, 
-            .div-variable>h4, 
-            .div-variable>h5, 
-            .div-variable>h6 {
-                margin-top: auto;
-            }
-        </style>
     </head>
 
     <body>
@@ -45,6 +30,10 @@
                                 ref="raptor">
 
                                 <div slot="header">
+                                    
+                                    <aula-filtro v-bind:afterchange="afterChangeFilterAula"></aula-filtro>
+                                    
+                                    <solicitante-filtro v-bind:afterchange="afterChangeFilterSolicitante"></solicitante-filtro>
 
                                 </div>
 
@@ -52,11 +41,10 @@
                                     <table class="table table-striped table-hover">
                                         <thead> 
                                             <tr>
-                                                <th class="col-xs-2 text-center">Solicitud</th>
-                                                <th class="col-xs-2 text-center v-middle">Solicitante</th>
+                                                <th class="col-xs-3 text-center v-middle">Solicitante</th>
                                                 <th class="col-xs-3 text-center v-middle">Motivo</th>
-                                                <th class="col-xs-3 text-center v-middle">Comentario</th>
-                                                <th></th>
+                                                <th class="col-xs-2 text-center v-middle">Comentario</th>
+                                                <th class="col-xs-2 text-center v-middle">Ambiente</th>
                                                 <th class="col-xs-1 text-center v-middle">Visible <br/>Reporte</th>
                                                 <th class="col-xs-1 text-center v-middle">Estado</th>
                                                 <th></th>
@@ -65,12 +53,10 @@
                                         <tbody>
                                             <tr v-for="item in props.data">
 
-                                                <td class="v-middle">
-                                                    <strong>{{item.tramite.serie}} - {{item.tramite.numero}}</strong>
-                                                    <p class="text-xs">{{item.tramite.fechaRegistro}}</p>
-                                                </td>
 
                                                 <td class="v-middle">
+
+
                                                     <pre v-if="false">
                                                         {{item.tramite.alumno}}
                                                     </pre>
@@ -78,6 +64,11 @@
                                                     <p v-if="item.tipoSolicitante='EMP'">{{item.tramite.empresa.razonSocial}}</p>
                                                     <p v-if="item.tipoSolicitante='ALU'">{{item.tramite.alumno.persona.nombreCompleto}}</p>
                                                     <p v-if="item.tipoSolicitante='DOC'">{{item.tramite.docente.persona.nombreCompleto}}</p>
+
+                                                    <strong>Solicitud {{item.tramite.serie}} - {{item.tramite.numero}}</strong>
+                                                    <p class="text-xs">{{item.tramite.fechaRegistro}}</p>
+
+
                                                 </td>
 
                                                 <td class="v-middle text-center">
@@ -90,26 +81,16 @@
 
                                                 <td class="v-middle text-center">
 
-                                                    <button v-if="item.reservados.length>0" type="button" 
-                                                            class="btn btn-link"
-                                                            v-on:click="showMePop($event)"
-                                                            data-container="body"
-                                                            title="Aulas"
-                                                            data-toggle="popover"
-                                                            data-placement="left"
-                                                            v-bind:data-content="giveMeAulas(item)">
-                                                        <i class="fa fa-home" aria-hidden="true"></i>
-                                                    </button>
+                                                    <span v-for="aula in item.reservados" class="text-xs">{{aula.nombrePublico}}, </span> 
 
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <!--   v-on:change="prepararCambio"-->
                                                     <div class="form-group">
                                                         <label class="switch">
                                                             <input type="checkbox"  value="true" v-model="item.visibleHorario"
-                                                                    v-on:change="cambiarVisible(item)"
-                                                                    v-bind:disabled="item.estado=='ANU'"/>
+                                                                   v-on:change="cambiarVisible(item)"
+                                                                   v-bind:disabled="item.estado=='ANU'"/>
                                                             <span></span>
                                                         </label>
                                                     </div>
@@ -121,7 +102,6 @@
                                                     <span class="label label-danger" v-if="item.estado=='ANU'"> Anulado </span>
                                                 </td>
                                                 <td class="v-middle">
-                                                    <!-- v-if="item.estado == 'PEND'  || item.estado == 'RES'"  -->
                                                     <div  class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
@@ -211,11 +191,13 @@
         </div>
 
         <div layout:fragment="js">
+
             <div th:substituteby="_modules/vue-modal"></div>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
-        
+
             <script th:src="@{/app/programacion/tramiteaula/tramiteaula.js}" charset="utf-8"></script>
+
         </div>
 
     </body>

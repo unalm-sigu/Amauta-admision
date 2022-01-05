@@ -264,24 +264,13 @@ new Vue({
         searchAlumnos(search) {
             let $vue = this;
             $vue.isSearchingAlumnos = true;
-            $.ajax({
-                url: APP.url('tramite/aula/allAlumno'),
-                dataType: 'json',
-                type: 'POST',
-                async: true,
-                data: {nombre: search},
-                success(response) {
-                    $vue.isSearchingAlumnos = false;
-                    if (response.success) {
-                        $vue.alumnos = response.data;
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            axios_.get("/tramite/aula/allAlumno", {params: {nombre: search}})
+                    .then(({data}) => {
+                        $vue.alumnos = data;
+                        $vue.isSearchingAlumnos = false;
+                    }, () => {
+                        $vue.isSearchingAlumnos = false;
+                    });
         },
         getNombreCompleto(item) {
             if ($.isEmptyObject(item)) {
@@ -292,68 +281,35 @@ new Vue({
         searchDocentes(search) {
             let $vue = this;
             $vue.isSearchingDocentes = true;
-            $.ajax({
-                url: APP.url('tramite/aula/allDocente'),
-                dataType: 'json',
-                type: 'POST',
-                async: true,
-                data: {nombre: search},
-                success(response) {
-                    $vue.isSearchingDocentes = false;
-                    if (response.success) {
-                        $vue.docentes = response.data;
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            axios_.get("/tramite/aula/allDocente", {params: {nombre: search}})
+                    .then(({data}) => {
+                        $vue.docentes = data;
+                        $vue.isSearchingDocentes = false;
+                    }, () => {
+                        $vue.isSearchingDocentes = false;
+                    });
         },
         searchEmpresas(search) {
             let $vue = this;
             $vue.isSearchingEmpresas = true;
-            $.ajax({
-                url: APP.url('comun/buscar/allEmpresa'),
-                dataType: 'json',
-                type: 'POST',
-                async: true,
-                data: {nombre: search},
-                success(response) {
-                    $vue.isSearchingEmpresas = false;
-                    if (response.success) {
-                        $vue.empresas = response.data;
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            axios_.get("/tramite/aula/allEmpresa", {params: {nombre: search}})
+                    .then(({data}) => {
+                        $vue.empresas = data;
+                        $vue.isSearchingEmpresas = false;
+                    }, () => {
+                        $vue.isSearchingEmpresas = false;
+                    });
         },
         searchOficina(search) {
             let $vue = this;
             $vue.isSearchingOficina = true;
-            $.ajax({
-                url: APP.url('tramite/aula/allOficina'),
-                dataType: 'json',
-                type: 'POST',
-                async: true,
-                data: {nombre: search},
-                success(response) {
-                    $vue.isSearchingOficina = false;
-                    if (response.success) {
-                        $vue.oficinas = response.data;
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            axios_.get("/tramite/aula/allOficina", {params: {nombre: search}})
+                    .then(({data}) => {
+                        $vue.oficinas = data;
+                        $vue.isSearchingOficina = false;
+                    }, () => {
+                        $vue.isSearchingOficina = false;
+                    });
         },
         searchModulos(search) {
             let $vue = this;
