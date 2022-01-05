@@ -4,8 +4,4 @@ public interface MailerConnector {
 
     void sendMail(MailMessage mail);
 
-    void sendMailHelpDesk(MailMessage mail);
-
-    void sendMailAgendaConsejero(MailMessage mail);
-
 }

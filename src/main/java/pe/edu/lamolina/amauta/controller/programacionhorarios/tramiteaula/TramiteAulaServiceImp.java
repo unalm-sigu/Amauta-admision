@@ -65,6 +65,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.SexoEnum.F;
 
 @Service
 @Transactional(readOnly = true)
@@ -527,22 +528,30 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         Tramite tramite = reservaAulaDb.getTramite();
         String email = "";
         String nombre = "";
+        String estimado = "";
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Alumno alumno = tramite.getAlumno();
             email = alumno.getEmail();
             nombre = alumno.getPersona().getNombreCompleto();
+            estimado = alumno.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Docente docente = tramite.getDocente();
             email = docente.getPersona().getEmailCompania();
             nombre = docente.getPersona().getNombreCompleto();
+            estimado = docente.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Empresa empresa = tramite.getEmpresa();
             nombre = empresa.getRazonSocial();
             email = empresa.getEmail();
         }
-        mailerService.enviarNotificacionAulaReservaAceptado(nombre, email, contenido);
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            Oficina oficina = tramite.getOficina();
+            nombre = oficina.getNombre();
+            email = oficina.getEmail();
+        } 
+        mailerService.enviarNotificacionAulaReservaAceptado(estimado, nombre, email, contenido);
     }
 
     private void sendNotificacionRechazar(ReservaAula reservaAulaDb) {
@@ -550,22 +559,30 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         Tramite tramite = reservaAulaDb.getTramite();
         String email = "";
         String nombre = "";
+        String estimado = "";
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Alumno alumno = tramite.getAlumno();
             email = alumno.getEmail();
             nombre = alumno.getPersona().getNombreCompleto();
+            estimado = alumno.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Docente docente = tramite.getDocente();
             email = docente.getPersona().getEmailCompania();
             nombre = docente.getPersona().getNombreCompleto();
+            estimado = docente.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Empresa empresa = tramite.getEmpresa();
             nombre = empresa.getRazonSocial();
             email = empresa.getEmail();
         }
-        mailerService.enviarNotificacionAulaReservaRechazado(nombre, email, contenido);
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            Oficina oficina = tramite.getOficina();
+            nombre = oficina.getNombre();
+            email = oficina.getEmail();
+        }
+        mailerService.enviarNotificacionAulaReservaRechazado(estimado, nombre, email, contenido);
     }
 
     @Override
@@ -612,7 +629,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     public List<Empresa> allEmpresaByName(Pais pais, String nombre) {
-        return empresaDAO.allEmpresaByName(pais,this.forLike(nombre));
+        return empresaDAO.allEmpresaByName(pais, this.forLike(nombre));
     }
 
     private String forLike(String nombre) {
