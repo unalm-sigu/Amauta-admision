@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.descargaWord;
 
-import com.google.common.base.Objects;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -192,13 +190,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.find(archivo.getIdInstancia());
 
         Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(plantilla.getId(), TRAM_PLANTILLA_DOCUMENTO_ACADEMICO);
-        
-        if (archivoDB!=null) {
+
+        if (archivoDB != null) {
             archivoDAO.delete(archivoDB);
         }
 
         uploadFileS3.uploadSync(AcademicoConstantine.S3_PLANTILLA_WORD, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
-        
+
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_PLANTILLA_WORD, archivo.getNombre());
 
         Archivo newarchivo = new Archivo();
@@ -248,9 +246,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             outputStream.close();
         } catch (IOException ex) {
             ex.printStackTrace();
-            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
+            throw new PhobosException(ex.getLocalizedMessage());
         } catch (XmlException ex) {
-            java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            throw new PhobosException(ex.getLocalizedMessage());
         }
 
     }
@@ -283,6 +282,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         if (!isEspanol) {
             nombreCurso = nombreCursoDAO.allByIdioma(plantilla.getIdioma());
             nombreFacultads = nombreFacultadDAO.findByIdioma(facultadAlumno, plantilla.getIdioma());
+            logger.debug("********** CARRERA ********{}", alumno.getCarrera().getId());
             nombresCarrera = nombreCarreraDAO.findByIdioma(alumno.getCarrera(), plantilla.getIdioma());
             nombresCiclos = nombreCicloDAO.allByIdioma(plantilla.getIdioma());
             nombresTituloAcademico = nombreTituloAcademicoDAO.allByIdioma(plantilla.getIdioma());
@@ -414,6 +414,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             if (isEspanol) {
                                 text = text.replace(enums.getValue(), alumno.getCarrera().getFacultad().getNombre().toUpperCase());
                             } else {
+                                if (nombreFacultads == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre de la facultad");
+                                }
                                 text = text.replace(enums.getValue(), nombreFacultads.getNombre());
                             }
                             break;
@@ -423,6 +426,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 String tipo = TipoCarreraEnum.valueOf(alumno.getCarrera().getTipo()).getValue();
                                 text = text.replace(enums.getValue(), tipo + " en " + alumno.getCarrera().getNombre().toUpperCase());
                             } else {
+                                if (nombresCarrera == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre de la especialidad");
+                                }
                                 text = text.replace(enums.getValue(), nombresCarrera.getNombre().toUpperCase());
                             }
                             break;
@@ -430,6 +436,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && isEspanol) {
                                 text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre().toUpperCase());
                             } else if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && !isEspanol) {
+                                if (nombresCarrera == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre de la especialidad");
+                                }
                                 text = text.replace(enums.getValue(), " - Career of " + nombresCarrera.getNombre().toUpperCase());
                             } else {
                                 text = text.replace(enums.getValue(), "");
@@ -465,6 +474,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
                             } else {
                                 NombreCiclo nombreCiclo = mapNombreCiclo.get(alumnoCiclos.get(0).getCicloAcademico().getCodigo());
+                                if (nombreCiclo == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre del ciclo " + alumnoCiclos.get(0).getCicloAcademico().getCodigo());
+                                }
                                 text = text.replace(enums.getValue(), nombreCiclo.getNombreCorto());
                             }
                             break;
@@ -476,6 +488,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), alumnoCiclos.get(idx).getCicloAcademico().getDescripcion());
                             } else {
                                 NombreCiclo nombreCiclo = mapNombreCiclo.get(alumnoCiclos.get(idx).getCicloAcademico().getCodigo());
+                                if (nombreCiclo == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre del ciclo " + alumnoCiclos.get(idx).getCicloAcademico().getCodigo());
+                                }
                                 text = text.replace(enums.getValue(), nombreCiclo.getNombreCorto());
                             }
                             break;
@@ -537,6 +552,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                     text = text.replace(enums.getValue(), obtencionGradoTitulo.getGradoAcademico().getNombre());
                                 } else {
                                     NombreGrado nombreGrado = mapNombreGrados.get(obtencionGradoTitulo.getGradoAcademico().getId());
+                                    if (nombreGrado == null) {
+                                        throw new PhobosException("No se ha encontrado el nombre del grado académico ");
+                                    }
                                     text = text.replace(enums.getValue(), nombreGrado.getNombre());
                                 }
                             } else if (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null) {
@@ -545,6 +563,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                     text = text.replace(enums.getValue(), obtencionGradoBachi.getGradoAcademico().getNombre());
                                 } else {
                                     NombreGrado nombreGrado = mapNombreGrados.get(obtencionGradoBachi.getGradoAcademico().getId());
+                                    if (nombreGrado == null) {
+                                        throw new PhobosException("No se ha encontrado el nombre del grado académico ");
+                                    }
                                     text = text.replace(enums.getValue(), nombreGrado.getNombre());
                                 }
 
@@ -553,6 +574,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                     text = text.replace(enums.getValue(), egresado.getTitulo().getNombre());
                                 } else {
                                     NombreTituloAcademico tituloAcademico = mapNombreTitulo.get(egresado.getTitulo().getId());
+                                    if (tituloAcademico == null) {
+                                        throw new PhobosException("No se ha encontrado el nombre del título académico ");
+                                    }
                                     text = text.replace(enums.getValue(), tituloAcademico.getNombre());
                                 }
                             }
@@ -563,6 +587,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), egresado.getCicloAcademico().getCodigo());
                             } else {
                                 NombreCiclo nombreCiclo = mapNombreCiclo.get(egresado.getCicloAcademico().getCodigo());
+                                if (nombreCiclo == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre del ciclo académico " + egresado.getCicloAcademico().getCodigo());
+                                }
                                 text = text.replace(enums.getValue(), nombreCiclo.getNombre());
                             }
                             break;
@@ -571,6 +598,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 text = text.replace(enums.getValue(), egresado.getCicloAcademico().getDescripcion());
                             } else {
                                 NombreCiclo nombreCiclo = mapNombreCiclo.get(egresado.getCicloAcademico().getCodigo());
+                                if (nombreCiclo == null) {
+                                    throw new PhobosException("No se ha encontrado el nombre del ciclo académico " + egresado.getCicloAcademico().getCodigo());
+                                }
                                 text = text.replace(enums.getValue(), nombreCiclo.getNombre());
                             }
                             break;
