@@ -85,6 +85,7 @@ import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoRegularDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PRA;
 
 @Service
 @Transactional(readOnly = true)
@@ -748,7 +749,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
         //Ordernar por horas semanalaes de mayor a menor
         //Collections.sort(secciones, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
-        Collections.sort(secciones, new Seccion.CompareOrdenExamen());
+//        Collections.sort(secciones, new Seccion.CompareOrdenExamen());
 
         int loop = 0;
         for (Seccion seccion : secciones) {
