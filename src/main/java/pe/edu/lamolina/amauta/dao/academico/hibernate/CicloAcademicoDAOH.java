@@ -862,5 +862,21 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
+    
+    
+    @Override
+    public List<CicloAcademico> allPregradoByRangeCode(int codeInit, int codeEnd) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
+                .filter("codigo", ">=", codeInit)
+                .filter("codigo", "<=", codeEnd)
+                .filter("tipo", TipoCicloEnum.REG)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
+
+        return all(sql);
+    }
 
 }
