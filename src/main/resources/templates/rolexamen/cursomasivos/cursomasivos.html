@@ -6,9 +6,9 @@
                 min-height: 40px;
             }
             .aula-disponible {
-                min-height: 50px; 
+                min-height: 50px;
                 min-width: 60px;
-                border-width: 1px; 
+                border-width: 1px;
                 color: white;
             }
         </style>
@@ -209,7 +209,7 @@
                 var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
                 /*]]>*/
             </script>
-            
+            <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:src="@{/app/rolexamen/cursomasivos/cursomasivos.js}" charset="utf-8"></script>
         </div>
