@@ -448,7 +448,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        return cicloAcademicoDAO.allPregradoByRange(2015, 2200);
+        return cicloAcademicoDAO.allPregradoByRangeCode(201920, 220000);
     }
 
 }
