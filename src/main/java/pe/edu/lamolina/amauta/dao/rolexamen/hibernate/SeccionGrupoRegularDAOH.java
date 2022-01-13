@@ -73,7 +73,7 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .join("letraGrupoRegular lgr", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .join("lgr.rolExamenes rex")
                 .left("docente")
-                .filter("gh.id", grupoHorasExamen)
+                .filter("ghe.id", grupoHorasExamen)
                 .in("sgr.estado", seccionRolExamenEstadosEnum);
         return all(sql);
     }
