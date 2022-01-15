@@ -1228,6 +1228,14 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         List<FechaHoraGrupoExamen> fechasHorasGpo = gpoExamDestino.getFechasHorasGruposExamen();
 
         cursoMasivo.setGrupoHorasExamen(gpoExamDestino);
+        cursoMasivo.setAulas(aulasDestino.size());
+        int total = 0;
+        for (Aula aula : aulasDestino) {
+            if (aula.getCapacidadAula() != null) {
+                total += aula.getCapacidadAula();
+            }
+        }
+        cursoMasivo.setCapacidadAulas(total);
         cursoMasivoExamenDAO.update(cursoMasivo);
 
         for (AulaCursoMasivo aulaCM : aulasCMNuevas) {
