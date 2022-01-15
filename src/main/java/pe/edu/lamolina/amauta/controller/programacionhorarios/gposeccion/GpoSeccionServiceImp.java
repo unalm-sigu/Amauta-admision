@@ -1872,7 +1872,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras gpoHoras, CicloAcademico cicloAcademico) {
         Seccion seccionDB = seccionDAO.find(seccion);
-        if (gpoHoras != null) {
+        if (gpoHoras.getId() != null) {
             GrupoHoras gpoHorasBD = grupoHorasDAO.find(gpoHoras);
             if (!gpoHorasBD.isPermiteCeroHoras()) {
                 Assert.isFalse(gpoHoras.getDiaHoraGrupo().isEmpty(), "Debe seleccionar las horas");
@@ -1884,7 +1884,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccionCiclo(seccion, cicloAcademico);
-        if (gpoHoras == null) {
+        if (gpoHoras.getId() == null) {
             horarioSeccionDAO.deleteAllInList(horariosSeccion);
             horarioAulaDAO.deleteAllInList(horariosAula);
             seccion.setGrupoHoras(null);

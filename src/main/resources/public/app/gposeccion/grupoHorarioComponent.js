@@ -529,17 +529,16 @@ Vue.component("grupohorario-component", {
             }
 
             let errorCantHoras = false;
-            console.log($vue.seccionModal.totalHorasSemanales)
-            console.log(diasHorasGrupo.length)
             //if (diasHorasGrupo.length !== 0) {
-            if ($vue.seccionModal.totalHorasSemanales !== diasHorasGrupo.length) {
+            if ($vue.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular
+                    && this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoEspecial
+                    && $vue.seccionModal.totalHorasSemanales !== diasHorasGrupo.length) {
                 errorCantHoras = true;
             }
-            //}
-            console.log($vue.tabGrupos.grupoHorarioSel.isPermiteCeroHoras)
+            
             if ($vue.tabGrupos.grupoHorarioSel.isPermiteCeroHoras) {
                 if (diasHorasGrupo.length === 0) {
-                    errorCantHoras = false;
+                                        errorCantHoras = false;
                 }
             }
 
@@ -554,6 +553,7 @@ Vue.component("grupohorario-component", {
                 id: $vue.tabGrupos.grupoHorarioSel.id,
                 diaHoraGrupo: diasHorasGrupo
             };
+            
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
