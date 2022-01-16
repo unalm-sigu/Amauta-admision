@@ -1885,6 +1885,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccionCiclo(seccion, cicloAcademico);
         if (gpoHoras.getId() == null) {
+            Assert.isFalse(seccionDB.getAula() != null, "Primero debe eliminar el aula de la sección");
             horarioSeccionDAO.deleteAllInList(horariosSeccion);
             horarioAulaDAO.deleteAllInList(horariosAula);
             seccion.setGrupoHoras(null);

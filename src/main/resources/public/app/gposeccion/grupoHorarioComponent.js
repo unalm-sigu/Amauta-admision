@@ -486,7 +486,6 @@ Vue.component("grupohorario-component", {
                         diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
                         diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
                         diasHorasGrupo.push(diaHoraGrupoJson);
-                        console.log(diaHoraGrupoJson)
                     }
                 }
             } else if (this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoZeta) {
@@ -530,15 +529,19 @@ Vue.component("grupohorario-component", {
 
             let errorCantHoras = false;
             //if (diasHorasGrupo.length !== 0) {
-            if ($vue.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular
-                    && this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoEspecial
+            if (($vue.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular
+                    || this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoEspecial)
+                    && diasHorasGrupo.length > 0 && $vue.seccionModal.totalHorasSemanales !== diasHorasGrupo.length) {
+                errorCantHoras = true;
+            }
+            if (this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoZeta
                     && $vue.seccionModal.totalHorasSemanales !== diasHorasGrupo.length) {
                 errorCantHoras = true;
             }
-            
+
             if ($vue.tabGrupos.grupoHorarioSel.isPermiteCeroHoras) {
                 if (diasHorasGrupo.length === 0) {
-                                        errorCantHoras = false;
+                    errorCantHoras = false;
                 }
             }
 
@@ -553,7 +556,7 @@ Vue.component("grupohorario-component", {
                 id: $vue.tabGrupos.grupoHorarioSel.id,
                 diaHoraGrupo: diasHorasGrupo
             };
-            
+
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
@@ -583,10 +586,8 @@ Vue.component("grupohorario-component", {
             });
         },
         cleanDiasHorasGrupoDiferentGpoHorario(grupoHorario) {
-            console.log("cleanDiasHorasGrupoDiferentGpoHorario")
             if (!grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
                 if (this.tabGrupos['zetas'].tblHorarios != null) {
-                    console.log("isTipoGrupoZeta isTipoGrupoZeta isTipoGrupoZeta")
                     for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
                         this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
                     }
@@ -594,7 +595,6 @@ Vue.component("grupohorario-component", {
             }
             if (!grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
                 if (this.tabGrupos['regulares'].tblHorarios != null) {
-                    console.log("isTipoGrupoRegular isTipoGrupoRegular isTipoGrupoRegular")
                     for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
                         this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
                     }
@@ -602,7 +602,6 @@ Vue.component("grupohorario-component", {
             }
             if (!grupoHorario.tipoGrupoHoras.isTipoGrupoEspecial) {
                 if (this.tabGrupos['especial'].tblHorarios != null) {
-                    console.log("isTipoGrupoEspecial isTipoGrupoEspecial isTipoGrupoEspecial")
                     for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
                         this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
                     }
