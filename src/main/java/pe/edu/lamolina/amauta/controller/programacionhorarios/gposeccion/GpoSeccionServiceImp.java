@@ -640,7 +640,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setHorasSemanales(horasSemanales);
         seccion.setFechaRegistro(new Date());
         seccion.setUserRegistro(ds.getUsuario());
-        seccion.setGrupoHoras(gpoHoras);
+//        seccion.setGrupoHoras(gpoHoras);
 
         if (tipoSeccion != TipoSeccionEnum.TCUR && cursoCiclo.getPrecio() != null) {
             seccion.setPrecio(cursoCiclo.getPrecio().add(cursoCiclo.getPrecioAdicional()));
