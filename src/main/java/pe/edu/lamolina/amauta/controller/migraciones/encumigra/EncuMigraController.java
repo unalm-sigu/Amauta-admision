@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.migraciones.histomigra;
+package pe.edu.lamolina.amauta.controller.migraciones.encumigra;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -8,9 +8,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,14 +35,14 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
-@Slf4j
 @Controller
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
-@RequestMapping("migraciones/histomigra")
-public class HistoMigraController {
+@RequestMapping("migraciones/encumigra")
+public class EncuMigraController {
 
-    private final HistoMigraService service;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    EncuMigraService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
