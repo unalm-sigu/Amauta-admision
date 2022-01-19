@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -22,10 +24,12 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,6 +44,8 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
     @Autowired
     PersonaDAO personaDAO;
+    @Autowired
+    TramiteBachillerDAO tramiteBachillerDAO;
 
     @Override
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
@@ -49,7 +55,16 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
-        for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
+        List<TramiteBachiller> tramBachiller = tramiteBachillerDAO.allByAlumnosAct(alumnos);
+
+        List<Alumno> alumnosConTramBachiller = tramBachiller.stream().map(x -> x.getTramite().getAlumno()).collect(Collectors.toList());
+
+        logger.debug("INICIO {}", alumnoConsejeros.size());
+        List<AlumnoConsejero> alumnoConsejerosDepurado = alumnoConsejeros.stream().filter(x -> !alumnosConTramBachiller.contains(x.getAlumno())).collect(Collectors.toList());
+
+        logger.debug("DEPURADO {}", alumnoConsejerosDepurado.size());
+
+        for (AlumnoConsejero alumnoTutor : alumnoConsejerosDepurado) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
             if (matResumen != null) {
                 alumnoTutor.setEstadoMatriculableEnum(matResumen.getEstadoEnum());
@@ -60,7 +75,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
                 alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
             }
         }
-        return alumnoConsejeros;
+        return alumnoConsejerosDepurado;
     }
 
     @Override

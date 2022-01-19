@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +43,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -181,7 +181,26 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                     Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
                     frax = frax.multiply(new BigDecimal(curso.getHorasTeoria())).divide(CIEN);
                     horasTeo = frax.getValue(2);
+                    if (Arrays.asList(TCUR).contains(key.getTipoSeccionEnum())) {
+                        boolean tieneCursoPractico = false;
+                        Fraxtion frax1 = new Fraxtion(0);
+                        for (Seccion seccione : docenteSeccion.getSeccion().getGrupoSeccion().getSecciones()) {
+                            if (PCUR == seccione.getTipoSeccionEnum()) {
+                                for (DocenteSeccion docenteSeccion1 : seccione.getDocenteSeccion()) {
+                                    if (docenteSeccion1.getDocente().getId() == docenteSeccion.getDocente().getId()) {
+                                        tieneCursoPractico = true;
+                                        frax1 = new Fraxtion(docenteSeccion1.getPorcentajeCarga());
+                                        frax1 = frax1.multiply(new BigDecimal(curso.getHorasPractica())).divide(CIEN);
+                                    }
+                                }
+                            }
+                        }
+                        if (tieneCursoPractico) {
+                            horasPra = frax1.getValue(2);
+                        }
+                    }
                 }
+
                 if (Arrays.asList(PRA, PCUR).contains(key.getTipoSeccionEnum())) {
                     Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
                     frax = frax.multiply(new BigDecimal(curso.getHorasPractica())).divide(CIEN);
@@ -429,7 +448,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        return cicloAcademicoDAO.allPregradoByRange(2015, 2200);
+        return cicloAcademicoDAO.allPregradoByRangeCode(201920, 220000);
     }
 
 }

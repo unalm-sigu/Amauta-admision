@@ -241,12 +241,7 @@
             <version>1.18.18</version>
             <type>jar</type>
         </dependency>
-        
-        <dependency>
-            <groupId>pe.edu.lamolina</groupId>  
-            <artifactId>model</artifactId>
-            <version>0.29.49</version>
-        </dependency>
+
         
         <dependency>
             <groupId>junit</groupId>
@@ -260,6 +255,12 @@
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
             <scope>test</scope>
+        </dependency>
+                
+        <dependency>
+            <groupId>pe.edu.lamolina</groupId>  
+            <artifactId>model</artifactId>
+            <version>0.29.55</version>
         </dependency>
         
     </dependencies>

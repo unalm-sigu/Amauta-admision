@@ -1,6 +1,14 @@
+Vue.component("multiselect", window.VueMultiselect.default);
+const AulaFiltro = httpVueLoader('/app/programacion/tramiteaula/AulaFiltro.vue');
+const SolicitanteFiltro = httpVueLoader('/app/programacion/tramiteaula/SolicitanteFiltro.vue');
+
 new Vue({
     el: '#main',
     mixins: [VueLoader],
+    components: {
+        aulaFiltro: AulaFiltro,
+        solicitanteFiltro: SolicitanteFiltro
+    },
     data: {
         urlfilter: APP.url("tramite/aula/list"),
         tramiteactivo: {id: null, comentario: null},
@@ -29,11 +37,10 @@ new Vue({
         configConfirmAction: VUE_MODAL.structConfirm({}),
     },
     mounted: function () {
-        let $vue = this;
+
     },
     methods: {
         editarTramite(tramite) {
-            let $vue = this;
             return APP.url('tramite/aula/' + tramite.id + '/update')
         },
         aceptarTramite(tramite) {
@@ -109,19 +116,6 @@ new Vue({
                 }
             });
         },
-        showMePop(e) {
-            $(e.originalTarget).popover('toggle');
-        },
-        giveMeAulas(tramite) {
-            if (tramite.reservados.length < 1) {
-                return "";
-            }
-            let aulass = '';
-            tramite.reservados.map(function (el) {
-                aulass = aulass + el.nombrePublico + "\n\n";
-            });
-            return aulass;
-        },
         resumenTramite(tramite) {
             let $vue = this;
             $vue.showLoader();
@@ -170,6 +164,27 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        afterChangeFilterAula(aula) {
+            let $vue = this;
+            if (aula) {
+                $vue.$refs.raptor.querie.push({name: 'aula', value: aula.id});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'aula', value: null});
+            }
+            $vue.$refs.raptor.loadRemoteData();
+        },
+        afterChangeFilterSolicitante(tipo, solicitante) {
+            let $vue = this;
+            if (solicitante) {
+                $vue.$refs.raptor.querie.push({name: 'tipo', value: tipo.id});
+                $vue.$refs.raptor.querie.push({name: 'solicitante', value: solicitante.id});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'tipo', value: null});
+                $vue.$refs.raptor.querie.push({name: 'solicitante', value: null});
+            }
+            $vue.$refs.raptor.loadRemoteData();
+        },
     }
+    
 });

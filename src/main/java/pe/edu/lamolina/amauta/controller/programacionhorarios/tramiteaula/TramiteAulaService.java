@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Pais;
 
 public interface TramiteAulaService {
 
@@ -48,5 +49,9 @@ public interface TramiteAulaService {
     List<Aula> allAulaModuloByOficina(Oficina oficina);
 
     void cambiarVisibilidadReserva(ReservaAula reservaAulaForm);
+
+    public List<Aula> allAulaFiltro(String nombre);
+
+    public List<Empresa> allEmpresaByName(Pais pais, String nombre);
 
 }

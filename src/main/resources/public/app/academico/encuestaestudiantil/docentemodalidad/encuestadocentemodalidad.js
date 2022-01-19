@@ -7,7 +7,7 @@ new Vue({
         puntajeDocenteModalidad: [],
         ciclos: JSON.parse(CICLOS_ACADEMICOS),
         cicloAcademico: JSON.parse(CICLO_ACADEMICO),
-        ciclo:JSON.parse(CICLO_ACADEMICO),
+        ciclo:[JSON.parse(CICLO_ACADEMICO)],
         facultades: JSON.parse(jFacultades),
         departamentos: JSON.parse(jDepartamentos),
         departamentosSelectos: [],

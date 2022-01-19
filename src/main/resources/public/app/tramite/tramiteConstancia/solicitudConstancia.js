@@ -269,9 +269,9 @@ new Vue({
                     .then(response => {
                         UTIL_BLOB_INLINE.save(response);
                         noty_clouse(idToast);
-                    }, () => {
+                    }, (error) => {
                         noty_clouse(idToast);
-                        notify(Messages.errorComunicacion, 'error')
+                        notify(error.response.data.message, 'error')
                     });
         },
         anularTramite(tramite) {

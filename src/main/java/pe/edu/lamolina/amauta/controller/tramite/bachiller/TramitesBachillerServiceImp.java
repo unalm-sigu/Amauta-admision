@@ -29,6 +29,7 @@ import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.SerieDocumentoDAO;
@@ -46,8 +47,10 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -58,6 +61,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -127,6 +131,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
 
+    @Autowired
+    PostulanteDAO postulanteDAO;
+
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
 
@@ -187,6 +194,14 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         historialSorted.putAll(historial);
 
         List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
+        
+        Map<Long,AlumnoCiclo> alumnosCiclosFiltrados=alumnosCiclos.stream()
+                .collect(Collectors.toMap(x->x.getId(),y->y,(w,z)->w));
+
+        long ciclosRegular = alumnosCiclosFiltrados.values().stream()
+                .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG)
+                .count();
 
         int creditosConvalidados = 0;
 
@@ -227,7 +242,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         if (eventoIngreso == null) {
             throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", cicloInicio.getDescripcion()));
         }
-        
+
         Oficina oficinaColaborador = null;
 
         alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
@@ -239,6 +254,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
+        
+        Postulante postulante=postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(),alumno.getCicloIngreso());
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
@@ -248,11 +265,14 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("bachiller", tramiteBachiller);
         ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
+        ctx.setVariable("ciclosRegularesEstudiados", ciclosRegular);
+        ctx.setVariable("modalidadIngreso",postulante!=null? postulante.getModalidadIngreso().getNombre():null);
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
         ctx.setVariable("nombrePdf", "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoCurdir");
+        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoBachiller");
 
         return ctx;
     }

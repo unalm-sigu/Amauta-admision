@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -45,6 +46,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Pais;
 
 @Controller
 @RequestMapping("tramite/aula")
@@ -82,8 +84,43 @@ public class TramiteAulaController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index() {
         return "programacion/tramiteaula/tramiteaula";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
+
+        List<ReservaAula> reservaAulas = service.allDynatableFilter(filter);
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+
+        for (ReservaAula aula : reservaAulas) {
+            ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                "*",
+                "visibleHorario",
+                "tramite.*",
+                "tramite.alumno.*",
+                "tramite.docente.*",
+                "tramite.empresa.*",
+                "tramite.oficina.*",
+                "tramite.alumno.persona.*",
+                "tramite.docente.persona.*",
+                "reservados.id",
+                "reservados.nombrePublico"
+            });
+            array.add(node);
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
     }
 
     @RequestMapping("nuevo")
@@ -163,45 +200,6 @@ public class TramiteAulaController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-
-        DynatableResponse json = new DynatableResponse();
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<ReservaAula> reservaAulas = service.allDynatableFilter(filter);
-            JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(jFactory);
-            for (ReservaAula aula : reservaAulas) {
-                ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
-                    "*",
-                    "visibleHorario",
-                    "tramite.*",
-                    "tramite.alumno.*",
-                    "tramite.docente.*",
-                    "tramite.empresa.*",
-                    "tramite.oficina.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.docente.persona.*",
-                    "reservados.id",
-                    "reservados.nombrePublico"
-                });
-                array.add(node);
-            }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
-
-    @ResponseBody
     @RequestMapping("filteraula")
     public DynatableResponse filteraula(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
@@ -243,12 +241,7 @@ public class TramiteAulaController {
         try {
 
             Empresa institucionBD = service.saveInstitucion(insticion);
-            ObjectNode node = JsonHelper.createJson(institucionBD, JsonNodeFactory.instance, true,
-                    new String[]{
-                        "id",
-                        "razonSocial"
-                    });
-            response.setData(node);
+            response.setData(JaneHelper.from(institucionBD).only("id,razonSocial").json());
             response.setSuccess(true);
             response.setMessage(GlobalMessages.CREATED);
 
@@ -262,67 +255,51 @@ public class TramiteAulaController {
 
     @ResponseBody
     @RequestMapping("allAlumno")
-    public JsonResponse allAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+    public ArrayNode allAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<Alumno> alumnos = service.allAlumnoByName(nombre);
+        
+        return JaneHelper.from(alumnos)
+                .only("id,codigo")
+                .join("persona", "id,nombreCompleto")
+                .array();
 
-        try {
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Alumno> alumnos = service.allAlumnoByName(nombre);
-
-            for (Alumno alumno : alumnos) {
-                ObjectNode json = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "id", "codigo",
-                            "persona.nombreCompleto",});
-                jsonList.add(json);
-            }
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
-            response.setSuccess(true);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
     }
 
     @ResponseBody
     @RequestMapping("allDocente")
-    public JsonResponse allDocente(@RequestParam("nombre") String nombre, HttpSession session) {
+    public ArrayNode allDocente(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<Docente> docentes = service.allDocenteByName(nombre);
 
-        try {
+        return JaneHelper.from(docentes)
+                .only("id,codigo")
+                .join("persona", "nombreCompleto,apellidosNombres")
+                .join("departamentoAcademico", "codigo,nombre")
+                .array();
+    }
 
-            JsonNodeFactory factory = JsonNodeFactory.instance;
-            List<Docente> docentes = service.allDocenteByName(nombre);
-            ArrayNode jsonList = new ArrayNode(factory);
+    @ResponseBody
+    @RequestMapping("allOficina")
+    public ArrayNode allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
 
-            for (Docente profe : docentes) {
-                ObjectNode json = JsonHelper.createJson(profe, factory, true, new String[]{
-                    "id", "codigo",
-                    "persona.nombreCompleto",
-                    "persona.apellidosNombres",
-                    "departamentoAcademico.codigo",
-                    "departamentoAcademico.nombre"
-                });
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Oficina> oficinas = service.allOficinaByName(nombre, ds);
 
-                jsonList.add(json);
-            }
+        return JaneHelper.from(oficinas)
+                .array();
+    }
 
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
-            response.setSuccess(true);
+    @ResponseBody
+    @RequestMapping("allEmpresa")
+    public ArrayNode allEmpresa(@RequestParam("nombre") String nombre) {
 
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        List<Empresa> empresas = service.allEmpresaByName(new Pais(), nombre);
 
-        return response;
+        return JaneHelper.from(empresas)
+                .only("id,numeroDocIdentidad,razonSocial")
+                .array();
+
     }
 
     @ResponseBody
@@ -423,33 +400,15 @@ public class TramiteAulaController {
     }
 
     @ResponseBody
-    @RequestMapping("allOficina")
-    public JsonResponse allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
+    @RequestMapping("allAulaFiltro")
+    public ArrayNode allAulaFiltro(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        List<Aula> aulas = service.allAulaFiltro(nombre);
 
-        try {
+        return JaneHelper.from(aulas)
+                .only("id,codigo,nombre")
+                .array();
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Oficina> oficinas = service.allOficinaByName(nombre, ds);
-
-            for (Oficina oficina : oficinas) {
-                ObjectNode json = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{"*"});
-                jsonList.add(json);
-            }
-
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
-            response.setSuccess(true);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
     }
 
     @ResponseBody

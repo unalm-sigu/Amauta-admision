@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.tramiteaula;
 
-import com.fasterxml.jackson.dataformat.yaml.snakeyaml.scanner.Constant;
 import com.google.common.base.Strings;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +17,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.tramite.AulaReservada;
@@ -64,10 +62,10 @@ import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.SexoEnum.F;
 
 @Service
 @Transactional(readOnly = true)
@@ -125,7 +123,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Autowired
     OficinaDAO oficinaDAO;
-    
+
     @Autowired
     PaisDAO paisDAO;
 
@@ -133,17 +131,29 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
 
         List<ReservaAula> reservaAulas = reservaAulaDAO.allDynatableFilter(filter);
-        List<AulaReservada> aulass = aulaReservadaDAO.allByReservaAulas(reservaAulas);
-        Map<Long, List<AulaReservada>> aulassMap = TypesUtil.convertListToMapList("reservaAula.id", aulass);
+
+        List<AulaReservada> aulaReservadas = aulaReservadaDAO.allByReservaAulas(reservaAulas);
+
+        Map<Long, List<AulaReservada>> mapAulaReservada = aulaReservadas
+                .stream()
+                .collect(Collectors.groupingBy(x -> x.getReservaAula().getId()));
 
         for (ReservaAula reservaAula : reservaAulas) {
-            List<AulaReservada> aulaReservada = aulassMap.get(reservaAula.getId());
-            reservaAula.setAulaReservada(aulaReservada);
-            if (aulaReservada != null) {
-                Map<Long, Aula> aulassss = aulaReservada.stream().collect(Collectors.toMap(x -> x.getAula().getId(), x -> x.getAula(), (f, s) -> s));
-                List<Aula> aulasss = aulassss.values().stream().collect(Collectors.toList());
-                reservaAula.setReservados(aulasss);
-            }
+
+            reservaAula.setAulaReservada(mapAulaReservada.getOrDefault(reservaAula.getId(), new ArrayList()));
+
+            logger.debug("ReservaAula  {} aulas {}", reservaAula.getId(), reservaAula.getAulaReservada().size());
+
+            Map<Long, Aula> mapAula = reservaAula.getAulaReservada()
+                    .stream()
+                    .collect(Collectors.toMap(x -> x.getAula().getId(), x -> x.getAula(), (f, s) -> s));
+
+            List<Aula> aulas = mapAula.values()
+                    .stream()
+                    .collect(Collectors.toList());
+
+            reservaAula.setReservados(aulas);
+
         }
 
         return reservaAulas;
@@ -260,7 +270,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public Empresa saveInstitucion(Empresa institucion) {
-        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(),new Pais(GlobalConstantine.ID_PERU));
+        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), new Pais(GlobalConstantine.ID_PERU));
         institucion.setTipoDocIdentidad(doc);
         empresaDAO.save(institucion);
         return institucion;
@@ -518,22 +528,30 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         Tramite tramite = reservaAulaDb.getTramite();
         String email = "";
         String nombre = "";
+        String estimado = "";
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Alumno alumno = tramite.getAlumno();
             email = alumno.getEmail();
             nombre = alumno.getPersona().getNombreCompleto();
+            estimado = alumno.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Docente docente = tramite.getDocente();
             email = docente.getPersona().getEmailCompania();
             nombre = docente.getPersona().getNombreCompleto();
+            estimado = docente.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Empresa empresa = tramite.getEmpresa();
             nombre = empresa.getRazonSocial();
             email = empresa.getEmail();
         }
-        mailerService.enviarNotificacionAulaReservaAceptado(nombre, email, contenido);
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            Oficina oficina = tramite.getOficina();
+            nombre = oficina.getNombre();
+            email = oficina.getEmail();
+        } 
+        mailerService.enviarNotificacionAulaReservaAceptado(estimado, nombre, email, contenido);
     }
 
     private void sendNotificacionRechazar(ReservaAula reservaAulaDb) {
@@ -541,22 +559,30 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         Tramite tramite = reservaAulaDb.getTramite();
         String email = "";
         String nombre = "";
+        String estimado = "";
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Alumno alumno = tramite.getAlumno();
             email = alumno.getEmail();
             nombre = alumno.getPersona().getNombreCompleto();
+            estimado = alumno.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Docente docente = tramite.getDocente();
             email = docente.getPersona().getEmailCompania();
             nombre = docente.getPersona().getNombreCompleto();
+            estimado = docente.getPersona().getSexoEnum() == F ? "Estimada" : "Estimado";
         }
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             Empresa empresa = tramite.getEmpresa();
             nombre = empresa.getRazonSocial();
             email = empresa.getEmail();
         }
-        mailerService.enviarNotificacionAulaReservaRechazado(nombre, email, contenido);
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            Oficina oficina = tramite.getOficina();
+            nombre = oficina.getNombre();
+            email = oficina.getEmail();
+        }
+        mailerService.enviarNotificacionAulaReservaRechazado(estimado, nombre, email, contenido);
     }
 
     @Override
@@ -593,7 +619,21 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     public void cambiarVisibilidadReserva(ReservaAula reservaAulaForm) {
-       reservaAulaDAO.updateColumns(reservaAulaForm, "visibleHorario");
+        reservaAulaDAO.updateColumns(reservaAulaForm, "visibleHorario");
+    }
+
+    @Override
+    public List<Aula> allAulaFiltro(String nombre) {
+        return aulaDAO.allAulaModuloByName(nombre);
+    }
+
+    @Override
+    public List<Empresa> allEmpresaByName(Pais pais, String nombre) {
+        return empresaDAO.allEmpresaByName(pais, this.forLike(nombre));
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }

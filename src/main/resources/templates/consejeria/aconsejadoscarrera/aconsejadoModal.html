@@ -22,8 +22,16 @@
                                  v-on:search-change="getDocentes">
 
                         <template slot="option" slot-scope="props">
-                            <span class="option__title">{{ props.option.colaborador.persona.nombreCompleto }}</span>
+                            <span class="option__title">{{ props.option.colaborador.persona.apellidosNombres }}</span>
                         </template>
+
+                        <template  v-if="props.option.colaborador" slot="singleLabel" slot-scope="props">
+                            <span class="option__title">{{ props.option.colaborador.persona.apellidosNombres }}</span>
+                        </template>
+
+                        <template slot="noOptions">&nbsp;</template>
+                        <template slot="noResult">&nbsp;</template>
+
                     </multiselect>
                 </div>
             </div>

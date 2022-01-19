@@ -669,7 +669,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("tgh.tipo", tipoGrupoHorasEnum)
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
-                .orderBy("sec.horasSemanales desc");
+                .orderBy("gh.tipoSeccion desc","gh.letra asc","sec.horasSemanales desc");
         return all(sql);
     }
 

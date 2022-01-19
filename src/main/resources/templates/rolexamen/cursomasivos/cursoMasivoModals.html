@@ -135,13 +135,13 @@
                             <div class="form-group">
                                 <div class="col-md-6 bold">
                                     <label class="bold">Alumnos :  </label>
-                                    {{cursoMasivoExamen.alumnos}}
+                                    {{cursoMasivoExamen.alumnosCount}}
                                 </div>
 
                                 <div class="col-md-6 bold">
                                     <label class="bold">Faltantes : </label>
-                                    <span v-if="(cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas)>0">
-                                        {{cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas}}
+                                    <span v-if="(cursoMasivoExamen.alumnosCount - cursoMasivoExamen.capacidadAulas)>0">
+                                        {{cursoMasivoExamen.alumnosCount - cursoMasivoExamen.capacidadAulas}}
                                     </span>
                                     <span v-else="">
                                         0

@@ -16,7 +16,6 @@ import pe.edu.lamolina.model.enums.VariableContenidoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.amauta.zelper.mail.connector.MailMessage;
 import pe.edu.lamolina.amauta.zelper.mail.connector.MailerConnector;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -53,52 +52,32 @@ public class MailerServiceImp implements MailerService {
         mail.setTemplate("mail/mailUsuarioCreacion");
         mail.setSubject("Creación de usuario");
         mail.setDestinatarios(new String[]{persona.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 
     @Override
-    public void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionAulaReservaAceptado(String estimado, String nombre, String email, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
-        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), tramiteDocumentoAcademico.getPersonaContacto());
-
+        contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.NOMBRE_PERSONA.getValue()), nombre);
+        contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.ESTIMADO.getValue()), estimado);
         Context ctx = new Context();
         ctx.setVariable("contenido", contenido);
 
         MailMessage mail = new MailMessage();
         mail.setContext(ctx);
-        mail.setTemplate("mail/mailSolicitudConstancia");
-        mail.setSubject("Solicitud de constancia");
-        mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
-        mailerConnector.sendMail(mail);
-    }
-
-    @Override
-    public void enviarNotificacionTicketHelpDesk(Persona persona, ContenidoCarta contenidoCarta) {
-
-        String contenido = contenidoCarta.getContenido();
-        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
-
-        Context ctx = new Context();
-        ctx.setVariable("contenido", contenido);
-
-        MailMessage mail = new MailMessage();
-        mail.setContext(ctx);
-        mail.setTemplate("mail/mailHelpDesk");
+        mail.setTemplate("mail/mailReservaAula");
         mail.setSubject(contenidoCarta.getNombre());
-        //mail.setDestinatarios(new String[]{ colaborador.getPersona().getEmail()});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
-        mailerConnector.sendMailHelpDesk(mail);
-
+        mail.setDestinatarios(new String[]{email});
+        mailerConnector.sendMail(mail);
     }
 
     @Override
-    public void enviarNotificacionAulaReservaAceptado(String nombre, String email, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionAulaReservaRechazado(String estimado, String nombre, String email, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
-        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
+        contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.NOMBRE_PERSONA.getValue()), nombre);
+        contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.ESTIMADO.getValue()), estimado);
 
         Context ctx = new Context();
         ctx.setVariable("contenido", contenido);
@@ -107,27 +86,8 @@ public class MailerServiceImp implements MailerService {
         mail.setContext(ctx);
         mail.setTemplate("mail/mailReservaAula");
         mail.setSubject(contenidoCarta.getNombre());
-        //mail.setDestinatarios(new String[]{email});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
-        mailerConnector.sendMailHelpDesk(mail);
-    }
-
-    @Override
-    public void enviarNotificacionAulaReservaRechazado(String nombre, String email, ContenidoCarta contenidoCarta) {
-
-        String contenido = contenidoCarta.getContenido();
-        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
-
-        Context ctx = new Context();
-        ctx.setVariable("contenido", contenido);
-
-        MailMessage mail = new MailMessage();
-        mail.setContext(ctx);
-        mail.setTemplate("mail/mailReservaAula");
-        mail.setSubject(contenidoCarta.getNombre());
-        //mail.setDestinatarios(new String[]{email});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
-        mailerConnector.sendMailHelpDesk(mail);
+        mail.setDestinatarios(new String[]{email});
+        mailerConnector.sendMail(mail);
     }
 
     //// PENDIENTE
@@ -151,8 +111,7 @@ public class MailerServiceImp implements MailerService {
             mail.setTemplate("mail/mailOtorgarAccesoEspecial");
 
             mail.setSubject(asunto);
-            mail.setDestinatarios(new String[]{"seichi.jonda@tecsup.edu.pe"});
-//            mail.setDestinatarios(new String[]{correo});
+            mail.setDestinatarios(new String[]{correo});
 
             InternetAddress internetAddress = new InternetAddress();
             internetAddress.setPersonal("UNALM - INTRANET");
@@ -204,7 +163,7 @@ public class MailerServiceImp implements MailerService {
 
             mail.setDestinatarios(new String[]{alumnoPersona.getEmailCompania(), consejeroPersona.getEmailCompania()}); //emailAlumno
             mail.setFrom(ie);
-            mailerConnector.sendMailAgendaConsejero(mail);
+            mailerConnector.sendMail(mail);
         } catch (UnsupportedEncodingException ex) {
             java.util.logging.Logger.getLogger(MailerServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }

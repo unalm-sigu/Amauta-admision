@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 
 public interface GeneradorWordSolicitudService {
 
-    void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException;
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException;
 
     public void saveWordTramiteDocumento(Archivo archivo, DataSessionPivot ds);
 }

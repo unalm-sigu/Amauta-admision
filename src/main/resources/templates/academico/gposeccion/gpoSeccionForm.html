@@ -226,10 +226,10 @@
                                             <th class="col-md-1 text-center v-middle" th:if="${false}">Docentes</th>
                                             <th class="col-md-1 text-center v-middle">Estado</th>
                                             <th class="text-center">
-                                                <input th:if="${esEditorOera}" 
+<!--                                                <input th:if="${esEditorOera}" 
                                                        type="checkbox"
                                                        v-model="directEditSecciones"
-                                                       v-on:click="directAulaChange($event)"/>
+                                                       v-on:click="directAulaChange($event)"/>-->
                                             </th>
                                         </tr>
                                     </thead>
@@ -260,7 +260,7 @@
                                             </td>
 
                                             <td class="text-center v-middle">
-
+                                                
                                                 <div th:if="${esEditorOera}">
                                                     <a v-if="seccion.aula.id=='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)"
                                                        v-on:click="showModalAula(seccion)" 

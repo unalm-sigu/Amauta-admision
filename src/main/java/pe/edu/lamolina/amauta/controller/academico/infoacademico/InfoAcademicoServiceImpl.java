@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -317,7 +319,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         Alumno alumno = alumnoDAO.findAllInfo(alumnoId.getId());
 
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = alumnoCicloCursos.stream()
+                .collect(toMap(x -> x.getAlumnoCiclo().getId(), y -> y.getAlumnoCiclo(), (w, z) -> w));
+
+        List<AlumnoCiclo> alumnoCiclos = mapAlumnoCiclo.values().stream().collect(toList());;
 
         long ciclosRegular = alumnoCiclos.stream()
                 .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
@@ -359,6 +366,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                     EventoCicloAcademico eventoEgreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
                     alumno.setFechaEgreso(eventoEgreso != null ? eventoEgreso.getFechaFin() : null);
                 }
+            }
+        }
+
+        if (alumno.getCicloIngreso() != null) {
+            if (alumno.getSituacionAcademica() != null) {
+                EventoCicloAcademico eventoMatricula = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloIngreso(), EventoAcademicoEnum.FECHAS_BACH);
+                alumno.setFechaMatricula(eventoMatricula != null ? eventoMatricula.getFechaInicio() : null);
             }
         }
 
@@ -1153,11 +1167,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (!puedeCalcular) {
             throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
         }
-        
+
         List<Alumno> alumnos = alumnoDAO.correccionNivelacion(ds.getCicloAcademico());
 
         log.debug("se van ha corregir {} alumnos", alumnos.size());
-        
+
         for (Alumno alumno : alumnos) {
             promedioService.calcularSituacionAcademica(alumno, ds);
         }

@@ -3,7 +3,7 @@
         <title th:inline="text"> Tramite Bachiller</title>
         <style>
             body{
-                font-size: 14px !important;	
+                font-size: 14px !important;
             }
 
             .fecha {
@@ -190,6 +190,17 @@
                             <span th:text="${fechaEgreso}"></span>
                         </td>
                     </tr>
+<!--                    <tr >
+                        <td >
+                            <span >Plan de Estudios: </span>
+                        </td>
+                        <td >
+                            <span th:text="${planCurricular}"></span>
+                            <span  th:inline="text" th:if="${alumno.planCurricular.orientacionCarrera!=null}">
+                                ([[${alumno.planCurricular.orientacionCarrera.nombre}]])
+                            </span>
+                        </td>
+                    </tr>-->
                     <tr >
                         <td >
                             <span >Se Adjunta: </span>

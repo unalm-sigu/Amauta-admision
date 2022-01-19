@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.inscripcion;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
@@ -16,5 +17,7 @@ public interface PostulanteDAO extends EasyDAO<Postulante> {
     Postulante findByDocIdentidadCiclo(TipoDocIdentidad tipoDoc, String nroDoc, CicloPostula ciclo);
 
     Postulante findByCodigoCiclo(String codigo, CicloPostula ciclo);
+
+    public Postulante findByPersonaCicloAcademico(Persona persona, CicloAcademico cicloAcademico);
 
 }

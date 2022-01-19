@@ -95,13 +95,13 @@ Vue.component("v-date-picker", {
             }
         }
     }, created: function () {
-        console.log("created datepicker");
 
     },
     mounted: function () {
-        console.log("mounted datepicker");
+
         var $vue = this;
         this.createdDP($vue);
+        
     }, watch: {
         startdate(newValue) {
             this.elem.datepicker().datepicker('setStartDate', newValue);
@@ -115,7 +115,7 @@ Vue.component("v-date-picker", {
             this.elem.datepicker().datepicker('setDate', newValue);
         }
     }, beforeDestroy() {
-        //  console.log("destruira datepicker")
+
     }
 });
 

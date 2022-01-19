@@ -54,7 +54,7 @@ Vue.component("aula-component", {
                 $vue.tabAulas.aulaSel.tabAula = "especifica";
         },
         labelAula(aula) {
-            return aula.nombrePublico+' - '+aula.aulaSuperior.nombre;
+            return aula.nombrePublico + ' - ' + aula.aulaSuperior.nombre;
         },
         loadAula(seccion) {
             let $vue = this;
@@ -128,7 +128,43 @@ Vue.component("aula-component", {
                 notify("Seleccione un aula", "error");
                 return;
             }
-            console.log(aulaSeleccionada.isDisponible);
+            console.log(aulaSeleccionada.codigo);
+            if (!aulaSeleccionada.id) {
+                bootbox.confirm({
+                    message: "¿Está seguro que desea eliminar el aula?",
+                    buttons: {
+                        confirm: {label: 'Si', className: "btn-warning"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+
+                        if (result) {
+                            MODAL.showWait("Espere un momento por favor");
+                            $.ajax({
+                                url: APP.url('academico/gposeccion/saveAula'),
+                                type: 'POST',
+                                async: true,
+                                data: {
+                                    seccion: $vue.seccionModal.id,
+                                    aula: aulaSeleccionada.id
+                                },
+                                success: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                },
+                                error: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                    notify(Messages.errorComunicacion, "error");
+                                }
+                            });
+                        } else {
+
+                        }
+                    }
+                });
+                return;
+            }
             if (!aulaSeleccionada.isDisponible) {
                 notify("El aula no esta disponible", "error");
                 return;
@@ -268,8 +304,6 @@ Vue.component("aula-component", {
         },
         getClassAula(aula) {
             let $vue = this;
-            console.log(
-                    $vue.seccionModal.aula.id);
             if (aula.seleccionado) {
                 return "btn-primary";
             }
@@ -329,6 +363,9 @@ Vue.component("aula-component", {
                     }
                 }
             } else {
+                
+                this.tabAulas.aulaSel = {tabAula:this.tabAulas.aulaSel.tabAula};
+                
                 if (this.tabAulas['oficinas'].tblAulas != null) {
                     for (let key in this.tabAulas['oficinas'].tblAulas) {
                         this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
