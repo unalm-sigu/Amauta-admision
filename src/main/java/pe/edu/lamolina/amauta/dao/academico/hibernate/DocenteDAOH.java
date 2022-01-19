@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
+import static pe.edu.lamolina.model.enums.DocenteEstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
@@ -247,6 +248,29 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .linkedBy("per.id", "perc.id")
                 .linkedBy("da.id", "ofi.instanciaOficina")
                 .limit(15);
+
+        return all(sql);
+    }
+    
+        @Override
+    public List<Docente> allByNombreActivoFilter(String nombre, Integer cantidad, String codigoDep) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        System.out.println("nombre = <<" + nombre + ">>");
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico da")
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("doc.codigo", "like", nombre)
+                .__().filter("da.nombre", "like", nombre)
+                .endBlock()
+                .filter("doc.estado", ACT)
+                .limit(cantidad);
+
+        if (codigoDep != null) {
+            sql.filter("da.codigo", codigoDep);
+        }
 
         return all(sql);
     }

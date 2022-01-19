@@ -1427,7 +1427,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Docente> allDocenterByNombre(String nombre, String codigoDep) {
-        return docenteDAO.allByNombreFilter(nombre, 10, codigoDep);
+        return docenteDAO.allByNombreActivoFilter(nombre, 10, codigoDep);
     }
 
     @Override
