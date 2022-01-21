@@ -68,9 +68,13 @@ import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.medico.MedicoDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
+import pe.edu.lamolina.amauta.zelper.mail.MailerService;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
+import static pe.edu.lamolina.model.enums.SexoEnum.F;
+import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Slf4j
@@ -143,6 +147,9 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Autowired
     PersonaHistorialDAO personaHistorialDAO;
+
+    @Autowired
+    MailerService mailerService;
 
     @Override
     public Oficina findOficina(Oficina oficina) {
@@ -961,6 +968,27 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         colaboradorForm.setCodigo(docenteOptional.get().getCodigo());
 
+    }
+
+    @Override
+    @Transactional
+    public void passwordUsuario(Long idPersona, Usuario usuario) {
+
+        Usuario usuarioActivo = usuarioDAO.findActivoByPersona(new Persona(idPersona));
+        usuarioActivo.setClave(TypesUtil.toMD5(usuario.getClave()));
+        usuarioDAO.update(usuarioActivo);
+
+    }
+
+    @Override
+    @Transactional
+    public void passwordUsuarioEmail(Long idPersona, Usuario usuario) {
+
+        String pass = usuario.getClave();
+        this.passwordUsuario(idPersona, usuario);
+        Persona persona = personaDAO.find(idPersona);
+        String estimado = persona.getSexoEnum() == F ? "Estimada" : "Estimado";
+        mailerService.enviarNotificacionUsuarioContrasena(estimado, persona.getNombreCompleto(), persona.getEmailCompania(), pass);
     }
 
 }

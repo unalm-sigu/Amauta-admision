@@ -169,4 +169,22 @@ public class MailerServiceImp implements MailerService {
         }
     }
 
+    @Override
+    public void enviarNotificacionUsuarioContrasena(String estimado, String nombre, String email, String pass) {
+
+        Context ctx = new Context();
+        ctx.setVariable("NOMBRE_PERSONA", nombre);
+        ctx.setVariable("ESTIMADO", estimado);
+        ctx.setVariable("USUARIO", email);
+        ctx.setVariable("CLAVE", pass);
+
+        MailMessage mail = new MailMessage();
+        mail.setContext(ctx);
+        mail.setTemplate("mail/mailUsuarioContrasenna");
+        mail.setSubject("Habilitación de usuario");
+        mail.setDestinatarios(new String[]{email});
+        mailerConnector.sendMail(mail);
+        
+    }
+
 }

@@ -56,4 +56,8 @@ public interface ColaboradorService {
 
     List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);//
 
+    public void passwordUsuario(Long idPersona, Usuario usuario);
+
+    public void passwordUsuarioEmail(Long idPersona, Usuario usuario);
+
 }

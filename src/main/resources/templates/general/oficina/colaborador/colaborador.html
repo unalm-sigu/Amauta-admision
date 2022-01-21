@@ -163,6 +163,8 @@
                                                                    class="pointer">Activar</a>
                                                             </li>
                                                             <li class="divider"></li>
+                                                            <li><a class="pointer" v-on:click="updateColaboradorUsuario(item)">Usuario Servicios SIGU</a></li>
+                                                            <li class="divider"></li>
                                                             <li><a class="pointer" v-on:click="updateColaborador(item)">Editar funciones</a></li>
                                                             <li><a class="pointer" v-on:click="updatePersona(item)">Editar info personal</a></li>
                                                         </ul>
@@ -182,6 +184,9 @@
 
                 <th:block th:replace="general/oficina/colaborador/colaboradorModals"/>
                 <th:block th:replace="_modules/vue-modal-confirm"/>
+                
+                
+                <usuario-colaborador ref="usuario_colborador"></usuario-colaborador>
 
             </div>
 
@@ -200,8 +205,8 @@
         </script>
 
         <div th:substituteby="_modules/vue-raptor-table"></div>
-
-
+        
+        <div th:substituteby="_modules/vue-modal_v1"></div>
 
         <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
     </div>

@@ -10,12 +10,14 @@ public interface MailerService {
 
     public void enviarNotificacionUsuarioCreacion(Persona persona, ContenidoCarta contenidoCarta);
 
-    public void enviarNotificacionAulaReservaAceptado(String estimado,String nombre, String email, ContenidoCarta contenidoCarta);
+    public void enviarNotificacionAulaReservaAceptado(String estimado, String nombre, String email, ContenidoCarta contenidoCarta);
 
-    public void enviarNotificacionAulaReservaRechazado(String estimado,String nombre, String email, ContenidoCarta contenidoCarta);
+    public void enviarNotificacionAulaReservaRechazado(String estimado, String nombre, String email, ContenidoCarta contenidoCarta);
 
     void enviarCorreoAccesoEspecial(String correo, Usuario usuarioBD, String contraseña, String asunto, ContenidoCarta contenidoCarta);
 
     void enviarNotificacionReunionConsejero(ReunionAlumnoConsejero reunionAlumnoConsejero, Consejero consejero, ContenidoCarta contenidoCarta);
+
+    public void enviarNotificacionUsuarioContrasena(String estimado, String nombre, String email, String pass);
 
 }
