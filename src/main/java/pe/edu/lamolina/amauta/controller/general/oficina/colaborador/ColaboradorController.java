@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 
 @Controller
 @RequestMapping("general/oficina")
@@ -562,6 +563,22 @@ public class ColaboradorController {
         }
 
         return arrayNode;
+    }
+
+    @ResponseBody
+    @RequestMapping("colaborador/{idPersona}/usuario")
+    public String passwordUsuario(@RequestBody Usuario usuario,@PathVariable("idPersona") Long idPersona, HttpSession session) {
+
+        service.passwordUsuario(idPersona,usuario);
+        return GlobalMessages.UPDATED;
+    }
+
+    @ResponseBody
+    @RequestMapping("colaborador/{idPersona}/usuario/email")
+    public String passwordUsuarioEmail(@RequestBody Usuario usuario,@PathVariable("idPersona") Long idPersona, HttpSession session) {
+
+        service.passwordUsuarioEmail(idPersona,usuario);
+        return GlobalMessages.UPDATED;
     }
 
 }
