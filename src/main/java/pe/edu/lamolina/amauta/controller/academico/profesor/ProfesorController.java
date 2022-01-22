@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
@@ -49,6 +48,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentemodalidad.FiltroEncuestaCargaAcademicaDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -64,7 +64,6 @@ import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
-import pe.edu.lamolina.amauta.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -74,32 +73,20 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/profesor")
 public class ProfesorController {
 
-    @Autowired
-    ProfesorService service;
-
-    @Autowired
-    SpringTemplateEngine springHtml;
-
-    @Autowired
-    CargaAcademicaService cargaAcademicaService;
-
-    @Autowired
-    NotaAcademicaService notaAcademicaService;
-
-    @Autowired
-    VerificadorService verificadorService;
-
-    @Autowired
-    ProfesoresPDF profesoresPDF;
-
-    @Autowired
-    ReporteCargaAcademicaPDF reporte;
+    private final ProfesorService service;
+    private final CargaAcademicaService cargaAcademicaService;
+    private final VerificadorService verificadorService;
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final DespliegueConfig despliegueConfig;
+    private final ProfesoresPDF profesoresPDF;
+    private final ReporteCargaAcademicaPDF reporte;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -137,14 +124,16 @@ public class ProfesorController {
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
 
-        model.addAttribute("puedeActivar", puedeActivar);
-
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
         ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion").array();
+
+        model.addAttribute("puedeActivar", puedeActivar);
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
+        model.addAttribute("loginDocente", !despliegueConfig.isProduccion());
+
         return "academico/profesor/profesor";
     }
 
@@ -597,7 +586,7 @@ public class ProfesorController {
     @RequestMapping("reporteEntregaMateriales")
     public ModelAndView reporteEntregaMateriales(@RequestParam(value = "facultad", required = false) Long facultadId,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
-        logger.debug("facultad " + facultadId);
+        log.debug("facultad " + facultadId);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         String codeRequest = verificadorService.generateCodeRequest();
 
