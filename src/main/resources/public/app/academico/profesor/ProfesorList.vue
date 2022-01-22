@@ -68,16 +68,18 @@
                                 <span v-if="item.email" class="block"><i class="fa fa-envelope-o"></i> {{item.email}}</span>
                                 <span v-if="item.celular" class="block"><i class="fa fa-mobile"></i> {{item.celular}}</span>
                                 <span v-if="item.telefono" class="block"><i class="fa fa-phone"></i> {{item.telefono}}</span>
+
+                                <a v-if="item.emailEmpresa" class="btn btn-warning m-t-sm" v-on:click="loginAmauta(item)">Login amauta</a>
                             </td>
                             <td class="text-center v-middle">
                                 <span class="block text-primary">{{item.departamentoAcademico}}</span>
                                 <small class="block">Facultad de {{item.facultad}}</small>
                             </td>
                             <td class="text-center v-middle">{{item.situacion}}</td>
-                            <td class="v-middle">
+                            <td class="text-center v-middle">
                                 <label  >{{item.cantSeccionesPre}}</label>
                             </td>
-                            <td class="v-middle">
+                            <td class="text-center v-middle">
                                 <label  >{{item.cantSeccionesPos}}</label>
                             </td>
                             <td class="text-center v-middle">
@@ -174,6 +176,10 @@
                 let $vue = this;
                 $vue.$refs.load.querie.push({name: 'departamento', value: null});
                 $vue.$refs.load.loadRemoteData();
+            },
+            loginAmauta(item) {
+                let $vue = this;
+                location.href = `/lizard/${item.emailEmpresa}`
             }
         }
     };

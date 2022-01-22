@@ -11,6 +11,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
@@ -54,7 +55,8 @@ public class PersistenceConfig {
     @Value("${acquireIncrement}")
     int acquireIncrement;
 
-    @Bean
+    @Primary
+    @Bean(name = "dataSource")
     public ComboPooledDataSource dataSource() throws PropertyVetoException {
 
         ComboPooledDataSource ds = new ComboPooledDataSource();
@@ -70,6 +72,7 @@ public class PersistenceConfig {
         return ds;
     }
 
+    @Primary
     @Autowired
     @Bean(name = "sessionFactory")
     public LocalSessionFactoryBean factoryBean(ComboPooledDataSource ds) {
@@ -90,8 +93,9 @@ public class PersistenceConfig {
         return fb;
     }
 
-    @Bean
+    @Primary
     @Autowired
+    @Bean(name = "transactionManager")
     public HibernateTransactionManager transactionManager(SessionFactory sf) {
         HibernateTransactionManager transManager = new HibernateTransactionManager();
         transManager.setSessionFactory(sf);

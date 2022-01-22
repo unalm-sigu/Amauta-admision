@@ -165,8 +165,6 @@ public class ProfesorController {
             if (filter.getQueries() != null && filter.getQueries().get("departamento") != null) {
                 String dep = (String) filter.getQueries().get("departamento");
                 Long departamentoId = TypesUtil.getLong(dep);
-//                departamentos = departamentos.stream()
-//                        .filter(x -> x.getId().compareTo(departamentoId) == 0).collect(Collectors.toList());
                 departamentos = Arrays.asList(new DepartamentoAcademico(departamentoId));
             }
             docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico());

@@ -42,7 +42,7 @@
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td class="v-middle">
-                                                    <div class="block h4 text-primary m-b-xs">{{item.curso.nombre}}</div>
+                                                    <div class="block h4 text-primary m-b-xs m-t-xxs">{{item.curso.nombre}}</div>
                                                     <div class="block">
                                                         {{item.curso.codigo}} &nbsp;
                                                         <i class="fa fa-bookmark text-primary"></i> {{item.curso.tpc}}</div>
@@ -64,7 +64,7 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span class="label label-primary">
+                                                    <span class="label" v-bind:class="classEstado(item)">
                                                         {{item.estadoViajeEnum.value}}
                                                     </span>
                                                 </td>
