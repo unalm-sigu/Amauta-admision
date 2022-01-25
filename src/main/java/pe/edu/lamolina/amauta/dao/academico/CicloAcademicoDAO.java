@@ -138,4 +138,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     public List<CicloAcademico> allPregradoByRangeCode(int codeInit, int codeEnd);
 
+    public List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend);
+
 }

@@ -730,6 +730,11 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
+    public List<CicloAcademico> allCicloAcademicoNivel() {
+        return cicloAcademicoDAO.allPregradoNivelByRange(1980, 2050);
+    }
+
+    @Override
     public List<Docente> allByNombre(String nombre) {
         return docenteDAO.allByName(nombre);
     }

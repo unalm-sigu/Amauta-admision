@@ -321,6 +321,21 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
+    public List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
+                .filter("year", ">", yearinit)
+                .filter("year", "<", yearend)
+                .in("tipo", Arrays.asList(TipoCicloEnum.REG,TipoCicloEnum.NIV))
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
+
+        return all(sql);
+    }
+
+    @Override
     public CicloAcademico findByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
@@ -853,7 +868,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
-                .in("estado", Arrays.asList(ACT, CER, PEND, CFG,CRE))
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG, CRE))
                 .filter("year", ">", yearinit)
                 .filter("year", "<", yearend)
                 .filter("tipo", TipoCicloEnum.REG)
@@ -862,8 +877,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
-    
-    
+
     @Override
     public List<CicloAcademico> allPregradoByRangeCode(int codeInit, int codeEnd) {
         Octavia sql = Octavia.query()

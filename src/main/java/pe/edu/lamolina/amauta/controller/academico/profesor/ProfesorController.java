@@ -135,6 +135,7 @@ public class ProfesorController {
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         List<CicloAcademico> ciclos = service.allCicloAcademico();
+        List<CicloAcademico> ciclosNivelacion = service.allCicloAcademicoNivel();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
 
         model.addAttribute("puedeActivar", puedeActivar);
@@ -142,9 +143,11 @@ public class ProfesorController {
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
         ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion").array();
+        ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
+        model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
         return "academico/profesor/profesor";
     }
 

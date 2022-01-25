@@ -1,0 +1,47 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Administración de tutoria</title>
+    </head>
+
+    <body>
+        <section  layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+
+                <header class="header b-b padder-lg">
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"  v-on:click.prevent="clonarConsejeros">Clonación</a></li>
+                            <li><a href="#"  v-on:click.prevent="agendaConsejeros">Reunion Consejero</a></li>
+                        </ul>
+                    </div>
+
+                    <h2> Administración de tutoria <span th:text="${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''}"></span></h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <historial-consejeria-list></historial-consejeria-list>
+
+                </section>
+
+                <historial-consejeria-clonar ref="clonar"></historial-consejeria-clonar>
+
+            </div>
+
+        </section>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal_v1"/>
+            <script th:src="@{/app/consejeria/administracion/administracion.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
