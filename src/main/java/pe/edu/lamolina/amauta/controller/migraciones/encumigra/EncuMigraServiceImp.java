@@ -1,12 +1,12 @@
-package pe.edu.lamolina.amauta.controller.migraciones.histomigra;
+package pe.edu.lamolina.amauta.controller.migraciones.encumigra;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,21 +36,28 @@ import pe.edu.lamolina.amauta.dao.migraciones.HistoGradMyDAO;
 import pe.edu.lamolina.amauta.dao.migraciones.HistoMyDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
-@Slf4j
 @Service
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
-public class HistoMigraServiceImp implements HistoMigraService {
+public class EncuMigraServiceImp implements EncuMigraService {
 
-    private final AlumnoDAO alumnoDAO;
-    private final AlumnoCicloDAO alumnoCicloDAO;
-    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    private final CicloAcademicoDAO cicloAcademicoDAO;
-    private final CursoDAO cursoDAO;
-    private final HistoMyDAO histoMyDAO;
-    private final HistoGradMyDAO histoGradMyDAO;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final PromedioService promedioService;
+    @Autowired
+    AlumnoDAO alumnoDAO;
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    CursoDAO cursoDAO;
+    @Autowired
+    HistoMyDAO histoMyDAO;
+    @Autowired
+    HistoGradMyDAO histoGradMyDAO;
+
+    @Autowired
+    PromedioService promedioService;
 
     @Override
     public Alumno findAlumno(Alumno alumno) {

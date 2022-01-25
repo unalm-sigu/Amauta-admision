@@ -26,8 +26,17 @@ new Vue({
     },
     methods: {
         classEstado(item) {
-            let estilos = {'PENDIENTE': 'danger', 'PAGADO': 'success', 'OBSERVA': 'warning', 'ANULADO': 'dark', 'VENCIDO': 'danger'};
-            let rpta = estilos[item.estado];
+            let estilos = {'CREADO': 'warning', 'PENDIENTE': 'warning', 'DESAPROBADO': 'danger'};
+            let estilosDocente = {'CREADO': 'warning', 'PENDIENTE': 'success', 'DESAPROBADO': 'danger'};
+            let estilosJefeDpto = {'CREADO': 'default', 'PENDIENTE': 'warning', 'APROBADO': 'success', 'DESAPROBADO': 'danger'};
+
+            let rpta = estilos[item.estadoViaje];
+            if (item.esDocente) {
+                rpta = estilosDocente[item.estadoViaje];
+            } else if (item.esJefeDpto) {
+                rpta = estilosJefeDpto[item.estadoViaje];
+            }
+
             if (rpta === undefined) {
                 return "label-primary";
             }
@@ -177,13 +186,13 @@ new Vue({
             return false;
         },
         puedeAprobarse(item) {
-            if (item.esJefeDpto && item.estadoViaje === "PENDIENTE") {
+            if (!item.esDocente && item.esJefeDpto && item.estadoViaje === "PENDIENTE") {
                 return true;
             }
             return false;
         },
         puedeDesaprobarse(item) {
-            if (item.esJefeDpto && item.estadoViaje === "PENDIENTE") {
+            if (!item.esDocente && item.estadoViaje === "PENDIENTE") {
                 return true;
             }
             return false;

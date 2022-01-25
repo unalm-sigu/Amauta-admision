@@ -256,6 +256,12 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
+        
+        <!--dependency>
+            <groupId>com.oracle.jdbc</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <version>12.1.0.2</version>
+        </dependency-->
                 
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
