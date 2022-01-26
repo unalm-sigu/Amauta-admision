@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.consejeria.administracion;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
 
@@ -11,6 +12,8 @@ public interface AdministracionConsejeriaService {
 
     public List<CicloAcademico> allCiclo();
 
-    public void clonar(ClonarConsejerosDTO clonarDTO);
+    public void clonar(ClonarConsejerosDTO clonarDTO,DataSessionPivot ds);
+
+    public void eliminar(Long idConsejeriaHistorial, DataSessionPivot ds);
 
 }

@@ -2,7 +2,7 @@
     <div>
         <section class="panel">
             <section class="panel-body">
-                
+
                 <raptor-table v-bind:url="historialURL" v-bind:preload="false" ref="raptor">
 
                     <div slot="header"></div>
@@ -27,11 +27,18 @@
                                     </td>
 
                                     <td class="v-middle text-center">
-                                       {{item.fechaCreacion}}
+                                        {{item.fechaCreacion}}
                                     </td>
 
                                     <td class="v-middle text-center">
-                                       {{item.fechaActualizacion}}
+                                        {{item.fechaActualizacion}}
+                                    </td>
+
+                                    <td class="v-middle text-center">
+                                        
+                                        <span v-if="item.estado=='ACTIVO'" class="label label-success" >{{item.estado}} </span>
+                                        <span v-if="item.estado=='ANULADO'" class="label label-danger" >{{item.estado}} </span>
+                                        
                                     </td>
 
                                     <td class="v-middle">
@@ -42,7 +49,7 @@
                                             </ul>
                                         </div>
                                     </td>
-                                    
+
                                 </tr>
                             </tbody>
                         </table>
@@ -63,6 +70,7 @@
         data() {
             return {
                 historialURL: APP.url('consejeria/administracion/all'),
+                estado: {ACTIVO: "success", ANULADO: "danger"}
             };
         },
         mounted: function () {
@@ -71,7 +79,7 @@
         },
         methods: {
             eliminar(item) {
-                
+
                 swal({
                     title: "Seguro que desea eliminar el registro",
                     icon: "warning",
@@ -80,13 +88,13 @@
                 }).then((willDelete) => {
                     if (willDelete) {
                         let $vue = this;
-                        axios.delete(APP.url('academico/historico/alumno/' + item.id + "/delete")).
+                        axios.delete(APP.url('consejeria/administracion/eliminar/' + item.id)).
                                 then(({data}) => {
                                     notify(data, 'info');
-                                    $vue.$refs.load.loadRemoteData();
+                                    $vue.$refs.raptor.loadRemoteData();
                                 }, () => {
                                 });
-                                
+
                     }
                 });
 

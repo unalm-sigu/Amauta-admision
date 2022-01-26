@@ -11,8 +11,10 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import pe.edu.lamolina.model.consejeria.TutorSolicitud;
 import static pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum.AGEN;
 
 @Service
@@ -69,6 +71,22 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .orderBy("acon.fecha", "acon.hora");
 
         return all(sql);
+    }
+
+    @Override
+    public void deleteByCiclo(CicloAcademico cicloAcademico) {
+       
+        StringBuilder sql = new StringBuilder();
+        sql.append(" delete from ").append(ReunionAlumnoConsejero.class.getSimpleName()).append(" as rac ");
+        sql.append(" where rac.alumnoConsejero.id in  (");
+        sql.append("     select  ac.id ");
+        sql.append("      from ").append(AlumnoConsejero.class.getSimpleName()).append(" as ac ");
+        sql.append("      where ac.cicloAcademico.id = :CICLO_ACADEMICO ");
+        sql.append("  )");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO_ACADEMICO", cicloAcademico.getId());
+        query.executeUpdate();
     }
 
 }

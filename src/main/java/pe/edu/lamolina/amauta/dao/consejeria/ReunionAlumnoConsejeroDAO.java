@@ -15,4 +15,6 @@ public interface ReunionAlumnoConsejeroDAO extends EasyDAO<ReunionAlumnoConsejer
     public List<ReunionAlumnoConsejero> allByAgendaConsejero(AgendaConsejero agendaConsejeroForm);
 
     public List<ReunionAlumnoConsejero> allDynatableByConsejero(DynatableFilter filter, Consejero consejero, CicloAcademico cicloAcademico);
+
+    public void deleteByCiclo(CicloAcademico cicloAcademico);
 }
