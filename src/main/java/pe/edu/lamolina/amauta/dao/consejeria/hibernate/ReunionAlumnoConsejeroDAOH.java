@@ -73,32 +73,8 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .filter("ca.id", cicloAcademico)
                 .filter("con.id", consejero)
                 .orderBy("acon.fecha", "acon.hora");
-        setCondicion(filter, sql);
 
         return all(sql);
-    }
-
-    private void setCondicion(DynatableFilter filter, DynatableSql sql) {
-        Map<String, Object> queries = filter.getQueries();
-        if (queries == null) {
-            return;
-        }
-        for (String key : queries.keySet()) {
-            if (key.equals("search")) {
-                continue;
-            }
-            String value = (String) queries.get(key);
-            switch (value) {
-                case "carrera":
-                    sql.filter("car.id", new Long(value));
-                    break;
-                case "consejero":
-                    sql.filter("con.id", new Long(value));
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     @Override
@@ -131,6 +107,8 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .filter("ca.id", cicloAcademico)
                 .orderBy("acon.fecha", "acon.hora");
 
+        setCondicion(filter, sql);
+
         return all(sql);
     }
 
@@ -158,6 +136,29 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
 
         return all(sql);
 
+    }
+
+    private void setCondicion(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("search")) {
+                continue;
+            }
+            String value = (String) queries.get(key);
+            switch (value) {
+                case "carrera":
+                    sql.filter("car.id", new Long(value));
+                    break;
+                case "consejero":
+                    sql.filter("con.id", new Long(value));
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
 }
