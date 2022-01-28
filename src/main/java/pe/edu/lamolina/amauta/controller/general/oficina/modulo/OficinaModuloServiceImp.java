@@ -408,7 +408,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
             Assert.isFalse(oficinaBD.getFechaInicioJefatura().after(oficinaForm.getFechaFinJefatura()), "La fecha final no puede ser antes de la fecha de inicio");
         }
 
-        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaBD, oficinaBD.getPersonaJefe());
+        Colaborador colaborador = colaboradorDAO.findJefeByPersonaOficina(oficinaBD, oficinaBD.getPersonaJefe());
         colaborador.setEstadoEnum(RET);
         colaborador.setFechaFin(oficinaForm.getFechaFinJefatura());
         colaborador.setFechaModificacion(new Date());
