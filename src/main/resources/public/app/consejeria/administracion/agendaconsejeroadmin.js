@@ -5,6 +5,7 @@ new Vue({
     data: {
         agendaConsejeroURL: APP.url('consejeria/administracion/agendaconsejero/all'),
         carreras: [],
+        alumnos: [],
         consejeros: [],
         origen: APP.url('consejeria/administracion'),
         filtro: {}
@@ -30,7 +31,7 @@ new Vue({
         },
         reporte() {
             let $vue = this;
-            axios_blob.get(APP.url('consejeria/administracion/agendaconsejero/reporte'),{params:$vue.filtro})
+            axios_blob.post(APP.url('consejeria/administracion/agendaconsejero/reporte'), $vue.filtro)
                     .then(response => {
                         UTIL_BLOB.save(response);
                     }, () => {
@@ -43,8 +44,9 @@ new Vue({
         },
         changeFilter() {
             let $vue = this;
-            $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: $vue.filtro.carrera? $vue.filtro.carrera.id:null});
-            $vue.$refs.raptorConsejero.querie.push({name: 'consejero', value: $vue.filtro.consejero? $vue.filtro.consejero.id:null});
+            $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: $vue.filtro.carrera ? $vue.filtro.carrera.id : null});
+            $vue.$refs.raptorConsejero.querie.push({name: 'consejero', value: $vue.filtro.consejero ? $vue.filtro.consejero.id : null});
+            $vue.$refs.raptorConsejero.querie.push({name: 'alumno', value: $vue.filtro.alumno ? $vue.filtro.alumno.id : null});
             $vue.$refs.raptorConsejero.loadRemoteData();
         },
         searchCarrera(nombre) {
@@ -68,6 +70,18 @@ new Vue({
                     {params: {nombre: nombre}})
                     .then(({data}) => {
                         $vue.consejeros = data;
+                    }, () => {
+                    });
+        },
+        searchAlumno(nombre) {
+            let $vue = this;
+            if (!nombre) {
+                return;
+            }
+            axios_.get(APP.url("consejeria/administracion/allAlumno"),
+                    {params: {nombre: nombre}})
+                    .then(({data}) => {
+                        $vue.alumnos = data;
                     }, () => {
                     });
         }

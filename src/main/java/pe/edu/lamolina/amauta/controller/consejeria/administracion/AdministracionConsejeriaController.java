@@ -4,10 +4,7 @@ import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ClonarCo
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -25,10 +22,10 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ReunionConsejerosEXCEL;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
@@ -106,9 +103,8 @@ public class AdministracionConsejeriaController {
 
     @RequestMapping("agendaconsejero/reporte")
     public ModelAndView reporte(@RequestBody FiltroReporteAgendaDTO filtroReporteAgendaDTO, Model model, HttpSession session) {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO, ds.getCicloAcademico());
+        
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO);
         model.addAttribute("reunionAlumnoConsejeros", reunionAlumnoConsejeros);
         return new ModelAndView(reunionConsejerosExcelView);
     }
@@ -120,21 +116,7 @@ public class AdministracionConsejeriaController {
         DynatableResponse response = new DynatableResponse();
         response.setTotal(0);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.agendaDynatable(filter, ds);
-
-        Map<Long, List<ReunionAlumnoConsejero>> map = TypesUtil.convertListToMapList("agendaConsejero.id", reunionAlumnoConsejeros);
-
-        List<AgendaConsejero> agendaConsejeros = reunionAlumnoConsejeros.stream()
-                .map(x -> x.getAgendaConsejero())
-                .distinct()
-                .collect(Collectors.toList());
-
-        service.verificarVencimiento(agendaConsejeros);
-
-        Collections.sort(agendaConsejeros,
-                (AgendaConsejero a, AgendaConsejero b) -> a.getEstadoEnum().getValuePrioridad().compareTo(b.getEstadoEnum().getValuePrioridad()));
+        List<AgendaConsejero> agendaConsejeros = service.agendaDynatable(filter);
 
         ArrayNode arrayNodeAgenda = new ArrayNode(JsonNodeFactory.instance);
 
@@ -143,15 +125,17 @@ public class AdministracionConsejeriaController {
             ObjectNode objectNode = JaneHelper.from(agendaConsejero)
                     .join("hora")
                     .join("consejero.colaborador.persona", "nombreCompleto")
+                    .join("consejero.carrera", "nombre")
+                    .join("consejero.carrera.facultad", "nombre")
                     .json();
 
             objectNode.set("reunionAlumnoConsejeros",
-                    JaneHelper.from(map.get(agendaConsejero.getId()))
+                    JaneHelper.from(agendaConsejero.getReunionAlumnoConsejeros())
                             .join("alumnoConsejero")
-                            .join("alumnoConsejero.alumno")
-                            .join("alumnoConsejero.alumno.carrera")
-                            .join("alumnoConsejero.alumno.carrera.facultad")
-                            .join("alumnoConsejero.alumno.persona")
+                            .join("alumnoConsejero.alumno","id,codigo")
+                            .join("alumnoConsejero.alumno.carrera","nombre")
+                            .join("alumnoConsejero.alumno.carrera.facultad","nombre")
+                            .join("alumnoConsejero.alumno.persona","id,nombreCompleto,apellidosNombres,emailCompania")
                             .join("alumnoConsejero.hora")
                             .array());
 
@@ -185,6 +169,19 @@ public class AdministracionConsejeriaController {
                 .join("colaborador", "id")
                 .join("carrera", "id,nombre")
                 .join("colaborador.persona", "nombreCompleto")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allAlumno")
+    public ArrayNode allAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        List<Alumno> alumnos = service.buscarAlumno(nombre);
+        
+        return JaneHelper.from(alumnos)
+                .only("id,codigo")
+                .join("persona", "id,apellidosNombres")
+                .join("carrera", "id,nombre")
                 .array();
     }
 

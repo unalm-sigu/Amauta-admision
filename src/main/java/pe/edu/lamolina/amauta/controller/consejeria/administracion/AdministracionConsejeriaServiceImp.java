@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.consejeria.administracion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ClonarConsejerosDTO;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroRe
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.reunionConsejero.ReunionConsejeroServiceImpl;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
@@ -31,6 +33,7 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TutorSolicitudDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
@@ -61,6 +64,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     private final ReunionAlumnoConsejeroDAO reunionAlumnoConsejeroDAO;
     private final AgendaConsejeroDAO agendaConsejeroDAO;
     private final CarreraDAO carreraDAO;
+    private final AlumnoDAO alumnoDAO;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -194,20 +198,32 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     }
 
     @Override
-    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte( FiltroReporteAgendaDTO filtroReporteAgendaDTO,CicloAcademico cicloAcademico) {
+    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO) {
 
-        return reunionAlumnoConsejeroDAO.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO,cicloAcademico);
-
-    }
-
-    @Override
-    public List<ReunionAlumnoConsejero> agendaDynatable(DynatableFilter filter, DataSessionPivot ds) {
-
-        return reunionAlumnoConsejeroDAO.allDynatableByCicloAcademico(filter, ds.getCicloAcademico());
+        return reunionAlumnoConsejeroDAO.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO);
 
     }
 
     @Override
+    public List<AgendaConsejero> agendaDynatable(DynatableFilter filter) {
+
+        List<AgendaConsejero> agendaConsejeros = agendaConsejeroDAO.allDynatableByCicloAcademico(filter);
+
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejeros(agendaConsejeros);
+
+        Map<Long, List<ReunionAlumnoConsejero>> reunionAlumnoConsejerosMap = reunionAlumnoConsejeros.stream()
+                .collect(Collectors.groupingBy(x -> x.getAgendaConsejero().getId()));
+
+        for (AgendaConsejero agendaConsejero : agendaConsejeros) {
+            agendaConsejero.setReunionAlumnoConsejeros(reunionAlumnoConsejerosMap.getOrDefault(agendaConsejero.getId(), new ArrayList()));
+        }
+
+        this.verificarVencimiento(agendaConsejeros);
+
+        return agendaConsejeros;
+
+    }
+
     public void verificarVencimiento(List<AgendaConsejero> agendaConsejeros) {
 
         SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -254,6 +270,12 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    public List<Alumno> buscarAlumno(String nombre) {
+        nombre = forLike(nombre);
+        return alumnoDAO.allActivoPregradoByNombre(nombre);
     }
 
 }

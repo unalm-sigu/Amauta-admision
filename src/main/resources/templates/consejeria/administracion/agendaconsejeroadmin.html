@@ -18,7 +18,7 @@
                         <a v-bind:href="origen" class="btn btn-default">Regresar</a>
                     </div>
 
-                    <h2> Agenda Consejero <span th:text="${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''}"></span></h2>
+                    <h2> Agenda Consejero</h2>
 
                 </header>
 
@@ -69,7 +69,7 @@
 
                                         <div class="col-md-4">
 
-                                     
+
                                             <multiselect
                                                 v-model="filtro.consejero"
                                                 v-bind:options="consejeros"
@@ -86,13 +86,49 @@
 
                                                 <template slot="singleLabel" slot-scope="props">
                                                     <span class="option__title">
-                                                         {{ props.option.colaborador.persona.nombreCompleto }}
+                                                        {{ props.option.colaborador.persona.nombreCompleto }}
                                                     </span>
                                                 </template>
 
                                                 <template slot="option" slot-scope="props">
                                                     <span class="option_title">
-                                                         {{props.option.colaborador.persona.nombreCompleto}}
+                                                        {{props.option.colaborador.persona.nombreCompleto}}
+                                                    </span> 
+                                                </template>
+
+                                                <template slot="noOptions">&nbsp;</template>
+                                                <template slot="noResult">&nbsp;</template>
+
+                                            </multiselect>
+
+                                        </div>
+
+                                        <div class="col-md-4">
+
+
+                                            <multiselect
+                                                v-model="filtro.alumno"
+                                                v-bind:options="alumnos"
+                                                v-bind:allow-empty="true"
+                                                v-on:search-change="searchAlumno"
+                                                track-by="id"
+                                                placeholder="Alumno"
+                                                label='nombre'
+                                                v-bind:internal-search="false"
+                                                v-bind:hide-selected="false"
+                                                v-bind:showNoOptions="true"
+                                                v-on:input="changeFilter"
+                                                v-bind:show-labels="false">
+
+                                                <template slot="singleLabel" slot-scope="props">
+                                                    <span class="option__title">
+                                                        <b>{{ props.option.codigo }}</b> - {{ props.option.persona.apellidosNombres }}
+                                                    </span>
+                                                </template>
+
+                                                <template slot="option" slot-scope="props">
+                                                    <span class="option_title">
+                                                         <b>{{ props.option.codigo }}</b> - {{props.option.persona.apellidosNombres}}
                                                     </span> 
                                                 </template>
 
@@ -114,13 +150,13 @@
                                                 <th class="col-xs-5 v-middle text-center"  >Agenda</th>
                                                 <th class="col-xs-6 v-middle text-center"  >Estudiante</th>
                                                 <th class="col-xs-1">Estado</th>
-                                                
+
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <template v-for="item in props.data">
-                                            <tr v-for="(reuniones,index) in item.reunionAlumnoConsejeros">
-                                                <td class="v-middle" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle" >
                                                     <span class="block" >                                                            
                                                         <span class=" bold"> Titulo: </span>
                                                         {{item.asunto}}
@@ -133,48 +169,46 @@
                                                         <span class=" bold"> Consejero: </span>
                                                         {{item.consejero.colaborador.persona.nombreCompleto}}
                                                     </span>
+                                                    <span class="block">                                                            
+                                                        <span class=" bold"> Carrera: </span>
+                                                        {{item.consejero.carrera.nombre}}
+                                                    </span>
+                                                    <span v-if="item.consejero.carrera.nombre != item.consejero.carrera.facultad.nombre" class="block">                                                            
+                                                        <span class=" bold"> Facultad: </span>
+                                                        {{item.consejero.carrera.facultad.nombre}}
+                                                    </span>
                                                 </td>
-
 
                                                 <td class="v-middle">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <a class="block text-primary bold h5 m-b-xs m-t-xs" >
-                                                                {{reuniones.alumnoConsejero.alumno.persona.apellidosNombres}} 
-                                                            </a>
+                                                    
+                                                    <div v-for="reunion in item.reunionAlumnoConsejeros" class="row">
 
+                                                        <div class="col-xs-12">
+                                                            <p class="block text-primary bold" >
+                                                                {{reunion.alumnoConsejero.alumno.persona.apellidosNombres}} 
+                                                            </p>
                                                         </div>
-                                                        <div class="col-md-4">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                
-                                                            
-                                                        </div>
+
+                                                        <span class="block col-xs-12">
+                                                            {{reunion.alumnoConsejero.alumno.codigo}}
+                                                        </span>
+                                                        
+                                                        <small class="block col-xs-12 text-primary" v-if="reunion.alumnoConsejero.alumno.persona.emailCompania">
+                                                            <i class="fa fa-envelope-o"></i> {{reunion.alumnoConsejero.alumno.persona.emailCompania}}
+                                                        </small>
+
                                                     </div>
-                                                    <span class="block">
-                                                        {{reuniones.alumnoConsejero.alumno.codigo}}
-                                                    </span>
-                                                    <small v-if="reuniones.alumnoConsejero.alumno.persona.emailCompania != '' " class="block text-primary">
-                                                        <i class="fa fa-envelope-o"></i> {{reuniones.alumnoConsejero.alumno.persona.emailCompania}}
-                                                    </small>
-                                                    <span class="block">
-                                                        {{reuniones.alumnoConsejero.alumno.carrera.nombre}}
-                                                    </span>
-                                                    <small class="block" v-if="reuniones.alumnoConsejero.alumno.carrera.nombre != reuniones.alumnoConsejero.alumno.carrera.facultad.nombre ">
-                                                        Facultad de {{reuniones.alumnoConsejero.alumno.carrera.facultad.nombre}}
-                                                    </small>
                                                 </td>
-                                                
-                                                <td class="v-middle text-center" v-bind:rowspan="item.reunionAlumnoConsejeros.length" v-if="index==0">
+
+                                                <td class="v-middle text-center" >
                                                     <span class="block" >                                                            
                                                         <span class=" bold " v-bind:class="styleColor(item.estadoEnum)" v-text="item.estadoEnum.value">  </span>
                                                     </span>                                                   
                                                 </td>
-                                                
+
                                             </tr>
-                                        </template>
                                         </tbody>
-                                        
+
                                     </table>         
                                 </template>
                             </raptor-table>

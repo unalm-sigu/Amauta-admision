@@ -1,7 +1,7 @@
 package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
@@ -95,26 +95,7 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
     }
 
     @Override
-    public List<ReunionAlumnoConsejero> allDynatableByCicloAcademico(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        DynatableSql sql = new DynatableSql(filter)
-                .from(ReunionAlumnoConsejero.class, "rac")
-                .join("alumnoConsejero ac", "agendaConsejero acon", "ac.cicloAcademico ca")
-                .join("ac.alumno al", "al.persona per", "per.tipoDocumento")
-                .join("ac.consejero con", "acon.hora")
-                .join("al.carrera car", "car.facultad")
-                .searchFields("acon.asunto", "acon.cuerpo", "al.codigo", "per.numeroDocIdentidad", "acon.fecha")
-                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico)
-                .orderBy("acon.fecha", "acon.hora");
-
-        setCondicion(filter, sql);
-
-        return all(sql);
-    }
-
-    @Override
-    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO, CicloAcademico cicloAcademico) {
+    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO) {
 
         Octavia sql = new Octavia()
                 .from(ReunionAlumnoConsejero.class, "rac")
@@ -122,7 +103,6 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .join("ac.alumno al", "al.persona per", "per.tipoDocumento")
                 .join("ac.consejero con", "acon.hora")
                 .join("al.carrera car", "car.facultad")
-                .filter("ca.id", cicloAcademico)
                 .filter("acon.estado", "<>", AgendaConsejeroEstadoEnum.ANU)
                 .filter("rac.estado", "<>", ReunionAlumnoConsejeroEstadoEnum.ANU)
                 .orderBy("acon.fecha", "acon.hora");
@@ -134,35 +114,25 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
         if (filtroReporteAgendaDTO.getConsejero() != null) {
             sql.filter("con.id", filtroReporteAgendaDTO.getConsejero());
         }
+        
+        if (filtroReporteAgendaDTO.getAlumno()!= null) {
+            sql.filter("al.id", filtroReporteAgendaDTO.getAlumno());
+        }
 
         return all(sql);
 
     }
 
-    private void setCondicion(DynatableFilter filter, DynatableSql sql) {
-        log.debug("*********setCondicion*********");
-        Map<String, Object> queries = filter.getQueries();
-        if (queries == null) {
-            return;
-        }
-        for (String key : queries.keySet()) {
-            if (key.equals("search")) {
-                continue;
-            }
-            String value = (String) queries.get(key);
-            switch (key) {
-                case "carrera":
-                    log.debug("carrera{}", new Long(value));
-                    sql.filter("car.id", new Long(value));
-                    break;
-                case "consejero":
-                    log.debug("consejero{}", new Long(value));
-                    sql.filter("con.id", new Long(value));
-                    break;
-                default:
-                    break;
-            }
-        }
+    @Override
+    public List<ReunionAlumnoConsejero> allByAgendaConsejeros(List<AgendaConsejero> agendaConsejeros) {
+        
+        Octavia sql = new Octavia()
+                .from(ReunionAlumnoConsejero.class, "rac")
+                .join("rac.agendaConsejero ag")
+                .left("rac.alumnoConsejero ac","ac.cicloAcademico ca")
+                .left("ac.alumno al","al.persona per","al.carrera car")
+                .in("ag.id", agendaConsejeros);
+        return all(sql);
     }
 
 }

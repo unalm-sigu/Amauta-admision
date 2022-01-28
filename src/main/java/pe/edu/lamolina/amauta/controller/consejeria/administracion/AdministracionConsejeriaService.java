@@ -5,6 +5,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
@@ -22,14 +23,14 @@ public interface AdministracionConsejeriaService {
 
     public void eliminar(Long idConsejeriaHistorial, DataSessionPivot ds);
 
-    public List<ReunionAlumnoConsejero> agendaDynatable(DynatableFilter filter, DataSessionPivot ds);
-
-    public void verificarVencimiento(List<AgendaConsejero> agendaConsejeros);
+    public List<AgendaConsejero> agendaDynatable(DynatableFilter filter);
 
     public List<Carrera> buscarCarrera(String nombre);
 
     public List<Consejero> buscarConsejero(String nombre);
 
-    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO, CicloAcademico cicloAcademico);
+    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO);
+
+    public List<Alumno> buscarAlumno(String nombre);
 
 }
