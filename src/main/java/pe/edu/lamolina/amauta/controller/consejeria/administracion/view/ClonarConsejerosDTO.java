@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.consejeria.administracion;
+package pe.edu.lamolina.amauta.controller.consejeria.administracion.view;
 
 import javax.validation.constraints.NotNull;
 import lombok.Data;

@@ -16,9 +16,12 @@ var root = new Vue({
             let $vue = this;
             $vue.$refs.clonar.open();
         },
-        agendaConsejeros() {
+        agendaConsejerosURL() {
+            location.href=APP.url('consejeria/administracion/agendaconsejero/') + URL_UTIL.getOrigenURL();
+        },
+        reloadList() {
             let $vue = this;
-
+            $vue.$refs.historial.reloadList();
         }
     }
 });

@@ -1,19 +1,29 @@
 package pe.edu.lamolina.amauta.controller.consejeria.administracion;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ClonarConsejerosDTO;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
+import pe.edu.lamolina.amauta.controller.reunionConsejero.ReunionConsejeroServiceImpl;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
@@ -21,13 +31,18 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TutorSolicitudDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial.ConsejeriaHistorialEstado;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
+import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 
 @Slf4j
@@ -44,6 +59,8 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     private final ConsejeroDAO consejeroDAO;
     private final TutorSolicitudDAO tutorSolicitudDAO;
     private final ReunionAlumnoConsejeroDAO reunionAlumnoConsejeroDAO;
+    private final AgendaConsejeroDAO agendaConsejeroDAO;
+    private final CarreraDAO carreraDAO;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -169,11 +186,74 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
         consejeriaHistorial.setEstadoEnum(ConsejeriaHistorialEstado.ELIMINADO);
         consejeriaHistorial.setFechaActualizacion(new Date());
         consejeriaHistorialDAO.update(consejeriaHistorial);
-        
+
         reunionAlumnoConsejeroDAO.deleteByCiclo(consejeriaHistorial.getCicloAcademico());
         tutorSolicitudDAO.deleteByCiclo(consejeriaHistorial.getCicloAcademico());
         consejeriaResumenDAO.deleteByCiclo(consejeriaHistorial.getCicloAcademico());
         alumnoConsejeroDAO.deleteByCiclo(consejeriaHistorial.getCicloAcademico());
+    }
+
+    @Override
+    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte( FiltroReporteAgendaDTO filtroReporteAgendaDTO,CicloAcademico cicloAcademico) {
+
+        return reunionAlumnoConsejeroDAO.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO,cicloAcademico);
+
+    }
+
+    @Override
+    public List<ReunionAlumnoConsejero> agendaDynatable(DynatableFilter filter, DataSessionPivot ds) {
+
+        return reunionAlumnoConsejeroDAO.allDynatableByCicloAcademico(filter, ds.getCicloAcademico());
+
+    }
+
+    @Override
+    public void verificarVencimiento(List<AgendaConsejero> agendaConsejeros) {
+
+        SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        DateTime today = new DateTime();
+
+        for (AgendaConsejero agendaConsejero : agendaConsejeros) {
+            if (agendaConsejero.getEstadoEnum() == AGEN) {
+
+                try {
+
+                    DateTime todayForm = new DateTime(agendaConsejero.getFecha());
+
+                    todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
+                    todayForm = todayForm.plusHours(2);
+
+                    Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
+                    Date dateForm = sdformat.parse(todayForm.toString("yyyy-MM-dd HH:mm"));
+
+                    if (dateToday.compareTo(dateForm) > 0) {
+
+                        agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.VEN);
+                        agendaConsejeroDAO.updateColumns(agendaConsejero, "estado");
+
+                    }
+
+                } catch (ParseException ex) {
+                    Logger.getLogger(ReunionConsejeroServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Carrera> buscarCarrera(String nombre) {
+        nombre = forLike(nombre);
+        return carreraDAO.allCarrerasPregradoActivaByNombre(nombre);
+    }
+
+    @Override
+    public List<Consejero> buscarConsejero(String nombre) {
+        nombre = forLike(nombre);
+        return consejeroDAO.allByNombre(nombre);
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }

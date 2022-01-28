@@ -23,6 +23,7 @@ public class ConsejeriaHistorialDAOH extends AbstractEasyDAO<ConsejeriaHistorial
         DynatableSql sql = new DynatableSql(filter)
                 .from(ConsejeriaHistorial.class, "ac")
                 .join("cicloAcademico ca")
+                .searchFields("ca.descripcion")
                 .filter("ca.id", cicloAcademico)
                 .orderBy("ac.fechaCreacion desc");
         return all(sql);

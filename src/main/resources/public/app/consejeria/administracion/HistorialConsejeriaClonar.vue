@@ -118,6 +118,7 @@
                 axios_.post(APP.url('consejeria/administracion/clonar'), $vue.clonarConsejero).then(({data}) => {
                     notify(data, "info");
                     $vue.$refs.modalClonarConsejeros.close();
+                    $vue.$parent.reloadList();
                 }, () => {
                     $vue.$refs.modalClonarConsejeros.stop();
                 });

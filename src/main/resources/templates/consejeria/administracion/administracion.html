@@ -17,7 +17,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li><a href="#"  v-on:click.prevent="clonarConsejeros">Clonación</a></li>
-                            <li><a href="#"  v-on:click.prevent="agendaConsejeros">Reunion Consejero</a></li>
+                            <li><a v-on:click.prevent="agendaConsejerosURL()" href="#">Reunion Consejero</a></li>
                         </ul>
                     </div>
 
@@ -27,7 +27,7 @@
 
                 <section class="wrapper-lg">
 
-                    <historial-consejeria-list></historial-consejeria-list>
+                    <historial-consejeria-list ref='historial'></historial-consejeria-list>
 
                 </section>
 
