@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import pe.albatross.octavia.Insecto;
@@ -16,11 +17,11 @@ import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
-import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
 import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
 import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum.AGEN;
 
+@Slf4j
 @Service
 public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoConsejero> implements ReunionAlumnoConsejeroDAO {
 
@@ -139,6 +140,7 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
     }
 
     private void setCondicion(DynatableFilter filter, DynatableSql sql) {
+        log.debug("*********setCondicion*********");
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
             return;
@@ -148,11 +150,13 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 continue;
             }
             String value = (String) queries.get(key);
-            switch (value) {
+            switch (key) {
                 case "carrera":
+                    log.debug("carrera{}", new Long(value));
                     sql.filter("car.id", new Long(value));
                     break;
                 case "consejero":
+                    log.debug("consejero{}", new Long(value));
                     sql.filter("con.id", new Long(value));
                     break;
                 default:
