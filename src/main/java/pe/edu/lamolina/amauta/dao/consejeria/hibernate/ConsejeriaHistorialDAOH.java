@@ -24,7 +24,7 @@ public class ConsejeriaHistorialDAOH extends AbstractEasyDAO<ConsejeriaHistorial
                 .from(ConsejeriaHistorial.class, "ac")
                 .join("cicloAcademico ca")
                 .searchFields("ca.descripcion")
-                .filter("ca.id", cicloAcademico)
+                //.filter("ca.id", cicloAcademico)
                 .orderBy("ac.fechaCreacion desc");
         return all(sql);
     }

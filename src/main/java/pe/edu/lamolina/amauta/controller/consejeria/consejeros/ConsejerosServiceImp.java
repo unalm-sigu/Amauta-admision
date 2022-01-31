@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.VerificadorClonacionConsejero;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -96,8 +98,9 @@ public class ConsejerosServiceImp implements ConsejerosService {
     private final RolDAO rolDAO;
     private final UsuarioDAO usuarioDAO;
     private final UsuarioRolDAO usuarioRolDAO;
-
     private final OficinaService oficinaService;
+
+    private VerificadorClonacionConsejero verificadorClonacionConsejero;
 
     private final List<EstadoMatriculaEnum> estadosMatriculables = Arrays.asList(MAT, NMAT, PMAT, RCI);
 
@@ -456,18 +459,33 @@ public class ConsejerosServiceImp implements ConsejerosService {
     @Override
     @Transactional
     public void revisarConsejeria(Carrera carrera, CicloAcademico ciclo, boolean forzar, DataSessionPivot ds) {
+
+        if (verificadorClonacionConsejero == null) {
+            verificadorClonacionConsejero = new VerificadorClonacionConsejero();
+        }
+        
+        if(verificadorClonacionConsejero.isOcupado()){
+            throw new PhobosException("Se están generando los registros de consejero inténtelo en otro momento.");
+        }
+
         DateTime today = new DateTime();
+
         ConsejeriaResumen resumen = consejeriaResumenDAO.findByCarreraCiclo(carrera, ciclo);
+
         if (resumen == null) {
+
             resumen = new ConsejeriaResumen();
             resumen.setCarrera(carrera);
             resumen.setCicloAcademico(ciclo);
             resumen.setFechaActualizacion(today.minusDays(2).toDate());
             consejeriaResumenDAO.save(resumen);
+
         }
 
         DateTime ayer = new DateTime(resumen.getFechaActualizacion());
+
         int dias = Days.daysBetween(ayer.toLocalDate(), today.toLocalDate()).getDays();
+
         if (dias < 1 && !forzar) {
             return;
         }

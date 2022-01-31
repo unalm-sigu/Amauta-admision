@@ -19,6 +19,9 @@ var root = new Vue({
         agendaConsejerosURL() {
             location.href=APP.url('consejeria/administracion/agendaconsejero/') + URL_UTIL.getOrigenURL();
         },
+        coordinadorConsejerosURL() {
+            location.href=APP.url('consejeria/administracion/coordinador/') + URL_UTIL.getOrigenURL();
+        },
         reloadList() {
             let $vue = this;
             $vue.$refs.historial.reloadList();

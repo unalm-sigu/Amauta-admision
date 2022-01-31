@@ -61,7 +61,7 @@ public class AconsejadosCarreraController {
         model.addAttribute("restriccionCape", restriccionCape);
 
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
-        
+
         model.addAttribute("esCoordinadorIOREA", verificadorService.esCoordinadorIOREA(ds));
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
@@ -76,48 +76,48 @@ public class AconsejadosCarreraController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            consejeroService.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
-            List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
+        consejeroService.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
+        List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (AlumnoConsejero alumnoTutor : alumnosTutores) {
-                ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "alumno.id",
-                            "alumno.codigo",
-                            "alumno.creditosCursados",
-                            "alumno.creditosAprobados",
-                            "alumno.promedioAcumulado",
-                            "alumno.cicloIngreso.descripcion",
-                            "alumno.situacionAcademica.codigo",
-                            "alumno.situacionAcademica.nombre",
-                            "alumno.persona.emailCompania",
-                            "alumno.persona.tipoFoto",
-                            "alumno.persona.rutaFoto",
-                            "alumno.persona.apellidosNombres",
-                            "alumno.persona.numeroDocIdentidad",
-                            "alumno.persona.tipoDocumento.simbolo",
-                            "alumno.carrera.nombre",
-                            "alumno.carrera.facultad.nombre",
-                            "consejero.*",
-                            "consejero.colaborador.codigo",
-                            "consejero.colaborador.persona.emailCompania",
-                            "consejero.colaborador.persona.numeroDocIdentidad",
-                            "consejero.colaborador.persona.apellidosNombres",
-                            "consejero.colaborador.persona.tipoDocumento.simbolo",
-                            "cicloAcademico.descripcion"
-                        });
+        for (AlumnoConsejero alumnoTutor : alumnosTutores) {
+            ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "alumno.id",
+                        "alumno.codigo",
+                        "alumno.creditosCursados",
+                        "alumno.creditosAprobados",
+                        "alumno.promedioAcumulado",
+                        "alumno.cicloIngreso.descripcion",
+                        "alumno.situacionAcademica.codigo",
+                        "alumno.situacionAcademica.nombre",
+                        "alumno.persona.emailCompania",
+                        "alumno.persona.tipoFoto",
+                        "alumno.persona.rutaFoto",
+                        "alumno.persona.apellidosNombres",
+                        "alumno.persona.numeroDocIdentidad",
+                        "alumno.persona.tipoDocumento.simbolo",
+                        "alumno.carrera.nombre",
+                        "alumno.carrera.facultad.nombre",
+                        "consejero.*",
+                        "consejero.colaborador.codigo",
+                        "consejero.colaborador.persona.emailCompania",
+                        "consejero.colaborador.persona.numeroDocIdentidad",
+                        "consejero.colaborador.persona.apellidosNombres",
+                        "consejero.colaborador.persona.tipoDocumento.simbolo",
+                        "cicloAcademico.descripcion"
+                    });
 
-                array.add(node);
-            }
+            array.add(node);
+        }
 
-            json.setData(array);
-            json.setFiltered(filter.getFiltered());
-            json.setTotal(filter.getTotal());
+        json.setData(array);
+        json.setFiltered(filter.getFiltered());
+        json.setTotal(filter.getTotal());
 
         } catch (Exception e) {
             e.printStackTrace();

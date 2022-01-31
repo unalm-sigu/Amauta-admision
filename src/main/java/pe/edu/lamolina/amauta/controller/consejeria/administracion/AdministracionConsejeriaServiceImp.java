@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
+import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.VerificadorClonacionConsejero;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.reunionConsejero.ReunionConsejeroServiceImpl;
@@ -50,21 +51,22 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
-@Transactional(readOnly = true)
 public class AdministracionConsejeriaServiceImp implements AdministracionConsejeriaService {
 
-    private final ConsejeriaHistorialDAO consejeriaHistorialDAO;
-    private final CicloAcademicoDAO cicloAcademicoDAO;
-    private final AlumnoConsejeroDAO alumnoConsejeroDAO;
-    private final ConsejeriaResumenDAO consejeriaResumenDAO;
-    private final ConsejeroDAO consejeroDAO;
-    private final TutorSolicitudDAO tutorSolicitudDAO;
-    private final ReunionAlumnoConsejeroDAO reunionAlumnoConsejeroDAO;
-    private final AgendaConsejeroDAO agendaConsejeroDAO;
-    private final CarreraDAO carreraDAO;
-    private final AlumnoDAO alumnoDAO;
+    private ConsejeriaHistorialDAO consejeriaHistorialDAO;
+    private CicloAcademicoDAO cicloAcademicoDAO;
+    private AlumnoConsejeroDAO alumnoConsejeroDAO;
+    private ConsejeriaResumenDAO consejeriaResumenDAO;
+    private ConsejeroDAO consejeroDAO;
+    private TutorSolicitudDAO tutorSolicitudDAO;
+    private ReunionAlumnoConsejeroDAO reunionAlumnoConsejeroDAO;
+    private AgendaConsejeroDAO agendaConsejeroDAO;
+    private CarreraDAO carreraDAO;
+    private AlumnoDAO alumnoDAO;
+    private VerificadorClonacionConsejero verificadorClonacionConsejero;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -80,6 +82,13 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     @Override
     @Transactional
     public void clonar(ClonarConsejerosDTO clonarDTO, DataSessionPivot ds) {
+
+        if (verificadorClonacionConsejero == null) {
+            verificadorClonacionConsejero = new VerificadorClonacionConsejero();
+        }
+
+        verificadorClonacionConsejero.setOcupado(true);
+
         int modeloCodigo = Integer.parseInt(clonarDTO.getModelo().getCodigo());
         int destinoCodigo = Integer.parseInt(clonarDTO.getDestino().getCodigo());
         log.debug("modeloCodigo {}", modeloCodigo);
@@ -90,6 +99,11 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
 
         List<ConsejeriaResumen> resumenes = consejeriaResumenDAO.allByCiclo(clonarDTO.getModelo());
 
+        if (resumenes.isEmpty()) {
+            throw new PhobosException("No hay registros en el ciclo de modelo");
+        }
+
+        log.debug("deleteByCiclo");
         consejeriaResumenDAO.deleteByCiclo(clonarDTO.getDestino());
 
         for (ConsejeriaResumen resumen : resumenes) {
@@ -173,12 +187,19 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
 
         }
 
+        log.debug("save ConsejeriaHistorial ");
         ConsejeriaHistorial consejeriaHistorial = new ConsejeriaHistorial();
         consejeriaHistorial.setCicloAcademico(clonarDTO.getDestino());
         consejeriaHistorial.setEstadoEnum(ConsejeriaHistorialEstado.ACTIVO);
         consejeriaHistorial.setFechaCreacion(new Date());
         consejeriaHistorial.setFechaActualizacion(new Date());
         consejeriaHistorialDAO.save(consejeriaHistorial);
+
+        if (verificadorClonacionConsejero == null) {
+            verificadorClonacionConsejero = new VerificadorClonacionConsejero();
+        }
+
+        verificadorClonacionConsejero.setOcupado(false);
 
     }
 
@@ -276,6 +297,11 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     public List<Alumno> buscarAlumno(String nombre) {
         nombre = forLike(nombre);
         return alumnoDAO.allActivoPregradoByNombre(nombre);
+    }
+
+    @Override
+    public List<Consejero> coordinadores(DynatableFilter filter) {
+        return consejeroDAO.allCoordinadorByDynatable(filter);
     }
 
 }

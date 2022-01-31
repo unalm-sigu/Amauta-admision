@@ -184,18 +184,10 @@
                                                     <div v-for="reunion in item.reunionAlumnoConsejeros" class="row">
 
                                                         <div class="col-xs-12">
-                                                            <p class="block text-primary bold" >
-                                                                {{reunion.alumnoConsejero.alumno.persona.apellidosNombres}} 
+                                                            <p class="block bold" >
+                                                                <span>{{reunion.alumnoConsejero.alumno.codigo}}</span>   <span class=" text-primary ">{{reunion.alumnoConsejero.alumno.persona.apellidosNombres}} </span>  
                                                             </p>
                                                         </div>
-
-                                                        <span class="block col-xs-12">
-                                                            {{reunion.alumnoConsejero.alumno.codigo}}
-                                                        </span>
-                                                        
-                                                        <small class="block col-xs-12 text-primary" v-if="reunion.alumnoConsejero.alumno.persona.emailCompania">
-                                                            <i class="fa fa-envelope-o"></i> {{reunion.alumnoConsejero.alumno.persona.emailCompania}}
-                                                        </small>
 
                                                     </div>
                                                 </td>

@@ -29,6 +29,8 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.AConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 
 @Service
 public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements ConsejeroDAO {
@@ -281,6 +283,29 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .endBlock()
                 .limit(15);
+        return all(sql);
+    }
+
+    @Override
+    public List<Consejero> allCoordinadorByDynatable(DynatableFilter filter) {
+        
+        Octavia sql0 = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("ur.usuario usu", "usu.persona per0")
+                .join("ur.rol ro")
+                .filter("ro.codigo", RolEnum.COORD_TUTO);
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Consejero.class, "con")
+                .join("carrera car", "colaborador col", "col.persona per")
+                .leftJoin("per.tipoDocumento")
+                .searchFields("per.numeroDocIdentidad","car.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .exists(sql0)
+                .linkedBy("per.id", "per0.id")
+                .orderBy("con.id desc");
+
         return all(sql);
     }
 

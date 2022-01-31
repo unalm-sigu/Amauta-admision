@@ -103,7 +103,7 @@ public class AdministracionConsejeriaController {
 
     @RequestMapping("agendaconsejero/reporte")
     public ModelAndView reporte(@RequestBody FiltroReporteAgendaDTO filtroReporteAgendaDTO, Model model, HttpSession session) {
-        
+
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = service.allReunionAlumnoConsejeroReporte(filtroReporteAgendaDTO);
         model.addAttribute("reunionAlumnoConsejeros", reunionAlumnoConsejeros);
         return new ModelAndView(reunionConsejerosExcelView);
@@ -132,10 +132,10 @@ public class AdministracionConsejeriaController {
             objectNode.set("reunionAlumnoConsejeros",
                     JaneHelper.from(agendaConsejero.getReunionAlumnoConsejeros())
                             .join("alumnoConsejero")
-                            .join("alumnoConsejero.alumno","id,codigo")
-                            .join("alumnoConsejero.alumno.carrera","nombre")
-                            .join("alumnoConsejero.alumno.carrera.facultad","nombre")
-                            .join("alumnoConsejero.alumno.persona","id,nombreCompleto,apellidosNombres,emailCompania")
+                            .join("alumnoConsejero.alumno", "id,codigo")
+                            .join("alumnoConsejero.alumno.carrera", "nombre")
+                            .join("alumnoConsejero.alumno.carrera.facultad", "nombre")
+                            .join("alumnoConsejero.alumno.persona", "id,nombreCompleto,apellidosNombres,emailCompania")
                             .join("alumnoConsejero.hora")
                             .array());
 
@@ -177,12 +177,39 @@ public class AdministracionConsejeriaController {
     public ArrayNode allAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
 
         List<Alumno> alumnos = service.buscarAlumno(nombre);
-        
+
         return JaneHelper.from(alumnos)
                 .only("id,codigo")
                 .join("persona", "id,apellidosNombres")
                 .join("carrera", "id,nombre")
                 .array();
+    }
+
+    @RequestMapping("coordinador")
+    public String coordinadorconsejeria() {
+        return "consejeria/administracion/coordinadorconsejeria";
+    }
+
+    @ResponseBody
+    @RequestMapping("coordinadores/all")
+    public DynatableResponse coordinadores(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+
+        DynatableResponse response = new DynatableResponse();
+        response.setTotal(0);
+
+        List<Consejero> consejeros = service.coordinadores(filter);
+
+        ArrayNode consejerosArray = JaneHelper.from(consejeros).only("id,estado,estadoEnum")
+                .join("colaborador","id")
+                .join("colaborador.persona", "id,nombreCompleto,emailCompania")
+                .join("carrera", "nombre")
+                .join("carrera.facultad", "nombre")
+                .array();
+
+        response.setData(consejerosArray);
+        response.setFiltered(filter.getFiltered());
+        response.setTotal(filter.getTotal());
+        return response;
     }
 
 }

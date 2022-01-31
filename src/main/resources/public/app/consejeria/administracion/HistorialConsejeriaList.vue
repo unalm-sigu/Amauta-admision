@@ -37,7 +37,7 @@
                                     <td class="v-middle text-center">
 
                                         <span v-if="item.estado=='ACTIVO'" class="label label-success" >{{item.estado}} </span>
-                                        <span v-if="item.estado=='ANULADO'" class="label label-danger" >{{item.estado}} </span>
+                                        <span v-if="item.estado=='ELIMINADO'" class="label label-danger" >{{item.estado}} </span>
 
                                     </td>
 

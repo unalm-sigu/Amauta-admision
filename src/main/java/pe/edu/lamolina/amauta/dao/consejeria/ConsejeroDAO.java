@@ -44,4 +44,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
     public List<Consejero> allByPersona(Persona persona);
 
     public List<Consejero> allByNombre(String nombre);
+
+    public List<Consejero> allCoordinadorByDynatable(DynatableFilter filter);
 }

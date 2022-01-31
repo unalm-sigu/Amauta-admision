@@ -33,4 +33,6 @@ public interface AdministracionConsejeriaService {
 
     public List<Alumno> buscarAlumno(String nombre);
 
+    public List<Consejero> coordinadores(DynatableFilter filter);
+
 }
