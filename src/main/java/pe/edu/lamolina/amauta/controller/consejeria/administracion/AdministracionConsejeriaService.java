@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import pe.edu.lamolina.model.general.Colaborador;
 
 public interface AdministracionConsejeriaService {
 
@@ -33,6 +34,6 @@ public interface AdministracionConsejeriaService {
 
     public List<Alumno> buscarAlumno(String nombre);
 
-    public List<Consejero> coordinadores(DynatableFilter filter);
+    public List<Colaborador> coordinadores(DynatableFilter filter);
 
 }

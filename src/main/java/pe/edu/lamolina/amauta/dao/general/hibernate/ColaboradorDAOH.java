@@ -13,10 +13,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
-import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
-import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
-import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -24,6 +21,10 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.general.oficina.colaborador.ResumenColaborador;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 
 @Repository
 public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {
@@ -228,6 +229,20 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .filter("per.id", persona);
 
         return find(sql);
+    }
+
+    @Override
+    public List<Colaborador> allCoordinadorByDynatable(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Colaborador.class, "co")
+                .join("co.persona per", "co.oficina ofi", "co.cargo ca")
+                .in("co.estado", Arrays.asList(ACT, PER, VAC, DSC))
+                .in("ca.codigo", Arrays.asList(PerfilColaboradorEnum.COORDTUTOR, PerfilColaboradorEnum.SECUNDA_TUTOR))
+                .searchFields("ofi.nombre", "ca.nombre", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("ofi.nombre asc","ca.id");
+        return all(sql);
     }
 
 }

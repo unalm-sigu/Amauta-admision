@@ -26,6 +26,7 @@ import pe.edu.lamolina.amauta.controller.reunionConsejero.ReunionConsejeroServic
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaHistorialDAO;
@@ -33,10 +34,12 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TutorSolicitudDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
@@ -48,6 +51,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
 @Service
@@ -67,6 +71,8 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     private CarreraDAO carreraDAO;
     private AlumnoDAO alumnoDAO;
     private VerificadorClonacionConsejero verificadorClonacionConsejero;
+    private ColaboradorDAO colaboradorDAO;
+    private DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -300,8 +306,8 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     }
 
     @Override
-    public List<Consejero> coordinadores(DynatableFilter filter) {
-        return consejeroDAO.allCoordinadorByDynatable(filter);
+    public List<Colaborador> coordinadores(DynatableFilter filter) {
+        return colaboradorDAO.allCoordinadorByDynatable(filter);
     }
 
 }

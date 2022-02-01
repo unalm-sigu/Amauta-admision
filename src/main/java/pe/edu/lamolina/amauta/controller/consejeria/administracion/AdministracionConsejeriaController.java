@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -22,18 +25,22 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ReunionConsejerosEXCEL;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
 @Controller
@@ -197,19 +204,19 @@ public class AdministracionConsejeriaController {
         DynatableResponse response = new DynatableResponse();
         response.setTotal(0);
 
-        List<Consejero> consejeros = service.coordinadores(filter);
+        List<Colaborador> colaboradores = service.coordinadores(filter);
 
-        ArrayNode consejerosArray = JaneHelper.from(consejeros).only("id,estado,estadoEnum")
-                .join("colaborador","id")
-                .join("colaborador.persona", "id,nombreCompleto,emailCompania")
-                .join("carrera", "nombre")
-                .join("carrera.facultad", "nombre")
+        ArrayNode consejerosArray = JaneHelper.from(colaboradores)
+                .join("persona", "id,nombreCompleto,emailCompania")
+                .join("oficina", "nombre")
+                .join("cargo", "nombre")
                 .array();
 
         response.setData(consejerosArray);
         response.setFiltered(filter.getFiltered());
         response.setTotal(filter.getTotal());
         return response;
+
     }
 
 }
