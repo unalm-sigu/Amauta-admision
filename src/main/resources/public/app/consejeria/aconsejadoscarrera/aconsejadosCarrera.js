@@ -264,7 +264,7 @@ new Vue({
                 dangerMode: true,
                 buttons: {
                     cancel: {text: "Cancelar", closeModal: true, visible: true},
-                    confirm: {text: "Sí, Eliminar", closeModal: false}
+                    confirm: {text: "Sí, Remover", closeModal: false}
                 }
             }).then((value) => {
                 if (value != true) {
