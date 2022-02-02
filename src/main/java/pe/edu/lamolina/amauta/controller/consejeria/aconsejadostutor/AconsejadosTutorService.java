@@ -25,4 +25,6 @@ public interface AconsejadosTutorService {
     public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera);
 
     public void eliminarAlumnoConsejero(Long idAlumnoConsejero);
+
+    public void quitarTutor(Long idAlumnoConsejero);
 }

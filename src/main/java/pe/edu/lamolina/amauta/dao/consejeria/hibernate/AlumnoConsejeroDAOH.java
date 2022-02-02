@@ -520,11 +520,21 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
     @Override
     public void deleteByCiclo(CicloAcademico cicloAcademico) {
-        
+
         String strQuery = "delete from AlumnoConsejero ac where ac.cicloAcademico.id=:CICLO_ACADEMICO";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setLong("CICLO_ACADEMICO", cicloAcademico.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public AlumnoConsejero findAll(Long idAlumnoConsejero) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .left("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
+                .left("co.colaborador col", "col.persona")
+                .filter("ac.id", idAlumnoConsejero);
+        return find(sql);
     }
 
 }

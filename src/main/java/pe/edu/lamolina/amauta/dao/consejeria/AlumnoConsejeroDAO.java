@@ -47,4 +47,6 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     public void deleteByCiclo(CicloAcademico cicloAcademico);
 
+    public AlumnoConsejero findAll(Long idAlumnoConsejero);
+
 }

@@ -206,6 +206,9 @@
                                                             <li th:if="${esCoordinadorIOREA}" role="presentation" class="divider"></li>
                                                             <li th:if="${esCoordinadorIOREA}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
 
+                                                            <li th:if="${esCoordinadorIOREA}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esCoordinadorIOREA}" class="pointer"><a v-on:click="quitarTutorado(item)">Quitar Tutor</a></li>
+
                                                         </ul>
                                                     </div>
                                                 </td>

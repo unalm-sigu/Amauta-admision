@@ -342,4 +342,12 @@ public class AconsejadosTutorController {
         return GlobalMessages.DELETED;
     }
 
+
+    @ResponseBody
+    @RequestMapping("quitar/tutor/{idAlumnoConsejero}")
+    public String quitarTutor(@PathVariable("idAlumnoConsejero") Long idAlumnoConsejero, Model model, HttpSession session) {
+        service.quitarTutor(idAlumnoConsejero);
+        return GlobalMessages.UPDATED;
+    }
+
 }

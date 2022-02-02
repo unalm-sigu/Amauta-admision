@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -27,6 +25,8 @@ import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
@@ -151,6 +151,14 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     @Transactional
     public void eliminarAlumnoConsejero(Long idAlumnoConsejero) {
         alumnoConsejeroDAO.delete(idAlumnoConsejero);
+    }
+
+    @Override
+    @Transactional
+    public void quitarTutor(Long idAlumnoConsejero) {
+        AlumnoConsejero alumnoConsejero= alumnoConsejeroDAO.findAll(idAlumnoConsejero);
+        alumnoConsejero.setConsejero(new Consejero(ID_CONSEJERO_NN));
+        alumnoConsejeroDAO.updateColumns(alumnoConsejero,"consejero");
     }
 
 }
