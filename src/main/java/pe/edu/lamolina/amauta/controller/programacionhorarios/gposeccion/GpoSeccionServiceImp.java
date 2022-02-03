@@ -603,6 +603,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         grupoSeccionDAO.save(grupoSeccion);
         for (Seccion seccion : grupoSeccion.getSecciones()) {
             seccionDAO.save(seccion);
+            usuarioProgramacionService.creacionSeccion(seccion, ds.getUsuario());
             for (DocenteSeccion docSecc : seccion.getDocenteSeccion()) {
                 docenteSeccionDAO.save(docSecc);
             }
@@ -999,7 +1000,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
-        usuarioProgramacionService.bloquearSeccion(seccion,ds.getUsuario());
+        usuarioProgramacionService.bloquearSeccion(seccion, ds.getUsuario());
     }
 
     @Override
@@ -1300,8 +1301,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matSeccUpd.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matriculaSeccionDAO.updateColumns(matSeccUpd, "estado");
         }
-        
-        usuarioProgramacionService.cancelarSeccion(seccionForm,ds.getUsuario());
+
+        usuarioProgramacionService.cancelarSeccion(seccionForm, ds.getUsuario());
 
     }
 
@@ -2475,7 +2476,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionRepitenciaDAO.save(restriccionRepitencia);
             }
         }
-        usuarioProgramacionService.restriccionRepitencia(seccion,tiposRestriccionesSeleccionados,ds.getUsuario());
+        usuarioProgramacionService.restriccionRepitencia(seccion, tiposRestriccionesSeleccionados, ds.getUsuario());
     }
 
     @Override

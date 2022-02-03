@@ -23,14 +23,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 @Transactional(readOnly = true)
 public class UsuarioProgramacionServiceImp implements UsuarioProgramacionService {
 
-    @Autowired
-    UsuarioProgramacionDAO usuarioProgramacionDAO;
-
-    public static String UPDATED = "Registro actualizado";
-    public static String CREATED = "Registro creado";
-    public static String DELETED = "Registro eliminado";
-
-    //
     public static String ERROR = "Error al registrar error";
     public static String CREATED_SECCION = "Creación de sección";
     public static String CREATED_DOCENTE_SECCION = "Creación de docente sección";
@@ -44,6 +36,9 @@ public class UsuarioProgramacionServiceImp implements UsuarioProgramacionService
     public static String RESTRICCION_MODALIDAD = "Actualizo la restriccion de modalida del tipo %s";
     public static String CANCELAR_SECCION = "Se canceló la sección: %s";
     public static String BLOQUEAR_SECCION = "Se bloqueó la sección";
+
+    @Autowired
+    UsuarioProgramacionDAO usuarioProgramacionDAO;
 
     @Override
     @Transactional
