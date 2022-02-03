@@ -1139,7 +1139,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
             docenteSeccion.setPorcentajeCargaFraccion(porcentajeFraccion);
-            service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico());
+            service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico(),ds.getUsuario());
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
@@ -1192,7 +1192,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Seccion seccion = service.findSeccion(seccionId);
             GrupoHoras grupoHoras = service.findGrupoHorasForDirectUpdate(codigoGrupoHor, ds.getCicloAcademico(), seccion);
-            service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico());
+            service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico(),ds.getUsuario());
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Grupo horario cambiado correctamente");
@@ -2236,7 +2236,7 @@ public class GpoSeccionController {
 
             String message = "Grupo hora asignado correctamente.";
             Seccion seccion = service.findSeccion(seccionId);
-            service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico());
+            service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico(),ds.getUsuario());
 
             response.setSuccess(true);
             response.setMessage(message);

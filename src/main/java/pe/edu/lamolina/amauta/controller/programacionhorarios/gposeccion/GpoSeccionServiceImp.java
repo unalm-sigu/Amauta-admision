@@ -44,6 +44,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.amauta.controller.log.UsuarioProgramacionService;
+import static pe.edu.lamolina.amauta.controller.log.UsuarioProgramacionServiceImp.ASIGNACION_LETRA_GRUPO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
@@ -226,6 +228,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     private final ResponseRestService responseRestService;
     private final VerificadorService verificadorService;
+    private final UsuarioProgramacionService usuarioProgramacionService;
 
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
@@ -686,8 +689,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
         seccionDAO.save(seccionPCUR);
+        usuarioProgramacionService.creacionSeccion(seccionPCUR, ds.getUsuario());
         for (DocenteSeccion docSecc : seccionPCUR.getDocenteSeccion()) {
             docenteSeccionDAO.save(docSecc);
+            usuarioProgramacionService.creacionDocenteSeccion(docSecc, ds.getUsuario());
         }
         this.actualizarBoletin();
     }
@@ -979,6 +984,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         //this.actualizarVacantesTCUR(gpoSecc, ds, today);
         this.actualizarBoletin();
+        usuarioProgramacionService.activarSeccion(seccionBD, ds.getUsuario());
     }
 
     @Override
@@ -993,6 +999,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
+        usuarioProgramacionService.bloquearSeccion(seccion,ds.getUsuario());
     }
 
     @Override
@@ -1042,6 +1049,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
         List<AmpliacionVacantes> ampliacioness = ampliacionVacanteDAO.allBySeccion(seccionBD);
+
+        usuarioProgramacionService.anularSeccion(seccioForm, ds.getUsuario());
 
         if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty()) {
             log.debug("seccionBD {} revisar en saco de anular on encuestas", seccionBD.getId());
@@ -1291,6 +1300,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matSeccUpd.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matriculaSeccionDAO.updateColumns(matSeccUpd, "estado");
         }
+        
+        usuarioProgramacionService.cancelarSeccion(seccionForm,ds.getUsuario());
 
     }
 
@@ -1496,6 +1507,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccion.setUserModifica(usuario);
         docenteSeccion.setFechaModifica(new Date());
         docenteSeccionDAO.updateDocente(docenteSeccion);
+        usuarioProgramacionService.asignacionDocente(new Docente(docenteId), docenteSeccion, usuario);
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
 
@@ -1507,6 +1519,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void actualizarSeccionResctriccionCapa(Seccion seccionForm, DataSessionPivot ds) {
         seccionDAO.updateRestriccionCapa(seccionForm);
+        usuarioProgramacionService.updateRestriccionCapa(seccionForm, ds.getUsuario());
     }
 
     @Override
@@ -1527,7 +1540,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         TokenIngresante token = responseRestService.createToken(ds);
         JsonResponse response = responseRestService.ampliarVacante(seccioDB, seccionForm.getVacantes() - seccioDB.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
-
+        usuarioProgramacionService.asignarVacanteSeccion(seccionForm, ds.getUsuario());
         this.actualizarBoletin();
     }
 
@@ -1591,7 +1604,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
+    public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico, Usuario usuario) {
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
@@ -1870,7 +1883,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras gpoHoras, CicloAcademico cicloAcademico) {
+    public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras gpoHoras, CicloAcademico cicloAcademico, Usuario usuario) {
         Seccion seccionDB = seccionDAO.find(seccion);
         if (gpoHoras.getId() != null) {
             GrupoHoras gpoHorasBD = grupoHorasDAO.find(gpoHoras);
@@ -2051,6 +2064,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //actualizar grupo horas actual
         this.validarCruceAlumnos(seccion);
         this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
+        usuarioProgramacionService.asignacionGrupoHoras(seccionDB, gpoHoras, usuario);
     }
 
     private void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
@@ -2221,6 +2235,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Seccion seccionUpd = new Seccion(seccion.getId());
         seccionUpd.setAula(aula);
         seccionDAO.updateColumns(seccionUpd, "aula");
+        usuarioProgramacionService.asignacionAula(seccion, aula, ds.getUsuario());
         this.actualizarBoletin();
         this.actualizarCuotaAnexo(seccion, seccion.getGrupoSeccion().getCicloAcademico());
     }
@@ -2428,6 +2443,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         }
         this.actualizarBoletin();
+        usuarioProgramacionService.restriccionModalidad(seccion, tipoRestriccionEnum, ds.getUsuario());
     }
 
     @Override
@@ -2459,6 +2475,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionRepitenciaDAO.save(restriccionRepitencia);
             }
         }
+        usuarioProgramacionService.restriccionRepitencia(seccion,tiposRestriccionesSeleccionados,ds.getUsuario());
     }
 
     @Override
