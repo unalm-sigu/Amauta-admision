@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -2295,10 +2296,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         DateTime today = new DateTime();
 
         log.debug("restricciones {}", restricciones);
+        StringJoiner allRestriccion = new StringJoiner(",");
 
         if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
             List<Carrera> carrerasSeleccionadas = new ArrayList<>();
             for (Long restriccionEach : restricciones) {
+                allRestriccion.add(restriccionEach.toString());
                 carrerasSeleccionadas.add(new Carrera(restriccionEach));
             }
 
@@ -2345,6 +2348,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.FAC)) {
             List<Facultad> facultadesSeleccionadas = new ArrayList();
             for (Long restriccionEach : restricciones) {
+                allRestriccion.add(restriccionEach.toString());
                 facultadesSeleccionadas.add(new Facultad(restriccionEach));
             }
 
@@ -2418,6 +2422,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             for (Long restriccion : restricciones) {
 
+                allRestriccion.add(restriccion.toString());
+
                 RestriccionModalidad restriccionModalidad = new RestriccionModalidad();
                 for (RestriccionModalidad restriccionModalidadDB : restriccionesModalidad) {
                     if (restriccionModalidadDB.getModalidadEstudio().getId() == restriccion.longValue()) {
@@ -2444,7 +2450,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         }
         this.actualizarBoletin();
-        usuarioProgramacionService.restriccionModalidad(seccion, tipoRestriccionEnum, ds.getUsuario());
+        usuarioProgramacionService.restriccionModalidad(seccion, tipoRestriccionEnum,allRestriccion.toString(), ds.getUsuario());
     }
 
     @Override

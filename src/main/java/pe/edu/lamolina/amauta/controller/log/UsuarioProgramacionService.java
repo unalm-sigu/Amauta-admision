@@ -32,7 +32,7 @@ public interface UsuarioProgramacionService {
 
     public void restriccionRepitencia(Seccion seccion, List<TipoRepitencia> tiposRestriccionesSeleccionados, Usuario usuario);
 
-    public void restriccionModalidad(Seccion seccion, TipoRestriccionEnum tipoRestriccionEnum, Usuario usuario);
+    public void restriccionModalidad(Seccion seccion, TipoRestriccionEnum tipoRestriccionEnum,String restricciones, Usuario usuario);
 
     public void cancelarSeccion(Seccion seccionBD, Usuario usuario);
 

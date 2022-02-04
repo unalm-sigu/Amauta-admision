@@ -33,7 +33,7 @@ public class UsuarioProgramacionServiceImp implements UsuarioProgramacionService
     public static String ESTADO_SECCION = "Se %s la sección";
     public static String RESTRICCION_CAPE = "Actualizo la restriccion CAPE a %s";
     public static String RESTRICCION_REPIETENCIA = "Actualizo la restriccion repitencia a %s";
-    public static String RESTRICCION_MODALIDAD = "Actualizo la restriccion de modalida del tipo %s";
+    public static String RESTRICCION_MODALIDAD = "Actualizo la restriccion de modalida del tipo %s [%s]";
     public static String CANCELAR_SECCION = "Se canceló la sección: %s";
     public static String BLOQUEAR_SECCION = "Se bloqueó la sección";
 
@@ -190,14 +190,14 @@ public class UsuarioProgramacionServiceImp implements UsuarioProgramacionService
 
     @Override
     @Transactional
-    public void restriccionModalidad(Seccion seccion, TipoRestriccionEnum tipoRestriccionEnum, Usuario usuario) {
+    public void restriccionModalidad(Seccion seccion, TipoRestriccionEnum tipoRestriccionEnum,String restricciones, Usuario usuario) {
         if (seccion == null) {
             log.debug("{}", ERROR);
             return;
         }
         UsuarioProgramacionLogger usuarioProgramacion = new UsuarioProgramacionLogger(usuario);
         usuarioProgramacion.setSeccion(seccion.getId());
-        usuarioProgramacion.setObservacion(String.format(RESTRICCION_MODALIDAD, tipoRestriccionEnum.getValue()));
+        usuarioProgramacion.setObservacion(String.format(RESTRICCION_MODALIDAD, tipoRestriccionEnum.getValue(),restricciones));
         usuarioProgramacionDAO.save(usuarioProgramacion);
     }
 
