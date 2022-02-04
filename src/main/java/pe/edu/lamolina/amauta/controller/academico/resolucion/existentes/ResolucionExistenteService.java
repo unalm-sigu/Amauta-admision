@@ -84,4 +84,6 @@ public interface ResolucionExistenteService {
 
     List<CicloAcademico> allCicloAplica( DataSessionPivot ds);
 
+    public List<TramiteTraslado> allTramiteTrasladoByResolucion(Resolucion resolucion);
+
 }

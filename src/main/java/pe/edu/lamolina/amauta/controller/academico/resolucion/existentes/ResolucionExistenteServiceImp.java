@@ -760,6 +760,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case READMISION:
                 break;
             case TRAS_INT:
+                this.updateTramitesTrasladoInterno(resolucionForm, ds);
             case TRAS:
             case INTES:
             case ING_HIS:
@@ -1648,15 +1649,18 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             if (traslado == null) {
                 throw new PhobosException("El alumno" + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");
             }
+            
+            
+            TramiteEstadoEnum estado = tramiteTrasladoForm.getEstadoEnum();
 
             Tramite tramite = traslado.getTramite();
-            tramite.setEstadoEnum(tramiteTrasladoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
+            tramite.setEstadoEnum(estado);
             tramite.setUserModificacion(ds.getUsuario());
             tramite.setFechaModificacion(new Date());
             tramiteDAO.updateEstado(tramite);
 
             traslado.setResolucion(resolucion);
-            traslado.setEstado(tramiteTrasladoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
+            traslado.setEstadoEnum(estado);
             tramiteTrasladoDAO.updateColumns(traslado, "estado", "resolucion");
 
             log.debug("success update {}", traslado.getId());
@@ -1896,6 +1900,58 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         CicloAcademico ca = ds.getCicloAcademico();
         int rango = 10;
         return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 3);
+    }
+
+    @Override
+    public List<TramiteTraslado> allTramiteTrasladoByResolucion(Resolucion resolucion) {
+        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.allTramiteTrasladoByResolucion(resolucion);
+        log.debug("tramiteTraslados {}", tramiteTraslados.size());
+        for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
+            tramiteTraslado.setAlumno(tramiteTraslado.getTramite().getAlumno());
+            tramiteTraslado.setSeleccionado(tramiteTraslado.getEstadoEnum() == TramiteEstadoEnum.ACEP);
+        }
+        return tramiteTraslados;
+    }
+
+    private void updateTramitesTrasladoInterno(Resolucion resolucion, DataSessionPivot ds) {
+
+        if (resolucion.getTramiteTraslado().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        log.debug("solicitantes {}", resolucion.getTramiteTraslado().size());
+
+        for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
+
+            log.debug("tramiteTrasladoForm#{}", tramiteTrasladoForm.getId());
+
+            if (tramiteTrasladoForm.getId() != null) {
+                continue;
+            }
+
+            log.debug("alumno#{} CicloAcademico#{}", tramiteTrasladoForm.getAlumno().getId(), ds.getCicloAcademico().getId());
+
+            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+
+            if (traslado == null) {
+                throw new PhobosException("El alumno " + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");
+            }
+
+            TramiteEstadoEnum estado = tramiteTrasladoForm.getEstadoEnum();
+
+            log.debug("TramiteTraslado#{} estado {}", tramiteTrasladoForm.getId(), estado.name());
+
+            Tramite tramite = traslado.getTramite();
+            tramite.setEstadoEnum(estado);
+            tramite.setUserModificacion(ds.getUsuario());
+            tramite.setFechaModificacion(new Date());
+            tramiteDAO.updateEstado(tramite);
+
+            traslado.setResolucion(resolucion);
+            traslado.setEstadoEnum(estado);
+            tramiteTrasladoDAO.updateColumns(traslado, "estado", "resolucion");
+
+        }
     }
 
 }

@@ -30,4 +30,6 @@ public interface TramiteTrasladoDAO extends EasyDAO<TramiteTraslado> {
     public TramiteTraslado findSolicitadoByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico);
 
     public List<TramiteTraslado> allTrasladoInternoByCicloSolicito(CicloAcademico cicloAcademico);
+
+    public List<TramiteTraslado> allTramiteTrasladoByResolucion(Resolucion resolucion);
 }
