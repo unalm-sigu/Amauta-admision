@@ -992,6 +992,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 tramite.setUserRegistro(ds.getUsuario());
                 tramiteDAO.save(tramite);
 
+                CicloAcademico cicloAcademicoAplicaDB = cicloAcademicoDAO.find(cicloAplica);
+
                 retiroCicloDB = new RetiroCiclo();
                 retiroCicloDB.setAlumno(retiroCicloForm.getAlumno());
                 retiroCicloDB.setMotivo(retiroCicloForm.getMotivo());
@@ -1004,6 +1006,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 retiroCicloDB.setTramite(tramite);
                 retiroCicloDB.setResolucion(resolucion);
                 retiroCicloDB.setFechaRegistro(new Date());
+                if (alumnoDB.isPregrado()) {
+                    retiroCicloDB.setEsContable(cicloAcademicoAplicaDB.isTipoRegular());
+                } else {
+                    retiroCicloDB.setEsContable(Boolean.FALSE);
+                }
                 retiroCicloDAO.save(retiroCicloDB);
             }
 
@@ -1649,8 +1656,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             if (traslado == null) {
                 throw new PhobosException("El alumno" + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");
             }
-            
-            
+
             TramiteEstadoEnum estado = tramiteTrasladoForm.getEstadoEnum();
 
             Tramite tramite = traslado.getTramite();
