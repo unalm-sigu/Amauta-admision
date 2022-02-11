@@ -87,8 +87,9 @@ public class AconsejadosTutorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
+            
             Persona persona = service.findPersona(idPersona);
-            List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), persona, new Carrera(idCarrera));
+            List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), persona, new Carrera(idCarrera),ds);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (AlumnoConsejero alumnoTutor : alumnosTutor) {
@@ -216,7 +217,7 @@ public class AconsejadosTutorController {
         try {
 
             Persona person = service.findPersona(idPersona);
-            AconsejadoEstadoBean aconsejadoEstadoBean = service.allByPersonaCarrera(person, ds.getCicloAcademico(), new Carrera(idCarrera));
+            AconsejadoEstadoBean aconsejadoEstadoBean = service.allByPersonaCarrera(person, ds.getCicloAcademico(), new Carrera(idCarrera),ds);
             ObjectNode node = JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"});
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -318,7 +319,7 @@ public class AconsejadosTutorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Persona persona = service.findPersona(idPersona);
-        List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), persona, new Carrera(idCarrera));
+        List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarreraReporte(filter, ds.getCicloAcademico(), persona, new Carrera(idCarrera));
         Consejero consejero = alumnosTutor.stream().map(x -> x.getConsejero()).findAny().orElse(null);
         model.addAttribute("alumnosTutor", alumnosTutor);
         model.addAttribute("consejero", consejero);

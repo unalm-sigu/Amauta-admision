@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.consejeria.consejeros;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -118,20 +120,51 @@ public class ConsejerosServiceImp implements ConsejerosService {
     public List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico cicloAcademico, DynatableFilter filter) {
 
         List<Consejero> consejeros = consejeroDAO.allByCarreraDynatable(carrera, filter);
-        List<Colaborador> colaboradores = consejeros.stream().map(x -> x.getColaborador()).collect(Collectors.toList());
+
+        List<Colaborador> colaboradores = consejeros.stream()
+                .map(x -> x.getColaborador())
+                .collect(Collectors.toList());
+
         Map<String, Colaborador> mapColaborador = TypesUtil.convertListToMap("codigo", colaboradores);
-        List<Persona> personas = consejeros.stream().map(x -> x.getColaborador().getPersona()).collect(Collectors.toList());
 
-        List<Consejero> consejerosWithMatriculados = consejeroDAO.allCountAconsejadosMatriculadosByCiclo(consejeros, cicloAcademico, EstadoEnum.ACT);
+        List<Persona> personas = consejeros.stream()
+                .map(x -> x.getColaborador().getPersona())
+                .collect(Collectors.toList());
 
-        for (Consejero consejero : consejeros) {
-            Consejero consejeroFound = consejerosWithMatriculados.stream().filter(x -> x.getId().equals(consejero.getId())).findFirst().orElse(null);
-            if (consejeroFound != null) {
-                consejero.setAconsejadosMat(consejeroFound.getAconsejadosMat());
-                consejero.setAconsejadosNmat(consejeroFound.getAconsejadosNmat());
-            } else {
-                consejero.setAconsejadosMat(BigDecimal.ZERO.intValue());
-                consejero.setAconsejadosNmat(BigDecimal.ZERO.intValue());
+        {
+            List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allSimpleByCicloConsejeros(consejeros, cicloAcademico);
+
+            Map<Long, List<AlumnoConsejero>> alumnoConsejerosMap = alumnoConsejeros.stream()
+                    .collect(groupingBy(x -> x.getConsejero().getId()));
+
+            List<Alumno> alumnos = alumnoConsejeros.stream()
+                    .map(x -> x.getAlumno())
+                    .collect(toList());
+
+            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allSimpleByAlumnosCiclo(alumnos, cicloAcademico);
+
+            Map<Long, MatriculaResumen> matriculaResumensMap = matriculaResumens.stream()
+                    .collect(toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+
+            for (Consejero consejero : consejeros) {
+
+                List<AlumnoConsejero> misAlumnoConsejeros = alumnoConsejerosMap.getOrDefault(consejero.getId(), new ArrayList());
+
+                int matriculados = 0;
+                int noMatriculados = 0;
+
+                for (AlumnoConsejero alumnoConsejero : misAlumnoConsejeros) {
+                    MatriculaResumen matriculaResumen = matriculaResumensMap.getOrDefault(alumnoConsejero.getAlumno().getId(), new MatriculaResumen());
+                    if (matriculaResumen.getEstadoEnum() == MAT) {
+                        matriculados += 1;
+                    }
+                    if (matriculaResumen.getEstadoEnum() == NMAT) {
+                        noMatriculados += 1;
+                    }
+                }
+
+                consejero.setAconsejadosMat(matriculados);
+                consejero.setAconsejadosNmat(noMatriculados);
             }
         }
 
@@ -463,8 +496,8 @@ public class ConsejerosServiceImp implements ConsejerosService {
         if (verificadorClonacionConsejero == null) {
             verificadorClonacionConsejero = new VerificadorClonacionConsejero();
         }
-        
-        if(verificadorClonacionConsejero.isOcupado()){
+
+        if (verificadorClonacionConsejero.isOcupado()) {
             throw new PhobosException("Se están generando los registros de consejero inténtelo en otro momento.");
         }
 

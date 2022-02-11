@@ -49,4 +49,8 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     public AlumnoConsejero findAll(Long idAlumnoConsejero);
 
+    public List<AlumnoConsejero> allSimpleByCicloConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico);
+
+    public List<AlumnoConsejero> allByDynatablePersonaTutorCarreraOERA(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
+
 }

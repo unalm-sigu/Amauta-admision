@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -998,6 +999,17 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .isNotNull("per.foto")
                 .filter("ca.codigo", cicloAcademico.getCodigo())
                 .filter("car.codigo", carrera);
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaResumen> allSimpleByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .in("mr.estado", asList(MAT,NMAT))
+                .in("alu.id", alumnos);
         return all(sql);
     }
 
