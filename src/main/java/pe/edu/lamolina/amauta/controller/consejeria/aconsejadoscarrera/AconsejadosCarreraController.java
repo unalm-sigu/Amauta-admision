@@ -62,7 +62,7 @@ public class AconsejadosCarreraController {
 
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        model.addAttribute("esCoordinadorIOREA", verificadorService.esCoordinadorIOREA(ds));
+        model.addAttribute("esInformaticoOERA", verificadorService.esInformaticoOERA(ds));
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
     }
