@@ -146,11 +146,13 @@ public class ReunionConsejeroController {
                     "alumno.persona.*",
                     "alumno.persona.apellidosNombres",
                     "alumno.carrera.nombre",
-                    "alumno.carrera.facultad.nombre"}));
+                    "alumno.carrera.facultad.nombre",
+                    "alumno.situacionAcademica.nombre"
+                }));
             }
             response.setData(arrayNode);
             response.setSuccess(Boolean.TRUE);
-//            response.setData();
+            
         } catch (Exception e) {
             e.printStackTrace();
             response.setTotal(0);
