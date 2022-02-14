@@ -45,7 +45,6 @@ import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ConsejerosPo
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.TutoradosConsejeroOtraCarreraExcelView;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.TutoradosPorCondicionExcelView;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -62,22 +61,22 @@ public class ConsejerosController {
     CarreraService carreraService;
 
     @Autowired
+    AconsejadosCarreraService aconsejadoCarreraService;
+
+    @Autowired
+    AconsejadosTutorService aconsejadosTutorService;
+
+    @Autowired
     ReporteAlumnosConsejeroExcelView reporteAlumnosConsejeroExcelView;
 
     @Autowired
     ConsejerosPorCarreraExcelView consejerosPorCarreraExcelView;
 
     @Autowired
-    AconsejadosCarreraService aconsejadoCarreraService;
-
-    @Autowired
     TutoradosPorCondicionExcelView tutoradosPorCondicionExcelView;
 
     @Autowired
     TutoradosConsejeroOtraCarreraExcelView tutoradosConsejeroOtraCarreraExcelView;
-
-    @Autowired
-    AconsejadosTutorService aconsejadosTutorService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

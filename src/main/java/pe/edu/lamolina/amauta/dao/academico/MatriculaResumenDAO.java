@@ -116,4 +116,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public List<MatriculaResumen> allMatriculadosByCicloAndCarreraForFoto(CicloAcademico cicloAcademico, String carrera);
 
+    public List<MatriculaResumen> allSimpleByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico cicloAcademico);
+
 }

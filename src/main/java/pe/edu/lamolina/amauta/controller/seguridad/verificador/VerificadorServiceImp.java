@@ -48,7 +48,6 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import static pe.edu.lamolina.model.enums.OficinaEnum.ASOERA;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OBUAE;
-import static pe.edu.lamolina.model.enums.RolEnum.COORD_TUTO;
 import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
@@ -1178,6 +1177,16 @@ public class VerificadorServiceImp implements VerificadorService {
             if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
                 return true;
             }
+        }
+        return false;
+    }
+    
+    
+    @Override
+    public boolean esInformaticoOERA(DataSessionPivot ds) {
+        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
         }
         return false;
     }
