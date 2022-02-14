@@ -160,4 +160,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> correccionNivelacion(CicloAcademico cicloAcademico);
 
+    public List<Alumno> allActivoPregradoByNombre(String nombre);
+
 }

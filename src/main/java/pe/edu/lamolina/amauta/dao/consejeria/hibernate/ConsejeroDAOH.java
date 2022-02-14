@@ -269,4 +269,19 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         return all(sql);
     }
 
+    @Override
+    public List<Consejero> allByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera carr")
+                .filter("con.estado", EstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
+    }
+
 }

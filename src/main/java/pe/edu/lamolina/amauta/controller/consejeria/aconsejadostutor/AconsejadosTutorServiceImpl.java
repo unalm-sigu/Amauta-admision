@@ -1,7 +1,5 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -27,8 +25,8 @@ import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -39,13 +37,18 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
 
     @Autowired
     PersonaDAO personaDAO;
+
     @Autowired
     TramiteBachillerDAO tramiteBachillerDAO;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @Override
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
@@ -57,10 +60,13 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
         List<TramiteBachiller> tramBachiller = tramiteBachillerDAO.allByAlumnosAct(alumnos);
 
-        List<Alumno> alumnosConTramBachiller = tramBachiller.stream().map(x -> x.getTramite().getAlumno()).collect(Collectors.toList());
+        List<Alumno> alumnosConTramBachiller = tramBachiller.stream()
+                .map(x -> x.getTramite().getAlumno())
+                .collect(Collectors.toList());
 
         logger.debug("INICIO {}", alumnoConsejeros.size());
-        List<AlumnoConsejero> alumnoConsejerosDepurado = alumnoConsejeros.stream().filter(x -> !alumnosConTramBachiller.contains(x.getAlumno())).collect(Collectors.toList());
+        List<AlumnoConsejero> alumnoConsejerosDepurado = alumnoConsejeros.stream()
+                .filter(x -> !alumnosConTramBachiller.contains(x.getAlumno())).collect(Collectors.toList());
 
         logger.debug("DEPURADO {}", alumnoConsejerosDepurado.size());
 
@@ -79,10 +85,18 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     }
 
     @Override
-    public List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera) {
-        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, cicloAcademico, tutor, carrera);
+    public List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera, DataSessionPivot ds) {
+
+        List<AlumnoConsejero> alumnoConsejeros = null;
+        if (verificadorService.isDeveloperOERA(ds)) {
+            alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, cicloAcademico, tutor, carrera);
+        } else {
+            alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, cicloAcademico, tutor, carrera);
+        }
+
         List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
+
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
@@ -97,7 +111,36 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
                 alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
             }
         }
-        return alumnoConsejeros.stream().filter(x -> Arrays.asList(MAT, NMAT).contains(x.getEstadoMatriculableEnum())).collect(Collectors.toList());
+
+        return alumnoConsejeros;
+
+    }
+
+    @Override
+    public List<AlumnoConsejero> allByDynatableByCarreraReporte(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera) {
+
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, cicloAcademico, tutor, carrera);
+
+        List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
+
+        Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
+        logger.debug("alumno consejero {}", alumnoConsejeros.size());
+
+        for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
+            MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
+            if (matResumen != null) {
+                alumnoTutor.setEstadoMatriculableEnum(matResumen.getEstadoEnum());
+                alumnoTutor.setEstadoMatriculaAutorizacion(matResumen.getAutorizacionMatricula());
+                alumnoTutor.setCursosMatriculados(matResumen.getCursosMatriculados());
+                alumnoTutor.setCreditosMatriculados(matResumen.getCreditosMatriculados());
+            } else {
+                alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
+            }
+        }
+
+        return alumnoConsejeros;
+
     }
 
     @Override
@@ -128,7 +171,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     }
 
     @Override
-    public AconsejadoEstadoBean allByPersonaCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+    public AconsejadoEstadoBean allByPersonaCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera, DataSessionPivot ds) {
         DynatableFilter filter = new DynatableFilter();
         filter.setPage(1);
         filter.setOffset(0);
@@ -137,8 +180,14 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejeroCarrera(persona, cicloAcademico, carrera);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejeroCarrera(persona, cicloAcademico, carrera);
-        List<AlumnoConsejero> alumnosTutor = this.allByDynatableByCarrera(filter, cicloAcademico, persona, carrera);
-        alumnosTutor = alumnosTutor.stream().filter(x -> Arrays.asList(MAT, NMAT).contains(x.getEstadoMatriculableEnum())).collect(Collectors.toList());
+
+        List<AlumnoConsejero> alumnosTutor = null;
+        if (verificadorService.isDeveloperOERA(ds)) {
+            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, cicloAcademico, persona, carrera);
+        } else {
+            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, cicloAcademico, persona, carrera);
+        }
+
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
         aconsejadoEstadoBean.setMatriculados(countMatriculable);
         aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
@@ -151,6 +200,14 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     @Transactional
     public void eliminarAlumnoConsejero(Long idAlumnoConsejero) {
         alumnoConsejeroDAO.delete(idAlumnoConsejero);
+    }
+
+    @Override
+    @Transactional
+    public void quitarTutor(Long idAlumnoConsejero) {
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findAll(idAlumnoConsejero);
+        alumnoConsejero.setConsejero(new Consejero(ID_CONSEJERO_NN));
+        alumnoConsejeroDAO.updateColumns(alumnoConsejero, "consejero");
     }
 
 }

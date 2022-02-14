@@ -92,7 +92,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.paisNacer", "orientacionCarrera")
                 .leftJoin("per.ubicacionNacer ubn", "ubn.ubicacionSuperior ubnProv", "ubn.tipoUbicacion")
                 .leftJoin("ubnProv.ubicacionSuperior ubnDep", "ubnProv.tipoUbicacion", "ubnDep.tipoUbicacion")
-                .leftJoin("planCurricular plan","plan.cicloInicioVigencia")
+                .leftJoin("planCurricular plan", "plan.cicloInicioVigencia")
                 .left("consejero con", "con.colaborador col", "col.persona")
                 .filter("alu.id", alumno);
         return (Alumno) sql.find(getCurrentSession());
@@ -1373,6 +1373,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         query.setParameter("ESTADO_MAT", EstadoMatriculaEnum.MAT.name());
         query.setParameter("MODALIDAD", ModalidadEstudioEnum.PRE.name());
         return query.list();
+    }
+
+    @Override
+    public List<Alumno> allActivoPregradoByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .join("situacionAcademica sa", "modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td")
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .limit(50);
+        return sql.all(getCurrentSession());
     }
 
 }

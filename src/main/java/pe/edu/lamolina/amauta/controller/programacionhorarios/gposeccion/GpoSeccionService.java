@@ -99,7 +99,7 @@ public interface GpoSeccionService {
 
     void actualizarSeccionVacantes(Seccion seccion, DataSessionPivot ds);
 
-    void updatePorcentajeAvance(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
+    void updatePorcentajeAvance(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico,Usuario usuario);
 
     Seccion findSeccion(Long seccionId);
 
@@ -119,7 +119,7 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
-    void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico cicloAcademico,Usuario usuario);
 
     void saveAula(Seccion seccion, Aula aula, DataSessionPivot ds);
 

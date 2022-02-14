@@ -829,6 +829,11 @@ var app = new Vue({
         verActivarSeccion(seccion) {
             let $vue = this;
             $vue.seccionWorking = Object.assign({}, seccion);
+            
+            if(seccion.grupoHoras.codigo === '' || seccion.vacantes === 0){
+                notify("La sección debe tener como minimo Grupo y Vacante para activar.", "error");
+                return;
+            }
 
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 id: "2hi3563i45h34iu",

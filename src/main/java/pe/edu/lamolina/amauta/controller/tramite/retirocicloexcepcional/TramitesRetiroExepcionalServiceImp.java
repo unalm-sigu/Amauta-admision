@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
@@ -108,7 +109,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             }
         }
         Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroForm.getCicloAcademico().getDescripcion());
-
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.find(retiroForm.getCicloAcademico());
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
@@ -145,6 +146,11 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
         retiroCiclo.setTramite(tramite);
         retiroCiclo.setUsuario(ds.getUsuario());
+        if (alumnoDB.isPregrado()) {
+            retiroCiclo.setEsContable(cicloAcademicoDB.isTipoRegular());
+        } else {
+            retiroCiclo.setEsContable(Boolean.FALSE);
+        }
         retiroCicloDAO.save(retiroCiclo);
     }
 
@@ -199,8 +205,8 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             }
             i++;
         }
-        
-        if(ac==null){
+
+        if (ac == null) {
             throw new PhobosException("No se han encontrado registros académicos");
         }
 

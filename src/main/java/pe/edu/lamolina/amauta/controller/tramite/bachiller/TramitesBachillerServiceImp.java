@@ -233,6 +233,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 alumnoCiclo = alumnoCic;
             }
         }
+        
+        if(alumno.getCicloActivo()==null){
+            throw new PhobosException("El alumno no tiene ciclo activo");
+        }
 
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
         if (eventoActual == null) {

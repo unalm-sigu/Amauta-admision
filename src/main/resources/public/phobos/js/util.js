@@ -1149,7 +1149,12 @@ URL_UTIL = {
     getOrigenURL() {
         let url = window.location.href;
         return "?origen=" + Base64.encode(url);
-    }
+    },
+    getOrigenDecodeURL() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return window.atob(urlParams.get('origen'));
+    },
 };
 
 const axios_ = axios.create();

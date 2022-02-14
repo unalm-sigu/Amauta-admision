@@ -9,4 +9,6 @@ import pe.edu.lamolina.model.consejeria.TutorSolicitud;
 public interface TutorSolicitudDAO extends EasyDAO<TutorSolicitud> {
 
     List<TutorSolicitud> allTutorSolicitudByFilter(DynatableFilter filter,CicloAcademico ciclo);
+
+    public void deleteByCiclo(CicloAcademico cicloAcademico);
 }

@@ -1,0 +1,203 @@
+package pe.edu.lamolina.amauta.controller.consejeria.administracion.view;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.AbstractView;
+import pe.albatross.zelpers.file.excel.ExcelHelper;
+import pe.albatross.zelpers.file.excel.ExcelStyles;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.consejeria.AgendaConsejero;
+import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
+import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
+
+@Slf4j
+@Component
+public class ReunionConsejerosEXCEL extends AbstractView {
+
+    private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private static final String CONTENT_TYPE_XLS = "application/vnd.ms-excel";
+
+    @Override
+    protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Workbook workbook = new XSSFWorkbook();
+        if (workbook instanceof XSSFWorkbook) {
+            setContentType(CONTENT_TYPE_XLSX);
+        } else {
+            setContentType(CONTENT_TYPE_XLS);
+        }
+
+        this.buildExcelDocument(map, workbook, request, response);
+
+    }
+
+    protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(GlobalConstantine.SESSION_USUARIO);
+        this.generateSheet(wb, model, ds);
+        String fecha = new DateTime().toString("yyyMMdd_Hmm");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + "reunionesConsejero" + fecha + ".xlsx\"");
+        response.setContentType(getContentType());
+
+        ServletOutputStream out = response.getOutputStream();
+        out.flush();
+        wb.write(out);
+        out.flush();
+    }
+
+    private void generateSheet(Workbook wb, Map<String, Object> model, DataSessionPivot ds) {
+        Sheet sheet = wb.createSheet("Hoja1");
+        this.createBody(wb, sheet, model, ds);
+    }
+
+    private CellStyle getStyleNumero(Workbook workBook) {
+
+        Font font = workBook.createFont();
+        font.setFontName("Arial");
+
+        CellStyle cell = workBook.createCellStyle();
+        cell.setAlignment(HorizontalAlignment.CENTER);
+        cell.setFont(font);
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
+
+        return cell;
+    }
+
+    private CellStyle getStyleGeneral(Workbook workBook) {
+
+        CellStyle cell = workBook.createCellStyle();
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
+
+        return cell;
+    }
+
+    private void createBody(Workbook wb, Sheet sheet, Map<String, Object> model, DataSessionPivot ds) {
+        
+        List<ReunionAlumnoConsejero> reunionesConsejero = (List<ReunionAlumnoConsejero>) model.get("reunionAlumnoConsejeros");
+
+        ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
+
+        CellStyle headerCell = ExcelStyles.getStyleCellHeaderGrey(wb);
+        CellStyle estiloNumero = getStyleNumero(wb);
+        CellStyle estiloGeneral = getStyleGeneral(wb);
+
+        String letterToMerge = ":M";
+        int irow = 1;
+        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        Row row = sheet.createRow(region.getFirstRow());
+        Cell cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("UNIVERSIDAD NACIONAL AGRARIA LA MOLINA");
+        cell.setCellStyle(ExcelStyles.getCellTitle1Green(wb));
+        irow++;
+
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("REUNIÓN CONSEJERO");
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
+        irow++;
+
+        String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
+        String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue(ciclo + " - " + fecha);
+        cell.setCellStyle(ExcelStyles.getStyleBody(wb));
+        cell.getCellStyle().setAlignment(HorizontalAlignment.RIGHT);
+        irow++;
+
+        int column = 0;
+        excelUtil.replaceVal(irow - 1, column++, "N", headerCell);
+        sheet.setColumnWidth((column - 1), 10 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "TUTOR", headerCell);
+        sheet.setColumnWidth((column - 1), 50 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "ASUNTO", headerCell);
+        sheet.setColumnWidth((column - 1), 50 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "FECHA", headerCell);
+        sheet.setColumnWidth((column - 1), 50 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "MATRICULA", headerCell);
+        sheet.setColumnWidth((column - 1), 22 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "ALUMNO", headerCell);
+        sheet.setColumnWidth((column - 1), 35 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "CARRERA", headerCell);
+        sheet.setColumnWidth((column - 1), 50 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "ASISTENCIA", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "COMENTARIO", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "RIESGO ACADEMICO", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS SICOLÓGICOS", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS ECONÓMICOS", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+        excelUtil.replaceVal(irow - 1, column++, "PROBLEMAS FAMILIARES", headerCell);
+        sheet.setColumnWidth((column - 1), 15 * 256);
+
+        int num = 1;
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        for (ReunionAlumnoConsejero reunionAlumnoConsejero : reunionesConsejero) {
+            column = 0;
+            Alumno alumno = reunionAlumnoConsejero.getAlumnoConsejero().getAlumno();
+            AgendaConsejero agendaConsejero = reunionAlumnoConsejero.getAgendaConsejero();
+
+            String strDate = dateFormat.format(agendaConsejero.getFecha());
+            excelUtil.replaceVal(irow, column++, num, estiloNumero);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getAlumnoConsejero().getConsejero().getColaborador().getPersona().getNombreCompleto());
+            excelUtil.replaceVal(irow, column++, agendaConsejero.getAsunto(), estiloNumero);
+            excelUtil.replaceVal(irow, column++, strDate.concat(" ").concat(agendaConsejero.getHora().getDescripcion()), estiloNumero);
+            excelUtil.replaceVal(irow, column++, alumno.getCodigo());
+            excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres());
+            excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
+            String val = "";
+            if (reunionAlumnoConsejero.getEstadoEnum() == ReunionAlumnoConsejeroEstadoEnum.ASIS) {
+                val = "O";
+            } else if (reunionAlumnoConsejero.getEstadoEnum() == ReunionAlumnoConsejeroEstadoEnum.NASIS) {
+                val = "X";
+            }
+
+            excelUtil.replaceVal(irow, column++, val, estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getComentario(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsRiesgoAcademico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaSicologico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaEconomico() ? "X" : "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getEsProblemaFamiliar() ? "X" : "", estiloGeneral);
+            irow++;
+            num++;
+        }
+
+    }
+
+}

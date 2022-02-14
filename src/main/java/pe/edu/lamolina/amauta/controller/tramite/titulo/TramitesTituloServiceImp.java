@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +24,7 @@ import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -48,15 +47,12 @@ import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Service
 @Transactional(readOnly = true)
 public class TramitesTituloServiceImp implements TramitesTituloService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private DateTime today = new DateTime();
 
     @Autowired
     TramiteDAO tramiteDAO;
@@ -96,6 +92,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
+
+    @Autowired
+    TramiteBachillerDAO tramiteBachillerDAO;
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
@@ -165,8 +164,8 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
 
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
-        
-        if(obtencionGrado==null){
+
+        if (obtencionGrado == null) {
             throw new PhobosException("El trámite no tiene resolución");
         }
 
@@ -198,6 +197,12 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
         if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
             throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
+
+        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumnoDB);
+        
+        if (tramiteBachiller == null) {
+            throw new PhobosException(String.format("El alumno %s no es bachiller", alumnoDB.getCodigo()));
         }
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);

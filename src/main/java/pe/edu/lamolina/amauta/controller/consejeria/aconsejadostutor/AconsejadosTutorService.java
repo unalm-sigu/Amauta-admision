@@ -14,7 +14,9 @@ public interface AconsejadosTutorService {
 
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
 
-    List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
+    List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera, DataSessionPivot ds);
+
+    List<AlumnoConsejero> allByDynatableByCarreraReporte(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
 
     public AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico);
 
@@ -22,7 +24,9 @@ public interface AconsejadosTutorService {
 
     public Persona findPersona(Long idPersona);
 
-    public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera);
+    public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera,DataSessionPivot ds);
 
     public void eliminarAlumnoConsejero(Long idAlumnoConsejero);
+
+    public void quitarTutor(Long idAlumnoConsejero);
 }

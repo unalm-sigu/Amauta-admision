@@ -203,8 +203,11 @@
                                                             <li v-if='item.beneficioUtlimoCiclo == 0' class="pointer"><a v-on:click="solicitudBeneficio(item)">Beneficio útimo ciclo</a></li>
 
 
-                                                            <li th:if="${esCoordinadorIOREA}" role="presentation" class="divider"></li>
-                                                            <li th:if="${esCoordinadorIOREA}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
+                                                            <li th:if="${esInformaticoOERA}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esInformaticoOERA}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
+
+                                                            <li th:if="${esInformaticoOERA}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esInformaticoOERA}" class="pointer"><a v-on:click="quitarTutorado(item)">Quitar Tutor</a></li>
 
                                                         </ul>
                                                     </div>

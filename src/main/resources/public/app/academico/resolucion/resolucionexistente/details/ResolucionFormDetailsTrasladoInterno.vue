@@ -7,7 +7,7 @@
             <thead>
                 <tr>
                     <th class="col-sm-10 text-center" >Persona</th>
-                    <th class="col-sm-1 text-center" >Seleccionado</th>
+                    <th class="col-sm-1 text-center" >Estado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
@@ -42,18 +42,20 @@
                             </div>
                         </div>
                     </td>
+
                     <td class="v-middle">
-                        <label class="switch">
-                            <input type="checkbox" 
-                                   v-model="tramiteTraslado.seleccionado" />
-                            <span class="slider round"></span>
-                        </label>
+                        <div>
+                            <select-state v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id !=null" v-model='tramiteTraslado.estado'></select-state>
+                        </div>
                     </td>
+
                     <td class="v-middle text-center">
-                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" 
+                                v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
+
                 </tr>
 
             </tbody>
@@ -65,8 +67,13 @@
 </template>
 
 <script>
+    const SelectState = httpVueLoader('/app/academico/resolucion/resolucionexistente/SelectState.vue');
+
     module.exports = {
         mixins: [VueLoader],
+        components: {
+            selectState: SelectState,
+        },
         computed: {
             ...Vuex.mapState(["resolucion", "isEdicion"])
         },
@@ -85,7 +92,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado.push({seleccionado: true});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: true,estado:'ACEP'});
             },
             del(index) {
                 let $vue = this;

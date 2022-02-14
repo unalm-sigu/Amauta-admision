@@ -27,16 +27,22 @@
 
                     </td>
                     <td class="v-middle">
-                        <span class="block"> {{ item.categoria.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
+                        <div v-if="item.categoria">
+                            <span class="block"> {{ item.categoria.nombre }} </span>
+                            <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
+                        </div>
                     </td>
                     <td class="v-middle">
-                        <span class="block"> {{ item.dedicacion.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
+                        <div v-if="item.dedicacion">
+                            <span class="block"> {{ item.dedicacion.nombre }} </span>
+                            <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
+                        </div>
                     </td>
                     <td class="v-middle">
-                        <span class="block"> {{ item.situacion.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
+                        <div v-if="item.situacion">
+                            <span class="block"> {{ item.situacion.nombre }} </span>
+                            <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
+                        </div>
                     </td>
                     <td class="v-middle">
                         <div v-if="item.resolucionFacultad">

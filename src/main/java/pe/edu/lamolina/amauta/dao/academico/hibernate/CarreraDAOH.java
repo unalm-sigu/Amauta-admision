@@ -428,8 +428,19 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .leftJoin("areaPosgrado ap")
                 .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.codigo", modalidad)
-                .orderBy("car.tipo","car.nombre");
+                .orderBy("car.tipo", "car.nombre");
 
+        return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allCarrerasPregradoActivaByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
+                .filter("me.codigo", PRE)
+                .filter("ca.nombre", "like", nombre);
         return all(sql);
     }
 

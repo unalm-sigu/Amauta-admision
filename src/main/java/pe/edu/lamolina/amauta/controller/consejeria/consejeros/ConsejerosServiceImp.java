@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.consejeria.consejeros;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -19,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.VerificadorClonacionConsejero;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -96,8 +100,9 @@ public class ConsejerosServiceImp implements ConsejerosService {
     private final RolDAO rolDAO;
     private final UsuarioDAO usuarioDAO;
     private final UsuarioRolDAO usuarioRolDAO;
-
     private final OficinaService oficinaService;
+
+    private VerificadorClonacionConsejero verificadorClonacionConsejero;
 
     private final List<EstadoMatriculaEnum> estadosMatriculables = Arrays.asList(MAT, NMAT, PMAT, RCI);
 
@@ -115,20 +120,51 @@ public class ConsejerosServiceImp implements ConsejerosService {
     public List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico cicloAcademico, DynatableFilter filter) {
 
         List<Consejero> consejeros = consejeroDAO.allByCarreraDynatable(carrera, filter);
-        List<Colaborador> colaboradores = consejeros.stream().map(x -> x.getColaborador()).collect(Collectors.toList());
+
+        List<Colaborador> colaboradores = consejeros.stream()
+                .map(x -> x.getColaborador())
+                .collect(Collectors.toList());
+
         Map<String, Colaborador> mapColaborador = TypesUtil.convertListToMap("codigo", colaboradores);
-        List<Persona> personas = consejeros.stream().map(x -> x.getColaborador().getPersona()).collect(Collectors.toList());
 
-        List<Consejero> consejerosWithMatriculados = consejeroDAO.allCountAconsejadosMatriculadosByCiclo(consejeros, cicloAcademico, EstadoEnum.ACT);
+        List<Persona> personas = consejeros.stream()
+                .map(x -> x.getColaborador().getPersona())
+                .collect(Collectors.toList());
 
-        for (Consejero consejero : consejeros) {
-            Consejero consejeroFound = consejerosWithMatriculados.stream().filter(x -> x.getId().equals(consejero.getId())).findFirst().orElse(null);
-            if (consejeroFound != null) {
-                consejero.setAconsejadosMat(consejeroFound.getAconsejadosMat());
-                consejero.setAconsejadosNmat(consejeroFound.getAconsejadosNmat());
-            } else {
-                consejero.setAconsejadosMat(BigDecimal.ZERO.intValue());
-                consejero.setAconsejadosNmat(BigDecimal.ZERO.intValue());
+        {
+            List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allSimpleByCicloConsejeros(consejeros, cicloAcademico);
+
+            Map<Long, List<AlumnoConsejero>> alumnoConsejerosMap = alumnoConsejeros.stream()
+                    .collect(groupingBy(x -> x.getConsejero().getId()));
+
+            List<Alumno> alumnos = alumnoConsejeros.stream()
+                    .map(x -> x.getAlumno())
+                    .collect(toList());
+
+            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allSimpleByAlumnosCiclo(alumnos, cicloAcademico);
+
+            Map<Long, MatriculaResumen> matriculaResumensMap = matriculaResumens.stream()
+                    .collect(toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+
+            for (Consejero consejero : consejeros) {
+
+                List<AlumnoConsejero> misAlumnoConsejeros = alumnoConsejerosMap.getOrDefault(consejero.getId(), new ArrayList());
+
+                int matriculados = 0;
+                int noMatriculados = 0;
+
+                for (AlumnoConsejero alumnoConsejero : misAlumnoConsejeros) {
+                    MatriculaResumen matriculaResumen = matriculaResumensMap.getOrDefault(alumnoConsejero.getAlumno().getId(), new MatriculaResumen());
+                    if (matriculaResumen.getEstadoEnum() == MAT) {
+                        matriculados += 1;
+                    }
+                    if (matriculaResumen.getEstadoEnum() == NMAT) {
+                        noMatriculados += 1;
+                    }
+                }
+
+                consejero.setAconsejadosMat(matriculados);
+                consejero.setAconsejadosNmat(noMatriculados);
             }
         }
 
@@ -456,18 +492,33 @@ public class ConsejerosServiceImp implements ConsejerosService {
     @Override
     @Transactional
     public void revisarConsejeria(Carrera carrera, CicloAcademico ciclo, boolean forzar, DataSessionPivot ds) {
+
+        if (verificadorClonacionConsejero == null) {
+            verificadorClonacionConsejero = new VerificadorClonacionConsejero();
+        }
+
+        if (verificadorClonacionConsejero.isOcupado()) {
+            throw new PhobosException("Se están generando los registros de consejero inténtelo en otro momento.");
+        }
+
         DateTime today = new DateTime();
+
         ConsejeriaResumen resumen = consejeriaResumenDAO.findByCarreraCiclo(carrera, ciclo);
+
         if (resumen == null) {
+
             resumen = new ConsejeriaResumen();
             resumen.setCarrera(carrera);
             resumen.setCicloAcademico(ciclo);
             resumen.setFechaActualizacion(today.minusDays(2).toDate());
             consejeriaResumenDAO.save(resumen);
+
         }
 
         DateTime ayer = new DateTime(resumen.getFechaActualizacion());
+
         int dias = Days.daysBetween(ayer.toLocalDate(), today.toLocalDate()).getDays();
+
         if (dias < 1 && !forzar) {
             return;
         }

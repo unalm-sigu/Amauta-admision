@@ -419,6 +419,7 @@ public class InfoAcademicoController {
 
             Long totalRetiros = retiroFull.stream()
                     .filter(p -> p.getCicloAcademico().getTipoEnum() == REG)
+                    .filter(p -> p.getEsContable())
                     .filter(p -> p.getEstadoEnum() == TramiteEstadoEnum.ACEP)
                     .count();
 

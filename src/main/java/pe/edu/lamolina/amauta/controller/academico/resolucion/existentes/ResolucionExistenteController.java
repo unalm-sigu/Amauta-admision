@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
@@ -241,8 +240,9 @@ public class ResolucionExistenteController {
 
         if (!(resolucion.isTipoTramiteBachiller()
                 || resolucion.isTipoTramiteTitulo()
-                || resolucion.isTipoTramitePracticas())
-                || resolucion.isTipoRetiroCiclo()) {
+                || resolucion.isTipoTramitePracticas()
+                || resolucion.isTipoTrasladoInterno()
+                || resolucion.isTipoRetiroCiclo())) {
             throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
         }
 
@@ -474,6 +474,21 @@ public class ResolucionExistenteController {
                     .array();
 
             objectNode.set("retiroCiclo", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(TRAS_INT.name())) {
+
+            List<TramiteTraslado> tramiteTraslados = service.allTramiteTrasladoByResolucion(resolucion);
+
+            ArrayNode array = JaneHelper.from(tramiteTraslados)
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .join("cicloAcademico","id,descripcion,codigo")
+                    .array();
+
+            objectNode.set("tramiteTraslado", array);
 
         }
 

@@ -111,7 +111,7 @@
                 departamentos: JSON.parse(jDepartamentos),
                 departamentosSelectos: [],
                 docentes: [],
-                ciclos: JSON.parse(jCicloAcademicos),
+                ciclos: JSON.parse(jCicloAcademicosNivelacion),
                 grados: [{id: 'PRE', nombre: 'Solo pregrado'}, {id: 'EPG', nombre: 'Solo posgrado'}],
                 ciclo: null,
                 facultad: null,

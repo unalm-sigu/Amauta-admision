@@ -73,4 +73,6 @@ public interface ProfesorService {
 
     public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclos(List<Docente> docentes, List<CicloAcademico> cicloAcademicos);
 
+    public List<CicloAcademico> allCicloAcademicoNivel();
+
 }
