@@ -197,7 +197,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         Octavia sql = Octavia.query()
                 .from(AlumnoConsejero.class, "ac")
                 .join("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
-                .join("alu.persona per")
+                .left("alu.persona per","alu.situacionAcademica sa")
                 .filter("estado", EstadoEnum.ACT)
                 .filter("ca.id", ciclo)
                 .filter("car.id", carrera)
