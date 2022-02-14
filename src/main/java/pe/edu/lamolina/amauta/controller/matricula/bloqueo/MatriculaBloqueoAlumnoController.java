@@ -34,7 +34,7 @@ public class MatriculaBloqueoAlumnoController {
     }
 
     @ResponseBody
-    @RequestMapping(name = "all", method = RequestMethod.GET)
+    @RequestMapping(value = "all", method = RequestMethod.GET)
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse dynatable = new DynatableResponse();
@@ -64,13 +64,13 @@ public class MatriculaBloqueoAlumnoController {
         return GlobalMessages.UPDATED;
     }
 
-    @RequestMapping(name = "{idMatriculaBloqueoAlumno}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "{idMatriculaBloqueoAlumno}", method = RequestMethod.DELETE)
     public String eliminar(@PathVariable Long idMatriculaBloqueoAlumno) {
         service.eliminar(idMatriculaBloqueoAlumno);
         return GlobalMessages.DELETED;
     }
 
-    @RequestMapping(name = "{idMatriculaBloqueoAlumno}", method = RequestMethod.GET)
+    @RequestMapping(value = "{idMatriculaBloqueoAlumno}", method = RequestMethod.GET)
     public ObjectNode find(@PathVariable Long idMatriculaBloqueoAlumno) {
         MatriculaBloqueoAlumno matriculaBloqueoAlumno = service.find(idMatriculaBloqueoAlumno);
         return JaneHelper

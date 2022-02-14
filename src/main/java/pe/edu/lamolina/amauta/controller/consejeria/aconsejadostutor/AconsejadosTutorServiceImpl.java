@@ -58,19 +58,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
-        List<TramiteBachiller> tramBachiller = tramiteBachillerDAO.allByAlumnosAct(alumnos);
-
-        List<Alumno> alumnosConTramBachiller = tramBachiller.stream()
-                .map(x -> x.getTramite().getAlumno())
-                .collect(Collectors.toList());
-
-        logger.debug("INICIO {}", alumnoConsejeros.size());
-        List<AlumnoConsejero> alumnoConsejerosDepurado = alumnoConsejeros.stream()
-                .filter(x -> !alumnosConTramBachiller.contains(x.getAlumno())).collect(Collectors.toList());
-
-        logger.debug("DEPURADO {}", alumnoConsejerosDepurado.size());
-
-        for (AlumnoConsejero alumnoTutor : alumnoConsejerosDepurado) {
+        for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
             if (matResumen != null) {
                 alumnoTutor.setEstadoMatriculableEnum(matResumen.getEstadoEnum());
@@ -81,7 +69,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
                 alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
             }
         }
-        return alumnoConsejerosDepurado;
+        return alumnoConsejeros;
     }
 
     @Override
