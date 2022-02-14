@@ -601,6 +601,10 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "ordenMeritoFacultadNivel",
                 "ordenMeritoCicloNivel",
                 /* --- */
+                "computadosCicloNivel",
+                "computadosFacultadNivel",
+                "computadosCarreraNivel",
+                /* --- */
                 "controlMeritoCiclo.alumnosComputados",
                 "controlMeritoCiclo.computadosNivel1",
                 "controlMeritoCiclo.computadosNivel2",

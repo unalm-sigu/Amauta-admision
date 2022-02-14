@@ -3,7 +3,7 @@ Vue.component("historial-component", {
     props: {
         alumno: {},
         showTitle: true,
-        showactions: {required: false, default: false}
+        showactions: { required: false, default: false }
     },
     data: function () {
         return {
@@ -16,6 +16,7 @@ Vue.component("historial-component", {
             typeSearch4: false,
             cicloSelect: {},
             general: true,
+            isVisibleMerito: false,
         }
     },
     computed: {
@@ -26,6 +27,10 @@ Vue.component("historial-component", {
     beforeMount() {
     },
     mounted() {
+        let $vue = this;
+        if ($vue.alumno.modalidadEstudio.codigo == "EPG" || $vue.alumno.modalidadEstudio.codigo == "PRE") {
+            $vue.isVisibleMerito = true;
+        }
     },
     watch: {
         alumno(newValue) {
@@ -289,7 +294,7 @@ Vue.component("historial-component", {
             return "";
         },
         verCiclo(item) {
-            let noVer = {NMAT: "NMAT", RCI: "RCI", ANCI: "ANCI", INH: "INH"};
+            let noVer = { NMAT: "NMAT", RCI: "RCI", ANCI: "ANCI", INH: "INH" };
             let estado = noVer[item.estadoEnum.name];
             if (estado === undefined) {
                 return true;
@@ -414,8 +419,8 @@ Vue.component("historial-component", {
             bootbox.confirm({
                 message: '¿Seguro que desea recalcular el promedio?',
                 buttons: {
-                    confirm: {label: 'Si, Calcular', className: "btn-primary"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: { label: 'Si, Calcular', className: "btn-primary" },
+                    cancel: { label: 'Cancelar', className: "btn-link" }
                 },
                 callback: function (result) {
                     if (result) {
@@ -423,7 +428,7 @@ Vue.component("historial-component", {
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/alumno/calcularpromedio'),
-                            data: {id: vue.alumno.id},
+                            data: { id: vue.alumno.id },
                             success: function (response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
@@ -460,6 +465,67 @@ Vue.component("historial-component", {
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        getOrdenMeritoEpg(item) {
+            let separator = "/";
+            if (item.cuadroHonorCarrera !== "") {
+                return item.cuadroHonorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+            } else if (item.quintoSuperiorCarrera !== "") {
+                return item.quintoSuperiorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+            } else if (item.tercioSuperiorCarrera !== "") {
+                return item.tercioSuperiorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+            } else if (item.ordenMeritoCarrera !== "") {
+                return item.ordenMeritoCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+            }
+            return "";
+        },
+        getOrdenMeritoNivelEpg(item) {
+            let $vue = this;
+            let separator = "/";
+            if (item.cuadroHonorCarreraNivel !== "") {
+                return item.cuadroHonorCarreraNivel + separator + $vue.getComputadosEpg(item);
+            } else if (item.quintoSuperiorCarreraNivel !== "") {
+                return item.quintoSuperiorCarreraNivel + separator + $vue.getComputadosEpg(item);
+            } else if (item.tercioSuperiorCarreraNivel !== "") {
+                return item.tercioSuperiorCarreraNivel + separator + $vue.getComputadosEpg(item);
+            } else if (item.ordenMeritoCarreraNivel !== "") {
+                return item.ordenMeritoCarreraNivel + separator + item.computadosCarreraNivel;
+            }
+            return "";
+        },
+        getMeritoEpg(item) {
+            if (item.cuadroHonorCarrera !== "") {
+                return "C.Honor";
+            } else if (item.quintoSuperiorCarrera !== "") {
+                return "5to.Super.";
+            } else if (item.tercioSuperiorCarrera !== "") {
+                return "3cio.Super.";
+            }
+            return "";
+        },
+        getMeritoNivelEpg(item) {
+            if (item.cuadroHonorCarreraNivel !== "") {
+                return "C.Honor";
+            } else if (item.quintoSuperiorCarreraNivel !== "") {
+                return "5to.Super.";
+            } else if (item.tercioSuperiorCarreraNivel !== "") {
+                return "3cio.Super.";
+            }
+            return "";
+        },
+        tieneMeritoNivelEpg(item) {
+            if (item.cuadroHonorCarreraNivel == "" && item.quintoSuperiorCarreraNivel == "" && item.tercioSuperiorCarreraNivel == "") {
+                return false;
+            }
+            return true;
+        },
+        tieneMeritoEpg(item) {
+            if (item.cuadroHonorCarrera == "" && item.quintoSuperiorCarrera == "" && item.tercioSuperiorCarrera == "") {
+                return false;
+            }
+            return true;
+        },
+
+
     }
 });
