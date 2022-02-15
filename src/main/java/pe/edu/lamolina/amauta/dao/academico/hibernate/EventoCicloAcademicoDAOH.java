@@ -92,7 +92,7 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
                 .from(EventoCicloAcademico.class, "eca")
                 .join("eventoAcademico ea", "cicloAcademico ca")
                 .filter("ea.codigo", eventoAcademicoEnum)
-                .filter("ca.codigo", cicloAcademico.getCodigo());
+                .filter("ca.id", cicloAcademico);
         return find(sql);
     }
 
