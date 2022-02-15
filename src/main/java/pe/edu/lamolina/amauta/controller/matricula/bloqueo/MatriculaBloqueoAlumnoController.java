@@ -16,13 +16,16 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaBloqueoAlumno;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 
 @Slf4j
 @Controller
-@RequestMapping("matricula/bloqueo")
+@RequestMapping("academico/matricula/bloqueo")
 public class MatriculaBloqueoAlumnoController {
 
     @Autowired
@@ -30,7 +33,7 @@ public class MatriculaBloqueoAlumnoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
-        return "matricula/bloqueo/bloqueo";
+        return "academico/matricula/bloqueo/bloqueo";
     }
 
     @ResponseBody
@@ -42,8 +45,8 @@ public class MatriculaBloqueoAlumnoController {
         List<MatriculaBloqueoAlumno> matriculaBloqueoAlumnos = service.all(filter);
         ArrayNode array = JaneHelper.from(matriculaBloqueoAlumnos).only("id")
                 .join("carrera", "nombre")
-                .join("situacionAcademica", "nombre,descripcion,codigo")
-                .join("cicloAplica", "codigo,descripcion")
+                .join("situacionAcademica", "nombre,descripcion")
+                .join("cicloAplica", "descripcion")
                 .array();
         dynatable.setData(array);
         dynatable.setTotal(filter.getTotal());
@@ -51,6 +54,7 @@ public class MatriculaBloqueoAlumnoController {
         return dynatable;
     }
 
+    @ResponseBody
     @RequestMapping(method = RequestMethod.POST)
     public String save(HttpSession session, @RequestBody MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -58,24 +62,57 @@ public class MatriculaBloqueoAlumnoController {
         return GlobalMessages.CREATED;
     }
 
+    @ResponseBody
     @RequestMapping(method = RequestMethod.PUT)
     public String update(@RequestBody MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
         service.update(matriculaBloqueoAlumno);
         return GlobalMessages.UPDATED;
     }
 
+    @ResponseBody
     @RequestMapping(value = "{idMatriculaBloqueoAlumno}", method = RequestMethod.DELETE)
     public String eliminar(@PathVariable Long idMatriculaBloqueoAlumno) {
         service.eliminar(idMatriculaBloqueoAlumno);
         return GlobalMessages.DELETED;
     }
 
+    @ResponseBody
     @RequestMapping(value = "{idMatriculaBloqueoAlumno}", method = RequestMethod.GET)
     public ObjectNode find(@PathVariable Long idMatriculaBloqueoAlumno) {
         MatriculaBloqueoAlumno matriculaBloqueoAlumno = service.find(idMatriculaBloqueoAlumno);
-        return JaneHelper
-                .from(matriculaBloqueoAlumno)
+        return JaneHelper.from(matriculaBloqueoAlumno)
+                .join("carrera", "id,nombre")
+                .join("situacionAcademica", "id,nombre,descripcion,codigo")
+                .join("cicloAplica", "id,codigo,descripcion")
                 .json();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "allCarrera", method = RequestMethod.GET)
+    public ArrayNode allCarrera() {
+        List<Carrera> carreras = service.allCarrera();
+        return JaneHelper.from(carreras)
+                .only("id,nombre")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "allSituacion", method = RequestMethod.GET)
+    public ArrayNode allSituacion() {
+        List<SituacionAcademica> situacionAcademicas = service.allSituacionAcademica();
+        return JaneHelper.from(situacionAcademicas)
+                .only("id,nombre")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "allCiclo", method = RequestMethod.GET)
+    public ArrayNode allCiclo(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<CicloAcademico> cicloAcademicos = service.allCicloAcademico(ds);
+        return JaneHelper.from(cicloAcademicos)
+                .only("id,descripcion")
+                .array();
     }
 
 }

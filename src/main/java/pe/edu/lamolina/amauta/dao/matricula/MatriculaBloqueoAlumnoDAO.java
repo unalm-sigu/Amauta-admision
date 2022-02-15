@@ -9,4 +9,8 @@ public interface MatriculaBloqueoAlumnoDAO extends EasyDAO<MatriculaBloqueoAlumn
 
     public List<MatriculaBloqueoAlumno> allDynatable(DynatableFilter filter);
 
+    public void updateColumns(MatriculaBloqueoAlumno matriculaBloqueoAlumno, String... columns);
+
+    public MatriculaBloqueoAlumno find(MatriculaBloqueoAlumno matriculaBloqueoAlumno);
+
 }
