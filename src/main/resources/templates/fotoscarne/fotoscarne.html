@@ -40,21 +40,7 @@
 
                 const FotosCarne = httpVueLoader('/app/fotoscarne/fotoCarne.vue');
 
-                Vue.use(Vuex);
-
-                const store = new Vuex.Store({
-                    state: {
-                        count: 0
-                    },
-                    mutations: {
-                        increment(state) {
-                            state.count++
-                        }
-                    }
-                });
-
                 var root = new Vue({
-                    store: store,
                     el: '#main',
                     components: {
                         fotosCarne: FotosCarne,

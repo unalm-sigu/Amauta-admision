@@ -7,9 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.matricula.MatriculaBloqueoAlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaBloqueoAlumno;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Slf4j
 @Service
@@ -18,10 +25,19 @@ public class MatriculaBloqueoAlumnoServiceImp implements MatriculaBloqueoAlumnoS
 
     @Autowired
     MatriculaBloqueoAlumnoDAO matriculaBloqueoAlumnoDAO;
-    
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
     @Override
     public List<MatriculaBloqueoAlumno> all(DynatableFilter filter) {
-       return matriculaBloqueoAlumnoDAO.allDynatable(filter);
+        return matriculaBloqueoAlumnoDAO.allDynatable(filter);
     }
 
     @Override
@@ -35,7 +51,7 @@ public class MatriculaBloqueoAlumnoServiceImp implements MatriculaBloqueoAlumnoS
     @Override
     @Transactional
     public void update(MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
-        matriculaBloqueoAlumnoDAO.update(matriculaBloqueoAlumno);
+        matriculaBloqueoAlumnoDAO.updateColumns(matriculaBloqueoAlumno,"cicloAplica","situacionAcademica","carrera");
     }
 
     @Override
@@ -49,5 +65,21 @@ public class MatriculaBloqueoAlumnoServiceImp implements MatriculaBloqueoAlumnoS
         return matriculaBloqueoAlumnoDAO.find(idMatriculaBloqueoAlumno);
     }
 
+    @Override
+    public List<Carrera> allCarrera() {
+        return carreraDAO.allCarrerasActivaByModalidad(PRE.name());
+    }
+
+    @Override
+    public List<SituacionAcademica> allSituacionAcademica() {
+        return situacionAcademicaDAO.all();
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademico(DataSessionPivot ds) {
+        CicloAcademico ca = ds.getCicloAcademico();
+        int rango = 10;
+        return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 4);
+    }
 
 }

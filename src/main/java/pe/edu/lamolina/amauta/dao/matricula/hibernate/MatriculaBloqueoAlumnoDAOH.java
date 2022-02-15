@@ -27,11 +27,22 @@ public class MatriculaBloqueoAlumnoDAOH extends AbstractEasyDAO<MatriculaBloqueo
         return all(sql);
     }
 
-    public MatriculaBloqueoAlumno find(Long idMatriculaBloqueoAlumno) {
-        Octavia sql = Octavia.query(MatriculaBloqueoAlumno.class, "mba")
-                .join("carrera ca", "situacionAcademica sa", "cicloAplica ci")
-                .filter("mba.id", idMatriculaBloqueoAlumno);
+    @Override
+    public MatriculaBloqueoAlumno find(MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaBloqueoAlumno.class, "mba")
+                .join("mba.situacionAcademica sa","mba.carrera ca","mba.cicloAplica ci")
+                .filter("mba.id", matriculaBloqueoAlumno);
         return find(sql);
+    }
+
+    @Override
+    public void updateColumns(MatriculaBloqueoAlumno matriculaBloqueoAlumno, String... columns) {
+        Octavia octavia = Octavia.update(MatriculaBloqueoAlumno.class);
+        for (String column : columns) {
+            octavia.set(matriculaBloqueoAlumno, column);
+        }
+        this.update(octavia);
     }
 
 }
