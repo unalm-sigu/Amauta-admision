@@ -9,6 +9,4 @@ public interface SilaboCursoDAO extends EasyDAO<SilaboCurso> {
 
     List<SilaboCurso> allByDynatable(DynatableFilter filter);
 
-    List<SilaboCurso> allParents();
-
 }

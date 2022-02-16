@@ -79,7 +79,8 @@
                         <label class="">Situación Académica</label>
 
                         <multiselect
-                            v-model="bloqueo.situacionAcademica"
+                            v-bind:multiple="true" 
+                            v-model="bloqueo.situacionAcademicas"
                             v-bind:options="situaciones"
                             v-bind:allow-empty="true"
                             track-by="id"

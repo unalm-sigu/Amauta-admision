@@ -16,7 +16,7 @@ public interface MatriculaBloqueoAlumnoService {
 
     public MatriculaBloqueoAlumno find(Long idMatriculaBloqueoAlumno);
 
-    public void save(MatriculaBloqueoAlumno matriculaBloqueoAlumno, DataSessionPivot ds);
+    public void save(MatriculaBloqueoAlumnoDTO matriculaBloqueoAlumno, DataSessionPivot ds);
 
     public List<MatriculaBloqueoAlumno> all(DynatableFilter filter);
 

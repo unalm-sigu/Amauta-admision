@@ -56,7 +56,7 @@ public class MatriculaBloqueoAlumnoController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST)
-    public String save(HttpSession session, @RequestBody MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
+    public String save(HttpSession session, @RequestBody MatriculaBloqueoAlumnoDTO matriculaBloqueoAlumno) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.save(matriculaBloqueoAlumno, ds);
         return GlobalMessages.CREATED;

@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Encuesta Docente</title>
+        <title>Silabus</title>
     </head>
     <body>
 
@@ -38,8 +38,8 @@
                                             <tr>
                                                 <th class="col-md-4 v-middle">Curso</th>
                                                 <th class="col-md-3 text-center v-middle"></th>
-                                                <th class="col-md-2 text-center v-middle">Silabo</th>
-                                                <th class="col-md-1 text-center v-middle">Archivo</th>
+                                                <th class="col-md-2 text-center v-middle">Departamento</th>
+                                                <th class="col-md-1 text-center v-middle">Silabus</th>
                                                 <th class="col-md-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -52,12 +52,11 @@
                                                 </td>
                                                 <td class="v-middle">
                                                     <span class="block">Departamento: {{item.curso.departamentoAcademico.nombre}}</span>
-                                                    <span class="block">Facultad: {{item.curso.departamentoAcademico.facultad.nombre}}</span>
-                                                    <span class="block">Modalidad: {{item.curso.modalidadEstudio.nombre}}</span>
+                                                    <span v-if="item.curso.departamentoAcademico.facultad" class="block">Facultad: {{item.curso.departamentoAcademico.facultad.nombre}}</span>
+                                                    <span v-if="item.curso.modalidadEstudio" class="block">Modalidad: {{item.curso.modalidadEstudio.nombre}}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <span class="block">Ciclo Inicio: {{item.cicloVigenciaInicio.descripcion}}</span>
-                                                    <span class="block" v-if="item.cicloVigenciaFin.id != ''">Ciclo Fin: {{item.cicloVigenciaFin.descripcion}}</span>
+                                                    <span class="block">{{item.departamentoAcademico.nombre}}</span>
                                                 </td>
 
                                                 <td class="v-middle text-center">

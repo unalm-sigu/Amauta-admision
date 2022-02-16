@@ -39,7 +39,7 @@
                                             </a> 
 
                                             <ul class="dropdown-menu pull-right" >                
-                                                <li><a href="#" v-on:click.prevent="update(item)">Actualizar</a></li>
+                                                <!--<li><a href="#" v-on:click.prevent="update(item)">Actualizar</a></li>-->
                                                 <li role="presentation" class="divider"></li>
                                                 <li><a href="#" v-on:click.prevent="eliminar(item)">Eliminar</a></li>
                                             </ul>

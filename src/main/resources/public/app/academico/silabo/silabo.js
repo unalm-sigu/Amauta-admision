@@ -9,11 +9,10 @@ new Vue({
             id: 'modalSilabo',
             modalsize: 'modal-md',
             header: false,
-            showaccept:true
+            showaccept: true
         },
         cursos: [],
-        ciclos: [],
-        planes: [],
+        departamentos: [],
         files: []
     },
     mounted: function () {
@@ -27,21 +26,15 @@ new Vue({
                 return;
             }
             MODAL.showWait("Espere un momento");
-            axios.post('/academico/silabo/save', $vue.silaboCurso)
+            axios_.post('/academico/silabo/save', $vue.silaboCurso)
                     .then(response => {
                         MODAL.hideWait();
-                        if (response.data.success) {
-                            notify(response.data.message, 'info');
-                            $vue.$refs.load.loadRemoteData();
-                            $vue.$refs.modalSilabo.close();
-                        } else {
-                            notify(response.data.message, "error");
-                        }
+                        notify(response.data, 'info');
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalSilabo.close();
                     })
                     .catch(function (error) {
                         MODAL.hideWait();
-                        console.log(error);
-                        notify(Messages.errorComunicacion, "error");
                     });
         },
         cancelSave() {
@@ -55,57 +48,27 @@ new Vue({
         },
         findCurso(nombre) {
             let $vue = this;
-            if (nombre != null && nombre != "") {
-                $.ajax({
-                    url: APP.url("comun/buscar/allCursoMod"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre},
-                }).then(response => {
-                    $vue.cursos = response.data;
-                    if ($vue.cursos == null) {
-                        $vue.cursos = [];
-                    }
-                })
-            } else {
+            if (nombre) {
                 $vue.cursos = [];
             }
+            axios_.get('/academico/silabo/allCursoMod', {params: {nombre: nombre}})
+                    .then(response => {
+                        $vue.cursos = response.data;
+                    })
+                    .catch(() => {
+                    });
         },
-        findCiclo(nombre) {
+        findDepartamento(nombre) {
             let $vue = this;
-            if (nombre != null && nombre != "") {
-                $.ajax({
-                    url: APP.url("comun/buscar/allCiclo"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre},
-                }).then(response => {
-                    $vue.ciclos = response.data;
-                    if ($vue.ciclos == null) {
-                        $vue.ciclos = [];
-                    }
-                })
-            } else {
-                $vue.ciclos = [];
+            if (nombre) {
+                $vue.departamentos = [];
             }
-        },
-        findPlanCalifica(nombre) {
-            let $vue = this;
-            if (nombre != null && nombre != "") {
-                $.ajax({
-                    url: APP.url("comun/buscar/allPlanCalificacion"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre},
-                }).then(response => {
-                    $vue.planes = response.data;
-                    if ($vue.planes == null) {
-                        $vue.planes = [];
-                    }
-                })
-            } else {
-                $vue.planes = [];
-            }
+            axios_.get('/academico/silabo/allDepartamentoMod', {params: {nombre: nombre}})
+                    .then(response => {
+                        $vue.departamentos = response.data;
+                    })
+                    .catch(() => {
+                    });
         },
         inputFile(newFile, oldFile) {
             let $vue = this;
@@ -117,37 +80,29 @@ new Vue({
                     }
                 }
                 if (newFile.progress !== oldFile.progress) {
-
-                    // progress
                 }
                 if (newFile.error && !oldFile.error) {
                 }
                 if (newFile.success && !oldFile.success) {
-                    //  $vue.producto.productoImagen.splice(0, 0, newFile.response.data)
                 }
             }
             if (!newFile && oldFile) {
                 if (oldFile.success && oldFile.response.id) {
                 }
             }
-            // Automatically activate upload
             if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
                 if (!this.$refs.upload.active) {
                     this.$refs.upload.active = true;
                 } else {
-                    //console.log("FIN?")
                 }
             }
 
             if ($vue.$refs.upload.uploaded) {
                 if ($vue.files.length > 0) {
-                    //  $vue.reloadProducto();x
                     $vue.silaboCurso.rutaDocumento = $vue.files[0].response.data;
                     $vue.silaboCurso.fileUpdated = 1;
-//                    MODAL.hideWait();
                 }
                 if ($vue.$refs.upload.clear()) {
-                    //   console.log("reiniciar img 2")
                 }
             }
 
@@ -168,8 +123,8 @@ new Vue({
             if (newFile && !oldFile) {
                 if (!/\.(pdf)$/i.test(newFile.name)) {
                     swal(
-                            'Oops...',
-                            'Este archivo no esta permitido!',
+                            'Error de formato',
+                            '¡Este archivo no esta permitido!',
                             'error'
                             )
                     return prevent();
@@ -184,41 +139,55 @@ new Vue({
             }
         },
         editar(item) {
-            console.log(item);
             let $vue = this;
-            $vue.silaboCurso = item;
+            $vue.silaboCurso = {...item};
             $vue.$refs.modalSilabo.open();
         },
         eliminar(item) {
             let $vue = this;
-            axios.post('/academico/silabo/delete', {id: item.id})
-                    .then(response => {
-                        if (response.data.success) {
-                            notify(response.data.message, 'info');
+            swal('¿Seguro que desea eliminar el silabu?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Eliminar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                axios_.post('/academico/silabo/delete', {id: item.id})
+                        .then(response => {
+                            notify(response.data, 'info');
                             $vue.$refs.load.loadRemoteData();
-                        } else {
-                            notify(response.data.message, "error");
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                        notify(Messages.errorComunicacion, "error");
-                    });
+                            return swal({text: response.data, icon: "success", button: false, timer: 1000});
+                        })
+                        .catch(() => {
+                            return swal(APP.errorComunicacion, "error");
+                        });
+
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+
+
+
         },
         revision(item, st) {
             let $vue = this;
-            axios.post('/academico/silabo/revision', {id: item.id, estado: st})
+            axios_.post('/academico/silabo/revision', {id: item.id, estado: st})
                     .then(response => {
-                        if (response.data.success) {
-                            notify(response.data.message, 'info');
-                            $vue.$refs.load.loadRemoteData();
-                        } else {
-                            notify(response.data.message, "error");
-                        }
+                        notify(response.data, 'info');
+                        $vue.$refs.load.loadRemoteData();
                     })
-                    .catch(function (error) {
-                        console.log(error);
-                        notify(Messages.errorComunicacion, "error");
+                    .catch(function () {
                     });
         }
     }

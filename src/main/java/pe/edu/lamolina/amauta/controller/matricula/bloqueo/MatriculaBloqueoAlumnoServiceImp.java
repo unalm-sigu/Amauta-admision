@@ -42,16 +42,30 @@ public class MatriculaBloqueoAlumnoServiceImp implements MatriculaBloqueoAlumnoS
 
     @Override
     @Transactional
-    public void save(MatriculaBloqueoAlumno matriculaBloqueoAlumno, DataSessionPivot ds) {
-        matriculaBloqueoAlumno.setUserRegistro(ds.getUsuario());
-        matriculaBloqueoAlumno.setFechaRegistro(new Date());
-        matriculaBloqueoAlumnoDAO.save(matriculaBloqueoAlumno);
+    public void save(MatriculaBloqueoAlumnoDTO matriculaBloqueoAlumno, DataSessionPivot ds) {
+        for (SituacionAcademica situacionAcademica : matriculaBloqueoAlumno.getSituacionAcademicas()) {
+            MatriculaBloqueoAlumno matriculaBloqueoAlumnoNew = new MatriculaBloqueoAlumno();
+            matriculaBloqueoAlumnoNew.setUserRegistro(ds.getUsuario());
+            matriculaBloqueoAlumnoNew.setFechaRegistro(new Date());
+            matriculaBloqueoAlumnoNew.setSituacionAcademica(situacionAcademica);
+            matriculaBloqueoAlumnoNew.setCicloAplica(matriculaBloqueoAlumno.getCicloAplica());
+            matriculaBloqueoAlumnoNew.setCarrera(matriculaBloqueoAlumno.getCarrera());
+            
+            MatriculaBloqueoAlumno matriculaBloqueoAlumnoDB = matriculaBloqueoAlumnoDAO.findByCicloCarreraSituacion(
+                    matriculaBloqueoAlumno.getCicloAplica(), matriculaBloqueoAlumno.getCarrera(), situacionAcademica);
+            
+            if (matriculaBloqueoAlumnoDB != null) {
+                continue;
+            }
+            
+            matriculaBloqueoAlumnoDAO.save(matriculaBloqueoAlumnoNew);
+        }
     }
 
     @Override
     @Transactional
     public void update(MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
-        matriculaBloqueoAlumnoDAO.updateColumns(matriculaBloqueoAlumno,"cicloAplica","situacionAcademica","carrera");
+        matriculaBloqueoAlumnoDAO.updateColumns(matriculaBloqueoAlumno, "cicloAplica", "situacionAcademica", "carrera");
     }
 
     @Override

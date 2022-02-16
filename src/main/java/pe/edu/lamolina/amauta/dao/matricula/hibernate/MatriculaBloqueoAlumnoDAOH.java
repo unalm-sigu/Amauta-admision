@@ -7,7 +7,10 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.matricula.MatriculaBloqueoAlumnoDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaBloqueoAlumno;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 
 @Repository
 public class MatriculaBloqueoAlumnoDAOH extends AbstractEasyDAO<MatriculaBloqueoAlumno> implements MatriculaBloqueoAlumnoDAO {
@@ -31,7 +34,7 @@ public class MatriculaBloqueoAlumnoDAOH extends AbstractEasyDAO<MatriculaBloqueo
     public MatriculaBloqueoAlumno find(MatriculaBloqueoAlumno matriculaBloqueoAlumno) {
         Octavia sql = Octavia.query()
                 .from(MatriculaBloqueoAlumno.class, "mba")
-                .join("mba.situacionAcademica sa","mba.carrera ca","mba.cicloAplica ci")
+                .join("mba.situacionAcademica sa", "mba.carrera ca", "mba.cicloAplica ci")
                 .filter("mba.id", matriculaBloqueoAlumno);
         return find(sql);
     }
@@ -43,6 +46,17 @@ public class MatriculaBloqueoAlumnoDAOH extends AbstractEasyDAO<MatriculaBloqueo
             octavia.set(matriculaBloqueoAlumno, column);
         }
         this.update(octavia);
+    }
+
+    @Override
+    public MatriculaBloqueoAlumno findByCicloCarreraSituacion(CicloAcademico cicloAplica, Carrera carrera, SituacionAcademica situacionAcademica) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaBloqueoAlumno.class, "mba")
+                .join("mba.situacionAcademica sa", "mba.carrera ca", "mba.cicloAplica ci")
+                .filter("ci.id", cicloAplica)
+                .filter("ca.id", carrera)
+                .filter("sa.id", situacionAcademica);
+        return find(sql);
     }
 
 }
