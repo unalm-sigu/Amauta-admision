@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
@@ -48,6 +48,7 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.TopeMatriculaDAO;
+import pe.edu.lamolina.amauta.dao.finanza.AlumnoPagoVeranoDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -55,6 +56,7 @@ import pe.edu.lamolina.model.academico.TopeMatricula;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
 import static pe.edu.lamolina.model.enums.TipoCreditoEnum.FIJO;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 
 @Service
 @Transactional(readOnly = true)
@@ -103,6 +105,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     @Autowired
     TopeMatriculaDAO topeMatriculaDAO;
+    
+    @Autowired
+    AlumnoPagoVeranoDAO alumnoPagoVeranoDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -425,13 +430,27 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
 
             if (cicloAcademico.isTipoNivelacion()) {
+                AlumnoPagoVerano alumnoPagoVerano = getAlumnoPago(cicloAcademico, alumno);
+                Assert.isFalse(alumnoPagoVerano.getSaldo().compareTo(seccion.getPrecio()) < 0, "El alumno no cuenta con saldo disponible.");
                 this.validarTopeCreditosVerano(matriculaResumen, creditosAmatricular);
+
             }
 
             this.validarTrika(matriculaResumen, seccion.getGrupoSeccion().getCurso(), cicloAcademico, alumno);
 
         }
 
+    }
+    public AlumnoPagoVerano getAlumnoPago(CicloAcademico cicloAcademico, Alumno alumno) {
+        AlumnoPagoVerano alupago = alumnoPagoVeranoDAO.findAlumnoByCiclo(alumno, cicloAcademico);
+        if (alupago == null) {
+            alupago = new AlumnoPagoVerano();
+            alupago.setAbono(BigDecimal.ZERO);
+            alupago.setSaldo(BigDecimal.ZERO);
+            alupago.setConsumo(BigDecimal.ZERO);
+            alupago.setDeuda(BigDecimal.ZERO);
+        }
+        return alupago;
     }
 
     private void validarTrika(MatriculaResumen matriculaResumen, Curso curso, CicloAcademico cicloAcademico, Alumno alumno) {
