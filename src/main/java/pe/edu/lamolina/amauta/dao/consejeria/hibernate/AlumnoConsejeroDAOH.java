@@ -197,7 +197,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         Octavia sql = Octavia.query()
                 .from(AlumnoConsejero.class, "ac")
                 .join("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
-                .left("alu.persona per","alu.situacionAcademica sa")
+                .left("alu.persona per", "alu.situacionAcademica sa")
                 .filter("estado", EstadoEnum.ACT)
                 .filter("ca.id", ciclo)
                 .filter("car.id", carrera)
@@ -584,6 +584,51 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .in("co.id", consejeros)
                 .filter("ca.id", cicloAcademico);
         return all(sql);
+    }
+
+    @Override
+    public Long countConsejeria(CicloAcademico cicloAcademico, Carrera carrera, String estado) {
+
+        Octavia subquery = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("cicloAcademico ciac", "alumno almr")
+                .in("mr.estado", Arrays.asList(MAT, NMAT, PMAT, RCI));
+
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al", "consejero con", "cicloAcademico ca", "al.situacionAcademica")
+                .join("al.persona per", "al.carrera car", "car.facultad")
+                .leftJoin("per.tipoDocumento", "al.cicloIngreso", "con.colaborador col", "col.persona perc", "perc.tipoDocumento")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("car.id", carrera)
+                .filter("ca.id", cicloAcademico)
+                .orderBy("al.id desc");
+
+        switch (estado) {
+            case "conConsejero":
+                sql.filter("con.id", "<>", ID_CONSEJERO_NN);
+                sql.exists(subquery);
+                sql.linkedBy("al.id", "almr.id");
+                sql.linkedBy("ca.id", "ciac.id");
+                break;
+
+            case "sinConsejero":
+                sql.filter("con.id", ID_CONSEJERO_NN);
+                sql.exists(subquery);
+                sql.linkedBy("al.id", "almr.id");
+                sql.linkedBy("ca.id", "ciac.id");
+                break;
+
+            case "inhabilitado":
+                sql.notExists(subquery);
+                sql.linkedBy("al.id", "almr.id");
+                sql.linkedBy("ca.id", "ciac.id");
+                break;
+        }
+
+        return (Long) sql.find(getCurrentSession());
+
     }
 
 }

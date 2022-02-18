@@ -1,10 +1,8 @@
-Vue.component("multiselect", window.VueMultiselect.default)
-
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {sinConsejero: '', conConsejero: '', inhabilitado: ''},
-//        aconsejadosURL: APP.url(rutaModulo + '/list'),
         ciclo: {},
         carreras: [],
         resumenCarrera: {
@@ -29,7 +27,8 @@ new Vue({
         seleccionado: '',
         alumnoConsejeroForm: {},
         count: {activos: 0, sinConsejero: 0, sinAsignar: 0},
-        loadResumen: false
+        loadResumen: false,
+        axios:moduleAxios(RUTA_MODULO)
     },
     mounted: function () {
         let $vue = this;
@@ -90,15 +89,12 @@ new Vue({
         getDocentes(nombreDoc) {
             let $vue = this;
             $vue.isLoading = true;
-            $.ajax({
-                url: APP.url(rutaModulo + "/listConsejero"),
-                data: {idCarrera: $vue.carreraSelect.id, nombre: nombreDoc},
-                dataType: 'json',
-                type: 'post',
-            }).then(response => {
-                $vue.consejeros = response.data;
-                $vue.isLoading = false;
-            });
+            $vue.axios.get("/listConsejero", {params: {idCarrera: $vue.carreraSelect.id, nombre: nombreDoc}})
+                    .then(({data}) => {
+                        $vue.consejeros = data;
+                        $vue.isLoading = false;
+                    }, () => {
+                    });
         },
         cargaAconsejados() {
             let $vue = this;
@@ -116,23 +112,20 @@ new Vue({
 
             $vue.$refs.raptorAconsejados.querie = [];
             $vue.$refs.raptorAconsejados.querie.push({name: 'carrera', value: carrera});
-            $vue.$refs.raptorAconsejados.url = APP.url(rutaModulo + '/list/' + carrera);
+            $vue.$refs.raptorAconsejados.url = APP.url(RUTA_MODULO + '/list/' + carrera);
             $vue.$refs.raptorAconsejados.loadRemoteData();
             $vue.loadResumen = true;
 
         },
         getResumenCarrera(carrera) {
             let $vue = this;
-            $.ajax({
-                url: APP.url(rutaModulo + "/resumenCarrera"),
-                data: {carrera: carrera},
-                dataType: 'json',
-                type: 'post',
-            }).then(response => {
-                $vue.resumenCarrera = response.data;
-                $vue.isLoading = false;
-                $vue.loadResumen = false;
-            });
+            $vue.axios.get("/resumenCarrera/" + carrera)
+                    .then(({data}) => {
+                        $vue.resumenCarrera = data;
+                        $vue.isLoading = false;
+                        $vue.loadResumen = false;
+                    }, () => {
+                    });
         },
         loadResumenCarrera() {
             let $vue = this;
@@ -148,27 +141,17 @@ new Vue({
         },
         cambiarConsejero() {
             let $vue = this;
-
-            $.ajax({
-                url: APP.url(rutaModulo + "/update"),
-                contentType: "application/json",
-                data: JSON.stringify($vue.alumnoConsejeroForm),
-                type: 'post',
-            }).then(response => {
-                if (response.success) {
-                    $vue.$refs.raptorAconsejados.loadRemoteData();
-                    notify(response.message, "success");
-                }
-                $vue.$refs.consejeroModal.close();
-            });
+            $vue.axios.post("/update", $vue.alumnoConsejeroForm)
+                    .then(({data}) => {
+                        $vue.$refs.raptorAconsejados.loadRemoteData();
+                        notify(data, "success");
+                        $vue.$refs.consejeroModal.close();
+                    }, () => {
+                    });
         },
         urlAcademico(item) {
             let $vue = this;
-            return APP.url('academico/alumno/' + item.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         solicitudBeneficio(item) {
             let $vue = this;
@@ -176,7 +159,6 @@ new Vue({
             var sexo = item.alumno.persona.sexo == 'M' ? 'al alumno ' : 'a la alumna ';
             var alumno = sexo + item.alumno.persona.apellidosNombres;
             var ciclo = item.cicloAcademico.descripcion;
-
 
             swal('¿Esta seguro que desea asignar el beneficio de último ciclo ' + alumno + ' en el ciclo ' + ciclo + ' ?', {
                 icon: "warning",
@@ -191,23 +173,14 @@ new Vue({
                 if (value != true) {
                     return;
                 }
-                $.ajax({
-                    method: 'POST',
-                    url: APP.url("consejeria/aconsejadostutor/solicitudBeneficio"),
-                    data: JSON.stringify(item),
-                    contentType: "application/json",
-                    success: function (response) {
-                        if (response.success) {
+                $vue.axios.post("/solicitudBeneficio", item)
+                        .then(({data}) => {
                             $vue.$refs.raptorAconsejados.loadRemoteData();
-                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
-                        } else {
-                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-                        }
-                    },
-                    error: function () {
-                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-                    }
-                });
+                            return  swal({text: data, icon: "success", button: false, timer: 1000});
+                        }, () => {
+                            return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        });
+                        
             }).catch(err => {
                 if (err) {
                     swal(APP.errorComunicacion, "error");
@@ -235,7 +208,7 @@ new Vue({
                 if (value != true) {
                     return;
                 }
-                axios_.get("/consejeria/aconsejadostutor/eliminar/" + item.id)
+                $vue.axios.get("/eliminar/" + item.id)
                         .then(({data}) => {
                             notify(data, 'info');
                             $vue.$refs.raptorAconsejados.loadRemoteData();
@@ -253,8 +226,8 @@ new Vue({
             });
 
         },
-        quitarTutorado(item){
-            
+        quitarTutorado(item) {
+
             let $vue = this;
 
             swal('¿Seguro que desea quitar el tutor?', {
@@ -270,7 +243,7 @@ new Vue({
                 if (value != true) {
                     return;
                 }
-                axios_.get("/consejeria/aconsejadostutor/quitar/tutor/" + item.id)
+                $vue.axios.get("/quitar/tutor/" + item.id)
                         .then(({data}) => {
                             notify(data, 'info');
                             $vue.$refs.raptorAconsejados.loadRemoteData();
