@@ -84,19 +84,24 @@
                 alumnoCiclos: [],
                 ciclos: [],
                 ciclo: {},
-                active: 0
+                active: 0,
+                alumno: {persona: {}},
             };
-        },
-        computed: {
-            ...Vuex.mapState(["alumno"])
         },
         mounted: function () {
             let $vue = this;
             if (ID_ALUMNO) {
+                $vue.fetchAlumno();
                 $vue.cargaHistorial();
             }
         },
         methods: {
+            fetchAlumno() {
+                let $vue = this;
+                axios_.get("/academico/historico/alumno/" + ID_ALUMNO + "/find")
+                        .then(({data}) => $vue.alumno = data,
+                                ({response}) => console.log('%c%s', 'color: red;', response.statusText));
+            },
             addAlumnoCiclo() {
                 let $vue = this;
                 if (!$vue.ciclo) {
