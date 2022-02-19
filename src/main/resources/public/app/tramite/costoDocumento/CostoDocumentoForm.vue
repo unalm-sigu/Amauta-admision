@@ -10,14 +10,14 @@
 
             <div slot="body">
 
-                <form id="formConfig">
+                <form id="formConfig"  data-parsley-validate="true" >
 
                     <div class="col-md-offset-1 ">
                         <div class='form-group row'>
                             <label class="col-sm-3 control-label">Tipo constancia</label>
                             <div class="col-sm-8">
                                 <div class="form-group" v-if="costoDocumento.id">   
-                                    <span class="form-control ">
+                                    <span v-if="costoDocumento.tipoDocumento" class="form-control ">
                                         {{costoDocumento.tipoDocumento.tipo.value}}
                                         {{costoDocumento.tipoDocumento != undefined ? costoDocumento.tipoDocumento.nombre : ''}}
                                     </span>
@@ -29,7 +29,7 @@
                                                  track-by='id'
                                                  v-bind:searchable="true" 
                                                  v-bind:allow-empty="false"
-                                                 placeholder="Seleccione un tipo de constancia"
+                                                 placeholder=" "
                                                  v-bind:close-on-select="true"
                                                  v-bind:preserve-search="true"
                                                  v-bind:custom-label="nameWithCodeEspecial" 
@@ -45,6 +45,9 @@
                                             </div>
                                         </template>
                                     </multiselect>
+
+                                    <input  required="true" v-model="costoDocumento.tipoDocumento" 
+                                            type="text" class="hide"  />
                                 </div>
 
                             </div>  
@@ -55,16 +58,19 @@
                             <div class="col-sm-8">
 
                                 <div class="form-group" v-if="costoDocumento.id">   
-                                    <span v-text="costoDocumento.idioma != undefined ? costoDocumento.idioma.nombre : ''" class="form-control "></span>
+                                    <span v-if="costoDocumento.idioma " v-text="costoDocumento.idioma.nombre" class="form-control "></span>
                                 </div>
                                 <div class="form-group" v-else="">                                
                                     <multiselect v-model="costoDocumento.idioma" 
                                                  v-bind:options='idiomas'
                                                  label='nombre'
                                                  track-by='id'
-                                                 placeholder="Seleccione un tipo de constancia"
+                                                 placeholder=" "
                                                  >
                                     </multiselect>
+
+                                    <input  required="true" v-model="costoDocumento.idioma" 
+                                            type="text" class="hide"  />
 
                                 </div>
 
@@ -74,7 +80,9 @@
                         <div class='form-group row'>
                             <label class="col-sm-3 control-label">Precio</label>
                             <div class="col-sm-8">
-                                <input  required="true" v-model="costoDocumento.precio" type="text" class="form-control numerico " placeholder="Ingrese un precio"/>
+                                <input  required="true" v-model="costoDocumento.precio" 
+                                        type="text" class="form-control numerico " 
+                                        />
                             </div>
                         </div>
 
@@ -92,15 +100,13 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["costoDocumento"])
-        },
         data() {
             return {
                 tipoConstancia: JSON.parse(tipoDocumentoJson),
                 idiomas: JSON.parse(idiomasJson),
                 isNew: true,
                 isOld: false,
+                costoDocumento: {}
             };
         },
         mounted: function () {
@@ -111,16 +117,6 @@
             saveCostoDocumento() {
 
                 let $vue = this;
-
-                $(".mx-input").attr("required", true);
-
-                if (!$("#formConfig").parsley().validate()) {
-                    $vue.$refs.modalCostoDocumentoForm.stop();
-                    return;
-                }
-
-                $vue.costoDocumento.tipoDocumento.tipo = $vue.costoDocumento.tipoDocumento.tipo.name;
-                $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
 
                 let url = APP.url('tramite/costodocumento/save');
 
@@ -154,6 +150,10 @@
             open() {
                 let $vue = this;
                 $vue.$refs.modalCostoDocumentoForm.open();
+            },
+            setCostoDocumento(costoDocumento) {
+                let $vue = this;
+                $vue.costoDocumento = costoDocumento;
             }
         }
     };
