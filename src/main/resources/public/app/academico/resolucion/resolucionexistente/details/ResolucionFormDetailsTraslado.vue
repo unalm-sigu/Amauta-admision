@@ -82,14 +82,19 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
                 carreras: JSON.parse(carrerasJson),
                 ciclos: JSON.parse(ciclosJson),
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -102,10 +107,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.tramiteTraslado.push({seleccionado: false});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 

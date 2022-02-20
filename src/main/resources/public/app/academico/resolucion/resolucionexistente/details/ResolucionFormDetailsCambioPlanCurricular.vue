@@ -88,12 +88,17 @@
 <script>
     module.exports = {
         mixins: [AppliedFilter, VueLoader],
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
+                isEdicion: IS_EDICION
             };
         },
         mounted: function () {
@@ -106,10 +111,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.cambioPlanCurriculares.push({seleccionado: false, rechazado: false});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.cambioPlanCurriculares.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
                 let $vue = this;
@@ -132,6 +139,7 @@
                         .then(({data}) => {
                             $vue.resolucion.cambioPlanCurriculares = data;
                             $vue.hideLoader();
+                            $vue.$forceUpdate();
                         }, () => {
                             $vue.hideLoader();
                         });

@@ -90,13 +90,18 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
                 cursos: [],
+                isEdicion: IS_EDICION
             };
         },
         mounted: function () {
@@ -106,10 +111,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.cambioNota.push({seleccionado: false});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.cambioNota.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 
@@ -126,13 +133,13 @@
                 }
 
 
-                    AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
-                            {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                            .then(({data}) => {
-                                if (data.success) {
-                                    $vue.alumnos = data.data;
-                                }
-                            });
+                AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+                        {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
+                        .then(({data}) => {
+                            if (data.success) {
+                                $vue.alumnos = data.data;
+                        }
+                        });
             },
             cicloCambioNota(alumno, resolucion) {
                 let $vue = this;

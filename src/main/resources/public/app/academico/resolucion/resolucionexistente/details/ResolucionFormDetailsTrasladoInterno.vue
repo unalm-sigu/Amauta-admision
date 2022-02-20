@@ -74,13 +74,18 @@
         components: {
             selectState: SelectState,
         },
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
                 carreras: JSON.parse(carrerasJson),
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -92,11 +97,13 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado.push({seleccionado: true,estado:'ACEP'});
+                $vue.resolucion.tramiteTraslado.push({seleccionado: true, estado: 'ACEP'});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
                 let $vue = this;
@@ -114,17 +121,7 @@
             },
             allTraslados() {
                 let $vue = this;
-                $vue.resolucion.tramiteTraslado =[];
-                return;
-                $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allTrasladoInterno"))
-                        .then(({data}) => {
-                            $vue.resolucion.tramiteTraslado = data;
-                            $vue.hideLoader();
-                        }, () => {
-                            $vue.hideLoader();
-                        });
-
+                $vue.resolucion.tramiteTraslado = [];
             }
         }
     };

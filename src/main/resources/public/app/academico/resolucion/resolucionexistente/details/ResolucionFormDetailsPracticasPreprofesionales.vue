@@ -71,12 +71,17 @@
 <script>
     module.exports = {
         mixins: [VueLoader],
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -89,10 +94,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.tramitePracticasPreProfesionales.push({seleccionado: true});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.tramitePracticasPreProfesionales.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 
@@ -108,7 +115,8 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
-                        }});
+                        }
+                        });
             },
             allPracticas() {
                 let $vue = this;
@@ -117,6 +125,7 @@
                         .then(({data}) => {
                             $vue.resolucion.tramitePracticasPreProfesionales = data;
                             $vue.hideLoader();
+                            $vue.$forceUpdate();
                         }, () => {
                             $vue.hideLoader();
                         });

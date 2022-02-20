@@ -1,6 +1,6 @@
 <template>
     <div>
-        
+
         <div class="row">
             <div class="col-lg-6">
                 <label>Facultad</label>
@@ -131,19 +131,20 @@
 
 <script>
     module.exports = {
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
         data() {
             return {
                 oficinas: JSON.parse(oficinasJson),
                 ciclos: JSON.parse(ciclosJson),
+                isEdicion: IS_EDICION,
                 tiposResolucion: JSON.parse(tiposResolucionJson),
                 configDate: {
                     format: 'DD/MM/YYYY',
                     useCurrent: false
                 },
             };
-        },
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         mounted: function () {
             let $vue = this;
