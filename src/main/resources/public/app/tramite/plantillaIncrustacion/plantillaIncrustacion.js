@@ -17,14 +17,6 @@ new Vue({
         },
         incrustacion: {}
     },
-    computed: {
-
-    },
-    created() {
-    },
-    mounted: function () {
-
-    },
     methods: {
         update() {
             let $vue = this;
@@ -36,13 +28,12 @@ new Vue({
                 },
                 callback: (result) => {
                     if (result) {
-                        AXIOS.post('/tramite/plantillainscrustacion/save', $vue.incrustacion)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        this.$refs.load.loadRemoteData();
-                                        this.$refs.modalIncrustacion.close();
-                                    }
-                                });
+                        axios_.post('/tramite/plantillainscrustacion/save', $vue.incrustacion)
+                                .then(({data}) => {
+                                    this.$refs.load.loadRemoteData();
+                                    this.$refs.modalIncrustacion.close();
+                                    notify(data, "info")
+                                }, err => null);
                     }
                 }
             });
@@ -62,13 +53,11 @@ new Vue({
         },
         save() {
             let $vue = this;
-
-            AXIOS.post('/tramite/plantillainscrustacion/save', $vue.incrustacion)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.$refs.load.loadRemoteData();
-                            this.$refs.modalIncrustacion.close();
-                        }
+            axios_.post('/tramite/plantillainscrustacion/save', $vue.incrustacion)
+                    .then(({data}) => {
+                        this.$refs.load.loadRemoteData();
+                        this.$refs.modalIncrustacion.close();
+                            notify(data, "info")
                     });
         }
     }
