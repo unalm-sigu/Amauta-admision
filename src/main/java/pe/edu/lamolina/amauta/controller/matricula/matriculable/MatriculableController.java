@@ -151,6 +151,9 @@ public class MatriculableController {
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
         model.addAttribute("puedeMatricularPosgrado", verificadorService.puedeMatricularPosgrado(ds));
 
+        model.addAttribute("ciclos", JaneHelper.from(service.allCiclo())
+                .only("id,descripcion,codigo,year,descripcion2")
+                .array().toString());
         return "academico/matriculable/matriculable";
     }
 
@@ -1002,6 +1005,24 @@ public class MatriculableController {
         } finally {
             return json;
         }
+    }
+    
+    @ResponseBody
+    @RequestMapping(value="resumen",method = RequestMethod.GET)
+    public AlumnoResumen resumen(Model model, HttpSession session, HttpServletRequest request) {
+
+        String codeRequest = verificadorService.generateCodeRequest();
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
+
+        List<Carrera> carreras = new ArrayList();
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+        }
+       return service.allResumen(cicloAcademico, cantidadEnum, carreras);
+
     }
 
 }

@@ -1,6 +1,8 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+const ClonarMatriculableModal = httpVueLoader('/app/academico/matriculable/ClonarMatriculableModal.vue');
 new Vue({
     el: '#matriculableVUE',
+    components: {ClonarMatriculableModal},
     data: {
         matriculaURL: APP.url(`${rutaModulo}/list`),
         ciclo: JSON.parse(cicloJson),
@@ -853,6 +855,16 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
+        },
+        clonarMatriculables() {
+            this.$refs.clonarMatriculableModal.open();
+        },
+        getResumen() {
+            let $vue = this;
+            axios_.get(APP.url('academico/matriculable/resumen'))
+                    .then(({data}) => {
+                        $vue.resumen=data;
+                    }, () => null);
         }
     }
 });

@@ -38,6 +38,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
+import static pe.edu.lamolina.model.enums.TipoCicloEnum.NIV;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -1008,8 +1009,38 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-                .in("mr.estado", asList(MAT,NMAT))
+                .in("mr.estado", asList(MAT, NMAT))
                 .in("alu.id", alumnos);
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaResumen> allByCicloClonar(CicloAcademico cicloOrigen) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .left("mr.situacionInicio si", "mr.situacionFinal sf")
+                .join("alu.persona")
+                .in("estado",asList(MAT,NMAT))
+                .filter("me.codigo", PRE)
+                .filter("ca.codigo", cicloOrigen.getCodigo());
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaResumen> allByCicloClonarDestino(CicloAcademico cicloDestino, List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .left("mr.situacionInicio si", "mr.situacionFinal sf")
+                .join("alu.persona")
+                .in("alu.id", alumnos)
+                .filter("estado", MAT)
+                .filter("me.codigo", PRE)
+                .filter("ca.tipo", NIV)
+                .filter("ca.codigo", cicloDestino.getCodigo());
         return all(sql);
     }
 

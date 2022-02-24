@@ -1714,4 +1714,8 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
+    @Override
+    public List<CicloAcademico> allCiclo() {
+        return cicloAcademicoDAO.allPregradoNivelByRange(1900, 3000);
+    }
 }
