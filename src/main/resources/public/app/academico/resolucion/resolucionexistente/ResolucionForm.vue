@@ -145,9 +145,7 @@
         data() {
             return {
                 errores: [],
-                resolucion: IS_EDICION ? JSON.parse(resolucionJson) : {
-                    ... this.esolucionNew
-                },
+                resolucion: IS_EDICION ? JSON.parse(resolucionJson) : {},
                 resolucionNew: {
                     reincorporaciones: [],
                     retiroCiclo: [],
@@ -165,6 +163,11 @@
         },
         mounted: function () {
             let $vue = this;
+            if (IS_EDICION) {
+                $vue.resolucion = JSON.parse(resolucionJson);
+            } else {
+                $vue.resolucion = {...$vue.resolucionNew};
+            }
         },
         methods: {
             save() {
@@ -183,7 +186,7 @@
 
                             if (data.success) {
 
-                                $vue.resolucion={... $vue.resolucionNew};
+                                $vue.resolucion = {... $vue.resolucionNew};
                                 notify(data.message, 'info');
 
                             } else {
@@ -247,7 +250,7 @@
                 });
 
             },
-            loadTramiteBachiller(data){
+            loadTramiteBachiller(data) {
                 let $vue = this;
                 $vue.resolucion.tramiteBachiller = data;
                 $vue.$forceUpdate()
