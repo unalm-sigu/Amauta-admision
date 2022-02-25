@@ -127,7 +127,9 @@ public class MatriculableController {
         CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
 
         List<Carrera> carreras = new ArrayList();
-        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = 
+                verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        
         if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
             carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
         }
@@ -144,8 +146,8 @@ public class MatriculableController {
             }
         }
 
-        model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("resumen",JaneHelper.from(resumen).json().toString());
+        model.addAttribute("ciclo",JaneHelper.from(cicloAcademico).json().toString());
         model.addAttribute("tipoCondicional", array);
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
@@ -154,6 +156,10 @@ public class MatriculableController {
         model.addAttribute("ciclos", JaneHelper.from(service.allCiclo())
                 .only("id,descripcion,codigo,year,descripcion2")
                 .array().toString());
+
+        model.addAttribute("situaciones", JaneHelper.from(service.allSituacionAcademica())
+                .array().toString());
+        
         return "academico/matriculable/matriculable";
     }
 

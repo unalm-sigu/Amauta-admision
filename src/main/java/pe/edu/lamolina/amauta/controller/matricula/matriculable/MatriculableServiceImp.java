@@ -116,6 +116,7 @@ import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
@@ -165,6 +166,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final PromedioService promedioService;
     private final ResponseRestService responseRestService;
     private final VisorCalculoNotas visorCalculoNotas;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -1718,4 +1720,10 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<CicloAcademico> allCiclo() {
         return cicloAcademicoDAO.allPregradoNivelByRange(1900, 3000);
     }
+
+    @Override
+    public List<SituacionAcademica> allSituacionAcademica() {
+        return situacionAcademicaDAO.all();
+    }
+
 }

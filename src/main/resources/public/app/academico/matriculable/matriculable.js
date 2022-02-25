@@ -8,6 +8,8 @@ new Vue({
         ciclo: JSON.parse(cicloJson),
         resumen: JSON.parse(resumenJson),
         tiposCondicionales: JSON.parse(tipoCondicionalJson),
+        situaciones: JSON.parse(situacionesJson),
+        situacionFilter: null,
         configTurno: [],
         alumno: {},
         alumnos: [],
@@ -863,8 +865,13 @@ new Vue({
             let $vue = this;
             axios_.get(APP.url('academico/matriculable/resumen'))
                     .then(({data}) => {
-                        $vue.resumen=data;
+                        $vue.resumen = data;
                     }, () => null);
+        },
+        changeSeleccion() {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'situacion', value: $vue.situacionFilter?$vue.situacionFilter.id:null});
+            $vue.$refs.load.loadRemoteData();
         }
     }
 });

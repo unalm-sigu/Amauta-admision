@@ -196,6 +196,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         sql.beginRelativeFilters();
         setCondicionModalidad(filter, sql);
+        setCondicionSituacion(filter, sql);
 
         return sql.all(getCurrentSession());
 
@@ -222,6 +223,22 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             } else if (values.equals("especial")) {
                 sql.filter("moe.codigo", ESP);
             }
+        }
+
+    }
+
+    private void setCondicionSituacion(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("situacion")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            sql.filter("sita.id", new Long(values));
         }
 
     }
@@ -1022,7 +1039,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
                 .join("alu.persona")
-                .in("estado",asList(MAT,NMAT))
+                .in("estado", asList(MAT, NMAT))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
         return all(sql);
