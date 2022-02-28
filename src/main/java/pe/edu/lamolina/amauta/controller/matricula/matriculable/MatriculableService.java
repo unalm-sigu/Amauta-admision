@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.matricula.matriculable;
 
-import pe.edu.lamolina.amauta.controller.matricula.nivelacion.ClonarNivelacionDTO;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -110,5 +109,7 @@ public interface MatriculableService {
     public List<CicloAcademico> allCiclo();
 
     public List<SituacionAcademica> allSituacionAcademica();
+
+    public List<Carrera> searchAllCarrera(String nombre);
 
 }

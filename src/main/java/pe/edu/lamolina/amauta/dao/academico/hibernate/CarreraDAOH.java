@@ -25,6 +25,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraResumen;
+import pe.edu.lamolina.model.general.Pais;
 
 @Repository
 public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO {
@@ -441,6 +442,21 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.codigo", PRE)
                 .filter("ca.nombre", "like", nombre);
+        return all(sql);
+    }
+
+    @Override
+    public List<Carrera> searchByNombre(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
+                .beginBlock()
+                .__().filter("car.nombre", "like", nombre)
+                .endBlock()
+                .limit(20);
         return all(sql);
     }
 

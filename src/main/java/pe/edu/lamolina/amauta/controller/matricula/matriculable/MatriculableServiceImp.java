@@ -110,6 +110,7 @@ import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PRO
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfiguracionTurnosAtencionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
@@ -167,6 +168,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final ResponseRestService responseRestService;
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final CarreraDAO carreraDAO;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -1726,4 +1728,9 @@ public class MatriculableServiceImp implements MatriculableService {
         return situacionAcademicaDAO.all();
     }
 
+    @Override
+    public List<Carrera> searchAllCarrera(String nombre) {
+        return carreraDAO.searchByNombre(nombre);
+    }
+    
 }

@@ -197,6 +197,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         sql.beginRelativeFilters();
         setCondicionModalidad(filter, sql);
         setCondicionSituacion(filter, sql);
+        setCondicionCarrera(filter, sql);
+        setCondicionEstado(filter, sql);
 
         return sql.all(getCurrentSession());
 
@@ -239,6 +241,38 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             }
             String values = (String) queries.get(key);
             sql.filter("sita.id", new Long(values));
+        }
+
+    }
+
+    private void setCondicionCarrera(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("carrera")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            sql.filter("car.id", new Long(values));
+        }
+
+    }
+
+    private void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("estado")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            sql.filter("mr.estado", values);
         }
 
     }

@@ -9,6 +9,7 @@ new Vue({
         resumen: JSON.parse(resumenJson),
         tiposCondicionales: JSON.parse(tipoCondicionalJson),
         situaciones: JSON.parse(situacionesJson),
+        estadosMatricula: JSON.parse(estadosMatriculaJson),
         situacionFilter: null,
         configTurno: [],
         alumno: {},
@@ -77,6 +78,9 @@ new Vue({
         seleccionado: '',
         files: [],
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
+        carreras: [],
+        carreraFilter: null,
+        estadoFilter:null
     },
     mounted: function () {
 
@@ -870,8 +874,28 @@ new Vue({
         },
         changeSeleccion() {
             let $vue = this;
-            $vue.$refs.load.querie.push({name: 'situacion', value: $vue.situacionFilter?$vue.situacionFilter.id:null});
+            $vue.$refs.load.querie.push({name: 'situacion', value: $vue.situacionFilter ? $vue.situacionFilter.id : null});
             $vue.$refs.load.loadRemoteData();
+        },
+        changeSeleccionCarrera() {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'carrera', value: $vue.carreraFilter ? $vue.carreraFilter.id : null});
+            $vue.$refs.load.loadRemoteData();
+        },
+        changeSeleccionEstado() {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'estado', value: $vue.estadoFilter ? $vue.estadoFilter.name : null});
+            $vue.$refs.load.loadRemoteData();
+        },
+        searchCarrera(nombre) {
+            let $vue = this;
+            if(!nombre){
+               return; 
+            }
+            axios_.get(APP.url('academico/matriculable/allCarrera'),{params:{nombre:nombre}})
+                    .then(res => {
+                        $vue.carreras = res.data;
+                    }, err => null);
         }
     }
 });
