@@ -30,4 +30,6 @@ public interface SilaboService {
 
     public void downloadZip(ArrayList<Long> silabus, HttpServletResponse response);
 
+    public List<DepartamentoAcademico> allDepartamento();
+
 }

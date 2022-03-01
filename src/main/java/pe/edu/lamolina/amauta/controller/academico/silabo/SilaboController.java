@@ -69,14 +69,16 @@ public class SilaboController {
     public String save(@RequestBody SilaboCurso silabo, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+       
         silabo.setUserRegistro(ds.getUsuario());
-        service.save(silabo);
 
         if (silabo.getId() == null) {
+            service.save(silabo);
             return GlobalMessages.CREATED;
-        } else {
-            return GlobalMessages.UPDATED;
         }
+        
+        service.save(silabo);
+        return GlobalMessages.UPDATED;
     }
 
     @ResponseBody
@@ -126,8 +128,15 @@ public class SilaboController {
     @RequestMapping("descargar")
     public void descargar(@RequestParam("silabus") ArrayList<Long> silabus,
             HttpServletResponse response) {
-        
-        service.downloadZip(silabus,response);
-        
+        service.downloadZip(silabus, response);
     }
+
+    @ResponseBody
+    @RequestMapping("allDepartamento")
+    public ArrayNode allDepartamento() {
+        List<DepartamentoAcademico> departamentoAcademicos = service.allDepartamento();
+        return JaneHelper.from(departamentoAcademicos).only("id,codigo,nombre")
+                .array();
+    }
+
 }

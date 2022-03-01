@@ -9,6 +9,7 @@ new Vue({
     data: {
         silaboURL: APP.url('academico/silabo/list'),
         silaboCurso: null,
+        filtroDepartamento: null,
         cursos: [],
         departamentos: [],
         seleccionados: [],
@@ -18,6 +19,7 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $vue.allCiclo();
+        $vue.allDepartamento();
     },
     methods: {
         save() {
@@ -106,12 +108,18 @@ new Vue({
             const response = await axios_.get('/academico/silabo/allCiclo');
             $vue.ciclos = response.data;
         },
+        async allDepartamento() {
+            let $vue = this;
+            const response = await axios_.get('/academico/silabo/allDepartamento');
+            $vue.departamentos = response.data;
+        },
         onFileUplad(el) {
             let $vue = this;
             const archivo = el.target.files[0];
             const nombre = archivo.name;
-            if (!/\.(jpg|png|jpeg|pdf|doc|docx|xls|xlsx)$/i.test(nombre)) {
+            if (!/\.(jpg|png|jpeg|webp|pdf|doc|docx)$/i.test(nombre)) {
                 notify('¡Este tipo de archivo no esta permitido!', 'error');
+                return;
             }
             let formData = new FormData();
             formData.append('file', archivo);
@@ -138,7 +146,6 @@ new Vue({
                         $vue.hideLoader()
                     }, () => {
                         $vue.hideLoader()
-                        notify(Messages.errorComunicacion, 'error')
                     });
         },
         changeSelect(idSilabus) {
@@ -154,6 +161,28 @@ new Vue({
         estaSeleccionado(idSilabus) {
             let $vue = this;
             return $vue.seleccionados.indexOf(idSilabus) >= 0;
+        },
+        changeFilterDepartamento() {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'departamento', value: $vue.filtroDepartamento ? $vue.filtroDepartamento.id : null});
+            $vue.$refs.load.loadRemoteData();
+        },
+        descargarReporte() {
+            let $vue = this;
+            $vue.showLoader();
+            axios_blob.get(APP.url('academico/silabo/reporte'))
+                    .then(response => {
+                        UTIL_BLOB_INLINE.save(response);
+                        $vue.hideLoader();
+                    }, () => $vue.hideLoader());
+        },
+        openFile(item) {
+            let $vue = this;
+            if (!/\.(doc|docx)$/i.test(item.rutaDocumento)) {
+                window.open(item.rutaDocumento, '_blank');
+                return;
+            }
+            window.open("https://docs.google.com/gview?url=" + item.rutaDocumento + "&embedded=true", '_blank');
         }
     }
 });
