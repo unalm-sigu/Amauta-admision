@@ -138,7 +138,7 @@ new Vue({
                 notify('¡No a seleccionado ningun silabus!', 'error');
                 return;
             }
-            $vue.showLoader("Se estan descargando " + $vue.seleccionados.length + " silabus");
+            $vue.showLoader("Se están descargando " + $vue.seleccionados.length + " sílabos");
             axios_blob.get(APP.url('academico/silabo/descargar'),
                     {params: {silabus: $vue.seleccionados.join(",")}})
                     .then(response => {
