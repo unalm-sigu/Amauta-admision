@@ -2316,3 +2316,13 @@ only screen and (                min-resolution: 2dppx) {
 .wd-98 {width: 98%}
 .wd-99 {width: 99%}
 .wd-100 {width: 100%}
+
+.checkbox-2x{
+      /* Double-sized Checkboxes */
+  -ms-transform: scale(1.3); /* IE */
+  -moz-transform: scale(1.3); /* FF */
+  -webkit-transform: scale(1.3); /* Safari and Chrome */
+  -o-transform: scale(1.3); /* Opera */
+  padding: 10px;
+    
+}

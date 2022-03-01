@@ -14,4 +14,6 @@ public interface ArchivoService {
 
     Archivo upload(MultipartFile file);
 
+    public void downloadTemp(String fileName, String fileNameDownload, HttpServletResponse response);
+
 }

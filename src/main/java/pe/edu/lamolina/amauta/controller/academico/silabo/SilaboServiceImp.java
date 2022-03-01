@@ -1,52 +1,66 @@
 package pe.edu.lamolina.amauta.controller.academico.silabo;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.comun.archivo.ArchivoService;
 import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.model.enums.SilaboCursoEstadoEnum;
-import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.SilaboCursoDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.S3_DIR_SILABUS;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.TMP_DIR;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 
 @Slf4j
 @Service
 @Transactional
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 public class SilaboServiceImp implements SilaboService {
 
-    @Autowired
-    SilaboCursoDAO silaboCursoDAO;
+    private final SilaboCursoDAO silaboCursoDAO;
 
-    @Autowired
-    DespliegueConfig despliegueConfig;
+    private final CursoDAO cursoDAO;
 
-    @Autowired
-    StorageService swiftService;
+    private final UploadFileS3 uploadFileS3;
 
-    @Autowired
-    CursoDAO cursoDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
-    @Autowired
-    UploadFileS3 uploadFileS3;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
 
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final ArchivoService archivoService;
 
     @Override
     public List<SilaboCurso> allSilabo(DynatableFilter filter) {
@@ -61,24 +75,36 @@ public class SilaboServiceImp implements SilaboService {
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy-HHmm");
 
-            String fileName = "Silabo-" + silabo.getCurso().getCodigo() + "-" + sdf.format(new Date()) + ".pdf";
+            String fileName = new StringJoiner("-").add("Silabo")
+                    .add(silabo.getCurso().getCodigo())
+                    .add(sdf.format(new Date())
+                            + "." + FilenameUtils.getExtension(silabo.getRutaDocumento()))
+                    .toString();
 
-            FileHelper.renameFile(GlobalConstantine.TMP_DIR + silabo.getRutaDocumento(), GlobalConstantine.TMP_DIR + fileName);
+            FileHelper.renameFile(TMP_DIR + silabo.getRutaDocumento(), TMP_DIR + fileName);
 
-            uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_SILABUS, GlobalConstantine.TMP_DIR, fileName, true);
+            uploadFileS3.uploadSync(S3_DIR_SILABUS, TMP_DIR, fileName, true);
 
-            String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_SILABUS, fileName);
+            String path = uploadFileS3.getPathFile(S3_DIR_SILABUS, fileName);
 
             silabo.setRutaDocumento(path);
 
         }
 
         if (silabo.getId() == null) {
+
             silabo.setEstadoEnum(SilaboCursoEstadoEnum.CRE);
             silabo.setFechaRegistro(new Date());
             silaboCursoDAO.save(silabo);
+
         } else {
-            silaboCursoDAO.updateColumns(silabo,"rutaDocumento","departamentoAcademico","curso");
+
+            silaboCursoDAO.updateColumns(silabo,
+                    "rutaDocumento",
+                    "departamentoAcademico",
+                    "curso",
+                    "cicloVigenciaInicio");
+
         }
     }
 
@@ -91,6 +117,7 @@ public class SilaboServiceImp implements SilaboService {
     @Override
     @Transactional
     public String revision(SilaboCurso silabo) {
+
         SilaboCurso silaboDB = silaboCursoDAO.find(silabo.getId());
         String template = "El silabo ha cambiado su estado a %s";
         if (silaboDB == null) {
@@ -143,4 +170,49 @@ public class SilaboServiceImp implements SilaboService {
         return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
+    @Override
+    public List<CicloAcademico> allCiclo(DataSessionPivot ds) {
+        CicloAcademico ca = ds.getCicloAcademico();
+        int rango = 20;
+        return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 3);
+    }
+
+    @Override
+    public void downloadZip(ArrayList<Long> silabus, HttpServletResponse response) {
+        List<File> attachment = new ArrayList<>();
+        List<SilaboCurso> silaboCursos = silaboCursoDAO.allByIds(silabus);
+        String tmpFolder = TMP_DIR + "download/" + System.currentTimeMillis()+"/";
+        new File(tmpFolder).mkdirs();
+        for (SilaboCurso silaboCurso : silaboCursos) {
+            log.debug("star download silabu {}", silaboCurso.getId());
+            if (StringUtils.isBlank(silaboCurso.getRutaDocumento())) {
+                log.debug("File silabu {} lose", silaboCurso.getId());
+                continue;
+            }
+            log.debug("{}", silaboCurso.getRutaDocumento());
+            String fileName = tmpFolder + FilenameUtils.getName(silaboCurso.getRutaDocumento());
+            File fileDowload = new File(fileName);
+            try {
+                FileUtils.copyURLToFile(new URL(silaboCurso.getRutaDocumento()), fileDowload);
+            } catch (MalformedURLException ex) {
+                log.debug("MalformedURLException {}", silaboCurso.getRutaDocumento());
+                continue;
+            } catch (IOException ex) {
+                log.debug("IOException {}", silaboCurso.getRutaDocumento());
+                continue;
+            }
+            log.debug("end download silabu {}", silaboCurso.getId());
+            attachment.add(fileDowload);
+        }
+        if (attachment.isEmpty()) {
+            throw new PhobosException("No se ha encontrado ningún archivo en el servidor");
+        }
+        String fileCompress = "compress" + System.currentTimeMillis() + ".zip";
+        try {
+            new ZipFile(TMP_DIR + fileCompress).addFiles(attachment);
+        } catch (ZipException ex) {
+            throw new PhobosException("No se ha encontrado ningún archivo en el servidor");
+        }
+        archivoService.downloadTemp(fileCompress, "Silabus.zip", response);
+    }
 }

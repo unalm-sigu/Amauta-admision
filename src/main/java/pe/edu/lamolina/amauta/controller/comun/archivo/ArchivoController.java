@@ -1,19 +1,9 @@
 package pe.edu.lamolina.amauta.controller.comun.archivo;
 
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,36 +17,6 @@ public class ArchivoController {
 
     @Autowired
     ArchivoService service;
-    @Autowired
-    StorageService swiftService;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @ResponseBody
     @RequestMapping("upload")

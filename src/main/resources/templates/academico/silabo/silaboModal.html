@@ -1,29 +1,27 @@
-<modal-vik ref="modalSilabo"
-           v-bind="modalSilabo"
-           v-bind:okaction="save"
-           v-bind:cancelaction="cancelSave">
+<modal-simple ref="modalSilabo"
+              v-bind:okaction="save" >
+
+    <div slot="header" >
+        <h4 class="modal-title text-center">Agregar nuevo Silabo</h4>
+    </div>
+
 
     <div slot="body" vclass="panel">
 
-        <div class="text-center">
-            <h4>Agregar nuevo Silabo</h4>
-        </div>
-
-        <div class="row" data-parsley-validate="true" id="form">
+        <form class="row" v-if="silaboCurso" data-parsley-validate="true" id="form">
 
             <div class="col-md-12">
                 <label>Departamento Académico</label>
                 <div class="form-group">
                     <multiselect v-model="silaboCurso.departamentoAcademico"
-                                 track-by="id"
+                                 track-by="id"   
+                                 placeholder=" "
                                  v-bind:internal-search="false"
                                  v-bind:limit="15"
                                  v-on:search-change="findDepartamento"
                                  v-bind:allow-empty="false"
                                  v-bind:options="departamentos"
-               
-                                 label="nombre"
-                                 >
+                                 label="nombre" >
                         <template slot="singleLabel" slot-scope="props">
                             <span class="option__title">
                                 <b>{{props.option.codigo}}</b> {{props.option.nombre}}
@@ -50,14 +48,14 @@
 
                     <multiselect v-model="silaboCurso.curso"
                                  track-by="id"
+                                 placeholder=" "
                                  v-bind:internal-search="false"
                                  v-bind:limit="15"
                                  v-on:search-change="findCurso"
                                  v-bind:allow-empty="false"
                                  v-bind:options="cursos"
                                  v-bind:disabled="silaboCurso.estado == 'ACT' || silaboCurso.estado == 'ERROREV'"
-                                 label="nombre"
-                                 >
+                                 label="nombre" >
                         <template slot="option" slot-scope="props">
                             <div class="block h5 m-t-xs m-b-xs bold" v-text="props.option.nombre"></div>
                             <small class="block">
@@ -73,36 +71,54 @@
             </div>
 
             <div class="col-md-12">
+                <label>Ciclo Dictado</label>
+
+                <div class="form-group">
+                    <multiselect v-model="silaboCurso.cicloVigenciaInicio"
+                                 track-by="id"
+                                 placeholder=" "
+                                 v-bind:allow-empty="true"
+                                 v-bind:options="ciclos"
+                                 label="nombre"  
+                                 v-bind:internal-search="true"
+                                 v-bind:hide-selected="true"
+                                 v-bind:showNoOptions="true"
+                                 v-bind:show-labels="false">
+                        <template slot="singleLabel" slot-scope="props">
+                            <span class="option__title">
+                                {{props.option.descripcion}}
+                            </span>
+                        </template>
+
+                        <template slot="option" slot-scope="props">
+                            <span class="option_title">
+                                {{props.option.descripcion}}
+                            </span> 
+                        </template>
+
+                        <template slot="noOptions">&nbsp;</template>
+                        <template slot="noResult">&nbsp;</template>
+
+                    </multiselect>   
+
+                </div>
+            </div>
+            
+            <div class="col-md-12">
                 <label>Archivo</label>
                 <div class="form-group">
-                    <a v-if="silaboCurso.id != '' &amp;&amp; silaboCurso.id != null &amp;&amp; silaboCurso.fileUpdated == ''"
-                       v-bind:href="silaboCurso.rutaDocumento" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Descargar</a>
-                    <a v-if="silaboCurso.fileUpdated != '' &amp;&amp; silaboCurso.fileUpdated != null"
-                       v-bind:href="'/comun/archivo/downloadTemp/' + silaboCurso.rutaDocumento" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Descargar</a>
+                    
+                    <a v-if="silaboCurso.rutaDocumento"
+                       href="#" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Archivo Adjunto</a>
 
-                    <file-upload
-                        v-if="silaboCurso.estado != 'ACT' &amp;&amp; silaboCurso.estado != 'ERROREV'"
-                        extensions="pdf"
-                        accept="application/pdf"
-                        class="pull-right"
-                        post-action="/comun/archivo/uploadFile"
-                        v-model="files"
-                        v-bind:multiple="false"
-                        v-on:input-filter="inputFilter"
-                        v-on:input-file="inputFile"
-                        required="true"
-                        ref="upload">
-                        <span class="btn btn-primary pull-right m-b-md"
-                              v-if="!$refs.upload || !$refs.upload.active"
-                              v-on:click="$refs.upload.active = true">
-                            <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
-                        </span>
-                    </file-upload>
+                    <vue-file-picker class="pull-right" v-bind:onpick="onFileUplad"></vue-file-picker>
+                    
                     <input class="hide" v-model="silaboCurso.rutaDocumento" required="true" />
+
                 </div>
             </div>
 
-        </div>
+        </form>
     </div>
 
-</modal-vik>
+</modal-simple>

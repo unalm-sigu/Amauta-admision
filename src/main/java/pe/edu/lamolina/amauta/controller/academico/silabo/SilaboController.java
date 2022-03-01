@@ -1,7 +1,9 @@
 package pe.edu.lamolina.amauta.controller.academico.silabo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -47,6 +50,7 @@ public class SilaboController {
 
         ArrayNode array = JaneHelper.from(silabos)
                 .join("curso", "id,codigo,nombre")
+                .join("cicloVigenciaInicio", "id,codigo,descripcion")
                 .join("curso.modalidadEstudio", "id,codigo,nombre")
                 .join("curso.departamentoAcademico", "id,codigo,nombre,nombreLargo")
                 .join("curso.departamentoAcademico.facultad", "id,codigo,nombre")
@@ -108,5 +112,22 @@ public class SilaboController {
         List<DepartamentoAcademico> departamentoAcademicos = service.allDepartamentoMod(nombre, compania);
         return JaneHelper.from(departamentoAcademicos).only("id,codigo,nombre")
                 .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allCiclo")
+    public ArrayNode allCiclo(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<CicloAcademico> ciclos = service.allCiclo(ds);
+        return JaneHelper.from(ciclos).only("id,codigo,descripcion")
+                .array();
+    }
+
+    @RequestMapping("descargar")
+    public void descargar(@RequestParam("silabus") ArrayList<Long> silabus,
+            HttpServletResponse response) {
+        
+        service.downloadZip(silabus,response);
+        
     }
 }
