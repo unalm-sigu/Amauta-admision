@@ -6,12 +6,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +72,9 @@ public class SilaboServiceImp implements SilaboService {
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy-HHmm");
 
-            String fileName = new StringJoiner("-").add("Silabo")
+            String fileName = new StringJoiner("-").add("Silabus")
                     .add(silabo.getCurso().getCodigo())
+                    .add(silabo.getCurso().getNombre())
                     .add(sdf.format(new Date())
                             + "." + FilenameUtils.getExtension(silabo.getRutaDocumento()))
                     .toString();
@@ -181,7 +179,7 @@ public class SilaboServiceImp implements SilaboService {
     public void downloadZip(ArrayList<Long> silabus, HttpServletResponse response) {
         List<File> attachment = new ArrayList<>();
         List<SilaboCurso> silaboCursos = silaboCursoDAO.allByIds(silabus);
-        String tmpFolder = TMP_DIR + "download/" + System.currentTimeMillis()+"/";
+        String tmpFolder = TMP_DIR + "down" + System.currentTimeMillis()+"/";
         new File(tmpFolder).mkdirs();
         for (SilaboCurso silaboCurso : silaboCursos) {
             log.debug("star download silabu {}", silaboCurso.getId());
