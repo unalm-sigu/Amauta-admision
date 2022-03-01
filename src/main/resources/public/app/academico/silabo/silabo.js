@@ -172,7 +172,7 @@ new Vue({
             $vue.showLoader();
             axios_blob.get(APP.url('academico/silabo/reporte'))
                     .then(response => {
-                        UTIL_BLOB_INLINE.save(response);
+                        UTIL_BLOB.save(response);
                         $vue.hideLoader();
                     }, () => $vue.hideLoader());
         },

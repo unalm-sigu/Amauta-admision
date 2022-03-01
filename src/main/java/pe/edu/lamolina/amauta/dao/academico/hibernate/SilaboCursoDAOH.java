@@ -58,4 +58,14 @@ public class SilaboCursoDAOH extends AbstractEasyDAO<SilaboCurso> implements Sil
         }
     }
 
+    @Override
+    public List<SilaboCurso> all() {
+        Octavia sql = new Octavia()
+                .from(SilaboCurso.class, "sc")
+                .join("curso cu", "cu.departamentoAcademico da", "da.facultad fa")
+                .join("sc.departamentoAcademico depa", "cu.modalidadEstudio mo")
+                .orderBy("cu.id","depa.id");
+        return this.all(sql);
+    }
+
 }

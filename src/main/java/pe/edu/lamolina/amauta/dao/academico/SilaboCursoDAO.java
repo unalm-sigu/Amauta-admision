@@ -12,4 +12,6 @@ public interface SilaboCursoDAO extends EasyDAO<SilaboCurso> {
 
     public List<SilaboCurso> allByIds(ArrayList<Long> silabus);
 
+    public List<SilaboCurso> all();
+
 }

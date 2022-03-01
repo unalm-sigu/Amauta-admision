@@ -8,11 +8,13 @@ import javax.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -33,6 +35,9 @@ public class SilaboController {
 
     @Autowired
     SilaboService service;
+
+    @Autowired
+    SilaboReporteXLSX silaboReporteXLSX;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
@@ -69,14 +74,14 @@ public class SilaboController {
     public String save(@RequestBody SilaboCurso silabo, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-       
+
         silabo.setUserRegistro(ds.getUsuario());
 
         if (silabo.getId() == null) {
             service.save(silabo);
             return GlobalMessages.CREATED;
         }
-        
+
         service.save(silabo);
         return GlobalMessages.UPDATED;
     }
@@ -129,6 +134,13 @@ public class SilaboController {
     public void descargar(@RequestParam("silabus") ArrayList<Long> silabus,
             HttpServletResponse response) {
         service.downloadZip(silabus, response);
+    }
+
+    @RequestMapping("reporte")
+    public ModelAndView reporte(Model model) {
+        List<SilaboCurso> silabus = service.allSilabus();
+        model.addAttribute("silabus", silabus);
+        return new ModelAndView(silaboReporteXLSX);
     }
 
     @ResponseBody

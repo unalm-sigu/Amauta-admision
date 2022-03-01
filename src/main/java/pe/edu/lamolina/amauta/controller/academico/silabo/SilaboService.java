@@ -32,4 +32,6 @@ public interface SilaboService {
 
     public List<DepartamentoAcademico> allDepartamento();
 
+    public List<SilaboCurso> allSilabus();
+
 }

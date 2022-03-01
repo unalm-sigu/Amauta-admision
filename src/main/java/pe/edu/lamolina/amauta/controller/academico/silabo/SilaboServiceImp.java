@@ -228,4 +228,9 @@ public class SilaboServiceImp implements SilaboService {
         return departamentoAcademicoDAO.allActivos();
     }
 
+    @Override
+    public List<SilaboCurso> allSilabus() {
+        return silaboCursoDAO.all();
+    }
+
 }
