@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Silabus</title>
+        <title>Sílabo</title>
     </head>
     <body>
 
@@ -15,12 +15,15 @@
                             <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="pointer" v-on:click="openModalSilabo"> Agregar Silabus </a></li>
-                            <li><a class="pointer" v-on:click="descargarSeleccionados"> Descargar Silabus </a></li>
+                            <li><a class="pointer" v-on:click="openModalSilabo"> Agregar Sílabo </a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li><a class="pointer" v-on:click="descargarSeleccionados"> Descargar Sílabo </a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li><a class="pointer" v-on:click="descargarReporte">Reporte Sílabo</a></li>
                         </ul>
                     </div>
 
-                    <h2 th:inline="text" class="m-b-n">Silabus</h2>
+                    <h2 th:inline="text" class="m-b-n">Sílabos</h2>
 
                 </header>
 
@@ -31,6 +34,43 @@
 
                             <raptor-table v-bind:url="silaboURL" ref="load">
 
+                                <template slot="header">
+                                    <div class="col-sm-3">
+
+                                        <multiselect
+                                            v-model="filtroDepartamento"
+                                            v-bind:options="departamentos"
+                                            v-bind:allow-empty="true"
+                                            v-on:input="changeFilterDepartamento"
+                                            track-by="id"
+                                            placeholder="Departamento Académico"
+                                            label='nombre'
+                                            v-bind:internal-search="true"
+                                            v-bind:hide-selected="false"
+                                            v-bind:showNoOptions="true"
+                                            v-bind:show-labels="false">
+
+                                            <template slot="singleLabel" slot-scope="props">
+                                                <span class="option__title">
+                                                    {{props.option.nombre}}
+                                                </span>
+                                            </template>
+
+                                            <template slot="option" slot-scope="props">
+                                                <span class="option_title">
+                                                    {{props.option.nombre}}
+                                                </span> 
+                                            </template>
+
+                                            <template slot="noOptions">&nbsp;</template>
+                                            <template slot="noResult">&nbsp;</template>
+
+                                        </multiselect>
+
+                                    </div>
+
+                                </template>
+
                                 <template scope="props">
                                     <table class="table table-striped table-hover">
                                         <thead>
@@ -40,7 +80,7 @@
                                                 <th class="col-sm-3 text-center v-middle"></th>
                                                 <th class="col-sm-1 text-center v-middle">Ciclo Dictado</th>
                                                 <th class="col-sm-2 text-center v-middle">Departamento</th>
-                                                <th class="col-sm-1 text-center v-middle">Silabus</th>
+                                                <th class="col-sm-1 text-center v-middle">Sílabo</th>
                                                 <th class="col-sm-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -75,7 +115,8 @@
 
 
                                                 <td class="v-middle text-center">
-                                                    <a target="_blank" v-bind:href="item.rutaDocumento" class="pointer btn btn-link"><i class="fa fa-file-o fa-lg"></i></a>
+                                                    <a href="#" v-on:click.prevent="openFile(item)" class="pointer btn btn-link"><i class="fa fa-file-o fa-lg"></i></a>
+                                                    <!--<a target="_blank" v-bind:href="item.rutaDocumento" class="pointer btn btn-link"><i class="fa fa-file-o fa-lg"></i></a>-->
                                                 </td>
 
                                                 <td class="v-middle text-center">

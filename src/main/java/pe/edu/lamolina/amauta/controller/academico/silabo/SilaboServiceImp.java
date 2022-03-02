@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.comun.archivo.ArchivoService;
 import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.model.enums.SilaboCursoEstadoEnum;
@@ -70,13 +70,12 @@ public class SilaboServiceImp implements SilaboService {
 
         if (silabo.getFileUpdated() != null) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy-HHmm");
+            log.debug("FilenameUtils {}", FilenameUtils.getName(silabo.getRutaDocumento()));
 
-            String fileName = new StringJoiner("-").add("Silabus")
-                    .add(silabo.getCurso().getCodigo())
-                    .add(silabo.getCurso().getNombre())
-                    .add(sdf.format(new Date())
-                            + "." + FilenameUtils.getExtension(silabo.getRutaDocumento()))
+            String fileName = new StringJoiner("")
+                    .add("SILABUS")
+                    .add(TypesUtil.toMD5(FilenameUtils.getName(silabo.getRutaDocumento())))
+                    .add(silabo.getRutaDocumento())
                     .toString();
 
             FileHelper.renameFile(TMP_DIR + silabo.getRutaDocumento(), TMP_DIR + fileName);
@@ -179,7 +178,7 @@ public class SilaboServiceImp implements SilaboService {
     public void downloadZip(ArrayList<Long> silabus, HttpServletResponse response) {
         List<File> attachment = new ArrayList<>();
         List<SilaboCurso> silaboCursos = silaboCursoDAO.allByIds(silabus);
-        String tmpFolder = TMP_DIR + "down" + System.currentTimeMillis()+"/";
+        String tmpFolder = TMP_DIR + "down" + System.currentTimeMillis() + "/";
         new File(tmpFolder).mkdirs();
         for (SilaboCurso silaboCurso : silaboCursos) {
             log.debug("star download silabu {}", silaboCurso.getId());
@@ -188,8 +187,29 @@ public class SilaboServiceImp implements SilaboService {
                 continue;
             }
             log.debug("{}", silaboCurso.getRutaDocumento());
-            String fileName = tmpFolder + FilenameUtils.getName(silaboCurso.getRutaDocumento());
+
+            String uniqueName = new StringJoiner(" ")
+                    .add("Sílabo")
+                    .add(silaboCurso.getCurso().getCodigo())
+                    .add(TypesUtil.getClean(silaboCurso.getCurso().getNombre())
+                            + "." + FilenameUtils.getExtension(silaboCurso.getRutaDocumento()))
+                    .toString();
+
+            String fileName = tmpFolder + uniqueName;
             File fileDowload = new File(fileName);
+            int count = 0;
+            while (fileDowload.exists()) {
+                log.debug("Archivo existe generando consecutivo {}", count);
+                count++;
+                uniqueName = new StringJoiner(" ")
+                        .add("Sílabo")
+                        .add(silaboCurso.getCurso().getCodigo())
+                        .add(TypesUtil.getClean(silaboCurso.getCurso().getNombre()))
+                        .add("(" + count + ")." + FilenameUtils.getExtension(silaboCurso.getRutaDocumento()))
+                        .toString();
+                fileName = tmpFolder + uniqueName;
+                fileDowload = new File(fileName);
+            }
             try {
                 FileUtils.copyURLToFile(new URL(silaboCurso.getRutaDocumento()), fileDowload);
             } catch (MalformedURLException ex) {
@@ -211,6 +231,17 @@ public class SilaboServiceImp implements SilaboService {
         } catch (ZipException ex) {
             throw new PhobosException("No se ha encontrado ningún archivo en el servidor");
         }
-        archivoService.downloadTemp(fileCompress, "Silabus.zip", response);
+        archivoService.downloadTemp(fileCompress, "Sílabos.zip", response);
     }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartamento() {
+        return departamentoAcademicoDAO.allActivos();
+    }
+
+    @Override
+    public List<SilaboCurso> allSilabus() {
+        return silaboCursoDAO.all();
+    }
+
 }
