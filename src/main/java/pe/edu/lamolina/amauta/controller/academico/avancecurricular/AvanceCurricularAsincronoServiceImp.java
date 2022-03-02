@@ -503,6 +503,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<TipoCursoCurriculaEnum, TipoCursoCurricula> mapTipoCursoCurricula = TypesUtil.convertListToMap("codigoEnum", tipoCursoCurriculax);
 
         List<CursoCurricula> cursosCurriculaPlan = new ArrayList(mapCursosCurricula.values());
+       
         for (CursoCurricula cursocurricula : cursosCurriculaPlan) {
 
             AlumnoCursoCurricula aluCursoCurrNew = new AlumnoCursoCurricula();
@@ -587,19 +588,25 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
 
         cursosMatriculados = TypesUtil.getListNotNull(cursosMatriculados);
-
+        
         validarCursosComodin(alumnoCursosComodinesDepNew, alumnoCursosCurriculaNew, mapResumenPlanCurricular, mapTipoCursoCurricula.get(DEP));
+        
         validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
+        
         validarCursosRequisito(alumnoCursosCurriculaNew, mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula, mapEquivalentesCurricula, cursosAprobados, alumno);
+        
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursosCurriculaNew, mapEquivalenteElectivo, cursoOpcionalCurriculas, mapTipoCursoCurricula, mapRequisitoCursoOpcionals);
+        
         validarCursosELC(alumnoCursosElectivosNew, alumnoCursosCurriculaNew, alumno);
+        
 
         this.printLogger("cursosSimultaneosAlu.size.1=" + cursosSimultaneosAlu.size(), showLogger);
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds, showLogger);
+        
         this.printLogger("cursosSimultaneosAlu.size.2=" + cursosSimultaneosAlu.size(), showLogger);
         alumnoCursosCurriculaNew.addAll(alumnoCursosElectivosNew);
         this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger, mapCursosVecesLlevado);
-
+        
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
             if (!alumnoCursoCurricula.isValidado() && alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() != TipoCursoCurriculaEnum.CPRO) {
                 alumnoCursoCurricula.setEstadoRegistro(INA.name());
@@ -607,7 +614,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
         generarAvanceCurricular(alumnoCursosElectivosNew, alumnoCursosCurriculaNew, mapResumenPlanCurricular, mapTipoCursoCurricula, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado, showLogger);
-
+        
         for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : cursosSimultaneosAlu) {
             alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
         }
@@ -642,7 +649,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
             //            if (aluCursoCurricula.getVecesCursado() == 0) {
-            System.out.print(aluCursoCurriculaNew.getCurso().getNombre());
             this.printLogger(":::: Curso ::::" + aluCursoCurriculaNew.getCurso().getNombre(), showLogger);
             String key = aluCursoCurriculaNew.getAlumno().getId() + "-" + aluCursoCurriculaNew.getCurso().getId();
             AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
@@ -661,7 +667,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                         AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaNew.get(cursoEquivalente.getCursoCaduco().getId());
                         if (alumnoCursoCurricula != null) {
                             aproboCaduco = Arrays.asList(APR, EQUIV, CONV).contains(alumnoCursoCurricula.getEstadoEnum());
-                            System.out.println("Aprobó");
                         }
                     }
                 }
@@ -714,12 +719,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobados);
 
         List<AlumnoCursoCurricula> aluCursosCurricula = new ArrayList(mapAluCursoCurriculaByIdCursoCurricula.values());
+       
         Map<Long, AlumnoCursoCurricula> mapCursosEquivalenteAct = TypesUtil.convertListToMap("curso.id", aluCursosCurricula);
 
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurricula) {
-            if (aluCursoCurricula.getCurso().getCodigo().equals("EP2085")) {
-                System.out.print("EP2085");
-            }
+
             CursoCurricula cursoCurricula = aluCursoCurricula.getCursoCurricula();
             List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapEquivalentesAll.get(cursoCurricula.getId()));
             if (cursosEquivalentes.isEmpty()) {
@@ -968,16 +972,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Alumno alumno) {
 
         for (AlumnoCursoCurricula evaluado : alumnoCursoCurriculasNew) {
-
+            
             if (evaluado.isValidado()) {
                 continue;
             }
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-            if (evaluado.getCurso().getCodigo().equals("PQ3014")) {
-                System.out.print("PQ3014");
-            }
+
             Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
             if (requisitos.isEmpty() || cumpleRequisitos(requisitos, mapAluCursoCurriculaByIdCursoCurricula, mapEquivalentesCurricula, cursosAprobados, evaluado)) {
@@ -1097,7 +1099,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 } else {
                     evaluado.setEstadoEnum(evaluado.getEstadoEnum());
                 }
-            } else {
+            } else if (!evaluado.isValidado()) {
                 evaluado.setEstadoEnum(NREQ);
             }
             evaluado.setValidado(true);
