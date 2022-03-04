@@ -38,6 +38,13 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.NIV;
 
 @Repository
@@ -1073,6 +1080,14 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
                 .join("alu.persona")
+                .in("sa.codigo", asList(
+                        S_4.getValue(),
+                        S_X.getValue(),
+                        S_U.getValue(),
+                        S_XD.getValue(),
+                        S_4U.getValue(),
+                        S_4T.getValue(),
+                        S_7.getValue()))
                 .in("estado", asList(MAT, NMAT))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.matricula.nivelacion;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,11 +13,13 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.amauta.dao.auditoria.ClonarCicloNivelacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.auditoria.ClonarCicloNivelacion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
@@ -30,6 +33,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     private final MatriculaResumenDAO matriculaResumenDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
     private final AlumnoCicloDAO alumnoCicloDAO;
+    private final ClonarCicloNivelacionDAO clonarCicloNivelacionDAO;
 
     @Override
     @Transactional
@@ -38,7 +42,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
         int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();
         int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();
         if (codeInicio >= codeFin) {
-            throw new PhobosException("Ciclo no valido");
+            throw new PhobosException("Ciclos no validos");
         }
         CicloAcademico destino = cicloAcademicoDAO.find(clonarNivelacionDTO.getCicloDestino());
         if (destino.getTipoEnum() != TipoCicloEnum.NIV) {
@@ -92,7 +96,25 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosMatriculadosPosgrado(0);
             matriculaResumen.setCreditosMatriculadosPregrado(0);
             matriculaResumen.setCreditosRetirados(0);
+
+            matriculaResumen.setCreditosCursadosCiclo(matriculaOrigen.getCreditosCursadosCiclo());
+            matriculaResumen.setCreditosAcumulados(matriculaOrigen.getCreditosAcumulados());
+            matriculaResumen.setCreditosAprobadosCiclo(matriculaOrigen.getCreditosAprobadosCiclo());
+            matriculaResumen.setCreditosAprobadosAcumulados(matriculaOrigen.getCreditosAprobadosAcumulados());
+            matriculaResumen.setPromedioSemestral(matriculaOrigen.getPromedioSemestral());
+            matriculaResumen.setCicloAcademicoInfo(matriculaOrigen.getCicloAcademicoInfo());
+            matriculaResumen.setMotivoMatriculable(matriculaOrigen.getMotivoMatriculable());
             matriculaResumenDAO.save(matriculaResumen);
         }
+
+        destino.setFechaPrioridades(new Date());
+        destino.setFechaCierrePrioridades(new Date());
+        cicloAcademicoDAO.update(destino);
+
+        ClonarCicloNivelacion clonarCicloNivelacion = new ClonarCicloNivelacion();
+        clonarCicloNivelacion.setUsuario(ds.getUsuario());
+        clonarCicloNivelacion.setCicloOrigen(clonarNivelacionDTO.getCicloOrigen());
+        clonarCicloNivelacion.setCicloDestino(destino);
+        clonarCicloNivelacionDAO.save(clonarCicloNivelacion);
     }
 }
