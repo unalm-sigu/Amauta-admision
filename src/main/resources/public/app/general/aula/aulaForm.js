@@ -3,8 +3,8 @@ $(function () {
     var AulaForm = {
         form: null,
         init: function () {
-            var tipoAmbiente = $('[name="tipoAmbiente"]').select2({placeholder: "Seleccione el tipo ambiente"});
-            $('[name="tipoCarpeta.id"]').select2({placeholder: "Seleccione el tipo carpeta"});
+            var tipoAmbiente = $('[name="tipoAmbiente"]').select2({allowClear: true,placeholder: "Seleccione el tipo ambiente"});
+            // $('[name="tipoCarpeta.id"]').select2({allowClear:true ,placeholder: "Seleccione el tipo carpeta"});
 
             if ($('[name="id"]').val() != '') {
                 AulaForm.viewDivs(tipoAmbiente);
@@ -138,7 +138,7 @@ $(function () {
 
             body.find(".numerico").numeric({negatice: false});
             //body.find('[name="tipoAula.id"]').select2({placeholder: "Seleccione el tipo aula"});
-            body.find('[name="tipoAula.id"]').select2();
+            // body.find('[name="tipoAula.id"]').select2({allowClear: true});
             body.find('[name="sede.id"]').select2();
 
 //            AulaForm.loadSedes();
