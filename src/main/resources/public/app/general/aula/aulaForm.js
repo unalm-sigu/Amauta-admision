@@ -4,49 +4,13 @@ $(function () {
         form: null,
         init: function () {
             var tipoAmbiente = $('[name="tipoAmbiente"]').select2({allowClear: true,placeholder: "Seleccione el tipo ambiente"});
-            // $('[name="tipoCarpeta.id"]').select2({allowClear:true ,placeholder: "Seleccione el tipo carpeta"});
 
             if ($('[name="id"]').val() != '') {
                 AulaForm.viewDivs(tipoAmbiente);
             }
 
         },
-//        loadSedes: function () {
-//            $(".addBody").find("[name='sede.id']").select2({
-//                allowClear: true,
-//                placeholder: "Seleccione una sede",
-//                minimumInputLength: 1,
-//                ajax: {
-//                    url: APP.url("general/aula/allSedes"),
-//                    dataType: 'json',
-//                    type: 'post',
-//                    data: function (term, page) {
-//                        return {nombre: term, page: page};
-//                    },
-//                    results: function (response, page) {
-//                        return {results: response.data};
-//                    }
-//                },
-//                initSelection: function (element, callback) {
-//                    if (element.val() != "") {
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
-//                    }
-//                },
-//                formatResult: function (info) {
-//                    return info.nombre;
-//                },
-//                formatSelection: function (info) {
-//                    return info.nombre;
-//                },
-//                escapeMarkup: function (m) {
-//                    return m;
-//                }
-//            });
-//        },
+
         loadGestor: function () {
             $(".addBody").find("[name='oficinaSupervisora.id']").select2({
                 allowClear: true,
@@ -137,11 +101,7 @@ $(function () {
             }
 
             body.find(".numerico").numeric({negatice: false});
-            //body.find('[name="tipoAula.id"]').select2({placeholder: "Seleccione el tipo aula"});
-            // body.find('[name="tipoAula.id"]').select2({allowClear: true});
             body.find('[name="sede.id"]').select2();
-
-//            AulaForm.loadSedes();
             AulaForm.loadAulasSuperior();
             AulaForm.loadGestor();
         },

@@ -109,6 +109,9 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
         destino.setFechaPrioridades(new Date());
         destino.setFechaCierrePrioridades(new Date());
+        destino.setFechaCierreMatriculable(new Date());
+        destino.setFechaVerificaNmat(new Date());
+        destino.setFechaMatriculables(new Date());
         cicloAcademicoDAO.update(destino);
 
         ClonarCicloNivelacion clonarCicloNivelacion = new ClonarCicloNivelacion();
