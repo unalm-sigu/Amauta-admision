@@ -46,7 +46,7 @@
                                             <img class="img-foto-list" v-bind:src="item.rutaFoto" />
                                         </a>
                                     </div>
-                                    <div v-if="item.tipoFoto=='COMUN'">
+                                    <div v-else-if="item.tipoFoto=='COMUN'">
                                         <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
                                     </div>
                                     <div v-else="">
