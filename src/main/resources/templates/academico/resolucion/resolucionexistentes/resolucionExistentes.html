@@ -35,11 +35,12 @@
                 var carrerasJson = /*[[${carreras.toString()}]]*/ '';
                 var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ '';
                 var resolucionJson = /*[[${resolucion != null ? resolucion.toString() : null}]]*/ '';
+                var IS_EDICION = /*[[${IS_EDICION}]]*/ '';
             </script>
 
             <div th:substituteby="_modules/vue-modal_v1"/>
 
-            <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistentestore.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistentesmixin.js}" charset="utf-8"></script>
 
             <script>
 
@@ -50,7 +51,6 @@
                 const ResolucionForm = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionForm.vue');
 
                 var root = new Vue({
-                    store: store,
                     el: '#main',
                     components: {
                         resolucionForm: ResolucionForm,

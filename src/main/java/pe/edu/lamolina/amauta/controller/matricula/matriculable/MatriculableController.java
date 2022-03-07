@@ -13,8 +13,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,28 +57,24 @@ import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
+@Slf4j
 @Controller
 @RequestMapping("academico/matriculable")
 public class MatriculableController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     MatriculableService service;
 
     @Autowired
     RespositorVisor repositorVisor;
-
-    @Autowired
-    AlumnoService serviceAlumno;
 
     @Autowired
     ResponseRestService responseRestService;
@@ -120,37 +115,60 @@ public class MatriculableController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
 
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         String codeRequest = verificadorService.generateCodeRequest();
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
 
         List<Carrera> carreras = new ArrayList();
-        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum
+                = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+
         if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
             carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
         }
 
         AlumnoResumen resumen = service.allResumen(cicloAcademico, cantidadEnum, carreras);
-
+        ArrayNode tiposCondicion = new ArrayNode(JsonNodeFactory.instance);
         for (TipoCondicionalEnum value : TipoCondicionalEnum.values()) {
             if (value == TipoCondicionalEnum.OTRO) {
 
                 ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
                 obj.put("name", value.name());
                 obj.put("value", value.getValue());
-                array.add(obj);
+                tiposCondicion.add(obj);
             }
         }
 
-        model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("tipoCondicional", array);
+        model.addAttribute("resumen", JaneHelper.from(resumen).json().toString());
+        model.addAttribute("ciclo", JaneHelper.from(cicloAcademico).json().toString());
+        model.addAttribute("tipoCondicional", tiposCondicion);
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
         model.addAttribute("puedeMatricularPosgrado", verificadorService.puedeMatricularPosgrado(ds));
 
+        model.addAttribute("ciclos", JaneHelper.from(service.allCiclo())
+                .only("id,descripcion,codigo,year,descripcion2")
+                .array().toString());
+
+        model.addAttribute("situaciones", JaneHelper.from(service.allSituacionAcademica())
+                .array().toString());
+
+        ArrayNode estadosMatricula = new ArrayNode(JsonNodeFactory.instance);
+        for (EstadoMatriculaEnum value : EstadoMatriculaEnum.values()) {
+            if (value == EstadoMatriculaEnum.MAT
+                    || value == EstadoMatriculaEnum.RCI
+                    || value == EstadoMatriculaEnum.ANCI
+                    || value == EstadoMatriculaEnum.NMAT
+                    || value == EstadoMatriculaEnum.INH) {
+
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("name", value.name());
+                node.put("value", value.getValue());
+                estadosMatricula.add(node);
+            }
+        }
+        model.addAttribute("estadosMatricula", estadosMatricula.toString());
         return "academico/matriculable/matriculable";
     }
 
@@ -167,18 +185,18 @@ public class MatriculableController {
             List<MatriculaResumen> matriculables = new ArrayList();
 
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
-            logger.debug("cantidadEnum que pueve ver {}", cantidadEnum.name());
+            log.debug("cantidadEnum que pueve ver {}", cantidadEnum.name());
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
-                logger.debug("carreras que pueve ver {}", carreras.size());
+                log.debug("carreras que pueve ver {}", carreras.size());
             }
 
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
-                logger.debug("inicia consulta de matriculables");
+                log.debug("inicia consulta de matriculables");
                 matriculables = service.allMatriculablesByDynatable(filter, ds.getCicloAcademico(), carreras, cantidadEnum.name());
             }
 
-            logger.debug("matriculables {}", matriculables.size());
+            log.debug("matriculables {}", matriculables.size());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -393,7 +411,7 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            logger.debug("confTurnoAtencion {}", confTurnoAtencion);
+            log.debug("confTurnoAtencion {}", confTurnoAtencion);
             String message = "Rechazado correctamente.";
             service.procesarTurnoMatricula(ds.getCicloAcademico(), confTurnoAtencion);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -451,7 +469,7 @@ public class MatriculableController {
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
         try {
-            logger.debug("File {}", file.getBytes().length);
+            log.debug("File {}", file.getBytes().length);
             service.loadEgresados(file);
             json.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -891,20 +909,11 @@ public class MatriculableController {
 
     @RequestMapping("aptosPregrado")
     public ModelAndView aptosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
-            model.addAttribute("listAptoPreBean", listAptoPreBean);
-            model.addAttribute("tipoReporte", tipoReporte);
-
-        } catch (PhobosException e) {
-            e.printStackTrace();
-            logger.debug("*** PhobosException {}", e);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.debug("*** Exception {}", e);
-        }
+        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
+        model.addAttribute("listAptoPreBean", listAptoPreBean);
+        model.addAttribute("tipoReporte", tipoReporte);
         return new ModelAndView(aptosPregradoView);
     }
 
@@ -1002,6 +1011,36 @@ public class MatriculableController {
         } finally {
             return json;
         }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "resumen", method = RequestMethod.GET)
+    public AlumnoResumen resumen(Model model, HttpSession session, HttpServletRequest request) {
+
+        String codeRequest = verificadorService.generateCodeRequest();
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
+
+        List<Carrera> carreras = new ArrayList();
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+        }
+        return service.allResumen(cicloAcademico, cantidadEnum, carreras);
+
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarrera")
+    public ArrayNode allCarrera(@RequestParam("nombre") String nombre) {
+        log.debug("nombre:{}", nombre);
+        List<Carrera> carreras = service.searchAllCarrera(nombre);
+        return JaneHelper.from(carreras)
+                .only("id,codigo,nombre")
+                .join("modalidadEstudio", "nombre")
+                .array();
+
     }
 
 }

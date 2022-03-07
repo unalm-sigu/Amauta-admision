@@ -289,17 +289,17 @@ $(function () {
                 });
             });
 
-            let total = 0;
-            $('input.contar-item-peso').each(function (i, $el) {
-                let element = $($el).val();
-                if (element) {
-                    total += parseFloat(element);
-                }
-            });
-            if (total !== parseFloat($("#txtPesoEvalForExp").val())) {
-                notify("La suma total " + total + " debe de ser igual al peso de " + $("#txtPesoEvalForExp").val(), "error");
-                return;
-            }
+//            let total = 0;
+//            $('input.contar-item-peso').each(function (i, $el) {
+//                let element = $($el).val();
+//                if (element) {
+//                    total += parseFloat(element);
+//                }
+//            });
+//            if (total !== parseFloat($("#txtPesoEvalForExp").val())) {
+//                notify("La suma total " + total + " debe de ser igual al peso de " + $("#txtPesoEvalForExp").val(), "error");
+//                return;
+//            }
             bootbox.confirm({
                 message: "¿Está seguro que desea expandir?",
                 buttons: {

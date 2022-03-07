@@ -92,4 +92,6 @@ public interface VerificadorService {
 
     public boolean esInformaticoOERA(DataSessionPivot ds);
 
+    public boolean soloEditarDatosAlumno(DataSessionPivot ds);
+
 }

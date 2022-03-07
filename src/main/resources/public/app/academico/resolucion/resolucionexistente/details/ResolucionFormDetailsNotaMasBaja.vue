@@ -87,13 +87,18 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
                 alumnoCicloCursoBeans: [],
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -103,10 +108,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.cambioNotaMasBajas.push({seleccionado: true, alumnoCicloCursoBeans: []});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.cambioNotaMasBajas.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 

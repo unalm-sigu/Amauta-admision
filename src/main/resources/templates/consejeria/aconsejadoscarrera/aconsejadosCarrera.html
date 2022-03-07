@@ -1,39 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Listado de Estudiantes</title>
-        <style>
-            span#departs {
-                /*                margin-left: 1px;*/
-                font-size: x-small;
-            }
-            .circle-recorrido {
-                display: block;
-                border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                overflow: hidden;
-                margin: 0 auto;
-                line-height: 50px;
-                /*                text-align: center;*/
-                font-size: 16px;
-                /*                margin-left: 49px;*/
-                text-indent: 0;
-                vertical-align: middle;
-                margin-top: 2px;
-                margin-bottom: 2px;
-            }
-
-            .circle-recorrido.bgr-success {
-                background-color: #2ECC71;
-                color: #fff;
-            }
-
-            .circle-recorrido.bgr-default {
-                background-color: #3C4043;
-                color: #fff;
-            }
-
-        </style>
     </head>
 
     <body>
@@ -242,9 +209,9 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
-                var carrerasJson = /*[[${carreras}]]*/ 'json';
-                var rutaModulo = 'consejeria/aconsejadoscarrera';
+                var cicloJson = /*[[${ciclo.toString()}]]*/ '';
+                var carrerasJson = /*[[${carreras}]]*/ '';
+                var RUTA_MODULO = /*[[${RUTA_MODULO}]]*/ '';
                 /*]]>*/
             </script>
 

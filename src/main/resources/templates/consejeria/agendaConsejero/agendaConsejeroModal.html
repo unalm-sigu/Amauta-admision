@@ -90,6 +90,9 @@
                                     <small class="block" v-if="alumnoConsejero.alumno.carrera.nombre != alumnoConsejero.alumno.carrera.facultad.nombre ">
                                         Facultad de {{alumnoConsejero.alumno.carrera.facultad.nombre}}
                                     </small>
+                                    <p class="badge" v-if="alumnoConsejero.alumno.situacionAcademica">
+                                        {{alumnoConsejero.alumno.situacionAcademica.nombre}}
+                                    </p>
                                 </td>
                                 <td>
                                     <label class="m-t-md checkbox-inline form-control-static">

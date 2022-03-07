@@ -3,6 +3,8 @@ package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -111,6 +113,7 @@ public class ResolucionExistenteController {
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
+        model.addAttribute("IS_EDICION", FALSE);
 
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
@@ -148,6 +151,7 @@ public class ResolucionExistenteController {
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
         model.addAttribute("resolucion", objectNode);
+        model.addAttribute("IS_EDICION", TRUE);
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
@@ -485,7 +489,7 @@ public class ResolucionExistenteController {
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
                     .join("alumno.persona.tipoDocumento", "id,simbolo")
                     .join("tramite", "id")
-                    .join("cicloAcademico","id,descripcion,codigo")
+                    .join("cicloAcademico", "id,descripcion,codigo")
                     .array();
 
             objectNode.set("tramiteTraslado", array);

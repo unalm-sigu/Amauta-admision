@@ -151,4 +151,40 @@ public class ArchivoServiceImp implements ArchivoService {
         }
     }
 
+    @Override
+    public void downloadTemp(String fileName, String fileNameDownload, HttpServletResponse response) {
+
+        BufferedInputStream in = null;
+        BufferedOutputStream out = null;
+
+        try {
+            File file = new File(GlobalConstantine.TMP_DIR + fileName);
+
+            if (!file.exists()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            response.reset();
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + fileNameDownload + "\"");
+            response.setHeader("Cache-Control", "max-age=604800");
+
+            in = new BufferedInputStream(new FileInputStream(file));
+            out = new BufferedOutputStream(response.getOutputStream());
+
+            IOUtils.copy(in, out);
+            response.flushBuffer();
+
+        } catch (IOException ex) {
+            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), fileName);
+        } finally {
+            this.close(in);
+            this.close(out);
+
+        }
+
+    }
+
 }

@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 
 public interface MatriculableService {
 
@@ -104,5 +105,11 @@ public interface MatriculableService {
     void habilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     public void verificarPrioridad(Long idMatriculaResumen);
+
+    public List<CicloAcademico> allCiclo();
+
+    public List<SituacionAcademica> allSituacionAcademica();
+
+    public List<Carrera> searchAllCarrera(String nombre);
 
 }

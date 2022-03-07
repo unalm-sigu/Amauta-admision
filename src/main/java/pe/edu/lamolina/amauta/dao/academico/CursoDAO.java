@@ -42,6 +42,8 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allForProgramacion(String nombre);
 
+    List<Curso> allActivoForProgramacion(String nombre);
+
     List<Curso> allCursoByName(String nombre);
 
     List<Curso> allCursoByNameCiclo(String nombre, CicloAcademico ciclo);

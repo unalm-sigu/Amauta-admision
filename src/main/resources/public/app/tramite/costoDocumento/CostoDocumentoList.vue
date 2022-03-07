@@ -79,10 +79,8 @@
             let $vue = this;
         },
         methods: {
-            ...Vuex.mapActions(['setCostoDocumento']),
             modalUpdate(item) {
-                this.setCostoDocumento({...item});
-                this.$parent.update();
+                this.$parent.update({...item});
             },
             reload() {
                 this.$refs.dynatable.repreload();

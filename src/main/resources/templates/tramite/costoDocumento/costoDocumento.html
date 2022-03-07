@@ -49,42 +49,19 @@
                 const CostoDocumentoList = httpVueLoader('/app/tramite/costoDocumento/CostoDocumentoList.vue');
                 const CostoDocumentoForm = httpVueLoader('/app/tramite/costoDocumento/CostoDocumentoForm.vue');
 
-
-                Vue.use(Vuex);
-
-                const store = new Vuex.Store({
-                    state: {
-                        costoDocumento: {}
-                    },
-                    mutations: {
-                        SET_COSTO_DOCUMENTO(state, costoDocumento) {
-                            state.costoDocumento = costoDocumento;
-                        },
-                    },
-                    getters: {
-                        getCostoDocumento: state => state.costoDocumento,
-                    },
-                    actions: {
-                        setCostoDocumento(context, costoDocumento) {
-                            context.commit('SET_COSTO_DOCUMENTO', costoDocumento);
-                        },
-                    }
-                });
-
                 var root = new Vue({
                     el: '#main',
-                    store: store,
                     components: {
                         costoDocumentoList: CostoDocumentoList,
                         costoDocumentoForm: CostoDocumentoForm,
                     },
                     methods: {
-                        ...Vuex.mapActions(['setCostoDocumento']),
                         nuevo() {
-                            this.setCostoDocumento({});
+                            this.$refs.costodocumentoform.setCostoDocumento({});
                             this.$refs.costodocumentoform.open();
                         },
-                        update() {
+                        update(costoDocumento) {
+                            this.$refs.costodocumentoform.setCostoDocumento(costoDocumento);
                             this.$refs.costodocumentoform.open();
                         },
                         reload() {

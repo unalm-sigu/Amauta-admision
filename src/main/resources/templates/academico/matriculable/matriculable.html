@@ -28,6 +28,8 @@
                             <li class="divider"></li>
                             <li class="pointer " ><a v-on:click.prevent="generarReporte('candidatosAptPre')">Candidatos Aptos Pregrado</a></li>
                             <li class="pointer " ><a v-on:click.prevent="generarReporte('votantesAptPre')">Votantes Aptos Pregrado</a></li>
+                            <li class="divider"></li>
+                            <li class="pointer " ><a v-on:click.prevent="clonarMatriculables()">Clonar Matriculables Nivelación</a></li>
                         </ul>
                     </div>
                     <h2>Alumnos Matriculables <span v-text="ciclo.descripcion">2016-II</span></h2>
@@ -70,7 +72,110 @@
                     <section class="panel">
                         <section class="panel-body">
                             <raptor-table v-bind:url="matriculaURL"  ref="load">
-                                <div slot="header"></div>
+                                <div slot="header">
+
+                                    <div class="col-sm-4"> 
+
+                                        <multiselect
+                                            v-model="situacionFilter"
+                                            v-bind:options="situaciones"
+                                            v-bind:allow-empty="true"
+                                            track-by="id"
+                                            placeholder=" Situación Académica "
+                                            label='nombre'
+                                            v-on:input="changeSeleccion()"
+                                            v-bind:internal-search="true"
+                                            v-bind:hide-selected="false"
+                                            v-bind:showNoOptions="true"
+                                            v-bind:show-labels="false">
+
+                                            <template slot="singleLabel" slot-scope="props">
+                                                <span class="option__title">
+                                                    {{ props.option.nombre }}
+                                                </span>
+                                            </template>
+
+                                            <template slot="option" slot-scope="props">
+                                                <span class="option_title">
+                                                    {{props.option.nombre}}
+                                                </span> 
+                                            </template>
+
+                                            <template slot="noOptions">&nbsp;</template>
+                                            <template slot="noResult">&nbsp;</template>
+
+                                        </multiselect>
+                                    </div>
+
+                                    <div class="col-sm-4"> 
+
+                                        <multiselect
+                                            v-model="carreraFilter"
+                                            v-bind:options="carreras"
+                                            v-bind:allow-empty="true"
+                                            track-by="id"
+                                            placeholder=" Carrera "
+                                            label='nombre'
+                                            v-on:search-change="searchCarrera"
+                                            v-on:input="changeSeleccionCarrera()"
+                                            v-bind:internal-search="false"
+                                            v-bind:hide-selected="false"
+                                            v-bind:showNoOptions="true"
+                                            v-bind:show-labels="false">
+
+                                            <template slot="singleLabel" slot-scope="props">
+                                                <span class="option__title">
+                                                    <span class="bold">{{props.option.codigo }}</span> {{ props.option.nombre }}
+                                                </span>
+                                            </template>
+
+                                            <template slot="option" slot-scope="props">
+                                                <span class="option_title">
+                                                    <span class="bold">{{props.option.codigo }}</span>  {{props.option.nombre}}
+                                                    <span class="block text-sm text-primary">{{props.option.modalidadEstudio.nombre }}</span>
+                                                </span> 
+                                            </template>
+
+                                            <template slot="noOptions">&nbsp;</template>
+                                            <template slot="noResult">&nbsp;</template>
+
+                                        </multiselect>
+                                    </div>
+
+                                    <div class="col-sm-4"> 
+
+                                        <multiselect
+                                            v-model="estadoFilter"
+                                            v-bind:options="estadosMatricula"
+                                            v-bind:allow-empty="true"
+                                            track-by="name"
+                                            placeholder=" Estado Matrícula "
+                                            label='name'
+                                            v-on:input="changeSeleccionEstado()"
+                                            v-bind:internal-search="true"
+                                            v-bind:hide-selected="false"
+                                            v-bind:showNoOptions="true"
+                                            v-bind:show-labels="false">
+
+                                            <template slot="singleLabel" slot-scope="props">
+                                                <span class="option__title">
+                                                    {{ props.option.value }}
+                                                </span>
+                                            </template>
+
+                                            <template slot="option" slot-scope="props">
+                                                <span class="option_title">
+                                                    {{props.option.value}}
+                                                </span> 
+                                            </template>
+
+                                            <template slot="noOptions">&nbsp;</template>
+                                            <template slot="noResult">&nbsp;</template>
+
+                                        </multiselect>
+                                    </div>
+
+                                </div>
                                 <template scope="props" >
                                     <table class="table table-striped table-hover">
                                         <thead >
@@ -233,6 +338,9 @@
                 <div th:substituteby="_modules/vue-modal-confirm"></div>
                 <div th:substituteby="academico/matriculable/aporteAlumnoModal"></div>
                 <div th:substituteby="academico/matriculable/boletaAlumnoModal"></div>
+
+                <clonar-matriculable-modal ref="clonarMatriculableModal"></clonar-matriculable-modal>
+
             </div>
         </div>
         <div layout:fragment="js">
@@ -241,10 +349,14 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
                 var tipoCondicionalJson = /*[[${tipoCondicional.toString()}]]*/ 'json';
+                var ciclos = /*[[${ciclos}]]*/ 'json';
+                var situacionesJson = /*[[${situaciones}]]*/ 'json';
+                var estadosMatriculaJson = /*[[${estadosMatricula}]]*/ 'json';
                 var rutaModulo = 'academico/matriculable';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-modal_v1"></div>
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import static java.lang.Boolean.TRUE;
 import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
@@ -253,6 +254,18 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public List<RetiroCiclo> allByRetiroCicloAceptadoContable(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
+                .filter("estado", TramiteEstadoEnum.ACEP)
+                .filter("esContable",1)
+                .filter("al.id", alumno);
+
+        return all(sql);
     }
 
 }

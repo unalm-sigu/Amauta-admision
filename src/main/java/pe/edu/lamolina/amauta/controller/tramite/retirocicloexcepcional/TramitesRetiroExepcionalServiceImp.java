@@ -16,7 +16,6 @@ import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
@@ -163,7 +162,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         Context ctx = new Context();
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCiclo(alumno);
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoContable(alumno);
         AlumnoCiclo ac = null;
 
         InfoRetiroExcepcional infoRetiroExcepcional = new InfoRetiroExcepcional();

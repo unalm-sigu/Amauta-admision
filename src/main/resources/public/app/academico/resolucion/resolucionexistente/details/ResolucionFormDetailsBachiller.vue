@@ -1,9 +1,11 @@
 <template>
-    <div>
+    <div v-if="resolucion">
 
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
 
-        <resolucion-form-filter></resolucion-form-filter>
+        <resolucion-form-filter 
+        v-bind:callfilter="applyFilter" 
+        v-if="!isEdicion"></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
@@ -70,15 +72,20 @@
     const ResolucionFormFilter = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionFormFilter.vue');
     module.exports = {
         mixins: [AppliedFilter, VueLoader],
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
+        },
         components: {
             resolucionFormFilter: ResolucionFormFilter,
-        },
-        computed: {
-            ...Vuex.mapState(["resolucion", "visualizarSoloSeleccionados", "filterFacultad", "isEdicion"])
         },
         data() {
             return {
                 alumnos: [],
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -86,16 +93,17 @@
             if (!$vue.isEdicion) {
                 $vue.allBachillers();
             }
-
         },
         methods: {
             add() {
                 let $vue = this;
                 $vue.resolucion.tramiteBachiller.push({seleccionado: true});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.tramiteBachiller.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 
@@ -107,24 +115,19 @@
 
                 AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
                         {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
-                        .then(({data}) => {
-                            if (data.success) {
-                                $vue.alumnos = data.data;
-                        }
-                        });
+                        .then(({data}) => $vue.alumnos = data.data);
+
             },
             allBachillers() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
                 axios_.get(APP.url("academico/resolucion/existentes/allBachiller"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteBachiller = data;
-                            $vue.hideLoader();
-                        }, () => {
-                            $vue.hideLoader();
-                        });
-
-            }
+                        $vue.resolucion.tramiteBachiller = data;
+                        $vue.hideLoader();
+                        $vue.$forceUpdate();
+                        }, () => $vue.hideLoader());
+            },
         }
     };
 </script>

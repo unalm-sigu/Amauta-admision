@@ -130,6 +130,7 @@ public class AlumnoController {
         model.addAttribute("resumen", service.findResumen(cantidadEnum, carreras));
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
+        model.addAttribute("soloEditarDatosAlumno", verificadorService.soloEditarDatosAlumno(ds));
         model.addAttribute("puedeVerHead", verificadorService.puedeVerHeadAlumno(ds));//no ven los de ROL REVISOR_FAC_ECONOMIA
 
         return "academico/alumno/alumno";

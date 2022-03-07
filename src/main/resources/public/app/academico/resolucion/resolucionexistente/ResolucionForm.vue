@@ -6,7 +6,7 @@
             <section class="panel m-b-xs">
                 <section class="panel-body">
 
-                    <resolucion-form-header></resolucion-form-header>
+                    <resolucion-form-header v-bind:resolucion="resolucion"></resolucion-form-header>
 
                 </section>
             </section>
@@ -17,59 +17,59 @@
                     <div v-if="resolucion.tipoResolucion">
 
                         <div v-if="resolucion.tipoResolucion.isTramiteBachiller">
-                            <resolucion-form-details-bachiller></resolucion-form-details-bachiller>
+                            <resolucion-form-details-bachiller v-model="resolucion"></resolucion-form-details-bachiller>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isCambioNota">
-                            <resolucion-form-details-cambio-nota></resolucion-form-details-cambio-nota>
+                            <resolucion-form-details-cambio-nota v-model="resolucion"></resolucion-form-details-cambio-nota>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isCambioPlanCurricular">
-                            <resolucion-form-details-cambio-plan-curricular></resolucion-form-details-cambio-plan-curricular>
+                            <resolucion-form-details-cambio-plan-curricular v-model="resolucion"></resolucion-form-details-cambio-plan-curricular>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isCursoDirigido">
-                            <resolucion-form-details-curso-dirigido></resolucion-form-details-curso-dirigido>
+                            <resolucion-form-details-curso-dirigido v-model="resolucion"></resolucion-form-details-curso-dirigido>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isNotaBaja">
-                            <resolucion-form-details-nota-mas-baja></resolucion-form-details-nota-mas-baja>
+                            <resolucion-form-details-nota-mas-baja v-model="resolucion"></resolucion-form-details-nota-mas-baja>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTramitePracticas">
-                            <resolucion-form-details-practicas-preprofesionales></resolucion-form-details-practicas-preprofesionales>
+                            <resolucion-form-details-practicas-preprofesionales v-model="resolucion"></resolucion-form-details-practicas-preprofesionales>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isReadmision">
-                            <resolucion-form-details-readmision></resolucion-form-details-readmision>
+                            <resolucion-form-details-readmision v-model="resolucion"></resolucion-form-details-readmision>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isReincorporacion">
-                            <resolucion-form-details-reincorporacion></resolucion-form-details-reincorporacion>
+                            <resolucion-form-details-reincorporacion v-model="resolucion"></resolucion-form-details-reincorporacion>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isRetiroCiclo">
-                            <resolucion-form-details-retiro-ciclo></resolucion-form-details-retiro-ciclo>
+                            <resolucion-form-details-retiro-ciclo v-model="resolucion"></resolucion-form-details-retiro-ciclo>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTramiteTitulo">
-                            <resolucion-form-details-titulo></resolucion-form-details-titulo>
+                            <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTrasladoInterno">
-                            <resolucion-form-details-traslado-interno></resolucion-form-details-traslado-interno>
+                            <resolucion-form-details-traslado-interno v-model="resolucion"></resolucion-form-details-traslado-interno>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTrasladoExterno">
-                            <resolucion-form-details-traslado></resolucion-form-details-traslado>
+                            <resolucion-form-details-traslado v-model="resolucion"></resolucion-form-details-traslado>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isIntercambioEstudiantil">
-                            <resolucion-form-details-traslado></resolucion-form-details-traslado>
+                            <resolucion-form-details-traslado v-model="resolucion"></resolucion-form-details-traslado>
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isIngresoFisicoHistorial">
-                            <resolucion-form-details-traslado></resolucion-form-details-traslado>
+                            <resolucion-form-details-traslado v-model="resolucion"></resolucion-form-details-traslado>
                         </div>
 
                     </div>
@@ -144,21 +144,32 @@
         mixins: [VueLoader],
         data() {
             return {
-                errores: []
+                errores: [],
+                resolucion: IS_EDICION ? JSON.parse(resolucionJson) : {},
+                resolucionNew: {
+                    reincorporaciones: [],
+                    retiroCiclo: [],
+                    cambioNota: [],
+                    cursoDirigido: [],
+                    tramiteTraslado: [],
+                    cambioNotaMasBajas: [],
+                    tramiteBachiller: [],
+                    tramiteTitulos: [],
+                    tramitePracticasPreProfesionales: [],
+                    readmisiones: [],
+                    cambioPlanCurriculares: [],
+                }
             };
-        },
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
         },
         mounted: function () {
             let $vue = this;
-            if ($vue.resolucion.id) {
-                console.log($vue.resolucion.id);
-                $vue.setIsEdicion();
+            if (IS_EDICION) {
+                $vue.resolucion = JSON.parse(resolucionJson);
+            } else {
+                $vue.resolucion = {...$vue.resolucionNew};
             }
         },
         methods: {
-            ...Vuex.mapActions(['setIsEdicion']),
             save() {
 
                 let $vue = this;
@@ -175,7 +186,7 @@
 
                             if (data.success) {
 
-                                $vue.$store.dispatch('newResolucion');
+                                $vue.resolucion = {... $vue.resolucionNew};
                                 notify(data.message, 'info');
 
                             } else {
@@ -188,9 +199,7 @@
 
                             $vue.hideLoader();
 
-                        }, () => {
-                            $vue.hideLoader();
-                        });
+                        }, () => $vue.hideLoader());
 
             },
             update() {
@@ -234,15 +243,18 @@
 
                                         $vue.hideLoader();
 
-                                    }, () => {
-                                        $vue.hideLoader();
-                                    });
+                                    }, () => $vue.hideLoader());
 
                         }
                     }
                 });
 
             },
+            loadTramiteBachiller(data) {
+                let $vue = this;
+                $vue.resolucion.tramiteBachiller = data;
+                $vue.$forceUpdate()
+            }
         }
     };
 </script>

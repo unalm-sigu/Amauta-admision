@@ -1175,3 +1175,28 @@ axios_.interceptors.response.use(function (response) {
     notify(Messages.errorComunicacion, 'error');
     return Promise.reject(error);
 });
+
+function moduleAxios(RUTA_MODULO) {
+    const _axios_ = axios.create({
+        baseURL: "/" +RUTA_MODULO
+    });
+    _axios_.interceptors.response.use(function (response) {
+        return response;
+    }, function (error) {
+        if (error) {
+            if (error.response) {
+                if (error.response.status) {
+                    if (error.response.status == 500) {
+                        notify(error.response.data.message, 'error');
+                        return Promise.reject(error);
+                    }
+                }
+            }
+        }
+        notify(Messages.errorComunicacion, 'error');
+        return Promise.reject(error);
+    });
+
+    return _axios_;
+
+}

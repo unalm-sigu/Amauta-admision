@@ -110,12 +110,14 @@ import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PRO
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfiguracionTurnosAtencionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
@@ -165,6 +167,8 @@ public class MatriculableServiceImp implements MatriculableService {
     private final PromedioService promedioService;
     private final ResponseRestService responseRestService;
     private final VisorCalculoNotas visorCalculoNotas;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final CarreraDAO carreraDAO;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -1714,4 +1718,19 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
+    @Override
+    public List<CicloAcademico> allCiclo() {
+        return cicloAcademicoDAO.allPregradoNivelByRange(1900, 3000);
+    }
+
+    @Override
+    public List<SituacionAcademica> allSituacionAcademica() {
+        return situacionAcademicaDAO.all();
+    }
+
+    @Override
+    public List<Carrera> searchAllCarrera(String nombre) {
+        return carreraDAO.searchByNombre(nombre);
+    }
+    
 }

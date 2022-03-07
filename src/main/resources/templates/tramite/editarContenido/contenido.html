@@ -24,9 +24,15 @@
                 
                 <header class="header b-b padder-lg">
                     
-                    <a v-if="contenido.tipoDocumentoAcademico.nombre" th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <a v-if="contenido.tipoDocumentoAcademico" 
+                       th:href="@{/tramite/plantillaconstancia}" 
+                       class="btn btn-default btn-sm pull-right">Regresar</a>
+                       
                     <a v-else="" th:href="@{/tramite/plantillainscrustacion}" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2 v-text="contenido.tipoDocumentoAcademico.nombre">Titulo</h2>
+                    
+                    <h2 v-if="contenido.tipoDocumentoAcademico" v-text="contenido.tipoDocumentoAcademico.nombre">Titulo</h2>
+                    <h2 v-else="" v-text="contenido.nombre">Titulo</h2>
+                    
                     <p  class="block text-primary h4 m-t-n-xs" v-text="'Idioma '+contenido.idioma.nombre">Idioma</p>
                     
                 </header>

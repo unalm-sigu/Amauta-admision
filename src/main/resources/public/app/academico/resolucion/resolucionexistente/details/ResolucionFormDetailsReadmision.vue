@@ -86,12 +86,17 @@
 <script>
     module.exports = {
         mixins: [VueLoader],
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -104,10 +109,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.readmisiones.push({seleccionado: true});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.readmisiones.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 
@@ -132,6 +139,7 @@
                         .then(({data}) => {
                             $vue.resolucion.readmisiones = data;
                             $vue.hideLoader();
+                            $vue.$forceUpdate();
                         }, () => {
                             $vue.hideLoader();
                         });

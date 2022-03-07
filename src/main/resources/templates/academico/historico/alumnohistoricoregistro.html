@@ -39,18 +39,14 @@
                 /*]]>*/
             </script>
 
-            <script th:src="@{/app/academico/historico/alumnohistorico.js}" charset="utf-8"></script>
-
             <script charset="utf-8">
 
                 Vue.component("multiselect", window.VueMultiselect.default);
                 Vue.component('date-picker', VueBootstrapDatetimePicker);
 
-
                 const AlumnoRegistro = httpVueLoader('/app/academico/historico/AlumnoRegistro.vue');
 
                 var root = new Vue({
-                    store: store,
                     el: '#main',
                     components: {
                         alumnoRegistro: AlumnoRegistro,

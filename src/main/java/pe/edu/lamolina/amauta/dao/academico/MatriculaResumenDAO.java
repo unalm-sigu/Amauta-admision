@@ -11,6 +11,8 @@ import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
@@ -117,5 +119,9 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     public List<MatriculaResumen> allMatriculadosByCicloAndCarreraForFoto(CicloAcademico cicloAcademico, String carrera);
 
     public List<MatriculaResumen> allSimpleByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico cicloAcademico);
+
+    public List<MatriculaResumen> allByCicloClonar(CicloAcademico cicloOrigen);
+
+    public List<MatriculaResumen> allByCicloClonarDestino(CicloAcademico cicloDestino, List<Alumno> alumnos);
 
 }

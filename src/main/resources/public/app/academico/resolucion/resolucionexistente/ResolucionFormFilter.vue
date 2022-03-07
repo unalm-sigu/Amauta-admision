@@ -20,7 +20,9 @@
             <div class="col-lg-6">
                 <label>Filtro Visualizar Solo Seleccionados</label>
                 <div class="form-group">
-                    <input type="checkbox" style="width: 25px;height: 25px;" v-on:click="changeVisualizar()" class="v-middle" v-model="visualizarSoloSeleccionados"/> 
+                    <input type="checkbox" style="width: 25px;height: 25px;" 
+                           v-on:click="changeVisualizar()" class="v-middle" 
+                           v-model="seleccionado"/> 
                 </div>
             </div>
         </div>
@@ -30,36 +32,37 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["filterFacultad", "visualizarSoloSeleccionados"]),
+        props: {
+            callfilter: {type: Function, default: () => {}},
         },
         data() {
             return {
                 oficinas: JSON.parse(oficinasJson),
                 oficinaLocal: null,
-                visualizarSoloSeleccionadosLocal: false
+                seleccionadoLocal:false,
+                facultad:null,
+                seleccionado:false
             };
         },
         mounted: function () {
             let $vue = this;
-            $vue.oficinaLocal = {...$vue.filterFacultad};
         },
         methods: {
-            ...Vuex.mapActions(['toggleSeleccionado', 'setFilterFacultad','removeFilterFacultad']),
             changeVisualizar() {
                 let $vue = this;
-                $vue.toggleSeleccionado();
+                $vue.seleccionado=!$vue.seleccionado;
+                $vue.callfilter($vue.facultad,$vue.seleccionado);
             },
             oficinaSelect(item) {
                 let $vue = this;
-                $vue.setFilterFacultad(item);
-                $vue.$forceUpdate();
+                $vue.facultad = item.instanciaOficina;
+                $vue.callfilter($vue.facultad,$vue.seleccionado);
             },
             oficinaRemove() {
                 let $vue = this;
-                $vue.removeFilterFacultad();
-                $vue.$forceUpdate();
-            }
+                $vue.facultad = null;
+                $vue.callfilter(null,$vue.seleccionado);
+            },
         }
     };
 </script>

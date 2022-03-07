@@ -1,0 +1,69 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Bloqueo de matrícula</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click.prevent="nuevo">
+                            &nbsp; Nuevo &nbsp; 
+                        </button>
+                    </div>
+
+                    <h2>Bloqueo de matrícula</h2>
+
+                </header>
+
+                <bloqueo-matricula-form ref="bloqueomatriculaform" />
+
+                <section class="wrapper-lg m-b-xs">
+
+                    <bloqueo-matricula-list ref="bloqueomatriculalist"/>
+
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-modal_v1"/>
+
+            <script>
+
+                Vue.component("multiselect", window.VueMultiselect.default);
+
+                const BloqueoMatriculaList = httpVueLoader('/app/academico/matricula/bloqueo/BloqueoMatriculaList.vue');
+                const BloqueoMatriculaForm = httpVueLoader('/app/academico/matricula/bloqueo/BloqueoMatriculaForm.vue');
+
+                var root = new Vue({
+                    el: '#main',
+                    components: {
+                        bloqueoMatriculaList: BloqueoMatriculaList,
+                        bloqueoMatriculaForm: BloqueoMatriculaForm,
+                    },
+                    methods: {
+                        nuevo() {
+                            this.$refs.bloqueomatriculaform.nuevo();
+                        },
+                        update(item) {
+                            this.$refs.bloqueomatriculaform.update(item);
+                        },
+                        reload() {
+                            this.$refs.bloqueomatriculalist.reload();
+                        }
+                    }
+                });
+
+            </script>
+
+        </div>
+
+    </body>
+</html>

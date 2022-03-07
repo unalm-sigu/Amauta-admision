@@ -3,7 +3,7 @@
 
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
 
-        <resolucion-form-filter></resolucion-form-filter>
+        <resolucion-form-filter v-bind:callfilter="applyFilter"  v-if="!isEdicion"></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
@@ -91,12 +91,19 @@
         components: {
             resolucionFormFilter: ResolucionFormFilter,
         },
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion", "visualizarSoloSeleccionados", "filterFacultad"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
+                isEdicion: IS_EDICION,
+                visualizarSoloSeleccionados: true,
+                filterFacultad: null,
             };
         },
         mounted: function () {
@@ -109,10 +116,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.reincorporaciones.push({seleccionado: false});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.reincorporaciones.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
 
@@ -137,6 +146,7 @@
                         .then(({data}) => {
                             $vue.resolucion.reincorporaciones = data;
                             $vue.hideLoader();
+                            $vue.$forceUpdate();
                         }, () => {
                             $vue.hideLoader();
                         });

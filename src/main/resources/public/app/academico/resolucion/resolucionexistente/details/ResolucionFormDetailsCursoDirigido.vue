@@ -119,13 +119,18 @@
 
 <script>
     module.exports = {
-        computed: {
-            ...Vuex.mapState(["resolucion", "isEdicion"])
+        props: {
+            resolucion: {type: Object, default: {}},
+        },
+        model: {
+            prop: 'resolucion',
+            event: 'change'
         },
         data() {
             return {
                 alumnos: [],
                 docentes: [],
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -135,10 +140,12 @@
             add() {
                 let $vue = this;
                 $vue.resolucion.cursoDirigido.push({seleccionado: false, rechazado: false});
+                $vue.$forceUpdate();
             },
             del(index) {
                 let $vue = this;
                 $vue.resolucion.cursoDirigido.splice(index, 1);
+                $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
                 let $vue = this;
@@ -151,6 +158,7 @@
                         .then(({data}) => {
                             if (data.success) {
                                 $vue.alumnos = data.data;
+                                
                         }
                         }, error => {
                         });
