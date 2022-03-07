@@ -1370,7 +1370,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Curso> allCursosForProgramacion(String nomString) {
-        return cursoDAO.allForProgramacion(nomString);
+        return cursoDAO.allActivoForProgramacion(nomString);
     }
 
     @Override

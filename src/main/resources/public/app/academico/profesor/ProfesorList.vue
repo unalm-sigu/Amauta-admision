@@ -41,17 +41,7 @@
                         <tr v-for="item in props.data">
                             <td class="v-middle">
                                 <div class="pull-left">
-                                    <div v-if="item.tipoFoto=='POSTUL'">
-                                        <a class="img-responsive img-thumbnail img-circle div-foto-list" href='#'>
-                                            <img class="img-foto-list" v-bind:src="item.rutaFoto" />
-                                        </a>
-                                    </div>
-                                    <div v-if="item.tipoFoto=='COMUN'">
-                                        <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
-                                    </div>
-                                    <div v-else="">
-                                        <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
-                                    </div>
+                                    <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
                                 </div>
                             </td>
                             <td class="v-middle">
