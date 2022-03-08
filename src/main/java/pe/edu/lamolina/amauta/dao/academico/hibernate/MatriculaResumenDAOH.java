@@ -191,6 +191,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno al", "cicloAcademico ci", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
                 .join("al.modalidadEstudio moe", "car.facultad fac")
                 .leftJoin("al.cicloIngreso cing", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
+                .leftJoin("mr.situacionInicio si")
                 .filter("ci.codigo", ciclo.getCodigo())
                 .searchFields("car.nombre", "fac.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -247,7 +248,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 continue;
             }
             String values = (String) queries.get(key);
-            sql.filter("sita.id", new Long(values));
+            sql.filter("si.id", new Long(values));
         }
 
     }
