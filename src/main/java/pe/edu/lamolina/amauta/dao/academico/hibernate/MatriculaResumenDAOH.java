@@ -1088,7 +1088,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         S_4U.getValue(),
                         S_4T.getValue(),
                         S_7.getValue()))
-                .in("estado", asList(MAT, NMAT))
+                .in("estado", asList(MAT, NMAT,RCI))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
         return all(sql);
