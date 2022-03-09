@@ -1081,7 +1081,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
                 .join("alu.persona")
-                .notIn("si.codigo", asList(
+                .notIn("sa.codigo", asList(
                         S_4.getValue(),
                         S_X.getValue(),
                         S_U.getValue(),

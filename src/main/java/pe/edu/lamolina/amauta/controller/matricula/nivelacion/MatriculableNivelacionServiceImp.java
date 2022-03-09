@@ -62,21 +62,21 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
         Map<Long, AlumnoCiclo> alumnosCicloMap = alumnoCiclos
                 .stream()
                 .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+        
+        // todos los suspendidos
+        
         for (MatriculaResumen matriculaOrigen : matriculasOrigen) {
+            
             Alumno alumno = matriculaOrigen.getAlumno();
             MatriculaResumen matriculaResumen = matriculaDestinoMap.get(alumno.getId());
             if (matriculaResumen != null) {
                 continue;
             }
             matriculaResumen = new MatriculaResumen();
-            AlumnoCiclo alumnoCiclo = alumnosCicloMap.get(alumno.getId());
-            if (alumnoCiclo != null) {
-                if (alumnoCiclo.getSituacionFinal() != null) {
-                    matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionFinal());
-                } else {
-                    matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionInicio());
-                }
-            }
+            
+
+            matriculaResumen.setSituacionInicio(alumno.getSituacionAcademica());
+
             matriculaResumen.setAlumno(alumno);
             matriculaResumen.setCicloAcademico(destino);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
