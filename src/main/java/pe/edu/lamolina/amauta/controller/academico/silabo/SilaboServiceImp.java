@@ -44,8 +44,7 @@ import pe.edu.lamolina.model.general.Compania;
 @Slf4j
 @Service
 @Transactional
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class SilaboServiceImp implements SilaboService {
 
     private final SilaboCursoDAO silaboCursoDAO;
@@ -91,7 +90,7 @@ public class SilaboServiceImp implements SilaboService {
 
         List<SilaboCurso> silaboDuplicados = new ArrayList();
 
-        if (silabo.getCicloVigenciaFin() != null) {
+        if (silabo.getCicloVigenciaInicio()!= null) {
             silaboDuplicados = silaboCursoDAO.allByCursoCiclo(silabo.getCurso(), silabo.getCicloVigenciaInicio());
         }
 
