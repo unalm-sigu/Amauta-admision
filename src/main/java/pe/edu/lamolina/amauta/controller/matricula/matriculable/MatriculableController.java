@@ -147,7 +147,7 @@ public class MatriculableController {
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
         model.addAttribute("puedeMatricularPosgrado", verificadorService.puedeMatricularPosgrado(ds));
 
-        model.addAttribute("ciclos", JaneHelper.from(service.allCiclo())
+        model.addAttribute("ciclos", JaneHelper.from(service.allCicloRegular())
                 .only("id,descripcion,codigo,year,descripcion2")
                 .array().toString());
 

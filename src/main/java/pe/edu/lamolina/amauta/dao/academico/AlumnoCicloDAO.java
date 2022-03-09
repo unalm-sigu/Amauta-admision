@@ -153,4 +153,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     public List<AlumnoCiclo> allByCicloAlumnos(CicloAcademico cicloOrigen, List<Alumno> alumnos);
 
+    public List<AlumnoCiclo> allSuspendidoByCiclo(CicloAcademico cicloAcademicoAnterior);
+
 }
