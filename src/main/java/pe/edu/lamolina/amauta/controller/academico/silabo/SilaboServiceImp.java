@@ -97,7 +97,7 @@ public class SilaboServiceImp implements SilaboService {
         if (silabo.getId() == null) {
 
             if (!silaboDuplicados.isEmpty()) {
-                throw new PhobosException("Ya existe un silabo para el curso");
+                throw new PhobosException("Ya existe un silabo para el curso en el ciclo "+silabo.getCicloVigenciaInicio().getDescripcion());
             }
 
             silabo.setEstadoEnum(SilaboCursoEstadoEnum.CRE);
@@ -110,7 +110,7 @@ public class SilaboServiceImp implements SilaboService {
                     .collect(Collectors.toList());
 
             if (!silaboDuplicados.isEmpty()) {
-                throw new PhobosException("Ya existe un silabo para el curso");
+                throw new PhobosException("Ya existe un silabo para el curso en el ciclo "+silabo.getCicloVigenciaInicio().getDescripcion());
             }
 
             silaboCursoDAO.updateColumns(silabo,
