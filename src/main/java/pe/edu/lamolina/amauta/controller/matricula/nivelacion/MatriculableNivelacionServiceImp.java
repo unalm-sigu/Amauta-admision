@@ -1,6 +1,6 @@
 package pe.edu.lamolina.amauta.controller.matricula.nivelacion;
 
-import java.math.BigDecimal;
+import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
@@ -41,6 +42,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     private final AlumnoCicloDAO alumnoCicloDAO;
     private final ClonarCicloNivelacionDAO clonarCicloNivelacionDAO;
     private final AlumnoDAO alumnoDAO;
+    private final MatriculableService matriculableService;
 
     @Override
     @Transactional
@@ -96,13 +98,16 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCicloAcademico(destino);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
-            matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
+
+            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
+                matriculaResumen.setPrioridad(ONE);
+            }
+
             matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
             matriculaResumen.setCreditosTrikaPagados(0);
             matriculaResumen.setCreditosTrikaSeparados(0);
-            matriculaResumen.setPromedioSemestral(matriculaOrigen.getPromedioSemestral());
             matriculaResumen.setAutorizacionMatricula(Boolean.FALSE);
             matriculaResumen.setEsBeneficiadoUltimoCiclo(Boolean.FALSE);
             matriculaResumen.setCreditosPagados(0);
@@ -145,13 +150,15 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCicloAcademico(destino);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
-            matriculaResumen.setPrioridad(BigDecimal.ONE);//SINDATA
-            matriculaResumen.setPuntajePrioridad(ZERO);//SINDATA
+
+            matriculaResumen.setPrioridad(null);
+            matriculaResumen.setPuntajePrioridad(ZERO);
+
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
             matriculaResumen.setCreditosTrikaPagados(0);
             matriculaResumen.setCreditosTrikaSeparados(0);
-            matriculaResumen.setPromedioSemestral(ZERO);//SINDATA
+
             matriculaResumen.setAutorizacionMatricula(Boolean.FALSE);
             matriculaResumen.setEsBeneficiadoUltimoCiclo(Boolean.FALSE);
             matriculaResumen.setCreditosPagados(0);
@@ -166,9 +173,12 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
             matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
             matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
+
             matriculaResumen.setPromedioSemestral(ZERO);//SINDATA
+
             matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
-            matriculaResumen.setMotivoMatriculable("CLONACIÓN");//SINDATA
+
+            matriculaResumen.setMotivoMatriculable(null);
 
             matriculaResumenDAO.save(matriculaResumen);
             matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
@@ -176,6 +186,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
             
+            matriculableService.verificarPrioridad(matriculaResumen.getId());
+
         }
 
         destino.setFechaPrioridades(new Date());
