@@ -140,7 +140,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             matriculaResumen = new MatriculaResumen();
 
-            matriculaResumen.setSituacionInicio(new SituacionAcademica(S_3.getId()));
+            matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionFinal());
             matriculaResumen.setAlumno(alumno);
             matriculaResumen.setCicloAcademico(destino);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
