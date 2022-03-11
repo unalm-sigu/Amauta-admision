@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -595,11 +596,17 @@ public class MatriculableServiceImp implements MatriculableService {
             Alumno alumno = matriculable.getAlumno();
             SituacionAcademica sit = alumno.getSituacionAcademica();
 
-            if (Arrays.asList(S_8, S_9).contains(sit.getCodigoEnum()) && cicloBD.isTipoRegular()) {
-                matriculable.setPrioridad(BigDecimal.valueOf(cachimbos));
-                matriculable.setPuntajePrioridad(BigDecimal.ZERO);
-                cachimbos++;
-                continue;
+            if (Arrays.asList(S_8, S_9).contains(sit.getCodigoEnum())) {
+                if (cicloBD.isTipoRegular()) {
+                    matriculable.setPrioridad(BigDecimal.valueOf(cachimbos));
+                    matriculable.setPuntajePrioridad(BigDecimal.ZERO);
+                    cachimbos++;
+                    continue;
+                } else if (cicloBD.isTipoNivelacion()) {
+                    matriculable.setPrioridad(new BigDecimal(BigInteger.ONE));
+                    matriculable.setPuntajePrioridad(null);
+                    continue;
+                }
             }
 
             if (alumno.isPostgrado() || alumno.isEspecial()) {
@@ -1732,5 +1739,5 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);
     }
-    
+
 }
