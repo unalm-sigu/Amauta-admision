@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableConnector;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -44,6 +45,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     private final ClonarCicloNivelacionDAO clonarCicloNivelacionDAO;
     private final AlumnoDAO alumnoDAO;
     private final MatriculableService matriculableService;
+    private final MatriculableConnector matriculableConector;
 
     @Override
     @Transactional
@@ -186,12 +188,12 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
+            matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
         }
 
         destino.setFechaPrioridades(new Date());
         destino.setFechaCierrePrioridades(new Date());
-//        destino.setFechaCierreMatriculable(new Date());
         destino.setFechaVerificaNmat(new Date());
         destino.setFechaMatriculables(new Date());
         cicloAcademicoDAO.update(destino);
