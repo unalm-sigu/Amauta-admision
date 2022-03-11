@@ -153,7 +153,6 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setTurnoAtencion(null);
 
             matriculaResumen.setPrioridad(null);
-            matriculaResumen.setPuntajePrioridad(ZERO);
 
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
@@ -175,7 +174,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
             matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
 
-            matriculaResumen.setPromedioSemestral(ZERO);//SINDATA
+            matriculaResumen.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
+            matriculaResumen.setPuntajePrioridad(alumnoCiclo.getPromedioAcumulado());
 
             matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
 
@@ -191,7 +191,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
         destino.setFechaPrioridades(new Date());
         destino.setFechaCierrePrioridades(new Date());
-        destino.setFechaCierreMatriculable(new Date());
+//        destino.setFechaCierreMatriculable(new Date());
         destino.setFechaVerificaNmat(new Date());
         destino.setFechaMatriculables(new Date());
         cicloAcademicoDAO.update(destino);
