@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
@@ -185,8 +186,6 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
-            
-            matriculableService.verificarPrioridad(matriculaResumen.getId());
 
         }
 
@@ -202,5 +201,13 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
         clonarCicloNivelacion.setCicloOrigen(clonarNivelacionDTO.getCicloOrigen());
         clonarCicloNivelacion.setCicloDestino(destino);
         clonarCicloNivelacionDAO.save(clonarCicloNivelacion);
+
     }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void generarPrioridad(CicloAcademico cicloDestino) {
+        matriculableService.generarPrioridad(cicloDestino);
+    }
+
 }
