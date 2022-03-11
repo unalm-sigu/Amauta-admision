@@ -177,7 +177,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
 
             matriculaResumen.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
-            matriculaResumen.setPuntajePrioridad(alumnoCiclo.getPromedioAcumulado());
+//            matriculaResumen.setPuntajePrioridad(alumnoCiclo.getPromedioAcumulado());
 
             matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
 
@@ -189,6 +189,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
             matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+            matriculaResumenDAO.update(matriculaResumen);
 
         }
 
