@@ -26,7 +26,6 @@ public class MatriculableNivelacionController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.ClonarNivelacionDTO(ds, clonarNivelacionDTO);
-        service.generarPrioridad(clonarNivelacionDTO.getCicloDestino());
         return UPDATED;
 
     }

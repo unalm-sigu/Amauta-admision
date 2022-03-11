@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableConnector;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -44,6 +45,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     private final ClonarCicloNivelacionDAO clonarCicloNivelacionDAO;
     private final AlumnoDAO alumnoDAO;
     private final MatriculableService matriculableService;
+    private final MatriculableConnector matriculableConector;
 
     @Override
     @Transactional
@@ -102,6 +104,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
                 matriculaResumen.setPrioridad(ONE);
+            } else {
+                matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
             }
 
             matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
@@ -153,7 +157,6 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setTurnoAtencion(null);
 
             matriculaResumen.setPrioridad(null);
-            matriculaResumen.setPuntajePrioridad(ZERO);
 
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
@@ -175,7 +178,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
             matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
 
-            matriculaResumen.setPromedioSemestral(ZERO);//SINDATA
+            matriculaResumen.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
+//            matriculaResumen.setPuntajePrioridad(alumnoCiclo.getPromedioAcumulado());
 
             matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
 
@@ -186,12 +190,13 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
+            matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+            matriculaResumenDAO.update(matriculaResumen);
 
         }
 
         destino.setFechaPrioridades(new Date());
         destino.setFechaCierrePrioridades(new Date());
-        destino.setFechaCierreMatriculable(new Date());
         destino.setFechaVerificaNmat(new Date());
         destino.setFechaMatriculables(new Date());
         cicloAcademicoDAO.update(destino);
