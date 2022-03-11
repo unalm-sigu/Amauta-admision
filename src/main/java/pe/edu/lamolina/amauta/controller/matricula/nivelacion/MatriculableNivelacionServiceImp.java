@@ -104,6 +104,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
                 matriculaResumen.setPrioridad(ONE);
+            } else {
+                matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
             }
 
             matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
