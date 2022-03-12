@@ -1,7 +1,6 @@
 package pe.edu.lamolina.amauta.controller.matricula.nivelacion;
 
 import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.ZERO;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.auditoria.ClonarCicloNivelacion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
@@ -78,8 +78,11 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
         List<AlumnoCiclo> alumnosCicloSuspendido = alumnoCicloDAO.allSuspendidoByCiclo(cicloAcademicoAnterior);
         log.debug("SUSPENDIDOS {}", alumnosCicloSuspendido.size());
 
-        List<MatriculaResumen> matriculaResumenesDestino
-                = matriculaResumenDAO.allByCicloClonarDestino(destino, alumnos);
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(destino);
+        Map<Long, AlumnoCiclo> alumnoCicloMap = alumnosCiclos.stream()
+                .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+
+        List<MatriculaResumen> matriculaResumenesDestino = matriculaResumenDAO.allByCicloClonarDestino(destino, alumnos);
         Map<Long, MatriculaResumen> matriculaDestinoMap = matriculaResumenesDestino
                 .stream()
                 .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
@@ -102,13 +105,14 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
 
-            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
+            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()
+                    || (alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
                 matriculaResumen.setPrioridad(ONE);
             } else {
                 matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
             }
 
-            matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
             matriculaResumen.setCreditosTrikaPagados(0);
@@ -118,21 +122,34 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosPagados(0);
             matriculaResumen.setCreditosConsumidos(0);
 
-            matriculaResumen.setCreditosMatriculados(matriculaOrigen.getCreditosMatriculados());
-            matriculaResumen.setCreditosRetirados(matriculaOrigen.getCreditosRetirados());
-            matriculaResumen.setCursosMatriculados(matriculaOrigen.getCursosMatriculados());
-            matriculaResumen.setCursosRetirados(matriculaOrigen.getCursosRetirados());
+            matriculaResumen.setCreditosMatriculados(0);
+            matriculaResumen.setCreditosRetirados(0);
+            matriculaResumen.setCursosMatriculados(0);
+            matriculaResumen.setCursosRetirados(0);
 
             matriculaResumen.setCreditosMatriculadosPosgrado(0);
             matriculaResumen.setCreditosMatriculadosPregrado(0);
             matriculaResumen.setCreditosRetirados(0);
 
-            matriculaResumen.setCreditosCursadosCiclo(matriculaOrigen.getCreditosCursadosCiclo());
-            matriculaResumen.setCreditosAcumulados(matriculaOrigen.getCreditosAcumulados());
-            matriculaResumen.setCreditosAprobadosCiclo(matriculaOrigen.getCreditosAprobadosCiclo());
-            matriculaResumen.setCreditosAprobadosAcumulados(matriculaOrigen.getCreditosAprobadosAcumulados());
-            matriculaResumen.setPromedioSemestral(matriculaOrigen.getPromedioSemestral());
-            matriculaResumen.setCicloAcademicoInfo(matriculaOrigen.getCicloAcademicoInfo());
+            if (matriculaOrigen.getCicloAcademicoInfo() != null) {
+                matriculaResumen.setCreditosCursadosCiclo(matriculaOrigen.getCreditosCursadosCiclo());
+                matriculaResumen.setCreditosAcumulados(matriculaOrigen.getCreditosAcumulados());
+                matriculaResumen.setCreditosAprobadosCiclo(matriculaOrigen.getCreditosAprobadosCiclo());
+                matriculaResumen.setCreditosAprobadosAcumulados(matriculaOrigen.getCreditosAprobadosAcumulados());
+                matriculaResumen.setPromedioSemestral(matriculaOrigen.getPromedioSemestral());
+                matriculaResumen.setCicloAcademicoInfo(matriculaOrigen.getCicloAcademicoInfo());
+                matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
+            } else {
+                AlumnoCiclo aluCiclo = alumnoCicloMap.get(matriculaOrigen.getAlumno().getId());
+
+                matriculaResumen.setCreditosCursadosCiclo(aluCiclo.getCreditosCursadosCiclo());
+                matriculaResumen.setCreditosAcumulados(aluCiclo.getCreditosAcumulados());
+                matriculaResumen.setCreditosAprobadosCiclo(aluCiclo.getCreditosAprobadosCiclo());
+                matriculaResumen.setCreditosAprobadosAcumulados(aluCiclo.getCreditosAprobadosAcumulados());
+                matriculaResumen.setPromedioSemestral(aluCiclo.getPromedioCiclo());
+                matriculaResumen.setCicloAcademicoInfo(aluCiclo.getCicloAcademico());
+                matriculaResumen.setPuntajePrioridad(aluCiclo.getPromedioAcumulado());
+            }
             matriculaResumen.setMotivoMatriculable(matriculaOrigen.getMotivoMatriculable());
             matriculaResumenDAO.save(matriculaResumen);
             matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
