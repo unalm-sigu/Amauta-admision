@@ -104,6 +104,9 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                     && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())) {
                 continue;
             }
+            if(alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_E){
+                continue;
+            }
             matriculaResumen = new MatriculaResumen();
             matriculaResumen.setSituacionInicio(alumno.getSituacionAcademica());
             matriculaResumen.setAlumno(alumno);
