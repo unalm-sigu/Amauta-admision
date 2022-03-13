@@ -99,9 +99,9 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                 continue;
             }
             if ((alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())
                     || (alumno.getCicloIngreso().getId() == origen.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())) {
                 continue;
             }
             matriculaResumen = new MatriculaResumen();
