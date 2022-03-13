@@ -141,14 +141,16 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                 matriculaResumen.setPuntajePrioridad(matriculaOrigen.getPuntajePrioridad());
             } else {
                 AlumnoCiclo aluCiclo = alumnoCicloMap.get(matriculaOrigen.getAlumno().getId());
-
-                matriculaResumen.setCreditosCursadosCiclo(aluCiclo.getCreditosCursadosCiclo());
-                matriculaResumen.setCreditosAcumulados(aluCiclo.getCreditosAcumulados());
-                matriculaResumen.setCreditosAprobadosCiclo(aluCiclo.getCreditosAprobadosCiclo());
-                matriculaResumen.setCreditosAprobadosAcumulados(aluCiclo.getCreditosAprobadosAcumulados());
-                matriculaResumen.setPromedioSemestral(aluCiclo.getPromedioCiclo());
-                matriculaResumen.setCicloAcademicoInfo(aluCiclo.getCicloAcademico());
-                matriculaResumen.setPuntajePrioridad(aluCiclo.getPromedioAcumulado());
+                log.debug("ALUMNOOO:: {}", matriculaOrigen.getAlumno().getCodigo());
+                if (aluCiclo != null) {
+                    matriculaResumen.setCreditosCursadosCiclo(aluCiclo.getCreditosCursadosCiclo());
+                    matriculaResumen.setCreditosAcumulados(aluCiclo.getCreditosAcumulados());
+                    matriculaResumen.setCreditosAprobadosCiclo(aluCiclo.getCreditosAprobadosCiclo());
+                    matriculaResumen.setCreditosAprobadosAcumulados(aluCiclo.getCreditosAprobadosAcumulados());
+                    matriculaResumen.setPromedioSemestral(aluCiclo.getPromedioCiclo());
+                    matriculaResumen.setCicloAcademicoInfo(aluCiclo.getCicloAcademico());
+                    matriculaResumen.setPuntajePrioridad(aluCiclo.getPromedioAcumulado());
+                }
             }
             matriculaResumen.setMotivoMatriculable(matriculaOrigen.getMotivoMatriculable());
             matriculaResumenDAO.save(matriculaResumen);

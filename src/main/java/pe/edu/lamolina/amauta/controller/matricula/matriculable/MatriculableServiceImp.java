@@ -589,9 +589,11 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, RetiroCiclo> mapAlumnoTramiteRetiro = TypesUtil.convertListToMap("alumno.id", retiroCiclos);
 
         for (MatriculaResumen matriculable : matriculables) {
-            matriculable.setPrioridad(null);
-            matriculable.setPuntajePrioridad(null);
-            matriculable.setTurnoAtencion(null);
+            if (cicloBD.isTipoRegular()) {
+                matriculable.setPrioridad(null);
+                matriculable.setPuntajePrioridad(null);
+                matriculable.setTurnoAtencion(null);
+            }
 
             Alumno alumno = matriculable.getAlumno();
             SituacionAcademica sit = alumno.getSituacionAcademica();
@@ -602,7 +604,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     matriculable.setPuntajePrioridad(BigDecimal.ZERO);
                     cachimbos++;
                     continue;
-                } else if (cicloBD.isTipoNivelacion()) {
+                } else if (cicloBD.isTipoNivelacion() && matriculable.getPrioridad() != null) {
                     matriculable.setPrioridad(new BigDecimal(BigInteger.ONE));
                     matriculable.setPuntajePrioridad(null);
                     continue;
