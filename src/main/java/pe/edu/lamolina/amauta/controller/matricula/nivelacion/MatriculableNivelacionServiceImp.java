@@ -98,6 +98,12 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                 matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
                 continue;
             }
+            if ((alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)
+                    || (alumno.getCicloIngreso().getId() == origen.getId().longValue()
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
+                continue;
+            }
             matriculaResumen = new MatriculaResumen();
             matriculaResumen.setSituacionInicio(alumno.getSituacionAcademica());
             matriculaResumen.setAlumno(alumno);
@@ -105,9 +111,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
 
-            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()
-                    || (alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
+            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
                 matriculaResumen.setPrioridad(ONE);
             } else {
                 matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
