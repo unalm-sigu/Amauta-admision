@@ -111,7 +111,9 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
 
-            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()) {
+            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()
+                    || (alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
+                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
                 matriculaResumen.setPrioridad(ONE);
             } else {
                 matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
