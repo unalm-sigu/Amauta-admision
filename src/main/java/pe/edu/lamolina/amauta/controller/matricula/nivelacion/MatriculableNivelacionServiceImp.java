@@ -178,7 +178,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             }
 
             SituacionAcademica situacionAcademicaFinal = alumnoCiclo.getSituacionFinal();
-
+            SituacionAcademica situacionAcademicaInicio = alumnoCiclo.getSituacionInicio();
+            
             matriculaResumen = new MatriculaResumen();
 
             matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionFinal());
@@ -218,7 +219,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumenDAO.save(matriculaResumen);
             matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
 
-            alumno.setSituacionAcademica(situacionAcademicaFinal);
+            alumno.setSituacionAcademica(situacionAcademicaInicio);
             if (S_6.getId().longValue() == situacionAcademicaFinal.getId()) {
                 alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
             }
