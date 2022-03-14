@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.auditoria.ClonarCicloNivelacion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Slf4j
@@ -104,7 +105,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                     && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())) {
                 continue;
             }
-            if(alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_E){
+            if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_E) {
                 continue;
             }
             matriculaResumen = new MatriculaResumen();
@@ -176,6 +177,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                 continue;
             }
 
+            SituacionAcademica situacionAcademicaFinal = alumnoCiclo.getSituacionFinal();
+
             matriculaResumen = new MatriculaResumen();
 
             matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionFinal());
@@ -216,8 +219,13 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumenDAO.save(matriculaResumen);
             matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
 
-            alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
+            alumno.setSituacionAcademica(situacionAcademicaFinal);
+            if (S_6.getId().longValue() == situacionAcademicaFinal.getId()) {
+                alumno.setSituacionAcademica(new SituacionAcademica(S_3.getId()));
+            }
+
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
+
             matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
             matriculaResumenDAO.update(matriculaResumen);
 
