@@ -210,7 +210,6 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
 
             matriculaResumen.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
-//            matriculaResumen.setPuntajePrioridad(alumnoCiclo.getPromedioAcumulado());
 
             matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
 
