@@ -999,6 +999,43 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setEstadoEnum(SeccionEstadoEnum.BLO);
         seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
 
+        log.debug("seccion {}", seccion.getId());
+        log.debug("seccion isTipoSeccionPCUR {}", seccion.isTipoSeccionPCUR());
+        if (seccion.isTipoSeccionPCUR()) {
+            List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(seccion.getGrupoSeccion());
+            for (Seccion seccionesOperativa : seccionesOperativas) {
+                log.debug("Operativo {} {} {}", 
+                        seccionesOperativa.getId(), 
+                        seccionesOperativa.getTipoSeccionEnum(), 
+                        seccionesOperativa.getEstado());
+            }
+            log.debug("seccionesOperativas {}", seccionesOperativas.size());
+            int totalSeccionesActivas = 0;
+            log.debug("totalSeccionesActivas inicial {}", totalSeccionesActivas);
+            for (Seccion seccionOperativa : seccionesOperativas) {
+                if (seccion.getId().longValue() != seccionOperativa.getId()
+                        && seccionOperativa.getEstadoEnum() == SeccionEstadoEnum.ACT
+                        && seccionOperativa.getIsTipoSeccionPCUR()) {
+                    log.debug("activo encontrado {}", seccionOperativa.getId());
+                    totalSeccionesActivas++;
+                }
+            }
+            log.debug("totalSeccionesActivas final {}", totalSeccionesActivas);
+            if (totalSeccionesActivas < 1) {
+                Seccion seccionTCUR = seccionDAO.findByGpoSeccionTipoSeccion(seccion.getGrupoSeccion(), TipoSeccionEnum.TCUR);
+                log.debug("seccionTCUR {}", seccionTCUR.getId());
+                log.debug("seccionTCUR estado {}", seccionTCUR.getEstadoEnum());
+                if (seccionTCUR.getEstadoEnum() == SeccionEstadoEnum.ACT) {
+                    Seccion seccionUpd = new Seccion(seccionTCUR.getId());
+                    seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                    seccionUpd.setFechaModificacion(today.toDate());
+                    seccionUpd.setEstadoEnum(SeccionEstadoEnum.BLO);
+                    seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+                    log.debug("seccionTCUR bloqueado por no tener ninguna seccion PCUR activa {}", seccionTCUR.getId());
+                }
+            }
+        }
+
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
         usuarioProgramacionService.bloquearSeccion(seccion, ds.getUsuario());
@@ -2450,7 +2487,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         }
         this.actualizarBoletin();
-        usuarioProgramacionService.restriccionModalidad(seccion, tipoRestriccionEnum,allRestriccion.toString(), ds.getUsuario());
+        usuarioProgramacionService.restriccionModalidad(seccion, tipoRestriccionEnum, allRestriccion.toString(), ds.getUsuario());
     }
 
     @Override
