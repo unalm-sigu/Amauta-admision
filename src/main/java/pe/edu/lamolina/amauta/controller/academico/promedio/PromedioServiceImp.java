@@ -1161,12 +1161,8 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(S_4);
                     this.printLogger("Caso 34", showLog);
 
-                } else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA && alumnoCiclo.getPromedioCiclo().intValue() < 10) {
-                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_2);
-                    this.printLogger("Caso 35", showLog);
-
-                } else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA && alumnoCiclo.getPromedioCiclo().intValue() > 10) {
-                  situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+                } else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
+                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
                     alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
                     this.printLogger("Caso 36", showLog);
 
