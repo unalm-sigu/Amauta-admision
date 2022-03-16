@@ -30,6 +30,10 @@ public class TipoConstanciaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         model.addAttribute("tipos", TipoConstanciaEnum.getJsonValues());
+        model.addAttribute("oficinas", JaneHelper
+                .from(service.allOficinaEmisora())
+                .only("id,nombre")
+                .array());
         return "tramite/tipoConstancia/tipoConstancia";
     }
 
@@ -43,7 +47,7 @@ public class TipoConstanciaController {
         List<TipoDocumentoAcademico> tiposDocumentos = service.allDynatable(filter);
 
         json.setData(JaneHelper.from(tiposDocumentos)
-                .join("oficinaEmisora")
+                .join("oficinaEmisora","id,nombre")
                 .array());
 
         json.setTotal(filter.getTotal());

@@ -17,13 +17,13 @@
 
                 </header>
 
-                <tipo-constancia-form ref="tipoconstanciaform" />
-
                 <section class="wrapper-lg m-b-xs">
 
                     <tipo-constancia-list ref="tipoconstancialist"/>
 
                 </section>
+
+                <tipo-constancia-form ref="tipoconstanciaform" />
 
             </div>
 
@@ -34,6 +34,7 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var tiposJson = /*[[${tipos.toString()}]]*/ '';
+                var oficinasJson = /*[[${oficinas}]]*/ '';
                 /*]]>*/
             </script>
 
@@ -63,9 +64,6 @@
                         },
                         update() {
                             this.$refs.tipoconstanciaform.updateTipo(this.tipoConstancia);
-                        },
-                        reload() {
-                            this.$refs.tipoconstancialist.reload();
                         },
                         setTipoConstancia(tipoConstancia) {
                             this.tipoConstancia = tipoConstancia;

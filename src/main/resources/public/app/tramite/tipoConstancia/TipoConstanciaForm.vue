@@ -13,11 +13,18 @@
             <div slot="body" >
 
                 <form id="formTipoConstancia" class="form-horizontal"  data-parsley-validate="true">
-                    
+
                     <div class='form-group row'>
                         <label class="col-sm-3 control-label">Nombre</label>
                         <div class="col-sm-6">
                             <input name="nombre"  required="true" v-model="tipoConstancia.nombre" type="text" class="form-control " />
+                        </div>
+                    </div>
+
+                    <div class='form-group row'>
+                        <label class="col-sm-3 control-label">Código</label>
+                        <div class="col-sm-6">
+                            <input name="codigo"  required="true" v-model="tipoConstancia.codigo" type="text" class="form-control " />
                         </div>
                     </div>
 
@@ -81,6 +88,50 @@
                         </div>
                     </div>
 
+                    <div class='form-group' >
+                        <label class="col-sm-3 control-label">Configurado</label>
+                        <div class="col-sm-9">
+                            <label class="switch">
+                                <input type="checkbox" name="requiereEgresado" value="1" true-value="1" false-value="0"  v-model="tipoConstancia.configurado" ></input>
+                                <span></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!--                    <div class='form-group' >
+                                            <label class="col-sm-3 control-label">Oficina Emisora</label>
+                                            <div class="col-sm-9">
+                                                <multiselect
+                                                    v-model="tipoConstancia.oficinaEmisora"
+                                                    v-bind:options="oficinas"
+                                                    v-bind:allow-empty="true"
+                                                    track-by="id"
+                                                    placeholder=" "
+                                                    label='nombre'
+                                                    v-bind:internal-search="true"
+                                                    v-bind:hide-selected="false"
+                                                    v-bind:showNoOptions="true"
+                                                    v-bind:show-labels="false">
+                    
+                                                    <template slot="singleLabel" slot-scope="props">
+                                                        <span class="option__title">
+                                                            {{ props.option.nombre }}
+                                                        </span>
+                                                    </template>
+                    
+                                                    <template slot="option" slot-scope="props">
+                                                        <span class="option_title">
+                                                            {{props.option.nombre}}
+                                                        </span> 
+                                                    </template>
+                    
+                                                    <template slot="noOptions">&nbsp;</template>
+                                                    <template slot="noResult">&nbsp;</template>
+                    
+                                                </multiselect>
+                                            </div>
+                                        </div>-->
+
                 </form>
             </div>
         </modal-simple>
@@ -99,36 +150,30 @@
         },
         methods: {
             updateTipo: function (tipoConstancia) {
-
-                let vue = this;
-                
-                vue.tipoConstancia = {...tipoConstancia};
-                
+                let $vue = this;
+                $vue.tipoConstancia = {tipo: {}};
                 $("#formTipoConstancia").parsley().destroy();
-
                 axios_.post(APP.url('tramite/tipoconstancia/find/' + tipoConstancia.id))
                         .then(({data}) => {
-                            vue.tipoConstancia = data;
-                            vue.$refs.modalAddTipoConstancia.open();
-                        }, () => {
-                        });
-
+                            $vue.tipoConstancia = data;
+                            $vue.$refs.modalAddTipoConstancia.open();
+                        }, () => null);
             },
             nuevo: function () {
-                let vue = this;
-                vue.tipoConstancia = {tipo: {}};
-                vue.$refs.modalAddTipoConstancia.open();
+                let $vue = this;
+                $vue.tipoConstancia = {tipo: {}};
+                $vue.$refs.modalAddTipoConstancia.open();
             },
             save: function (e) {
                 let $vue = this;
-                axios_.post(APP.url('tramite/tipoconstancia/save'),$vue.tipoConstancia)
+                axios_.post(APP.url('tramite/tipoconstancia/save'), $vue.tipoConstancia)
                         .then(({data}) => {
+                            console.log('save')
+                            $global.$emit("RELOAD");
+                            notify(data, 'info');
                             $vue.$refs.modalAddTipoConstancia.close();
-                            $vue.$parent.reload();
-                            notify(data,'info');
                         }, () => {
                             $vue.$refs.modalAddTipoConstancia.stop();
-                            $vue.$parent.reload();
                         });
             },
         }

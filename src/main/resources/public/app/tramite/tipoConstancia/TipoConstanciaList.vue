@@ -5,33 +5,43 @@
             <section class="panel-body">
 
 
-                <raptor-table ref="dynaTable"
+                <raptor-table ref="raptor"
                               v-bind:url="URL_TIPO_CONSTANCIA" >
                     <template scope="props">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th></th>
-                                    <th class="v-middle  col-xs-5">Nombre</th>
+                                    <th class="text-center v-middle">configurado</th>
+                                    <th class="v-middle  col-xs-7">Nombre</th>
                                     <th class="text-center  col-xs-1 v-middle">Costo por ciclo</th>
+                                    <th class="text-center  col-xs-1 v-middle">egresado</th>
                                     <th class="text-center  col-xs-1 v-middle">Solo pregrado</th>
                                     <th class="text-center  col-xs-1 v-middle">Solo posgrado</th>
-                                    <th class="text-center  col-xs-1 v-middle">Solo egresado</th>
-                                    <th class="v-middle col-xs-2">Tipo</th>
-                                    <th class="text-center  col-xs-1">configurado</th>
+                                    <th class="v-middle col-xs-1">Tipo</th>
                                     <th class="v-middle"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index ) in props.data"> 
-                                    <td class="v-middle">
-                                        {{index+1}}
+
+                                    <td class="text-center v-middle">
+                                        <i v-if="item.configurado==1" class="fa fa-2x fa-check text-success"></i>
+                                        <i v-else="" class="fa fa-2x fa-times text-danger"></i>
                                     </td>
+
                                     <td class="v-middle">
-                                        <p v-text="item.nombre" ></p>
+                                        <p class="block h4 text-primary" v-text="item.nombre" ></p>
+                                        <p class="block text-muted" v-text="item.codigo" ></p>
+                                        <p class="block text-muted" v-text="item.oficinaEmisora.nombre" ></p>
                                     </td>
+
                                     <td class="v-middle text-center">
                                         <i v-if="item.costoCiclo=='1'" class="fa fa-2x fa-check text-success"></i>
+                                        <i v-else="" class="fa fa-2x fa-times text-danger"></i>
+                                    </td>
+
+                                    <td class="v-middle text-center">
+                                        <i v-if="item.requiereEgresado=='1'" class="fa fa-2x fa-check text-success"></i>
                                         <i v-else="" class="fa fa-2x fa-times text-danger"></i>
                                     </td>
 
@@ -43,18 +53,11 @@
                                         <i v-if="item.requierePosgrado=='1'" class="fa fa-2x fa-check text-success"></i>
                                         <i v-else="" class="fa fa-2x fa-times text-danger"></i>
                                     </td>
-                                    <td class="v-middle text-center">
-                                        <i v-if="item.requiereEgresado=='1'" class="fa fa-2x fa-check text-success"></i>
-                                        <i v-else="" class="fa fa-2x fa-times text-danger"></i>
-                                    </td>
+
 
                                     <td class="v-middle">
-                                        <p v-if="item.tipoConstancia=='CONS'">Constancia</p>
-                                        <p v-else="item.tipoConstancia=='CERT'">Certificado</p>
-                                    </td>
-                                    <td class="text-center">
-                                        <i v-if="item.configurado==1" class="fa fa-2x fa-check text-success"></i>
-                                        <i v-else="" class="fa fa-2x fa-times text-danger"></i>
+                                        <p class="bold text-warning" v-if="item.tipo=='CONS'">CONSTANCIA</p>
+                                        <p class="bold text-success" v-if="item.tipo=='CERT'">CERTIFICADO</p>
                                     </td>
                                     <td class="v-middle">
                                         <div class="dropdown actions">
@@ -89,6 +92,9 @@
         },
         mounted: function () {
             let $vue = this;
+            $global.$on("RELOAD", function () {
+                $vue.reload();
+            });
         },
         methods: {
             updateTipo(item) {
@@ -96,7 +102,7 @@
                 this.$parent.update();
             },
             eliminar(tipoConstancia) {
-                var vue = this;
+                var $vue = this;
                 bootbox.confirm({
                     message: '¿Seguro que desea eliminar el tipo  de constancia?',
                     buttons: {
@@ -112,7 +118,7 @@
                                 success: function (response) {
                                     if (response.success) {
                                         notify(response.message, 'info');
-                                        vue.$refs.dynaTable.repreload();
+                                        $vue.$refs.raptor.loadRemoteData();
                                     } else {
                                         notify(response.message, 'error');
                                     }
@@ -125,7 +131,8 @@
                 });
             },
             reload() {
-                this.$refs.dynaTable.repreload();
+                var $vue = this;
+                $vue.$refs.raptor.loadRemoteData();
             }
         }
     };

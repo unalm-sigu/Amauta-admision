@@ -27,4 +27,6 @@ public interface TipoConstanciaService {
 
     TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento);
 
+    public List<Oficina> allOficinaEmisora();
+
 }
