@@ -984,7 +984,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
-        //this.actualizarVacantesTCUR(gpoSecc, ds, today);
         this.actualizarBoletin();
         usuarioProgramacionService.activarSeccion(seccionBD, ds.getUsuario());
     }
@@ -1036,7 +1035,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
-        this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
         usuarioProgramacionService.bloquearSeccion(seccion, ds.getUsuario());
     }
