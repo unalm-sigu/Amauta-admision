@@ -311,14 +311,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             CicloAcademico ciclo = alumnoCiclo.getCicloAcademico();
 
             if (creditos < 10) {
-                mensajes.add("El alumno no cumple con los 10 creditos aprobados en el " + ciclo.getDescripcion() + " (solo tiene " + creditos + " créditos).");
-
-                log.info("+++++++");
-                for (String msg : mensajes) {
-                    log.info("- {}", msg);
-                }
-                log.info("+++++++");
-                return mensajes;
+                mensajes.add("El alumno no cumple con los 10 créditos aprobados en el " + ciclo.getDescripcion() + " (solo tiene " + creditos + " créditos).");
             }
             break;
         }

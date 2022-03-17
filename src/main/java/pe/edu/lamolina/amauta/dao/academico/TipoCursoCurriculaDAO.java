@@ -7,8 +7,8 @@ import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 
 public interface TipoCursoCurriculaDAO extends EasyDAO<TipoCursoCurricula> {
 
-    public TipoCursoCurricula findByCodigo(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
+    TipoCursoCurricula findByCodigo(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
 
-    public List<TipoCursoCurricula> allByCodigos(List<String> list);
+    List<TipoCursoCurricula> allByCodigos(List<String> list);
 
 }
