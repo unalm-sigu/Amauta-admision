@@ -1164,15 +1164,15 @@ public class PromedioServiceImp implements PromedioService {
                 } else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
                     alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
-                    this.printLogger("Caso 35", showLog);
+                    this.printLogger("Caso 36", showLog);
 
                 } else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
-                    this.printLogger("Caso 36", showLog);
+                    this.printLogger("Caso 37", showLog);
 
                 } else if (cicloIngreso != null && ciclosEstudiados <= 2 && cicloIngreso.getCodigoInt() >= 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
-                    this.printLogger("Caso 37", showLog);
+                    this.printLogger("Caso 38", showLog);
 
 //                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > 200) {
 //                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
@@ -1612,10 +1612,11 @@ public class PromedioServiceImp implements PromedioService {
             nroCiclo = "10";
         } else if (nroCiclo.equals("0")) {
             nroCiclo = "10";
-        } else if (nroCiclo.equals("1.5") && ciclo.getCodigo().equals("202025") ) {//Por el orden que se programo el primer invierno del 2020 
+        } else if (nroCiclo.equals("0.5")) {
             nroCiclo = "10";
-        } 
-        else {
+        } else if (nroCiclo.equals("1.5") && ciclo.getCodigo().equals("202025")) {//Por el orden que se programo el primer invierno del 2020 
+            nroCiclo = "10";
+        } else {
             nroCiclo = "20";
         }
 

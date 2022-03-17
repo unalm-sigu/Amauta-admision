@@ -191,6 +191,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno al", "cicloAcademico ci", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
                 .join("al.modalidadEstudio moe", "car.facultad fac")
                 .leftJoin("al.cicloIngreso cing", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
+                .leftJoin("mr.situacionInicio si")
                 .filter("ci.codigo", ciclo.getCodigo())
                 .searchFields("car.nombre", "fac.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -247,7 +248,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 continue;
             }
             String values = (String) queries.get(key);
-            sql.filter("sita.id", new Long(values));
+            sql.filter("si.id", new Long(values));
         }
 
     }
@@ -1080,7 +1081,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
                 .join("alu.persona")
-                .in("sa.codigo", asList(
+                .notIn("sa.codigo", asList(
                         S_4.getValue(),
                         S_X.getValue(),
                         S_U.getValue(),
@@ -1088,7 +1089,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         S_4U.getValue(),
                         S_4T.getValue(),
                         S_7.getValue()))
-                .in("estado", asList(MAT, NMAT))
+                .in("estado", asList(MAT, NMAT,RCI))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
         return all(sql);

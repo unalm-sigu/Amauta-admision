@@ -10,6 +10,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.amauta.dao.academico.SilaboCursoDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 
 @Repository
 public class SilaboCursoDAOH extends AbstractEasyDAO<SilaboCurso> implements SilaboCursoDAO {
@@ -64,7 +66,20 @@ public class SilaboCursoDAOH extends AbstractEasyDAO<SilaboCurso> implements Sil
                 .from(SilaboCurso.class, "sc")
                 .join("curso cu", "cu.departamentoAcademico da", "da.facultad fa")
                 .join("sc.departamentoAcademico depa", "cu.modalidadEstudio mo")
-                .orderBy("cu.id","depa.id");
+                .orderBy("cu.id", "depa.id");
+        return this.all(sql);
+    }
+
+    @Override
+    public List<SilaboCurso> allByCursoCiclo(Curso curso, CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .from(SilaboCurso.class, "sc")
+                .join("curso cu", "cu.departamentoAcademico da", "da.facultad fa")
+                .join("sc.departamentoAcademico depa", "cu.modalidadEstudio mo")
+                .left("sc.cicloVigenciaInicio ci")
+                .orderBy("cu.id", "depa.id")
+                .filter("cu.id", curso)
+                .filter("ci.id", cicloAcademico);
         return this.all(sql);
     }
 

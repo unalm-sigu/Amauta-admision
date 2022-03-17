@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
@@ -37,6 +38,11 @@ import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6B;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_U;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -1153,6 +1159,24 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
                 .in("alu.id", alumnos)
                 .filter("ca.id", cicloOrigen);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allSuspendidoByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .join("alu.modalidadEstudio me")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .in("sf.codigo", 
+                        asList(S_6U.getValue(),
+                        S_U.getValue(),
+                        S_T.getValue(),
+                        S_6B.getValue(),
+                        S_6.getValue()))
+                .filter("me.codigo", PRE)
+                .filter("ca.id", cicloAcademico);
         return all(sql);
     }
 

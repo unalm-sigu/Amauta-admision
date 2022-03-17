@@ -106,7 +106,7 @@ public interface MatriculableService {
 
     public void verificarPrioridad(Long idMatriculaResumen);
 
-    public List<CicloAcademico> allCiclo();
+    public List<CicloAcademico> allCicloRegular();
 
     public List<SituacionAcademica> allSituacionAcademica();
 

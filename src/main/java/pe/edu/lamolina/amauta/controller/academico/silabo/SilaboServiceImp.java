@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +44,7 @@ import pe.edu.lamolina.model.general.Compania;
 @Slf4j
 @Service
 @Transactional
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class SilaboServiceImp implements SilaboService {
 
     private final SilaboCursoDAO silaboCursoDAO;
@@ -88,13 +88,30 @@ public class SilaboServiceImp implements SilaboService {
 
         }
 
+        List<SilaboCurso> silaboDuplicados = new ArrayList();
+
+        if (silabo.getCicloVigenciaInicio()!= null) {
+            silaboDuplicados = silaboCursoDAO.allByCursoCiclo(silabo.getCurso(), silabo.getCicloVigenciaInicio());
+        }
+
         if (silabo.getId() == null) {
+
+            if (!silaboDuplicados.isEmpty()) {
+                throw new PhobosException("Ya existe un silabo para el curso en el ciclo "+silabo.getCicloVigenciaInicio().getDescripcion());
+            }
 
             silabo.setEstadoEnum(SilaboCursoEstadoEnum.CRE);
             silabo.setFechaRegistro(new Date());
             silaboCursoDAO.save(silabo);
 
         } else {
+            
+            silaboDuplicados=silaboDuplicados.stream().filter(x->x.getId()!=silabo.getId().longValue())
+                    .collect(Collectors.toList());
+
+            if (!silaboDuplicados.isEmpty()) {
+                throw new PhobosException("Ya existe un silabo para el curso en el ciclo "+silabo.getCicloVigenciaInicio().getDescripcion());
+            }
 
             silaboCursoDAO.updateColumns(silabo,
                     "rutaDocumento",

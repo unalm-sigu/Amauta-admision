@@ -1,8 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.tipoconstancia;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +41,6 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Autowired
     PrecioDocumentoDAO precioDocumentoDAO;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Override
     @Transactional
     public void save(TipoDocumentoAcademico tramiteDocumentoAcademico, Usuario usuario) {
@@ -77,9 +73,11 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademico.getRequierePregrado() == null) {
             tramiteDocumentoAcademico.setRequierePregrado(0);
         }
+        if (tramiteDocumentoAcademico.getConfigurado()== null) {
+            tramiteDocumentoAcademico.setConfigurado(0L);
+        }
 
         tramiteDocumentoAcademico.setOficinaEmisora(oficina);
-        tramiteDocumentoAcademico.setConfigurado(0L);
         tipoDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
     }
 
@@ -105,6 +103,9 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademicoForm.getRequierePregrado() == null) {
             tramiteDocumentoAcademicoForm.setRequierePregrado(0);
         }
+        if (tramiteDocumentoAcademicoForm.getConfigurado()== null) {
+            tramiteDocumentoAcademicoForm.setConfigurado(0L);
+        }
 
         tipoDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm,
                 "costoCiclo",
@@ -112,6 +113,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
                 "requiereEgresado",
                 "requierePosgrado",
                 "requierePregrado",
+                "configurado",
                 "nombre",
                 "tipo");
 
@@ -161,6 +163,11 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Override
     public TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento) {
         return tipoDocumentoAcademicoDAO.find(tipoDocumento);
+    }
+
+    @Override
+    public List<Oficina> allOficinaEmisora() {
+        return oficinaDAO.allOficinaEmisora();
     }
 
 }
