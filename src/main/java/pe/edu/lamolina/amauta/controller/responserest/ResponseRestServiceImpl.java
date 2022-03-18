@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.responserest;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -151,6 +153,21 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idSeccion", seccion.getId());
 
         String url = String.format("%s/matriculaSeccion/matricularSeccion", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse retirarAlumnoMatricularSeccion(List<MatriculaCurso> matriculaCursos, Seccion destino, EstadoMatriculaEnum estadoMatriculaEnum, TokenIngresante token, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = createFormJson(ds, token);
+        json.put("idSeccion", destino.getId());
+        json.put("estado", estadoMatriculaEnum.name());
+        json.set("matriculaCursos",JaneHelper.from(matriculaCursos)
+                .only("id")
+                .join("matriculaResumen","id")
+                .join("matriculaResumen.alumno","id")
+                .array());
+        String url = String.format("%s/matriculaSeccion/retirarAlumnoMatricularSeccion", parametro.getValor());
         return this.postToBackEnd(url, json);
     }
 
