@@ -212,6 +212,12 @@ public class ProfesorServiceImp implements ProfesorService {
         docenteDAO.save(docente);
         log.debug("docente  guardado  {}", docente.getId());
 
+        if (hayFotoNueva) {
+            this.uploadS3(personaForm.getFoto());
+            docente.getPersona().setFoto(personaForm.getFoto());
+            personaDAO.update(docente.getPersona());
+        }
+
         if (esPersonaNueva) {
             personaService.registrarValidacionDocente(docente.getPersona(), docente, ds);
         } else {
@@ -219,12 +225,6 @@ public class ProfesorServiceImp implements ProfesorService {
             if (!personaJsonFinal.equals(personaJsonInicial)) {
                 personaService.registrarValidacionDocente2(docente.getPersona(), docente, personaJsonInicial, ds);
             }
-        }
-
-        if (hayFotoNueva) {
-            this.uploadS3(personaForm.getFoto());
-            docente.getPersona().setFoto(personaForm.getFoto());
-            personaDAO.update(docente.getPersona());
         }
 
         this.crearUsuario(docente.getPersona(), ds);
