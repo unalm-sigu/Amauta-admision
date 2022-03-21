@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.responserest;
 
+import java.util.List;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -57,4 +58,6 @@ public interface ResponseRestService {
     JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
 
     JsonResponse limpiarCache(DataSessionPivot ds, TokenIngresante token);
+
+    JsonResponse retirarAlumnoMatricularSeccion(List<MatriculaCurso> matriculaCursos, Seccion destino, EstadoMatriculaEnum estadoMatriculaEnum, TokenIngresante token, DataSessionPivot ds);
 }

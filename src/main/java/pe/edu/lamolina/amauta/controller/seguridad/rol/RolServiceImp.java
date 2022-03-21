@@ -68,21 +68,40 @@ public class RolServiceImp implements RolService {
         if (rolCode != null) {
             throw new PhobosException("Código ya registrado");
         }
-        Boolean existEnum = false;
-        for (RolEnum enu : RolEnum.values()) {
-            logger.debug("{} {} ",enu.name(), rol.getCodigo());
-            existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
-            if (existEnum) {
-                break;
+
+        if (rol.getRolSuperior() == null) {
+
+            Boolean existEnum = false;
+
+            for (RolEnum enu : RolEnum.values()) {
+                logger.debug("{} {} ", enu.name(), rol.getCodigo());
+                existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
+                if (existEnum) {
+                    break;
+                }
             }
+
+            if (!existEnum) {
+                throw new PhobosException("No se agregó el código. Para un rol superior se requiere un código.");
+            }
+
+            rolDAO.save(rol);
+
+            RolSistema rolSistema = new RolSistema();
+            rolSistema.setRol(rol);
+            rolSistema.setSistema(sistema);
+            rolSistemaDAO.save(rolSistema);
+
+            return;
         }
-        Assert.isTrue(existEnum, "No se agregó el código. Comunicarse con soporte.");
+
         rolDAO.save(rol);
 
         RolSistema rolSistema = new RolSistema();
         rolSistema.setRol(rol);
         rolSistema.setSistema(sistema);
         rolSistemaDAO.save(rolSistema);
+
     }
 
     @Override

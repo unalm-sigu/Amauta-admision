@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -133,24 +134,39 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         Map<Long, MatriculaCurso> mapMatriculaCurso = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosCursoOrigen);
         System.out.println("matriculadosSeccionOrigen ::: " + matriculadosCursoOrigen.size());
 
-        int trasladados = 0;
+        //int trasladados = 0;
         int matriculados = origen.getMatriculados();
+        int trasladados = alumnos.size();
+//        for (Alumno alumno : alumnos) {
+//            MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
+//            TokenIngresante token = responseRestService.createToken(ds);
+//            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.TRAS, token);
+//            Assert.isTrue(response.getSuccess(), response.getMessage());
+//
+//            token = responseRestService.createToken(ds);
+//            response = responseRestService.matricularSeccion(alumno, destino, ds, token);
+//            Assert.isTrue(response.getSuccess(), response.getMessage());
+//
+//            trasladados++;
+        // FALTA VACANTE-ALUMNO COMO REGISTRO ANULADO
+        // FALTA VACANTE-ALUMNO COMO NUEVO REGISTRO
+//        }
+        //INICIO MODIFICACION
+        List<MatriculaCurso> matriculaCursos = new ArrayList();
         for (Alumno alumno : alumnos) {
             MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
-            TokenIngresante token = responseRestService.createToken(ds);
-            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.TRAS, token);
-            Assert.isTrue(response.getSuccess(), response.getMessage());
-
-            token = responseRestService.createToken(ds);
-            response = responseRestService.matricularSeccion(alumno, destino, ds, token);
-            Assert.isTrue(response.getSuccess(), response.getMessage());
-
-            trasladados++;
-
-            // FALTA VACANTE-ALUMNO COMO REGISTRO ANULADO
-            // FALTA VACANTE-ALUMNO COMO NUEVO REGISTRO
+            if (matCurso == null) {
+                continue;
+            }
+            matriculaCursos.add(matCurso);
         }
-
+        if (matriculaCursos.size() != alumnos.size()) {
+            throw new PhobosException("La cantidad de alumnos no coincide con la cantidad de cursos");
+        }
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.retirarAlumnoMatricularSeccion(matriculaCursos, destino, EstadoMatriculaEnum.TRAS, token, ds);
+        Assert.isTrue(response.getSuccess(), response.getMessage());
+        //FIN MODIFICACION
         Seccion origenUpd = new Seccion(origen.getId());
         origenUpd.setUsuarioModificacion(ds.getUsuario());
         origenUpd.setFechaModificacion(new Date());
