@@ -2049,28 +2049,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<DiaHoraGrupo> nuevosHAula = inspector.getNewList();
         List<HorarioAula> viejosHAula = inspector.getOldListDB();
 
-//        Date lunes = new LocalDate().withDayOfWeek(1).toDate();
-//        Date dominPasado = new LocalDate(lunes).minusDays(1).toDate();
-//        boolean horarioInterrumpido = false;
         for (HorarioAula ha : muertosHAula) {
-//            if (ha.getFechaInicio().before(lunes)) {
-//                ha.setFechaFin(dominPasado);
-//                horarioAulaDAO.update(ha);
-//                horarioInterrumpido = true;
-//            } else {
             horarioAulaDAO.delete(ha);
-//            }
         }
-//        Date ultimoDomin = new LocalDate(eventoAcademico.getFechaFin()).withDayOfWeek(7).toDate();
-//        Date domingo = new LocalDate().withDayOfWeek(7).toDate();
-//        Map<String, HorarioAula> mapPeriodo = TypesUtil.convertListToMap("periodo", viejosHAula);
-//        Map<String, List<HorarioAula>> mapHorarioByPeriodo = TypesUtil.convertListToMapList("periodo", viejosHAula);
-//        for (HorarioAula ha : viejosHAula) {
-//            if (ha.getFechaFin().after(ultimoDomin)) {
-//                ha.setFechaFin(eventoAcademico.getFechaFin());
-//                horarioAulaDAO.update(ha);
-//            }
-//        }
+        
         if (seccion.getAula() != null) {
             for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
                 HorarioAula horarioAula = new HorarioAula();
@@ -2081,13 +2063,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                 horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
                 horarioAula.setFechaFin(eventoAcademico.getFechaFin());
-
-//                if (horarioInterrumpido) {
-//                    horarioAula.setFechaInicio(lunes);
-//                } else {
                 horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
-//                }
-
                 horarioAulaDAO.save(horarioAula);
             }
         }
@@ -2201,12 +2177,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoDictadoClasesByCicloAcademico(seccion.getGrupoSeccion(), cicloAcademico, modalidadCurso);
 
-        Date fechaInicioClases = new DateTime(eventoAcademico.getFechaInicio()).withDayOfWeek(1).toDate();
-        Date hoy = new LocalDate().toDate();
-        Date lunes = new DateTime(hoy).withDayOfWeek(1).toDate();
-        if (lunes.after(fechaInicioClases)) {
-            fechaInicioClases = lunes;
-        }
+        Date fechaInicioClases = eventoAcademico.getFechaInicio();
 
         if (aula.getPermiteCruce() == 0 && !horariosSeccion.isEmpty()) {
             log.debug("no permite cruce horario");
