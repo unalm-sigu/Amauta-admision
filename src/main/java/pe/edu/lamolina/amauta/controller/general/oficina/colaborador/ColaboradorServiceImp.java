@@ -27,7 +27,6 @@ import pe.edu.lamolina.model.enums.NivelOficinaEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
-import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -69,12 +68,11 @@ import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.medico.MedicoDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import static pe.edu.lamolina.model.enums.SexoEnum.F;
-import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
+import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Slf4j

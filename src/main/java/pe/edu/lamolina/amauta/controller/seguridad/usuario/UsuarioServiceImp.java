@@ -23,7 +23,6 @@ import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
-import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -33,7 +32,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.amauta.dao.seguridad.RolSistemaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.general.PersonaHistorial;
+import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)

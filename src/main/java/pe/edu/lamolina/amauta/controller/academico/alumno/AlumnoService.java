@@ -22,7 +22,7 @@ import pe.edu.lamolina.model.academico.Docente;
 
 public interface AlumnoService {
 
-    void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCu, Usuario usuario);
+    void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCu, DataSessionPivot ds);
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
@@ -42,29 +42,29 @@ public interface AlumnoService {
 
     Alumno findAlumnoFisico(Long idAlumno);
 
-    void saveAlumnoFisico(Alumno alumno, Usuario usuario);
+    void saveAlumnoFisico(Alumno alumno, DataSessionPivot ds);
 
-    void saveAlumnoEspecial(Alumno alumno, Usuario usuario);
+    void saveAlumnoEspecial(Alumno alumno, DataSessionPivot ds);
 
     Alumno validarAlumnoEspecial(Alumno alumnoVisitanteForm);
 
-    void updateAlumnoFisico(Alumno alumno, Usuario usuarioRegistra);
+    void updateAlumnoFisico(Alumno alumno, DataSessionPivot ds);
 
-    void updateAlumnoEspecial(Alumno alumno, Usuario usuarioRegistra);
+    void updateAlumnoEspecial(Alumno alumno, DataSessionPivot ds);
 
-    List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona);
+    List<Carrera> allCarrerasByuser(Persona persona, DataSessionPivot ds);
 
     List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter);
 
     List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico);
 
-    void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico, Usuario usuario);
+    void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<AlumnoCursoCurricula> allAlumnoCursoCurso(Alumno alumno);
 
     List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno);
 
-    List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean, Usuario usuario, CicloAcademico cicloAcademico);
+    List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean,  CicloAcademico cicloAcademico,DataSessionPivot ds);
 
     List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
 
@@ -80,7 +80,7 @@ public interface AlumnoService {
 
     List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
 
-    void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
+    void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, DataSessionPivot ds);
 
     List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno);
 

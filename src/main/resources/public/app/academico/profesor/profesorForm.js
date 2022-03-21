@@ -31,7 +31,7 @@ new Vue({
         $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function (e) {
             vue.mostrarDirNacimiento();
         });
-        $('#nacionalidad').select2(vue.buscarPais());
+        $('#nacionalidad').select2(vue.buscarNacionalidad());
         $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function (e) {
             vue.mostrarUbicacionDomicilio();
         });
@@ -65,6 +65,36 @@ new Vue({
                 },
                 formatSelection: function (info) {
                     return info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            };
+        },
+        buscarNacionalidad: function () {
+            return {
+                minimumInputLength: 2,
+                ajax: {
+                    url: APP.url("comun/buscar/allPaises"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function (response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nacionalidad: element.attr("rel"), codigo: element.attr("codigo")});
+                    }
+                },
+                formatResult: function (info) {
+                    return info.nacionalidad + " | " + info.codigo;
+                },
+                formatSelection: function (info) {
+                    return info.nacionalidad;
                 },
                 escapeMarkup: function (m) {
                     return m;

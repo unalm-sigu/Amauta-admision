@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 import pe.edu.lamolina.model.general.PersonaFoto;
@@ -45,5 +46,11 @@ public interface PersonaService {
     void saveFirma(PersonaFoto personaFirma, DataSessionPivot ds);
 
     void anularFirma(PersonaFoto personaFoto, DataSessionPivot ds);
+
+    String getPersonaJsonValidacion(Persona persona);
+
+    void registrarValidacionDocente(Persona persona, Docente docente, DataSessionPivot ds);
+
+    void registrarValidacionDocente2(Persona persona, Docente docente, String personJsonInicial, DataSessionPivot ds);
 
 }

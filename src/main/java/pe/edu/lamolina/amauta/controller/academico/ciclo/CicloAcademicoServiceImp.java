@@ -10,7 +10,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -93,6 +92,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         for (NumeroCicloAcademicoEnum numeroCicloAcademicoEnum : NumeroCicloAcademicoEnum.values()) {
             CicloAcademico cicloAcademicoNew = new CicloAcademico();
             cicloAcademicoNew.setEstadoEnum(CicloAcademicoEstadoEnum.CRE);
+            cicloAcademicoNew.setEstadoObuEnum(CicloAcademicoEstadoEnum.CRE);
             cicloAcademicoNew.setNumeroCiclo(numeroCicloAcademicoEnum.getValue());
             cicloAcademicoNew.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
             cicloAcademicoNew.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));

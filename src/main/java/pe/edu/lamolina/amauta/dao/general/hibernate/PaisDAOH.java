@@ -22,6 +22,7 @@ public class PaisDAOH extends AbstractEasyDAO<Pais> implements PaisDAO {
                 .beginBlock()
                 .__().filter("pa.codigo", "like", nombre)
                 .__().filter("pa.nombre", "like", nombre)
+                .__().filter("pa.nacionalidad", "like", nombre)
                 .endBlock()
                 .limit(15);
         return sql.all(getCurrentSession());

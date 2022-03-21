@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -27,45 +29,40 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaFotoDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
+import pe.edu.lamolina.amauta.dao.general.ValidacionPersonaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
+import pe.edu.lamolina.model.enums.persona.OrigenValidacionEnum;
+import pe.edu.lamolina.model.enums.persona.ValidacionEstadoEnum;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 import pe.edu.lamolina.model.general.PersonaFoto;
+import pe.edu.lamolina.model.general.ValidacionPersona;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class PersonaServiceImp implements PersonaService {
 
-    @Autowired
-    ArchivoDAO archivoDAO;
-    @Autowired
-    EmpresaEtiquetadaDAO empresaEtiquetadaDAO;
-    @Autowired
-    PersonaDAO personaDAO;
-    @Autowired
-    PersonaCuentaBancariaDAO personaCuentaBancariaDAO;
-    @Autowired
-    PersonaFotoDAO personaFotoDAO;
-    @Autowired
-    RolDAO rolDAO;
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
-    @Autowired
-    UsuarioDAO usuarioDAO;
+    private final ArchivoDAO archivoDAO;
+    private final EmpresaEtiquetadaDAO empresaEtiquetadaDAO;
+    private final PersonaDAO personaDAO;
+    private final PersonaCuentaBancariaDAO personaCuentaBancariaDAO;
+    private final PersonaFotoDAO personaFotoDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final ValidacionPersonaDAO validacionPersonaDAO;
 
-    @Autowired
-    VerificadorService verificadorService;
-    @Autowired
-    UploadFileS3 uploadFileS3;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final VerificadorService verificadorService;
+    private final UploadFileS3 uploadFileS3;
 
     @Override
     public List<Persona> allByDynatable(DynatableFilter filter) {
@@ -79,7 +76,6 @@ public class PersonaServiceImp implements PersonaService {
             throw new PhobosException("El correo Institucional es obligatorio");
         }
         Usuario usuario = new Usuario();
-        usuario = new Usuario();
         usuario.setEstadoEnum(UserEstadoEnum.ACT);
         usuario.setGoogle(persona.getEmailCompania());
         usuario.setPersona(persona);
@@ -186,7 +182,7 @@ public class PersonaServiceImp implements PersonaService {
             }
         }
 
-        logger.debug("PERSONA ID- {}", persona.getId());
+        log.debug("PERSONA ID- {}", persona.getId());
     }
 
     private void validarDNI(Persona personaForm) {
@@ -251,7 +247,7 @@ public class PersonaServiceImp implements PersonaService {
 
         boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono", "tituloAcademico"));
         if (sinCambios) {
-            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
+            log.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
         }
 
@@ -485,6 +481,62 @@ public class PersonaServiceImp implements PersonaService {
             personaFotoDAO.delete(firmaPersonaBD);
         }
 
+    }
+
+    @Override
+    public String getPersonaJsonValidacion(Persona persona) {
+        return JaneHelper
+                .from(persona)
+                .only("id,paterno,materno,nombres,sexo,fechaNacer,numeroDocIdentidad")
+                .join("tipoDocumento", "id,simbolo")
+                .json().toString();
+    }
+
+    @Override
+    @Transactional
+    public void registrarValidacionDocente(Persona persona, Docente docente, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        persona.setEstadoValidacionEnum(ValidacionEstadoEnum.VALIDADO);
+        persona.setOrigenValidacionEnum(OrigenValidacionEnum.DOCENTE);
+        persona.setFechaValidacion(today.toDate());
+        persona.setUserValidacion(ds.getUsuario());
+        personaDAO.update(persona);
+
+        String personaJson = this.getPersonaJsonValidacion(persona);
+
+        ValidacionPersona validacion = new ValidacionPersona();
+        validacion.setPersona(persona);
+        validacion.setDataFinal(personaJson);
+        validacion.setOrigenEnum(OrigenValidacionEnum.DOCENTE);
+        validacion.setInstanciaOrigen(docente.getId());
+        validacion.setUserValidacion(ds.getUsuario());
+        validacion.setFechaValidacion(today.toDate());
+        validacionPersonaDAO.save(validacion);
+    }
+
+    @Override
+    @Transactional
+    public void registrarValidacionDocente2(Persona persona, Docente docente, String personaJsonInicial, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        persona.setEstadoValidacionEnum(ValidacionEstadoEnum.VALIDADO);
+        persona.setOrigenValidacionEnum(OrigenValidacionEnum.DOCENTE);
+        persona.setFechaValidacion(today.toDate());
+        persona.setUserValidacion(ds.getUsuario());
+        personaDAO.update(persona);
+
+        String personaJsonFinal = this.getPersonaJsonValidacion(persona);
+
+        ValidacionPersona validacion = new ValidacionPersona();
+        validacion.setPersona(persona);
+        validacion.setDataInicio(personaJsonInicial);
+        validacion.setDataFinal(personaJsonFinal);
+        validacion.setOrigenEnum(OrigenValidacionEnum.DOCENTE);
+        validacion.setInstanciaOrigen(docente.getId());
+        validacion.setUserValidacion(ds.getUsuario());
+        validacion.setFechaValidacion(today.toDate());
+        validacionPersonaDAO.save(validacion);
     }
 
 }

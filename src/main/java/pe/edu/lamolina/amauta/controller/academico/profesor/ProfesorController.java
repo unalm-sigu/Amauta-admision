@@ -83,7 +83,7 @@ public class ProfesorController {
     private final ProfesorService service;
     private final CargaAcademicaService cargaAcademicaService;
     private final VerificadorService verificadorService;
-    
+
     private final DespliegueConfig despliegueConfig;
     private final ProfesoresPDF profesoresPDF;
     private final ReporteCargaAcademicaPDF reporte;
@@ -256,6 +256,7 @@ public class ProfesorController {
             if (docente.getId() == null) {
                 service.save(docente, ds);
                 response.setMessage("Docente creado satisfactoriamente");
+
             } else {
                 Persona personaDuplicada = service.update(docente, ds);
                 if (personaDuplicada == null) {
@@ -312,15 +313,11 @@ public class ProfesorController {
     public JsonResponse findPersona(Docente docente, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
-            Compania compania = ds.getCompania();
 
             node.put("existePersona", (persona != null));
-
             if (persona == null) {
                 persona = new Persona();
             }
@@ -329,7 +326,6 @@ public class ProfesorController {
             Docente docenteDb = null;
 
             if (persona.getId() != null) {
-
                 node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("numeroDoc", persona.getNumeroDocIdentidad());
                 if (docente.getId() != null) {
@@ -338,21 +334,11 @@ public class ProfesorController {
             }
 
             node.put("existeDocente", (docenteDb != null));
-
             if (docenteDb == null) {
                 docenteDb = new Docente();
                 docenteDb.setPersona(persona);
             }
 
-            Context ctx = new Context();
-            ctx.setVariable("docente", docenteDb);
-            ctx.setVariable("helper", new AlumnoHelper());
-            ctx.setVariable("documentos", service.allDocumentos());
-            ctx.setVariable("modalidades", service.allModalidadEstudio(compania));
-
-            //   String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formDocente"));
-            String htmlContent = "";
-            node.put("html", htmlContent);
             response.setData(node);
             response.setSuccess(true);
 

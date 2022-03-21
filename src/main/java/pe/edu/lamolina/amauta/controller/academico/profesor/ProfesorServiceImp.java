@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.academico.profesor;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.util.ArrayList;
@@ -9,16 +10,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
+import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -31,13 +37,11 @@ import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -50,7 +54,6 @@ import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
-import pe.edu.lamolina.amauta.dao.general.PaisDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
@@ -62,62 +65,34 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ProfesorServiceImp implements ProfesorService {
 
-    @Autowired
-    PersonaDAO personaDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ContenidoCartaDAO contenidoCartaDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final DocenteDAO docenteDAO;
+    private final DocenteSeccionDAO docenteSeccionDAO;
+    private final HorarioSeccionDAO horarioSeccionDAO;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final OficinaDAO oficinaDAO;
+    private final PersonaDAO personaDAO;
+    private final PersonaHistorialDAO personaHistorialDAO;
+    private final RolDAO rolDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    DocenteDAO docenteDAO;
-
-    @Autowired
-    UsuarioDAO usuarioDAO;
-
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-
-    @Autowired
-    RolDAO rolDAO;
-
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
-    @Autowired
-    PaisDAO paisDAO;
-
-    @Autowired
-    DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    StorageService swiftService;
-
-    @Autowired
-    ContenidoCartaDAO contenidoCartaDAO;
-
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    PersonaHistorialDAO personaHistorialDAO;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final StorageService swiftService;
+    private final PersonaService personaService;
 
     @Override
     public List<Docente> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos) {
@@ -165,264 +140,182 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public List<TipoDocIdentidad> allDocumentos() {
-        return tipoDocIdentidadDAO.all();
+        return tipoDocIdentidadDAO.allForPersonaNatural();
     }
 
     @Override
     @Transactional
     public void save(Docente docente, DataSessionPivot ds) {
+        DateTime today = new DateTime();
         Usuario user = ds.getUsuario();
-        logger.debug("save docente");
+        log.debug("save docente");
 
         Persona personaDoc = this.findPersonaByDocIdentidad(docente.getPersona());
+        log.debug("existe persona {}", (personaDoc != null));
 
-        logger.debug("existe persona {}", (personaDoc != null));
+        Persona personaForm = docente.getPersona();
+        String personaJsonInicial = null;
+        boolean esPersonaNueva = false;
+        boolean hayFotoNueva = true;
+
         if (personaDoc == null) {
-            Persona personaForm = docente.getPersona();
-            if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
-                throw new PhobosException("El correo principal es obligatorio");
-            }
+            Assert.isNotBlank(personaForm.getEmailCompania(), "El correo principal es obligatorio");
+
             this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
             if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
                 this.validarEmailsinPersona(personaForm.getEmail());
             }
-            personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
+
             if (Strings.isNullOrEmpty(personaForm.getFoto())) {
                 personaForm.setFoto(null);
             } else {
                 this.uploadS3(personaForm.getFoto());
             }
-            personaForm.setFechaRegistro(new Date());
+
+            personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
+            personaForm.setFechaRegistro(today.toDate());
             personaForm.setUserRegistro(user);
             personaDAO.save(personaForm);
+
             docente.setPersona(personaForm);
+            esPersonaNueva = true;
+
         } else {
+            this.validarDNI(personaForm);
+            Assert.isNotBlank(personaForm.getEmailCompania(), "El correo principal es obligatorio");
 
-            ObjectUtil.eliminarAttrSinId(personaDoc, "paisNacer");
-            ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionNacer");
-            ObjectUtil.eliminarAttrSinId(personaDoc, "nacionalidad");
-            ObjectUtil.eliminarAttrSinId(personaDoc, "paisDomicilio");
-            ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionDomicilio");
-            ObjectUtil.eliminarAttrSinId(personaDoc, "tipoDocumento");
-
-            Persona personaForm = docente.getPersona();
-            this.validarDNI(personaForm, false, null);
-            if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
-                throw new PhobosException("El correo principal es obligatorio");
-            }
             this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaForm);
             if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
                 this.validarEmailConPersona(personaForm.getEmail(), personaForm);
             }
-            Persona persona = this.getPersonaBDbasic(personaForm);
 
-            if (persona.getFechaValidacionReniec() == null) {
-
-                Persona personaBD = personaDAO.find(persona.getId());
-
-                PersonaHistorial personaHistorial = new PersonaHistorial();
-                personaHistorial.setUsuario(ds.getUsuario());
-                personaHistorial.setPersona(personaBD);
-                personaHistorial.setFecha(new Date());
-                personaHistorial.setNumeroDocumentoFrom(personaBD.getNumeroDocIdentidad());
-                personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
-                personaHistorial.setTipoDocumentoFrom(personaBD.getTipoDocumento());
-                personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
-                personaHistorialDAO.save(personaHistorial);
-
-                persona = this.getPersonaBDreniec(personaForm);
+            Persona personaBD = personaDAO.find(personaForm.getId());
+            hayFotoNueva = this.hayFotoNueva(personaBD, personaForm);
+            boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva);
+            personaJsonInicial = personaService.getPersonaJsonValidacion(personaBD);
+            if (hayCambios) {
+                this.savePersona(personaBD, personaForm, ds);
             }
-            persona.setFoto(personaForm.getFoto());
-            this.uploadS3(personaForm.getFoto());
 
+            docente.setPersona(personaBD);
         }
 
         List<Docente> docentesBD = docenteDAO.allByPersona(docente.getPersona());
-        logger.debug("existe docente en db {}", (docentesBD != null));
-        if (!docentesBD.isEmpty()) {
-            throw new PhobosException("Docente ya existe");
-        }
+        log.debug("existe docente en db {}", (docentesBD != null));
+        Assert.isTrue(docentesBD.isEmpty(), "Docente ya existe");
 
-        logger.debug("guardando docente ...");
+        log.debug("guardando docente ...");
         docente.setEstadoEnum(DocenteEstadoEnum.ACT);
         docente.setCodigo(this.getCodigo());
-        docente.setFechaRegistro(new Date());
+        docente.setFechaRegistro(today.toDate());
         docente.setUserRegistro(user);
         docenteDAO.save(docente);
-        logger.debug("docente  guardado  {}", docente.getId());
+        log.debug("docente  guardado  {}", docente.getId());
 
-        Usuario usuarioDb = usuarioDAO.findActivoByPersona(docente.getPersona());
-        logger.debug("existe usuario en db {}", (usuarioDb != null));
-        if (usuarioDb == null) {
-            usuarioDb = new Usuario();
-            usuarioDb.setEstadoEnum(UserEstadoEnum.ACT);
-            usuarioDb.setFechaRegistro(new Date());
-            usuarioDb.setUserRegistro(user);
-            usuarioDb.setPersona(docente.getPersona());
-            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
-            usuarioDAO.save(usuarioDb);
+        if (esPersonaNueva) {
+            personaService.registrarValidacionDocente(docente.getPersona(), docente, ds);
         } else {
-            logger.debug("actualizando usuario");
-            usuarioDb.setFechaRegistro(new Date());
-            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
-            usuarioDAO.update(usuarioDb);
+            String personaJsonFinal = personaService.getPersonaJsonValidacion(docente.getPersona());
+            if (!personaJsonFinal.equals(personaJsonInicial)) {
+                personaService.registrarValidacionDocente2(docente.getPersona(), docente, personaJsonInicial, ds);
+            }
         }
 
-        Rol rol = rolDAO.findByCode(RolEnum.DOC);
-        UsuarioRol userRol = usuarioRolDAO.findByUsuarioRol(usuarioDb, rol);
-        if (userRol == null) {
-            userRol = new UsuarioRol();
-            userRol.setEstadoEnum(UserEstadoEnum.ACT);
-            userRol.setFechaInicio(new Date());
-            userRol.setRol(rol);
-            userRol.setUsuario(usuarioDb);
-            userRol.setUserRegistro(ds.getUsuario());
-            usuarioRolDAO.save(userRol);
+        if (hayFotoNueva) {
+            this.uploadS3(personaForm.getFoto());
+            docente.getPersona().setFoto(personaForm.getFoto());
+            personaDAO.update(docente.getPersona());
         }
+
+        this.crearUsuario(docente.getPersona(), ds);
+
     }
 
     @Override
     @Transactional
     public Persona update(Docente docente, DataSessionPivot ds) {
-        logger.debug("Docente Actualizado -> {} ...", docente.getId());
-        Usuario user = ds.getUsuario();
-        logger.debug("Actualizado por usuario -> {}", user.getId());
+        log.debug("Docente Actualizado -> {} ...", docente.getId());
+        log.debug("Actualizado por usuario -> {}", ds.getUsuario().getId());
+
         Persona personaForm = docente.getPersona();
 
-        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
-        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
-        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
-        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
-        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
-        ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
+        log.debug("Actualizando persona -> {}", personaForm.getId());
+        this.validarDNI(personaForm);
+        Assert.isNotBlank(personaForm.getEmailCompania(), "El correo principal es obligatorio");
 
-        logger.debug("Actualizando persona -> {}", personaForm.getId());
-        Persona personaDuplicada = null;
-        personaDuplicada = validarDNI(personaForm, true, personaDuplicada);
-        if (personaDuplicada != null) {
-            return personaDuplicada;
-        }
-        logger.debug("-> DNI validado. Duplicado: ", personaDuplicada != null);
-        if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
-            throw new PhobosException("El correo principal es obligatorio.");
-        }
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaForm);
-
-        Persona persona = this.getPersonaBDbasic(personaForm);
-        logger.debug("-> Dato basicos de persona actualizados");
-        if (persona.getFechaValidacionReniec() == null) {
-
-            Persona personaBD = personaDAO.find(persona.getId());
-
-            PersonaHistorial personaHistorial = new PersonaHistorial();
-            personaHistorial.setUsuario(ds.getUsuario());
-            personaHistorial.setPersona(personaBD);
-            personaHistorial.setFecha(new Date());
-            personaHistorial.setNumeroDocumentoFrom(personaBD.getNumeroDocIdentidad());
-            personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
-            personaHistorial.setTipoDocumentoFrom(personaBD.getTipoDocumento());
-            personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
-            personaHistorialDAO.save(personaHistorial);
-
-            personaHistorialDAO.save(personaHistorial);
-
-            persona = this.getPersonaBDreniec(personaForm);
-            logger.debug("-> Dato basicos de persona actualizados");
+        if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
+            this.validarEmailConPersona(personaForm.getEmail(), personaForm);
         }
 
-        Persona personaUpd = new Persona(personaForm.getId());
+        Persona personaBD = personaDAO.find(personaForm.getId());
+        String personaJsonInicial = personaService.getPersonaJsonValidacion(personaBD);
 
-        if (!Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
+        boolean hayFotoNueva = !Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal());
+        boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva);
+        if (hayCambios) {
+            this.savePersona(personaBD, personaForm, ds);
+        }
 
+        if (hayFotoNueva) {
             this.uploadS3(personaForm.getRutaFotoTemporal());
-            personaUpd.setRutaFotoDocumento(this.getPathFotoDocente(personaForm.getRutaFotoTemporal()));
-            personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
-
+            personaBD.setRutaFotoDocumento(this.getPathFotoDocente(personaForm.getRutaFotoTemporal()));
+            personaDAO.update(personaBD);
         }
 
-        logger.debug("***Resolviendo en Tabla Docente***");
+        String personaJsonFinal = personaService.getPersonaJsonValidacion(personaBD);
+        if (!personaJsonFinal.equals(personaJsonInicial)) {
+            personaService.registrarValidacionDocente2(personaBD, docente, personaJsonInicial, ds);
+        }
+
+        log.debug("***Resolviendo en Tabla Docente***");
         Docente docenteBD = docenteDAO.findByDocente(docente);
-        docenteBD.setPersona(persona);
+        docenteBD.setPersona(personaBD);
         docenteBD.setFechaModifica(new Date());
-        docenteBD.setUserModifica(user);
+        docenteBD.setUserModifica(ds.getUsuario());
         docenteBD.setDepartamentoAcademico(docente.getDepartamentoAcademico());
         docenteBD.setModalidadEstudio(docente.getModalidadEstudio());
         docenteDAO.update(docenteBD);
-        logger.debug("***Resolviendo en Tabla Usuario***");
-        Usuario usuarioDb = usuarioDAO.findActivoByPersona(docente.getPersona());
-        logger.debug("Está como usuario? {}", (usuarioDb != null));
-        if (usuarioDb != null) {
-            logger.debug("-> Actualizando usuario");
-            usuarioDb.setUserModifica(ds.getUsuario());
-            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
-            usuarioDb.setFechaModifica(new Date());
-            usuarioDAO.update(usuarioDb);
-        } else {
-            logger.debug("-> Creando usuario");
-            usuarioDb = new Usuario();
-            usuarioDb.setEstadoEnum(UserEstadoEnum.ACT);
-            usuarioDb.setFechaRegistro(new Date());
-            usuarioDb.setPersona(persona);
-            usuarioDb.setUserRegistro(user);
-            usuarioDb.setGoogle(persona.getEmailCompania());
-            usuarioDAO.save(usuarioDb);
-        }
-        logger.debug("***Resolviendo en Tabla Usuario_Rol***");
-        Rol rol = rolDAO.findByCode(RolEnum.DOC);
-        UsuarioRol userRolDB = usuarioRolDAO.findByUsuarioAndRolAndEstadoUsuRol(usuarioDb, rol, UserEstadoEnum.ACT);
-        logger.debug("Tiene Rol? {}", (userRolDB != null));
-        if (userRolDB == null) {
-            logger.debug("-> Asignando Rol de Docente");
-            userRolDB = new UsuarioRol();
-            userRolDB.setEstadoEnum(UserEstadoEnum.ACT);
-            userRolDB.setFechaInicio(new Date());
-            userRolDB.setRol(rol);
-            userRolDB.setUsuario(usuarioDb);
-            userRolDB.setUserRegistro(ds.getUsuario());
-            userRolDB.setFechaRegistro(new Date());
-            usuarioRolDAO.save(userRolDB);
-        } else {
-            logger.debug("Rol Existente como docente.");
-        }
+
+        this.crearUsuario(personaBD, ds);
 
         return null;
     }
 
     private String getCodigo() {
-        logger.debug("generando codigo");
+        log.debug("generando codigo");
         String timestamp = TypesUtil.getUnixTime().toString();
-        logger.debug("timestamp  {}", timestamp);
+        log.debug("timestamp  {}", timestamp);
         String codigo = timestamp.substring(timestamp.length() - 4, timestamp.length());
-        logger.debug("codigo  {}", codigo);
+        log.debug("codigo  {}", codigo);
         Docente docente = docenteDAO.findByCode(codigo);
-        logger.debug("docente  {}", (docente != null));
+        log.debug("docente  {}", (docente != null));
         while (docente != null) {
             timestamp = TypesUtil.getUnixTime().toString();
             codigo = timestamp.substring(timestamp.length() - 4, timestamp.length());
             docente = docenteDAO.findByCode(codigo);
         }
-        logger.debug("codigo unico  {}", codigo);
+        log.debug("codigo unico  {}", codigo);
         return codigo;
     }
 
-    private Persona validarDNI(Persona personaForm, Boolean isUpdate, Persona personaDuplicada) {
-        TipoDocIdentidad doc = personaForm.getTipoDocumento();
+    private void validarDNI(Persona personaForm) {
+        TipoDocIdentidad tipoDocForm = personaForm.getTipoDocumento();
+        Assert.isNotNull(tipoDocForm, "Debe indicar el tipo de documento de identidad");
+        Assert.isNotNull(tipoDocForm.getId(), "Debe indicar el tipo de documento de identidad");
 
-        personaDuplicada = personaDAO.findByDocIdentidad(doc, personaForm.getNumeroDocIdentidad());
-        if (personaForm.getId() != null && personaDuplicada != null && personaDuplicada.getId().longValue() != personaForm.getId()) {
-            if (!isUpdate) {
-                throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaDuplicada.getApellidosNombres(), personaDuplicada.getId());
-            } else {
-                return personaDuplicada;
-            }
-        } else if (personaForm.getId() == null && personaDuplicada != null) {
-            if (!isUpdate) {
-                throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaDuplicada.getApellidosNombres(), personaDuplicada.getId());
-            } else {
-                return personaDuplicada;
-            }
+        TipoDocIdentidad tipoDocBD = tipoDocIdentidadDAO.find(tipoDocForm.getId());
+        personaForm.setTipoDocumento(tipoDocBD);
+
+        Persona personaBD = personaDAO.findByDocIdentidad(tipoDocForm, personaForm.getNumeroDocIdentidad());
+        if (personaBD == null) {
+            return;
         }
-        return null;
+
+        Assert.isTrue(personaBD.getId().equals(personaForm.getId()),
+                "El " + tipoDocBD.getSimbolo()
+                + " ingresado ya se encuentra relacionado con otra persona: "
+                + personaBD.getApellidosNombres() + " (" + personaBD.getIdentificacion() + ")");
     }
 
     private void validarEmailsinPersona(String email) {
@@ -469,85 +362,114 @@ public class ProfesorServiceImp implements ProfesorService {
         }
     }
 
-    @Transactional
-    private Persona getPersonaBDbasic(Persona persona) {
+    private boolean revisarPersona(Persona personaBD, Persona personaForm, boolean hayFotoNueva) {
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
 
-        Persona personaBD = personaDAO.find(persona.getId());
+        String personaJsonBD = this.getPersonaJson(personaBD);
+        String personaJsonForm = this.getPersonaJson(personaForm);
+        Assert.isTrue(hayFotoNueva || !personaJsonBD.equals(personaJsonForm), "No hay cambios registrados");
 
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
-        boolean ubiDomCambio = persona.getUbicacionDomicilio() == null && personaBD.getUbicacionDomicilio() == null;
-        if (!ubiDomCambio) {
-            Long idForm = (Long) ObjectUtil.getParentTree(persona, "ubicacionDomicilio.id");
-            Long idDb = (Long) ObjectUtil.getParentTree(personaBD, "ubicacionDomicilio.id");
-            if (idForm != idDb) {
-                sinCambios = false;
-            }
-        }
-
-        boolean ubiNacCambio = persona.getUbicacionNacer() == null && personaBD.getUbicacionNacer() == null;
-        if (!ubiNacCambio) {
-            Long idForm = (Long) ObjectUtil.getParentTree(persona, "ubicacionNacer.id");
-            Long idDb = (Long) ObjectUtil.getParentTree(personaBD, "ubicacionNacer.id");
-            if (idForm != idDb) {
-                sinCambios = false;
-            }
-        }
-        if (sinCambios) {
-            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
-            return personaBD;
-        }
-
-        List<Pais> paisesBD = paisDAO.all();
-        Map<Long, Pais> mapPaises = TypesUtil.convertListToMap("id", paisesBD);
-
-        ObjectUtil.eliminarAttrSinId(persona, "ubicacionNacer");
-
-        personaBD.setSexo(persona.getSexo());
-        personaBD.setFechaNacer(persona.getFechaNacer());
-        personaBD.setDireccion(persona.getDireccion());
-        personaBD.setCelular(persona.getCelular());
-        personaBD.setTelefono(persona.getTelefono());
-        personaBD.setEmail(persona.getEmail());
-        personaBD.setEmailCompania(persona.getEmailCompania());
-        personaBD.setUbicacionDomicilio(persona.getUbicacionDomicilio());
-        personaBD.setUbicacionNacer(persona.getUbicacionNacer());
-
-        personaBD.setPaisDomicilio(findPais(persona.getPaisDomicilio(), mapPaises));
-        personaBD.setPaisNacer(findPais(persona.getPaisNacer(), mapPaises));
-        personaBD.setNacionalidad(findPais(persona.getNacionalidad(), mapPaises));
-        personaDAO.update(personaBD);
-        return personaBD;
+        return !personaJsonBD.equals(personaJsonForm);
     }
 
-    private Pais findPais(Pais pais, Map<Long, Pais> mapPaisesBD) {
-        if (pais == null) {
-            return null;
+    private void crearUsuario(Persona persona, DataSessionPivot ds) {
+        Usuario usuario = usuarioDAO.findActivoByPersona(persona);
+        log.debug("existe usuario en db {}", (usuario != null));
+
+        if (usuario == null) {
+            usuario = new Usuario();
+            usuario.setEstadoEnum(UserEstadoEnum.ACT);
+            usuario.setFechaRegistro(new Date());
+            usuario.setUserRegistro(ds.getUsuario());
+            usuario.setPersona(persona);
+            usuario.setGoogle(persona.getEmailCompania());
+            usuarioDAO.save(usuario);
+
+        } else {
+            log.debug("actualizando usuario");
+            if (!usuario.getGoogle().equals(persona.getEmailCompania())) {
+                Usuario usuarioNew = new Usuario();
+                usuarioNew.setEstadoEnum(UserEstadoEnum.INA);
+                usuarioNew.setFechaRegistro(new Date());
+                usuarioNew.setUserRegistro(ds.getUsuario());
+                usuarioNew.setPersona(persona);
+                usuarioNew.setGoogle(persona.getEmailCompania());
+                usuarioNew.setUserActivo(usuario);
+                usuarioDAO.save(usuarioNew);
+            }
+
         }
-        Pais paisBD = mapPaisesBD.get(pais.getId());
-        return paisBD;
+
+        Rol rol = rolDAO.findByCode(RolEnum.DOC);
+        UsuarioRol userRol = usuarioRolDAO.findByUsuarioRol(usuario, rol);
+        if (userRol == null) {
+            userRol = new UsuarioRol();
+            userRol.setEstadoEnum(UserEstadoEnum.ACT);
+            userRol.setFechaInicio(new Date());
+            userRol.setRol(rol);
+            userRol.setUsuario(usuario);
+            userRol.setUserRegistro(ds.getUsuario());
+            usuarioRolDAO.save(userRol);
+        }
     }
 
-    @Transactional
-    private Persona getPersonaBDreniec(Persona persona) {
+    private boolean hayFotoNueva(Persona personaBD, Persona personaForm) {
+        String fotoBD = personaBD.getFoto();
+        String fotoForm = personaForm.getFoto();
 
-        Persona personaBD = personaDAO.find(persona.getId());
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("paterno", "materno", "nombres", "numeroDocIdentidad"));
-
-        if (sinCambios && personaBD.getTipoDocumento() != null) {
-            sinCambios = sinCambios && (persona.getTipoDocumento().getId() == personaBD.getTipoDocumento().getId().longValue());
-            if (sinCambios) {
-                logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
-                return personaBD;
-            }
+        if (StringUtils.isBlank(fotoBD)) {
+            fotoBD = null;
         }
 
-        personaBD.setTipoDocumento(persona.getTipoDocumento());
-        personaBD.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
-        personaBD.setNombres(persona.getNombres());
-        personaBD.setPaterno(persona.getPaterno());
-        personaBD.setMaterno(persona.getMaterno());
+        if (StringUtils.isBlank(fotoForm)) {
+            fotoForm = null;
+        }
+
+        personaForm.setFoto(fotoForm);
+        return !Objects.equal(fotoBD, fotoForm) && fotoForm != null;
+    }
+
+    private void savePersona(Persona personaBD, Persona personaForm, DataSessionPivot ds) {
+        personaBD.setPaterno(personaForm.getPaterno());
+        personaBD.setMaterno(personaForm.getMaterno());
+        personaBD.setNombres(personaForm.getNombres());
+        personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
+        personaBD.setSexo(personaForm.getSexo());
+        personaBD.setFechaNacer(personaForm.getFechaNacer());
+        personaBD.setEmail(personaForm.getEmail());
+        personaBD.setEmailCompania(personaForm.getEmailCompania());
+        personaBD.setDireccion(personaForm.getDireccion());
+        personaBD.setCelular(personaForm.getCelular());
+        personaBD.setTelefono(personaForm.getTelefono());
+
+        personaBD.setTipoDocumento(personaForm.getTipoDocumento());
+        personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
+        personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
+        personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
+        personaBD.setPaisNacer(personaForm.getPaisNacer());
+        personaBD.setNacionalidad(personaForm.getNacionalidad());
         personaDAO.update(personaBD);
-        return personaBD;
+
+        String tipoDocBDJson = this.getPersonaTipoDocJson(personaBD);
+        String tipoDocFormJson = this.getPersonaTipoDocJson(personaForm);
+        boolean sonTipoDocDesiguales = !tipoDocBDJson.equals(tipoDocFormJson);
+
+        if (sonTipoDocDesiguales) {
+            PersonaHistorial personaHistorial = new PersonaHistorial();
+            personaHistorial.setUsuario(ds.getUsuario());
+            personaHistorial.setPersona(personaBD);
+            personaHistorial.setFecha(new Date());
+            personaHistorial.setNumeroDocumentoFrom(personaBD.getNumeroDocIdentidad());
+            personaHistorial.setNumeroDocumentoTo(personaForm.getNumeroDocIdentidad());
+            personaHistorial.setTipoDocumentoFrom(personaBD.getTipoDocumento());
+            personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
+            personaHistorialDAO.save(personaHistorial);
+        }
     }
 
     @Override
@@ -618,9 +540,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public Persona findPersonaByDocIdentidad(Persona personaTmp) {
-        if (personaTmp.getTipoDocumento().getId() == null) {
-            throw new PhobosException("El tipo de documento no debe de ser nulo ");
-        }
+        Assert.isNotNull(personaTmp.getTipoDocumento(), "El tipo de documento no debe de ser nulo");
+        Assert.isNotNull(personaTmp.getTipoDocumento().getId(), "El tipo de documento no debe de ser nulo");
         return personaDAO.findByDocIdentidad(personaTmp.getTipoDocumento(), personaTmp.getNumeroDocIdentidad());
     }
 
@@ -640,7 +561,7 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     private void uploadS3(String fileName) {
-        logger.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
+        log.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
             swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOTO_DOCENTE, GlobalConstantine.TMP_DIR, fileName, true);
@@ -737,6 +658,27 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<Docente> allByNombre(String nombre) {
         return docenteDAO.allByName(nombre);
+    }
+
+    private String getPersonaJson(Persona persona) {
+        return JaneHelper
+                .from(persona)
+                .only("id,paterno,materno,nombres,numeroDocIdentidad,sexo,fechaNacer,email,emailCompania,direccion,celular,telefono")
+                .join("tipoDocumento", "id")
+                .join("ubicacionDomicilio", "id")
+                .join("ubicacionNacer", "id")
+                .join("paisDomicilio", "id")
+                .join("paisNacer", "id")
+                .join("nacionalidad", "id")
+                .json().toString();
+    }
+
+    private String getPersonaTipoDocJson(Persona persona) {
+        return JaneHelper
+                .from(persona)
+                .only("id,numeroDocIdentidad")
+                .join("tipoDocumento", "id")
+                .json().toString();
     }
 
 }

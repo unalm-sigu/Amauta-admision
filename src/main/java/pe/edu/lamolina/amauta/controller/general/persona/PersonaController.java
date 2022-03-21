@@ -81,7 +81,6 @@ public class PersonaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-
         return "general/persona/persona";
     }
 

@@ -306,16 +306,10 @@ public class AlumnoController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
-
             if (alumno.getId() == null) {
-                service.saveAlumnoEspecial(alumno, usuario);
+                service.saveAlumnoEspecial(alumno, ds);
                 response.setMessage("Alumno creado satisfactoriamente");
             }
-            /*else {
-                service.updateAlumnoEspecial(alumno, usuario);
-                response.setMessage("Alumno modificado satisfactoriamente");
-            }*/
 
             response.setSuccess(true);
             response.setData(node);
@@ -379,8 +373,7 @@ public class AlumnoController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-            service.habilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds.getUsuario());
+            service.habilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds);
 
             response.setMessage("Registro Actualizado");
             response.setSuccess(true);
@@ -421,8 +414,8 @@ public class AlumnoController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.deshabilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds);
 
-            service.deshabilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds.getUsuario());
             response.setMessage("Registro Actualizado");
             response.setSuccess(true);
             response.setData(node);
@@ -529,13 +522,12 @@ public class AlumnoController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
 
             if (alumno.getId() == null) {
-                service.saveAlumnoFisico(alumno, usuario);
+                service.saveAlumnoFisico(alumno, ds);
                 response.setMessage("Alumno creado satisfactoriamente");
             } else {
-                service.updateAlumnoFisico(alumno, usuario);
+                service.updateAlumnoFisico(alumno, ds);
                 response.setMessage("Alumno modificado satisfactoriamente");
             }
 
@@ -666,7 +658,8 @@ public class AlumnoController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveCursoCurricula(alumnoCursoCurricula, ds.getCicloAcademico(), ds.getUsuario());
+            service.saveCursoCurricula(alumnoCursoCurricula, ds.getCicloAcademico(), ds);
+
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Curso Agregado");
         } catch (PhobosException e) {
@@ -732,12 +725,14 @@ public class AlumnoController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
+            List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getCicloAcademico(), ds);
             avanceCurricularService.generarAvanceCurricularByAlumno(trasladoBean.getAlumno(), ds);
             promedioService.calcularSituacionAcademica(trasladoBean.getAlumno(), ds);
+
             response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Los cursos fueron registrados satisfactoriamente.");
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
