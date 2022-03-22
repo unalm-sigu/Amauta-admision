@@ -62,9 +62,11 @@
                              v-if="cm.cursosModalidad.length > 0 ">
                         <section class="panel-body">
 
-                            <h3 v-if="index==0" class="m-t-xs">Cursos de Pregrado</h3>
+                            <div v-if="index==0">
+                                <h3 v-if="index==0" class="m-t-xs">Cursos de Pregrado</h3>
+                                <h5 v-if="isCongCicloPre" class="text-danger">INFORMACION EN PROCESO, NO CONSIDERAR</h5>
+                            </div>
                             <h3 v-if="index==1" class="m-t-xs">Cursos de Posgrado</h3>
-
 
                             <table class="table table-striped tableqq-bordered">
                                 <thead>
@@ -230,13 +232,13 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <div th:substituteby="docente/dataZoomModal"></div>
-                
+
             </div>
-            
+
         </section>
-        
+
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/

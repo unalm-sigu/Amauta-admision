@@ -3,7 +3,8 @@ new Vue({
     data: {
         cursos: [],
         aulaDataZoom: {},
-        seccionMain: {}
+        seccionMain: {},
+        isCongCicloPre: false,
     },
     mounted: function () {
         let $vue = this;
@@ -13,20 +14,21 @@ new Vue({
         loadData() {
             let $vue = this;
             axios.get('/docente/cargaacademica/list')
-                    .then(response => {
-                        if (response.data.success) {
-                            $vue.cursos.push({
-                                cursosModalidad: response.data.data.pregrado,
-                                creditos: response.data.data.creditosPregrado
-                            });
-                            $vue.cursos.push({
-                                cursosModalidad: response.data.data.posgrado,
-                                creditos: response.data.data.creditosPosgrado
-                            });
-                        } else {
-                            notify(Messages.errorComunicacion, 'error');
-                        }
-                    });
+                    .then(({data}) => {
+
+                        $vue.isCongCicloPre = data.isCongCicloPre;
+
+                        $vue.cursos.push({
+                            cursosModalidad: data.pregrado,
+                            creditos: data.creditosPregrado
+                        });
+                        
+                        $vue.cursos.push({
+                            cursosModalidad: data.posgrado,
+                            creditos: data.creditosPosgrado
+                        });
+                        
+                    }, () => notify(Messages.errorComunicacion, 'error'));
         },
         tipoSeccion(seccion) {
             if (seccion.tipoSeccionEnum.value.indexOf(" ") < 0) {
