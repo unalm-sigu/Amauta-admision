@@ -197,7 +197,8 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("tra.serie desc","tra.numero desc");
 
         return all(sql);
     }

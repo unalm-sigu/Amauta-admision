@@ -79,6 +79,7 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
 @Service
@@ -596,4 +597,10 @@ public class ResolucionServiceImp implements ResolucionService {
         matriculaResumenDAO.updateColumns(matriculaResumenUpd, "estado", "cursosMatriculados", "creditosMatriculados");
 
     }
+
+    @Override
+    public List<Oficina> allOficinasMainByPersona(Persona persona) {
+        return oficinaService.allOficinasMainByPersona(persona);
+    }
+    
 }

@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -28,7 +29,7 @@ public interface ResolucionExistenteService {
 
     Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
 
-    List<TipoResolucion> allTipoResolucionByCodigo(List<String> codigos);
+    List<TipoResolucion> allTipoResolucionByCodigo(List<TipoResolucionEnum> codigos);
 
     List<CicloAcademico> ciclosAnteriores(int i);
 

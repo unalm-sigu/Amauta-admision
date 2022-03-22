@@ -66,23 +66,22 @@ public class ResolucionExistenteController {
 
     private final ResolucionExistenteService service;
     private final MatriculableService matriculableService;
-
-    private final static List<String> TIPOS_RESOLUCIONES = Arrays.asList(
-            TipoResolucionEnum.READMISION.name(),
-            TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR.name(),
-            TipoResolucionEnum.TRAS_INT.name(),
-            TipoResolucionEnum.RCI.name(),
-            TipoResolucionEnum.ANCI.name(),
-            TipoResolucionEnum.REIC.name(),
-            TipoResolucionEnum.CAM_NOTA.name(),
-            TipoResolucionEnum.CURDIR.name(),
-            TipoResolucionEnum.TRAS.name(),
-            TipoResolucionEnum.INTES.name(),
-            TipoResolucionEnum.NOTA_BAJA.name(),
-            TipoResolucionEnum.BACHI.name(),
-            TipoResolucionEnum.TITUL.name(),
-            TipoResolucionEnum.PRACTICAS.name(),
-            TipoResolucionEnum.ING_HIS.name()
+    private final static List<TipoResolucionEnum> TIPOS_RESOLUCIONES = Arrays.asList(
+            TipoResolucionEnum.READMISION,
+            TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR,
+            TipoResolucionEnum.TRAS_INT,
+            TipoResolucionEnum.RCI,
+            TipoResolucionEnum.ANCI,
+            TipoResolucionEnum.REIC,
+            TipoResolucionEnum.CAM_NOTA,
+            TipoResolucionEnum.CURDIR,
+            TipoResolucionEnum.TRAS,
+            TipoResolucionEnum.INTES,
+            TipoResolucionEnum.NOTA_BAJA,
+            TipoResolucionEnum.BACHI,
+            TipoResolucionEnum.TITUL,
+            TipoResolucionEnum.PRACTICAS,
+            TipoResolucionEnum.ING_HIS
     );
 
     @RequestMapping(method = RequestMethod.GET)

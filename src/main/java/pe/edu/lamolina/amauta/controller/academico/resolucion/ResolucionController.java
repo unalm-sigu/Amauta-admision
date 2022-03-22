@@ -3,22 +3,15 @@ package pe.edu.lamolina.amauta.controller.academico.resolucion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,7 +27,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -50,45 +42,15 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 @Slf4j
 @Controller
-@AllArgsConstructor(onConstructor = @__(
-        @Autowired))
 @RequestMapping("academico/resolucion")
 public class ResolucionController {
 
-    private final ResolucionService service;
-    private final OficinaService oficinaService;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
+    @Autowired
+    ResolucionService service;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        model.addAttribute("ciclo", ds.getCicloAcademico());
+    public String index() {
+        
         return "academico/resolucion/resolucion";
     }
 
@@ -97,26 +59,21 @@ public class ResolucionController {
     public DynatableResponse listResoluciones(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
 
-        try {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Resolucion> resoluciones = service.allResolucionesByFilter(filter, ds);
 
-            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter, ds);
+        ArrayNode array = JaneHelper.from(resoluciones)
+                .join("oficina")
+                .join("tipoResolucion")
+                .join("userRegistro.persona", "apellidosNombres")
+                .array();
 
-            ArrayNode array = JaneHelper.from(resoluciones)
-                    .join("oficina")
-                    .join("tipoResolucion")
-                    .join("userRegistro.persona", "apellidosNombres")
-                    .array();
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            json.setTotal(0);
-        }
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
         return json;
     }
@@ -217,7 +174,7 @@ public class ResolucionController {
             data.set("tiposResolucionesJson", tiposResolucionesJson);
 
             ArrayNode oficinasJson = new ArrayNode(jc);
-            List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
+            List<Oficina> oficinas = service.allOficinasMainByPersona(ds.getPersona());
             for (Oficina oficina : oficinas) {
                 ObjectNode oficinaJson = JsonHelper.createJson(oficina, jc, true, new String[]{"*"});
                 oficinasJson.add(oficinaJson);

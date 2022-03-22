@@ -10,12 +10,12 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoResolucionDAO;
 
 @Repository
 public class TipoResolucionDAOH extends AbstractEasyDAO<TipoResolucion> implements TipoResolucionDAO {
-
+    
     public TipoResolucionDAOH() {
         super();
         setClazz(TipoResolucion.class);
     }
-
+    
     @Override
     public TipoResolucion finByCodigo(TipoResolucionEnum tipoResolucionEnum) {
         Octavia sql = new Octavia()
@@ -23,15 +23,15 @@ public class TipoResolucionDAOH extends AbstractEasyDAO<TipoResolucion> implemen
                 .filter("codigo", tipoResolucionEnum);
         return find(sql);
     }
-
+    
     @Override
-    public List<TipoResolucion> allByCodigo(List<String> codigos) {
+    public List<TipoResolucion> allByCodigo(List<TipoResolucionEnum> codigos) {
         Octavia sql = new Octavia()
                 .from(TipoResolucion.class, "tr")
-                .in("codigo", codigos);
+                .in("codigo", codigos)
+                .orderBy("tr.nombre");
         return all(sql);
     }
-    
     
     @Override
     public TipoResolucion find(Long id) {

@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Persona;
 
 public interface ResolucionService {
 
@@ -47,5 +48,7 @@ public interface ResolucionService {
     List<CicloAcademico> allCiclosToReincorporacion();
 
     List<CursoDirigido> allCursoDirigido(DynatableFilter filter, Resolucion resolucion);
+
+    public List<Oficina> allOficinasMainByPersona(Persona persona);
 
 }

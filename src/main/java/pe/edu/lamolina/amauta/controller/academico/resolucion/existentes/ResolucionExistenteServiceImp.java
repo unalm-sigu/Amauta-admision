@@ -367,7 +367,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
-    public List<TipoResolucion> allTipoResolucionByCodigo(List<String> codigos) {
+    public List<TipoResolucion> allTipoResolucionByCodigo(List<TipoResolucionEnum> codigos) {
         return tipoResolucionDAO.allByCodigo(codigos);
     }
 
