@@ -175,7 +175,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             origenUpd.setEstadoEnum(SeccionEstadoEnum.FUS);
             seccionDAO.updateColumns(origenUpd, "estado", "usuarioModificacion", "fechaModificacion");
 
-            logger.debug("seccion {}", origen.getId());
+            logger.debug("seccion origen {}", origen.getId());
             logger.debug("seccion isTipoSeccionPCUR {}", origen.isTipoSeccionPCUR());
             if (origen.isTipoSeccionPCUR()) {
                 List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(origen.getGrupoSeccion());
@@ -205,7 +205,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
                         Seccion seccionUpd = new Seccion(seccionTCUR.getId());
                         seccionUpd.setUsuarioModificacion(ds.getUsuario());
                         seccionUpd.setFechaModificacion(new Date());
-                        seccionUpd.setEstadoEnum(SeccionEstadoEnum.BLO);
+                        seccionUpd.setEstadoEnum(SeccionEstadoEnum.FUS);
                         seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
                         logger.debug("seccionTCUR bloqueado por no tener ninguna seccion PCUR activa {}", seccionTCUR.getId());
                     }
