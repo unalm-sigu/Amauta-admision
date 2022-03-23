@@ -175,6 +175,43 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             origenUpd.setEstadoEnum(SeccionEstadoEnum.FUS);
             seccionDAO.updateColumns(origenUpd, "estado", "usuarioModificacion", "fechaModificacion");
 
+            logger.debug("seccion {}", origen.getId());
+            logger.debug("seccion isTipoSeccionPCUR {}", origen.isTipoSeccionPCUR());
+            if (origen.isTipoSeccionPCUR()) {
+                List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(origen.getGrupoSeccion());
+                for (Seccion seccionesOperativa : seccionesOperativas) {
+                    logger.debug("Operativo {} {} {}",
+                            seccionesOperativa.getId(),
+                            seccionesOperativa.getTipoSeccionEnum(),
+                            seccionesOperativa.getEstado());
+                }
+                logger.debug("seccionesOperativas {}", seccionesOperativas.size());
+                int totalSeccionesActivas = 0;
+                logger.debug("totalSeccionesActivas inicial {}", totalSeccionesActivas);
+                for (Seccion seccionOperativa : seccionesOperativas) {
+                    if (origen.getId().longValue() != seccionOperativa.getId()
+                            && seccionOperativa.getEstadoEnum() == SeccionEstadoEnum.ACT
+                            && seccionOperativa.getIsTipoSeccionPCUR()) {
+                        logger.debug("activo encontrado {}", seccionOperativa.getId());
+                        totalSeccionesActivas++;
+                    }
+                }
+                logger.debug("totalSeccionesActivas final {}", totalSeccionesActivas);
+                if (totalSeccionesActivas < 1) {
+                    Seccion seccionTCUR = seccionDAO.findByGpoSeccionTipoSeccion(origen.getGrupoSeccion(), TipoSeccionEnum.TCUR);
+                    logger.debug("seccionTCUR {}", seccionTCUR.getId());
+                    logger.debug("seccionTCUR estado {}", seccionTCUR.getEstadoEnum());
+                    if (seccionTCUR.getEstadoEnum() == SeccionEstadoEnum.ACT) {
+                        Seccion seccionUpd = new Seccion(seccionTCUR.getId());
+                        seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                        seccionUpd.setFechaModificacion(new Date());
+                        seccionUpd.setEstadoEnum(SeccionEstadoEnum.BLO);
+                        seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+                        logger.debug("seccionTCUR bloqueado por no tener ninguna seccion PCUR activa {}", seccionTCUR.getId());
+                    }
+                }
+            }
+
         } else {
             seccionDAO.updateColumns(origenUpd, "usuarioModificacion", "fechaModificacion");
         }
