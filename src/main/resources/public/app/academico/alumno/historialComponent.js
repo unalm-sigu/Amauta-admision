@@ -3,7 +3,7 @@ Vue.component("historial-component", {
     props: {
         alumno: {},
         showTitle: true,
-        showactions: { required: false, default: false }
+        showactions: {required: false, default: false}
     },
     data: function () {
         return {
@@ -294,7 +294,7 @@ Vue.component("historial-component", {
             return "";
         },
         verCiclo(item) {
-            let noVer = { NMAT: "NMAT", RCI: "RCI", ANCI: "ANCI", INH: "INH" };
+            let noVer = {NMAT: "NMAT", RCI: "RCI", ANCI: "ANCI", INH: "INH"};
             let estado = noVer[item.estadoEnum.name];
             if (estado === undefined) {
                 return true;
@@ -419,8 +419,8 @@ Vue.component("historial-component", {
             bootbox.confirm({
                 message: '¿Seguro que desea recalcular el promedio?',
                 buttons: {
-                    confirm: { label: 'Si, Calcular', className: "btn-primary" },
-                    cancel: { label: 'Cancelar', className: "btn-link" }
+                    confirm: {label: 'Si, Calcular', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
                     if (result) {
@@ -428,7 +428,7 @@ Vue.component("historial-component", {
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/alumno/calcularpromedio'),
-                            data: { id: vue.alumno.id },
+                            data: {id: vue.alumno.id},
                             success: function (response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
@@ -525,7 +525,46 @@ Vue.component("historial-component", {
             }
             return true;
         },
-
+        getComputadosEpg(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoCiclo.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoCiclo.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoCiclo.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoCiclo.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoCiclo.computadosNivel5;
+                }
+            } else if (tipo == "FAC") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoFacultad.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoFacultad.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoFacultad.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoFacultad.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoFacultad.computadosNivel5;
+                }
+            } else if (tipo == "CARR") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoCarrera.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoCarrera.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoCarrera.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoCarrera.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoCarrera.computadosNivel5;
+                }
+            }
+            return "";
+        },
 
     }
 });
