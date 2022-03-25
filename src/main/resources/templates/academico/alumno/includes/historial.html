@@ -12,7 +12,7 @@
 
                     <ul class="dropdown-menu dropdown-menu-right">
                         <li th:if="${puedeCalcular}"><a class="dropdown-item" href="#"
-                                v-on:click.prevent="calcularPromedio">Calcular Promedios</a></li>
+                                                        v-on:click.prevent="calcularPromedio">Calcular Promedios</a></li>
                         <!--<li><a class="dropdown-item" v-bind:href="'/academico/matriculable/'+alumno.id+'/histrialPdf'" >Descargar PDF</a></li>-->
                         <li><a v-on:click.prevent="generarReporteHistorial" href="#" class="dropdown-item">
                                 Generar Reporte
@@ -21,7 +21,7 @@
                     </ul>
                 </div>
                 <div th:unless="${puedeCalcular}"><button class="btn btn-primary hide"
-                        type="button">&nbsp;&nbsp;&nbsp;</button></div>
+                                                          type="button">&nbsp;&nbsp;&nbsp;</button></div>
             </div>
         </div>
 
@@ -70,8 +70,8 @@
                 <label class="col-sm-3 control-label">Ciclos</label>
                 <div class="col-sm-9">
                     <multiselect v-model="cicloSelect" v-bind:options='promedios' label='nombre' track-by='id'
-                        deselect-label="" select-label="" v-bind:allow-empty="false" v-bind:hide-selected="true"
-                        v-on:input="changeCiclo" v-bind:custom-label='labelCiclo'>
+                                 deselect-label="" select-label="" v-bind:allow-empty="false" v-bind:hide-selected="true"
+                                 v-on:input="changeCiclo" v-bind:custom-label='labelCiclo'>
                     </multiselect>
 
                 </div>
@@ -80,12 +80,12 @@
 
         <div v-bind:class="classScrollable()" v-show="verInfo==1">
             <table class="table table-striped col-md-12 m-b-lg" v-for="tab in promedios" v-bind:id="tab.id"
-                v-if="verificarCiclo(tab)">
+                   v-if="verificarCiclo(tab)">
                 <thead>
                     <tr>
                         <td colspan="7" class="td-pad text-center">
                             <div class="header-ciclo block h5 bold bg-primary text-white"
-                                v-text="tab.cicloAcademico.descripcion2" />
+                                 v-text="tab.cicloAcademico.descripcion2" />
                         </td>
 
                     </tr>
@@ -165,84 +165,148 @@
                                         </tr>
 
                                         <tr class="">
-                                            <td colspan="2" class="text-center h5 bold">Semestral</td>
-                                            <td colspan="2" class="text-center h5 bold">Acumulado</td>
-                                            <td v-bind:colspan="colspanResumen(tab)" class="text-center h5 bold">Mérito
-                                                Alcanzado</td>
+                                            <td colspan="2" class="wd-33 text-center h5 bold">Semestral</td>
+                                            <td colspan="2" class="wd-33 text-center h5 bold">Acumulado</td>
+                                            <td v-bind:colspan="colspanResumen(tab)" class="wd-34 text-center h5 bold">
+                                                Mérito Alcanzado 
+                                                <span v-if="tab.nivel">- Nivel {{tab.nivel}}</span>
+                                            </td>
                                         </tr>
 
                                         <tr>
-                                            <td class="col-md-2 v-middle">Créditos cursados</td>
-                                            <td class="col-md-1 v-middle" v-text="tab.creditosCursadosCiclo"></td>
-                                            <td class="col-md-2 v-middle b-l">Créditos cursados</td>
-                                            <td class="col-md-1 v-middle" v-text="tab.creditosAcumulados"></td>
-                                            <td class="bold text-center v-middle b-l" v-bind:class="classResumen(tab)">
-                                                Ciclo</td>
-                                            <td class="bold text-center v-middle" v-bind:class="classResumen(tab)">
-                                                Facultad</td>
-                                            <td class="bold text-center v-middle" v-bind:class="classResumen(tab)"
-                                                v-if="verCarrera(tab)">Especialidad</td>
-                                        </tr>
+                                            <td class="v-middle">Créditos cursados</td>
+                                            <td class="v-middle" v-text="tab.creditosCursadosCiclo"></td>
+                                            <td class="v-middle b-l">Créditos cursados</td>
+                                            <td class="v-middle" v-text="tab.creditosAcumulados"></td>
 
-                                        <tr>
-                                            <td class="v-middle">Créditos aprobados</td>
-                                            <td class="v-middle" v-text="tab.creditosAprobadosCiclo"></td>
-                                            <td class="v-middle b-l">Créditos aprobados</td>
-                                            <td class="v-middle" v-text="tab.creditosAprobadosAcumulados"></td>
-                                            <td class="text-center v-middle b-l">
-                                                <span v-if="tab.ordenMeritoCiclo != '' ">
-                                                    {{tab.ordenMeritoCiclo}} de
-                                                    {{tab.controlMeritoCiclo.alumnosComputados}}
+                                    <template v-if="isVisibleMerito">
+                                        <template v-if="tab.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                            <th class="wd-15 v-middle text-center b-l">Especialidad</th>
+                                            <th class="v-middle text-center b-r">Nivel</th>
+                                        </template>
+                                        <template v-else="">
+                                            <th class="wd-11 v-middle text-center b-l">Ciclo</th>
+                                            <th class="wd-11 v-middle text-center">Facultad</th>
+                                            <th class="v-middle text-center b-r">Especial.</th>
+                                        </template>
+                                    </template>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td class="v-middle">Créditos aprobados</td>
+                                        <td class="v-middle" v-text="tab.creditosAprobadosCiclo"></td>
+                                        <td class="v-middle b-l">Créditos aprobados</td>
+                                        <td class="v-middle" v-text="tab.creditosAprobadosAcumulados"></td>
+
+                                    <template v-if="isVisibleMerito">
+                                        <template v-if="tab.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                            <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
+                                                <span v-if="tab.ordenMeritoCiclo != '' " class="block" v-text="getOrdenMeritoEpg(tab)"></span>
+                                            </td>
+                                            <td class="v-middle text-center b-r" v-if="verCiclo(tab)">
+                                                <span v-if="verCarrera(tab)">
+                                                    <span v-if="tab.ordenMeritoCarrera != '' " class="block" v-text="getOrdenMeritoNivelEpg(tab)"></span>
                                                 </span>
                                             </td>
-                                            <td class="text-center v-middle b-l">
-                                                <span v-if="tab.ordenMeritoFacultad != '' ">
-                                                    {{tab.ordenMeritoFacultad}} de
-                                                    {{tab.controlMeritoFacultad.alumnosComputados}}
+                                        </template>
+
+                                        <template v-else="">
+                                            <td class="align-middle text-center b-l" v-if="verCiclo(tab)">
+                                                <span v-if="tab.ordenMeritoCicloNivel != '' " class="d-block">{{tab.ordenMeritoCicloNivel}} de {{tab.computadosCicloNivel}}</span>
+                                            </td>
+
+                                            <td class="align-middle text-center" v-if="verCiclo(tab)">
+                                                <span v-if="tab.ordenMeritoFacultadNivel != '' " class="d-block">{{tab.ordenMeritoFacultadNivel}} de {{tab.computadosFacultadNivel}}</span>
+                                            </td>
+
+                                            <td class="align-middle text-center b-r" v-if="verCiclo(tab)">
+                                                <span v-if="verCarrera(tab)">
+                                                    <span v-if="tab.ordenMeritoCarreraNivel != '' " class="d-block">{{tab.ordenMeritoCarreraNivel}} de {{tab.computadosCarreraNivel}}</span>
                                                 </span>
                                             </td>
-                                            <td class="text-center v-middle b-l" v-if="verCarrera(tab)">
-                                                <span v-if="tab.ordenMeritoCarrera != '' ">
-                                                    {{tab.ordenMeritoCarrera}} de
-                                                    {{tab.controlMeritoCarrera.alumnosComputados}}
+                                        </template>
+                                    </template>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="v-middle">Promedio ponderado</td>
+                                        <td class="v-middle" v-text="verNota(tab.promedioCiclo)"></td>
+                                        <td class="v-middle b-l">Promedio ponderado</td>
+                                        <td class="v-middle" v-text="verNota(tab.promedioAcumulado)"></td>
+
+                                    <template v-if="isVisibleMerito">
+                                        <template v-if="tab.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                            <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
+                                                <small v-if="tieneMeritoEpg(tab)" class="block" v-text="getMeritoEpg(tab)"></small>
+                                            </td>
+                                            <td class="v-middle text-center b-r" v-if="verCiclo(tab)">
+                                                <span v-if="verCarrera(tab)">
+                                                    <small v-if="tieneMeritoNivelEpg(tab)" class="block" v-text="getMeritoNivelEpg(tab)"></small>
                                                 </span>
                                             </td>
-                                        </tr>
+                                        </template>
 
-                                        <tr>
-                                            <td class="v-middle">Promedio ponderado</td>
-                                            <td class="v-middle" v-text="verNota(tab.promedioCiclo)"></td>
-                                            <td class="v-middle b-l">Promedio ponderado</td>
-                                            <td class="v-middle" v-text="verNota(tab.promedioAcumulado)"></td>
-                                            <td class="text-center v-middle b-l">
-                                                <span v-if="tieneMerito('CICLO',tab)"
-                                                    v-text="getMerito('CICLO',tab)"></span>
+                                        <template v-else="">
+                                            <td class="align-middle text-center b-l" v-if="verCiclo(tab)">
+                                                <p v-if="tieneMeritoNivel('CICLO', tab)" class="d-block" v-text="getMeritoNivel('CICLO', tab)"></p>
                                             </td>
-                                            <td class="text-center v-middle b-l">
-                                                <span v-if="tieneMerito('FAC',tab)"
-                                                    v-text="getMerito('FAC',tab)"></span>
-                                            </td>
-                                            <td class="text-center v-middle b-l" v-if="verCarrera(tab)">
-                                                <span v-if="tieneMerito('CARR',tab)"
-                                                    v-text="getMerito('CARR',tab)"></span>
-                                            </td>
-                                        </tr>
 
-                                        <tr>
-                                            <td class="v-middle">Puntaje</td>
-                                            <td class="v-middle" v-text="tab.puntajeCiclo"></td>
-                                            <td class="v-middle b-l">Puntaje</td>
-                                            <td class="v-middle" v-text="tab.puntajeAcumulado"></td>
-                                            <td class="b-l"></td>
-                                            <td class="b-l"></td>
-                                            <td class="b-l" v-if="verCarrera(tab)"></td>
-                                        </tr>
-
-                                        <tr>
-                                            <td v-bind:colspan="colspanResumen(tab)+4" class="td-pad col-md-12">
-                                                <div class="footer-ciclo block bg-light"></div>
+                                            <td class="align-middle text-center" v-if="verCiclo(tab)">
+                                                <p v-if="tieneMeritoNivel('FAC', tab)" class="d-block" v-text="getMeritoNivel('FAC', tab)"></p>
                                             </td>
-                                        </tr>
+
+                                            <td class="align-middle text-center b-r" v-if="verCiclo(tab)">
+                                                <span v-if="verCarrera(tab)">
+                                                    <p v-if="tieneMeritoNivel('CARR', tab)" class="d-block" v-text="getMeritoNivel('CARR', tab)"></p>
+                                                </span>
+                                            </td>
+                                        </template>
+                                    </template>
+
+                                    <!--td class="text-center v-middle b-l">
+                                        <span v-if="tieneMerito('CICLO',tab)"
+                                            v-text="getMerito('CICLO',tab)"></span>
+                                    </td>
+                                    <td class="text-center v-middle b-l">
+                                        <span v-if="tieneMerito('FAC',tab)"
+                                            v-text="getMerito('FAC',tab)"></span>
+                                    </td>
+                                    <td class="text-center v-middle b-l" v-if="verCarrera(tab)">
+                                        <span v-if="tieneMerito('CARR',tab)"
+                                            v-text="getMerito('CARR',tab)"></span>
+                                    </td-->
+                                    </tr>
+
+                                    <tr>
+                                        <td class="v-middle">Puntaje</td>
+                                        <td class="v-middle" v-text="tab.puntajeCiclo"></td>
+                                        <td class="v-middle b-l">Puntaje</td>
+                                        <td class="v-middle" v-text="tab.puntajeAcumulado"></td>
+                                        <!--td class="b-l"></td>
+                                        <td class="b-l"></td>
+                                        <td class="b-l" v-if="verCarrera(tab)"></td-->
+
+                                    <template v-if="isVisibleMerito">
+                                        <template v-if="tab.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                            <td class="v-middle text-center b-l" v-if="verCiclo(tab)"></td>
+                                            <td class="v-middle text-center b-r" v-if="verCiclo(tab)"></td>
+                                        </template>
+
+                                        <template v-else="">
+                                            <td class="align-middle text-center b-l" v-if="verCiclo(tab)"></td>
+                                            <td class="align-middle text-center" v-if="verCiclo(tab)"></td>
+                                            <td class="align-middle text-center b-r" v-if="verCiclo(tab)"></td>
+                                        </template>
+                                    </template>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td v-bind:colspan="colspanResumen(tab)+4" class="td-pad col-md-12">
+                                            <div class="footer-ciclo block bg-light"></div>
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
 
@@ -330,28 +394,28 @@
                     </tr>
 
                     <tr>
-                        <template v-if="isVisibleMerito">
-                            <template v-if="alumno.modalidadEstudio.codigo == 'EPG' ">
-                                <th style="width:10%;" class="align-middle text-center b-r">Especialidad</th>
-                                <th style="width:10%;" class="align-middle text-center b-l">Nivel</th>
-                            </template>
-                            <template v-else="">
-                                <th style="width:10%;" class="align-middle text-center b-l">Ciclo</th>
-                                <th style="width:10%;" class="align-middle text-center">Facultad</th>
-                                <th style="width:10%;" class="align-middle text-center b-r">Especial.</th>
-                            </template>
-                        </template>
+                <template v-if="isVisibleMerito">
+                    <template v-if="alumno.modalidadEstudio.codigo == 'EPG' ">
+                        <th style="width:10%;" class="align-middle text-center b-r">Especialidad</th>
+                        <th style="width:10%;" class="align-middle text-center b-l">Nivel</th>
+                    </template>
+                    <template v-else="">
+                        <th style="width:10%;" class="align-middle text-center b-l">Ciclo</th>
+                        <th style="width:10%;" class="align-middle text-center">Facultad</th>
+                        <th style="width:10%;" class="align-middle text-center b-r">Especial.</th>
+                    </template>
+                </template>
 
-                        <th class="v-middle text-center">Créd Cur</th>
-                        <th class="v-middle text-center">Créd Apr</th>
-                        <th class="v-middle text-center">Créd Conv</th>
-                        <th class="v-middle text-center">Pje</th>
-                        <th class="v-middle text-center">Prom</th>
-                        <th class="v-middle text-center">Créd Cur</th>
-                        <th class="v-middle text-center">Créd Apr</th>
-                        <th class="v-middle text-center">Pje</th>
-                        <th class="v-middle text-center">Prom</th>
-                    </tr>
+                <th class="v-middle text-center">Créd Cur</th>
+                <th class="v-middle text-center">Créd Apr</th>
+                <th class="v-middle text-center">Créd Conv</th>
+                <th class="v-middle text-center">Pje</th>
+                <th class="v-middle text-center">Prom</th>
+                <th class="v-middle text-center">Créd Cur</th>
+                <th class="v-middle text-center">Créd Apr</th>
+                <th class="v-middle text-center">Pje</th>
+                <th class="v-middle text-center">Prom</th>
+                </tr>
                 </thead>
                 <tbody>
                     <tr v-for="tab in promedios" v-bind:class="classCiclo(tab)">
@@ -369,74 +433,74 @@
                             <span v-text="'Nivel ' + tab.nivel" class="block"></span>
                         </td>
 
-                        <template v-if="isVisibleMerito">
-                            <template v-if="alumno.modalidadEstudio.codigo == 'EPG' ">
-                                <td class="v-middle text-center" v-if="verCiclo(tab)">
-                                    <span v-if="tab.ordenMeritoCiclo != '' " class="block"
-                                        v-text="getOrdenMeritoEpg(tab)"></span>
-                                    <small v-if="tieneMeritoEpg(tab)" class="block" v-text="getMeritoEpg(tab)"></small>
-                                </td>
-                                <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
-                                    <span v-if="verCarrera(tab)">
-                                        <span v-if="tab.ordenMeritoCarrera != '' " class="block"
-                                            v-text="getOrdenMeritoNivelEpg(tab)"></span>
-                                        <small v-if="tieneMeritoNivelEpg(tab)" class="block"
-                                            v-text="getMeritoNivelEpg(tab)"></small>
-                                    </span>
-                                </td>
-                            </template>
+                <template v-if="isVisibleMerito">
+                    <template v-if="alumno.modalidadEstudio.codigo == 'EPG' ">
+                        <td class="v-middle text-center" v-if="verCiclo(tab)">
+                            <span v-if="tab.ordenMeritoCiclo != '' " class="block"
+                                  v-text="getOrdenMeritoEpg(tab)"></span>
+                            <small v-if="tieneMeritoEpg(tab)" class="block" v-text="getMeritoEpg(tab)"></small>
+                        </td>
+                        <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
+                            <span v-if="verCarrera(tab)">
+                                <span v-if="tab.ordenMeritoCarrera != '' " class="block"
+                                      v-text="getOrdenMeritoNivelEpg(tab)"></span>
+                                <small v-if="tieneMeritoNivelEpg(tab)" class="block"
+                                       v-text="getMeritoNivelEpg(tab)"></small>
+                            </span>
+                        </td>
+                    </template>
 
-                            <template v-else="">
-                                <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
-                                    <span v-if="tab.ordenMeritoCicloNivel != '' "
-                                        class="block">{{tab.ordenMeritoCicloNivel}} de
-                                        {{tab.computadosCicloNivel}}</span>
-                                    <p v-if="tieneMeritoNivel('CICLO', tab)" class="block"
-                                        v-text="getMeritoNivel('CICLO', tab)"></p>
-                                </td>
-
-                                <td class="v-middle text-center" v-if="verCiclo(tab)">
-                                    <span v-if="tab.ordenMeritoFacultadNivel != '' "
-                                        class="block">{{tab.ordenMeritoFacultadNivel}} de
-                                        {{tab.computadosFacultadNivel}}</span>
-                                    <p v-if="tieneMeritoNivel('FAC', tab)" class="d-block"
-                                        v-text="getMeritoNivel('FAC', tab)"></p>
-                                </td>
-
-                                <td class="v-middle text-center" v-if="verCiclo(tab)">
-                                    <span v-if="verCarrera(tab)">
-                                        <span v-if="tab.ordenMeritoCarreraNivel != '' "
-                                            class="block">{{tab.ordenMeritoCarreraNivel}} de
-                                            {{tab.computadosCarreraNivel}}</span>
-                                        <p v-if="tieneMeritoNivel('CARR', tab)" class="block"
-                                            v-text="getMeritoNivel('CARR', tab)"></p>
-                                    </span>
-                                </td>
-                            </template>
-                        </template>
-
-                        <td class="v-middle text-center b-l" v-if="verCiclo(tab)" v-text="tab.creditosCursadosCiclo">
+                    <template v-else="">
+                        <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
+                            <span v-if="tab.ordenMeritoCicloNivel != '' "
+                                  class="block">{{tab.ordenMeritoCicloNivel}} de
+                                {{tab.computadosCicloNivel}}</span>
+                            <p v-if="tieneMeritoNivel('CICLO', tab)" class="block"
+                               v-text="getMeritoNivel('CICLO', tab)"></p>
                         </td>
 
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosAprobadosCiclo"></td>
-
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosConvalidados"></td>
-
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.puntajeCiclo"></td>
-
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-bind:class="styleNota(tab)"
-                            v-text="verNota(tab.promedioCiclo)"></td>
-
-                        <td class="v-middle text-center b-l" v-if="verCiclo(tab)" v-text="tab.creditosAcumulados"></td>
-
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosAprobadosAcumulados">
+                        <td class="v-middle text-center" v-if="verCiclo(tab)">
+                            <span v-if="tab.ordenMeritoFacultadNivel != '' "
+                                  class="block">{{tab.ordenMeritoFacultadNivel}} de
+                                {{tab.computadosFacultadNivel}}</span>
+                            <p v-if="tieneMeritoNivel('FAC', tab)" class="d-block"
+                               v-text="getMeritoNivel('FAC', tab)"></p>
                         </td>
 
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.puntajeAcumulado"></td>
-
-                        <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="verNota(tab.promedioAcumulado)">
+                        <td class="v-middle text-center" v-if="verCiclo(tab)">
+                            <span v-if="verCarrera(tab)">
+                                <span v-if="tab.ordenMeritoCarreraNivel != '' "
+                                      class="block">{{tab.ordenMeritoCarreraNivel}} de
+                                    {{tab.computadosCarreraNivel}}</span>
+                                <p v-if="tieneMeritoNivel('CARR', tab)" class="block"
+                                   v-text="getMeritoNivel('CARR', tab)"></p>
+                            </span>
                         </td>
-                    </tr>
+                    </template>
+                </template>
+
+                <td class="v-middle text-center b-l" v-if="verCiclo(tab)" v-text="tab.creditosCursadosCiclo">
+                </td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosAprobadosCiclo"></td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosConvalidados"></td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.puntajeCiclo"></td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-bind:class="styleNota(tab)"
+                    v-text="verNota(tab.promedioCiclo)"></td>
+
+                <td class="v-middle text-center b-l" v-if="verCiclo(tab)" v-text="tab.creditosAcumulados"></td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.creditosAprobadosAcumulados">
+                </td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="tab.puntajeAcumulado"></td>
+
+                <td class="v-middle text-center" v-if="verCiclo(tab)" v-text="verNota(tab.promedioAcumulado)">
+                </td>
+                </tr>
                 </tbody>
             </table>
         </div>

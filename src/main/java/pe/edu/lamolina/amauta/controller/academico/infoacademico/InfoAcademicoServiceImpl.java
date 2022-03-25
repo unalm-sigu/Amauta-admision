@@ -636,6 +636,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "situacionFinal.codigo",
                 "situacionFinal.nombre",
                 /* --- */
+                "alumno.modalidadEstudio.codigo",
+                /* --- */
                 "alumnoCicloCurso.estadoEnum",
                 "alumnoCicloCurso.nota",
                 "alumnoCicloCurso.creditos",
@@ -649,7 +651,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "cicloAcademico.descripcion",
                 "cicloAcademico.descripcion2",
                 "cicloAcademico.tipoEnum",
-                "cicloAcademico.id",});
+                "cicloAcademico.id"
+            });
             promediosCicloJson.add(promedioJson);
         }
         return promediosCicloJson;

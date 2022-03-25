@@ -190,7 +190,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
-                .join("ac.carrera", "ac.situacionInicio")
+                .join("ac.carrera", "ac.situacionInicio", "al.modalidadEstudio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
                 .filter("al.id", alumno)
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue())
