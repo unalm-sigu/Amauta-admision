@@ -540,7 +540,7 @@ Vue.component("historial-component", {
                 return false;
             }
             return true;
-        },
+        }
 
     }
 });
