@@ -2,6 +2,8 @@ package pe.edu.lamolina.amauta.controller.academico.promedio;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +25,20 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoDAO alumnoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final EgresadoDAO egresadoDAO;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-    @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
-    ReincorporadosService reincorporadosService;
+    private final ReincorporadosService reincorporadosService;
 
     @Override
     public BeanPromedios loadDataAlumno(Alumno alumno) {
