@@ -1,13 +1,17 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#docentemodalidadVUE',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         url: '/academico/encuestaestudiantil/docentemodalidad',
         label: {'INA': 'label-warning', 'ACT': 'label-success', 'ANU': 'label-danger'},
         puntajeDocenteModalidad: [],
         ciclos: JSON.parse(CICLOS_ACADEMICOS),
         cicloAcademico: JSON.parse(CICLO_ACADEMICO),
-        ciclo:[JSON.parse(CICLO_ACADEMICO)],
+        ciclo: [JSON.parse(CICLO_ACADEMICO)],
         facultades: JSON.parse(jFacultades),
         departamentos: JSON.parse(jDepartamentos),
         departamentosSelectos: [],
@@ -37,12 +41,12 @@ new Vue({
         downloadReporteTotal() {
             let vue = this;
             let data = {
-                    cicloAcademicos: vue.ciclo,
-                    departamento: vue.departamento ? vue.departamento.id : '',
-                    tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
-                    facultad: vue.facultad ? vue.facultad.id : '',
-                    docente: vue.docente ? vue.docente.id : '',
-                };
+                cicloAcademicos: vue.ciclo,
+                departamento: vue.departamento ? vue.departamento.id : '',
+                tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                facultad: vue.facultad ? vue.facultad.id : '',
+                docente: vue.docente ? vue.docente.id : '',
+            };
             axios_blob.post("/academico/encuestaestudiantil/docentemodalidad/reporte/todos", data)
                     .then(response => {
                         UTIL_BLOB.save(response);

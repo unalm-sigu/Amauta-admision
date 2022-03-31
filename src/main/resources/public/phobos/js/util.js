@@ -1200,3 +1200,7 @@ function moduleAxios(RUTA_MODULO) {
     return _axios_;
 
 }
+
+function use(parms) {
+    return httpVueLoader(parms);
+}

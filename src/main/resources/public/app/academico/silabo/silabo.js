@@ -1,10 +1,12 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-const VueFilePicker = httpVueLoader('/_vue/modules/VueFilePicker.vue');
+const VueFilePicker = use('/_vue/modules/VueFilePicker.vue');
+const ModalSimple = use('/_vue/modules/ModalSimple.vue');
+const RaptorTable = use('/_vue/modules/RaptorTable.vue');
 new Vue({
     el: '#main',
     mixins: [VueLoader],
     components: {
-        VueFilePicker,
+        VueFilePicker,ModalSimple,RaptorTable
     },
     data: {
         silaboURL: APP.url('academico/silabo/list'),

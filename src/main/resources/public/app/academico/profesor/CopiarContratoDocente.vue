@@ -55,6 +55,9 @@
 
 <script>
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        },
         data() {
             return {
                 ciclos: [],

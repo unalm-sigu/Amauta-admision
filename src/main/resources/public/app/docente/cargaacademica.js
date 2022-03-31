@@ -1,5 +1,9 @@
 new Vue({
     el: '#main',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         cursos: [],
         aulaDataZoom: {},
@@ -22,12 +26,12 @@ new Vue({
                             cursosModalidad: data.pregrado,
                             creditos: data.creditosPregrado
                         });
-                        
+
                         $vue.cursos.push({
                             cursosModalidad: data.posgrado,
                             creditos: data.creditosPosgrado
                         });
-                        
+
                     }, () => notify(Messages.errorComunicacion, 'error'));
         },
         tipoSeccion(seccion) {

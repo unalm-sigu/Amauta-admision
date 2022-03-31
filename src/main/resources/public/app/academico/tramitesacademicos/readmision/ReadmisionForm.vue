@@ -91,6 +91,9 @@
 
 <script>
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        },
         data() {
             return {
                 readmision: {},
@@ -119,11 +122,11 @@
                             } else {
                                 notify(data.message, "error");
                             }
-                            
+
                             $vue.$refs.modal_readmision.close();
 
                         }, error => {
-                            
+
                             $vue.$refs.modal_readmision.stop();
                             notify(Messages.errorComunicacion, "error");
                         });

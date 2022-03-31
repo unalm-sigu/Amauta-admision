@@ -110,21 +110,21 @@
 </template>
 
 <script>
-    const ResolucionFormHeader = httpVueLoader('/app/academico/resolucion/resolucionexistente/ResolucionFormHeader.vue');
+    const ResolucionFormHeader = use('/app/academico/resolucion/resolucionexistente/ResolucionFormHeader.vue');
 
-    const ResolucionFormDetailsBachiller = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsBachiller.vue');
-    const ResolucionFormDetailsCambioNota = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCambioNota.vue');
-    const ResolucionFormDetailsCambioPlanCurricular = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCambioPlanCurricular.vue');
-    const ResolucionFormDetailsCursoDirigido = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCursoDirigido.vue');
-    const ResolucionFormDetailsNotaMasBaja = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsNotaMasBaja.vue');
-    const ResolucionFormDetailsPracticasPreprofesionales = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsPracticasPreprofesionales.vue');
-    const ResolucionFormDetailsReadmision = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsReadmision.vue');
-    const ResolucionFormDetailsReincorporacion = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsReincorporacion.vue');
-    const ResolucionFormDetailsRetiroCiclo = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRetiroCiclo.vue');
-    const ResolucionFormDetailsTitulo = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTitulo.vue');
-    const ResolucionFormDetailsTraslado = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTraslado.vue');
-    const ResolucionFormDetailsTrasladoInterno = httpVueLoader('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTrasladoInterno.vue');
-
+    const ResolucionFormDetailsBachiller = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsBachiller.vue');
+    const ResolucionFormDetailsCambioNota = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCambioNota.vue');
+    const ResolucionFormDetailsCambioPlanCurricular = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCambioPlanCurricular.vue');
+    const ResolucionFormDetailsCursoDirigido = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsCursoDirigido.vue');
+    const ResolucionFormDetailsNotaMasBaja = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsNotaMasBaja.vue');
+    const ResolucionFormDetailsPracticasPreprofesionales = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsPracticasPreprofesionales.vue');
+    const ResolucionFormDetailsReadmision = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsReadmision.vue');
+    const ResolucionFormDetailsReincorporacion = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsReincorporacion.vue');
+    const ResolucionFormDetailsRetiroCiclo = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRetiroCiclo.vue');
+    const ResolucionFormDetailsTitulo = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTitulo.vue');
+    const ResolucionFormDetailsTraslado = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTraslado.vue');
+    const ResolucionFormDetailsTrasladoInterno = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTrasladoInterno.vue');
+    const ModalSimple = use("/_vue/modules/ModalSimple.vue");
     module.exports = {
         components: {
             resolucionFormHeader: ResolucionFormHeader,
@@ -140,6 +140,7 @@
             resolucionFormDetailsTitulo: ResolucionFormDetailsTitulo,
             resolucionFormDetailsTraslado: ResolucionFormDetailsTraslado,
             resolucionFormDetailsTrasladoInterno: ResolucionFormDetailsTrasladoInterno,
+            modalSimple: ModalSimple,
         },
         mixins: [VueLoader],
         data() {

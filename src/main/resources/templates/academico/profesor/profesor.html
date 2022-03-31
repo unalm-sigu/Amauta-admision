@@ -64,9 +64,6 @@
                 var CICLO_ACADEMICO_DESCRIPCION = /*[[${session["SESSION_USUARIO"].cicloAcademico.descripcion}]]*/ {};
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"/>
-            <div th:substituteby="_modules/vue-modal_v1"></div>
-
             <script>
                 Vue.component("multiselect", window.VueMultiselect.default);
                 const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');

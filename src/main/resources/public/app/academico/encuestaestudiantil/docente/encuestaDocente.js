@@ -5,6 +5,8 @@ new Vue({
     el: '#main',
     components: {
         editarPeriodoEncuesta: EditarPeriodoEncuesta,
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
     },
     data: {
         indicadorClave: 0,

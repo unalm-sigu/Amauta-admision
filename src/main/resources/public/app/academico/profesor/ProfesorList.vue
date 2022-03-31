@@ -100,6 +100,9 @@
 
 <script>
     module.exports = {
+        components: {
+            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+        },
         data() {
             return {
                 URL_LIST_PROFESOR: APP.url('academico/profesor/all'),

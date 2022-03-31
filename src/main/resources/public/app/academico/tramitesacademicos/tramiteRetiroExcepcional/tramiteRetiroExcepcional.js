@@ -1,38 +1,25 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
-    el: '#retiroExcepcional',
+    el: '#main',
+    components:{
+        ModalSimple:use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable:use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/list'),
         ciclos: JSON.parse(ciclosJson),
-        modalRetiroExcep: {
-            id: 'modalRetiroExcep',
-            header: true,
-            title: 'Agregar Retiro Excepcional ',
-            okbtn: "Guardar",
-            showaccept: true
-        },
         retiroExcepcional: {},
         alumnos: [],
         isLoading: false
-
-    }, created: function () {
-
-    }, mounted: function () {
-
-    }, methods: {
+    },
+    methods: {
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         },
         urlAcademico(item) {
-            let $vue = this;
-            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + $vue.getOrigenURL();
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
+            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporte(item) {
-            let $vue = this;
             return APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/' + item.tramite.id + '/reporte');
         },
         nuevo() {
@@ -48,9 +35,9 @@ var app = new Vue({
         },
         loadAlumno(nombre) {
             let $vue = this;
-            this.isLoading = true
+            this.isLoading = true;
 
-            if (nombre != '' || nombre != null || nombre != undefined) {
+            if (nombre) {
 
                 $.ajax({
                     url: APP.url("academico/tramitecondicional/allAlumnoByNombre"),
@@ -63,36 +50,21 @@ var app = new Vue({
                     }
 
                     this.isLoading = false;
-                })
+                });
 
             }
+
         },
         saveRetiro() {
             let $vue = this;
-            if (!$("#form").parsley().validate()) {
-                return;
-            }
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/save'),
-                data: JSON.stringify($vue.retiroExcepcional),
-                contentType: "application/json",
-                success: function (response) {
-                    if (response.success) {
+            axios_.post("/academico/tramiteacademico/tramiteRetiroExcepcional/save", $vue.retiroExcepcional)
+                    .then(response => {
                         $vue.$refs.load.loadRemoteData();
-                        notify(response.message, "success");
-                    } else {
-                        notify(response.message, "error");
-                    }
-                    $vue.$refs.modalRetiroExcep.close();
-                    MODAL.hideWait();
-                },
-                error: function () {
-                    $vue.$refs.modalRetiroExcep.close();
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+                        notify(response.data, "success");
+                        $vue.$refs.modalRetiroExcep.close();
+                    }, () => {
+                        $vue.$refs.modalRetiroExcep.stop();
+                    });
         },
         labelColor(item) {
             switch (item) {
@@ -108,38 +80,20 @@ var app = new Vue({
             }
         },
         anular(item) {
-
             let $vue = this;
             $vue.retiroExcepcional = {...item};
             $vue.$refs.modalEliminarTramite.open();
-
         },
         anularActionHandler() {
-
             let $vue = this;
-            axios.post("/academico/tramiteacademico/tramiteRetiroExcepcional/anular", $vue.retiroExcepcional)
+            axios_.post("/academico/tramiteacademico/tramiteRetiroExcepcional/anular", $vue.retiroExcepcional)
                     .then(response => {
-
-                        if (response.data.success) {
-
-                            $vue.$refs.modalEliminarTramite.close();
-                            $vue.$refs.load.loadRemoteData();
-                            notify(response.data.message, "success");
-
-                        } else {
-
-                            $vue.$refs.modalEliminarTramite.stop();
-                            notify(response.data.message, "error");
-
-                        }
-
+                        $vue.$refs.modalEliminarTramite.close();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.data, "success");
                     }, () => {
-
                         $vue.$refs.modalEliminarTramite.stop();
-                        notify(Messages.errorComunicacion, "error");
-
                     });
-
         }
     }
 })

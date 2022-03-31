@@ -66,6 +66,7 @@
 
     module.exports = {
         components: {
+            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
         },
         data() {
             return {

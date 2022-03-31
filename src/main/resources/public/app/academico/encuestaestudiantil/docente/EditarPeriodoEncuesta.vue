@@ -83,6 +83,9 @@
 
 <script>
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        },
         data: function () {
             return {
                 periodosEncuesta: [],
@@ -102,7 +105,8 @@
                             $vue.encuestaEstudiantil = data;
                             $vue.periodosEncuesta = data.periodosEncuesta;
                             $vue.$refs.modalEditarEncuesta.open();
-                        }, () => {});
+                        }, () => {
+                        });
             },
             save() {
                 var $vue = this;

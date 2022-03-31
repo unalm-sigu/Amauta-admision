@@ -2,7 +2,10 @@ Vue.component("multiselect", window.VueMultiselect.default);
 const ClonarMatriculableModal = httpVueLoader('/app/academico/matriculable/ClonarMatriculableModal.vue');
 new Vue({
     el: '#matriculableVUE',
-    components: {ClonarMatriculableModal},
+    components: {ClonarMatriculableModal,
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"), 
+    },
     data: {
         matriculaURL: APP.url(`${rutaModulo}/list`),
         ciclo: JSON.parse(cicloJson),
@@ -80,7 +83,7 @@ new Vue({
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
         carreras: [],
         carreraFilter: null,
-        estadoFilter:null
+        estadoFilter: null
     },
     mounted: function () {
 
@@ -889,10 +892,10 @@ new Vue({
         },
         searchCarrera(nombre) {
             let $vue = this;
-            if(!nombre){
-               return; 
+            if (!nombre) {
+                return;
             }
-            axios_.get(APP.url('academico/matriculable/allCarrera'),{params:{nombre:nombre}})
+            axios_.get(APP.url('academico/matriculable/allCarrera'), {params: {nombre: nombre}})
                     .then(res => {
                         $vue.carreras = res.data;
                     }, err => null);
