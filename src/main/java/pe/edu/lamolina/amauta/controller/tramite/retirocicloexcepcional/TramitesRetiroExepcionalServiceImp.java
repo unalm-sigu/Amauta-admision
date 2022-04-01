@@ -96,8 +96,16 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     @Override
     @Transactional
     public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+
         Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
+
+        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroUniqueNoAnulado(alumnoDB, retiroForm.getCicloAcademico());
+
+        if (retiroCicloDB != null) {
+            throw new PhobosException("Ya tiene un trámite en el ciclo");
+        }
+
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
         List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
         Boolean exist = false;
