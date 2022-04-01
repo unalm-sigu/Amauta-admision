@@ -4,6 +4,7 @@ new Vue({
     el: '#main',
     components: {
         editarContratoDocente: EditarContratoDocente,
+        modalSimple: use("/_vue/modules/ModalSimple.vue"),
     },
     data: {
         actualizar: false,
