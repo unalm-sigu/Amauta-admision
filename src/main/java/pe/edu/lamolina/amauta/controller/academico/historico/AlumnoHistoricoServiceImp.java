@@ -99,7 +99,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Override
     public List<CicloAcademico> allCicloAcademico() {
         int year = new DateTime().getYear();
-        int yearinit = year - 10;
+        int yearinit = year - 30;
         int yearend = year + 5;
         return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
