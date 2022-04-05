@@ -23,4 +23,6 @@ public interface PostulanteDAO extends EasyDAO<Postulante> {
 
     public List<Postulante> allByDynatableRenuncia(DynatableFilter filter);
 
+    public Postulante findById(Long id);
+
 }

@@ -108,4 +108,14 @@ public class PostulanteDAOH extends AbstractEasyDAO<Postulante> implements Postu
         sql.beginRelativeFilters();
         return all(sql);
     }
+
+    @Override
+    public Postulante findById(Long id) {
+        Octavia sql = Octavia.query()
+                .from(Postulante.class, "po")
+                .join("modalidadIngreso mod", "cicloPostula cip", "cip.cicloAcademico ca", "persona per", "per.tipoDocumento td")
+                .leftJoin("colegioProcedencia col", "col.ubicacion uc", "universidadProcedencia uni")
+                .filter("po.id", id);
+        return find(sql);
+    }
 }
