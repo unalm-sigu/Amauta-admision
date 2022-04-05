@@ -10,6 +10,6 @@ public interface AlumnoRenunciaService {
 
     public List<Postulante> allAlumnosbyDynatable(DynatableFilter filter);
 
-    public void apply(Alumno alumno, DataSessionPivot ds);
+    public void apply(Postulante postulante, DataSessionPivot ds);
 
 }

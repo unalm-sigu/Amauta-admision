@@ -43,6 +43,7 @@ public class AlumnoRenunciaController {
         List<Postulante> alumnos = service.allAlumnosbyDynatable(filter);
 
         ArrayNode array = JaneHelper.from(alumnos)
+                .only("id")
                 .join("persona", "id,apellidosNombres,rutaFoto,tipoFoto,numeroDocIdentidad,telefono,celular,email,emailCompania")
                 .join("persona.tipoDocumento", "simbolo")
                 .array();
@@ -56,10 +57,10 @@ public class AlumnoRenunciaController {
 
     @ResponseBody
     @RequestMapping(value = "apply", method = RequestMethod.POST)
-    public String apply(@RequestBody Alumno alumno, HttpSession session) {
+    public String apply(@RequestBody Postulante postulante, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.apply(alumno, ds);
+        service.apply(postulante, ds);
         return GlobalMessages.UPDATED;
     }
 

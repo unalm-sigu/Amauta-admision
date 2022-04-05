@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.inscripcion.Postulante;
@@ -26,8 +25,10 @@ public class AlumnoRenunciaServiceImp implements AlumnoRenunciaService {
         return postulanteDAO.allByDynatableRenuncia(filter);
     }
 
+
     @Override
-    public void apply(Alumno alumno, DataSessionPivot ds) {
+    public void apply(Postulante postulanteForm, DataSessionPivot ds) {
+        
     }
 
 }
