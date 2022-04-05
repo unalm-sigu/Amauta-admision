@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.inscripcion;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Persona;
@@ -19,5 +20,7 @@ public interface PostulanteDAO extends EasyDAO<Postulante> {
     Postulante findByCodigoCiclo(String codigo, CicloPostula ciclo);
 
     public Postulante findByPersonaCicloAcademico(Persona persona, CicloAcademico cicloAcademico);
+
+    public List<Postulante> allByDynatableRenuncia(DynatableFilter filter);
 
 }

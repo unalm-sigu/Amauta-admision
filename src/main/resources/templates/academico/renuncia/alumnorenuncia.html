@@ -1,0 +1,33 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Alumno renuncia vacante</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h1>Alumno renuncia vacante</h1>
+                </header>
+
+                <section class="wrapper-lg">
+                    <Alumno-Renuncia-List></Alumno-Renuncia-List>
+                </section>
+
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script>
+                const AlumnoRenunciaList = use('/app/academico/renuncia/AlumnoRenunciaList.vue');
+                var root = new Vue({
+                    el: '#main',
+                    components: {AlumnoRenunciaList}
+                });
+            </script>
+        </div>
+
+    </body>
+</html>

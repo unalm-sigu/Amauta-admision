@@ -62,16 +62,11 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
     private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
     private final PersonaDAO personaDAO;
-    private final AlumnoVisitanteDAO alumnoVisitanteDAO;
     private final AlumnoDAO alumnoDAO;
     private final UsuarioDAO usuarioDAO;
-    private final PersonaService personaService;
     private final CicloAcademicoDAO cicloAcademicoDAO;
-    private final CarreraDAO carreraDAO;
     private final ModalidadEstudioDAO modalidadEstudioDAO;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
-    private final ContenidoCartaDAO contenidoCartaDAO;
-    private final MatriculaResumenDAO matriculaResumenDAO;
     private final VerificadorService verificadorService;
     private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
     private final AlumnoCicloDAO alumnoCicloDAO;

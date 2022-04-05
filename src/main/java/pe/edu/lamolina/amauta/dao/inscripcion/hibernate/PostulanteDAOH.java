@@ -1,12 +1,16 @@
 package pe.edu.lamolina.amauta.dao.inscripcion.hibernate;
 
 import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.List;
 import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.PostulanteEstadoEnum;
 import static pe.edu.lamolina.model.enums.PostulanteEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.PostulanteEstadoEnum.REN;
 import pe.edu.lamolina.model.general.Persona;
@@ -71,8 +75,7 @@ public class PostulanteDAOH extends AbstractEasyDAO<Postulante> implements Postu
 
         return find(sql);
     }
-    
-    
+
     @Override
     public Postulante findByPersonaCicloAcademico(Persona persona, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -85,5 +88,24 @@ public class PostulanteDAOH extends AbstractEasyDAO<Postulante> implements Postu
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public List<Postulante> allByDynatableRenuncia(DynatableFilter filter) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Postulante.class, "po")
+                .join("persona per", "per.tipoDocumento tdoc", "cicloPostula cip", "cip.cicloAcademico ca")
+                .leftJoin("modalidadIngreso mod", "interesado inte", "aulaExamen ae", "ae.aula au", "inte.carreraInteres cai")
+                .in("po.estado", asList(PostulanteEstadoEnum.REN, PostulanteEstadoEnum.REND))
+                .searchFields("po.fechaRegistro", "mod.nombre", "po.estado", "po.codigo", "po.importePagar", "po.importeAbonado", "po.importeDescuento")
+                .searchFields("tdoc.simbolo", "per.numeroDocIdentidad", "po.numeroAsiento", "au.codigo", "inte.id")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .searchComplexField("concat(coalesce(inte.paterno,''),' ',coalesce(inte.materno,''),' ',coalesce(inte.nombres,''))")
+                .searchComplexField("concat(coalesce(inte.nombres,''),' ',coalesce(inte.paterno,''),' ',coalesce(inte.materno,''))")
+                .orderBy("inte.id desc", "po.id desc");
+        sql.beginRelativeFilters();
+        return all(sql);
     }
 }
