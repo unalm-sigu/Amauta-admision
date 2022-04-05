@@ -87,7 +87,38 @@
             };
         },
         methods: {
-            apply() {
+            apply(item) {
+                let $vue = this;
+                swal('¿Seguro que desea eliminar el registro?', {
+                    icon: "warning",
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                    dangerMode: true,
+                    buttons: {
+                        cancel: {text: "Cancelar", closeModal: true, visible: true},
+                        confirm: {text: "Sí, Eliminar", closeModal: false}
+                    }
+                }).then((value) => {
+                    if (value != true) {
+                        return;
+                    }
+                    axios_.post("/academico/renuncia/alumno/apply/", {id: item.id})
+                            .then(({data}) => {
+                                notify(data, 'info');
+                                $vue.$refs.load.repreload();
+                                return swal({text: data, icon: "success", button: false, timer: 1000});
+                            }, () => {
+                                return swal(APP.errorComunicacion, "error");
+                            });
+
+                }).catch(err => {
+                    if (err) {
+                        swal(APP.errorComunicacion, "error");
+                    } else {
+                        swal.stopLoading();
+                        swal.close();
+                    }
+                });
 
             }
         }
