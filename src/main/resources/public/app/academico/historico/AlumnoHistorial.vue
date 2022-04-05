@@ -4,7 +4,7 @@
         <section class="panel-body m-t-md">
             <div class="row m-t-md m-b-sm">
 
-                <div class="col-sm-4 pull-right" >
+                <div class="col-sm-6 pull-right" >
 
                     <div class="col-sm-6">
 
@@ -46,6 +46,10 @@
 
                     <div class="col-sm-2">
                         <a class="btn btn-default" @click="addAlumnoCiclo()"   href="#">Agregar</a>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <a class="btn btn-link" @click="calcularPromedios()"   href="#">Calcular promedios</a>
                     </div>
 
                 </div>
@@ -116,7 +120,7 @@
                     return;
                 }
                 $vue.showLoader();
-                axios.post(APP.url('academico/historico/alumno/saveCicloAlumno'), {cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}})
+                axios_.post(APP.url('academico/historico/alumno/saveCicloAlumno'), {cicloAcademico: {...$vue.ciclo}, alumno: {...$vue.alumno}})
                         .then(() => {
                             $vue.cargaHistorial();
                             $vue.hideLoader();
@@ -125,9 +129,20 @@
                         });
 
             },
+            calcularPromedios() {
+                let $vue = this;
+                $vue.showLoader();
+                axios_.post(APP.url('academico/historico/alumno/calcularpromedio'), {id:$vue.alumno.id})
+                        .then(() => {
+                            $vue.cargaHistorial();
+                            $vue.hideLoader();
+                        }, () => {
+                            $vue.hideLoader();
+                        });
+            },
             cargaHistorial() {
                 let $vue = this;
-                axios.get(APP.url('academico/historico/alumno/' + ID_ALUMNO + '/historial'))
+                axios_.get(APP.url('academico/historico/alumno/' + ID_ALUMNO + '/historial'))
                         .then(({data}) => {
                             $vue.alumnoCiclos = data;
                             $vue.$forceUpdate();
@@ -136,7 +151,7 @@
             },
             searchCiclo(nombre) {
                 let $vue = this;
-                axios.get(APP.url("academico/tramiteacademico/asyncFindCiclosAcad"), {params: {nombreCiclo: nombre,
+                axios_.get(APP.url("academico/tramiteacademico/asyncFindCiclosAcad"), {params: {nombreCiclo: nombre,
                         alumno: $vue.alumno.id}}).then(({data}) => {
                     $vue.ciclos = data.data;
                 }, () => {

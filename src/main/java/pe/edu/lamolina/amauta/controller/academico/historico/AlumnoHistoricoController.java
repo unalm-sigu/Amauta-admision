@@ -143,7 +143,7 @@ public class AlumnoHistoricoController {
                 .join("alumno.cicloIngreso")
                 .join("cicloAcademico")
                 .array();
-        
+
     }
 
     @ResponseBody
@@ -152,10 +152,10 @@ public class AlumnoHistoricoController {
 
         List<AlumnoCicloCurso> alumnoCicloCursos = service.allAlumnoCicloCurso(idAlumnoCiclo);
         return JaneHelper.from(alumnoCicloCursos)
-                    .join("curso")
-                    .join("alumnoCiclo")
-                    .array();
-        
+                .join("curso")
+                .join("alumnoCiclo")
+                .array();
+
     }
 
     @ResponseBody
@@ -253,6 +253,14 @@ public class AlumnoHistoricoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.saveCicloAlumnoCurso(alumnoCiclo, ds);
+        return GlobalMessages.UPDATED;
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularpromedio")
+    public String calcularpromedio(@RequestBody Alumno alumno, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.calcularPromedio(alumno, ds);
         return GlobalMessages.UPDATED;
     }
 
