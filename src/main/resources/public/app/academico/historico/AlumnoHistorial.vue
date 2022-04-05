@@ -133,9 +133,10 @@
                 let $vue = this;
                 $vue.showLoader();
                 axios_.post(APP.url('academico/historico/alumno/calcularpromedio'), {id:$vue.alumno.id})
-                        .then(() => {
+                        .then(({data}) => {
                             $vue.cargaHistorial();
                             $vue.hideLoader();
+                            notify(data,'success');
                         }, () => {
                             $vue.hideLoader();
                         });
