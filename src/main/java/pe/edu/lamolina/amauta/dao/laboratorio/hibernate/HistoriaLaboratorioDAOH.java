@@ -43,7 +43,7 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
                 .from(HistoriaLaboratorio.class, "hl")
                 .join("historiaClinica hc", "hc.paciente pac", "pac.persona per")
                 .in("per.id", personas)
-                .filter("fechaMuestra", ">", new DateTime("2019-07-01").toDate());
+                .filter("fechaMuestra", ">", new DateTime("2022-01-01").toDate());
         return all(sql);
     }
 
