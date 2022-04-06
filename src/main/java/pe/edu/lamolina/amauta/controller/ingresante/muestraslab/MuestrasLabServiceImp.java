@@ -83,7 +83,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public CicloAcademico findCicloActivoAdmision() {
-        return cicloAcademicoDAO.findActivoAdmisionPregrado();
+        return cicloAcademicoDAO.findActivoAdmision();
     }
 
     @Override
@@ -246,7 +246,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public void inicializarVisor() {
-        CicloAcademico ciclo = cicloAcademicoDAO.findActivoObu();
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivoAdmision();
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
         List<Persona> listaPersonas = new ArrayList();
         for (RecorridoIngresante elem : listaRecorridos) {

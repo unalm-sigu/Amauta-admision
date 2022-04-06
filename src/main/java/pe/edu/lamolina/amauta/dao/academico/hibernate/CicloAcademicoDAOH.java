@@ -328,7 +328,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("year", ">", yearinit)
                 .filter("year", "<", yearend)
-                .in("tipo", Arrays.asList(TipoCicloEnum.REG,TipoCicloEnum.NIV))
+                .in("tipo", Arrays.asList(TipoCicloEnum.REG, TipoCicloEnum.NIV))
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
 
@@ -397,7 +397,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .filter("me.codigo", ModalidadEstudioEnum.PRE);
         return find(sql);
     }
-    
+
     @Override
     public CicloAcademico findActivoObu() {
         Octavia sql = Octavia.query()
@@ -409,13 +409,12 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public CicloAcademico findActivoAdmisionPregrado() {
+    public CicloAcademico findActivoAdmision() {
         Octavia sql = Octavia.query()
-                .select("ca")
-                .from(CicloPostula.class, "cp")
-                .join("cicloAcademico ca", "ca.modalidadEstudio me")
-                .filter("cp.estado", ACT);
-
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("ca.estadoAdmision", ACT)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE);
         return find(sql);
     }
 

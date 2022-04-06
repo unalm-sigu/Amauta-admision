@@ -60,7 +60,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
     @Override
     public CicloAcademico findCicloActivoAdmision() {
-        return cicloAcademicoDAO.findActivoAdmisionPregrado();
+        return cicloAcademicoDAO.findActivoAdmision();
     }
 
     @Override

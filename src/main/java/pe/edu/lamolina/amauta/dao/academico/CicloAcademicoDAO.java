@@ -48,6 +48,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivoObu();
 
+    CicloAcademico findActivoAdmision();
+
     void updateActualizarBoletin(CicloAcademico cicloAcademico);
 
     CicloAcademico findActivoByModalidad(ModalidadEstudio modalidadEstudio);
@@ -113,8 +115,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     List<CicloAcademico> allActivosAlModalidades();
 
     List<CicloAcademico> allRegularPre(int i, CicloAcademico academico);
-
-    CicloAcademico findActivoAdmisionPregrado();
 
     List<CicloAcademico> allWithInitAndOrderBy(String codigo, String orderBy, CicloAcademicoEstadoEnum... cicloAcademicoEstadoEnum);
 
