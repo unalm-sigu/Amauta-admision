@@ -59,6 +59,9 @@
 </template>
 <script>
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue")
+        },
         data() {
             return {
                 ciclosAcademicos: JSON.parse(ciclos),

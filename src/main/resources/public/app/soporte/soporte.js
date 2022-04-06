@@ -1,5 +1,9 @@
 new Vue({
     el: '#soporteVue',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         URL_SOPORTE: APP.url('academico/soporte/list'),
         soporteForm: {},

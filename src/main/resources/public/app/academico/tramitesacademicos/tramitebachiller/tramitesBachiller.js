@@ -1,6 +1,10 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#tramitesAcademicos',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramitebachiller/list'),
         tramiteBachiller: {},

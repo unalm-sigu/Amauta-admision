@@ -1,14 +1,10 @@
 package pe.edu.lamolina.amauta.controller.tramite.retirocicloexcepcional;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,21 +17,17 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
+@Slf4j
 @Controller
 @RequestMapping("academico/tramiteacademico/tramiteRetiroExcepcional")
 public class TramiteRetiroExcepcionalController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     TramiteRetiroExcepcionalService service;
@@ -54,68 +46,41 @@ public class TramiteRetiroExcepcionalController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse listTramites(DynatableFilter filter,
-            HttpSession session) {
+    public DynatableResponse listTramites(DynatableFilter filter, HttpSession session) {
+
         DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<RetiroCiclo> trCiclos = service.allTramitesByFilter(filter, ds);
 
-            String[] mapperTramite = new String[]{
-                "*",
-                "tramite.*",
-                "tramite.persona.*",
-                "tramite.alumno.*",
-                "tramite.alumno.carrera.*",
-                "tramite.alumno.carrera.facultad.*",
-                "cicloAcademico.*"
-            };
+        List<RetiroCiclo> trCiclos = service.allTramitesByFilter(filter, ds);
 
-            String[] mapperEstadoTramite = new String[]{
-                "tramite.estadoTramite.nombre",
-                "tramite.estadoTramite.id",
-                "tramite.estadoTramite.nombre"
-            };
+        ArrayNode array = JaneHelper.from(trCiclos)
+                .join("tramite")
+                .join("tramite.persona")
+                .join("tramite.alumno", "id,codigo")
+                .join("tramite.alumno.carrera", "id,nombre")
+                .join("tramite.alumno.carrera.facultad", "id,nombre")
+                .join("cicloAcademico", "id,descripcion,codigo,descripcion2")
+                .array();
 
-            String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
-            JsonNodeFactory jc = JsonNodeFactory.instance;
-            for (RetiroCiclo rc : trCiclos) {
-                ObjectNode retiroJson = JsonHelper.createJson(rc, jc, false, mapperTramiteComplex);
-
-                array.add(retiroJson);
-            }
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
         return json;
     }
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody RetiroCiclo retiro, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveRetiro(retiro, ds);
-            response.setMessage("Se registró el tramite satisfactoriamente.");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        }
-        return response;
+    public String save(@RequestBody RetiroCiclo retiro, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.saveRetiro(retiro, ds);
+        return GlobalMessages.CREATED;
     }
 
     @RequestMapping("{idTramite}/reporte")
     public ModelAndView tramiteRetiroExcepcionalReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idTramite) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.reporte(idTramite, ds, model);
         return new ModelAndView(reporteTramiteRetiroExcepcionalPdf);
@@ -124,24 +89,10 @@ public class TramiteRetiroExcepcionalController {
 
     @ResponseBody
     @RequestMapping("anular")
-    public JsonResponse anular(@RequestBody RetiroCiclo retiroCiclo, HttpSession session) {
+    public String anular(@RequestBody RetiroCiclo retiroCiclo, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(Boolean.FALSE);
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.anular(retiroCiclo, ds);
-            response.setMessage("Tramite anulado correctamente.");
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.anular(retiroCiclo, ds);
+        return GlobalMessages.ANNULL;
     }
 }

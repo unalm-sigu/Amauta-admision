@@ -85,6 +85,9 @@
 
 <script>
     module.exports = {
+        components: {
+            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+        },
         data() {
             return {
                 URL_TIPO_CONSTANCIA: APP.url('tramite/tipoconstancia/all'),

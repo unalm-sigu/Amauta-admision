@@ -1,6 +1,10 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#retiroExcepcional',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteReincorporacion/list'),
         ciclos: JSON.parse(ciclosJson),

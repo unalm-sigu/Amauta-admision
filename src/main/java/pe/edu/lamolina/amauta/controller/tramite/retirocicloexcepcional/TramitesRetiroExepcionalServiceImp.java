@@ -96,8 +96,16 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     @Override
     @Transactional
     public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+
         Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
+
+        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroUniqueNoAnulado(alumnoDB, retiroForm.getCicloAcademico());
+
+        if (retiroCicloDB != null) {
+            throw new PhobosException("Ya tiene un trámite en el ciclo");
+        }
+
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
         List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
         Boolean exist = false;
@@ -112,7 +120,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RETIRO_CICLO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
 

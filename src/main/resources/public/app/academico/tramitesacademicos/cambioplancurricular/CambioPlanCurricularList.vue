@@ -70,6 +70,9 @@
 
 <script>
     module.exports = {
+        components: {
+            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+        },
         data() {
             return {
                 URL_TRAMITE_CAMBIO_PLAN_CURRICULAR: APP.url('academico/tramiteacademico/cambioplancurricular/all'),

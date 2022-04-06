@@ -105,6 +105,9 @@
 
 <script>
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        },
         data() {
             return {
                 facultades: JSON.parse(jFacultades),
@@ -136,12 +139,12 @@
             downloadReporteCargaAcademica() {
                 let vue = this;
                 let data = {
-                        departamento: vue.departamento ? vue.departamento.id : '',
-                        tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
-                        facultad: vue.facultad ? vue.facultad.id : '',
-                        cicloAcademicos: vue.ciclo,
-                        docente: vue.docente ? vue.docente.id : '',
-                    };
+                    departamento: vue.departamento ? vue.departamento.id : '',
+                    tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                    facultad: vue.facultad ? vue.facultad.id : '',
+                    cicloAcademicos: vue.ciclo,
+                    docente: vue.docente ? vue.docente.id : '',
+                };
                 axios_blob.post("/academico/profesor/reporteCargaAcademica", data)
                         .then(response => {
                             UTIL_BLOB.save(response);

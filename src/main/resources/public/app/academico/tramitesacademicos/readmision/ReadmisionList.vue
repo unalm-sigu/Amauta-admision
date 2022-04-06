@@ -70,6 +70,9 @@
 
 <script>
     module.exports = {
+        components: {
+            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+        },
         data() {
             return {
                 URL_TRAMITE_READMISION: APP.url('academico/tramiteacademico/readmision/all'),

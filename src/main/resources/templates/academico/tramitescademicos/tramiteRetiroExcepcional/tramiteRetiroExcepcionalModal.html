@@ -1,6 +1,11 @@
-<modal-vik ref="modalRetiroExcep"
-           v-bind="modalRetiroExcep"
-           v-bind:okaction="saveRetiro">
+<modal-simple ref="modalRetiroExcep"
+              v-bind:okaction="saveRetiro"
+              v-bind:okbtn="Guardar" >
+    
+    <div slot="header">
+        <p>Agregar Retiro Excepcional</p>
+    </div>
+    
     <div slot="body">
         <div class="modal-body">
             <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
@@ -52,13 +57,13 @@
             </form>
         </div>
     </div>
-</modal-vik>
+</modal-simple>
 
 <modal-simple ref="modalEliminarTramite"  okbtn="Anular" okclass="btn-danger"
               v-bind:okaction="anularActionHandler">
     <div slot="body">
-        
+
         ¿Desea anular el tramite retiro excepcional del alumno?
-        
+
     </div>
 </modal-simple>

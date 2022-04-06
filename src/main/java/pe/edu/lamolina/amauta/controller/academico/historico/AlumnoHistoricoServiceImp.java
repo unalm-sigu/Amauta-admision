@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -59,37 +60,18 @@ import pe.edu.lamolina.model.seguridad.Usuario;
         @Autowired))
 public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
 
-    private TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
-    private PersonaDAO personaDAO;
-
-    private AlumnoVisitanteDAO alumnoVisitanteDAO;
-
-    private AlumnoDAO alumnoDAO;
-
-    private UsuarioDAO usuarioDAO;
-
-    private PersonaService personaService;
-
-    private CicloAcademicoDAO cicloAcademicoDAO;
-
-    private CarreraDAO carreraDAO;
-
-    private ModalidadEstudioDAO modalidadEstudioDAO;
-
-    private SituacionAcademicaDAO situacionAcademicaDAO;
-
-    private ContenidoCartaDAO contenidoCartaDAO;
-
-    private MatriculaResumenDAO matriculaResumenDAO;
-
-    private VerificadorService verificadorService;
-
-    private AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    private AlumnoCicloDAO alumnoCicloDAO;
-
-    private PersonaHistorialDAO personaHistorialDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final PersonaDAO personaDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final VerificadorService verificadorService;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final PersonaHistorialDAO personaHistorialDAO;
+    private final InfoAcademicoService infoAcademicoService;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -99,7 +81,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Override
     public List<CicloAcademico> allCicloAcademico() {
         int year = new DateTime().getYear();
-        int yearinit = year - 10;
+        int yearinit = year - 30;
         int yearend = year + 5;
         return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
@@ -514,6 +496,12 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
     @Transactional
     public void deleteAlumnoCicloCurso(Long idAlumnoCicloCurso) {
         alumnoCicloCursoDAO.delete(idAlumnoCicloCurso);
+    }
+
+    @Override
+    @Transactional
+    public void calcularPromedio(Alumno alumno, DataSessionPivot ds) {
+        infoAcademicoService.calcularPromedio(alumno, ds);
     }
 
 }

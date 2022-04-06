@@ -56,4 +56,6 @@ public interface AlumnoHistoricoService {
 
     public void saveCicloAlumnoCurso(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 
+    public void calcularPromedio(Alumno alumno, DataSessionPivot ds);
+
 }

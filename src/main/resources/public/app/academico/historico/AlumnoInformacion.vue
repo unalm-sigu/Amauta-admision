@@ -354,6 +354,7 @@
 
                     <input type="text"
                            v-model="alumno.persona.emailCompania"
+                           required="true"
                            class="form-control verificar-email"/>
 
                 </div>
@@ -490,6 +491,7 @@
                         v-bind:options="ciclos"
                         v-bind:allow-empty="true"
                         track-by="id"
+                        label="descripcion"
                         placeholder=" "
                         v-bind:internal-search="true"
                         v-bind:hide-selected="false"
@@ -536,6 +538,7 @@
                         v-bind:allow-empty="true"
                         track-by="id"
                         placeholder=" "
+                        label="descripcion"
                         v-bind:internal-search="true"
                         v-bind:hide-selected="false"
                         v-bind:showNoOptions="true"

@@ -42,6 +42,9 @@
 <script>
 
     module.exports = {
+        components: {
+            ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        },
         data() {
             return {
                 colaborador: null,
@@ -51,17 +54,17 @@
         },
         methods: {
             saveUsuarioColaborador() {
-                
+
                 let $vue = this;
-                
-                let urll='/general/oficina/colaborador/' + $vue.colaborador.persona.id + '/usuario';
-                
-                if($vue.notificacion){
-                    
-                   urll='/general/oficina/colaborador/' + $vue.colaborador.persona.id + '/usuario/email'; 
-                   
+
+                let urll = '/general/oficina/colaborador/' + $vue.colaborador.persona.id + '/usuario';
+
+                if ($vue.notificacion) {
+
+                    urll = '/general/oficina/colaborador/' + $vue.colaborador.persona.id + '/usuario/email';
+
                 }
-                
+
                 axios_.post(urll, $vue.usuario)
                         .then(({data}) => {
                             $vue.$refs.modalUsuarioColaborador.close();

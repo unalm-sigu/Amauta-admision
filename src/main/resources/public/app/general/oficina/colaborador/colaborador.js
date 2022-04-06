@@ -6,7 +6,8 @@ new Vue({
     el: '#colaboradorVue',
     mixins: [VueLoader],
     components: {
-        usuarioColaborador: UsuarioColaborador,
+        usuarioColaborador: UsuarioColaborador,        
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
     },
     data: {
         colaboradoreURL: APP.url(rutaModulo + '/listColaboradores'),

@@ -2,6 +2,10 @@ Vue.component('file-upload', VueUploadComponent);
 new Vue({
     el: '#solicitudVue',
     mixins: [VueLoader],
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+    },
     data: {
         solicitudURL: APP.url('tramite/solicitudconstancia/list'),
         persona: {},
