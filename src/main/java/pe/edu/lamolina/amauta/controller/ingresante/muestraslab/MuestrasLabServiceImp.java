@@ -22,7 +22,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.enums.ExamenMedicoEstadoEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
 import pe.edu.lamolina.model.general.Persona;
@@ -247,7 +246,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public void inicializarVisor() {
-        CicloAcademico ciclo = cicloAcademicoDAO.findActivoAdmisionPregrado();
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivoObu();
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
         List<Persona> listaPersonas = new ArrayList();
         for (RecorridoIngresante elem : listaRecorridos) {

@@ -365,7 +365,7 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         Assert.isTrue(docenteCreador.getId().equals(docente.getId()), "Este registro corresponde a otro docente");
 
         viajeCursoBD.setEstadoViajeEnum(VB_JUSTIFICACION);
-        viajeCursoBD.setObservacion(null);
+        //viajeCursoBD.setObservacion(null);
         viajeCursoDAO.update(viajeCursoBD);
     }
 
@@ -384,9 +384,9 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
         Assert.isTrue(docenteCreador.getId().equals(docente.getId()), "Este registro corresponde a otro docente");
 
         viajeCursoBD.setEstadoViajeEnum(OBSERVA_DOCENTE);
-        viajeCursoBD.setObservacion(viajeCursoForm.getObservacion());
-        viajeCursoBD.setUserObservacion(ds.getUsuario());
-        viajeCursoBD.setFechaObservacion(today.toDate());
+        //viajeCursoBD.setObservacion(viajeCursoForm.getObservacion());
+        //viajeCursoBD.setUserObservacion(ds.getUsuario());
+        //viajeCursoBD.setFechaObservacion(today.toDate());
         viajeCursoDAO.update(viajeCursoBD);
 
         JustificacionGasto justificacion = justificacionGastoDAO.findByViajeCurso(viajeCursoBD);

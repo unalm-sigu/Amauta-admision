@@ -46,6 +46,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivoPregrado();
 
+    CicloAcademico findActivoObu();
+
     void updateActualizarBoletin(CicloAcademico cicloAcademico);
 
     CicloAcademico findActivoByModalidad(ModalidadEstudio modalidadEstudio);
