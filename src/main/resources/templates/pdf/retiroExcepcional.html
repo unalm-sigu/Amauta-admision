@@ -116,7 +116,7 @@
                 </tbody>
             </table>
         </div>
-        <br/>
+        <!--<br/>-->
         <div >
             <span style="font-size: 13px !important;	">Adjunto al presente enviamos el resultado final de los cursos matriculados en el semestre
                 <b th:text="${ciclo.descripcion}"></b> y el historial académico de <span th:if="${alumno.persona.sexo == 'F'}">la</span> <span th:if="${alumno.persona.sexo == 'M'}">el</span> alumn<span th:if="${alumno.persona.sexo == 'F'}">a</span><span th:if="${alumno.persona.sexo == 'M'}">o</span> <b th:text="${alumno.persona.apellidosNombres}"></b>
@@ -281,12 +281,12 @@
             <table  class="table table-striped " align="center" style="margin-top: 20px">
                 <thead>
                     <tr>                        
-                        <th colspan="4" class="text-center" >ATECEDENTES DE RETIRO DE CICLO  </th>
+                        <th colspan="3" class="text-center" >ATECEDENTES DE RETIRO DE CICLO  </th>
                     </tr>
                     <tr>                        
                         <th>Ciclo </th>
                         <th>Retiro / Modo </th>
-                        <th>Motivo</th>
+                        <!--<th>Motivo</th>-->
                         <th>Fecha de Resolución </th>
                     </tr>
                 </thead>
@@ -298,9 +298,9 @@
                         <td >
                             <span th:text=" ${item.tipoEnum.value}"></span> 
                         </td>
-                        <td >
+<!--                        <td >
                             <span th:text=" ${item.motivo}"></span> 
-                        </td>
+                        </td>-->
                         <td >
                             <span th:if="${item.resolucion}" th:text=" ${item.resolucion.fecha}"></span> 
                         </td>
