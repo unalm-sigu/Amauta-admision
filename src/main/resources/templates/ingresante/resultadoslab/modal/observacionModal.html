@@ -13,5 +13,23 @@
 
 </modal-vik>
 
+<modal-vik ref="modalVerObservacion"
+           v-bind="modalVerObservacion">
+
+    <div slot="body">      
+
+        <div class="row m-t-md"
+             v-if="itemSelected.laboratorio">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h4 class="m-t-xs m-b-md">Observaciones</h4>
+                    <p>{{itemSelected.laboratorio.observaciones}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</modal-vik>
+
 
 

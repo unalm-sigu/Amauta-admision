@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -88,7 +89,9 @@ public class ResultadosLabController {
                             "laboratorio.id",
                             "laboratorio.numeroMuestra",
                             "laboratorio.valorMuestra",
+                            "laboratorio.tipoSangre",
                             "laboratorio.tipoSangreEnum",
+                            "laboratorio.factorRH",
                             "laboratorio.factorRHEnum",
                             "laboratorio.estandar",
                             "laboratorio.hemoglobina",
@@ -116,9 +119,12 @@ public class ResultadosLabController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveSangre(laboratorio);
+            HistoriaLaboratorio laboratorioBD = service.saveSangre(laboratorio, ds);
 
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
+            ObjectNode json = JaneHelper
+                    .from(laboratorioBD)
+                    .join("historiaClinica", "id")
+                    .json();
 
             response.setData(json);
             response.setMessage(GlobalMessages.CREATED);
@@ -133,18 +139,22 @@ public class ResultadosLabController {
 
     @ResponseBody
     @RequestMapping("saveOtherColumns")
-    public JsonResponse saveOtherColumns(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
+    public JsonResponse saveOtherColumns(@RequestBody HistoriaLaboratorio laboratorioForm, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveOtherColumns(laboratorio);
+            HistoriaLaboratorio laboratorioBD = service.saveOtherColumns(laboratorioForm, ds);
 
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
+            ObjectNode json = JaneHelper
+                    .from(laboratorioBD)
+                    .join("historiaClinica", "id")
+                    .json();
 
             response.setData(json);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -228,7 +238,7 @@ public class ResultadosLabController {
 //        }
         model.addAttribute("ingresantes", lista);
         model.addAttribute("ciclo", ciclo);
-        
+
         model.addAttribute("templatePdf", "resultadosLaboratorio");
         model.addAttribute("nombrePdf", String.format("Resultados de Laboratorio - %s", ds.getCicloAcademico().getDescripcion2()));
 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.ingresante.resultadoslab;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
@@ -40,8 +41,8 @@ public interface ResultadosLabService {
 
     List<RecorridoIngresante> allRecorridosConMuestra(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
 
-    void saveSangre(HistoriaLaboratorio laboratorio);
+    HistoriaLaboratorio saveSangre(HistoriaLaboratorio laboratorio, DataSessionPivot ds);
 
-    void saveOtherColumns(HistoriaLaboratorio laboratorio);
+    HistoriaLaboratorio saveOtherColumns(HistoriaLaboratorio laboratorio, DataSessionPivot ds);
 
 }

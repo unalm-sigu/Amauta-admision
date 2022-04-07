@@ -107,13 +107,13 @@
 
                                                     <td  class="v-middle" >       
                                                         <div v-if="item.laboratorio.id != ''">
-                                                            <input v-model="item.laboratorio.valorMuestra" v-on:keyup="saveOtherColumns(item)" type="text" class="form-control decimal" />        
+                                                            <input v-model="item.laboratorio.valorMuestra" v-on:blur="saveOtherColumns(item)" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
                                                     <td  class="v-middle" >       
                                                         <div  v-if="item.laboratorio.id != ''">
-                                                            <input v-model="item.laboratorio.estandar" v-on:keyup="saveOtherColumns(item)" type="text" class="form-control decimal" />        
+                                                            <input v-model="item.laboratorio.estandar" v-on:blur="saveOtherColumns(item)" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
@@ -156,12 +156,16 @@
                                                     <td  class="v-middle text-center" >                                                                 
                                                         <div v-if="item.laboratorio.id != ''">
                                                             <a class="btn btn-success btn-sm"
-                                                               v-on:click="guardarNumeroMuestra(item)">Guardar</a>
-                                                            <div class="m-t-md" v-if="item.laboratorio.observaciones != '' ">
-                                                                <i class="fa fa-info-circle fa-lg text-primary"
-                                                                   data-toggle="tooltip"
-                                                                   v-bind:title="item.laboratorio.observaciones"></i>
-                                                            </div>
+                                                               v-on:click="guardarNumeroMuestra(item)">
+                                                                Guardar
+                                                            </a>
+                                                        </div>
+
+                                                        <div class="block m-t-sm pointer"
+                                                             v-if="item.laboratorio.observaciones != '' ">
+                                                            <a v-on:click="verObservaciones(item)">
+                                                                <i class="fa fa-info-circle fa-lg text-primary"></i>
+                                                            </a>
                                                         </div>
                                                     </td>
 
@@ -188,7 +192,6 @@
                 </section>
 
                 <th:block th:replace="ingresante/resultadoslab/modal/observacionModal"/>
-                <!--<div th:substituteby="ingresante/resultadoslab/modal/observacionModal"></div>-->
             </div>
 
         </div>
@@ -199,7 +202,7 @@
                 var cicloJson = /*[[${cicloJson}]]*/ {};
                 var turnosJson = /*[[${turnosJson}]]*/ {};
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/ingresante/resultadoslab/resultadoslab.js}" charset="utf-8"></script>
         </div>

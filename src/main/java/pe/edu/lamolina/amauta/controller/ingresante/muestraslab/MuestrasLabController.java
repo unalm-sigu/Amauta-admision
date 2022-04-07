@@ -285,18 +285,14 @@ public class MuestrasLabController {
                         "actividadIngresante.tipoActividadIngresante.tipoEXAMED",
                         "actividadIngresante.estadoAct"
                     });
-//            ArrayNode jActividadIngresante = new ArrayNode(JsonNodeFactory.instance);
-//            for (ActividadIngresante actividadIngresante : reco.getActividadIngresante()) {
-//                ObjectNode actIngresante = JsonHelper.createJson(actividadIngresante, JsonNodeFactory.instance, true,
-//                        new String[]{
-//                            "estado",
-//                            "tipoActividadIngresante.tipoEXAMED",
-//                            "estadoAct"
-//                        });
-//            }
 
-            ActividadIngresante actividadIngRECEP = reco.getActividadIngresante().stream().filter(x -> x.getTipoActividadIngresante().isTipoRECEP()).findFirst().orElse(null);
-            node.put("tieneActividadRECEP", (actividadIngRECEP != null && actividadIngRECEP.isEstadoAct()));
+            ActividadIngresante actividadIngRECEP = reco.getActividadIngresante().stream()
+                    .filter(actividad -> actividad.getTipoActividadIngresante().isTipoRECEP())
+                    .findFirst()
+                    .orElse(null);
+
+            node.put("tieneActividadRECEP", true);
+            //node.put("tieneActividadRECEP", (actividadIngRECEP != null && actividadIngRECEP.isEstadoAct()));
             array.add(node);
         }
         return array;

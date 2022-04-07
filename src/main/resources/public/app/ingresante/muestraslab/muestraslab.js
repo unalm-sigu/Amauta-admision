@@ -11,7 +11,7 @@ new Vue({
         laboratorioActual: JSON.parse(laboratorioActual),
         verTodos: false,
         verTurno: true,
-        verAtendidos: false,
+        verAtendidos: false
     },
     mounted: function () {
         let $vue = this;
@@ -168,7 +168,8 @@ new Vue({
                 console.log(turno)
                 location.href = APP.url('ingresante/muestraslab/listaExcelAtendidos?turno=' + turno)
             }
-        }, verMuestra(recorridoIngresante) {
+        }, 
+        verMuestra(recorridoIngresante) {
             console.log("verMuestra");
             console.dir(recorridoIngresante);
             let actividadIngresante = recorridoIngresante.actividadIngresante.filter(opt => opt.tipoActividadIngresante.tipoRECEP && opt.estadoAct);

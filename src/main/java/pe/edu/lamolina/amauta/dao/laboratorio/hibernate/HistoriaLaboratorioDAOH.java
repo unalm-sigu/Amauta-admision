@@ -20,6 +20,16 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
     }
 
     @Override
+    public HistoriaLaboratorio find(long id) {
+        Octavia sql = Octavia.query()
+                .from(HistoriaLaboratorio.class, "hl")
+                .join("historiaClinica hc")
+                .filter("hl.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public HistoriaLaboratorio findByHistoriaClinica(HistoriaClinica historiaClinica) {
         Octavia sql = Octavia.query()
                 .from(HistoriaLaboratorio.class, "hl")

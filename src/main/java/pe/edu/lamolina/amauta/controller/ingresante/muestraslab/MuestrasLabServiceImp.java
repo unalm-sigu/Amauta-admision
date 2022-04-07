@@ -372,33 +372,4 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         }
         return false;
     }
-
-//    @Override
-//    public HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds) {
-//        //buscar paciente
-//        //si no existe, crearlo
-//        //crear historia clinica 
-//
-//        Persona persona = personaDAO.find(recorrido.getAlumno().getPersona().getId());
-//        Paciente pacienteDB = pacienteDAO.findByPersona(persona);
-//
-//        Paciente paciente = new Paciente();
-//        if (pacienteDB == null) {
-//            paciente.setPersona(persona);
-//            paciente.setUserRegistro(ds.getUsuario());
-//            paciente.setFechaRegistro(new Date());
-//            pacienteDAO.save(paciente);
-//        } else {
-//            paciente = pacienteDB;
-//        }
-//
-//        HistoriaClinica hc = new HistoriaClinica();
-//        hc.setPaciente(paciente);
-//        hc.setUserRegistro(ds.getUsuario());
-//        hc.setFechaRegistro(new Date());
-//        hc.setTieneSeguro(Boolean.FALSE);
-//        historiaClinicaDAO.save(hc);
-//
-//        return hc;
-//    }
 }

@@ -11,13 +11,15 @@ new Vue({
         tipoSangreList: [],
         rhList: [],
         itemSelected: {laboratorio: ''},
-        newObservacionModal: {
-            id: 'modalObservacion',
+        newObservacionModal: VUE_MODAL.structFormAjax({
+            id: 'id-modal-observacion',
             header: true,
             title: 'Observaciones',
-            okbtn: 'Aceptar',
-            showaccept: true
-        },
+            okbtn: 'Aceptar'
+        }),
+        modalVerObservacion: VUE_MODAL.structInfo({
+            id: 'id-modal-ver-observacion'
+        })
 
     },
     mounted: function () {
@@ -61,16 +63,20 @@ new Vue({
                     if (response.success) {
                         console.log("response", response.data);
                         notify(response.message, 'info');
-                        $vue.$refs.raptorRL.loadRemoteData();
+                        //$vue.$refs.raptorRL.loadRemoteData();
+                        item.laboratorio = response.data;
+                        
                     } else {
                         notify(response.message, 'error');
                     }
                 }
             });
-        }, saveOtherColumns(item) {
+        },
+        saveOtherColumns(item) {
             delete item.laboratorio.tipoSangreEnum;
             delete item.laboratorio.factorRHEnum;
             let $vue = this;
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('ingresante/resultadoslab/saveOtherColumns'),
@@ -80,7 +86,8 @@ new Vue({
                     if (response.success) {
                         console.log("response", response.data);
                         notify(response.message, 'info');
-                        $vue.$refs.raptorRL.loadRemoteData();
+                        item.laboratorio = response.data;
+
                     } else {
                         notify(response.message, 'error');
                     }
@@ -113,12 +120,36 @@ new Vue({
         },
         abrirObservaciones(item) {
             let $vue = this;
-            $vue.itemSelected = item;
+            $vue.itemSelected = JSON.parse(JSON.stringify(item));
             $vue.$refs.modalObservacion.open();
         },
         cerrarObservacion() {
             let $vue = this;
-            $vue.$refs.modalObservacion.close();
+
+            $vue.$refs.modalObservacion.beginProcessing();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('ingresante/resultadoslab/saveOtherColumns'),
+                data: JSON.stringify($vue.itemSelected.laboratorio),
+                contentType: "application/json",
+                success: function (response) {
+                    $vue.$refs.modalObservacion.confirmReaction(response.success);
+                    if (response.success) {
+                        console.log("response", response.data);
+                        notify(response.message, 'info');
+                        $vue.$refs.raptorRL.loadRemoteData();
+                        //item.laboratorio = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    $vue.$refs.modalObservacion.confirmReaction(false);
+                    notify(Messages.errorComunicacion, "error");
+                }
+
+            });
 
         },
         cambiarTurno(item) {
@@ -156,6 +187,11 @@ new Vue({
             } else {
                 notify("Debe seleccionar un turno", "error")
             }
+        },
+        verObservaciones(item) {
+            let $vue = this;
+            $vue.itemSelected = JSON.parse(JSON.stringify(item));
+            $vue.$refs.modalVerObservacion.open();
         }
     }
 });
