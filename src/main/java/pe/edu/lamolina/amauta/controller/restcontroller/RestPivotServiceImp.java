@@ -60,7 +60,7 @@ public class RestPivotServiceImp implements RestPivotService {
         System.out.println("token=" + token);
         Assert.isNotNull(token, "Token inválido");
 
-        token.setEstado(TokenEstadoEnum.USO);
+        token.setEstadoEnum(TokenEstadoEnum.USO);
         token.setFechaUso(new Date());
         tokenIngresanteDAO.update(token);
 
@@ -81,7 +81,7 @@ public class RestPivotServiceImp implements RestPivotService {
         if (tokenCachimbo.getUserRegistro().getId().longValue() != idUsuario) {
             throw new PhobosException("Token Inexistente al Autenticar " + token);
         }
-        tokenCachimbo.setEstado(TokenEstadoEnum.USO);
+        tokenCachimbo.setEstadoEnum(TokenEstadoEnum.USO);
         tokenCachimbo.setFechaUso(new Date());
         tokenIngresanteDAO.update(tokenCachimbo);
         return tokenCachimbo;

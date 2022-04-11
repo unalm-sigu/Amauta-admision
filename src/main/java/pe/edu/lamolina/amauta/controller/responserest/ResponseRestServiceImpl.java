@@ -80,7 +80,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
         TokenIngresante token = new TokenIngresante();
         token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-        token.setEstado(TokenEstadoEnum.ACT);
+        token.setEstadoEnum(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
         token.setFechaVencimiento(new DateTime().plusMinutes(120).toDate());
         token.setPersona(ds.getPersona());
@@ -102,7 +102,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
             token = new TokenIngresante();
             token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-            token.setEstado(TokenEstadoEnum.ACT);
+            token.setEstadoEnum(TokenEstadoEnum.ACT);
             token.setFechaRegistro(new Date());
             token.setFechaVencimiento(new DateTime().plusSeconds(120).toDate());
             token.setPersona(alumno.getPersona());
@@ -122,7 +122,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
         TokenIngresante token = new TokenIngresante();
         token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-        token.setEstado(TokenEstadoEnum.ACT);
+        token.setEstadoEnum(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
         token.setFechaVencimiento(new DateTime().plusSeconds(120).toDate());
         token.setPersona(persona);
@@ -162,10 +162,10 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         ObjectNode json = createFormJson(ds, token);
         json.put("idSeccion", destino.getId());
         json.put("estado", estadoMatriculaEnum.name());
-        json.set("matriculaCursos",JaneHelper.from(matriculaCursos)
+        json.set("matriculaCursos", JaneHelper.from(matriculaCursos)
                 .only("id")
-                .join("matriculaResumen","id")
-                .join("matriculaResumen.alumno","id")
+                .join("matriculaResumen", "id")
+                .join("matriculaResumen.alumno", "id")
                 .array());
         String url = String.format("%s/matriculaSeccion/retirarAlumnoMatricularSeccion", parametro.getValor());
         return this.postToBackEnd(url, json);
