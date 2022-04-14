@@ -650,6 +650,36 @@ new Vue({
             };
             $vue.$refs.modalConfirmAction.open();
         },
+        asignarSegundaCarreraDeuda(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte <strong class="text-danger">Segunda Carrera Deuda</strong>?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionSegundaCarreraDeuda(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionSegundaCarreraDeuda(item) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/agregarAporteSegundaCarreraDeuda`),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                }
+            });
+        },
         actionSegundaCarrera(item) {
             let $vue = this;
             $.ajax({

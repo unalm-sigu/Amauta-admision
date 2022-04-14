@@ -114,6 +114,24 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     }
 
     @Override
+    public void generarAporteSegundaCarreraDeuda(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return;
+        }
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.generarAporteSegundaCarreraDeuda(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
+    }
+    
+    
+
+    @Override
     public void quitarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {

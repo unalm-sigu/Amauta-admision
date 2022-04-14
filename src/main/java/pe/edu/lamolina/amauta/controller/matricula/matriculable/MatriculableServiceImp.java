@@ -1577,6 +1577,14 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    public void agregarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.generarAporteSegundaCarreraDeuda(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
+    }
+    
+    
+
+    @Override
     @Transactional
     public void actualizarPrioridadCero(DataSessionPivot ds) {
         CicloAcademico ciclo = ds.getCicloAcademico();

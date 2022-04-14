@@ -112,4 +112,6 @@ public interface MatriculableService {
 
     public List<Carrera> searchAllCarrera(String nombre);
 
+    void agregarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
 }
