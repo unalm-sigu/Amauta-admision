@@ -28,4 +28,6 @@ public interface AporteAlumnoService {
     void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
 
     void eliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
+
+    public void generarAporteSegundaCarreraDeuda(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaHistorial;
@@ -51,6 +52,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
@@ -133,7 +135,9 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             for (AlumnoConsejero alumnoConsejeroModelo : alumnoConsejerosModeloMap.values()) {
 
                 AlumnoConsejero alumnoTutor = alumnoConsejerosDestinoMap.getOrDefault(alumnoConsejeroModelo.getAlumno().getId(), new AlumnoConsejero());
-
+                if (alumnoConsejeroModelo.getAlumno().getCodigo().equals("20191006")) {
+                    System.out.println("ALUMNO:: " + alumnoConsejeroModelo.getAlumno().getCodigo());
+                }
                 if (alumnoTutor.getId() != null) {
 
                     if (alumnoTutor.getConsejero() == null) {
@@ -192,6 +196,42 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             consejeriaResumenDAO.update(consejeriaResumen);
 
         }
+////////////
+        List<Alumno> ingresantesCicloDestino = alumnoDAO.allIngresantePregradoByCicloIngreso(new ModalidadEstudio(1L), clonarDTO.getDestino());
+
+        for (Alumno alumno : ingresantesCicloDestino) {
+            AlumnoConsejero alumnoConsejer = new AlumnoConsejero();
+            alumnoConsejer.setAlumno(alumno);
+            alumnoConsejer.setCicloAcademico(clonarDTO.getDestino());
+            alumnoConsejer.setEstadoEnum(ACT);
+            alumnoConsejer.setFechaAsigna(new Date());
+            alumnoConsejer.setUserAsigna(ds.getUsuario());
+            alumnoConsejer.setConsejero(new Consejero(GlobalConstantine.ID_CONSEJERO_NN));
+            alumnoConsejeroDAO.save(alumnoConsejer);
+        }
+
+        List<ConsejeriaResumen> resumenesMasIngresantes = consejeriaResumenDAO.allByCiclo(clonarDTO.getDestino());
+        
+        for (ConsejeriaResumen consejeriaResumen : resumenesMasIngresantes) {
+            Aconsejado aconsejadoMtbles = alumnoConsejeroDAO.countAconsejadosMatriculables(consejeriaResumen.getCarrera(), clonarDTO.getDestino());
+            aconsejadoMtbles = (aconsejadoMtbles == null) ? new Aconsejado() : aconsejadoMtbles;
+
+            consejeriaResumen.setAconsejadosActivos(aconsejadoMtbles.getMatriculadosConConsejeros().intValue());
+            consejeriaResumen.setAconsejadosInactivos(aconsejadoMtbles.getNoMatriculadosConConsejeros().intValue());
+            consejeriaResumen.setSinconsejeroActivos(aconsejadoMtbles.getMatriculadosSinConsejeros().intValue());
+            consejeriaResumen.setSinconsejeroInactivos(aconsejadoMtbles.getNoMatriculadosSinConsejeros().intValue());
+
+            Aconsejado aconsejadoNoMtbles = alumnoConsejeroDAO.countAconsejadosNoMatriculables(consejeriaResumen.getCarrera(), clonarDTO.getDestino());
+            aconsejadoNoMtbles = (aconsejadoNoMtbles == null) ? new Aconsejado() : aconsejadoNoMtbles;
+            consejeriaResumen.setInhabilitados(aconsejadoNoMtbles.getInhabilitados().intValue());
+
+            ConsejeroEstado cont = consejeroDAO.countConsejerosByCarrera(consejeriaResumen.getCarrera());
+            cont = (cont == null) ? new ConsejeroEstado() : cont;
+            consejeriaResumen.setConsejerosActivos(cont.getActivos().intValue());
+            consejeriaResumen.setConsejerosInactivos(cont.getInactivos().intValue());
+
+            consejeriaResumenDAO.update(consejeriaResumen);
+        }////////////
 
         log.debug("save ConsejeriaHistorial ");
         ConsejeriaHistorial consejeriaHistorial = new ConsejeriaHistorial();

@@ -764,6 +764,27 @@ public class MatriculableController {
         return response;
 
     }
+    
+    @ResponseBody
+    @RequestMapping("agregarAporteSegundaCarreraDeuda")
+    public JsonResponse agregarAporteSegundaCarreraDeuda(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.agregarAporteSegundaCarreraDeuda(matriculaResumen, ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
 
     @ResponseBody
     @RequestMapping("actualizarPrioridadCero")

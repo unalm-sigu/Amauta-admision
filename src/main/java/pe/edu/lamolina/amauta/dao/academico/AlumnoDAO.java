@@ -148,18 +148,20 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByNoMatriculableCicloAnt(List<CicloAcademico> cicloAnt);
 
-    public List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico);
+    List<Alumno> allByCustomQuery(CicloAcademico cicloAcademico);
 
-    public List<Alumno> allDynatableAlumnoOmisoEleccion(DynatableFilter filter);
+    List<Alumno> allDynatableAlumnoOmisoEleccion(DynatableFilter filter);
 
-    public List<Alumno> allByCodigos(List<String> codigosMatricula);
+    List<Alumno> allByCodigos(List<String> codigosMatricula);
 
-    public Alumno findFirstByPersona(Persona persona);
+    Alumno findFirstByPersona(Persona persona);
 
-    public List<Alumno> allAlumnoHistoricoByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
+    List<Alumno> allAlumnoHistoricoByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
 
-    public List<Alumno> correccionNivelacion(CicloAcademico cicloAcademico);
+    List<Alumno> correccionNivelacion(CicloAcademico cicloAcademico);
 
-    public List<Alumno> allActivoPregradoByNombre(String nombre);
+    List<Alumno> allActivoPregradoByNombre(String nombre);
+
+    List<Alumno> allIngresantePregradoByCicloIngreso(ModalidadEstudio modalidad, CicloAcademico ciclo);
 
 }

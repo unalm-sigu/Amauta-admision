@@ -3,7 +3,7 @@
         <section class="panel">
             <section class="panel-body">
 
-                <raptor-table v-bind:url="historialURL" v-bind:preload="false" ref="raptor">
+                <raptor-table v-bind:url="historialURL" v-bind:preload="true" ref="raptor">
 
                     <div slot="header"></div>
 
@@ -66,7 +66,7 @@
 
     module.exports = {
         components: {
-            RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+            RaptorTable: use("/_vue/modules/RaptorTable.vue")
         },
         data() {
             return {
@@ -85,7 +85,7 @@
                     title: "Seguro que desea eliminar el registro",
                     icon: "warning",
                     buttons: ["Cancelar", "Eliminar"],
-                    dangerMode: true,
+                    dangerMode: true
                 }).then((willDelete) => {
                     if (willDelete) {
                         let $vue = this;

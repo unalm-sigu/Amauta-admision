@@ -60,4 +60,6 @@ public interface ResponseRestService {
     JsonResponse limpiarCache(DataSessionPivot ds, TokenIngresante token);
 
     JsonResponse retirarAlumnoMatricularSeccion(List<MatriculaCurso> matriculaCursos, Seccion destino, EstadoMatriculaEnum estadoMatriculaEnum, TokenIngresante token, DataSessionPivot ds);
+
+    public JsonResponse generarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
 }
