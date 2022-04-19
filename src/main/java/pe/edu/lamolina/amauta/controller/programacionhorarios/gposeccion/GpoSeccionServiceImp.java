@@ -1,12 +1,19 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import static org.slf4j.MDC.put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +52,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.amauta.config.ZoomConfig;
 import pe.edu.lamolina.amauta.controller.log.UsuarioProgramacionService;
-import static pe.edu.lamolina.amauta.controller.log.UsuarioProgramacionServiceImp.ASIGNACION_LETRA_GRUPO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
@@ -233,6 +240,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
+
+    private final ZoomConfig zoomConfig;
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -1003,9 +1012,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (seccion.isTipoSeccionPCUR()) {
             List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(seccion.getGrupoSeccion());
             for (Seccion seccionesOperativa : seccionesOperativas) {
-                log.debug("Operativo {} {} {}", 
-                        seccionesOperativa.getId(), 
-                        seccionesOperativa.getTipoSeccionEnum(), 
+                log.debug("Operativo {} {} {}",
+                        seccionesOperativa.getId(),
+                        seccionesOperativa.getTipoSeccionEnum(),
                         seccionesOperativa.getEstado());
             }
             log.debug("seccionesOperativas {}", seccionesOperativas.size());
@@ -2052,7 +2061,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         for (HorarioAula ha : muertosHAula) {
             horarioAulaDAO.delete(ha);
         }
-        
+
         if (seccion.getAula() != null) {
             for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
                 HorarioAula horarioAula = new HorarioAula();
@@ -2133,6 +2142,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Seccion seccionUpd = new Seccion(seccion.getId());
             seccionUpd.setAula(aula);
             seccionDAO.updateColumns(seccionUpd, "aula");
+
+            if (eliminarLinkZoom(seccion)) {
+                seccionUpd.setLinkZoom(null);
+                seccionUpd.setIdZoom(null);
+                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            }
 
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
             for (HorarioSeccion horarioSeccion : horariosSeccion) {
@@ -2242,10 +2257,140 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Seccion seccionUpd = new Seccion(seccion.getId());
         seccionUpd.setAula(aula);
+        
+        if (aula.getAulaSuperior().getCodigo().equals("CUN")) {
+            String codigoAulaZoom = zoomConfig.validaAula(aula.getCodigo());
+            boolean sinLink = (Objects.equals("", seccion.getLinkZoom()) || Objects.isNull(seccion.getLinkZoom()));
+            boolean conAula = (!Objects.equals("", codigoAulaZoom) && Objects.nonNull(codigoAulaZoom));
+            DocenteSeccion docenteSeccion = docenteSeccionDAO.findBySeccion(seccion, cicloAcademico);
+            String nombreDocente = docenteSeccion.getDocente().getPersona().getNombreCompleto();
+            String topic = seccion.getGrupoSeccion().getCurso().getNombre().concat("-").concat(seccion.getCodigo2()).concat("-").concat(seccion.getGrupoHoras().getCodigo());
+            Map<Object, Object> map = (sinLink && conAula) ? setearLinkZoom(codigoAulaZoom, nombreDocente, topic) : actualizarLinkZoom(codigoAulaZoom, nombreDocente, topic, seccion);
+            if (Objects.nonNull(map) && !map.isEmpty()) {
+                seccionUpd.setIdZoom((Long) map.get("idZoom"));
+                seccionUpd.setLinkZoom((String) map.get("linkZoom"));
+                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            }
+        } else {
+            if (eliminarLinkZoom(seccion)) {
+                seccionUpd.setLinkZoom(null);
+                seccionUpd.setIdZoom(null);
+                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            }
+        }
+        
         seccionDAO.updateColumns(seccionUpd, "aula");
         usuarioProgramacionService.asignacionAula(seccion, aula, ds.getUsuario());
         this.actualizarBoletin();
         this.actualizarCuotaAnexo(seccion, seccion.getGrupoSeccion().getCicloAcademico());
+    }
+    
+    public Map<Object, Object> setearLinkZoom(String aula, String docente, String topic) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String token = zoomConfig.generarJWT();
+            String body = zoomConfig.crearReunionZoom(docente, topic, null, null, null);
+            HttpResponse<String> crearReunion = Unirest.post("https://api.zoom.us/v2/users/aula".concat(aula).concat("@lamolina.edu.pe/meetings"))
+                    .header("content-type", "application/json")
+                    .header("authorization", "Bearer ".concat(token))
+                    .body(body)
+                    .asString();
+            if (crearReunion.getStatus() == 201) {
+                JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
+                Long id = jsonNode.has("id") ? jsonNode.get("id").asLong() : null;
+                String linkZoom = jsonNode.has("join_url") ? jsonNode.get("join_url").asText() : null;
+                return new HashMap<Object, Object>() {
+                    {
+                        put("idZoom", id);
+                        put("linkZoom", linkZoom);
+                    }
+                };
+            } else {
+                System.out.printf("Ocurrio un error al registrar reunión, codigo estado %s ", crearReunion.getStatus());
+            }
+        } catch (UnirestException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return new HashMap<>();
+    }
+
+    public Map<Object, Object> actualizarLinkZoom(String aula, String docente, String topic, Seccion seccion) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Long idZoom = seccion.getIdZoom();
+        try {
+            String token = zoomConfig.generarJWT();
+            HttpResponse<String> borrarRenion = Unirest.delete("https://api.zoom.us/v2/meetings/".concat(String.valueOf(idZoom)))
+                    .header("authorization", "Bearer ".concat(token))
+                    .asString();
+            switch (borrarRenion.getStatus()) {
+                case 204:
+                    System.out.printf("%s fue borrado con exito de Zoom\n", String.valueOf(idZoom));
+                    break;
+                case 404:
+                    System.out.printf("ID %s no se encontró en Zoom\n", String.valueOf(idZoom));
+                    break;
+                default:
+                    JsonNode jsonNode = objectMapper.readTree(borrarRenion.getBody());
+                    Integer code = jsonNode.has("code") ? jsonNode.get("code").asInt() : null;
+                    String message = jsonNode.has("message") ? jsonNode.get("message").asText() : null;
+                    System.out.printf("Ocurrió un error al eliminar el ID = %s, código %s -> %s\n", String.valueOf(idZoom), code, message);
+                    break;
+            }
+            String body = zoomConfig.crearReunionZoom(docente, topic, null, null, null);
+            HttpResponse<String> crearReunion = Unirest.post("https://api.zoom.us/v2/users/aula".concat(aula).concat("@lamolina.edu.pe/meetings"))
+                    .header("content-type", "application/json")
+                    .header("authorization", "Bearer ".concat(token))
+                    .body(body)
+                    .asString();
+            if (crearReunion.getStatus() == 201) {
+                JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
+                Long id = jsonNode.has("id") ? jsonNode.get("id").asLong() : null;
+                String linkZoom = jsonNode.has("join_url") ? jsonNode.get("join_url").asText() : null;
+                return new HashMap<Object, Object>() {
+                    {
+                        put("idZoom", id);
+                        put("linkZoom", linkZoom);
+                    }
+                };
+            } else {
+                System.out.printf("Ocurrio un error al registrar reunión, codigo estado %s ", crearReunion.getStatus());
+            }
+        } catch (UnirestException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return new HashMap<>();
+    }
+
+    public boolean eliminarLinkZoom(Seccion seccion) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Long idZoom = seccion.getIdZoom();
+        Boolean esBorrado = false;
+        try {
+            if (Objects.nonNull(idZoom)) {
+                String token = zoomConfig.generarJWT();
+                HttpResponse<String> borrarRenion = Unirest.delete("https://api.zoom.us/v2/meetings/".concat(String.valueOf(idZoom)))
+                        .header("authorization", "Bearer ".concat(token))
+                        .asString();
+                switch (borrarRenion.getStatus()) {
+                    case 204:
+                        System.out.printf("%s fue borrado con exito de Zoom\n", String.valueOf(idZoom));
+                        esBorrado = true;
+                        break;
+                    case 404:
+                        System.out.printf("ID %s no se encontró en Zoom\n", String.valueOf(idZoom));
+                        break;
+                    default:
+                        JsonNode jsonNode = objectMapper.readTree(borrarRenion.getBody());
+                        Integer code = jsonNode.has("code") ? jsonNode.get("code").asInt() : null;
+                        String message = jsonNode.has("message") ? jsonNode.get("message").asText() : null;
+                        System.out.printf("Ocurrió un error al eliminar el ID = %s, código %s -> %s\n", String.valueOf(idZoom), code, message);
+                        break;
+                }
+            }
+        } catch (UnirestException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return esBorrado;
     }
 
     public void validarCruceAlumnos(Seccion seccion) {
