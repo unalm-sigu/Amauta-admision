@@ -160,7 +160,9 @@ public class MatriculableController {
                     || value == EstadoMatriculaEnum.RCI
                     || value == EstadoMatriculaEnum.ANCI
                     || value == EstadoMatriculaEnum.NMAT
-                    || value == EstadoMatriculaEnum.INH) {
+                    || value == EstadoMatriculaEnum.PMAT
+                    || value == EstadoMatriculaEnum.INH
+                ) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("name", value.name());
