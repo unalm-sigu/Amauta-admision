@@ -769,18 +769,14 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
 
     @Override
     public DocenteSeccion findBySeccion(Seccion seccion, CicloAcademico cicloAcademico) {
+
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "dsec")
                 .join("seccion sec", "sec.grupoSeccion gsec", "gsec.curso cur", "gsec.cicloAcademico ca", "docente doc")
-                .join("doc.persona per");
-        if (cicloAcademico != null) {
-            sql.filter("ca.id", cicloAcademico);
-
-        }
-        if (seccion != null) {
-            sql.filter("sec.id", seccion);
-        }
-
+                .join("doc.persona per")
+                .filter("ca.id", cicloAcademico)
+                .filter("sec.id", seccion)
+                .filter("dsec.principal", 1);
         return find(sql);
     }
 

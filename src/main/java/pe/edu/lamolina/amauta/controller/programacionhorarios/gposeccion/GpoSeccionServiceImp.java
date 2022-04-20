@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import static org.slf4j.MDC.put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -238,10 +237,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     private final VerificadorService verificadorService;
     private final UsuarioProgramacionService usuarioProgramacionService;
 
+    private final ZoomConfig zoomConfig;
+
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
 
-    private final ZoomConfig zoomConfig;
+    public static String CODIGO_MODULO_DE_AULAS_VIRTUALES = "M-VIRTUAL";
+    public static final int CODIGO_ESTADO_OK_CREATED_MEETING_ZOOM = 201;
+    public static final int CODIGO_ESTADO_OK_DELETED_MEETING_ZOOM = 204;
+    public static final int CODIGO_ESTADO_NOT_FOUND_DELETED_MEETING_ZOOM = 404;
+    public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
+    public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
+    public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -2257,15 +2264,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Seccion seccionUpd = new Seccion(seccion.getId());
         seccionUpd.setAula(aula);
-        
-        if (aula.getAulaSuperior().getCodigo().equals("CUN")) {
-            String codigoAulaZoom = zoomConfig.validaAula(aula.getCodigo());
+
+        if (aula.getAulaSuperior().getCodigo().equals(CODIGO_MODULO_DE_AULAS_VIRTUALES)) {
+            String codigoAulaZoom = zoomConfig.validaAulaZoom(aula.getCodigo());
             boolean sinLink = (Objects.equals("", seccion.getLinkZoom()) || Objects.isNull(seccion.getLinkZoom()));
             boolean conAula = (!Objects.equals("", codigoAulaZoom) && Objects.nonNull(codigoAulaZoom));
             DocenteSeccion docenteSeccion = docenteSeccionDAO.findBySeccion(seccion, cicloAcademico);
             String nombreDocente = docenteSeccion.getDocente().getPersona().getNombreCompleto();
             String topic = seccion.getGrupoSeccion().getCurso().getNombre().concat("-").concat(seccion.getCodigo2()).concat("-").concat(seccion.getGrupoHoras().getCodigo());
-            Map<Object, Object> map = (sinLink && conAula) ? setearLinkZoom(codigoAulaZoom, nombreDocente, topic) : actualizarLinkZoom(codigoAulaZoom, nombreDocente, topic, seccion);
+            Map<Object, Object> map = (sinLink && conAula) ? crearLinkZoom(codigoAulaZoom, nombreDocente, topic) : actualizarLinkZoom(codigoAulaZoom, nombreDocente, topic, seccion);
             if (Objects.nonNull(map) && !map.isEmpty()) {
                 seccionUpd.setIdZoom((Long) map.get("idZoom"));
                 seccionUpd.setLinkZoom((String) map.get("linkZoom"));
@@ -2278,24 +2285,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
             }
         }
-        
+
         seccionDAO.updateColumns(seccionUpd, "aula");
         usuarioProgramacionService.asignacionAula(seccion, aula, ds.getUsuario());
         this.actualizarBoletin();
         this.actualizarCuotaAnexo(seccion, seccion.getGrupoSeccion().getCicloAcademico());
     }
-    
-    public Map<Object, Object> setearLinkZoom(String aula, String docente, String topic) {
+
+    public Map<Object, Object> crearLinkZoom(String aula, String docente, String topic) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String token = zoomConfig.generarJWT();
-            String body = zoomConfig.crearReunionZoom(docente, topic, null, null, null);
-            HttpResponse<String> crearReunion = Unirest.post("https://api.zoom.us/v2/users/aula".concat(aula).concat("@lamolina.edu.pe/meetings"))
+            String body = zoomConfig.buildJsonZoom(docente, topic, null, null, null);
+            HttpResponse<String> crearReunion = Unirest.post(PATH_TO_CREATE_MEETING_API_ZOOM.concat("aula").concat(aula).concat(DOMINIO_LA_MOLINA).concat("/meetings"))
                     .header("content-type", "application/json")
                     .header("authorization", "Bearer ".concat(token))
                     .body(body)
                     .asString();
-            if (crearReunion.getStatus() == 201) {
+            if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_ZOOM) {
                 JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
                 Long id = jsonNode.has("id") ? jsonNode.get("id").asLong() : null;
                 String linkZoom = jsonNode.has("join_url") ? jsonNode.get("join_url").asText() : null;
@@ -2306,10 +2313,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     }
                 };
             } else {
-                System.out.printf("Ocurrio un error al registrar reunión, codigo estado %s ", crearReunion.getStatus());
+                log.error("Ocurrio un error al registrar la reunion, codigo estado {}", crearReunion.getStatus());
             }
         } catch (UnirestException | IOException e) {
-            System.out.println(e.getMessage());
+            throw new PhobosException("ERROR", e.getCause());
         }
         return new HashMap<>();
     }
@@ -2319,30 +2326,32 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Long idZoom = seccion.getIdZoom();
         try {
             String token = zoomConfig.generarJWT();
-            HttpResponse<String> borrarRenion = Unirest.delete("https://api.zoom.us/v2/meetings/".concat(String.valueOf(idZoom)))
+            HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
                     .header("authorization", "Bearer ".concat(token))
                     .asString();
             switch (borrarRenion.getStatus()) {
-                case 204:
-                    System.out.printf("%s fue borrado con exito de Zoom\n", String.valueOf(idZoom));
+                case CODIGO_ESTADO_OK_DELETED_MEETING_ZOOM:
+                    log.info("{} fue borrado con exito de Zoom", String.valueOf(idZoom));
                     break;
-                case 404:
-                    System.out.printf("ID %s no se encontró en Zoom\n", String.valueOf(idZoom));
-                    break;
+                case CODIGO_ESTADO_NOT_FOUND_DELETED_MEETING_ZOOM:
+                    log.warn("ID {} no se encontro en Zoom", String.valueOf(idZoom));
+                    throw new PhobosException("En aula %s, no se encontro ID %s en Zoom", aula, String.valueOf(idZoom));
+                //break;
                 default:
                     JsonNode jsonNode = objectMapper.readTree(borrarRenion.getBody());
                     Integer code = jsonNode.has("code") ? jsonNode.get("code").asInt() : null;
                     String message = jsonNode.has("message") ? jsonNode.get("message").asText() : null;
-                    System.out.printf("Ocurrió un error al eliminar el ID = %s, código %s -> %s\n", String.valueOf(idZoom), code, message);
-                    break;
+                    log.error("Ocurrio un error al eliminar el ID = {}, codigo status {} -> {}", String.valueOf(idZoom), code, message);
+                    throw new PhobosException("Ocurrio un error al eliminar el ID %s, codigo status %s -> %s", String.valueOf(idZoom), code, message);
+                //break;
             }
-            String body = zoomConfig.crearReunionZoom(docente, topic, null, null, null);
-            HttpResponse<String> crearReunion = Unirest.post("https://api.zoom.us/v2/users/aula".concat(aula).concat("@lamolina.edu.pe/meetings"))
+            String body = zoomConfig.buildJsonZoom(docente, topic, null, null, null);
+            HttpResponse<String> crearReunion = Unirest.post(PATH_TO_CREATE_MEETING_API_ZOOM.concat("aula").concat(aula).concat(DOMINIO_LA_MOLINA).concat("/meetings"))
                     .header("content-type", "application/json")
                     .header("authorization", "Bearer ".concat(token))
                     .body(body)
                     .asString();
-            if (crearReunion.getStatus() == 201) {
+            if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_ZOOM) {
                 JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
                 Long id = jsonNode.has("id") ? jsonNode.get("id").asLong() : null;
                 String linkZoom = jsonNode.has("join_url") ? jsonNode.get("join_url").asText() : null;
@@ -2353,10 +2362,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     }
                 };
             } else {
-                System.out.printf("Ocurrio un error al registrar reunión, codigo estado %s ", crearReunion.getStatus());
+                log.error("Ocurrio un error al registrar reunion, codigo estado {}", crearReunion.getStatus());
             }
         } catch (UnirestException | IOException e) {
-            System.out.println(e.getMessage());
+            throw new PhobosException("ERROR", e.getCause());
         }
         return new HashMap<>();
     }
@@ -2368,27 +2377,28 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         try {
             if (Objects.nonNull(idZoom)) {
                 String token = zoomConfig.generarJWT();
-                HttpResponse<String> borrarRenion = Unirest.delete("https://api.zoom.us/v2/meetings/".concat(String.valueOf(idZoom)))
+                HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
                         .header("authorization", "Bearer ".concat(token))
                         .asString();
                 switch (borrarRenion.getStatus()) {
-                    case 204:
-                        System.out.printf("%s fue borrado con exito de Zoom\n", String.valueOf(idZoom));
+                    case CODIGO_ESTADO_OK_DELETED_MEETING_ZOOM:
+                        log.info("{} fue borrado con exito de Zoom", String.valueOf(idZoom));
                         esBorrado = true;
                         break;
-                    case 404:
-                        System.out.printf("ID %s no se encontró en Zoom\n", String.valueOf(idZoom));
+                    case CODIGO_ESTADO_NOT_FOUND_DELETED_MEETING_ZOOM:
+                        log.warn("ID {} no se encontro en Zoom", String.valueOf(idZoom));
                         break;
                     default:
                         JsonNode jsonNode = objectMapper.readTree(borrarRenion.getBody());
                         Integer code = jsonNode.has("code") ? jsonNode.get("code").asInt() : null;
                         String message = jsonNode.has("message") ? jsonNode.get("message").asText() : null;
-                        System.out.printf("Ocurrió un error al eliminar el ID = %s, código %s -> %s\n", String.valueOf(idZoom), code, message);
-                        break;
+                        log.error("Ocurrio un error al eliminar el ID = {}, codigo status {} -> {}", String.valueOf(idZoom), code, message);
+                        throw new PhobosException("Ocurrio un error al eliminar el ID %s, codigo status %s -> %s", String.valueOf(idZoom), code, message);
+                    //break;
                 }
             }
         } catch (UnirestException | IOException e) {
-            System.out.println(e.getMessage());
+            throw new PhobosException("ERROR", e.getCause());
         }
         return esBorrado;
     }

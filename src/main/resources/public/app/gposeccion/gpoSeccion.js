@@ -927,6 +927,28 @@ new Vue({
                 $vue.dictadoSeleccionado = '';
                 $vue.loadRegistros();
             }
+        },
+        eliminarProgramacionesZoom() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(rutaModulo + '/eliminarProgramacionesZoom'),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.raptorGpoSecc.loadRemoteData();
+                        $vue.updateDataCiclo();
+                        notifyBootbox(response.message, "success");
+
+                    } else {
+                        notifyBootbox(response.message, "warning");
+                    }
+                },
+                error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notifyBootbox(Messages.errorComunicacion, "error");
+                }
+            });
         }
     }
 });
