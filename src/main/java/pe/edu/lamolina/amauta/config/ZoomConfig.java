@@ -41,7 +41,7 @@ public class ZoomConfig {
         return token;
     }
 
-    public String validaAula(String aula) {
+    public String validaAulaZoom(String aula) {
         String au = "";
         if (!Objects.equals(aula, "") && Objects.nonNull(aula)) {
             if (aula.toLowerCase().matches("(.*)-(.*)")) {
@@ -55,7 +55,7 @@ public class ZoomConfig {
         return au;
     }
 
-    public String crearReunionZoom(String agenda, String topic, String tipoReunion, String startTime, Integer duration) 
+    public String buildJsonZoom(String agenda, String topic, String tipoReunion, String startTime, Integer duration) 
             throws JsonProcessingException 
     {
         ObjectMapper objectMapper = new ObjectMapper();
