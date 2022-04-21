@@ -27,16 +27,16 @@ public class ZoomConfig {
         final long UN_MINUTO = 60000;
         long mSeg = System.currentTimeMillis();
         Date now = new Date(mSeg);
-        Date caduca = new Date(mSeg + (90 * UN_MINUTO));
+        Date caduca = new Date(mSeg + (10080 * UN_MINUTO));
 
-            builder = Jwts.builder()
-                    .setHeaderParam(JwsHeader.JWT_TYPE, "JWT")
-                    .setHeaderParam(JwsHeader.ALGORITHM, "HS256")
-                    .setIssuedAt(now)
-                    .setExpiration(caduca)
-                    .setIssuer(API_KEY)
-                    .signWith(signatureAlgorithm, API_SECRET.getBytes("UTF-8"));
-            token = builder.compact();
+        builder = Jwts.builder()
+                .setHeaderParam(JwsHeader.JWT_TYPE, "JWT")
+                .setHeaderParam(JwsHeader.ALGORITHM, "HS256")
+                .setIssuedAt(now)
+                .setExpiration(caduca)
+                .setIssuer(API_KEY)
+                .signWith(signatureAlgorithm, API_SECRET.getBytes("UTF-8"));
+        token = builder.compact();
 
         return token;
     }
@@ -55,9 +55,8 @@ public class ZoomConfig {
         return au;
     }
 
-    public String buildJsonZoom(String agenda, String topic, String tipoReunion, String startTime, Integer duration) 
-            throws JsonProcessingException 
-    {
+    public String buildJsonZoom(String agenda, String topic, String tipoReunion, String startTime, Integer duration)
+            throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
         Integer type;
@@ -111,5 +110,5 @@ public class ZoomConfig {
                 .put("watermark", false);
         return objectMapper.writeValueAsString(objectNode);
     }
-    
+
 }
