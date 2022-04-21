@@ -2295,7 +2295,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public Map<Object, Object> crearLinkZoom(String aula, String docente, String topic) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String token = zoomConfig.generarJWT();
+//            String token = zoomConfig.generarJWT();
+            //TOKEN UNA SEMANA
+            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";
             String body = zoomConfig.buildJsonZoom(docente, topic, null, null, null);
             HttpResponse<String> crearReunion = Unirest.post(PATH_TO_CREATE_MEETING_API_ZOOM.concat("aula").concat(aula).concat(DOMINIO_LA_MOLINA).concat("/meetings"))
                     .header("content-type", "application/json")
@@ -2325,7 +2327,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         ObjectMapper objectMapper = new ObjectMapper();
         Long idZoom = seccion.getIdZoom();
         try {
-            String token = zoomConfig.generarJWT();
+//            String token = zoomConfig.generarJWT();
+            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
             HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
                     .header("authorization", "Bearer ".concat(token))
                     .asString();
@@ -2376,7 +2379,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Boolean esBorrado = false;
         try {
             if (Objects.nonNull(idZoom)) {
-                String token = zoomConfig.generarJWT();
+//                String token = zoomConfig.generarJWT();
+                String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
                 HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
                         .header("authorization", "Bearer ".concat(token))
                         .asString();
