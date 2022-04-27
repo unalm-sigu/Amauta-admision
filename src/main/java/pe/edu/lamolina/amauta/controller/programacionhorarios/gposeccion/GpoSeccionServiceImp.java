@@ -2150,10 +2150,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionUpd.setAula(aula);
             seccionDAO.updateColumns(seccionUpd, "aula");
 
-            if (eliminarLinkZoom(seccion)) {
-                seccionUpd.setLinkZoom(null);
-                seccionUpd.setIdZoom(null);
-                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            if (seccion.getIdZoom() != null && seccion.getLinkZoom() != null) {
+                if (eliminarLinkZoom(seccion)) {
+                    seccionUpd.setLinkZoom(null);
+                    seccionUpd.setIdZoom(null);
+                    seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+                }
             }
 
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
@@ -2234,13 +2236,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (aulaAntes != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, aulaAntes);
         }
-
-        if (aula.getPermiteCruce() == 0) {
-            LOOP_HORARIO_SECCION:
-            for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
+        
+        LOOP_HORARIO_SECCION:
+        for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
+            if (aula.getPermiteCruce() == 0) {
                 horarioSeccionEach.setAula(aula);
-                horarioSeccionDAO.update(horarioSeccionEach);
+            } else {
+                horarioSeccionEach.setAula(null);
+            }
+            horarioSeccionDAO.update(horarioSeccionEach);
 
+            if (aula.getPermiteCruce() == 0) {
                 for (HorarioAula horarioAulaEach : horariosAulas) {
                     if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
                         continue LOOP_HORARIO_SECCION;
@@ -2261,7 +2267,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 horarioAulaDAO.save(horarioAula);
             }
         }
-
+        
         Seccion seccionUpd = new Seccion(seccion.getId());
         seccionUpd.setAula(aula);
 
@@ -2279,10 +2285,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
             }
         } else {
-            if (eliminarLinkZoom(seccion)) {
-                seccionUpd.setLinkZoom(null);
-                seccionUpd.setIdZoom(null);
-                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            if (seccionUpd.getIdZoom() != null && seccionUpd.getLinkZoom() != null) {
+                if (eliminarLinkZoom(seccion)) {
+                    seccionUpd.setLinkZoom(null);
+                    seccionUpd.setIdZoom(null);
+                    seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+                }
             }
         }
 
