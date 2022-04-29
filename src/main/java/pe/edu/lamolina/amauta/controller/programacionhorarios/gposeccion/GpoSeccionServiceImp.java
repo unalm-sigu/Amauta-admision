@@ -249,6 +249,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
+    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTE4NDM5MzEsImlhdCI6MTY1MTIzOTEzMn0.7HTrnKdPFXX7j9aKtsl5W86UUcJTcoiYHrzoAxM6TxI";
+
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -2305,11 +2307,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         try {
 //            String token = zoomConfig.generarJWT();
             //TOKEN UNA SEMANA
-            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";
+//            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTE4NDM5MzEsImlhdCI6MTY1MTIzOTEzMn0.7HTrnKdPFXX7j9aKtsl5W86UUcJTcoiYHrzoAxM6TxI";
             String body = zoomConfig.buildJsonZoom(docente, topic, null, null, null);
             HttpResponse<String> crearReunion = Unirest.post(PATH_TO_CREATE_MEETING_API_ZOOM.concat("aula").concat(aula).concat(DOMINIO_LA_MOLINA).concat("/meetings"))
                     .header("content-type", "application/json")
-                    .header("authorization", "Bearer ".concat(token))
+                    .header("authorization", "Bearer ".concat(tokenZoom))
                     .body(body)
                     .asString();
             if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_ZOOM) {
@@ -2336,9 +2338,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Long idZoom = seccion.getIdZoom();
         try {
 //            String token = zoomConfig.generarJWT();
-            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
+//            String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
             HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
-                    .header("authorization", "Bearer ".concat(token))
+                    .header("authorization", "Bearer ".concat(tokenZoom))
                     .asString();
             switch (borrarRenion.getStatus()) {
                 case CODIGO_ESTADO_OK_DELETED_MEETING_ZOOM:
@@ -2359,7 +2361,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             String body = zoomConfig.buildJsonZoom(docente, topic, null, null, null);
             HttpResponse<String> crearReunion = Unirest.post(PATH_TO_CREATE_MEETING_API_ZOOM.concat("aula").concat(aula).concat(DOMINIO_LA_MOLINA).concat("/meetings"))
                     .header("content-type", "application/json")
-                    .header("authorization", "Bearer ".concat(token))
+                    .header("authorization", "Bearer ".concat(tokenZoom))
                     .body(body)
                     .asString();
             if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_ZOOM) {
@@ -2388,9 +2390,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         try {
             if (Objects.nonNull(idZoom)) {
 //                String token = zoomConfig.generarJWT();
-                String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
+//                String token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTExNzg5MDEsImlhdCI6MTY1MDU3NDA2OH0.d7NKyYSPqut3b-3X3jqYhPav4PS3h-n94JGW-Em3BLY";;
                 HttpResponse<String> borrarRenion = Unirest.delete(PATH_TO_DELETE_MEETING_API_ZOOM.concat(String.valueOf(idZoom)))
-                        .header("authorization", "Bearer ".concat(token))
+                        .header("authorization", "Bearer ".concat(tokenZoom))
                         .asString();
                 switch (borrarRenion.getStatus()) {
                     case CODIGO_ESTADO_OK_DELETED_MEETING_ZOOM:
