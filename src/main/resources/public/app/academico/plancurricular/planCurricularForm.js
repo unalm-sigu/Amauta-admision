@@ -934,14 +934,14 @@ $(function () {
                                 if (NuevaCurricula.codeModalidad == 'EPG') {
                                     $("#div-orientacion-epg").show();
                                     $("#cbo-orientacion-epg").html(response.data.orientaciones);
-                                    $("#cbo-orientacion-epg").attr("required", "yes");
+//                                    $("#cbo-orientacion-epg").attr("required", "yes");
                                     $("#cbo-orientacion-epg").attr("name", "orientacionCarrera.id");
                                     $("#cbo-orientacion-epg").select2();
                                 }
                                 if (NuevaCurricula.codeModalidad == 'PRE') {
                                     $("#div-orientacion-pre").show();
                                     $("#cbo-orientacion-pre").html(response.data.orientaciones);
-                                    $("#cbo-orientacion-pre").attr("required", "yes");
+//                                    $("#cbo-orientacion-pre").attr("required", "yes");
                                     $("#cbo-orientacion-pre").attr("name", "orientacionCarrera.id");
                                     $("#cbo-orientacion-pre").select2();
                                 }
