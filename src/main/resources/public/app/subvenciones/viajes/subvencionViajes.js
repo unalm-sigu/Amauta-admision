@@ -42,6 +42,14 @@ new Vue({
             }
             return "label-" + rpta;
         },
+        classSgtePaso(item) {
+            if (item.estadoViajeEnum.rolInteresado === 'DOCENTE' && item.esDocente) {
+                return "text-danger";
+            } else if (item.estadoViajeEnum.rolInteresado === 'JEFE_DPTO' && item.esJefeDpto) {
+                return "text-danger";
+            }
+            return "text-primary";
+        },
         loadCursos() {
             let $vue = this;
             myUtils.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allCursos`}))
