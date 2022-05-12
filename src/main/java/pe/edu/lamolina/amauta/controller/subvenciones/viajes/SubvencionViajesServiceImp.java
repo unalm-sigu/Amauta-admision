@@ -118,9 +118,6 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
     @Override
     public List<ViajeCurso> allDynatbleByDocente(Docente docente, List<DepartamentoAcademico> dptos, CicloAcademico ciclo, DynatableFilter filter) {
-        log.info("dptos-academicos={}", dptos.size());
-        log.info("docente={}", docente);
-
         if (docente == null && dptos.isEmpty()) {
             log.info("se retorna lista vacia");
             return new ArrayList();

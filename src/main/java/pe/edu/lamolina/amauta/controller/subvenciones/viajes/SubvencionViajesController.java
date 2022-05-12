@@ -343,7 +343,7 @@ public class SubvencionViajesController {
 
         List<AlumnoViajeCurso> alumnosviaje = service.allAlumnosByViaje(viajeCurso);
         ArrayNode alumnosViajeJson = this.createAlumnosViajeJson(alumnosviaje);
-        
+
         List<ObjecionViajeEvento> objeciones = service.allObjecionesActivas(viajeCurso, ds);
         ArrayNode objecionesJson = this.createObjecionesJson(objeciones);
 
@@ -477,6 +477,7 @@ public class SubvencionViajesController {
             ObjectNode itemJson = JaneHelper
                     .from(crono)
                     .only("id,orden,descripcion,importe")
+                    .join("folleto", "id,ruta,nombre")
                     .json();
 
             proformasJson.add(itemJson);
@@ -562,7 +563,7 @@ public class SubvencionViajesController {
                 .array();
         return node;
     }
-    
+
     @ResponseBody
     @RequestMapping("addObjecion")
     public JsonResponse addObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {
@@ -582,7 +583,7 @@ public class SubvencionViajesController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("deleteObjecion")
     public JsonResponse deleteObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {
@@ -602,7 +603,7 @@ public class SubvencionViajesController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("enviarObservacion")
     public JsonResponse enviarObservacion(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
@@ -622,7 +623,7 @@ public class SubvencionViajesController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("aprobarRespuestaObjecion")
     public JsonResponse aprobarRespuestaObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {

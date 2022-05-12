@@ -128,13 +128,16 @@
                 </td>
 
                 <td class="align-middle text-right">
-                    <div v-if="!item.modificar" v-bind:class="classImporte(item)">{{commas(item.importeAlumno)}}</div>
+                    <template v-if="item.importeAlumno > 0">
+                        <div v-if="!item.modificar" v-bind:class="classImporte(item)">{{commas(item.importeAlumno)}}</div>
+                    </template>
                 </td>
 
                 <td class="align-middle text-right">
-                    <div v-bind:class="classImporte(item)">{{commas(item.importe)}}</div>
+                    <div v-if="item.importe > 0"
+                         v-bind:class="classImporte(item)">{{commas(item.importe)}}</div>
                 </td>
-                
+
                 <td class="v-middle text-center">
                     <div v-bind:class="classItemJustifica(item)" class="label">{{item.estadoEnum.value}}</div>
                 </td>
@@ -154,7 +157,7 @@
                 <td class="align-middle text-right">
                     <div v-bind:class="classImporte(item)">{{commas(alu.importeJustificado)}}</div>
                 </td>
-                
+
                 <td class="v-middle text-center"></td>
 
                 <td></td>
@@ -172,7 +175,7 @@
                 <div class="mr-2 text-success"><b>Total aceptado:</b> &nbsp;&nbsp; S/. {{commas(justificacion.importeAceptado)}}</div>
             </td>
         </tr>
-        
+
         </tbody>
     </table>
 

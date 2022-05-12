@@ -41,7 +41,8 @@
     <thead>
         <tr>
             <th class="wd-10 text-center">Orden</th>
-            <th class="wd-65">Motivo</th>
+            <th class="wd-15">Folleto</th>
+            <th class="wd-55">Motivo</th>
             <th class="wd-20 text-right">Importe</th>
         </tr>
     </thead>
@@ -52,13 +53,20 @@
             <td class="v-middle text-center">
                 <span class="badge badge-primary label-numeric">{{item.orden}}</span>
             </td>
+            
+            <td class="v-middle">
+                <button v-if="item.folleto &amp;&amp; item.folleto.ruta" type="button"
+                        v-on:click="verTemporal(item.folleto)" class="btn btn-primary">
+                    <i class="fa fa-external-link fa-lg"></i>
+                </button>
+            </td>
 
             <td class="v-middle">
                 <div>{{item.descripcion}}</div>
             </td>
 
             <td class="v-middle text-right">
-                <div class="">{{commas(item.importe)}}</div>
+                <div v-if="item.importe > 0" class="">{{commas(item.importe)}}</div>
             </td>
 
         </tr>

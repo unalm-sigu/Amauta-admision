@@ -218,7 +218,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         if (ds.getRolActivo().getCodigoEnum() == DOC) {
             docente = ds.getDocente();
         }
-        System.out.println("docente=" + docente);
 
         List<EncuestaDocente> encuestas = encuestaDocenteDAO.allByDynatable(filter, ciclo, departamentos, docente);
         List<Seccion> secciones = new ArrayList();
