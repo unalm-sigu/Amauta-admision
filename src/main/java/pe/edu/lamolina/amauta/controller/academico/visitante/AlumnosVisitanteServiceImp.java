@@ -143,6 +143,26 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
             personaDB = this.updatePersona(personaDB, personaForm);
             this.updateUsuarioAlumno(personaDB, usuario, ciclo);
+
+            Alumno alumno = alumnoDAO.findByPersona(personaDB, ciclo);
+            MatriculaResumen mr = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+
+            if (mr == null) {
+                SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
+                mr = new MatriculaResumen();
+                mr.setAlumno(alumno);
+                mr.setCicloAcademico(ciclo);
+                mr.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                mr.setCreditosMatriculados(0);
+                mr.setCreditosRetirados(0);
+                mr.setCursosMatriculados(0);
+                mr.setCursosRetirados(0);
+                mr.setPorcentajeAvance(0);
+                mr.setSituacionInicio(situacion);
+                mr.setCreditosTrikaPagados(BigDecimal.ZERO.intValue());
+                mr.setCreditosTrikaSeparados(BigDecimal.ZERO.intValue());
+                matriculaResumenDAO.save(mr);
+            }
         }
 
         alumnoVisitante.setFechaRegistro(new Date());
