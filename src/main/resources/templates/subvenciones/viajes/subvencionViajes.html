@@ -62,7 +62,7 @@
 
                                                     <div class="block text-primary"><b>Docente:</b> {{item.docenteCreador.persona.apellidosNombres}}</div>
 
-                                                    <div v-bind.class="classSgtePaso(item)" class="block">
+                                                    <div v-bind:class="classSgtePaso(item)" class="block">
                                                         <b>¿Que falta hacer?:</b> {{item.estadoViajeEnum.siguientePaso}}
                                                     </div>
                                                 </td>
