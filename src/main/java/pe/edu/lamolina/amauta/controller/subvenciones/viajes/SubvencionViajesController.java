@@ -27,12 +27,14 @@ import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.AlumnoViajeCurso;
 import pe.edu.lamolina.model.bienestar.CronogramaEventoSubvencionado;
+import pe.edu.lamolina.model.bienestar.ObjecionViajeEvento;
 import pe.edu.lamolina.model.bienestar.ProformaEventoSubvencionado;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -59,11 +61,13 @@ public class SubvencionViajesController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Docente docenteUser = ds.getDocente();
 
+        CicloAcademico ciclo = service.findCicloSubvenciones();
+
         model.addAttribute("isDocenteUser", docenteUser != null);
         model.addAttribute("isProduccion", despliegueConfig.isProduccion());
-        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("ciclo", ciclo);
         model.addAttribute("rutaModulo", rutaModulo);
-        
+
         return "subvenciones/viajes/subvencionViajes";
     }
 
@@ -76,9 +80,10 @@ public class SubvencionViajesController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<DepartamentoAcademico> dptos = service.allDptosAcademicos(ds);
+            CicloAcademico ciclo = service.findCicloSubvenciones();
             Docente docenteUser = ds.getDocente();
 
-            List<ViajeCurso> viajes = service.allDynatbleByDocente(docenteUser, dptos, ds.getCicloAcademico(), filter);
+            List<ViajeCurso> viajes = service.allDynatbleByDocente(docenteUser, dptos, ciclo, filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (ViajeCurso viajeCurso : viajes) {
@@ -133,7 +138,8 @@ public class SubvencionViajesController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<Curso> cursos = service.allCursos(ds.getDocente(), ds.getCicloAcademico(), ds);
+            CicloAcademico ciclo = service.findCicloSubvenciones();
+            List<Curso> cursos = service.allCursos(ds.getDocente(), ciclo, ds);
 
             ArrayNode cursosJson = JaneHelper
                     .from(cursos)
@@ -159,7 +165,8 @@ public class SubvencionViajesController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            List<Seccion> secciones = service.allSecciones(curso, ds.getDocente(), ds.getCicloAcademico(), ds);
+            CicloAcademico ciclo = service.findCicloSubvenciones();
+            List<Seccion> secciones = service.allSecciones(curso, ds.getDocente(), ciclo, ds);
 
             ArrayNode seccionesJson = JaneHelper
                     .from(secciones)
@@ -218,10 +225,11 @@ public class SubvencionViajesController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico ciclo = service.findCicloSubvenciones();
             if (viajeCurso.getId() == null) {
-                service.saveViaje(viajeCurso, ds.getCicloAcademico(), ds);
+                service.saveViaje(viajeCurso, ciclo, ds);
             } else {
-                service.updateViaje(viajeCurso, ds.getCicloAcademico(), ds);
+                service.updateViaje(viajeCurso, ciclo, ds);
             }
 
             response.setSuccess(true);
@@ -326,6 +334,7 @@ public class SubvencionViajesController {
         ViajeCurso viajeCurso = service.findViaje(new ViajeCurso(idViajeCurso), ds);
 
         Boolean aprobable = Arrays.asList(JUSTIFICADO).contains(viajeCurso.getEstadoViajeEnum());
+        Boolean esDocenteCreador = this.esDocenteViaje(viajeCurso, ds);
 
         ObjectNode viajeCursoJson = this.createViajeCursoJson(viajeCurso);
 
@@ -333,18 +342,35 @@ public class SubvencionViajesController {
         ObjectNode justificacionJson = this.createJustificacionJson(justificacion);
 
         List<AlumnoViajeCurso> alumnosviaje = service.allAlumnosByViaje(viajeCurso);
-        ArrayNode alumnosViajeJson = createAlumnosViajeJson(alumnosviaje);
+        ArrayNode alumnosViajeJson = this.createAlumnosViajeJson(alumnosviaje);
+        
+        List<ObjecionViajeEvento> objeciones = service.allObjecionesActivas(viajeCurso, ds);
+        ArrayNode objecionesJson = this.createObjecionesJson(objeciones);
 
+        CicloAcademico ciclo = service.findCicloSubvenciones();
+
+        model.addAttribute("esDocenteCreador", esDocenteCreador);
         model.addAttribute("viajeCurso", viajeCurso);
         model.addAttribute("viajeCursoJson", viajeCursoJson.toString());
-        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("ciclo", ciclo);
         model.addAttribute("aprobable", aprobable);
         model.addAttribute("justificacionJson", justificacionJson.toString());
         model.addAttribute("alumnosViajeJson", alumnosViajeJson.toString());
+        model.addAttribute("objecionesJson", objecionesJson.toString());
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/subvenciones/viajes"));
 
         return "subvenciones/viajes/configuraViajeCurso";
+    }
+
+    private Boolean esDocenteViaje(ViajeCurso viajeCurso, DataSessionPivot ds) {
+        Docente docenteUser = ds.getDocente();
+        if (docenteUser == null) {
+            return false;
+        }
+
+        Docente docenteCreador = viajeCurso.getDocenteCreador();
+        return docenteCreador.getId().equals(docenteUser.getId());
     }
 
     private ArrayNode createAlumnosViajeJson(List<AlumnoViajeCurso> alumnosByViaje) {
@@ -420,7 +446,7 @@ public class SubvencionViajesController {
 
         ObjectNode viajeCursoJson = JaneHelper
                 .from(viajeCurso)
-                .only("id,observacion,descripcionViaje,importeSolicitado,importeProforma,importeAlumno,estadoViaje,estadoSubvencion,estadoViajeEnum,estadoSubvencionEnum,cantidadAlumnosMatriculados,cantidadAlumnosRegistrados")
+                .only("id,rutaViaje,descripcionViaje,importeSolicitado,importeProforma,importeAlumno,estadoViaje,estadoSubvencion,estadoViajeEnum,estadoSubvencionEnum,cantidadAlumnosMatriculados,cantidadAlumnosRegistrados")
                 .join("curso", "id,codigo,nombre,tpc")
                 .join("curso.departamentoAcademico", "nombre")
                 .join("seccion", "id,codigo2,tipoSeccionEnum")
@@ -505,6 +531,116 @@ public class SubvencionViajesController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allObjecionesViaje")
+    public JsonResponse allObjecionesViaje(@RequestBody ViajeCurso viajeCursoForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<ObjecionViajeEvento> objeciones = service.allObjecionesActivas(viajeCursoForm, ds);
+
+            response.setData(this.createObjecionesJson(objeciones));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    private ArrayNode createObjecionesJson(List<ObjecionViajeEvento> objeciones) {
+        ArrayNode node = JaneHelper
+                .from(objeciones)
+                .join("viajeCurso", "id")
+                .join("objecionOrigen", "id")
+                .join("userInspeccion.persona", "nombreCompleto")
+                .join("userCorrecion.persona", "nombreCompleto")
+                .join("userAceptacion.persona", "nombreCompleto")
+                .array();
+        return node;
+    }
     
+    @ResponseBody
+    @RequestMapping("addObjecion")
+    public JsonResponse addObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.addObjecion(objecion, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se agregó satisfactoriamente la observación");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("deleteObjecion")
+    public JsonResponse deleteObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.deleteObjecion(objecion, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se eliminó satisfactoriamente la observación");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("enviarObservacion")
+    public JsonResponse enviarObservacion(@RequestBody ViajeCurso viajeCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.enviarObservacion(viajeCurso, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se envió las observaciones satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("aprobarRespuestaObjecion")
+    public JsonResponse aprobarRespuestaObjecion(@RequestBody ObjecionViajeEvento objecion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.aprobarRespuestaObjecion(objecion, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se aprobó satisfactoriamente la respuesta de la observación");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
 
 }

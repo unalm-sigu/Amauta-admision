@@ -822,6 +822,92 @@ const Messages = {
     confirmAccept: '¿Seguro que desea aceptar?',
 };
 
+window.myUtils = {
+    axios(config) {
+        return new Promise((resolve, reject) => {
+            let sender = {};
+            if (config.body) {
+                sender = config.body;
+            }
+
+            if (config.beginProcessing && config.modal) {
+                config.modal.beginProcessing();
+            }
+
+            axios.post(config.url, sender).then(response => {
+                if (config.modal && config.close) {
+                    config.modal.confirmReaction(response.data.success);
+                } else if (config.modal && !config.close) {
+                    config.modal.confirmReaction(false);
+                }
+
+                if (response.data.success) {
+                    if (config.raptor) {
+                        config.raptor.loadRemoteData();
+                    }
+                    if (config.accion) {
+                        config.accion();
+                    }
+                    if (config.notificar) {
+                        notify(response.data.message, "info");
+                    }
+                    resolve(response);
+
+                } else {
+                    if (config.notificarError) {
+                        notify(response.data.message, "warning");
+                    }
+                    if (config.rejectError) {
+                        reject(new Error(response.data.message));
+                    } else {
+                        resolve(response);
+                    }
+                }
+
+            }).catch(e => {
+                if (config.modal) {
+                    config.modal.confirmReaction(false);
+                }
+                if (config.notificarErrorCatch) {
+                    notify(Messages.errorComunicacion, "error");
+                }
+                reject(new Error(Messages.errorComunicacion));
+            });
+        });
+    },
+    getOrigenURL() {
+        var url = window.location.href;
+        return "?origen=" + Base64.encode(url);
+    },
+    activarNumeric() {
+        setTimeout(function () {
+            $('.numeric').numeric({negative: false});
+        }, 800);
+    },
+    getObjectId(obj) {
+        if (obj === undefined) {
+            return "";
+        }
+        if (obj === null) {
+            return "";
+        }
+        if (obj.id === undefined) {
+            return "";
+        }
+        if (obj.id === null) {
+            return "";
+        }
+
+        return obj.id;
+    },
+    commas(n) {
+        var options = {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        };
+        return Number(n).toLocaleString('en', options);
+    }
+};
 
 APP.select2();
 

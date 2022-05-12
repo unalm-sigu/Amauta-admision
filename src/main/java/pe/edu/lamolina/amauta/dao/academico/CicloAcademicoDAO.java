@@ -50,6 +50,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivoAdmision();
 
+    CicloAcademico findActivoSubvenciones();
+
     void updateActualizarBoletin(CicloAcademico cicloAcademico);
 
     CicloAcademico findActivoByModalidad(ModalidadEstudio modalidadEstudio);
@@ -132,14 +134,14 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findAnterior(CicloAcademico ciclo);
 
-    public CicloAcademico findActivoByModalidadEstudio(ModalidadEstudioEnum codigoEnum);
+    CicloAcademico findActivoByModalidadEstudio(ModalidadEstudioEnum codigoEnum);
 
-    public List<CicloAcademico> allContrato();
+    List<CicloAcademico> allContrato();
 
-    public List<CicloAcademico> allPregradoFuturosByRange(int yearinit, int yearend);
+    List<CicloAcademico> allPregradoFuturosByRange(int yearinit, int yearend);
 
-    public List<CicloAcademico> allPregradoByRangeCode(int codeInit, int codeEnd);
+    List<CicloAcademico> allPregradoByRangeCode(int codeInit, int codeEnd);
 
-    public List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend);
+    List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend);
 
 }

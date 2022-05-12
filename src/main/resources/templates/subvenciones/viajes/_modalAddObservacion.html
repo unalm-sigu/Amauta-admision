@@ -1,0 +1,35 @@
+<modal-vik ref="modalAddObservacion"
+           v-bind="modalAddObservacion"
+           v-bind:okaction="saveObservacion">
+    <div slot="body">
+
+        <form v-bind:id="modalAddObservacion.form">
+
+            <template v-if="objecion.objecionOrigen">
+                <div class="form-group">
+                    <label>Observación</label>
+                    <div class="item-form-control text-primary item-form-gray">{{objecion.objecionOrigen.objecion}}</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Respuesta del Delegado</label>
+                    <div class="item-form-control text-danger item-form-gray">{{objecion.objecionOrigen.respuesta}}</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Indique el motivo de su rechazo</label>
+                    <textarea v-model="objecion.objecion" class="form-control" rows="4" required="yes"></textarea>
+                </div>
+            </template>
+
+            <template v-else="">
+                <div class="form-group">
+                    <label>Ingrese la observación</label>
+                    <textarea v-model="objecion.objecion" class="form-control" rows="4" required="yes"></textarea>
+                </div>
+            </template>
+
+        </form>
+
+    </div>
+</modal-vik>

@@ -419,6 +419,17 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
+    public CicloAcademico findActivoSubvenciones() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("ca.estadoSubvenciones", ACT)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE);
+
+        return find(sql);
+    }
+
+    @Override
     public void updateActualizarBoletin(CicloAcademico cicloAcademico) {
         Octavia octavia = Octavia.update(CicloAcademico.class);
         octavia.set(cicloAcademico, "actualizarBoletin");

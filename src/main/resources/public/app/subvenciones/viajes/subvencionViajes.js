@@ -44,7 +44,7 @@ new Vue({
         },
         loadCursos() {
             let $vue = this;
-            $vue.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allCursos`}))
+            myUtils.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allCursos`}))
                     .then(response => $vue.cursos = response.data.data)
                     .catch(error => console.log(error));
         },
@@ -55,7 +55,7 @@ new Vue({
                 id: curso.id
             };
 
-            $vue.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allSecciones`, body: cursoSend}))
+            myUtils.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allSecciones`, body: cursoSend}))
                     .then(response => $vue.secciones = response.data.data)
                     .catch(error => console.log(error));
         },
@@ -66,7 +66,7 @@ new Vue({
                 id: seccion.id
             };
 
-            $vue.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allAlumnos`, body: seccionSend}))
+            myUtils.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/allAlumnos`, body: seccionSend}))
                     .then(response => $vue.alumnos = response.data.data)
                     .catch(error => console.log(error));
         },
@@ -97,7 +97,7 @@ new Vue({
                 return;
             }
 
-            $vue.axios(VUE_AXIOS.structModalClose({
+            myUtils.axios(VUE_AXIOS.structModalClose({
                 url: `/${rutaModulo}/saveViaje`,
                 body: $vue.viajeCursoSelect,
                 modal: $vue.$refs.modalAddCurso,
@@ -124,7 +124,7 @@ new Vue({
                 id: $vue.viajeCursoSelect.id
             };
 
-            $vue.axios(VUE_AXIOS.structModalConfirm({
+            myUtils.axios(VUE_AXIOS.structModalConfirm({
                 url: `/${rutaModulo}/solicitarAprobarViaje`,
                 body: viaje,
                 modal: $vue.$refs.modalConfirmAction,
@@ -148,7 +148,7 @@ new Vue({
                 estadoViaje: "APROBADO"
             };
 
-            $vue.axios(VUE_AXIOS.structModalConfirm({
+            myUtils.axios(VUE_AXIOS.structModalConfirm({
                 url: `/${rutaModulo}/aprobarViaje`,
                 body: viaje,
                 modal: $vue.$refs.modalConfirmAction,
@@ -172,7 +172,7 @@ new Vue({
                 estadoViaje: "DESAPROBADO"
             };
 
-            $vue.axios(VUE_AXIOS.structModalConfirm({
+            myUtils.axios(VUE_AXIOS.structModalConfirm({
                 url: `/${rutaModulo}/aprobarViaje`,
                 body: viaje,
                 modal: $vue.$refs.modalConfirmAction,
@@ -199,87 +199,17 @@ new Vue({
         },
         verDetalle(item) {
             let $vue = this;
-            location.href = APP.url(`${rutaModulo}/${item.id}/configurar`) + $vue.getOrigenURL();
+            location.href = APP.url(`${rutaModulo}/${item.id}/configurar`) + myUtils.getOrigenURL();
         },
-        axios(config) {
-            return new Promise((resolve, reject) => {
-                let sender = {};
-                if (config.body) {
-                    sender = config.body;
-                }
-
-                if (config.beginProcessing && config.modal) {
-                    config.modal.beginProcessing();
-                }
-
-                axios.post(config.url, sender).then(response => {
-                    if (config.modal && config.close) {
-                        config.modal.confirmReaction(response.data.success);
-                    } else if (config.modal && !config.close) {
-                        config.modal.confirmReaction(false);
-                    }
-
-                    if (response.data.success) {
-                        if (config.raptor) {
-                            config.raptor.loadRemoteData();
-                        }
-                        if (config.accion) {
-                            config.accion();
-                        }
-                        if (config.notificar) {
-                            notify(response.data.message, "info");
-                        }
-                        resolve(response);
-
-                    } else {
-                        if (config.notificarError) {
-                            notify(response.data.message, "warning");
-                        }
-                        reject(new Error(response.data.message));
-                    }
-
-                }).catch(e => {
-                    if (config.modal) {
-                        config.modal.confirmReaction(false);
-                    }
-                    if (config.notificarErrorCatch) {
-                        notify(Messages.errorComunicacion, "error");
-                    }
-                    reject(new Error(Messages.errorComunicacion));
-                });
-            });
-        },
-        getOrigenURL() {
-            var url = window.location.href;
-            return "?origen=" + Base64.encode(url);
-        },
-        activarNumeric() {
-            setTimeout(function () {
-                $('.numeric').numeric({negative: false});
-            }, 800);
-        },
+        // metodos generales
         getObjectId(obj) {
-            if (obj === undefined) {
-                return "";
-            }
-            if (obj === null) {
-                return "";
-            }
-            if (obj.id === undefined) {
-                return "";
-            }
-            if (obj.id === null) {
-                return "";
-            }
-
-            return obj.id;
+            return myUtils.getObjectId(obj);
+        },
+        getObjectAttr(obj, attr) {
+            return myUtils.getObjectAttr(obj, attr);
         },
         commas(n) {
-            var options = {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            };
-            return Number(n).toLocaleString('en', options);
+            return myUtils.commas(n);
         }
     }
 });

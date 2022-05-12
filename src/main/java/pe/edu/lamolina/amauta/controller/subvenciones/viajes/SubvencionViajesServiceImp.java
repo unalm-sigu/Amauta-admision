@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
@@ -23,6 +24,7 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.AlumnoViajeCursoDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.CronogramaEventoSubvencionadoDAO;
+import pe.edu.lamolina.amauta.dao.bienestar.ObjecionViajeEventoDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.ProformaEventoSubvencionadoDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.ViajeCursoDAO;
 import pe.edu.lamolina.amauta.dao.contabilidad.ItemJustificacionGastoDAO;
@@ -41,6 +43,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.AlumnoViajeCurso;
 import pe.edu.lamolina.model.bienestar.CronogramaEventoSubvencionado;
+import pe.edu.lamolina.model.bienestar.ObjecionViajeEvento;
 import pe.edu.lamolina.model.bienestar.ProformaEventoSubvencionado;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.contabilidad.ItemJustificacionGasto;
@@ -50,7 +53,9 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.subvenciones.SubvencionViajeEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.subvenciones.EtapaObservacionEnum;
 import pe.edu.lamolina.model.enums.subvenciones.JustificacionEstadoEnum;
+import pe.edu.lamolina.model.enums.subvenciones.ObjecionEstadoEnum;
 import pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.APROBADO;
 import static pe.edu.lamolina.model.enums.subvenciones.ViajeCursoEstadoEnum.CREADO;
@@ -71,6 +76,7 @@ import pe.edu.lamolina.model.general.Persona;
 public class SubvencionViajesServiceImp implements SubvencionViajesService {
 
     private final AlumnoViajeCursoDAO alumnoViajeCursoDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
     private final ColaboradorDAO colaboradorDAO;
     private final CronogramaEventoSubvencionadoDAO cronogramaEventoSubvencionadoDAO;
     private final CursoDAO cursoDAO;
@@ -80,10 +86,16 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
     private final JustificacionGastoDAO justificacionGastoDAO;
     private final JustificacionGastoAlumnoDAO justificacionGastoAlumnoDAO;
     private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final ObjecionViajeEventoDAO objecionViajeEventoDAO;
     private final OficinaDAO oficinaDAO;
     private final ProformaEventoSubvencionadoDAO proformaEventoSubvencionadoDAO;
     private final SeccionDAO seccionDAO;
     private final ViajeCursoDAO viajeCursoDAO;
+
+    @Override
+    public CicloAcademico findCicloSubvenciones() {
+        return cicloAcademicoDAO.findActivoSubvenciones();
+    }
 
     @Override
     public List<DepartamentoAcademico> allDptosAcademicos(DataSessionPivot ds) {
@@ -437,6 +449,177 @@ public class SubvencionViajesServiceImp implements SubvencionViajesService {
     @Override
     public List<AlumnoViajeCurso> allAlumnosByViaje(ViajeCurso viajeCurso) {
         return alumnoViajeCursoDAO.allByViajeCurso(viajeCurso);
+    }
+
+    @Override
+    public List<ObjecionViajeEvento> allObjecionesActivas(ViajeCurso viajeCurso, DataSessionPivot ds) {
+        List<ObjecionViajeEvento> objecionesAll = objecionViajeEventoDAO.allByViaje(viajeCurso);
+        if (objecionesAll.isEmpty()) {
+            return objecionesAll;
+        }
+
+        Map<Long, ObjecionViajeEvento> mapObjeciones = objecionesAll.stream()
+                .collect(Collectors.toMap(ObjecionViajeEvento::getId, x -> x));
+
+        List<String> contextos = objecionesAll.stream()
+                .map(objecion -> objecion.getContexto())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<ObjecionEstadoEnum> estadosMain = Arrays.asList(ObjecionEstadoEnum.PENDIENTE, ObjecionEstadoEnum.LEVANTADO, ObjecionEstadoEnum.ACEPTADO);
+        List<ObjecionViajeEvento> objeciones = new ArrayList();
+
+        contextos.forEach(ctx -> {
+            objecionesAll.stream()
+                    .filter(objecion -> objecion.getContexto().equals(ctx))
+                    .filter(objecion -> estadosMain.contains(objecion.getEstadoEnum()))
+                    .forEach(objecion -> {
+                        this.addObjecionOnList(objecion, objeciones, mapObjeciones);
+                    });
+        });
+
+        return objeciones;
+    }
+
+    private void addObjecionOnList(ObjecionViajeEvento objecion, List<ObjecionViajeEvento> objeciones, Map<Long, ObjecionViajeEvento> mapObjeciones) {
+        objeciones.add(objecion);
+        if (objecion.getObjecionOrigen() != null) {
+            this.addObjecionOnList(mapObjeciones.get(objecion.getObjecionOrigen().getId()), objeciones, mapObjeciones);
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void addObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        Assert.isNotNull(objecion, "No ha ingresado al observación");
+        Assert.isNotNull(objecion.getViajeCurso(), "No ha ingresado el viaje de curso");
+        Assert.isNotNull(objecion.getViajeCurso().getId(), "No ha ingresado el viaje de curso");
+        Assert.isNotNull(objecion.getObjecion(), "No ha ingresado la observación");
+        Assert.isNotNull(objecion.getContexto(), "No ha ingresado el contexto de la observación");
+
+        ViajeCurso viaje = viajeCursoDAO.find(objecion.getViajeCurso().getId());
+        Assert.isNotNull(viaje, "No se ha logrado ubicar el viaje de curso");
+
+        this.validarPermisoObjecion(viaje, ds);
+
+        objecion.setEventoAgrupacion(null);
+        objecion.setUserInspeccion(ds.getUsuario());
+        objecion.setFechaInspeccion(today.toDate());
+        objecion.setEstadoEnum(ObjecionEstadoEnum.PENDIENTE);
+        objecion.setEstadoInicioViajeEnum(viaje.getEstadoViajeEnum());
+        objecion.setEstadoFinalViajeEnum(viaje.getEstadoViajeEnum());
+        objecionViajeEventoDAO.save(objecion);
+
+        if (objecion.getObjecionOrigen() == null) {
+            return;
+        }
+
+        ObjecionViajeEvento objecionOrigen = objecionViajeEventoDAO.find(objecion.getObjecionOrigen().getId());
+        Assert.isNotNull(objecionOrigen, "No se ha logrado ubicar el registro de la objeción original");
+        Assert.isTrue(objecionOrigen.getEstadoEnum() == ObjecionEstadoEnum.LEVANTADO, "La objeción original debería tener el estado LEVANTADO");
+
+        objecionOrigen.setEstadoEnum(ObjecionEstadoEnum.RECHAZADO);
+        objecionOrigen.setUserAceptacion(ds.getUsuario());
+        objecionOrigen.setFechaAceptacion(today.toDate());
+        objecionViajeEventoDAO.update(objecionOrigen);
+    }
+
+    private void validarPermisoObjecion(ViajeCurso viaje, DataSessionPivot ds) {
+        Docente docenteUser = ds.getDocente();
+        Assert.isNotNull(docenteUser, "Usted no tiene permiso para ejecutar esta acción");
+
+        Docente docenteCreador = viaje.getDocenteCreador();
+        boolean esDocenteViaje = docenteCreador.getId().equals(docenteUser.getId());
+        Assert.isTrue(esDocenteViaje, "Usted no tiene permiso para ejecutar esta acción");
+
+        Assert.isTrue(viaje.getEstadoViajeEnum() == JUSTIFICADO, "En este momento no tiene permiso para ejecutar esta acción");
+    }
+
+    @Override
+    @Transactional
+    public void deleteObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds) {
+        Assert.isNotNull(objecion, "No ha indicado que observación quiere eliminar");
+        Assert.isNotNull(objecion.getId(), "No ha indicado que observación quiere eliminar");
+
+        ObjecionViajeEvento objecionBD = objecionViajeEventoDAO.find(objecion.getId());
+        Assert.isNotNull(objecionBD, "No se pudo ubicar la observación que quiere eliminar");
+        Assert.isNotNull(objecionBD.getViajeCurso(), "Esta observación no está relacionada a ningún Viaje de Curso");
+        Assert.isTrue(objecionBD.getEstadoEnum() == ObjecionEstadoEnum.PENDIENTE, "Solo puede eliminarse observaciones PENDIENTES");
+
+        ViajeCurso viaje = viajeCursoDAO.find(objecionBD.getViajeCurso().getId());
+        this.validarPermisoObjecion(viaje, ds);
+
+        ObjecionViajeEvento objecionOrigen = objecionBD.getObjecionOrigen();
+        if (objecionOrigen != null) {
+            objecionOrigen.setEstadoEnum(ObjecionEstadoEnum.LEVANTADO);
+            objecionOrigen.setUserAceptacion(null);
+            objecionOrigen.setFechaAceptacion(null);
+            objecionViajeEventoDAO.update(objecionOrigen);
+        }
+
+        objecionViajeEventoDAO.delete(objecionBD);
+    }
+
+    @Override
+    @Transactional
+    public void enviarObservacion(ViajeCurso viajeCursoForm, DataSessionPivot ds) {
+        ViajeCurso viaje = viajeCursoDAO.find(viajeCursoForm.getId());
+        Assert.isNotNull(viaje, "No se ha logrado ubicar el viaje de curso");
+
+        this.validarPermisoObjecion(viaje, ds);
+
+        List<ObjecionViajeEvento> objeciones = objecionViajeEventoDAO.allByViaje(viajeCursoForm);
+        List<ObjecionViajeEvento> objecionesPendientes = objeciones.stream()
+                .filter(objecion -> objecion.getEstadoEnum() == ObjecionEstadoEnum.LEVANTADO)
+                .collect(Collectors.toList());
+        Assert.isTrue(objecionesPendientes.isEmpty(), "Existen respuestas a las observaciones sin el VºBº");
+
+        this.enviarObservacionDocente(viaje, ds);
+    }
+
+    private void enviarObservacionDocente(ViajeCurso viajeCursoBD, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        List<ViajeCursoEstadoEnum> estadosAceptables = Arrays.asList(
+                ViajeCursoEstadoEnum.JUSTIFICADO);
+
+        Assert.isTrue(estadosAceptables.contains(viajeCursoBD.getEstadoViajeEnum()), "No puede enviar observaciones a este Viaje de Curso");
+
+        viajeCursoBD.setEtapaObservacionEnum(EtapaObservacionEnum.ETAPA3);
+        viajeCursoBD.setEstadoViajeEnum(ViajeCursoEstadoEnum.OBSERVA_DOCENTE);
+        viajeCursoBD.setFechaModificacion(today.toDate());
+        viajeCursoBD.setUserModificacion(ds.getUsuario());
+        viajeCursoDAO.update(viajeCursoBD);
+
+        JustificacionGasto justificacionBD = justificacionGastoDAO.findByViajeCurso(viajeCursoBD);
+        Assert.isTrue(justificacionBD.isCerrada(), "La justificación debería estar cerrada");
+        justificacionBD.setEstadoEnum(JustificacionEstadoEnum.ABIERTA);
+        justificacionGastoDAO.update(justificacionBD);
+
+    }
+
+    @Override
+    @Transactional
+    public void aprobarRespuestaObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        Assert.isNotNull(objecion, "No ha indicado que observación quiere aprobar");
+        Assert.isNotNull(objecion.getId(), "No ha indicado que observación quiere aprobar");
+
+        ObjecionViajeEvento objecionBD = objecionViajeEventoDAO.find(objecion.getId());
+        Assert.isNotNull(objecionBD, "No se pudo ubicar la observación que quiere aprobar");
+        Assert.isNotNull(objecionBD.getViajeCurso(), "Esta observación no está relacionada a ningún Viaje de Curso");
+        Assert.isTrue(objecionBD.getEstadoEnum() == ObjecionEstadoEnum.LEVANTADO, "Esta observación no tiene respuesta del Delegado");
+
+        ViajeCurso viaje = viajeCursoDAO.find(objecionBD.getViajeCurso().getId());
+        this.validarPermisoObjecion(viaje, ds);
+
+        objecionBD.setEstadoEnum(ObjecionEstadoEnum.ACEPTADO);
+        objecionBD.setUserAceptacion(ds.getUsuario());
+        objecionBD.setFechaAceptacion(today.toDate());
+        objecionViajeEventoDAO.delete(objecionBD);
     }
 
 }

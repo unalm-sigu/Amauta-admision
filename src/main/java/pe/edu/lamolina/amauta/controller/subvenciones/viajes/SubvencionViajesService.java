@@ -10,10 +10,13 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.AlumnoViajeCurso;
+import pe.edu.lamolina.model.bienestar.ObjecionViajeEvento;
 import pe.edu.lamolina.model.bienestar.ViajeCurso;
 import pe.edu.lamolina.model.contabilidad.JustificacionGasto;
 
 public interface SubvencionViajesService {
+
+    CicloAcademico findCicloSubvenciones();
 
     List<DepartamentoAcademico> allDptosAcademicos(DataSessionPivot ds);
 
@@ -42,5 +45,15 @@ public interface SubvencionViajesService {
     JustificacionGasto findJustificacion(ViajeCurso viajeCurso, DataSessionPivot ds);
 
     List<AlumnoViajeCurso> allAlumnosByViaje(ViajeCurso viajeCurso);
+
+    List<ObjecionViajeEvento> allObjecionesActivas(ViajeCurso viajeCursoForm, DataSessionPivot ds);
+
+    void addObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds);
+
+    void deleteObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds);
+
+    void enviarObservacion(ViajeCurso viajeCurso, DataSessionPivot ds);
+
+    void aprobarRespuestaObjecion(ObjecionViajeEvento objecion, DataSessionPivot ds);
 
 }
