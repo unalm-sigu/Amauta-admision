@@ -61,6 +61,10 @@
                                                     <small class="block text-muted m-b-xs"><b>Matrícula:</b> {{item.alumnoDelegado.codigo}}</small>
 
                                                     <div class="block text-primary"><b>Docente:</b> {{item.docenteCreador.persona.apellidosNombres}}</div>
+
+                                                    <div v-bind.class="classSgtePaso(item)" class="block">
+                                                        <b>¿Que falta hacer?:</b> {{item.estadoViajeEnum.siguientePaso}}
+                                                    </div>
                                                 </td>
 
                                                 <td class="v-middle text-center">
