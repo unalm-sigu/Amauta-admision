@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.util.Asserts;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -270,8 +272,13 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public Empresa saveInstitucion(Empresa institucion) {
-        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), new Pais(GlobalConstantine.ID_PERU));
+        
+        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), institucion.getPaisUbicacion());
+
+        Assert.isTrue(doc != null, "No tiene tipo documento identificado, comunicarse con el área de sistemas.");
+
         institucion.setTipoDocIdentidad(doc);
+        institucion.setNumeroDocIdentidad("RESERVA_AULA_" + RandomStringUtils.randomNumeric(6));
         empresaDAO.save(institucion);
         return institucion;
     }
@@ -550,7 +557,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             Oficina oficina = tramite.getOficina();
             nombre = oficina.getNombre();
             email = oficina.getEmail();
-        } 
+        }
         mailerService.enviarNotificacionAulaReservaAceptado(estimado, nombre, email, contenido);
     }
 

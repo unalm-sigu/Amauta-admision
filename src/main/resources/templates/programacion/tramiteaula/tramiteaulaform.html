@@ -505,6 +505,7 @@
                                                      select-label=""
                                                      label="nombre"
                                                      v-bind:loading="isSearchingPais"
+                                                     required="true"
                                                      >
                                         </multiselect>
 
@@ -514,7 +515,6 @@
                                         <label>Nombre</label>
                                         <input type="text"
                                                class="form-control"
-                                               name="razonSocial"
                                                v-model="institucion.razonSocial"
                                                required="true"/>
                                     </div>

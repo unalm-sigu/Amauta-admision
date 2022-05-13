@@ -32,6 +32,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
@@ -234,12 +235,11 @@ public class TramiteAulaController {
 
     @ResponseBody
     @RequestMapping("saveInstitucion")
-    public JsonResponse saveInstitucion(Empresa insticion, HttpSession session) {
+    public JsonResponse saveInstitucion(@RequestBody Empresa insticion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
-
             Empresa institucionBD = service.saveInstitucion(insticion);
             response.setData(JaneHelper.from(institucionBD).only("id,razonSocial").json());
             response.setSuccess(true);

@@ -89,7 +89,7 @@ new Vue({
         },
         addInstitucion() {
             let $vue = this;
-            $vue.institucion = {pais: {}};
+            $vue.institucion = {paisUbicacion : {}};
             $vue.$refs.nuevaInstitucionModal.open();
         },
         saveInstitucionModal() {
@@ -99,11 +99,13 @@ new Vue({
             if (!valid) {
                 return;
             }
+                
             $.ajax({
                 url: APP.url('tramite/aula/saveInstitucion'),
                 type: 'POST',
                 async: false,
-                data: miform.serialize(),
+                data: JSON.stringify($vue.institucion),
+                contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
