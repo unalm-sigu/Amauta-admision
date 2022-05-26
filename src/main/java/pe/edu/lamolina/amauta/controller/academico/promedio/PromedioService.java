@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 public interface PromedioService {
 
@@ -24,6 +25,7 @@ public interface PromedioService {
     void promediarAllCicloAsync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            ObtencionGrado graduado,
             Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
@@ -37,6 +39,7 @@ public interface PromedioService {
     int promediarAllCicloSync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            ObtencionGrado graduado,
             Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,

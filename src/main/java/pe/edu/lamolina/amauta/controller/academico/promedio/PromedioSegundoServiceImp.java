@@ -2,6 +2,8 @@ package pe.edu.lamolina.amauta.controller.academico.promedio;
 
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,28 +21,25 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class PromedioSegundoServiceImp implements PromedioSegundoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final EgresadoDAO egresadoDAO;
+    private final ObtencionGradoDAO obtencionGradoDAO;
+    private final ReincorporacionDAO reincorporacionDAO;
 
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    @Autowired
-    EgresadoDAO egresadoDAO;
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    PromedioReviewService promedioReviewService;
+    private final PromedioReviewService promedioReviewService;
 
     @Async
     @Override
@@ -50,6 +49,7 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
             List<CicloAcademico> ciclos,
             DataSessionPivot ds) {
 
+        List<ObtencionGrado> graduados = obtencionGradoDAO.allAceptadosByAlumnos(alumnos);
         List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
@@ -63,8 +63,11 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
         Map<Long, List<Reincorporacion>> mapReincorporacionAntes = TypesUtil.convertListToMapList("alumno.id", reincorporacionesAntes);
         Map<Long, List<Reincorporacion>> mapReincorporacionActual = TypesUtil.convertListToMapList("alumno.id", reincorporacionesActuales);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+        Map<Long, ObtencionGrado> mapGraduado = TypesUtil.convertListToMap("alumno.id", graduados);
 
         for (Alumno alumno : alumnos) {
+
+            ObtencionGrado graduado = mapGraduado.get(alumno.getId());
             Egresado egresado = mapEgresado.get(alumno.getId());
             List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
@@ -76,6 +79,7 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
             promedioReviewService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,
+                    graduado,
                     egresado,
                     ciclos,
                     alumnoCiclos,

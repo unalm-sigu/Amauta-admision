@@ -8,12 +8,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 public interface PromedioReviewService {
 
     void promediarAllCicloAsync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            ObtencionGrado obtencionGrado,
             Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,

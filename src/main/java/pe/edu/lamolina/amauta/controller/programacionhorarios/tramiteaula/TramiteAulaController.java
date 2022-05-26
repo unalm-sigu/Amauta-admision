@@ -32,7 +32,6 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
@@ -258,7 +257,7 @@ public class TramiteAulaController {
     public ArrayNode allAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
 
         List<Alumno> alumnos = service.allAlumnoByName(nombre);
-        
+
         return JaneHelper.from(alumnos)
                 .only("id,codigo")
                 .join("persona", "id,nombreCompleto")

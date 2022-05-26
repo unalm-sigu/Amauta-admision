@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,6 +36,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     public void promediarAllCicloAsync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            ObtencionGrado obtencionGrado,
             Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
@@ -60,6 +62,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             rpta = promedioService.promediarAllCicloSync(
                     alumno,
                     cicloActivo,
+                    obtencionGrado,
                     egresado,
                     ciclos,
                     alumnoCiclos,

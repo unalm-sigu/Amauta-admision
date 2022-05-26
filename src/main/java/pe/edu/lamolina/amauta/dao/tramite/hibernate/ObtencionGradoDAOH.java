@@ -21,6 +21,7 @@ import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.BACH;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.MAE;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.TIT;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ANU;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -156,6 +157,32 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .filter("et.codigo", "!=", ANU)
                 .filter("alu.id", alumno)
                 .limit(1);
+        return find(sql);
+    }
+
+    @Override
+    public List<ObtencionGrado> allAceptadosByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = new Octavia()
+                .from(ObtencionGrado.class, "og")
+                .join("estadoTramite et", "alumno al")
+                .left("al.carrera car", "al.persona per", "per.tipoDocumento td", "resolucion re")
+                .left("tramite tr")
+                .filter("et.codigo", TramiteEstadoEnum.ACEP)
+                .in("al.id", alumnos);
+
+        return all(sql);
+    }
+
+    @Override
+    public ObtencionGrado findAceptadoByAlumno(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(ObtencionGrado.class, "og")
+                .join("estadoTramite et", "alumno al")
+                .left("al.carrera car", "al.persona per", "per.tipoDocumento td", "resolucion re")
+                .left("tramite tr")
+                .filter("et.codigo", TramiteEstadoEnum.ACEP)
+                .filter("al.id", alumno);
+
         return find(sql);
     }
 

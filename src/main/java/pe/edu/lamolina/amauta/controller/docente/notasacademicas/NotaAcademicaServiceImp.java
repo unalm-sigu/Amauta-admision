@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -107,144 +107,77 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ReclamoNotaDAO;
-import pe.edu.lamolina.amauta.dao.academico.ResumenAlumnoEvaluacionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    private final AlumnoCicloDAO alumnoCicloDAO;
+    private final AlumnoEvaluacionDAO alumnoEvaluacionDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final CursoDAO cursoDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final DocenteSeccionDAO docenteSeccionDAO;
+    private final EgresadoDAO egresadoDAO;
+    private final EvaluacionDAO evaluacionDAO;
+    private final EvaluacionEliminadaDAO evaluacionEliminadaDAO;
+    private final EvaluacionExpandidaDAO evaluacionExpandidaDAO;
+    private final EvaluacionPlanDAO evaluacionPlanDAO;
+    private final EvaluacionSeccionDAO evaluacionSeccionDAO;
+    private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final GrupoSeccionDAO grupoSeccionDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final NotaLetraDAO notaLetraDAO;
+    private final ObtencionGradoDAO obtencionGradoDAO;
+    private final PlanCalificacionCursoDAO planCalificacionCursoDAO;
+    private final PlanCalificacionDAO planCalificacionDAO;
+    private final ReclamoNotaDAO reclamoNotaDAO;
+    private final RetiroCicloDAO retiroCicloDAO;
+    private final SeccionDAO seccionDAO;
+    private final SistemaNotasDAO sistemaNotasDAO;
+    private final TipoEvaluacionDAO tipoEvaluacionDAO;
+    private final TramiteDAO tramiteDAO;
 
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    CursoDAO cursoDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    PlanCalificacionDAO planCalificacionDAO;
-
-    @Autowired
-    GrupoSeccionDAO grupoSeccionDAO;
-
-    @Autowired
-    TipoEvaluacionDAO tipoEvaluacionDAO;
-
-    @Autowired
-    EvaluacionPlanDAO evaluacionPlanDAO;
-
-    @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
-    DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    EvaluacionSeccionDAO evaluacionSeccionDAO;
-
-    @Autowired
-    EvaluacionDAO evaluacionDAO;
-
-    @Autowired
-    SistemaNotasDAO sistemaNotasDAO;
-
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-
-    @Autowired
-    ReclamoNotaDAO reclamoNotaDAO;
-
-    @Autowired
-    ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
-
-    @Autowired
-    PlanCalificacionCursoDAO planCalificacionCursoDAO;
-
-    @Autowired
-    EvaluacionEliminadaDAO evaluacionEliminadaDAO;
-
-    @Autowired
-    NotaLetraDAO notaLetraDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    TramiteDAO tramiteDAO;
-
-    @Autowired
-    PromedioService promedioService;
-    @Autowired
-    InterceptorService interceptorService;
-    @Autowired
-    AuditorService auditorService;
-    @Autowired
-    CalculoNotasService calculoNotasService;
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-    @Autowired
-    MatriculableService matriculableService;
-    @Autowired
-    ReincorporadosService reincorporadosService;
+    private final AuditorService auditorService;
+    private final AvanceCurricularService avanceCurricularService;
+    private final CalculoNotasService calculoNotasService;
+    private final InterceptorService interceptorService;
+    private final MatriculableService matriculableService;
+    private final PromedioService promedioService;
+    private final ReincorporadosService reincorporadosService;
+    private final VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
         Map<Long, DocenteSeccion> mapDocentesSeccion = TypesUtil.convertListToMap("seccion.id", docentesSecciones);
 
-        logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
+        log.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> idsGpoSecc = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
             idsGpoSecc.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
-            logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            log.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
 
-        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(idsGpoSecc, ","));
+        log.debug("Lista de grupos para el filtro {}", StringUtils.join(idsGpoSecc, ","));
         List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(idsGpoSecc, ciclo, null, EstadoEnum.ACT);
-        logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
+        log.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(gruposSeccion, ciclo);
         Map<Long, DocenteSeccion> mapResponsables = TypesUtil.convertListToMap("seccion.grupoSeccion.id", responsables);
         //MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
@@ -289,14 +222,14 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         for (GrupoSeccion gpoSecc : gruposSeccion) {
             List<PlanCalificacionCurso> planCalificacionCursos = planCalificacionCursoDAO.allByFilter(null, ds.getCicloAcademico().getTipoEnum(), gpoSecc.getCurso(), EstadoEnum.ACT);
             gpoSecc.getCurso().setPlanesCalificacionCursos(planCalificacionCursos);
-            logger.debug("PlanCalificacionCurso del curso {}, con tipo de ciclo {}, cantidad {}",
+            log.debug("PlanCalificacionCurso del curso {}, con tipo de ciclo {}, cantidad {}",
                     gpoSecc.getCurso().getId(), ds.getCicloAcademico().getTipoEnum().name(), planCalificacionCursos.size());
 
             List<Seccion> seccion = gpoSecc.getSecciones();
-            logger.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
+            log.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
             for (Seccion secc : seccion) {
                 List<DocenteSeccion> docSeccs = secc.getDocenteSeccion();
-                logger.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
+                log.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
             }
         }
 
@@ -305,16 +238,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     public List<DocenteSeccion> allDocenteSeccion(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
-        logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
+        log.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> lstIds = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
             lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
-            logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            log.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
 
-        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
+        log.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
         List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, ciclo, null, EstadoEnum.ACT);
-        logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
+        log.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         gruposSeccion.forEach((grupoSeccion) -> {
             grupoSeccion.setSecciones(new ArrayList());
         });
@@ -340,10 +273,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         for (GrupoSeccion gpoSecc : gruposSeccion) {
             List<Seccion> seccion = gpoSecc.getSecciones();
-            logger.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
+            log.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
             for (Seccion secc : seccion) {
                 List<DocenteSeccion> docSeccs = secc.getDocenteSeccion();
-                logger.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
+                log.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
             }
         }
 
@@ -429,13 +362,13 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             throw new PhobosException("No se puede eliminar la evaluación, el acta se encuentra cerrada.");
         }
 
-        logger.debug("evaluacion param {}, {}", evaluacion.getId(), evaluacion == null ? "no encontro evaluacion" : "si encontro evaluacion");
+        log.debug("evaluacion param {}, {}", evaluacion.getId(), evaluacion == null ? "no encontro evaluacion" : "si encontro evaluacion");
         if (evaluacion.getDocenteEvaluador() == null) {
             throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
         }
-        logger.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
+        log.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
         if (!evaluacion.getDocenteEvaluador().getId().equals(ds.getDocente().getId())) {
-            logger.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
+            log.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
             throw new PhobosException("Docente evaluador incorrecto, verifique");
         }
 
@@ -522,7 +455,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     public void createEvaluacionSeccionPorDocente(Docente docente, CicloAcademico ciclo) {
 
         List<DocenteSeccion> lstDocenteSeccion = docenteSeccionDAO.allByDocente(docente, ciclo);
-        logger.debug("Lista de secciones por docente {}", lstDocenteSeccion.size());
+        log.debug("Lista de secciones por docente {}", lstDocenteSeccion.size());
         for (DocenteSeccion docenteSeccion : lstDocenteSeccion) {
 
             GrupoSeccion grupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion();
@@ -530,27 +463,27 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
             String objectToEvaluate = "";
             if (ciclo.isTipoNivelacion()) {
-                logger.debug("El ciclo es nivelacion");
+                log.debug("El ciclo es nivelacion");
                 objectToEvaluate = "planCalificacion.id";
             } else if (ciclo.isTipoRegular()) {
-                logger.debug("El ciclo es regular");
+                log.debug("El ciclo es regular");
                 objectToEvaluate = "planCalificacionRegular.id";
             }
             if (ObjectUtil.getParentTree(curso, objectToEvaluate) == null) {
-                logger.debug("el curso {} no cuenta con plan calificacion", curso.getId());
+                log.debug("el curso {} no cuenta con plan calificacion", curso.getId());
                 continue;
             }
 
             Long idGrupoSeccion = grupoSeccion.getId();
             //   Long idPlanCalificacion = curso.getPlanCalificacion().getId();
             Long idPlanCalificacion = (Long) ObjectUtil.getParentTree(curso, objectToEvaluate);
-            logger.debug("El Docente Seccion {}, Seccion {}, Grupo seccion {}, plan calificacion {}", docenteSeccion.getId(),
+            log.debug("El Docente Seccion {}, Seccion {}, Grupo seccion {}, plan calificacion {}", docenteSeccion.getId(),
                     docenteSeccion.getSeccion().getId(), idGrupoSeccion, idPlanCalificacion);
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion, null);
             PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
 
             if (evaluacionSeccion != null) {
-                logger.debug("el grupo ya cuenta con evaluacion seccion");
+                log.debug("el grupo ya cuenta con evaluacion seccion");
                 if (evaluacionSeccion.isEstadoPro()) {
                     evaluacionSeccion.setPlanCalificacion(planCalificacion);
                     evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
@@ -564,7 +497,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 }
             } else {
 
-                logger.debug("se le creara una evaluacion seccion al grupo");
+                log.debug("se le creara una evaluacion seccion al grupo");
                 EvaluacionSeccion evaluacionSeccionCreate = new EvaluacionSeccion();
                 evaluacionSeccionCreate.setPlanCalificacion(planCalificacion);
                 evaluacionSeccionCreate.setSistemaNotas(planCalificacion.getSistemaNotas());
@@ -588,16 +521,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
 
         List<EvaluacionExpandida> evaluacionesExpandidas = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
-        logger.debug("Evaluacion seccion {}, cantidad de evaluaciones expandidadas {}", evaluacionSeccion.getId(), evaluacionesExpandidas.size());
+        log.debug("Evaluacion seccion {}, cantidad de evaluaciones expandidadas {}", evaluacionSeccion.getId(), evaluacionesExpandidas.size());
         if (evaluacionesExpandidas.isEmpty()) {
-            logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
+            log.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
 
             List<EvaluacionPlan> evaluacionesPlanes = this.allEvaluacionPlanByPlanCalifica(evaluacionSeccion.getPlanCalificacion().getId());
-            logger.debug("Plan Calificacion {}, Cantidad de evaluaciones para el plan {} ", evaluacionSeccion.getPlanCalificacion().getId(), evaluacionesPlanes.size());
+            log.debug("Plan Calificacion {}, Cantidad de evaluaciones para el plan {} ", evaluacionSeccion.getPlanCalificacion().getId(), evaluacionesPlanes.size());
 
             for (EvaluacionPlan evaluacionPlan : evaluacionesPlanes) {
-                logger.debug("createEvaluacionExpPorEvalSeccion ##################################");
-                logger.debug("Evaluacion PLan {}, Codigo {}", evaluacionPlan.getId(), evaluacionPlan.getTipoEvaluacion().getCodigo());
+                log.debug("createEvaluacionExpPorEvalSeccion ##################################");
+                log.debug("Evaluacion PLan {}, Codigo {}", evaluacionPlan.getId(), evaluacionPlan.getTipoEvaluacion().getCodigo());
                 BigDecimal peso = BigDecimal.ZERO;
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
@@ -612,7 +545,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                         evaluacion.setPeso(pesoFinal);
                     }
                     peso = peso.add(evaluacionPlan.getPesoEvaluacion());
-                    logger.debug("Se guardara la evaluacion expandida  {} {}", evaluacion.getTipoEvaluacion().getCodigo(), i);
+                    log.debug("Se guardara la evaluacion expandida  {} {}", evaluacion.getTipoEvaluacion().getCodigo(), i);
                     evaluacionExpandidaDAO.save(evaluacion);
                 }
             }
@@ -718,10 +651,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         }
 
         List<Seccion> secciones = seccionDAO.allByFilter(evaluacionSeccion.getGrupoSeccion().getId());
-        logger.debug("Cantidad de secciones del grupo {}", secciones.size());
+        log.debug("Cantidad de secciones del grupo {}", secciones.size());
         for (Seccion seccion : secciones) {
             if (ObjectUtil.getParentTree(seccion, "id") != null) {
-                logger.debug("el id de la seccion {}", seccion.getId());
+                log.debug("el id de la seccion {}", seccion.getId());
             }
         }
 
@@ -887,7 +820,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         DateTime today = new DateTime();
 
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(grupoSeccionId);
-        logger.debug("Grupo Seccion Id {}", grupoSeccion.getId());
+        log.debug("Grupo Seccion Id {}", grupoSeccion.getId());
 
         DepartamentoAcademico departamentoAcademico = departamentoAcademicoDAO.find(planCalificacion.getDepartamentoAcademico().getId());
 
@@ -1192,7 +1125,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public void aceptarRechazo(Long cursoId, Long grupoId, DataSessionPivot ds) {
-        logger.debug("CursoId {}, GrupoId {}", cursoId, grupoId);
+        log.debug("CursoId {}, GrupoId {}", cursoId, grupoId);
 
         Curso curso = cursoDAO.find(cursoId);
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
@@ -1218,7 +1151,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public void aceptarPlanCalificacion(PlanCalificacion planCalificacion, Long cursoId, Long grupoId, DataSessionPivot ds) {
-        logger.debug("CursoId {}, grupoId {}", cursoId, grupoId);
+        log.debug("CursoId {}, grupoId {}", cursoId, grupoId);
 
         Date today = new Date();
 
@@ -1226,7 +1159,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
         planCalificacion = planCalificacionDAO.find(planCalificacion.getId());
 
-        logger.debug("Plan Calificacion {}, Codigo {}", planCalificacion.getId(), planCalificacion.getCodigo());
+        log.debug("Plan Calificacion {}, Codigo {}", planCalificacion.getId(), planCalificacion.getCodigo());
 
         BigDecimal totalWeight = BigDecimal.ZERO;
 
@@ -1261,7 +1194,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         grupo.setPlanCalificacion(planCalificacion);
 
-        logger.debug("Buscara la evaluacion seccion del grupo {}", grupo.getId());
+        log.debug("Buscara la evaluacion seccion del grupo {}", grupo.getId());
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         if (evaluacionSeccion == null) {
             evaluacionSeccion = new EvaluacionSeccion();
@@ -1287,7 +1220,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds) {
-        logger.debug("La evaluacionSeccionId es {}", evaluacionSeccionId);
+        log.debug("La evaluacionSeccionId es {}", evaluacionSeccionId);
 
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionSeccionId);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.EXPR);
@@ -1300,9 +1233,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         grupoSeccionDAO.update(grupoSeccion);
 
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
-        logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
+        log.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
         List<EvaluacionExpandida> planEvaluacionesExpandidas = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
-        logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", grupoSeccion.getPlanCalificacion().getId(), planEvaluacionesExpandidas.size());
+        log.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", grupoSeccion.getPlanCalificacion().getId(), planEvaluacionesExpandidas.size());
 
         for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
             BigDecimal pesoTotal = evaluacionExpandida.getPeso();
@@ -1325,9 +1258,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         secciones.removeIf(x -> !x.isEstadoOperativo());
         boolean evaluacionesGeneradas = false;
         for (Seccion seccionEach : secciones) {
-            logger.debug("aceptarExpansion ############################################");
-            logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
-            logger.debug("Seccion Tipo Evaluacion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum());
+            log.debug("aceptarExpansion ############################################");
+            log.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
+            log.debug("Seccion Tipo Evaluacion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum());
 //            EvaluacionExpandida evalExpandidaBySeccion = planEvaluacionesExpandidas.stream()
 //                    .filter(x -> x.getTipoSeccionEvalEnum() == seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum())
 //                    .findFirst().orElse(null);
@@ -1339,8 +1272,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
             for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
 
-                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
+                log.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+                log.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
 
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                         evaluacionExpandida.getTipoSeccionEvalEnum())) {
@@ -1431,7 +1364,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         EvaluacionExpandida evaluacion = evaluacionExpandidaDAO.find(id);
         EvaluacionExpandida evalSuperior = evaluacion.getEvaluacionSuperior();
-        logger.debug("Evaluacion expandida a eliminar {}, Evaluacion Padre {}", id, evalSuperior.getId());
+        log.debug("Evaluacion expandida a eliminar {}, Evaluacion Padre {}", id, evalSuperior.getId());
         evaluacionExpandidaDAO.delete(evaluacion);
 
         if (evalSuperior != null) {
@@ -1440,7 +1373,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 evalSuperior.setEstaDesagregado(BigDecimal.ZERO.intValue());
                 evaluacionExpandidaDAO.update(evalSuperior);
             } else {
-                logger.debug("Cantidad de evaluaciones hijas del padre {}", evalSuperior.getEvaluacionesExpandidas().size());
+                log.debug("Cantidad de evaluaciones hijas del padre {}", evalSuperior.getEvaluacionesExpandidas().size());
                 if (evalSuperior.getEvaluacionesExpandidas().size() == 1) {
                     for (EvaluacionExpandida eva : evalSuperior.getEvaluacionesExpandidas()) {
                         if (eva.getId().equals(id)) {
@@ -1469,7 +1402,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Transactional
     public Evaluacion activarEvaluacion(Long evaluacionId, Date fechaRealizada, DataSessionPivot ds) {
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionId);
-        logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
+        log.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
 
         if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
             throw new PhobosException("No se puede activar la evaluación, el acta se encuentra cerrada.");
@@ -1478,9 +1411,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         if (evaluacion.getDocenteEvaluador() == null) {
             throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
         }
-        logger.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
+        log.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
         if (!evaluacion.getDocenteEvaluador().getId().equals(ds.getDocente().getId())) {
-            logger.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
+            log.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
             throw new PhobosException("Docente evaluador incorrecto, verifique");
         }
 
@@ -1614,7 +1547,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idSeccion) {
         Evaluacion evaluacion = this.findEvaluacion(idEvaluacion);
-        logger.debug("evaluacion param {}, {}", idEvaluacion, evaluacion == null ? "no encontro" : "si encontro");
+        log.debug("evaluacion param {}, {}", idEvaluacion, evaluacion == null ? "no encontro" : "si encontro");
 
         Seccion seccion = seccionDAO.find(idSeccion);
         GrupoSeccion grupoSeccion = this.findGrupo(seccion.getGrupoSeccion().getId());
@@ -1879,12 +1812,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 evaluacionesBySeccionFinal.add(eva);
             }
             if (eva.isDesagregado() && !eva.getEvaluacionExpandida().isEstadoAnulado()) {
-                logger.debug("esta desagregado");
+                log.debug("esta desagregado");
                 if (eva.getEvaluaciones() == null || eva.getEvaluaciones().isEmpty()) {
                     continue;
                 }
 
-                logger.debug("hijos {}", eva.getEvaluaciones().size());
+                log.debug("hijos {}", eva.getEvaluaciones().size());
                 for (Evaluacion evaChild : eva.getEvaluaciones()) {
                     if (!evaChild.isDesagregado() && !evaChild.getEvaluacionExpandida().isEstadoAnulado()) {
                         evaChild.setNombreCorto(evaChild.getTipoEvaluacion().getCodigo() + evaChild.getNumero());
@@ -1937,9 +1870,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public void cambiarTipoSeccionEvaluacion(EvaluacionExpandida evaluacionExpandida, TipoSeccionEvalEnum tipoSeccionEvalEnum) {
-        logger.debug("Evaluacion Exp {}, Tipo Seccion {}", evaluacionExpandida.getId(), tipoSeccionEvalEnum.name());
+        log.debug("Evaluacion Exp {}, Tipo Seccion {}", evaluacionExpandida.getId(), tipoSeccionEvalEnum.name());
         List<Evaluacion> evaluaciones = evaluacionDAO.allByFilter(null, null, null, evaluacionExpandida.getId());
-        logger.debug("cantidad de evaluaciones {}", evaluaciones.size());
+        log.debug("cantidad de evaluaciones {}", evaluaciones.size());
         for (Evaluacion eva : evaluaciones) {
             if (eva.getFechaIngresoNota() != null) {
                 throw new PhobosException("No se puede cambiar el tipo de sección, ya que cuenta con evaluaciones realizadas.");
@@ -1951,17 +1884,17 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
         evaluacionExpandida.setTipoSeccionEnum(tipoSeccionEvalEnum);
         evaluacionExpandidaDAO.update(evaluacionExpandida);
-        logger.debug("Evaluacion expandida {}", evaluacionExpandida.getId());
+        log.debug("Evaluacion expandida {}", evaluacionExpandida.getId());
 
         GrupoSeccion grupoSeccion = evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion();
 
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
-        logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
+        log.debug("Cantidad de secciones para el grupo {}", secciones.size());
 
         for (Seccion seccionEach : secciones) {
-            logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
-            logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-            logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
+            log.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
+            log.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+            log.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
 
             if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                     evaluacionExpandida.getTipoSeccionEvalEnum())) {
@@ -2081,9 +2014,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             throw new PhobosException("Error en el porcentaje total de las siguientes evaluaciones : " + StringUtils.join(errores, ", "));
         }
 
-        logger.debug("Evaluacion Seccion {}", evaluacionSeccion.getId());
+        log.debug("Evaluacion Seccion {}", evaluacionSeccion.getId());
         for (EvaluacionExpandida evaluacionesExpandida : evaluacionesExpandidas) {
-            logger.debug("Id {}, Peso {}", evaluacionesExpandida.getId(), evaluacionesExpandida.getPeso());
+            log.debug("Id {}, Peso {}", evaluacionesExpandida.getId(), evaluacionesExpandida.getPeso());
             EvaluacionExpandida evaluacionesExpandidaDB = evaluacionExpandidaDAO.find(evaluacionesExpandida.getId());
             evaluacionesExpandidaDB.setPeso(evaluacionesExpandida.getPeso());
             evaluacionExpandidaDAO.update(evaluacionesExpandidaDB);
@@ -2120,7 +2053,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                     if (docenteSeccion != null) {
                         if (docenteSeccion.isEstadoActivado()) {
                             if (evaluacion.getFechaIngresoNota() == null) {
-                                logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
+                                log.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
                                 evaluactionsComplete = false;
                                 break;
                             }
@@ -2183,18 +2116,19 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             }
         }
 
-        logger.info("Finalizó envío de notas al historial del grupo-seccion {}", grupoSeccion.getId());
+        log.info("Finalizó envío de notas al historial del grupo-seccion {}", grupoSeccion.getId());
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenHisto);
         visorCalculoNotas.destroyToken(tokenHisto);
 
         TypesUtil.delay(2000);
-        logger.info("Iniciando el calculo de promedios y situaciones academicas de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
+        log.info("Iniciando el calculo de promedios y situaciones academicas de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
 
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
         CicloAcademico cicloPregrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
         CicloAcademico cicloPosgrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
 
+        List<ObtencionGrado> graduados = obtencionGradoDAO.allAceptadosByAlumnos(alumnos);
         List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
@@ -2206,8 +2140,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
         Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+        Map<Long, ObtencionGrado> mapGraduados = TypesUtil.convertListToMap("alumno.id", graduados);
 
         for (Alumno alumno : alumnos) {
+            ObtencionGrado graduado = mapGraduados.get(alumno.getId());
             Egresado egresado = mapEgresado.get(alumno.getId());
             List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
@@ -2223,6 +2159,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,
+                    graduado,
                     egresado,
                     ciclos,
                     alumnoCiclos,
@@ -2243,13 +2180,13 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 break;
             }
         }
-        logger.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
+        log.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
         visorCalculoNotas.destroyToken(tokenProm);
 
         TypesUtil.delay(2000);
-        logger.info("Iniciar revision de avance curricular de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
+        log.info("Iniciar revision de avance curricular de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
         String tokenCurri = token22 + TOKEN_CURRICULA;
         avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, tokenCurri);
     }
@@ -2263,7 +2200,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 break;
             }
         }
-        logger.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
+        log.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
         visorCalculoNotas.destroyToken(tokenCurri);
@@ -2272,7 +2209,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         Date today = new Date();
         if (eventoCicloAcademico != null && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
             TypesUtil.delay(2000);
-            logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
+            log.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
             matriculableService.recalcularPrioridad(grupoSeccion, ds.getUsuario());
         }
     }
@@ -2283,9 +2220,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(grupo.getId());
 
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
-        logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
+        log.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         List<AlumnoEvaluacion> evaluacionsByEvalSec = alumnoEvaluacionDAO.allByFilter(evaluacionSeccion.getId(), null, null, null);
-        logger.debug("Cantidad de alumno evaluaciones {}", evaluacionsByEvalSec.size());
+        log.debug("Cantidad de alumno evaluaciones {}", evaluacionsByEvalSec.size());
 
         List<AlumnoEvaluacion> evaluacionesCalc = new ArrayList<>();
 
@@ -2361,7 +2298,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         EvaluacionExpandida evaluacionExpPadre = evaluacionExpandidaAnul.getEvaluacionSuperior();
         List<EvaluacionExpandida> evaluacionesHijas = evaluacionExpandidaDAO.allByFilter(null, null, evaluacionExpPadre.getId(), EstadoEnum.ACT);
-        logger.debug("Cantidad de evaluaciones del mismo nivel {}", evaluacionesHijas.size());
+        log.debug("Cantidad de evaluaciones del mismo nivel {}", evaluacionesHijas.size());
         if (evaluacionesHijas.size() == 1) {
             throw new PhobosException("Error, no se puede anular la evaluación por que es la unica del mismo nivel.");
         }

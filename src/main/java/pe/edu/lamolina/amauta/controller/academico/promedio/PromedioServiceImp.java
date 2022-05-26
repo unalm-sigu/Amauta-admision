@@ -72,7 +72,9 @@ import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_G;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Slf4j
 @Service
@@ -154,6 +156,7 @@ public class PromedioServiceImp implements PromedioService {
     public void promediarAllCicloAsync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            ObtencionGrado graduado,
             Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
@@ -172,6 +175,7 @@ public class PromedioServiceImp implements PromedioService {
             this.promediarAllCicloSync(
                     alumno,
                     cicloActivo,
+                    graduado,
                     egresado,
                     ciclos,
                     alumnoCiclos,
@@ -192,6 +196,7 @@ public class PromedioServiceImp implements PromedioService {
     public int promediarAllCicloSync(
             Alumno alumnix,
             CicloAcademico cicloActivo,
+            ObtencionGrado graduado,
             Egresado egresado,
             List<CicloAcademico> ciclosAll,
             List<AlumnoCiclo> alumnoCiclos,
@@ -221,6 +226,7 @@ public class PromedioServiceImp implements PromedioService {
 
             this.promediarAlumno(
                     alumno,
+                    graduado,
                     egresado,
                     mapCiclo,
                     cicloActivo,
@@ -381,6 +387,10 @@ public class PromedioServiceImp implements PromedioService {
                 alumno.setSituacionAcademica(ultimoAlumnoCicloSinDesertor.getSituacionInicio());
             }
 
+            if (graduado != null) {
+                alumno.setSituacionAcademica(new SituacionAcademica(S_G));
+            }
+
             alumno.setUltimoRetiro(ultimoRetiroRegular);
             alumno.setCicloActivoRegular(ultimoCicloRegular);
             alumno.setCicloActivo(ultimoCicloEstudiado);
@@ -428,6 +438,7 @@ public class PromedioServiceImp implements PromedioService {
         this.promediarAllCicloSync(
                 bean.getAlumno(),
                 bean.getCicloActivo(),
+                bean.getGraduado(),
                 bean.getEgresado(),
                 cicloAcademicoDAO.all(),
                 bean.getAlumnoCiclos(),
@@ -450,6 +461,7 @@ public class PromedioServiceImp implements PromedioService {
     @Transactional(propagation = Propagation.SUPPORTS)
     private void promediarAlumno(
             Alumno alumno,
+            ObtencionGrado graduado,
             Egresado egresado,
             Map<String, List<CicloAcademico>> mapCiclo,
             CicloAcademico cicloActivo,

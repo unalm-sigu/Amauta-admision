@@ -19,8 +19,12 @@ public interface ObtencionGradoDAO extends EasyDAO<ObtencionGrado> {
 
     GraduadoResumen findResumenGraduados(List<Carrera> carreras, String todo);
 
-    public ObtencionGrado findByAlumnoAndTipo(Alumno alumno, TipoGradoAcademicoEnum tipoGradoAcademicoEnum);
+    ObtencionGrado findByAlumnoAndTipo(Alumno alumno, TipoGradoAcademicoEnum tipoGradoAcademicoEnum);
 
-    public ObtencionGrado getByAlumnoGrado(Alumno alumno, GradoAcademico gradoAcademico);
+    ObtencionGrado getByAlumnoGrado(Alumno alumno, GradoAcademico gradoAcademico);
+
+    List<ObtencionGrado> allAceptadosByAlumnos(List<Alumno> alumnos);
+
+    ObtencionGrado findAceptadoByAlumno(Alumno alumno);
 
 }

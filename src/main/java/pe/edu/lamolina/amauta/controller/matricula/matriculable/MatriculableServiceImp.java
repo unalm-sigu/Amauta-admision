@@ -133,6 +133,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Slf4j
 @Service
@@ -457,6 +458,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloPregrado = bean.getCicloPregrado();
         CicloAcademico cicloPosgrado = bean.getCicloPosgrado();
 
+        List<ObtencionGrado> graduados = bean.getGraduados();
         List<Egresado> egresados = bean.getEgresados();
         List<AlumnoCiclo> alumnosCiclosAll = bean.getAlumnosCiclosAll();
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = bean.getAlumnosCiclosCursosActivos();
@@ -468,8 +470,10 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
         Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+        Map<Long, ObtencionGrado> mapGraduado = TypesUtil.convertListToMap("alumno.id", graduados);
 
         for (Alumno alumno : alumnos) {
+            ObtencionGrado graduado = mapGraduado.get(alumno.getId());
             Egresado egresado = mapEgresado.get(alumno.getId());
             List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
@@ -486,6 +490,7 @@ public class MatriculableServiceImp implements MatriculableService {
             promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,
+                    graduado,
                     egresado,
                     ciclos,
                     alumnoCiclos,
@@ -1477,6 +1482,7 @@ public class MatriculableServiceImp implements MatriculableService {
 //        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
 //        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivos);
 
+        List<ObtencionGrado> graduados = bean.getGraduados();
         List<Egresado> egresados = bean.getEgresados();
         List<AlumnoCiclo> alumnosCiclosAll = bean.getAlumnosCiclosAll();
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = bean.getAlumnosCiclosCursosActivos();
@@ -1488,12 +1494,14 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
         Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
+        Map<Long, ObtencionGrado> mapGraduados = TypesUtil.convertListToMap("alumno.id", graduados);
 
         for (Alumno alumno : alumnos) {
 //            CicloAcademico cicloActivo = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
             List<AlumnoCiclo> allAlumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosActivos = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivos.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosAll = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
+            ObtencionGrado graduado = mapGraduados.get(alumno.getId());
             Egresado egresado = mapEgresados.get(alumno.getId());
             List<Reincorporacion> reincorporados = TypesUtil.getListNotNull(mapReincorporaciones.get(alumno.getId()));
             log.info("Alumno codigo {}", alumno.getCodigo());
@@ -1502,6 +1510,7 @@ public class MatriculableServiceImp implements MatriculableService {
             promedioService.promediarAllCicloAsync(
                     alumno,
                     ciclo,
+                    graduado,
                     egresado,
                     ciclosAcademicos,
                     allAlumnoCiclos,
@@ -1581,8 +1590,6 @@ public class MatriculableServiceImp implements MatriculableService {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
         aporteAlumnoService.generarAporteSegundaCarreraDeuda(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
-    
-    
 
     @Override
     @Transactional

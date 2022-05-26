@@ -22,6 +22,8 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Slf4j
 @Service
@@ -35,6 +37,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
     private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
     private final EgresadoDAO egresadoDAO;
+    private final ObtencionGradoDAO obtencionGradoDAO;
 
     private final ReincorporadosService reincorporadosService;
 
@@ -42,6 +45,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
     public BeanPromedios loadDataAlumno(Alumno alumno) {
 
         alumno = alumnoDAO.findAllInfo(alumno.getId());
+        ObtencionGrado graduado = obtencionGradoDAO.findAceptadoByAlumno(alumno);
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
@@ -51,6 +55,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
 
         BeanPromedios bean = new BeanPromedios();
         bean.setAlumno(alumno);
+        bean.setGraduado(graduado);
         bean.setEgresado(egresado);
         bean.setCicloActivo(cicloActivo);
         bean.setAlumnoCiclos(alumnoCiclos);
@@ -69,6 +74,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
         CicloAcademico cicloPregrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
         CicloAcademico cicloPosgrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
 
+        List<ObtencionGrado> graduados = obtencionGradoDAO.allAceptadosByAlumnos(alumnos);
         List<Egresado> egresados = egresadoDAO.allByAlumnosAceptados(alumnos);
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
@@ -85,6 +91,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
         bean.setAlumnosCiclosCursosActivos(alumnosCiclosCursosActivos);
         bean.setAlumnosCiclosCursosAll(alumnosCiclosCursosAll);
         bean.setReincorporaciones(reincorporaciones);
+        bean.setGraduados(graduados);
 
         return bean;
     }
