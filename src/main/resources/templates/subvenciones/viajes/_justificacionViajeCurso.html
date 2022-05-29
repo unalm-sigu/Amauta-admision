@@ -95,8 +95,8 @@
     <table class="table table-condensed">
         <thead>
             <tr>
-                <th class="wd-10">Tipo</th>
-                <th class="wd-15 text-center">Factura/Boleta</th>
+                <th></th>
+                <th colspan="2" class="wd-25">Documento justificatorio</th>
                 <th class="wd-40">Descripción</th>
                 <th class="text-center">Alumnos</th>
                 <th class="wd-10 text-right">Por alumno</th>
@@ -108,15 +108,27 @@
         <tbody>
         <template v-for="(item,idx) in justificacion.itemsJustificacion" >
             <tr>
-
-                <td class="align-middle">
-                    <div>{{item.tipoGrupoAlumnosEnum.value}}</div>
-                </td>
-
-                <td class="align-middle text-center">
+                <td class="v-middle text-center">{{(idx+1)}}</td>
+                <td class="v-middle text-center">
                     <a v-on:click="verTemporal(item.factura)" class="text-primary pointer">
                         <i class="fa fa-external-link fa-2x"></i>
                     </a>
+
+                    <i v-if="item.estadoJustificacion == 'RECHAZADA' " class="fa fa-frown-o fa-2x text-danger"></i>
+                    <i v-if="item.estadoJustificacion == 'ACEPTADA' " class="fa fa-thumbs-up fa-2x text-success"></i>
+
+                    <a v-if="item.observaciones" class="pointer"
+                       v-on:click="verObservaciones(item)">
+                        <i class="fa fa-commenting fa-2x ml-2"></i>
+                    </a>
+                </td>
+                
+                <td class="v-middle text-primary">
+                    <span v-if="item.tipoFactura">
+                        <span v-if="item.tipoFactura != 'OTRO' ">{{item.tipoFacturaEnum.value}}</span>
+                        <span v-else="">{{item.otroTipoFactura}}</span>
+                        {{item.numeroFactura}}
+                    </span>
                 </td>
 
                 <td class="align-middle">
@@ -146,7 +158,8 @@
             <tr v-if="item.tipoGrupoAlumnos == 'PARCIAL' "
                 v-for="(alu,row) in item.justificacionesAlumnos">
                 <td></td>
-                <td class="align-middle text-center">
+                <td></td>
+                <td class="align-middle text-right">
                     {{alu.alumno.codigo}}
                 </td>
 
@@ -166,12 +179,12 @@
         </template>
 
         <tr>
-            <td colspan="6" class="text-right">
+            <td colspan="7" class="text-right">
                 <div class="mr-2"><b>Total justificado:</b> &nbsp;&nbsp; S/. {{commas(justificacion.importeJustificado)}}</div>
             </td>
         </tr>
         <tr>
-            <td colspan="6" class="text-right">
+            <td colspan="7" class="text-right">
                 <div class="mr-2 text-success"><b>Total aceptado:</b> &nbsp;&nbsp; S/. {{commas(justificacion.importeAceptado)}}</div>
             </td>
         </tr>

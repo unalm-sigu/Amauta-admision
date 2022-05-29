@@ -6,6 +6,7 @@ new Vue({
         observacion: "",
         justificacion: {},
         alumnosViaje: JSON.parse(alumnosViaje),
+        itemJustificaSelect: {},
         aprobable: aprobable,
         esDocenteCreador: esDocenteCreador,
         configConfirmAction: VUE_MODAL.structConfirm({
@@ -26,6 +27,9 @@ new Vue({
             okbtn: 'Agregar',
             okclass: "btn-warning",
             form: "id-form-add-observa"
+        }),
+        modalObservaciones: VUE_MODAL.structInfo({
+            id: "id-modal-observaciones"
         }),
         viajeCurso: {},
         viajeCursoTempo: {},
@@ -387,6 +391,11 @@ new Vue({
                 return "text-danger tachado";
             }
             return "";
+        },
+        verObservaciones(item) {
+            let $vue = this;
+            $vue.itemJustificaSelect = JSON.parse(JSON.stringify(item));
+            $vue.$refs.modalObservaciones.open();
         },
         saveObservaJustifica() {
             let $vue = this;

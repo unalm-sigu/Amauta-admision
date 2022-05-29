@@ -30,12 +30,10 @@ public class PersonaCargoDAOH extends AbstractEasyDAO<PersonaCargo> implements P
                 .filter("pp.id", id);
 
         return find(sql);
-
     }
 
     @Override
     public List<PersonaCargo> allByFiltersDynaTable(DynatableFilter filter) {
-
         DynatableSql sql = new DynatableSql(filter)
                 .from(PersonaCargo.class, "pp")
                 .join("perfilCompania peco", "persona per")

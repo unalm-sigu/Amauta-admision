@@ -418,7 +418,7 @@ public class SubvencionViajesController {
         for (ItemJustificacionGasto item : itemsJustica) {
             ObjectNode nodeItem = JaneHelper
                     .from(item)
-                    .only("id,estadoJustificacion,estadoEnum,descripcion,tipoGrupoAlumnos,tipoGrupoAlumnosEnum,observaciones,cantidadAlumnos,importe,importeAlumno,fechaAnulacion")
+                    .only("id,estadoJustificacion,estadoEnum,tipoFactura,tipoFacturaEnum,otroTipoFactura,numeroFactura,descripcion,tipoGrupoAlumnos,tipoGrupoAlumnosEnum,observaciones,cantidadAlumnos,importe,importeAlumno,fechaAnulacion")
                     .join("factura", "id,ruta,nombre")
                     .json();
 
