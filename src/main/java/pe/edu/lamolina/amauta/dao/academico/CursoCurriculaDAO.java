@@ -47,4 +47,6 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
     List<CursoCurricula> allByPlanCurricularACT(PlanCurricular plan);
 
     public CursoCurricula findPracticaPreProfesional(PlanCurricular planCurricular);
+
+    List<CursoCurricula> allByPlanCurricularACTandCAD(PlanCurricular planBD);
 }

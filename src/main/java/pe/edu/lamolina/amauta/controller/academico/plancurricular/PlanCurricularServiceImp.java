@@ -1266,16 +1266,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         planNew.setCicloInicioVigencia(ciclo);
         planCurricularDAO.save(planNew);
 
-        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricularACT(planBD);
+        List<CursoCurricula> cursosPlanActCad = cursoCurriculaDAO.allByPlanCurricularACTandCAD(planBD);
         List<CursoAdicionalCurricula> adicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planBD);
         List<CursoOpcionalCurricula> opcionales = cursoOpcionalCurriculaDAO.allByPlanCurricular(planBD);
         List<ResumenPlanCurricular> resumenes = resumenPlanCurricularDAO.allByPlan(planBD);
 
-        List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosPlan);
+        List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosPlanActCad);
         List<RequisitoCursoOpcional> requisitosOpc = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(opcionales);
 
         Map<Long, CursoCurricula> mapCursoCurricula = new LinkedHashMap();
-        for (CursoCurricula curso : cursosPlan) {
+        for (CursoCurricula curso : cursosPlanActCad) {
             CursoCurricula cc = new CursoCurricula();
             cc.setCreditos(curso.getCreditos());
             cc.setCreditosCurriculaRequisito(curso.getCreditosCurriculaRequisito());
@@ -1328,6 +1328,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula req : requisitos) {
             RequisitoCursoCurricula rcc = new RequisitoCursoCurricula();
             CursoCurricula cc = mapCursoCurricula.get(req.getCursoCurricula().getCurso().getId());
+            System.out.println("CURSO CURRICULA::: " + cc.getCurso().getCodigo() + " - " + cc.getCurso().getNombre());
             rcc.setCursoCurricula(cc);
             rcc.setCursoRequisito(mapCursoCurricula.get(req.getCursoRequisito().getCurso().getId()));
             rcc.setSimultaneo(req.getSimultaneo());
