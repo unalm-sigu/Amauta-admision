@@ -334,7 +334,7 @@ APP = {
     colorEstado: {
         CRE: "default",
         ACT: "success", MAT: "success", ABI: "success",
-        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger", RCHZ: "danger",
+        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger", RCHZ: "danger", RCHR: "danger",
         APR: "primary", ACEP: "primary",
         OBS: "warning",
         SOL: "default",
@@ -1264,7 +1264,7 @@ axios_.interceptors.response.use(function (response) {
 
 function moduleAxios(RUTA_MODULO) {
     const _axios_ = axios.create({
-        baseURL: "/" +RUTA_MODULO
+        baseURL: "/" + RUTA_MODULO
     });
     _axios_.interceptors.response.use(function (response) {
         return response;
