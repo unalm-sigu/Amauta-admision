@@ -491,6 +491,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case CURDIR:
                 respuesta = this.saveCursoDirigido(resolucion, ds);
+                if (!respuesta.isEmpty()) {
+                    resolucionDAO.delete(resolucion);
+                }
                 break;
             case PRACTICAS:
                 respuesta = Arrays.asList(this.saveTramitePracticas(resolucion, ds));
