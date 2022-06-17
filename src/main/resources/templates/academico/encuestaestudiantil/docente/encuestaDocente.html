@@ -84,6 +84,7 @@
                         </ul>
                     </div>
 
+                    <input type="text" v-model="encuesta.estado"/>
                     <h2 th:inline="text" class="m-b-n">Encuesta de Docentes  [[${cicloAcademico.descripcion}]] </h2>
                     <div class="block m-b">
                         <span v-if="encuesta.estado=='NCRE'" class="label label-danger">{{encuesta.estadoEnum.value}}</span>
@@ -213,8 +214,8 @@
                     <section class="panel" >
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="encuestaURL" ref="raptorEncu" v-bind:preload="false" v-bind:afterprocess="afterLoad">
-
+                            <raptor-table v-bind:url="encuestaURL" ref="tableEncuDoc" v-bind:preload="false" v-bind:afterprocess="afterLoad">
+                            
                                 <div slot="header" th:if="${esRevisorEncuestas}">
                                     <div class="col-sm-5" v-if="facultades.length > 1">
                                         <multiselect v-model='facultad'
@@ -434,6 +435,7 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
+            
             <script th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocente.js}" charset="utf-8"></script>
         </div>
 

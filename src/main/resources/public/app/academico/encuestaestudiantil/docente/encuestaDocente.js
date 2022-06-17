@@ -1,12 +1,13 @@
 Vue.component('date-picker', VueBootstrapDatetimePicker);
 Vue.component("multiselect", window.VueMultiselect.default);
 const EditarPeriodoEncuesta = httpVueLoader('/app/academico/encuestaestudiantil/docente/EditarPeriodoEncuesta.vue');
+
 new Vue({
     el: '#main',
     components: {
         editarPeriodoEncuesta: EditarPeriodoEncuesta,
         ModalSimple: use("/_vue/modules/ModalSimple.vue"),
-        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue")
     },
     data: {
         indicadorClave: 0,
@@ -139,12 +140,13 @@ new Vue({
 
         if ($vue.estadoVisor == 'INICIADO' || $vue.estadoVisor == 'OCUPADO') {
             setTimeout(function () {
-                $vue.$refs.modalVerProgreso.open();
+                $vue.$refs.tableEncuDoc.modalVerProgreso.open();
                 $vue.refreshProgresoEncuesta();
             }, 1000);
         }
 
         let estadoEncu = $vue.getParameterQuery('estado');
+
         if (estadoEncu !== '') {
             $vue.bgColorClass[estadoEncu] = 'bg-light';
             $vue.seleccionado = estadoEncu;
@@ -178,10 +180,8 @@ new Vue({
                 }
             }
         }
-
-        $vue.loadRaptorAllParam();
-        $vue.$refs.raptorEncu.repreload();
         $vue.loadResumen();
+        
     },
     methods: {
         changePageCursos(idCursoNew) {
@@ -236,14 +236,19 @@ new Vue({
         },
         getParameterQuery(param) {
             let $vue = this;
-            let value = $vue.$refs.raptorEncu.getParameterByName('queries[' + param + ']');
-            value = (value == null) ? '' : value;
-            return value;
+            if ($vue.$refs.tableEncuDoc !== undefined) {
+                let value = $vue.$refs.tableEncuDoc.getParameterByName('queries[' + param + ']');
+                value = (value == null) ? '' : value;
+                return value;
+
+            } else {
+                return '';
+            }
         },
         setParameterQuery(param, value) {
             let $vue = this;
             if (value !== '') {
-                $vue.$refs.raptorEncu.querie.push({name: param, value: value});
+                $vue.$refs.tableEncuDoc.querie.push({name: param, value: value});
             }
         },
         clearFacultad(qwe) {
@@ -252,8 +257,8 @@ new Vue({
             $vue.facultad = null;
             $vue.departamentosVer = JSON.parse(JSON.stringify($vue.departamentos));
 
-            $vue.loadRaptorAllParam();
-            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadRaptorAllParams();
+            $vue.$refs.tableEncuDoc.loadRemoteData(true);
             $vue.loadResumen();
         },
         clearDepartamento(qwe) {
@@ -261,8 +266,8 @@ new Vue({
             console.log(qwe)
             $vue.departamento = null;
 
-            $vue.loadRaptorAllParam();
-            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadRaptorAllParams();
+            $vue.$refs.tableEncuDoc.loadRemoteData(true);
             $vue.loadResumen();
         },
         loadEncuByFacultad(item) {
@@ -284,29 +289,29 @@ new Vue({
                 $vue.departamento = null;
             }
 
-            $vue.loadRaptorAllParam();
-            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadRaptorAllParams();
+            $vue.$refs.tableEncuDoc.loadRemoteData(true);
             $vue.loadResumen();
 
         },
         loadEncuByDepartamento(item) {
             let $vue = this;
-            $vue.loadRaptorAllParam();
-            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadRaptorAllParams();
+            $vue.$refs.tableEncuDoc.loadRemoteData(true);
             $vue.loadResumen();
         },
-        loadRaptorAllParam() {
+        loadRaptorAllParams() {
             let $vue = this;
             let estadoEncu = $vue.getParameterQuery('estado');
             let modalidadEncu = $vue.getParameterQuery('modalidad');
             let dictadoEncu = $vue.getParameterQuery('dictado');
 
-            $vue.$refs.raptorEncu.querie = [];
-            $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
-            $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
-            $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
-            $vue.$refs.raptorEncu.changeUrl('queries[facultad]', null);
-            $vue.$refs.raptorEncu.changeUrl('queries[departamento]', null);
+            $vue.$refs.tableEncuDoc.querie = [];
+            $vue.$refs.tableEncuDoc.changeUrl('queries[estado]', null);
+            $vue.$refs.tableEncuDoc.changeUrl('queries[modalidad]', null);
+            $vue.$refs.tableEncuDoc.changeUrl('queries[dictado]', null);
+            $vue.$refs.tableEncuDoc.changeUrl('queries[facultad]', null);
+            $vue.$refs.tableEncuDoc.changeUrl('queries[departamento]', null);
 
             $vue.setParameterQuery("estado", estadoEncu);
             $vue.setParameterQuery("modalidad", modalidadEncu);
@@ -331,6 +336,7 @@ new Vue({
                     if ($vue.encuesta.configuraEncuesta.length > 0) {
                         $vue.configuraEncuesta = $vue.encuesta.configuraEncuesta[0];
                         $vue.periodosEncuesta = $vue.encuesta.periodosEncuesta;
+                        $vue.$refs.tableEncuDoc.loadRemoteData();
                     }
                 }
             }).catch(function (error) {
@@ -419,7 +425,7 @@ new Vue({
         },
         generarEncuesta() {
             let vue = this;
-            console.log(vue.modalidadEstudio);
+            
             bootbox.confirm({
                 message: '¿Está seguro que desea generar las encuestas de docentes para este ciclo?',
                 buttons: {
@@ -463,7 +469,7 @@ new Vue({
                                 message: "Finalizó la generación de encuesta de docentes",
                                 buttons: {ok: {label: "Aceptar"}},
                                 callback: function () {
-                                    vue.$refs.raptorEncu.loadRemoteData();
+                                    vue.$refs.tableEncuDoc.loadRemoteData();
                                     vue.refreshEncuesta();
                                 }
                             });
@@ -582,7 +588,7 @@ new Vue({
                         .then(response => {
                             $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                             if (response.data.success) {
-                                $vue.$refs.raptorEncu.loadRemoteData();
+                                $vue.$refs.tableEncuDoc.loadRemoteData();
                                 $vue.refreshEncuesta();
                                 notify(response.data.message, "info");
                             } else {
@@ -754,7 +760,7 @@ new Vue({
                 type: 'post',
                 data: {nombre: nombre}
             }).then(response => {
-                console.log(response.data);
+//                console.log(response.data);
                 this.cursos = response.data
                 this.isLoading = false
             });
@@ -765,8 +771,8 @@ new Vue({
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
@@ -774,17 +780,17 @@ new Vue({
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
-                $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
+                $vue.$refs.tableEncuDoc.changeUrl('queries[estado]', null);
 
-                $vue.loadRaptorAllParam();
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadRaptorAllParams();
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },
@@ -794,8 +800,8 @@ new Vue({
                 $vue.bgColorModalidadClass[tipo] = 'bg-light';
                 $vue.modalidadSeleccionada = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada !== tipo) {
@@ -803,17 +809,17 @@ new Vue({
                 $vue.bgColorModalidadClass[tipo] = 'bg-light';
                 $vue.modalidadSeleccionada = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada === tipo) {
                 $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
                 $vue.modalidadSeleccionada = '';
-                $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+                $vue.$refs.tableEncuDoc.changeUrl('queries[modalidad]', null);
 
-                $vue.loadRaptorAllParam();
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadRaptorAllParams();
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },
@@ -823,8 +829,8 @@ new Vue({
                 $vue.bgColorDictadoClass[tipo] = 'bg-light';
                 $vue.dictadoSeleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
@@ -832,17 +838,17 @@ new Vue({
                 $vue.bgColorDictadoClass[tipo] = 'bg-light';
                 $vue.dictadoSeleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.$refs.tableEncuDoc.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
                 $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
                 $vue.dictadoSeleccionado = '';
-                $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+                $vue.$refs.tableEncuDoc.changeUrl('queries[dictado]', null);
 
-                $vue.loadRaptorAllParam();
-                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadRaptorAllParams();
+                $vue.$refs.tableEncuDoc.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },
@@ -895,7 +901,7 @@ new Vue({
                         $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                         if (response.data.success) {
                             $vue.loadResumen();
-                            $vue.$refs.raptorEncu.loadRemoteData();
+                            $vue.$refs.tableEncuDoc.loadRemoteData();
                             notify(response.data.message, 'info');
                         } else {
                             notify(response.data.message, 'error');
@@ -927,7 +933,7 @@ new Vue({
                 $vue.$refs.modalDesactivarEncu.confirmReaction(response.data.success);
                 if (response.data.success) {
                     $vue.loadResumen();
-                    $vue.$refs.raptorEncu.loadRemoteData();
+                    $vue.$refs.tableEncuDoc.loadRemoteData();
                     notify(response.data.message, 'info');
                 } else {
                     notify(response.data.message, 'error');
