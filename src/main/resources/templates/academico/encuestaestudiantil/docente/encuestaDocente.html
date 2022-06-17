@@ -84,7 +84,6 @@
                         </ul>
                     </div>
 
-                    <input type="text" v-model="encuesta.estado"/>
                     <h2 th:inline="text" class="m-b-n">Encuesta de Docentes  [[${cicloAcademico.descripcion}]] </h2>
                     <div class="block m-b">
                         <span v-if="encuesta.estado=='NCRE'" class="label label-danger">{{encuesta.estadoEnum.value}}</span>
