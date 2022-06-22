@@ -44,5 +44,7 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
     List<HorarioSeccion> allByAulaCiclo(Aula aula, OficinaEnum oficinaEnum, CicloAcademico cicloAcademico);
 
     int saveList(List<HorarioSeccion> horarios);
+    
+    void resetAsignacionAulaAutoBySecciones (List<Seccion> secciones);
 
 }

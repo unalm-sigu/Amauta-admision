@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.horario.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,4 +238,16 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
         return rows;
     }
 
+    @Override
+    public void resetAsignacionAulaAutoBySecciones(List<Seccion> secciones) {
+        if (secciones != null && !secciones.isEmpty()) {
+            List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
+            StringBuilder strb = new StringBuilder();
+            strb.append(" update HorarioSeccion horsec set horsec.aula=null where horsec.seccion.id in :SECCIONES");
+
+            Query query = getCurrentSession().createQuery(strb.toString());
+            query.setParameterList("SECCIONES", seccionesIds);
+            query.executeUpdate();
+        }
+    }
 }
