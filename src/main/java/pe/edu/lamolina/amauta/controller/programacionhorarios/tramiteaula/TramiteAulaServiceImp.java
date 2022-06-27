@@ -503,7 +503,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         List<AulaReservada> aulasReservadas = aulaReservadaDAO.allByReservaAula(reservaAula);
         Assert.isTrue(aulasReservadas != null && !aulasReservadas.isEmpty(), "Error. Verificar el horario de la reserva.");
 
-        this.sendNotificacionAceptar(reservaAulaDb);
+//        this.sendNotificacionAceptar(reservaAulaDb);  para que no envie aun correo al docente revisar para darle mejor tratamiento
     }
 
     @Override
@@ -514,7 +514,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAulaDb.setComentario(reservaAula.getComentario());
         reservaAulaDb.setEstado(EstadoReservaAulaEnum.ANU.name());
         reservaAulaDAO.update(reservaAulaDb);
-        this.sendNotificacionRechazar(reservaAulaDb);
+//        this.sendNotificacionRechazar(reservaAulaDb);  para que no envie aun correo al docente revisar para darle mejor tratamiento
         horarioAulaDAO.deleteAllByReservaAula(reservaAulaDb);
 
     }
