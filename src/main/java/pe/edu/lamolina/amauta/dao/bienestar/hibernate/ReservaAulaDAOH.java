@@ -30,7 +30,7 @@ public class ReservaAulaDAOH extends AbstractEasyDAO<ReservaAula> implements Res
                 .join("tramite tra", "tra.tipoTramite", "tra.cicloAcademico ca")
                 .leftJoin("tra.compania cia", "tra.empresa em", "tra.oficina ofi", "tra.docente doc")
                 .leftJoin("tra.alumno al", "al.persona per", "doc.persona perr")
-                .searchFields("motivo")
+                .searchFields("motivo","tra.numero")
                 .orderBy("ra.id desc");
 
         this.setFilterAula(filter, sql);

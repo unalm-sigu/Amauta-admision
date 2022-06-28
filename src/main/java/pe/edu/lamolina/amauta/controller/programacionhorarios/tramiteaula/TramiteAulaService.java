@@ -30,7 +30,7 @@ public interface TramiteAulaService {
 
     void aceptartramite(ReservaAula reservaAula);
 
-    void rechazartramite(ReservaAula reservaAula);
+    void rechazarTramite(ReservaAula reservaAula);
 
     ReservaAula findReservaAula(Long idReservaAula);
 
@@ -53,5 +53,7 @@ public interface TramiteAulaService {
     public List<Aula> allAulaFiltro(String nombre);
 
     public List<Empresa> allEmpresaByName(Pais pais, String nombre);
+
+    public void regularizarTramite(ReservaAula reservaAula);
 
 }

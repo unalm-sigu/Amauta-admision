@@ -2219,14 +2219,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (!horariosAulasFound.isEmpty()) {
                 List<String> cruces = new ArrayList();
                 for (HorarioAula horarioAula : horariosAulasFound) {
-                    String msg = String.format("Tipo %s", horarioAula.getTipoEnum().name());
+                    String msg = String.format("Tipo %s", horarioAula.getTipoEnum().getDescripcion());
                     if (horarioAula.getSeccion() != null) {
                         msg = String.format("Sección %s", horarioAula.getSeccion().getCodigo2());
                     }
-                    String cruce = String.format("*%s Día %s, Hora %s",
+                    
+                    String cruce = String.format("*%s Día %s, Hora %s, Solicitud Reserva %s",
                             msg,
                             horarioAula.getDia().getSimbolo(),
-                            horarioAula.getHora().getDescripcion());
+                            horarioAula.getHora().getDescripcion(),
+                            horarioAula.getReservaAula().getTramite().getNumero());
 
                     cruces.add(cruce);
                 }
