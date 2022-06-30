@@ -10,7 +10,6 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.amauta.dao.bienestar.ReservaAulaDAO;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.tramite.AulaReservada;
 
@@ -64,7 +63,7 @@ public class ReservaAulaDAOH extends AbstractEasyDAO<ReservaAula> implements Res
 
             sql.__().exists(subQuery)
                     .__().linkedBy("ra.id", "rau.id");
-            
+
         }
     }
 
@@ -106,14 +105,5 @@ public class ReservaAulaDAOH extends AbstractEasyDAO<ReservaAula> implements Res
                 .filter("ra.id", reservaAula);
 
         return find(sql);
-    }
-
-    @Override
-    public void updateColumns(ReservaAula reservaAula, String... columns) {
-        Octavia sql = Octavia.update(ReservaAula.class, "re");
-        for (String column : columns) {
-            sql.set(reservaAula, column);
-        }
-        this.update(sql);
     }
 }

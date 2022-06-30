@@ -575,8 +575,9 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
             Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
 
-            if ((oficinaNueva.getId().equals(oficinaCentroMedico.getId()) || (oficinaNueva.getOficinaSuperior() != null && oficinaNueva.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
-                    && Arrays.asList("MEDICO", "JMEDICO").contains(colaboradorForm.getCargo().getCodigo())) {
+            if ((oficinaNueva.getId().equals(oficinaCentroMedico.getId()) || (oficinaNueva.getOficinaSuperior() != null
+                    && oficinaNueva.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                    && Arrays.asList("MEDICO", "JMEDICO", "TECENF").contains(colaboradorForm.getCargo().getCodigo())) {
 
                 Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
                 if (antiguo == null) {
@@ -585,12 +586,13 @@ public class ColaboradorServiceImp implements ColaboradorService {
                     medico.setFechaRegistro(new Date());
                     medico.setUserRegistro(ds.getUsuario());
                     medicoDAO.save(medico);
-//                    addRol(colaboradorBD.getPersona(), RolEnum.MED, ds.getUsuario());
                 }
             }
 
-            if ((oficinaAnterior.getId().equals(oficinaCentroMedico.getId()) || (oficinaAnterior.getOficinaSuperior() != null && oficinaAnterior.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
-                    && Arrays.asList("MEDICO", "JMEDICO").contains(colaboradorBD.getCargo().getCodigo())) {
+            if ((oficinaAnterior.getId().equals(oficinaCentroMedico.getId()) || (oficinaAnterior.getOficinaSuperior() != null 
+                    && oficinaAnterior.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                    && Arrays.asList("MEDICO", "JMEDICO", "TECENF").contains(colaboradorBD.getCargo().getCodigo())) {
+                
                 Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
                 medicoDAO.update(antiguo);
             }
@@ -622,6 +624,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 personaCargo.setUserModificacion(ds.getUsuario());
                 personaCargo.setPerfilCompania(colaboradorForm.getCargo());
                 personaCargoDAO.update(personaCargo);
+                
             } else {
                 personaCargo = new PersonaCargo();
                 personaCargo.setCompania(ds.getCompania());

@@ -7,10 +7,10 @@ import pe.edu.lamolina.model.tramite.ReservaAula;
 
 public interface AulaReservadaDAO extends EasyDAO<AulaReservada> {
 
-    public List<AulaReservada> allByReservaAula(ReservaAula reservaAula);
+    List<AulaReservada> allByReservaAula(ReservaAula reservaAula);
 
-    public void deleteAllByReservaAula(ReservaAula reservaAula);
+    void deleteAllByReservaAula(ReservaAula reservaAula);
 
-   public List<AulaReservada> allByReservaAulas(List<ReservaAula> reservaAulas);
+    List<AulaReservada> allByReservaAulas(List<ReservaAula> reservaAulas);
 
 }

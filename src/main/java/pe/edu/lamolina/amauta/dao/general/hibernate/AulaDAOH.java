@@ -411,13 +411,6 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public void updateColumns(Aula aula, String... params) {
-        Octavia sql = Octavia.update(Aula.class, "au");
-        sql.set(aula, params);
-        this.update(sql);
-    }
-
-    @Override
     public List<Aula> allAulaModuloByName(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()

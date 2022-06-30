@@ -7,10 +7,8 @@ import pe.edu.lamolina.model.tramite.ReservaAula;
 
 public interface ReservaAulaDAO extends EasyDAO<ReservaAula> {
 
-    public List<ReservaAula> allDynatableFilter(DynatableFilter filter);
+    List<ReservaAula> allDynatableFilter(DynatableFilter filter);
 
-    public ReservaAula find(ReservaAula reservaAula);
-
-    void updateColumns(ReservaAula reservaAula, String... columns);
+    ReservaAula find(ReservaAula reservaAula);
 
 }
