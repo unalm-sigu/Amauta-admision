@@ -90,6 +90,7 @@ Vue.component("mover-seccion-examen", {
                 MODAL.hideWait();
                 return;
             }
+            
             AXIOS.post(`${this.URL}/cambiarTipoDestinoGrupo/${this.tipoDestinoGrupoExamenes.code}`, this.seccionRolExamenes.grupoHorasExamen)
                     .then(response => {
                         if (response.data.success) {
@@ -113,12 +114,14 @@ Vue.component("mover-seccion-examen", {
                 return;
             }
             MODAL.showWait("Espere un momento por favor");
+
             let cambioHorarioExamenSeccion = {
                 tipoGrupoRolExamenOrigen: this.tipoorigen,
                 idSeccionRolExamenesOrigen: this.seccionRolExamenes.id,
                 tipoGrupoRolExamenDestino: this.tipoDestinoGrupoExamenes.code,
                 idTipoGrupoExamenDestino: this.grupoHorarioDestino ? this.grupoHorarioDestino.id : null
             };
+            
             AXIOS.post(`${this.URL}/cambioHorarioExamenSeccion`, cambioHorarioExamenSeccion)
                     .then(response => {
                         if (response.data.success) {

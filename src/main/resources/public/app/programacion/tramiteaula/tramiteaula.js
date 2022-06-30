@@ -34,6 +34,14 @@ new Vue({
             okclass: "btn-danger",
             form: "formRechazarModal"
         }),
+        configRegularizar: VUE_MODAL.structFormAjax({
+            id: "formRegularizarModal",
+            header: true,
+            title: 'Regularizar',
+            okbtn: 'Regularizar',
+            okclass: "btn-danger",
+            form: "formRegularizarModal"
+        }),
         configConfirmAction: VUE_MODAL.structConfirm({}),
     },
     mounted: function () {
@@ -58,7 +66,7 @@ new Vue({
             $vue.tramiteactivo.comentario = '';
             $vue.$refs.rechazarModal.open();
         },
-        saveRechazarModal() {
+         saveRechazarModal() {
             let $vue = this;
             let miform = $($vue.$refs.formRechazarModal);
             let valid = miform.parsley().validate();
@@ -87,6 +95,43 @@ new Vue({
                 }
             });
         },
+        regularizarTramite(tramite) {
+            let $vue = this;
+            $vue.tramiteactivo.id = tramite.id;
+            $vue.tramiteactivo.comentario = '';
+            $vue.$refs.regularizarModal.open();
+        },
+         saveRegularizarModal() {
+             console.log("asdasds");
+            let $vue = this;
+            let miform = $($vue.$refs.formRegularizarModal);
+            let valid = miform.parsley().validate();
+            if (!valid) {
+                return;
+            }
+            $vue.showLoader();
+            $.ajax({
+                method: 'POST',
+                async: true,
+                url: APP.url('tramite/aula/regularizartramite'),
+                data: JSON.stringify($vue.tramiteactivo),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.regularizarModal.close();
+                        $vue.$refs.raptor.loadRemoteData();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    $vue.hideLoader();
+                },
+                error() {
+                    $vue.hideLoader();
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
+        },
+       
         saveConfirmModal() {
             let $vue = this;
             let miform = $($vue.$refs.formConfirmModal);

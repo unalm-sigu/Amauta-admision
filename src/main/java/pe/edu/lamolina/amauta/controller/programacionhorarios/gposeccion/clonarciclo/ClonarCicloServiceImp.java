@@ -373,6 +373,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setFechaRegistro(today);
                 seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
+                seccNew.setTipoCarpeta(seccOrigen.getTipoCarpeta());
 
                 if (null != seccOrigen.getTipoSeccionEnum()) {
                     switch (seccOrigen.getTipoSeccionEnum()) {
