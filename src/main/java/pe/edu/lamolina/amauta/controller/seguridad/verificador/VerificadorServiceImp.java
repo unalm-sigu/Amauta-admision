@@ -423,10 +423,11 @@ public class VerificadorServiceImp implements VerificadorService {
         {
             boolean esGestorEPG = this.esTrabajadorEpgConRol(RolEnum.GESTOR_OFICINA_EPG, ds);
             if (esGestorEPG) {
-                log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId());
+                log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId(), RolEnum.GESTOR_OFICINA_EPG.name());
                 List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
                 List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
 
+                oficinas.add(new Oficina(EPG));
                 oficinas.addAll(direccionesPosgrado);
                 oficinas.addAll(especialidadesPosgrado);
 
