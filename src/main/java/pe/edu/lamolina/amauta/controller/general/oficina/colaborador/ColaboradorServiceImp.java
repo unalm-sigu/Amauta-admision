@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,77 +78,36 @@ import pe.edu.lamolina.model.general.PersonaHistorial;
 
 @Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class ColaboradorServiceImp implements ColaboradorService {
 
-    @Autowired
-    OficinaDAO oficinaDAO;
+    private final CarreraDAO carreraDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final ColaboradorEstadoDAO colaboradorEstadoDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final DocenteDAO docenteDAO;
+    private final FuncionColaboradorDAO funcionColaboradorDAO;
+    private final FuncionRolDAO funcionRolDAO;
+    private final MedicoDAO medicoDAO;
+    private final OficinaDAO oficinaDAO;
+    private final PerfilCompaniaDAO perfilCompaniaDAO;
+    private final PersonaCargoDAO personaCargoDAO;
+    private final PersonaDAO personaDAO;
+    private final PersonaHistorialDAO personaHistorialDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
+    private final VerificadorService verificadorService;
+    private final MailerService mailerService;
 
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    FacultadDAO facultadDAO;
-
-    @Autowired
-    PersonaDAO personaDAO;
-
-    @Autowired
-    PerfilCompaniaDAO perfilCompaniaDAO;
-
-    @Autowired
-    AusenciaJefeDAO ausenciaJefeDAO;
-
-    @Autowired
-    PersonaCargoDAO personaCargoDAO;
-
-    @Autowired
-    DocenteDAO docenteDAO;
-
-    @Autowired
-    UsuarioDAO usuarioDAO;
-
-    @Autowired
-    RolDAO rolDAO;
-
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-
-    @Autowired
-    FuncionColaboradorDAO funcionColaboradorDAO;
-
-    @Autowired
-    TipoOficinaDAO tipoOficinaDAO;
-
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
-    @Autowired
-    FuncionRolDAO funcionRolDAO;
-
-    @Autowired
-    ColaboradorEstadoDAO colaboradorEstadoDAO;
-
-    @Autowired
-    MedicoDAO medicoDAO;
-
-    @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    VerificadorService verificadorService;
-
-    @Autowired
-    PersonaHistorialDAO personaHistorialDAO;
-
-    @Autowired
-    MailerService mailerService;
+    private final List<String> PERFILES_MEDICOS = Arrays.asList(
+            PerfilColaboradorEnum.JMEDICO.name(),
+            PerfilColaboradorEnum.MEDICO.name(),
+            PerfilColaboradorEnum.TECENF.name()
+    );
 
     @Override
     public Oficina findOficina(Oficina oficina) {
@@ -571,31 +531,12 @@ public class ColaboradorServiceImp implements ColaboradorService {
             colaboradorDAO.update(colaboradorBD);
         }
 
+        boolean involucraCentroMedico = dentroCentroMedico(Arrays.asList(oficinaAnterior, oficinaNueva));
+        if (involucraCentroMedico) {
+            this.checkCambiosCentroMedico(oficinaNueva, colaboradorForm, ds);
+        }
+
         if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId().longValue()) {
-
-            Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
-
-            if ((oficinaNueva.getId().equals(oficinaCentroMedico.getId()) || (oficinaNueva.getOficinaSuperior() != null
-                    && oficinaNueva.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
-                    && Arrays.asList("MEDICO", "JMEDICO", "TECENF").contains(colaboradorForm.getCargo().getCodigo())) {
-
-                Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
-                if (antiguo == null) {
-                    Medico medico = new Medico();
-                    medico.setColaborador(colaboradorBD);
-                    medico.setFechaRegistro(new Date());
-                    medico.setUserRegistro(ds.getUsuario());
-                    medicoDAO.save(medico);
-                }
-            }
-
-            if ((oficinaAnterior.getId().equals(oficinaCentroMedico.getId()) || (oficinaAnterior.getOficinaSuperior() != null 
-                    && oficinaAnterior.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
-                    && Arrays.asList("MEDICO", "JMEDICO", "TECENF").contains(colaboradorBD.getCargo().getCodigo())) {
-                
-                Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
-                medicoDAO.update(antiguo);
-            }
 
             PersonaCargo personaCargo = personaCargoDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
             if (personaCargo != null) {
@@ -624,7 +565,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 personaCargo.setUserModificacion(ds.getUsuario());
                 personaCargo.setPerfilCompania(colaboradorForm.getCargo());
                 personaCargoDAO.update(personaCargo);
-                
+
             } else {
                 personaCargo = new PersonaCargo();
                 personaCargo.setCompania(ds.getCompania());
@@ -674,6 +615,44 @@ public class ColaboradorServiceImp implements ColaboradorService {
             perfiles.add(colaboradorForm.getCargo());
             updateUserRol(usuarioColaborador, perfiles, oficinaMain, colaboradorForm, ds);
         }
+    }
+
+    private void checkCambiosCentroMedico(
+            Oficina oficinaNueva,
+            Colaborador colaborador,
+            DataSessionPivot ds) {
+
+        boolean entraAlCentroMedico = dentroCentroMedico(Arrays.asList(oficinaNueva));
+
+        if (PERFILES_MEDICOS.contains(colaborador.getCargo().getCodigo()) && entraAlCentroMedico) {
+            Medico medico = medicoDAO.findByColaborador(colaborador);
+            if (medico == null) {
+                medico = new Medico();
+                medico.setColaborador(colaborador);
+                medico.setFechaRegistro(new Date());
+                medico.setUserRegistro(ds.getUsuario());
+                medicoDAO.save(medico);
+            }
+        }
+    }
+
+    private boolean dentroCentroMedico(List<Oficina> oficinas) {
+
+        Oficina centroMedico = new Oficina(OficinaEnum.CENMED);
+        for (Oficina oficina : oficinas) {
+            if (oficina.getId().equals(centroMedico.getId())) {
+                return true;
+            }
+            Oficina oficinaSuper = oficina.getOficinaSuperior();
+            if (oficinaSuper == null) {
+                continue;
+            }
+            if (oficinaSuper.getId().equals(centroMedico.getId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void updateUserRol(

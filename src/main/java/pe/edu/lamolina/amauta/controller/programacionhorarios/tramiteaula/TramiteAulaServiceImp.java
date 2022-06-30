@@ -25,7 +25,6 @@ import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
-import pe.edu.lamolina.model.enums.EstadoReservaAulaEnum;
 import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
@@ -65,6 +64,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ReservaAulaEstadoEnum;
 import static pe.edu.lamolina.model.enums.SexoEnum.F;
 
 @Service
@@ -270,7 +270,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public Empresa saveInstitucion(Empresa institucion) {
-        
+
         TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), institucion.getPaisUbicacion());
 
         Assert.isTrue(doc != null, "No tiene tipo documento identificado, comunicarse con el área de sistemas.");
@@ -351,12 +351,12 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAula.setTipoReserva("PUNT");
         reservaAula.setTipoSolicitud("1");
         reservaAula.setTramite(tramite);
-        reservaAula.setEstado(EstadoReservaAulaEnum.PEND.name());
+        reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
         List<Aula> aulas = reservaAula.getReservados();
         if (aulas.isEmpty()) {
-            reservaAula.setEstado(EstadoReservaAulaEnum.PEND.name());
+            reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
         } else {
-            reservaAula.setEstado(EstadoReservaAulaEnum.RES.name());
+            reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.RES);
         }
         reservaAulaDAO.save(reservaAula);
 
@@ -448,9 +448,9 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
         List<Aula> aulas = reservaAulaForm.getReservados();
         if (aulas.isEmpty()) {
-            reservaAulaForm.setEstado(EstadoReservaAulaEnum.PEND.name());
+            reservaAulaForm.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
         } else {
-            reservaAulaForm.setEstado(EstadoReservaAulaEnum.RES.name());
+            reservaAulaForm.setEstadoEnum(ReservaAulaEstadoEnum.RES);
         }
 
         reservaAulaForm.setTipoReserva("PUNT");
@@ -495,7 +495,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     public void aceptartramite(ReservaAula reservaAula) {
         ReservaAula reservaAulaDb = reservaAulaDAO.find(reservaAula);
         reservaAulaDb.setComentario(reservaAula.getComentario());
-        reservaAulaDb.setEstado(EstadoReservaAulaEnum.ACT.name());
+        reservaAulaDb.setEstadoEnum(ReservaAulaEstadoEnum.ACT);
         reservaAulaDAO.update(reservaAulaDb);
 
         List<AulaReservada> aulasReservadas = aulaReservadaDAO.allByReservaAula(reservaAula);
@@ -510,20 +510,20 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
         ReservaAula reservaAulaDb = reservaAulaDAO.find(reservaAula);
         reservaAulaDb.setComentario(reservaAula.getComentario());
-        reservaAulaDb.setEstado(EstadoReservaAulaEnum.ANU.name());
+        reservaAulaDb.setEstadoEnum(ReservaAulaEstadoEnum.ANU);
         reservaAulaDAO.update(reservaAulaDb);
 //        this.sendNotificacionRechazar(reservaAulaDb);  para que no envie aun correo al docente revisar para darle mejor tratamiento
         horarioAulaDAO.deleteAllByReservaAula(reservaAulaDb);
 
     }
-    
+
     @Override
     @Transactional
     public void regularizarTramite(ReservaAula reservaAula) {
 
         ReservaAula reservaAulaDb = reservaAulaDAO.find(reservaAula);
         reservaAulaDb.setComentario(reservaAula.getComentario());
-        reservaAulaDb.setEstado(EstadoReservaAulaEnum.REG.name());
+        reservaAulaDb.setEstadoEnum(ReservaAulaEstadoEnum.REG);
         reservaAulaDAO.update(reservaAulaDb);
 //        this.sendNotificacionRechazar(reservaAulaDb);  para que no envie aun correo al docente revisar para darle mejor tratamiento
         horarioAulaDAO.deleteAllByReservaAula(reservaAulaDb);
