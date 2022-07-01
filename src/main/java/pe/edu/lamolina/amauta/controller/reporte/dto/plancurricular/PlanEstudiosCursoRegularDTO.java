@@ -9,8 +9,9 @@ package pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular;
  *
  * @author Carlos Buitron
  */
-public class PlanEstudiosDTO {
-    
+public class PlanEstudiosCursoRegularDTO {
+
+    private Long idPlanCurricular;
     private Long idCurriculaCurso;
     private String facultad;
     private String especialidad;
@@ -26,11 +27,12 @@ public class PlanEstudiosDTO {
     private Long creditosOtros;
     private Long year;
 
-    public PlanEstudiosDTO(){
-        
+    public PlanEstudiosCursoRegularDTO() {
+
     }
 
-    public PlanEstudiosDTO(Long idCurriculaCurso, String facultad, String especialidad, String nivel, String codigoCurso, String nombreCurso, String tipoCurso, Long horasTeoria, Long horasPractica, Long creditos, String cursoRequisito, String creditosRequisito, Long creditosOtros, Long year) {
+    public PlanEstudiosCursoRegularDTO(Long idPlanCurricular, Long idCurriculaCurso, String facultad, String especialidad, String nivel, String codigoCurso, String nombreCurso, String tipoCurso, Long horasTeoria, Long horasPractica, Long creditos, String cursoRequisito, String creditosRequisito, Long creditosOtros, Long year) {
+        this.idPlanCurricular = idPlanCurricular;
         this.idCurriculaCurso = idCurriculaCurso;
         this.facultad = facultad;
         this.especialidad = especialidad;
@@ -45,6 +47,14 @@ public class PlanEstudiosDTO {
         this.creditosRequisito = creditosRequisito;
         this.creditosOtros = creditosOtros;
         this.year = year;
+    }
+
+    public Long getIdPlanCurricular() {
+        return idPlanCurricular;
+    }
+
+    public void setIdPlanCurricular(Long idPlanCurricular) {
+        this.idPlanCurricular = idPlanCurricular;
     }
 
     public Long getIdCurriculaCurso() {
@@ -157,6 +167,6 @@ public class PlanEstudiosDTO {
 
     public void setYear(Long year) {
         this.year = year;
-    }    
-    
+    }
+
 }

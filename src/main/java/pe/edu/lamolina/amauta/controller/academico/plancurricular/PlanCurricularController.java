@@ -1457,7 +1457,8 @@ public class PlanCurricularController {
     @RequestMapping(value = "descargarPlan/{idPlanCurricular}/reporte", method = RequestMethod.GET)
     public ModelAndView descargarPlan(Model model, HttpSession session, @PathVariable Long idPlanCurricular) {
 
-        service.reporte(model, service.descargarPlanCurricular(idPlanCurricular));
+        service.reporte(model, service.planCurricularCursoRegular(idPlanCurricular), service.planCurricularCursoElectivo(idPlanCurricular));
+        //service.reporte(model, service.planCurricularCursoRegular(idPlanCurricular));
         return new ModelAndView(reportePlanCurricularPdf);
     }
 

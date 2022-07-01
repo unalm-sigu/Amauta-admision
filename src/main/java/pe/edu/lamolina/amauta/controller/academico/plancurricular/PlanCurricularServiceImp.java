@@ -80,7 +80,8 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
-import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoElectivoDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoRegularDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
@@ -1172,30 +1173,49 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    public void reporte(Model model, List<PlanEstudiosDTO> listPlanEstudiosDTO) {
-
+    public void reporte(Model model, List<PlanEstudiosCursoRegularDTO> cursosRegulares, List<PlanEstudiosCursoElectivoDTO> cursosElectivos) {
+        String facultad = cursosRegulares.get(0).getFacultad();
+        String especialidad = cursosRegulares.get(0).getEspecialidad();
+        String year = Long.toString(cursosRegulares.get(0).getYear());
+        Map<String, List<PlanEstudiosCursoRegularDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", cursosRegulares);
+        Context ctx = new Context();
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        ctx.setVariable("facultad", facultad);
+        ctx.setVariable("especialidad", especialidad);
+        ctx.setVariable("year", year);
+        ctx.setVariable("cursosRegulares", mapPlanEstudios);
+        ctx.setVariable("cursosEspeciales", cursosElectivos);
+        ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
+        ctx.setVariable("templatePdf", "planEstudios");
+        model.addAllAttributes(ctx.getVariables());        
+        
+    }
+    
+    @Override
+    public void reporte(Model model, List<PlanEstudiosCursoRegularDTO> listPlanEstudiosDTO) {
         String facultad = listPlanEstudiosDTO.get(0).getFacultad();
         String especialidad = listPlanEstudiosDTO.get(0).getEspecialidad();
         String year = Long.toString(listPlanEstudiosDTO.get(0).getYear());
-        Map<String, List<PlanEstudiosDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
-
+        Map<String, List<PlanEstudiosCursoRegularDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
         Context ctx = new Context();
-
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("facultad", facultad);
         ctx.setVariable("especialidad", especialidad);
         ctx.setVariable("year", year);
         ctx.setVariable("datos", mapPlanEstudios);
-
         ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
         ctx.setVariable("templatePdf", "planEstudios");
-
         model.addAllAttributes(ctx.getVariables());
     }
 
     @Override
-    public List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular) {
-        return planCurricularDAO.reportePlanCurricular(idPlanCurricular);
+    public List<PlanEstudiosCursoRegularDTO> planCurricularCursoRegular(Long idPlanCurricular) {
+        return planCurricularDAO.reportePlanCurricularCursoRegular(idPlanCurricular);
+    }
+    
+    @Override
+    public List<PlanEstudiosCursoElectivoDTO> planCurricularCursoElectivo(Long idPlanCurricular) {
+        return planCurricularDAO.reportePlanCurricularCursoElectivo(idPlanCurricular);
     }
 
     @Override

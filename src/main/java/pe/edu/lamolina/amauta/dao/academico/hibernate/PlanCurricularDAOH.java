@@ -11,7 +11,8 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoElectivoDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoRegularDTO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -158,9 +159,9 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
     }
 
     @Override
-    public List<PlanEstudiosDTO> reportePlanCurricular(Long idPlanCurricular) {
-        StringBuilder sql = new StringBuilder();     
-        sql.append("select cc.id idCurriculaCurso, fac.nombre facultad, car.nombre especialidad, ")                
+    public List<PlanEstudiosCursoRegularDTO> reportePlanCurricularCursoRegular(Long idPlanCurricular) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select pc.id idPlanCurricular, cc.id idCurriculaCurso, fac.nombre facultad, car.nombre especialidad, ")
                 .append("case cc.numero_ciclo ")
                 .append("when '1' then '01' ")
                 .append("when '2' then '02' ")
@@ -172,14 +173,14 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("when '8' then '08' ")
                 .append("when '9' then '09' ")
                 .append("when '10' then '10' ")
-                .append("else '' end nivel, ") 
+                .append("else '' end nivel, ")
                 .append("cu.codigo codigoCurso, cu.nombre nombreCurso, tcc.nombre tipoCurso, cu.horas_teoria horasTeoria, cu.horas_practica horasPractica, ")
                 .append("cc.creditos creditos, ")
                 .append("group_concat(distinct coalesce(rcc1.cur_cod, '') separator ' ') cursoRequisito, ")
                 .append("case ")
                 .append("when cc.creditos_requisito = 0  then '' ")
                 .append("else cc.creditos_requisito ")
-                .append("end creditosRequisito, cc.creditos creditosOtros, cap.year year ")                
+                .append("end creditosRequisito, cc.creditos creditosOtros, cap.year year ")
                 .append("from aca_curso_curricula cc ")
                 .append("join aca_curso cu on cc.id_curso = cu.id ")
                 .append("join aca_tipo_curso_curricula tcc on cc.id_tipo_curso_curricula = tcc.id ")
@@ -196,13 +197,14 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("        join aca_curso cu2 on cc2.id_curso = cu2.id                                                                              ")
                 .append("        join aca_tipo_curso_curricula tcc on cc2.id_tipo_curso_curricula = tcc.id                                                ")
                 .append("        where rcc.estado = 'ACT'                                                                                                 ")
-                .append("     ) rcc1 on cc.id = rcc1.id_cc                                                                                                ")                
+                .append("     ) rcc1 on cc.id = rcc1.id_cc                                                                                                ")
                 .append("where pc.id = ").append(idPlanCurricular).append(" ")
                 .append("and cc.estado not in ('CAD') ")
                 .append("group by cc.id ")
                 .append("order by cc.numero_ciclo,cu.nombre");
-        
+
         Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("idPlanCurricular", LongType.INSTANCE)
                 .addScalar("idCurriculaCurso", LongType.INSTANCE)
                 .addScalar("facultad", StringType.INSTANCE)
                 .addScalar("especialidad", StringType.INSTANCE)
@@ -217,9 +219,71 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .addScalar("creditosRequisito", StringType.INSTANCE)
                 .addScalar("creditosOtros", LongType.INSTANCE)
                 .addScalar("year", LongType.INSTANCE)
-                .setResultTransformer(Transformers.aliasToBean(PlanEstudiosDTO.class));        
+                .setResultTransformer(Transformers.aliasToBean(PlanEstudiosCursoRegularDTO.class));
         return query.list();
-        
+
+    }
+
+    @Override
+    public List<PlanEstudiosCursoElectivoDTO> reportePlanCurricularCursoElectivo(Long idPlanCurricular) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select                                                                                                                         ")
+                .append("pc.id idPlanCurricular,                                                                                                   ")
+                .append("coc.id idCursoOpcionalCurricula,                                                                                          ")
+                .append("tcc.nombre tipo, tcc.codigo codigoTipo,                                                                                   ")
+                .append("cu.codigo codigoCurso, cu.codigo_anterior1 codigoAnteriorCurso,  cu.nombre nombreCurso, cu.horas_teoria horasTeoria,      ")
+                .append("cu.horas_practica horasPractica, cu.creditos creditos, cu.tipo_curso tipoCurso,                                           ")
+                .append("coc.creditos creditosCursoOpcionalCurricula, cu3.codigo cursosEquivalente, coc.creditos_requisito creditosRequisito,      ")
+                .append("group_concat(coalesce(t1.cod1, t1.cod2) separator ' ') cursosRequisito, t2.codigo cursosPreRequisito, ca.year             ")
+                .append("from aca_curso_opcional_curricula coc                                                                                     ")
+                .append("join aca_curso cu on coc.id_curso = cu.id                                                                                 ")
+                .append("join aca_plan_curricular pc on coc.id_plan_curricular = pc.id                                                             ")
+                .append("join aca_tipo_curso_curricula tcc on coc.id_tipo_curso_curricula = tcc.id                                                 ")
+                .append("left join(                                                                                                                ")
+                .append("    select coc.id, coc1.id id_coc1,cu.codigo cod1, cu1.codigo cod2                                                        ")
+                .append("    from aca_requisito_curso_opcional rco                                                                                 ")
+                .append("    left join aca_curso_opcional_curricula coc on rco.id_curso_opcional = coc.id                                          ")
+                .append("    left join aca_curso_curricula cc on rco.id_curso_requisito_curricula = cc.id                                          ")
+                .append("    left join aca_curso cu on cc.id_curso = cu.id                                                                         ")
+                .append("    left join aca_tipo_curso_curricula tcc on cc.id_tipo_curso_curricula = tcc.id                                         ")
+                .append("    left join aca_curso_opcional_curricula coc1 on rco.id_curso_requisito_opcional = coc1.id                              ")
+                .append("    left join aca_curso cu1 on coc1.id_curso = cu1.id                                                                     ")
+                .append("    left join aca_tipo_curso_curricula tcc1 on coc1.id_tipo_curso_curricula = tcc1.id                                     ")
+                .append("    where rco.estado = 'ACT'                                                                                              ")
+                .append(") t1 on coc.id = t1.id                                                                                                    ")
+                .append("left join (                                                                                                               ")
+                .append("    select rco.id, rco.id_curso_requisito_opcional id_cro, cu.codigo                                                              ")
+                .append("    from aca_requisito_curso_opcional rco                                                                                 ")
+                .append("    left join aca_curso_opcional_curricula coc on rco.id_curso_opcional = coc.id                                          ")
+                .append("    left join aca_curso cu on coc.id_curso = cu.id                                                                        ")
+                .append("    where rco.estado = 'ACT'                                                                                              ")
+                .append(") t2 on coc.id = t2.id_cro                                                                                                ")
+                .append("left join aca_curso_equivalente_electivo cee on coc.id = cee.id_curso_opcional_curricula                                  ")
+                .append("left join aca_curso cu3 on cee.id_curso_equivalente = cu3.id                                                              ")
+                .append("join aca_ciclo_academico ca on  pc.id_ciclo_inicio_vigencia = ca.id                                                       ")
+                .append("where pc.id = ").append(idPlanCurricular).append(" ")
+                .append("group by coc.id, cu3.id, t2.id                                                                                            ")
+                .append("order by tcc.orden desc, cu.nombre                                                                                        ");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("idPlanCurricular", LongType.INSTANCE)
+                .addScalar("idCursoOpcionalCurricula", LongType.INSTANCE)
+                .addScalar("tipo", StringType.INSTANCE)
+                .addScalar("codigoTipo", StringType.INSTANCE)
+                .addScalar("codigoCurso", StringType.INSTANCE)
+                .addScalar("codigoAnteriorCurso", StringType.INSTANCE)
+                .addScalar("nombreCurso", StringType.INSTANCE)
+                .addScalar("horasTeoria", LongType.INSTANCE)
+                .addScalar("horasPractica", LongType.INSTANCE)
+                .addScalar("creditos", LongType.INSTANCE)
+                .addScalar("tipoCurso", StringType.INSTANCE)
+                .addScalar("creditosCursoOpcionalCurricula", LongType.INSTANCE)
+                .addScalar("cursosEquivalente", StringType.INSTANCE)
+                .addScalar("creditosRequisito", LongType.INSTANCE)
+                .addScalar("cursosRequisito", StringType.INSTANCE)
+                .addScalar("cursosPreRequisito", StringType.INSTANCE)
+                .addScalar("year", LongType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(PlanEstudiosCursoElectivoDTO.class));
+        return query.list();
     }
 
 }
