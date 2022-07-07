@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.amauta.dao.horario.DiaHoraGrupoDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -193,4 +194,20 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
+    @Override
+    public int saveList(List<DiaHoraGrupo> diasHorasGrupos) {
+        if (diasHorasGrupos.isEmpty()) {
+            return 0;
+        }
+        
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(DiaHoraGrupo.class)
+                .columns("dia","grupoHorario","hora","cicloAcademico")
+                .values(diasHorasGrupos);
+        
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+        return rows;
+    }
 }

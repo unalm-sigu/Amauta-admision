@@ -68,6 +68,7 @@ Vue.component("grupohorario-component", {
 
                         $global.$emit("reloadDynaZeta", $vue.seccionModal.id);
                         $global.$emit("reloadDynaEspecial", $vue.seccionModal.id);
+                        console.log(response.data);
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
                         console.log($vue.tabGrupos.grupoHorarioSel)
@@ -100,6 +101,7 @@ Vue.component("grupohorario-component", {
                             //  $vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "regulares";
                             $vue.tabGrupoSelected = "regulares";
                             $("[href='#grupo1']").click();
+                            $vue.tabGrupos['especial'].tblHorarios = null;
                             $vue.tabGrupos['zetas'].tblHorarios = null;
                         }
                         //$vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "regulares";
@@ -204,7 +206,7 @@ Vue.component("grupohorario-component", {
                 success: function (response) {
 
                     if (response.success) {
-
+                        console.log(response.data);
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
                         $global.$emit("seleccionarGrupoEspecial", $vue.tabGrupos.grupoHorarioSel);
@@ -359,6 +361,7 @@ Vue.component("grupohorario-component", {
                         }
                         if (cantSelecteds == 0) {
                             this.tabGrupos.grupoHorarioSel = {};
+                            console.log(this.tabGrupos);
                         }
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
@@ -465,11 +468,12 @@ Vue.component("grupohorario-component", {
         },
         saveGrupoHorario() {
             let $vue = this;
+            //if ($vue.tabGrupos.grupoHorarioSel == null || Object.keys($vue.tabGrupos.grupoHorarioSel).length == 0) {
             if ($vue.tabGrupos.grupoHorarioSel == null) {
                 notify("Seleccione un grupo horario.", "error");
                 return;
             }
-
+            
             let diasHorasGrupo = [];
 
             if ($vue.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular) {
