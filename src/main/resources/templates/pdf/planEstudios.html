@@ -81,46 +81,83 @@
             <b class="block" style="font-size: 14px;"> ESPECIALIDAD: </b> <span style="font-size: 14px;" th:inline="text">[[${#strings.toUpperCase(especialidad)}]]</span>
         </div>       
         
-        <th:block  th:each="dato : ${datos}">
-        <div style="text-align: left">
-            
-            <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
-                <thead>
-                    <tr>
-                        <td colspan="7" style="text-align: left;">
-                            <b th:inline="text" th:if="${dato.key}" style="font-size: 14px;"> CICLO: [[${dato.key}]] </b>                      
-                        </td>
-                    </tr>
-                    <tr style="margin-bottom: 50px;">
-                        <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
-                        <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
-                        <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
-                        <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
-                        <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
-                        <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
-                        <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
-                    </tr>
-                    <tr th:each="item : ${dato.value}">                        
-                        <td><span th:text="${item.codigoCurso}"></span></td>                        
-                        <td><span th:text="${item.nombreCurso}"></span></td>
-                        <td><span th:text="${item.tipoCurso}"></span></td>
-                        <td><span th:text="${item.horasTeoria}"></span></td>
-                        <td><span th:text="${item.horasPractica}"></span></td>
-                        <td th:switch="${item.codigoCurso}">                
-                            <span th:case="ELC" th:text="${item.creditosOtros}"></span>
-                            <span th:case="CULT" th:text="${item.creditosOtros}"></span>
-                            <span th:case="PROD" th:text="${item.creditosOtros}"></span>
-                            <span th:case="*" th:text="${item.creditos}"></span>            
-                        </td>
-                        <td>
-                            <span th:text="${item.cursoRequisito}"></span>
-                            <span th:text="${item.creditosRequisito}"></span>
-                            <span th:if="${item.creditosRequisito != ''}">créditos aprobados. </span>                            
-                        </td>
-                    </tr>
-                </thead>
-            </table>
-        </div>
+        <th:block  th:each="dato : ${cursosRegulares}">
+            <div style="text-align: left">            
+                <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
+                    <thead>
+                        <tr>
+                            <td colspan="7" style="text-align: left;">
+                                <b th:inline="text" th:if="${dato.key}" style="font-size: 14px;"> CICLO: [[${dato.key}]] </b>                      
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 50px;">
+                            <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
+                            <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
+                            <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
+                            <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
+                            <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
+                            <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
+                            <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${dato.value}">                        
+                            <td><span th:text="${item.codigoCurso}"></span></td>                        
+                            <td><span th:text="${item.nombreCurso}"></span></td>
+                            <td><span th:text="${item.tipoCurso}"></span></td>
+                            <td><span th:text="${item.horasTeoria}"></span></td>
+                            <td><span th:text="${item.horasPractica}"></span></td>
+                            <td th:switch="${item.codigoCurso}">                
+                                <span th:case="ELC" th:text="${item.creditosOtros}"></span>
+                                <span th:case="CULT" th:text="${item.creditosOtros}"></span>
+                                <span th:case="PROD" th:text="${item.creditosOtros}"></span>
+                                <span th:case="*" th:text="${item.creditos}"></span>            
+                            </td>
+                            <td>
+                                <span th:text="${item.cursoRequisito}"></span>
+                                <span th:text="${item.creditosRequisito}"></span>
+                                <span th:if="${item.creditosRequisito != ''}">créditos aprobados. </span>                            
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </th:block>
-</body>
+
+        <div style="text-align: left; padding-bottom: 20px;">
+            <b class="block" style="font-size: 14px;"> CURSOS ELECTIVOS </b>
+        </div>
+        <th:block>
+            <div style="text-align: left">            
+                <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
+                    <thead>
+                        <tr style="margin-bottom: 50px;">
+                            <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
+                            <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
+                            <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
+                            <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
+                            <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
+                            <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
+                            <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dato : ${cursosEspeciales}">
+                            <td><span th:text="${dato.codigoTipo}"></span></td>
+                            <td><span th:text="${dato.nombreCurso}"></span></td>
+                            <td><span th:text="${dato.tipo}"></span></td>
+                            <td><span th:text="${dato.horasTeoria}"></span></td>
+                            <td><span th:text="${dato.horasPractica}"></span></td>
+                            <td><span th:text="${dato.creditos}"></span></td>
+                            <td>
+                                <span th:text="${dato.cursosRequisito}"></span>
+                                <span th:if="${dato.creditosRequisito != 0}" th:text="${dato.creditosRequisito}"></span>
+                                <span th:if="${dato.creditosRequisito != 0}">créditos aprobados. </span>                            
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
+    </body>
 </html>

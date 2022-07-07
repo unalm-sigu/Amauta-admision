@@ -332,7 +332,29 @@ public class TramiteAulaController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.rechazartramite(reservaAula);
+            service.rechazarTramite(reservaAula);
+            response.setMessage(GlobalMessages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("regularizartramite")
+    public JsonResponse regularizartramite(@RequestBody ReservaAula reservaAula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.regularizarTramite(reservaAula);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 

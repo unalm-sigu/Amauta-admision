@@ -4,7 +4,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoElectivoDTO;
+import pe.edu.lamolina.amauta.controller.reporte.dto.plancurricular.PlanEstudiosCursoRegularDTO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -107,7 +108,9 @@ public interface PlanCurricularService {
 
     List<ResumenPlanCurricular> allResPlanCurByDynatable(DynatableFilter filter);
 
-    List<PlanEstudiosDTO> descargarPlanCurricular(Long idPlanCurricular);
+    List<PlanEstudiosCursoRegularDTO> planCurricularCursoRegular(Long idPlanCurricular);
+    
+    List<PlanEstudiosCursoElectivoDTO> planCurricularCursoElectivo(Long idPlanCurricular);
     
     void updatePlanCurricular(PlanCurricular planCurricular);
 
@@ -157,6 +160,8 @@ public interface PlanCurricularService {
 
     void caducar(Long idCursoCurricula, String caduco, DataSessionPivot ds);
     
-    void reporte(Model model, List<PlanEstudiosDTO> list);
+    void reporte(Model model, List<PlanEstudiosCursoRegularDTO> list);
+    
+    void reporte(Model model, List<PlanEstudiosCursoRegularDTO> cursosRegulares, List<PlanEstudiosCursoElectivoDTO> cursosElectivos);
 
 }

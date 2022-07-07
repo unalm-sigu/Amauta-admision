@@ -11,6 +11,6 @@ public interface TipoDocIdentidadDAO extends EasyDAO<TipoDocIdentidad> {
 
     TipoDocIdentidad findBySimbolo(String name);
 
-    public TipoDocIdentidad findBySimboloAndPais(String name, Pais pais);
+    TipoDocIdentidad findBySimboloAndPais(String name, Pais pais);
 
 }

@@ -7,6 +7,6 @@ import pe.edu.lamolina.model.general.Pais;
 
 public interface EmpresaDAO extends EasyDAO<Empresa> {
 
-    public List<Empresa> allEmpresaByName(Pais pais, String nombre);
+    List<Empresa> allEmpresaByName(Pais pais, String nombre);
 
 }
