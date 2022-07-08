@@ -45,7 +45,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
     public BeanPromedios loadDataAlumno(Alumno alumno) {
 
         alumno = alumnoDAO.findAllInfo(alumno.getId());
-        ObtencionGrado graduado = obtencionGradoDAO.findAceptadoByAlumno(alumno);
+        ObtencionGrado graduado = obtencionGradoDAO.findByAlumno(alumno);
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
