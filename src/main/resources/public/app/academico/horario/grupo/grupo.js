@@ -287,16 +287,17 @@ new Vue({
         },
         saveCloneCiclo() {
             let $vue = this;
-
+            $vue.$refs.modalCloneCiclo.beginProcessing();
             axios.post('/' + rutaModulo + '/clonarGrupos', $vue.ciclo).then(response => {
+                $vue.$refs.modalCloneCiclo.confirmReaction(response.data.success);
                 if (response.data.success) {
-                    $vue.$refs.modalCloneCiclo.close();
-                    $vue.$refs.raptorGrupo.loadRemoteData();
+                    $vue.$refs.raptorGrupo.loadRemoteData();                    
                     notify(response.data.message, "success");
                 } else {
                     notify(response.data.message, "error");
-                }
+                }                
             }).catch(function (error) {
+                $vue.$refs.modalCloneCiclo.confirmReaction(false);
                 notify(Messages.errorComunicacion, "error");
             });
 

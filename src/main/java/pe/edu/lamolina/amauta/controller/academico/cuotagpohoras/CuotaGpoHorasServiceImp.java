@@ -206,6 +206,8 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         List<CuotasGrupoHoras> cuotasBD = cuotaGpoHorasDAO.allByCiclo(cicloAcademico);
         List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allLetrasUtilizadasByCiclo(cicloAcademico);
         Map<String, LetraCuotaUtilizadaBean> mapLetrasUtilizadas = TypesUtil.convertListToMap("anexoLetra", letrasUtilizados);
+        Map<Long, AnexoBoletin> mapAnexoBoletin = TypesUtil.convertListToMap("id", anexoBoletinDAO.all());
+        Map<Long, GrupoHoras> mapGrupoHoras = TypesUtil.convertListToMap("id", grupoHorasDAO.all());
         DateTime today = new DateTime();
 
         List<CuotasGrupoHoras> cuotas = new ArrayList();
@@ -217,8 +219,10 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         Map<Long, CuotasGrupoHoras> mapCuotas = TypesUtil.convertListToMap("id", cuotas);
 
         for (CuotasGrupoHoras cuota : cuotasBD) {
-            AnexoBoletin anexo = cuota.getAnexoBoletin();
-            GrupoHoras gpo = cuota.getGrupoHoras();
+            //AnexoBoletin anexo = cuota.getAnexoBoletin();
+            //GrupoHoras gpo = cuota.getGrupoHoras();
+            AnexoBoletin anexo = mapAnexoBoletin.get(cuota.getAnexoBoletin().getId());
+            GrupoHoras gpo = mapGrupoHoras.get(cuota.getGrupoHoras().getId());
             LetraCuotaUtilizadaBean letraUtilizada = mapLetrasUtilizadas.get(anexo.getId() + "-" + gpo.getLetra());
 
             cuota.setUtilizadasTeoria(0);
@@ -234,7 +238,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
             }
             cuotaGpoHorasDAO.update(cuota);
         }
-
+     
     }
 
 }

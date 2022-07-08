@@ -259,14 +259,17 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
         Assert.isTrue(cicloDestino.getTipo().equals(cicloOrigen.getTipo()), "No puede clonar de un tipo de ciclo distinto");
 
+        List<DiaHoraGrupo> diasHorasGrupos = new ArrayList();
         for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
             DiaHoraGrupo horaGrupo = new DiaHoraGrupo();
             horaGrupo.setDia(diaHoraGrupo.getDia());
             horaGrupo.setGrupoHorario(diaHoraGrupo.getGrupoHorario());
             horaGrupo.setHora(diaHoraGrupo.getHora());
             horaGrupo.setCicloAcademico(cicloDestino);
-            diaHoraGrupoDAO.save(horaGrupo);
+            //diaHoraGrupoDAO.save(horaGrupo);
+            diasHorasGrupos.add(horaGrupo);
         }
+        diaHoraGrupoDAO.saveList(diasHorasGrupos);
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1954,10 +1955,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccionCiclo(seccion, cicloAcademico);
         if (gpoHoras.getId() == null) {
             Assert.isFalse(seccionDB.getAula() != null, "Primero debe eliminar el aula de la sección");
+            Seccion seccionTemp = seccionDB.clone();
             horarioSeccionDAO.deleteAllInList(horariosSeccion);
             horarioAulaDAO.deleteAllInList(horariosAula);
             seccion.setGrupoHoras(null);
             seccionDAO.updateColumns(seccion, "grupoHoras");
+            this.actualizarCuotaAnexo(seccionTemp, cicloAcademico);
             return;
         }
 

@@ -15,12 +15,13 @@ var app = new Vue({
     }, methods: {
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
-        }, procesarAsignacionAulas() {
+        },
+        procesarAsignacionAulas() {
             let vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            if (vue.asignacionAula == null) {
+//            MODAL.showWait("Espere un momento por favor");
+            /*if (vue.asignacionAula == null) {
                 vue.asignacionAula = {id: ""};
-            }
+            }*/
             bootbox.confirm({
                 message: "¿Está seguro que desea eliminar la asignación de aulas?",
                 buttons: {
@@ -29,25 +30,31 @@ var app = new Vue({
                 },
                 callback: function (result) {
                     if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        vue.asignacionAula = vue.asignacionAula == null ? {id: ""} : vue.asignacionAula ;
                         AXIOS.post(`${vue.URL}/procesarAsignacionAulas`, vue.asignacionAula)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        vue.asignacionAula = response.data.data;
-                                        MODAL.hideWait();
-                                    } else {
-                                        notify(response.data.message, 'error');
-                                        MODAL.hideWait();
-                                    }
-                                });
+                        .then(response => {
+                            if (response.data.success) {
+                                vue.asignacionAula = response.data.data;
+                                MODAL.hideWait();
+                            } else {
+                                notify(response.data.message, 'error');
+                                MODAL.hideWait();
+                            }
+                        }).catch(function (error) {
+                            notify(Messages.errorComunicacion, "error");
+                            MODAL.hideWait();                            
+                        });
                     } else {
-                        MODAL.hideWait();
+                        //MODAL.hideWait();
                     }
                 }
             });
 
-        }, eliminarAsignacion() {
+        }, 
+        eliminarAsignacion() {
             let vue = this;
-            MODAL.showWait("Espere un momento por favor");
+//            MODAL.showWait("Espere un momento por favor");
 
             bootbox.confirm({
                 message: "¿Está seguro que desea eliminar la asignación de aulas?",
@@ -57,35 +64,42 @@ var app = new Vue({
                 },
                 callback: function (result) {
                     if (result) {
+                        MODAL.showWait("Espere un momento por favor");
                         AXIOS.post(`${vue.URL}/aliminarAsignacion`, vue.asignacionAula)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        vue.asignacionAula = null;
-                                        //  vue.asignacionAula = response.data.data;
-                                        // vue.loadAsignacionAula();
-                                        MODAL.hideWait();
-                                    } else {
-                                        notify(response.data.message, 'error');
-                                        MODAL.hideWait();
-                                    }
-                                });
+                            .then(response => {
+                                if (response.data.success) {
+                                    vue.asignacionAula = null;
+                                    //  vue.asignacionAula = response.data.data;
+                                    // vue.loadAsignacionAula();
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.data.message, 'error');
+                                    MODAL.hideWait();
+                                }
+                            }).catch(function (error) {                                
+                                notify(Messages.errorComunicacion, "error");
+                                MODAL.hideWait();
+                            });
                     } else {
-                        MODAL.hideWait();
+                        //MODAL.hideWait();
                     }
                 }
             });
 
 
-        }, loadAsignacionAula() {
+        }, 
+        loadAsignacionAula() {
             let vue = this;
             AXIOS.post(`${this.URL}/loadAsignacionAula`, vue.asignacionAula)
-                    .then(response => {
-                        if (response.data.success) {
-                            vue.asignacionAula = response.data.data;
-                        } else {
-                            notify(response.data.message, 'error');
-                        }
-                    });
+                .then(response => {
+                    if (response.data.success) {
+                        vue.asignacionAula = response.data.data;
+                    } else {
+                        notify(response.data.message, 'error');
+                    }
+                }).catch(function (error) {
+                    notify(Messages.errorComunicacion, "error");
+                });
         },
         editarGpoSecciones(item) {
             console.dir(item);
