@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.asignacionaula;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
@@ -7,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Seccion;
 
 @Controller
 @RequestMapping("academico/asignacionaula")
@@ -132,6 +135,71 @@ public class AsignacionAulaController {
         }
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "findSeccionesForAsignacionAula", method = RequestMethod.GET)
+    public JsonResponse findSeccionesForAsignacionAula(HttpSession session, HttpServletRequest request) {
+        logger.debug("findSeccionesForAsignacionAula");
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            SeccionesResumen resumen = asignacionAulaService.findSeccionesForAsignacionAula(ds);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*","secciones.id","secciones.aula.*"}));
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "ejecutarAsigacionParcial", method = RequestMethod.POST)
+    public JsonResponse ejecutarAsigacionParcial(@RequestBody List<Seccion> secciones,
+            HttpSession session, HttpServletRequest request) {
+        logger.debug("ejecutarAsigacionParcial");
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            asignacionAulaService.ejecutarAsigacionParcial(secciones, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "saveAsignacionAula", method = RequestMethod.POST)
+    public JsonResponse saveAsignacionAula(@RequestBody FormAsignacionAula asignacionAulaForm,
+            HttpSession session, HttpServletRequest request) {
+        logger.debug("saveAsignacionAula");
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            AsignacionAula asignacionAula = asignacionAulaService.saveAsignacionAula(asignacionAulaForm, ds);
+            ObjectNode jAsignacionAula = JsonHelper.createJson(asignacionAula,
+                    JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "cicloAcademico.*"
+                    });
+            response.setData(jAsignacionAula);
+            response.setMessage("Aulas asignadas correctamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
     @ResponseBody
     @RequestMapping(value = "aliminarAsignacion", method = RequestMethod.POST)
@@ -142,7 +210,7 @@ public class AsignacionAulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-            asignacionAulaService.deleteAsignacion(asignacionAula);
+            asignacionAulaService.deleteAsignacion(asignacionAula,ds);
             //     response.setData(jAsignacionAula);
             response.setMessage("Asignación de aulas eliminada.");
             response.setSuccess(Boolean.TRUE);

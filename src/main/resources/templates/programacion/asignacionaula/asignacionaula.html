@@ -14,7 +14,7 @@
                         <a class="btn btn-warning" type="button" v-if="asignacionAula!=null" v-on:click="eliminarAsignacion">Eliminar Asignacion</a>
                     </div>  
                     <div class="pull-right m-t-md m-r-sm">                 
-                        <a class="btn btn-success" type="button"  v-on:click="procesarAsignacionAulas">Procesar</a>
+                        <a class="btn btn-success" type="button" v-if="asignacionAula==null" v-on:click="procesarAsignacionAulas">Procesar</a>
                     </div>  
                     <h2>Asignación Aulas</h2>
                 </header>
@@ -76,6 +76,7 @@
                 modals
                  <div th:substituteby="programacion/tramiteaula/tramiteaularesumen"></div>
                 -->
+                <div th:substituteby="programacion/asignacionaula/asignacionAulaModals"/>
             </div>
 
         </div>
