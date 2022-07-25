@@ -130,7 +130,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     @Override
     @Transactional
     public void deleteAsignacion(AsignacionAula asignacionAula, DataSessionPivot ds) {
-        if (asignacionAula.getId() != null) {
+        if (asignacionAula != null) {
             asignacionAula = asignacionAulaDAO.find(asignacionAula.getId());
             List<Seccion> seccionesByCiclo = seccionDAO.allSeccionesAulaAutoByCiclo(asignacionAula.getCicloAcademico());
             seccionDAO.resetAsignacionAulaAuto(seccionesByCiclo);
