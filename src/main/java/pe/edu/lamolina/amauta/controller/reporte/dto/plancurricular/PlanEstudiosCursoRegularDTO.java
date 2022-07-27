@@ -15,6 +15,7 @@ public class PlanEstudiosCursoRegularDTO {
     private Long idCurriculaCurso;
     private String facultad;
     private String especialidad;
+    private String orientacion;
     private String nivel;
     private String codigoCurso;
     private String nombreCurso;
@@ -31,11 +32,12 @@ public class PlanEstudiosCursoRegularDTO {
 
     }
 
-    public PlanEstudiosCursoRegularDTO(Long idPlanCurricular, Long idCurriculaCurso, String facultad, String especialidad, String nivel, String codigoCurso, String nombreCurso, String tipoCurso, Long horasTeoria, Long horasPractica, Long creditos, String cursoRequisito, String creditosRequisito, Long creditosOtros, Long year) {
+    public PlanEstudiosCursoRegularDTO(Long idPlanCurricular, Long idCurriculaCurso, String facultad, String especialidad, String orientacion, String nivel, String codigoCurso, String nombreCurso, String tipoCurso, Long horasTeoria, Long horasPractica, Long creditos, String cursoRequisito, String creditosRequisito, Long creditosOtros, Long year) {
         this.idPlanCurricular = idPlanCurricular;
         this.idCurriculaCurso = idCurriculaCurso;
         this.facultad = facultad;
         this.especialidad = especialidad;
+        this.orientacion = orientacion;
         this.nivel = nivel;
         this.codigoCurso = codigoCurso;
         this.nombreCurso = nombreCurso;
@@ -79,6 +81,14 @@ public class PlanEstudiosCursoRegularDTO {
 
     public void setEspecialidad(String especialidad) {
         this.especialidad = especialidad;
+    }
+
+    public String getOrientacion() {
+        return orientacion;
+    }
+
+    public void setOrientacion(String orientacion) {
+        this.orientacion = orientacion;
     }
 
     public String getNivel() {

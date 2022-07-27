@@ -20,7 +20,7 @@ Vue.component("grupohorario-component", {
                     tblHorarios: null
                 }
             }
-        }
+        };
     },
     mounted: function () {
 
@@ -50,7 +50,7 @@ Vue.component("grupohorario-component", {
                     grupoHorarioSel: null,
                     tblHorarios: null
                 }
-            }
+            };
 
             $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = null;
             $vue.tabGrupos['regulares'].tblHorarios = null;
@@ -68,13 +68,12 @@ Vue.component("grupohorario-component", {
 
                         $global.$emit("reloadDynaZeta", $vue.seccionModal.id);
                         $global.$emit("reloadDynaEspecial", $vue.seccionModal.id);
-                        console.log(response.data);
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
-                        console.log($vue.tabGrupos.grupoHorarioSel)
+                        //console.log($vue.tabGrupos.grupoHorarioSel)
                         if (response.data.grupoHorarioSel != null) {
                             $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorarioSel;
-                            console.log(response.data.grupoHorarioSel.tipoGrupoHoras)
+                            //console.log(response.data.grupoHorarioSel.tipoGrupoHoras)
 
                             if (response.data.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular) {
                                 console.log("isTipoGrupoRegular");
@@ -105,7 +104,7 @@ Vue.component("grupohorario-component", {
                             $vue.tabGrupos['zetas'].tblHorarios = null;
                         }
                         //$vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "regulares";
-                        console.log($vue.tabGrupos.grupoHorarioSel)
+                        //console.log($vue.tabGrupos.grupoHorarioSel);
                     }
                 }
             });
@@ -206,7 +205,7 @@ Vue.component("grupohorario-component", {
                 success: function (response) {
 
                     if (response.success) {
-                        console.log(response.data);
+                        //console.log(response.data);
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
                         $global.$emit("seleccionarGrupoEspecial", $vue.tabGrupos.grupoHorarioSel);
@@ -360,8 +359,9 @@ Vue.component("grupohorario-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = {};
-                            console.log(this.tabGrupos);
+                            this.tabGrupos.grupoHorarioSel.id = null;
+                            //this.tabGrupos.grupoHorarioSel = {};
+                            console.log("grupoHorarioSel ->", this.tabGrupos);
                         }
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
@@ -470,6 +470,8 @@ Vue.component("grupohorario-component", {
             let $vue = this;
             //if ($vue.tabGrupos.grupoHorarioSel == null || Object.keys($vue.tabGrupos.grupoHorarioSel).length == 0) {
             if ($vue.tabGrupos.grupoHorarioSel == null) {
+                
+                console.log("INGRES::::");
                 notify("Seleccione un grupo horario.", "error");
                 return;
             }
@@ -484,7 +486,7 @@ Vue.component("grupohorario-component", {
                         let grupoHorario = diaHoraGrupoEach.grupoHorario.id;
                         let dia = diaHoraGrupoEach.dia;
                         let hora = diaHoraGrupoEach.hora;
-                        let diaHoraGrupoJson = {}
+                        let diaHoraGrupoJson = {};
                         diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
                         diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario)};
                         diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
@@ -498,10 +500,10 @@ Vue.component("grupohorario-component", {
                     if (diaHoraGrupoEach.seleccionado) {
 
                         let diaHoraGrupo = diaHoraGrupoEach.id;
-                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario;
                         let dia = diaHoraGrupoEach.dia;
                         let hora = diaHoraGrupoEach.hora;
-                        let diaHoraGrupoJson = {}
+                        let diaHoraGrupoJson = {};
 
                         diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
                         diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};
@@ -517,10 +519,10 @@ Vue.component("grupohorario-component", {
                     if (diaHoraGrupoEach.seleccionado) {
 
                         let diaHoraGrupo = diaHoraGrupoEach.id;
-                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario;
                         let dia = diaHoraGrupoEach.dia;
                         let hora = diaHoraGrupoEach.hora;
-                        let diaHoraGrupoJson = {}
+                        let diaHoraGrupoJson = {};
 
                         diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
                         diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};

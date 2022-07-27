@@ -161,7 +161,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
     @Override
     public List<PlanEstudiosCursoRegularDTO> reportePlanCurricularCursoRegular(Long idPlanCurricular) {
         StringBuilder sql = new StringBuilder();
-        sql.append("select pc.id idPlanCurricular, cc.id idCurriculaCurso, fac.nombre facultad, car.nombre especialidad, ")
+        sql.append("select pc.id idPlanCurricular, cc.id idCurriculaCurso, fac.nombre facultad, car.nombre especialidad, oc.nombre orientacion, ")
                 .append("case cc.numero_ciclo ")
                 .append("when '1' then '01' ")
                 .append("when '2' then '02' ")
@@ -189,6 +189,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .append("join aca_facultad fac on car.id_facultad = fac.id ")
                 .append("join aca_plan_curricular pcu on cc.id_plan_curricular = pcu.id ")
                 .append("join aca_ciclo_academico cap on pcu.id_ciclo_inicio_vigencia = cap.id ")
+                .append("left join aca_orientacion_carrera oc on pc.id_orientacion_carrera = oc.id ")
                 .append("left join (                                                                                                                      ")
                 .append("        select rcc.id id_rcc, rcc.id_curso_curricula id_cc, rcc.id_curso_requisito id_cr, cu2.nombre cur_nom, cu2.codigo cur_cod ")
                 .append("        from aca_requisito_curso_curricula rcc                                                                                   ")
@@ -208,6 +209,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .addScalar("idCurriculaCurso", LongType.INSTANCE)
                 .addScalar("facultad", StringType.INSTANCE)
                 .addScalar("especialidad", StringType.INSTANCE)
+                .addScalar("orientacion", StringType.INSTANCE)
                 .addScalar("nivel", StringType.INSTANCE)
                 .addScalar("codigoCurso", StringType.INSTANCE)
                 .addScalar("nombreCurso", StringType.INSTANCE)
@@ -221,7 +223,6 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .addScalar("year", LongType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(PlanEstudiosCursoRegularDTO.class));
         return query.list();
-
     }
 
     @Override

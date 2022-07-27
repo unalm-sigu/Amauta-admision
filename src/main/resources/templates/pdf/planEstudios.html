@@ -76,10 +76,12 @@
         
         <div style="text-align: left">
             <b class="block" style="font-size: 14px;"> FACULTAD: </b> <span style="font-size: 14px;" th:inline="text">[[${#strings.toUpperCase(facultad)}]]</span>            
-        </div>
-        <div style="text-align: left; padding-bottom: 20px;">
-            <b class="block" style="font-size: 14px;"> ESPECIALIDAD: </b> <span style="font-size: 14px;" th:inline="text">[[${#strings.toUpperCase(especialidad)}]]</span>
         </div>       
+        <div style="text-align: left; padding-bottom: 20px;">
+            <b class="block" style="font-size: 14px;"> ESPECIALIDAD: </b> 
+            <span style="font-size: 14px;" th:inline="text" th:if="${#strings.isEmpty(orientacion)}">[[${#strings.toUpperCase(especialidad)}]]</span>
+            <span style="font-size: 14px;" th:inline="text" th:unless="${#strings.isEmpty(orientacion)}">[[${#strings.toUpperCase(especialidad)}]] - [[${#strings.toUpperCase(orientacion)}]]</span>
+        </div>   
         
         <th:block  th:each="dato : ${cursosRegulares}">
             <div style="text-align: left">            
@@ -124,40 +126,43 @@
             </div>
         </th:block>
 
-        <div style="text-align: left; padding-bottom: 20px;">
-            <b class="block" style="font-size: 14px;"> CURSOS ELECTIVOS </b>
-        </div>
-        <th:block>
-            <div style="text-align: left">            
-                <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
-                    <thead>
-                        <tr style="margin-bottom: 50px;">
-                            <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
-                            <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
-                            <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
-                            <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
-                            <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
-                            <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
-                            <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="dato : ${cursosEspeciales}">
-                            <td><span th:text="${dato.codigoTipo}"></span></td>
-                            <td><span th:text="${dato.nombreCurso}"></span></td>
-                            <td><span th:text="${dato.tipo}"></span></td>
-                            <td><span th:text="${dato.horasTeoria}"></span></td>
-                            <td><span th:text="${dato.horasPractica}"></span></td>
-                            <td><span th:text="${dato.creditos}"></span></td>
-                            <td>
-                                <span th:text="${dato.cursosRequisito}"></span>
-                                <span th:if="${dato.creditosRequisito != 0}" th:text="${dato.creditosRequisito}"></span>
-                                <span th:if="${dato.creditosRequisito != 0}">créditos aprobados. </span>                            
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div th:if="${#lists.size(cursosElectivos)}">
+            <span th:text="${#lists.size(cursosElectivos)}"/>
+            <div style="text-align: left; padding-bottom: 20px;">
+                <b class="block" style="font-size: 14px;"> CURSOS ELECTIVOS </b>
             </div>
-        </th:block>
+            <th:block>
+                <div style="text-align: left">            
+                    <table class="table table-plan" style="margin-bottom: 20px;" width="100%" border='0'>
+                        <thead>
+                            <tr style="margin-bottom: 50px;">
+                                <td style="width: 10%;"><b style="font-size: 14px;"> CODIGO </b></td>
+                                <td style="width: 40%"><b style="font-size: 14px;"> NOMBRE DEL CURSO </b></td>
+                                <td style="width: 20%"><b style="font-size: 14px;"> TIPO </b></td>
+                                <td style="width: 4%"><b style="font-size: 14px;"> HT </b></td>
+                                <td style="width: 4%"><b style="font-size: 14px;"> HP </b></td>
+                                <td style="width: 6%"><b style="font-size: 14px;"> CRD </b></td>
+                                <td style="width: 16%"><b style="font-size: 14px;"> REQUISITO </b></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dato : ${cursosElectivos}">
+                                <td><span th:text="${dato.codigoTipo}"></span></td>
+                                <td><span th:text="${dato.nombreCurso}"></span></td>
+                                <td><span th:text="${dato.tipo}"></span></td>
+                                <td><span th:text="${dato.horasTeoria}"></span></td>
+                                <td><span th:text="${dato.horasPractica}"></span></td>
+                                <td><span th:text="${dato.creditos}"></span></td>
+                                <td>
+                                    <span th:text="${dato.cursosRequisito}"></span>
+                                    <span th:if="${dato.creditosRequisito != 0}" th:text="${dato.creditosRequisito}"></span>
+                                    <span th:if="${dato.creditosRequisito != 0}">créditos aprobados. </span>                            
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </th:block>
+        </div>
     </body>
 </html>

@@ -1176,19 +1176,20 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public void reporte(Model model, List<PlanEstudiosCursoRegularDTO> cursosRegulares, List<PlanEstudiosCursoElectivoDTO> cursosElectivos) {
         String facultad = cursosRegulares.get(0).getFacultad();
         String especialidad = cursosRegulares.get(0).getEspecialidad();
+        String orientacion = cursosRegulares.get(0).getOrientacion();
         String year = Long.toString(cursosRegulares.get(0).getYear());
-        Map<String, List<PlanEstudiosCursoRegularDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", cursosRegulares);
+        Map<String, List<PlanEstudiosCursoRegularDTO>> cursosRegularesPorNivel = TypesUtil.convertListToMapList("nivel", cursosRegulares);
         Context ctx = new Context();
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("facultad", facultad);
         ctx.setVariable("especialidad", especialidad);
+        ctx.setVariable("orientacion", orientacion);
         ctx.setVariable("year", year);
-        ctx.setVariable("cursosRegulares", mapPlanEstudios);
-        ctx.setVariable("cursosEspeciales", cursosElectivos);
+        ctx.setVariable("cursosRegulares", cursosRegularesPorNivel);
+        ctx.setVariable("cursosElectivos", cursosElectivos);
         ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
         ctx.setVariable("templatePdf", "planEstudios");
         model.addAllAttributes(ctx.getVariables());        
-        
     }
     
     @Override
