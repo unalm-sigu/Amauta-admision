@@ -28,7 +28,7 @@
                         name="codigo" />
             </div>
 
-            <div class="form-group col-sm-6">
+            <div class="form-group col-sm-4">
                 <label>Sub Títulos</label>
                 <input  type="number" class="form-control input-sm"
                         required="true"
@@ -38,7 +38,7 @@
                         name="subtitulosVisibles" />
             </div>
 
-            <div class="form-group  col-sm-6">
+            <div class="form-group  col-sm-4">
                 <label>Preguntas</label>
                 <input  type="number" class="form-control input-sm"
                         required="true"
@@ -46,6 +46,17 @@
                         data-trigger="change"
                         th:value="${temaExamenVirtual.preguntasVisibles}"
                         name="preguntasVisibles" />
+            </div>
+            
+            <div class="form-group  col-sm-4">
+                <label>Peso</label>
+                <input  type="number" class="form-control input-sm"
+                        required="true"
+                        step="0.01"
+                        min="0"
+                        data-trigger="change"
+                        th:value="${temaExamenVirtual.pesoCategoria}"
+                        name="pesoCategoria" />
             </div>
 
         </form>

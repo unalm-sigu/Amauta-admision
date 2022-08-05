@@ -232,7 +232,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
 
     @Override
     public PreguntaExamen findPregunta(Long idPregunta) {
-        PreguntaExamen pregunta = preguntaExamenDAO.find(idPregunta);
+        PreguntaExamen pregunta = preguntaExamenDAO.findPregunta(idPregunta);
         List<OpcionPregunta> opciones = opcionPreguntaDAO.allByPregunta(pregunta);
         pregunta.setOpcionPregunta(opciones);
 

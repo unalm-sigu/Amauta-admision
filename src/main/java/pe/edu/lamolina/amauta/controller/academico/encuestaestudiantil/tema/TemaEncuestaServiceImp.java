@@ -116,6 +116,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
         temaEvaluacionVirtual.setCodigo(tema.getCodigo());
         temaEvaluacionVirtual.setSubtitulosVisibles(tema.getSubtitulosVisibles());
         temaEvaluacionVirtual.setPreguntasVisibles(tema.getPreguntasVisibles());
+        temaEvaluacionVirtual.setPesoCategoria(tema.getPesoCategoria());
         temaEvaluacionVirtualDAO.update(temaEvaluacionVirtual);
     }
 

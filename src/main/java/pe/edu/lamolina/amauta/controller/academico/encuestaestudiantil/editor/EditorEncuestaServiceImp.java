@@ -136,7 +136,20 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     @Transactional
     public void delete(ExamenVirtual encuesta) {
-        examenVirtualDAO.delete(encuesta);
+        ExamenVirtual encuestaBD = examenVirtualDAO.find(encuesta.getId());
+        Assert.isTrue(encuestaBD.getEstadoEnum() == ExamenVirtualEstadoEnum.CRE, "La encuesta se encuentra activa.");
+
+        List<PreguntaExamen> preguntas = preguntaExamenDAO.allByEncuesta(encuestaBD);
+        List<OpcionPregunta> opciones = opcionPreguntaDAO.allByPreguntas(preguntas);
+
+        opciones.stream().forEach((opcion) -> {
+            opcionPreguntaDAO.delete(opcion);
+        });
+        preguntas.stream().forEach((pregunta) -> {
+            preguntaExamenDAO.delete(pregunta);
+        });
+
+        examenVirtualDAO.delete(encuestaBD);
     }
 
     @Override
@@ -168,6 +181,9 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             preguntaNew.setFechaCreacion(new Date());
             preguntaNew.setExamenVirtual(encuestaNew);
             preguntaNew.setOpcionPregunta(new ArrayList());
+            if (pregunta.getTipoLikert() != null) {
+                preguntaNew.setTipoLikert(pregunta.getTipoLikert());
+            }
             preguntaExamenDAO.save(preguntaNew);
 
             encuestaNew.setPreguntasDisponibles(encuestaNew.getPreguntasDisponibles() + 1);

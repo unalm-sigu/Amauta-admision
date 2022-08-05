@@ -116,6 +116,7 @@ public class PreguntaExamenDAOH extends AbstractEasyDAO<PreguntaExamen> implemen
         Octavia sql = Octavia.query()
                 .from(PreguntaExamen.class, "pre")
                 .join("examenVirtual exv")
+                .leftJoin("tipoLikert")
                 .filter("exv.id", encuesta);
 
         return sql.all(getCurrentSession());
