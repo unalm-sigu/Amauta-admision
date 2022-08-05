@@ -146,7 +146,8 @@
                         </thead>
                         <tbody>
                             <tr th:each="dato : ${cursosElectivos}">
-                                <td><span th:text="${dato.codigoTipo}"></span></td>
+                                <td><span th:text="${dato.codigoCurso}"></span></td>
+                                <!--<td><span th:text="${dato.codigoTipo}"></span></td>-->
                                 <td><span th:text="${dato.nombreCurso}"></span></td>
                                 <td><span th:text="${dato.tipo}"></span></td>
                                 <td><span th:text="${dato.horasTeoria}"></span></td>
