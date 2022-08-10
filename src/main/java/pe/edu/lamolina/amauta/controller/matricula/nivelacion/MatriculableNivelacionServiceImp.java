@@ -52,8 +52,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     @Transactional
     public void ClonarNivelacionDTO(DataSessionPivot ds, ClonarNivelacionDTO clonarNivelacionDTO) {
 
-        int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();
-        int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();
+        int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();//2022-I
+        int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();//2022-N
         if (codeInicio >= codeFin) {
             throw new PhobosException("Ciclos no validos");
         }
@@ -68,8 +68,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             throw new PhobosException("Ciclo destino no valido");
         }
 
-        List<MatriculaResumen> matriculasOrigen = matriculaResumenDAO
-                .allByCicloClonar(clonarNivelacionDTO.getCicloOrigen());
+        List<MatriculaResumen> matriculasOrigen = matriculaResumenDAO.allByCicloClonar(clonarNivelacionDTO.getCicloOrigen());
         List<Alumno> alumnos = matriculasOrigen.stream().map(x -> x.getAlumno())
                 .collect(Collectors.toList());
 
@@ -78,6 +77,11 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
         List<AlumnoCiclo> alumnosCicloSuspendido = alumnoCicloDAO.allSuspendidoByCiclo(cicloAcademicoAnterior);
         log.debug("SUSPENDIDOS {}", alumnosCicloSuspendido.size());
+
+        List<MatriculaResumen> matriculablesCicloAnteriorSuspendidos = matriculaResumenDAO.allByCiclo(cicloAcademicoAnterior);
+        Map<Long, MatriculaResumen> matriculableSuspendidoAnteriorMap = matriculablesCicloAnteriorSuspendidos
+                .stream()
+                .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(destino);
         Map<Long, AlumnoCiclo> alumnoCicloMap = alumnosCiclos.stream()
@@ -159,7 +163,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                     matriculaResumen.setCreditosAprobadosAcumulados(aluCiclo.getCreditosAprobadosAcumulados());
                     matriculaResumen.setPromedioSemestral(aluCiclo.getPromedioCiclo());
                     matriculaResumen.setCicloAcademicoInfo(aluCiclo.getCicloAcademico());
-                    matriculaResumen.setPuntajePrioridad(aluCiclo.getPromedioAcumulado());
+                    matriculaResumen.setPuntajePrioridad(matriculableSuspendidoAnteriorMap.get(aluCiclo.getAlumno().getId()).getPuntajePrioridad());
                 }
             }
             matriculaResumen.setMotivoMatriculable(matriculaOrigen.getMotivoMatriculable());
@@ -179,7 +183,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             SituacionAcademica situacionAcademicaFinal = alumnoCiclo.getSituacionFinal();
             SituacionAcademica situacionAcademicaInicio = alumnoCiclo.getSituacionInicio();
-            
+
             matriculaResumen = new MatriculaResumen();
 
             matriculaResumen.setSituacionInicio(alumnoCiclo.getSituacionFinal());
@@ -188,7 +192,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
 
-            matriculaResumen.setPrioridad(null);
+            matriculaResumen.setPrioridad(matriculableSuspendidoAnteriorMap.get(alumno.getId()).getPrioridad());
+            matriculaResumen.setPuntajePrioridad(matriculableSuspendidoAnteriorMap.get(alumno.getId()).getPuntajePrioridad());
 
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCursosRetirados(0);
@@ -226,7 +231,6 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
 
             alumnoDAO.updateColumns(alumno, "situacionAcademica");
 
-            matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
             matriculaResumenDAO.update(matriculaResumen);
 
         }
