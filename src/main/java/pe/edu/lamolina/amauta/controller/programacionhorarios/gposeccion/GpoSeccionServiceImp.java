@@ -250,7 +250,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
-    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NTkzMzAwMDAsImlhdCI6MTY1NjY4OTA2M30.1CfP7tF-zW0GT6g3OqDNdq_e83ET1AQFAzQ5nteKhww";
+    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NjM1NjM1NDAsImlhdCI6MTY2MDU2OTU3NH0.vyChT6QU-957M5i8OV_FpWfvEq1OIlK2MgOOf5RJlcM";
 
 
     @Override
