@@ -17,6 +17,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaBloqueoIngresante;
 import pe.edu.lamolina.model.enums.ModalidadIngresoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.inscripcion.Ingresante;
 
 @Service
@@ -44,13 +45,14 @@ public class MatriculaBloqueoIngresanteServiceImp implements MatriculaBloqueoIng
     public void copiaIngresantesAdmision(DataSessionPivot ds) {
         List<MatriculaBloqueoIngresante> listaBD = matriculaBloqueoIngresanteDAO.allByCicloAcademico(ds.getCicloAcademico());
 
+        Assert.isTrue(ds.getCicloAcademico().getTipoEnum().equals(TipoCicloEnum.REG), "Solo se copia en ciclos regulares");
         Assert.isTrue(listaBD.isEmpty(), "Ya se genero la copia de los ingresantes del ciclo " + ds.getCicloAcademico().getDescripcion());
 
         List<Ingresante> ingresantes = ingresanteDAO.allByCicloAcademico(ds.getCicloAcademico());
 
         List<Ingresante> ingresantesQuinto = new ArrayList();
 
-        String numeroCiclo = ds.getCicloAcademico().getNumeroCiclo();//validar
+        String numeroCiclo = ds.getCicloAcademico().getNumeroCiclo();
 
         List<CicloAcademico> ciclosQuintosAnteriores = cicloAcademicoDAO.allMenorRegularPreByCantidad(2, ds.getCicloAcademico());
         if (numeroCiclo.equalsIgnoreCase("1")) {

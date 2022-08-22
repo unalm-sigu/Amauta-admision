@@ -33,7 +33,9 @@ public class MatriculaBloqueoIngresanteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
+        if(ds.getUsuario() == null){
+            return "redirect:/";
+        }
         return "docente/bloqueo/bloqueoIngresantes";
     }
 
