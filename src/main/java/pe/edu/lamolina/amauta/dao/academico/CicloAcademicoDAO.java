@@ -144,4 +144,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend);
 
+    List<CicloAcademico> allMenorRegularPreByCantidad(int maxResultado, CicloAcademico cicloAcademico);
+
 }

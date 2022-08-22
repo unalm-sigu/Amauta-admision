@@ -1,0 +1,123 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Bloqueo de matrícula Ingresantes</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="text-left dropdown-menu">
+                            <li><a type="button" class=" btn" v-on:click.prevent="copiarIngresantesAdmision">Copiar Ingresantes Admisión</a></li>
+                            <li><a type="button" class=" btn" v-on:click.prevent="reporteGeneral(idCicloAcademico)" >Reporte Ingresantes General</a></li>
+                        </ul>
+                    </div>
+                    <h2>Bloqueo de matrícula ingresantes por cursos de Nivelación <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
+
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <ingresantes-list ref="ingresanteslist"/>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var CICLO_ACADEMICO = /*[[${session["SESSION_USUARIO"].cicloAcademico.id}]]*/ {};
+            </script>
+            
+            <script>
+                Vue.component("multiselect", window.VueMultiselect.default);
+                const IngresantesList = httpVueLoader('/app/docente/bloqueo/IngresantesList.vue');
+                var root = new Vue({
+                    el: '#main',
+                    data:{
+                        idCicloAcademico: JSON.parse(CICLO_ACADEMICO),
+                    },
+                    components: {
+                        ingresantesList: IngresantesList,
+                    },
+                    mounted: function () {
+                        let $vue = this;
+                    },
+                    methods: {
+                        copiarIngresantesAdmision() {
+                            let $vue = this;
+                            swal('¿Seguro que desea copiar los ingresantes de admisión?', {
+                                icon: "warning",
+                                closeOnClickOutside: false,
+                                closeOnEsc: false,
+                                dangerMode: true,
+                                buttons: {
+                                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                                    confirm: {text: "Sí, Copiar", closeModal: false}
+                                }
+                            }).then((value) => {
+                                if (value != true) {
+                                    return;
+                                }
+                                axios_.post("/docente/matricula/bloqueo/copia")
+                                        .then(({data}) => {
+                                            if (data.success) {
+                                                $vue.reload();
+                                                notify('Copia satisfactoria', 'success');
+                                                swal.close();
+                                            } else {
+                                                notify(data.message, 'error');
+                                                swal.close();
+                                        }
+
+                                        }, () => {
+                                            return swal(APP.errorComunicacion, "error");
+                                        });
+
+                            }).catch(err => {
+                                if (err) {
+                                    swal(APP.errorComunicacion, "error");
+                                } else {
+                                    swal.stopLoading();
+                                    swal.close();
+                                }
+                            });
+
+                        },
+                        reporteGeneral(idCicloAcademico) {
+                            let $vue = this;
+                            let ruta = "/docente/matricula/bloqueo/reporteAlumnos/" + idCicloAcademico;
+
+                            $.fileDownload(ruta, {
+                                httpMethod: "POST",
+                                data: {}
+                                ,
+                                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                                },
+                                onFail: function (e) {
+                                    console.log(e);
+                                },
+                                failCallback: function (responseHtml, url) {
+                                    notify(Messages.errorComunicacion, 'error')
+                                }
+                            });
+                        },
+                        reload() {
+                            let $vue = this;
+                            $vue.$refs.ingresanteslist.reload();
+                        }
+                    }
+                });
+
+            </script>
+
+        </div>
+
+    </body>
+</html>
