@@ -76,23 +76,23 @@
 
 
                                     <td class="v-middle ">
-                                        <span class='block padder-v'>{{item.rm}}</span> 
+                                        <span  v-bind:class="getClass(item.rm)">{{item.rm}}</span> 
                                         <!--<span>Fin: {{item.rm}}</span>--> 
                                     </td>
                                     <td class="v-middle ">
-                                        <span> {{item.rv}}</span> 
+                                        <span v-bind:class="getClass(item.rv)"> {{item.rv}}</span> 
                                     </td>
                                     <td class="v-middle ">
-                                        <span> {{item.matematica}}</span> 
+                                        <span v-bind:class="getClass(item.matematica)"> {{item.matematica}}</span> 
                                     </td>
                                     <td class="v-middle ">
-                                        <span> {{item.fisica}}</span> 
+                                        <span v-bind:class="getClass(item.fisica)"> {{item.fisica}}</span> 
                                     </td>
                                     <td class="v-middle ">
-                                        <span> {{item.quimica}}</span> 
+                                        <span v-bind:class="getClass(item.quimica)"> {{item.quimica}}</span> 
                                     </td>
-                                    <td class="v-middle ">
-                                        <span> {{item.biologia}}</span> 
+                                    <td class="v-middle">
+                                        <span v-bind:class="getClass(item.biologia)"> {{item.biologia}}</span> 
                                     </td>
                                     <td class="v-middle ">
                                         <a v-if="item.inscrito" class="text-center text-success">
@@ -147,12 +147,6 @@
                         + item.ingresante.postulante.persona.materno + ', '
                         + item.ingresante.postulante.persona.nombres;
 
-                var texto = '';
-                if (item.matricula) {
-                    notify('solo puede dar acceso, no quitar!', 'warning');
-                    return;
-                }
-
                 swal('¿Desea dar acceso alumno ' + alumno + '?', {
                     icon: "warning",
                     closeOnClickOutside: false,
@@ -204,6 +198,12 @@
             reload() {
                 let $vue = this;
                 $vue.$refs.load.loadRemoteData();
+            }, getClass(nota) {
+                if (nota >= 10.5) {
+                    return 'bold text-success';
+                }else{
+                    return 'bold text-danger';
+                }
             }
         }
     };

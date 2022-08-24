@@ -14,12 +14,11 @@ import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import static pe.edu.lamolina.model.enums.AportesEnum.A05;
 import static pe.edu.lamolina.model.enums.AportesEnum.A51;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.model.aporte.AporteCiclo;
+import static pe.edu.lamolina.model.enums.AportesEnum.A54;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -78,7 +77,8 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .join("ac.cuentaBancaria cta")
                 .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
                 .filter("ca.codigo", cicloAcademico.getCodigo())
-                .filter("apo.codigo", A05.name().substring(1))
+//                .filter("apo.codigo", A05.name().substring(1))
+                .in("apo.codigo", Arrays.asList(A05.name().substring(1),A54.name().substring(1)))
                 .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
                 .in("mr.id", matriculaResumens)
                 .orderBy("aac.numeroCuota", "apo.nombre");
