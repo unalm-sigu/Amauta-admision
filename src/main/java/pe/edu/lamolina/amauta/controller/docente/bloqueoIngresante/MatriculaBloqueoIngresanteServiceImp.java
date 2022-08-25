@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,25 +43,42 @@ public class MatriculaBloqueoIngresanteServiceImp implements MatriculaBloqueoIng
 
     @Override
     @Transactional
-    public void copiaIngresantesAdmision(DataSessionPivot ds) {
+    public String copiaIngresantesAdmision(DataSessionPivot ds) {
+        String mensaje = "No hay ingresantes nuevos en la copia del ciclo " + ds.getCicloAcademico().getDescripcion();
         List<MatriculaBloqueoIngresante> listaBD = matriculaBloqueoIngresanteDAO.allByCicloAcademico(ds.getCicloAcademico());
+        List<Ingresante> ingresantes = ingresanteDAO.allByCicloAcademico(ds.getCicloAcademico());
+
+        List<Ingresante> ingresantesNew = new ArrayList();
+
+        if (!listaBD.isEmpty() && ingresantes.size() > listaBD.size()) {
+            ingresantesNew = this.getIngresantesNew(ingresantes, listaBD);
+        }
 
         Assert.isTrue(ds.getCicloAcademico().getTipoEnum().equals(TipoCicloEnum.REG), "Solo se copia en ciclos regulares");
-        Assert.isTrue(listaBD.isEmpty(), "Ya se genero la copia de los ingresantes del ciclo " + ds.getCicloAcademico().getDescripcion());
-
-        List<Ingresante> ingresantes = ingresanteDAO.allByCicloAcademico(ds.getCicloAcademico());
 
         List<Ingresante> ingresantesQuinto = new ArrayList();
 
         String numeroCiclo = ds.getCicloAcademico().getNumeroCiclo();
 
         List<CicloAcademico> ciclosQuintosAnteriores = cicloAcademicoDAO.allMenorRegularPreByCantidad(2, ds.getCicloAcademico());
+
         if (numeroCiclo.equalsIgnoreCase("1")) {
             ingresantesQuinto = ingresanteDAO.allByCicloAcademicoModalidadIngreso(ciclosQuintosAnteriores, ModalidadIngresoEnum.QUINTO_SECUNDARIA.getCode());
+            ingresantes.addAll(ingresantesQuinto);
         }
 
-        ingresantes.addAll(ingresantesQuinto);
-        
+        if (ingresantesNew.isEmpty() && listaBD.isEmpty()) {
+            this.creacionIngresante(ingresantes, ds);
+            mensaje = "Se copio los ingresantes satisfactoriamente.";
+        } else if (!ingresantesNew.isEmpty()) {
+            this.creacionIngresante(ingresantesNew, ds);
+            mensaje = ingresantesNew.size() < 2 ? "Se ingreso un nuevo ingresante." : ("Se ingreso " + ingresantesNew.size() + " ingresantes nuevos.");
+        }
+        return mensaje;
+    }
+
+    private void creacionIngresante(List<Ingresante> ingresantes, DataSessionPivot ds) {
+
         for (Ingresante ingresante : ingresantes) {
             MatriculaBloqueoIngresante bloqueoIngresante = new MatriculaBloqueoIngresante();
             bloqueoIngresante.setIngresante(ingresante);
@@ -69,7 +87,7 @@ public class MatriculaBloqueoIngresanteServiceImp implements MatriculaBloqueoIng
 
             if (ingresante.getPostulante().getModalidadIngreso().getCodigo().equalsIgnoreCase("04")
                     || ingresante.getPostulante().getModalidadIngreso().getCodigo().equalsIgnoreCase("05")
-                    || ingresante.getPostulante().getModalidadIngreso().getCodigo().equalsIgnoreCase("08")) {//'04','05','08' solo rv y rm
+                    || ingresante.getPostulante().getModalidadIngreso().getCodigo().equalsIgnoreCase("08")) {
 
                 bloqueoIngresante.setRm(ingresante.getEvaluado().getPuntajeRm());
                 bloqueoIngresante.setRv(ingresante.getEvaluado().getPuntajeRv());
@@ -96,12 +114,11 @@ public class MatriculaBloqueoIngresanteServiceImp implements MatriculaBloqueoIng
                 this.validarDemasMaterias(ingresante, bloqueoIngresante, notaMinima);
 
             }
-            
+
             bloqueoIngresante.setFechaRegistro(new Date());
             bloqueoIngresante.setUsuario(ds.getUsuario());
             matriculaBloqueoIngresanteDAO.save(bloqueoIngresante);
         }
-
     }
 
     private void validarRvRM(Ingresante ingresante, MatriculaBloqueoIngresante bloqueoIngresante, BigDecimal notaMinima) {
@@ -139,6 +156,14 @@ public class MatriculaBloqueoIngresanteServiceImp implements MatriculaBloqueoIng
             }
 
         }
+
+    }
+
+    private List<Ingresante> getIngresantesNew(List<Ingresante> ingresantes, List<MatriculaBloqueoIngresante> ingresantesBloqueados) {
+
+        List<Long> idIngresantesBD = ingresantesBloqueados.stream().map(MatriculaBloqueoIngresante::getIngresante).map(x -> x.getId()).collect(Collectors.toList());
+
+        return ingresantes.stream().filter(x -> !idIngresantesBD.contains(x.getId())).collect(Collectors.toList());
 
     }
 

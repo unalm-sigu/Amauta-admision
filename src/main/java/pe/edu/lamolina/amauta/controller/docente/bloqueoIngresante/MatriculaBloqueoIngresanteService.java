@@ -9,7 +9,7 @@ public interface MatriculaBloqueoIngresanteService {
 
     List<MatriculaBloqueoIngresante> allByDynatable(DynatableFilter filter, DataSessionPivot ds);
 
-    void copiaIngresantesAdmision(DataSessionPivot ds);
+    String copiaIngresantesAdmision(DataSessionPivot ds);
 
     void actualizarMatricula(Long id, DataSessionPivot ds);
 

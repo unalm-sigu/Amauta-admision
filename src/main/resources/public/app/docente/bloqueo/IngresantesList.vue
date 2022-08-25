@@ -138,7 +138,6 @@
         },
         mounted: function () {
             let $vue = this;
-            console.log($vue.filtros);
         },
         methods: {
             actualizar(item) {
@@ -164,10 +163,10 @@
                             .then(({data}) => {
                                 if (data.success) {
                                     $vue.reload();
-                                    notify('Copia satisfactoria', 'success');
+                                    notify('Se dio acceso al ingresante', 'success');
                                     swal.close();
                                 } else {
-                                    notify(data.message, 'error');
+                                    notify('Error al dar acceso', 'error');
                                     swal.close();
                             }
 
@@ -186,7 +185,6 @@
             },
             cambioFiltro($event) {
                 let $vue = this;
-                console.log($event.id)
                 $vue.$refs.load.querie.push({name: 'matricula', value: $event.id});
                 $vue.$refs.load.loadRemoteData();
             },
@@ -201,7 +199,7 @@
             }, getClass(nota) {
                 if (nota >= 10.5) {
                     return 'bold text-success';
-                }else{
+                } else {
                     return 'bold text-danger';
                 }
             }

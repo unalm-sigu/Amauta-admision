@@ -33,7 +33,7 @@ public class MatriculaBloqueoIngresanteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        if(ds.getUsuario() == null){
+        if (ds.getUsuario() == null) {
             return "redirect:/";
         }
         return "docente/bloqueo/bloqueoIngresantes";
@@ -68,8 +68,9 @@ public class MatriculaBloqueoIngresanteController {
         response.setSuccess(Boolean.FALSE);
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.copiaIngresantesAdmision(ds);
+            String mensaje = service.copiaIngresantesAdmision(ds);
             response.setSuccess(Boolean.TRUE);
+            response.setMessage(mensaje);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
