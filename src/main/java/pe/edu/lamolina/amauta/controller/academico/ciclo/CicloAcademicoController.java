@@ -38,6 +38,7 @@ import pe.edu.lamolina.amauta.controller.ingresante.muestraslab.MuestrasLabServi
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Controller
 @RequestMapping("academico/cicloacademico")
@@ -191,9 +192,15 @@ public class CicloAcademicoController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activar(cicloAcademico, ds);
+            CicloAcademico caBD = service.findCicloAcademico(cicloAcademico);
+
             muestrasLabService.inicializarVisor();
-            List<Alumno> alumnos = service.ejecutarTramiteAcademicos(cicloAcademico, ds);
-            avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+
+            if (caBD.getTipoEnum().equals(TipoCicloEnum.REG)) {
+                List<Alumno> alumnos = service.ejecutarTramiteAcademicos(cicloAcademico, ds);
+                avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+            }
+
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

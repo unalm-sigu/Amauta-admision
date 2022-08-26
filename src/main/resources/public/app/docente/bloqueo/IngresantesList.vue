@@ -70,6 +70,9 @@
                                             <span class="block" >
                                                 <span class="bold">Mod.Ingreso: </span> {{item.ingresante.postulante.modalidadIngreso.nombre}}
                                             </span>
+                                            <span class="block" >
+                                                <span class="bold">Ciclo Ingreso: </span> {{item.ingresante.postulante.cicloPostula.cicloAcademico.descripcion}}
+                                            </span>
                                         </div>
                                     </td>
 

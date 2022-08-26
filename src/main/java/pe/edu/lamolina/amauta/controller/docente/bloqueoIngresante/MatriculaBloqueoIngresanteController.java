@@ -53,6 +53,7 @@ public class MatriculaBloqueoIngresanteController {
                 .join("ingresante", "codigo")
                 .join("ingresante.postulante.persona", "paterno,materno,nombres,apellidosNombres,celular,telefono,email,emailCompania")
                 .join("ingresante.postulante.modalidadIngreso", "nombre")
+                .join("ingresante.postulante.cicloPostula.cicloAcademico", "descripcion")
                 .join("ingresante.carrera", "nombre")
                 .array();
         dynatable.setData(array);
