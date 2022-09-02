@@ -3,26 +3,19 @@ package pe.edu.lamolina.amauta.controller.tramite.bolsatrabajo;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
@@ -37,88 +30,78 @@ public class BolsaTrabajoController {
     @Autowired
     BolsaTrabajoService service;
 
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        ObjectNode obj = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
-            "id",
-            "descripcion"
-        });
-        model.addAttribute("cicloacademico", obj);
+        ObjectNode cicloJson = JaneHelper.from(ds.getCicloAcademico()).only("id,descripcion").json();
+
+        model.addAttribute("ciclo", cicloJson);
         return "tramite/bolsatrabajo/bolsaTrabajo";
     }
 
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DynatableResponse response = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            
-            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-            List<TramiteSubvencion> tramiteSubv = service.allTramiteSubvByColabo(ds.getPersona(), ds.getCicloAcademico());
-            for (TramiteSubvencion tramiteSubvencion : tramiteSubv) {
-                ObjectNode obj = JsonHelper.createJson(tramiteSubvencion, JsonNodeFactory.instance, true, new String[]{
-                    "*",
-                    "tipoSubvencion.id",
-                    "tipoSubvencion.nombre",
-                    "tramite.id",
-                    "tramite.serie",
-                    "tramite.numero",
-                    "tramite.tipoTramite.id",
-                    "tramite.tipoTramite.nombre",
-                    "tramite.alumno",
-                    "tramite.estado",
-                    "tramite.alumno.id",
-                    "tramite.alumno.codigo",
-                    "tramite.alumno.persona.id",
-                    "tramite.alumno.persona.nombreCompleto",
-                    "tramite.alumno.persona.numeroDocIdentidad",
-                    "tramite.alumno.persona.rutaFoto",
-                    "tramite.alumno.persona.tipoFoto",
-                    "tramite.alumno.persona.tipoDocumento.id",
-                    "tramite.alumno.persona.tipoDocumento.simbolo",
-                    "tramite.alumno.carrera.id",
-                    "tramite.alumno.carrera.nombre",
-                    "tramite.alumno.carrera.facultad.id",
-                    "tramite.alumno.carrera.facultad.nombre",
-                    "tramite.alumno.carrera.facultad.simbolo",});
-                arrayNode.add(obj);
-            }
-            response.setData(arrayNode);
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
 
-            response.setTotal(arrayNode.size());
-            response.setFiltered(arrayNode.size());
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setTotal(0);
+        List<TramiteSubvencion> subvencionesAll = service.allSubvencionesBySupervisor(ds.getPersona(), ds.getCicloAcademico());
+        for (TramiteSubvencion subvencion : subvencionesAll) {
+            ObjectNode obj = JaneHelper
+                    .from(subvencion)
+                    .join("tipoSubvencion", "nombre,codigo")
+                    .join("tramite", "id,numero,serie,estado,estadoEnum")
+                    .join("tramite.tipoTramite", "nombre,codigo")
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.alumno.persona", "apellidosNombres,numeroDocIdentidad,rutaFoto,tipoFoto")
+                    .join("tramite.alumno.persona.tipoDocumento", "simbolo")
+                    .join("tramite.alumno.carrera", "nombre")
+                    .join("tramite.alumno.carrera.facultad", "nombre")
+                    .join("tramite.accionTramiteBienestar", "estadoInicio,estadoFinal,queHacer")
+                    .join("supervisor", "id")
+                    .join("supervisor.persona", "apellidosNombres,emailCompania,numeroDocIdentidad")
+                    .join("supervisor.persona.tipoDocumento", "simbolo")
+                    .join("supervisor.cargo", "nombre")
+                    .join("supervisor.oficina", "codigo,nombre")
+                    .join("supervisor.oficina.tipoOficina", "nivel")
+                    .join("supervisor.oficina.oficinaSuperior", "codigo,nombre")
+                    .json();
+
+            /*
+            ObjectNode obj2 = JsonHelper.createJson(subvencion, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "tipoSubvencion.id",
+                "tipoSubvencion.nombre",
+                "tramite.id",
+                "tramite.serie",
+                "tramite.numero",
+                "tramite.tipoTramite.id",
+                "tramite.tipoTramite.nombre",
+                "tramite.alumno",
+                "tramite.estado",
+                "tramite.alumno.id",
+                "tramite.alumno.codigo",
+                "tramite.alumno.persona.id",
+                "tramite.alumno.persona.nombreCompleto",
+                "tramite.alumno.persona.numeroDocIdentidad",
+                "tramite.alumno.persona.rutaFoto",
+                "tramite.alumno.persona.tipoFoto",
+                "tramite.alumno.persona.tipoDocumento.id",
+                "tramite.alumno.persona.tipoDocumento.simbolo",
+                "tramite.alumno.carrera.id",
+                "tramite.alumno.carrera.nombre",
+                "tramite.alumno.carrera.facultad.id",
+                "tramite.alumno.carrera.facultad.nombre",
+                "tramite.alumno.carrera.facultad.simbolo",});
+            //*/
+            arrayNode.add(obj);
         }
+
+        DynatableResponse response = new DynatableResponse();
+        response.setData(arrayNode);
+        response.setTotal(arrayNode.size());
+        response.setFiltered(arrayNode.size());
+
         return response;
     }
 
@@ -129,7 +112,7 @@ public class BolsaTrabajoController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.updateTramiteSubvencion(tramiteSubvencion, ds.getUsuario());
+            service.updateTramiteSubvencion(tramiteSubvencion, ds);
             response.setSuccess(true);
             response.setMessage("Se actualizó el trámite");
 

@@ -737,6 +737,7 @@ VUE_AXIOS = {
         notificar: false,
         notificarError: true,
         notificarErrorCatch: true,
+        rejectError: true,
         open: false,
         close: false
     },
@@ -745,6 +746,7 @@ VUE_AXIOS = {
         notificar: false,
         notificarError: true,
         notificarErrorCatch: true,
+        rejectError: true,
         open: true,
         close: false
     },
@@ -753,6 +755,7 @@ VUE_AXIOS = {
         notificar: true,
         notificarError: true,
         notificarErrorCatch: true,
+        rejectError: true,
         open: false,
         close: true
     },
@@ -761,6 +764,7 @@ VUE_AXIOS = {
         notificar: true,
         notificarError: true,
         notificarErrorCatch: true,
+        rejectError: true,
         open: false,
         close: false
     },
@@ -769,6 +773,7 @@ VUE_AXIOS = {
         notificar: true,
         notificarError: true,
         notificarErrorCatch: true,
+        rejectError: true,
         open: false,
         close: true
     },

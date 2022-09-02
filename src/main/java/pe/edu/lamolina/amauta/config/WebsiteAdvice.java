@@ -1,12 +1,14 @@
 package pe.edu.lamolina.amauta.config;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.InitBinder;
 
 @ControllerAdvice
 public class WebsiteAdvice {
@@ -14,13 +16,30 @@ public class WebsiteAdvice {
     @Autowired
     DespliegueConfig despliegueConfig;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder) {
 
-    @ExceptionHandler
-    public String handleError(HttpServletRequest req, HttpServletResponse res, Exception ex) throws Exception {
-        logger.error("\nGENERAL ERROR: {} {}", req.getRequestURL(), ex.getLocalizedMessage(), ex);
-        res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-        return "redirect:/";
+        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
+                } catch (ParseException e) {
+                    setValue(null);
+                }
+            }
+        });
+
+        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new BigDecimal(value.replaceAll(",", "")));
+                } catch (Exception e) {
+                    setValue(null);
+                }
+            }
+        });
     }
 
 }

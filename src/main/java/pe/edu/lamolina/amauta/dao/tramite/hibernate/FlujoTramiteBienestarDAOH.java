@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -23,6 +24,17 @@ public class FlujoTramiteBienestarDAOH extends AbstractEasyDAO<FlujoTramiteBiene
                 .filter("tr.id", tramite);
 
         return find(sql);
+    }
+
+    @Override
+    public List<FlujoTramiteBienestar> allByTramite(Tramite tramite) {
+        Octavia sql = new Octavia()
+                .from(FlujoTramiteBienestar.class, "ftb")
+                .join("tramite tr")
+                .filter("tr.id", tramite)
+                .orderBy("ftb.fechaRegistro DESC");
+
+        return all(sql);
     }
 
 }

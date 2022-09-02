@@ -1,29 +1,20 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Tramite Bolsistas</title>
-        <style>
-            .item-form-control {
-                border-color: #cbd5dd;
-                border-radius: 4px;
-                border: 1px solid #ccc;
-                padding: 6px 12px;
-                font-size: 14px;
-            }
-        </style>
-        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
+
     </head>
     <body>
         <section layout:fragment="main">
             <div id="bolsaTrabajoVue">
                 <div v-cloak="">
                     <header class="header b-b padder-lg">
-
-                        <h2>Trámite Bolsistas {{cicloAcademico.descripcion}}</h2>
-
+                        <h2 class="m-b">Trámite Bolsistas {{ciclo.descripcion}}</h2>
                     </header>
-                    <section class="panel">
-                        <section class="panel-body">
-                            <div class="col-md-12 col-md-offset-0">
+
+                    <section class="wrapper-lg m-b-xs">
+                        <section class="panel  ">           
+                            <section class="panel-body ">
+
                                 <raptor-table v-bind:url="tramiteAlumnosURL" ref="load">
                                     <template  scope="props" >
 
@@ -31,9 +22,9 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-3 text-left" colspan="2">Alumno</th>
-                                                    <th class="col-md-2 text-center">Tramite</th>
+                                                    <th class="col-md-2 text-center">Trámite</th>
                                                     <th class="col-md-2 text-center">Motivo</th>
-                                                    <th class="col-md-3 text-left">Fecha Registro</th>
+                                                    <th class="col-md-3 text-left">Estado</th>
                                                     <th class="col-md-1 text-center"></th>
                                                 </tr>
                                             </thead>
@@ -56,27 +47,29 @@
                                                         </div>
                                                     </td>
                                                     <td class="v-middle text-left">
-
-                                                        <span class="block bold "> <a>{{item.tramite.alumno.persona.nombreCompleto}}</a> </span> 
-                                                        <span class="block bold " v-if="item.tramite.alumno.carrera.nombre!=item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
-                                                        <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
+                                                        <span class="block bold "> <a>{{item.tramite.alumno.persona.apellidosNombres}}</a> </span> 
+                                                        <span class="block bold " v-if="item.tramite.alumno.carrera.nombre == item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} </span> 
+                                                        <span class="block bold " v-else=""> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
+                                                        <span class="block " v-if="item.tramite.alumno.persona.numeroDocIdentidad"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
                                                         <span class="block bold " > {{item.tramite.alumno.codigo}}</span> 
                                                     </td>
                                                     <td class="v-middle text-left">
-                                                        <span class="block text-muted">
-                                                            <span class="bold "> Tipo Trámite:</span> 
+                                                        <span class="block"> 
+                                                            <span class=" bold ">Nº Trámite {{item.tramite.serie}}-{{item.tramite.numero}}</span>
+                                                        </span>
+                                                        <span class="block">
                                                             {{item.tramite.tipoTramite.nombre}}
                                                         </span>
-                                                        <span class=" block text-muted">
-                                                            <span class="bold "> Tipo {{item.tramite.tipoTramite.nombre}}:</span> 
-                                                            {{item.tipoSubvencion.nombre}}</span>
-                                                        <span class="text-muted"> <span class=" bold "> Código Trámite:</span> {{item.tramite.serie}}-{{item.tramite.numero}}</span>
+                                                        <span class=" block">
+                                                            {{item.tipoSubvencion.nombre}}
+                                                        </span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <span class="block text-center"> {{item.motivo}}</span>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <span class="block text-muted"> {{item.fechaRegistro}}</span>
+                                                        <span class="block"> {{item.tramite.estadoEnum.value}}</span>
+                                                        <span class="block"> <b>¿Qué falta hacer?</b> {{item.tramite.accionTramiteBienestar.queHacer}}</span>
                                                     </td>
 
                                                     <td class="v-middle">
@@ -92,7 +85,8 @@
                                         </table>
                                     </template>
                                 </raptor-table>
-                            </div>
+
+                            </section>
                         </section>
                     </section>
                     <th:block  th:replace="tramite/bolsatrabajo/verTramiteModal"/>
@@ -103,10 +97,10 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloacademicoJson = /*[[${cicloacademico.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/bolsaTrabajo/bolsaTrabajo.js}" charset="utf-8"></script>
         </div>

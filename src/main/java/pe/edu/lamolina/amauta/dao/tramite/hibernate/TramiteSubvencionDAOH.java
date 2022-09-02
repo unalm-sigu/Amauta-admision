@@ -22,35 +22,39 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
     }
 
     @Override
-    public List<TramiteSubvencion> allSubvencionByColaboradorCiclo(List<Colaborador> colaboradores, CicloAcademico cicloAcademico) {
-        Octavia sql = Octavia.query()
-                .from(TramiteSubvencion.class, "trs")
-                .join("tramite tra", "tra.alumno alu", "alu.persona per", "per.tipoDocumento")
-                .join("tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion ts", "supervisor sup")
-                .join("alu.carrera car", "car.facultad")
-                .filter("ca.id", cicloAcademico)
-                .in("sup.id", colaboradores)
-                .filter("tra.estado", "<>", TramiteEstadoEnum.ANU)
-                .filter("tt.codigo", SUBV)
-                .orderBy("trs.id DESC");
-        return all(sql);
-    }
-
-    @Override
-    public TramiteSubvencion findId(TramiteSubvencion tramiteSubvencion) {
+    public TramiteSubvencion find(TramiteSubvencion tramiteSubvencion) {
         Octavia sql = Octavia.query()
                 .from(TramiteSubvencion.class, "ts")
                 .join("tramite tra", "tra.cicloAcademico ca", "tra.tipoTramite tt", "supervisor sup")
+                .join("sup.persona")
                 .filter("ts.id", tramiteSubvencion);
         return find(sql);
     }
 
     @Override
-    public TramiteSubvencion findSubvencionByAlumnoCicloAcademico(Alumno alumno, CicloAcademico cicloAcademico) {
+    public List<TramiteSubvencion> allSubvencionByColaboradorCiclo(List<Colaborador> colaboradores, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(TramiteSubvencion.class, "trs")
+                .join("tramite tra", "tra.alumno alu", "alu.persona per", "per.tipoDocumento")
+                .join("tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion ts", "supervisor sup")
+                .join("alu.carrera car", "car.facultad")
+                .join("sup.cargo", "sup.oficina ofi", "sup.persona sper", "ofi.tipoOficina")
+                .leftJoin("per.tipoDocumento", "sper.tipoDocumento")
+                .filter("ca.id", ciclo)
+                .in("sup.id", colaboradores)
+                .filter("tra.estado", "<>", TramiteEstadoEnum.ANU)
+                .filter("tt.codigo", SUBV)
+                .orderBy("trs.id DESC");
+
+        return all(sql);
+    }
+
+    @Override
+    public TramiteSubvencion findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(TramiteSubvencion.class, "ts")
                 .join("tramite tra", "tra.alumno alu", "tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion bb")
-                .filter("ca.id", cicloAcademico)
+                .filter("ca.id", ciclo)
                 .filter("alu.id", alumno)
                 .filter("tra.estado", "<>", TramiteEstadoEnum.ANU)
                 .filter("tt.codigo", TipoTramiteEnum.SUBV);

@@ -127,7 +127,8 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "rol r")
                 .filter("u.id", usuario)
-                .filter("r.codigo", rolEnum);
+                .filter("r.codigo", rolEnum)
+                .filter("ur.estado", ACT);
 
         return find(sql);
     }

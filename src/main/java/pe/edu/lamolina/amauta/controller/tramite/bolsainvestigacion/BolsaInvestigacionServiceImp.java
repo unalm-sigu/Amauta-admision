@@ -69,6 +69,8 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.socioeconomico.FlujoFichaSocioeconomica;
 import pe.edu.lamolina.model.tramite.FlujoTramiteBienestar;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import static pe.edu.lamolina.model.enums.FichaSocioeconomicaEstadoEnum.ACP;
+import static pe.edu.lamolina.model.enums.FichaSocioeconomicaEstadoEnum.LIB;
 
 @Slf4j
 @Service
@@ -141,6 +143,8 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
             fichaSocioeconomicaDAO.save(ficha);
 
         } else {
+            Assert.isNull(ficha.getTramiteProcesando(), "La ficha socioeconómica del alumno está bloqueada por otro trámite");
+            Assert.isTrue(Arrays.asList(ACP, LIB).contains(ficha.getEstadoEnum()), "La ficha socioeconómica del alumno está bloqueada por otro trámite");
             ficha.setEstadoEnum(estadoFicha);
             fichaSocioeconomicaDAO.update(ficha);
         }
@@ -261,7 +265,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
         AlumnoCiclo ultimoCiclo = alumnoCicloDAO.findUltimoCicloRegularByAlumno(alumno, cicloAcademico);
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allCicloRegularByAlumno(alumno);
-        TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findSubvencionByAlumnoCicloAcademico(alumnoForm, cicloAcademico);
+        TramiteSubvencion tramiteSub = tramiteSubvencionDAO.findByAlumnoCiclo(alumnoForm, cicloAcademico);
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(cicloAcademico, alumnoForm);
 
         BigDecimal prom;

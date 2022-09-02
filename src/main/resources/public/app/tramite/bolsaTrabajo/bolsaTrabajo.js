@@ -3,14 +3,14 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#bolsaTrabajoVue',
     data: {
-        cicloAcademico: JSON.parse(cicloacademicoJson),
+        ciclo: JSON.parse(cicloJson),
         tramiteAlumnosURL: APP.url('tramite/bolsatrabajo/list'),
-        verTramiteModal: {
+        verTramiteModal: VUE_MODAL.structFormAjax({
             id: 'verTramiteModal',
             header: true,
-            title: 'Bolsa Trabajo',
-            showaccept: true
-        },
+            title: 'Bolsa de trabajo',
+            form: "id-form-bolsa-trabajo"
+        }),
         tramiteSubvencion: {},
         persona: {},
         horasTrabajo: [{id: 1, horas: 40}, {id: 2, horas: 20}],
@@ -39,10 +39,13 @@ new Vue({
                 }
             });
 
-            $vue.tramiteSubvencion = item;
-            $vue.persona = item.tramite.alumno.persona;
+            $vue.tramiteSubvencion = JSON.parse(JSON.stringify(item));
+            $vue.persona = JSON.parse(JSON.stringify(item.tramite.alumno.persona));
             $vue.$refs.verTramiteModal.open();
 
+            if (item.tramite.estado === 'SUPERV_ASIGN') {
+                $vue.rechazado = false;
+            }
         },
         saveRespuesta() {
             var $vue = this;
@@ -54,6 +57,7 @@ new Vue({
                 $vue.tramiteSubvencion.respuesta = "FALLO";
                 $vue.tramiteSubvencion.voboSupervisor = 0;
             }
+
             $.ajax({
                 url: APP.url("tramite/bolsatrabajo/save"),
                 contentType: "application/json",
