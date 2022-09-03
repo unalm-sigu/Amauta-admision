@@ -5,18 +5,15 @@ new Vue({
     data: {
         ciclo: JSON.parse(cicloJson),
         tramiteAlumnosURL: APP.url('tramite/bolsatrabajo/list'),
-        verTramiteModal: VUE_MODAL.structFormAjax({
-            id: 'verTramiteModal',
-            header: true,
-            title: 'Bolsa de trabajo',
-            form: "id-form-bolsa-trabajo"
-        }),
+        verTramiteModal: VUE_MODAL.structFormAjax({}),
         tramiteSubvencion: {},
         persona: {},
         horasTrabajo: [{id: 1, horas: 40}, {id: 2, horas: 20}],
         solicitud: {},
         value: {},
-        rechazado: true
+        serSupervisor: "AAA",
+        rechazado: true,
+        aceptado: false
     },
     computed: {
 
@@ -27,9 +24,19 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-
+        $vue.configModal();
     },
     methods: {
+        configModal() {
+            this.verTramiteModal = VUE_MODAL.structFormAjax({
+                id: 'id-modal-aceptar-supervision',
+                okbtn: "Enviar respuesta",
+                header: true,
+                title: 'Bolsa de trabajo',
+                form: "id-form-bolsa-trabajo",
+                showaccept: false
+            });
+        },
         verTramite(item) {
             var $vue = this;
             console.log(item.horas);
@@ -41,21 +48,29 @@ new Vue({
 
             $vue.tramiteSubvencion = JSON.parse(JSON.stringify(item));
             $vue.persona = JSON.parse(JSON.stringify(item.tramite.alumno.persona));
+
+            $vue.configModal();
             $vue.$refs.verTramiteModal.open();
 
             if (item.tramite.estado === 'SUPERV_ASIGN') {
-                $vue.rechazado = false;
+                $vue.serSupervisor = "AAA";
             }
+        },
+        changeAceptar() {
+            this.verTramiteModal.showaccept = true;
         },
         saveRespuesta() {
             var $vue = this;
             $vue.tramiteSubvencion.horas = $vue.value.horas;
-            if ($vue.rechazado) {
+            if ($vue.serSupervisor === 'SI') {
                 $vue.tramiteSubvencion.respuesta = "OK";
                 $vue.tramiteSubvencion.voboSupervisor = 1;
-            } else {
+            } else if ($vue.serSupervisor === 'NO') {
                 $vue.tramiteSubvencion.respuesta = "FALLO";
                 $vue.tramiteSubvencion.voboSupervisor = 0;
+            } else {
+                notify("Debe dar una respuesta correcta", "error");
+                return;
             }
 
             $.ajax({

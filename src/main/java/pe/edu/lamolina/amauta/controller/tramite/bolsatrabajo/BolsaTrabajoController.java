@@ -50,7 +50,7 @@ public class BolsaTrabajoController {
             ObjectNode obj = JaneHelper
                     .from(subvencion)
                     .join("tipoSubvencion", "nombre,codigo")
-                    .join("tramite", "id,numero,serie,estado,estadoEnum")
+                    .join("tramite", "id,numero,serie,estado,estadoEnum,observacion")
                     .join("tramite.tipoTramite", "nombre,codigo")
                     .join("tramite.alumno", "codigo")
                     .join("tramite.alumno.persona", "apellidosNombres,numeroDocIdentidad,rutaFoto,tipoFoto")
@@ -67,33 +67,6 @@ public class BolsaTrabajoController {
                     .join("supervisor.oficina.oficinaSuperior", "codigo,nombre")
                     .json();
 
-            /*
-            ObjectNode obj2 = JsonHelper.createJson(subvencion, JsonNodeFactory.instance, true, new String[]{
-                "*",
-                "tipoSubvencion.id",
-                "tipoSubvencion.nombre",
-                "tramite.id",
-                "tramite.serie",
-                "tramite.numero",
-                "tramite.tipoTramite.id",
-                "tramite.tipoTramite.nombre",
-                "tramite.alumno",
-                "tramite.estado",
-                "tramite.alumno.id",
-                "tramite.alumno.codigo",
-                "tramite.alumno.persona.id",
-                "tramite.alumno.persona.nombreCompleto",
-                "tramite.alumno.persona.numeroDocIdentidad",
-                "tramite.alumno.persona.rutaFoto",
-                "tramite.alumno.persona.tipoFoto",
-                "tramite.alumno.persona.tipoDocumento.id",
-                "tramite.alumno.persona.tipoDocumento.simbolo",
-                "tramite.alumno.carrera.id",
-                "tramite.alumno.carrera.nombre",
-                "tramite.alumno.carrera.facultad.id",
-                "tramite.alumno.carrera.facultad.nombre",
-                "tramite.alumno.carrera.facultad.simbolo",});
-            //*/
             arrayNode.add(obj);
         }
 

@@ -22,14 +22,14 @@
             </div>
 
             <div class="row m-t-lg">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <label class="">Horas a laborar</label>
                         <div class="block text-primary">{{tramiteSubvencion.horas}}</div>
                     </div>
                 </div>
 
-                <div class="col-sm-8">
+                <div class="col-sm-9">
                     <div class="form-group">
                         <label class="">Motivo</label>
                         <div class="block text-primary">{{tramiteSubvencion.motivo}}</div>
@@ -43,7 +43,7 @@
                         <label class="">Lugar de labores</label>
                         <textarea v-if="tramiteSubvencion.tramite.estado == 'SUPERV_ASIGN' " 
                                   v-model="tramiteSubvencion.lugarLabores" 
-                                  class="form-control" rows="2" required="yes"></textarea>
+                                  class="form-control" rows="3" required="yes"></textarea>
                         <div v-else="" v-text="tramiteSubvencion.lugarLabores" class="item-form-control text-primary"></div>
                     </div>
                 </div>
@@ -53,30 +53,57 @@
                         <label class="">Labor a realizar</label>
                         <textarea v-if="tramiteSubvencion.tramite.estado == 'SUPERV_ASIGN' " 
                                   v-model="tramiteSubvencion.laborRealizar" 
-                                  class="form-control" rows="2" required="yes"></textarea>
+                                  class="form-control" rows="3" required="yes"></textarea>
                         <div v-else="" v-text="tramiteSubvencion.laborRealizar" class="item-form-control text-primary"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group"
-                 v-if="tramiteSubvencion.tramite.estado == 'SUPERV_ASIGN' ">
-                <label class="block" >Aceptar</label>
-                <label class="switch">
-                    <input type="checkbox" v-model="rechazado" />
-                    <span></span>
-                </label>
-            </div>
+            <template class="form-group"
+                      v-if="tramiteSubvencion.tramite.estado == 'SUPERV_ASIGN' ">
+                <p class="p" >¿Está seguro que acepta ser el supervisor de este alumno?</p>
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="radio inline">
+                                <input  type="radio"
+                                        required="true"
+                                        name="ser-supervisor"
+                                        v-model="serSupervisor"
+                                        id="estarSeguroSI"
+                                        v-on:change="changeAceptar"
+                                        value="SI" /> &nbsp; SI
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="radio inline">
+                                <input  type="radio"
+                                        required="true"
+                                        name="ser-supervisor"
+                                        v-model="serSupervisor"
+                                        id="estarSeguroNO"
+                                        v-on:change="changeAceptar"
+                                        value="NO"/> &nbsp; NO
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </template>
 
             <div class="form-group" v-if="tramiteSubvencion.tramite.estado == 'SUPERV_ASIGN' ">
-                <template v-if="!rechazado">
+                <template v-if="serSupervisor == 'NO' ">
                     <label class="">Motivo de rechazo</label>
-                    <textarea v-model="tramiteSubvencion.comentario" class="form-control" rows="2" required="yes"></textarea>
+                    <textarea v-model="tramiteSubvencion.comentario" class="form-control" rows="3" required="yes"></textarea>
                 </template>
             </div>
-            <div class="form-group" v-else-if="tramiteSubvencion.comentario">
+            <div class="form-group" v-else-if="tramiteSubvencion.tramite.observacion">
                 <label class="">Motivo de rechazo</label>
-                <div v-text="tramiteSubvencion.comentario" class="item-form-control text-primary"></div>
+                <div v-text="tramiteSubvencion.tramite.observacion" class="item-form-control text-primary"></div>
             </div>
         </div>
 
