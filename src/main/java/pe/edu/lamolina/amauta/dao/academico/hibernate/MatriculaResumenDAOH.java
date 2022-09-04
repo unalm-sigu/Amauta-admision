@@ -38,6 +38,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
@@ -400,13 +401,16 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("delete mr from aca_matricula_resumen mr ");
         strb.append("          join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id");
         strb.append("          join aca_modalidad_estudio me on me.id = ca.id_modalidad_estudio");
+        strb.append("          join aca_situacion_academica sa on mr.id = sa.id_situacion_inicio");
         strb.append("    where ca.codigo = :CICLO ");
         strb.append("      and me.codigo in (:MOD) ");
+        strb.append("      and sa.codigo = :SITUACION ");
 
         Query query = getCurrentSession()
                 .createSQLQuery(strb.toString())
                 .setParameter("CICLO", cicloAcademico.getCodigo())
-                .setParameterList("MOD", Arrays.asList(PRE.name(), VIS.name()));
+                .setParameterList("MOD", Arrays.asList(PRE.name(), VIS.name()))
+                .setParameter("SITUACION", SituacionAcademicaEnum.S_8.getValue());
 
         query.executeUpdate();
     }
@@ -1089,7 +1093,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         S_4U.getValue(),
                         S_4T.getValue(),
                         S_7.getValue()))
-                .in("estado", asList(MAT, NMAT,RCI))
+                .in("estado", asList(MAT, NMAT, RCI))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
         return all(sql);
