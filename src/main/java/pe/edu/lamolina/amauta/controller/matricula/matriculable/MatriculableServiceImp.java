@@ -1476,7 +1476,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         ListBeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumnos);
 
-        CicloAcademico ciclo = ds.getCicloAcademico();
+        CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
 
         List<CicloAcademico> ciclosAcademicos = bean.getCiclos();
 //        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
