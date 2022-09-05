@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Component
 public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
@@ -73,8 +74,12 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
     }
 
     private void createSheet(Workbook workBook, CicloAcademico ciclo, AnexoBoletin anexoBoletin, Sheet sheet) {
+        int totalColumns;
+        if(ciclo.getTipoEnum().equals(TipoCicloEnum.NIV))
+            totalColumns = 15;            
+        else 
+            totalColumns = 14;
 
-        int totalColumns = 14;
         int rowIndice = 0;
 
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
@@ -99,9 +104,15 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "PERIODO");
             this.createHeader(workBook, sheet, row, col++, "VAC");
             this.createHeader(workBook, sheet, row, col++, "MAT");
-            this.createHeader(workBook, sheet, row, col++, "DICTADO");
-            this.createHeader(workBook, sheet, row, col, "ESTADO");
-
+            this.createHeader(workBook, sheet, row, col++, "DICTADO");            
+            if(ciclo.getTipoEnum().equals(TipoCicloEnum.NIV)) {
+                this.createHeader(workBook, sheet, row, col++, "ESTADO");
+                this.createHeader(workBook, sheet, row, col, "PRECIO"); // Agregado PRECIO
+            } else {
+                this.createHeader(workBook, sheet, row, col, "ESTADO");
+            }
+                
+            
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
 //                rowIndice++;
@@ -177,8 +188,14 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getMatriculados());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
-                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
+                        
 
+                        if(ciclo.getTipoEnum().equals(TipoCicloEnum.NIV)) {
+                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
+                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, isPractica ? String.format("s/ %s", String.valueOf(seccion.getPrecio())) : "");
+                        } else {
+                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
+                        }
 
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
@@ -228,10 +245,9 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         }
 
         ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-        for (int i = 0; i <= 14; i++) {
+        for (int i = 0; i <= totalColumns; i++) {
             sheet.autoSizeColumn(i);
         }
-
     }
 
     private void createHeaderAnexo(Workbook wb, Sheet sheet, Row row, int column, String title) {
