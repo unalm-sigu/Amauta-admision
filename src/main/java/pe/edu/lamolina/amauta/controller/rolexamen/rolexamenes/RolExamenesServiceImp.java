@@ -59,6 +59,7 @@ import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoRegularDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -232,19 +233,28 @@ public class RolExamenesServiceImp implements RolExamenesService {
     @Override
     public List<SemanaExamen> allSemanaExamenByEventoCiclo(EventoCicloAcademico eventoCicloAcademico) {
         eventoCicloAcademico = eventoCicloAcademicoDAO.findEventoCicloAcademico(eventoCicloAcademico);
+
         DateTime fechaInicio = new DateTime(eventoCicloAcademico.getFechaInicio());
         DateTime fechaFin = new DateTime(eventoCicloAcademico.getFechaFin());
 
-        Assert.isTrue(fechaInicio.getDayOfWeek() == DateTimeConstants.MONDAY, "El dia inicial del evento debe ser lunes.");
-        Assert.isTrue(fechaFin.getDayOfWeek() == DateTimeConstants.SUNDAY, "El dia final del evento debe ser domingo.");
-
+        if (eventoCicloAcademico.getCicloAcademico().getTipoEnum().equals(TipoCicloEnum.REG)) {
+            Assert.isTrue(fechaInicio.getDayOfWeek() == DateTimeConstants.MONDAY, "El dia inicial del evento debe ser lunes.");
+            Assert.isTrue(fechaFin.getDayOfWeek() == DateTimeConstants.SUNDAY, "El dia final del evento debe ser domingo.");            
+        }
         int dias = Days.daysBetween(fechaInicio.toLocalDate(), fechaFin.toLocalDate()).getDays();
         int diasSemana = fechaInicio.dayOfWeek().withMaximumValue().getDayOfWeek();
-        if (++dias % diasSemana != 0) {
-            throw new PhobosException("La fecha inicio y fin programadas al evento, deben ser semanas contabilizables.");
+        int weeks = 0;
+        if (eventoCicloAcademico.getCicloAcademico().getTipoEnum().equals(TipoCicloEnum.NIV)){
+            weeks = 1; // condiciono para que las evaluaciones finales se de en una semana
+        } else if (eventoCicloAcademico.getCicloAcademico().getTipoEnum().equals(TipoCicloEnum.REG)) {
+            if (++dias % diasSemana != 0) {
+                throw new PhobosException("La fecha inicio y fin programadas al evento, deben ser semanas contabilizables.");
+            }
+            weeks = dias / diasSemana;
         }
+
         //Weeks weeks = Weeks.weeksBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate());
-        int weeks = dias / diasSemana;
+        //int weeks = dias / diasSemana;
         List<SemanaExamen> semanasExamen = new ArrayList<>();
 
         DateTime lastDateOfWeek = null;
