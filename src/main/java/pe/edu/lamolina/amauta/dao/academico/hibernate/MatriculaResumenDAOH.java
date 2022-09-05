@@ -404,7 +404,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("          join aca_situacion_academica sa on mr.id_situacion_inicio = sa.id ");
         strb.append("    where ca.codigo = :CICLO ");
         strb.append("      and me.codigo in (:MOD) ");
-        strb.append("      and sa.codigo = :SITUACION ");
+        strb.append("      and sa.codigo <> :SITUACION ");
 
         Query query = getCurrentSession()
                 .createSQLQuery(strb.toString())
