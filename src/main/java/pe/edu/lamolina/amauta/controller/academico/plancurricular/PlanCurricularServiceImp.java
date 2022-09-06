@@ -108,6 +108,10 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_I;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_II;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_III;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_IV;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 
 @Service
@@ -990,7 +994,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 }
             } else if (tipo.getCodigoEnum() == ELC) {
                 tiposEnvio.add(tipo);
-            } else if (tipo.getCodigoEnum() == CULT) {
+            } else if (tipo.getCodigoEnum() == CULT
+                    || tipo.getCodigoEnum() == CULT_I
+                    || tipo.getCodigoEnum() == CULT_II
+                    || tipo.getCodigoEnum() == CULT_III
+                    || tipo.getCodigoEnum() == CULT_IV) {
                 if (carrera.getCodigo().equals("010")) { // Solo agronomia
                     tiposEnvio.add(tipo);
                 }
@@ -1189,9 +1197,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         ctx.setVariable("cursosElectivos", cursosElectivos);
         ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
         ctx.setVariable("templatePdf", "planEstudios");
-        model.addAllAttributes(ctx.getVariables());        
+        model.addAllAttributes(ctx.getVariables());
     }
-    
+
     @Override
     public void reporte(Model model, List<PlanEstudiosCursoRegularDTO> listPlanEstudiosDTO) {
         String facultad = listPlanEstudiosDTO.get(0).getFacultad();
@@ -1213,7 +1221,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public List<PlanEstudiosCursoRegularDTO> planCurricularCursoRegular(Long idPlanCurricular) {
         return planCurricularDAO.reportePlanCurricularCursoRegular(idPlanCurricular);
     }
-    
+
     @Override
     public List<PlanEstudiosCursoElectivoDTO> planCurricularCursoElectivo(Long idPlanCurricular) {
         return planCurricularDAO.reportePlanCurricularCursoElectivo(idPlanCurricular);
