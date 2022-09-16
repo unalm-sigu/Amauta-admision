@@ -77,8 +77,8 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .join("ac.cuentaBancaria cta")
                 .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
                 .filter("ca.codigo", cicloAcademico.getCodigo())
-//                .filter("apo.codigo", A05.name().substring(1))
-                .in("apo.codigo", Arrays.asList(A05.name().substring(1),A54.name().substring(1)))
+                //                .filter("apo.codigo", A05.name().substring(1))
+                .in("apo.codigo", Arrays.asList(A05.name().substring(1), A54.name().substring(1)))
                 .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
                 .in("mr.id", matriculaResumens)
                 .orderBy("aac.numeroCuota", "apo.nombre");
@@ -156,6 +156,20 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .filter("aac.numeroCuota", 1)
                 .filter("aac.estadoRegistro", ACT)
                 .orderBy("ca.codigo desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<AporteAlumnoCiclo> allAportesByAlumnoCiclo(Alumno alumno, CicloAcademico academico) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("aporteCiclo ac", "ac.aporte apo")
+                .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alum", "mr.cicloAcademico ca")
+                .leftJoin("exoneracionAporte ea", "fraccionamientoAporte fa")
+                .filter("alum.id", alumno)
+                .filter("aac.estadoRegistro", EstadoEnum.ACT)
+                .filter("ca.id", academico)
+                .orderBy("apo.nombre asc");
         return all(sql);
     }
 

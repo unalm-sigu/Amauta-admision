@@ -47,4 +47,15 @@ public class DeudaMaterialAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno
         return (DeudaMaterialAlumno) sql.find(getCurrentSession());
     }
 
+    @Override
+    public List<DeudaMaterialAlumno> allByAlumno(Alumno alumno) {
+         Octavia sql = Octavia.query()
+                .from(DeudaMaterialAlumno.class, "da")
+                .join("oficina ofi", "alumno al")
+                .filter("estado", DeudaAlumnoEstadoEnum.REST)
+                .filter("al.id", alumno);
+
+        return all(sql);
+    }
+
 }

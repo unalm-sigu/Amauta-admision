@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico;
 
+import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
@@ -11,4 +12,6 @@ public interface AlumnoCursoSimultaneoDAO extends EasyDAO<AlumnoCursoSimultaneo>
     AlumnoCursoSimultaneo findByAlumnoCursoCurriculaCurso(AlumnoCursoCurricula alumnoCursoCurricula, Curso curso);
 
     void deleteAllByAlumno(Alumno alumno);
+
+    List<AlumnoCursoSimultaneo> allByAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula);
 }

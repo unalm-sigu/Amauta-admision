@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -43,5 +44,14 @@ public class AlumnoCursoSimultaneoDAOH extends AbstractEasyDAO<AlumnoCursoSimult
         Query query =   getCurrentSession().createQuery(sql.toString());
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<AlumnoCursoSimultaneo> allByAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoSimultaneo.class, "acs")
+                .join("alumnoCursoCurricula acc", "curso cu", "acc.alumno al", "acc.curso cur")
+                .filter("acc.id", alumnoCursoCurricula);
+        return sql.all(getCurrentSession());
     }
 }

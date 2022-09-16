@@ -13,4 +13,6 @@ public interface DeudaMaterialAlumnoDAO extends EasyDAO<DeudaMaterialAlumno> {
 
     DeudaMaterialAlumno findByTipoAlumno(Oficina oficina, Alumno alumno);
 
+    List<DeudaMaterialAlumno> allByAlumno(Alumno alumno);
+
 }
