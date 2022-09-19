@@ -633,7 +633,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     }
 
     private void validarCursoDirigido(MatriculaResumen matriculaResumen, Curso cursoBD) {
-        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(matriculaResumen.getCicloAcademico());
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoAlumno(matriculaResumen);
 
         for (CursoDirigido cursoDirigido : cursoDirigidos) {
 
