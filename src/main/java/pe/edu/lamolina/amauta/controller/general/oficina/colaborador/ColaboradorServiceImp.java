@@ -581,13 +581,21 @@ public class ColaboradorServiceImp implements ColaboradorService {
         }
 
         List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.allByColaborador(colaboradorForm);
+        log.info("[updateColaborador] funcionesEmp.size={}", funcionesEmp.size());
         Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaboradorForm.getFuncionColaborador());
+        log.info("[updateColaborador] mapNuevo.size={}", mapNuevo.size());
         Map<Long, FuncionColaborador> mapTengo = TypesUtil.convertListToMap("funcion.id", funcionesEmp);
+        log.info("[updateColaborador] mapTengo.size={}", mapTengo.size());
+
         for (FuncionColaborador funcionColaborador : funcionesEmp) {
             if (mapNuevo.get(funcionColaborador.getFuncion().getId()) == null) {
                 funcionColaborador.setFechaFin(new Date());
                 funcionColaborador.setEstado(EstadoEnum.INA.name());
                 funcionColaboradorDAO.update(funcionColaborador);
+                log.info("[updateColaborador] 1.INA -> funcionColaborador.id={} estado={}", funcionColaborador.getId(), funcionColaborador.getEstado());
+
+            } else {
+                log.info("[updateColaborador] 1.NONE -> funcionColaborador.id={} estad={}", funcionColaborador.getId(), funcionColaborador.getEstado());
             }
         }
 
@@ -601,6 +609,10 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 funcionColaborador.setFuncion(perfil);
                 funcionColaborador.setFechaInico(new Date());
                 funcionColaboradorDAO.save(funcionColaborador);
+                log.info("[updateColaborador] 2.SAVE -> funcionColaborador.id={} estado={}", funcionColaborador.getId(), funcionColaborador.getEstado());
+
+            } else {
+                log.info("[updateColaborador] 2.NONE -> funcionColaborador.id={} estado={}", funcionColaborador.getId(), funcionColaborador.getEstado());
             }
         }
 
@@ -609,6 +621,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         for (FuncionColaborador funcionColaborador : mapNuevo.values()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             perfiles.add(perfil);
+            log.info("[updateColaborador] perfiles-nuevos.size={}", perfiles.size());
         }
         if (usuarioColaborador != null) {
             Oficina oficinaMain = oficinaDAO.find(colaboradorForm.getOficina().getId());
@@ -661,27 +674,29 @@ public class ColaboradorServiceImp implements ColaboradorService {
             Oficina oficinaMain,
             Colaborador colaborador, DataSessionPivot ds) {
 
-        log.info("ENTRA A UPDATE USER ROL");
+        log.info("[updateUserRol] Inicio");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfiles(perfilesCompaniaNuevos);
+        log.info("[updateUserRol] funcionRolNuevos.size={}", funcionRolNuevos.size());
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
         List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allByUserOficina(usuarioColaborador, oficinaMain);
+        log.info("[updateUserRol] rolesUsuarioTengo.size={}", rolesUsuarioTengo.size());
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
-            log.info("ENTRA AL PRIMER LOOP");
+            log.info("[updateUserRol] buscar-rol-tengo={}", usuarioRol.getRol().getId());
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
                 usuarioRol.setEstadoEnum(UserEstadoEnum.INA);
                 usuarioRolDAO.update(usuarioRol);
+                log.info("[updateUserRol] anular-rol-tengo={}", usuarioRol.getId());
             }
         }
 
         for (FuncionRol funcionRolNuevo : funcionRolNuevos) {
-            log.info("ENTRA AL SEGUNDO LOOP");
+            log.info("[updateUserRol] buscar-rol-nuevo={}", funcionRolNuevo.getRol().getId());
             if (!mapRolTengo.containsKey(funcionRolNuevo.getRol().getId())) {
-                log.info("ENTRA AL IF");
 
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
@@ -694,6 +709,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 usuarioRol.setUsuario(usuarioColaborador);
                 usuarioRol.setRol(funcionRolNuevo.getRol());
                 usuarioRolDAO.save(usuarioRol);
+                log.info("[updateUserRol] save-rol-nuevo={}", usuarioRol.getId());
             }
         }
     }

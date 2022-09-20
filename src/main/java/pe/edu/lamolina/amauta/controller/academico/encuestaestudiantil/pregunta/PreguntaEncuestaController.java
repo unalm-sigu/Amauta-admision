@@ -42,15 +42,15 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/encuestaestudiantil/editor/pregunta")
 public class PreguntaEncuestaController {
-    
+
     @Autowired
     PreguntaEncuestaService service;
-    
+
     @Autowired
     SpringTemplateEngine springHtml;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @RequestMapping(method = RequestMethod.GET, path = "{encuesta}")
     public String index(Model model, @PathVariable("encuesta") Long idEncuesta, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -60,17 +60,17 @@ public class PreguntaEncuestaController {
         model.addAttribute("encuesta", encuesta);
         return "academico/encuestaestudiantil/pregunta/pregunta";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, Long idEncuesta, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            
+
             ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
             PreguntaExamen preguntaTop = service.findPreguntaNumeroTop(idEncuesta);
             List<PreguntaExamen> preguntas = service.allPreguntaEvaluacionVirtual(filter, encuesta);
-            
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (PreguntaExamen pregunta : preguntas) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -83,14 +83,14 @@ public class PreguntaEncuestaController {
                 node.put("estadoEnum", pregunta.getEstadoEnum().getValue());
                 node.put("max", pregunta.getNumero() == preguntaTop.getNumero().intValue());
                 node.put("opciones", pregunta.getOpcionPregunta().size());
-                
+
                 if (pregunta.getOpcionReferencia() != null) {
                     OpcionPregunta opcionRef = pregunta.getOpcionReferencia();
                     String referencias = "Pregunta " + opcionRef.getPregunta().getNumero();
                     referencias += " opción " + opcionRef.getLetra();
                     node.put("referencias", referencias);
                 }
-                
+
                 List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
                 ArrayNode arrayOpciones = new ArrayNode(JsonNodeFactory.instance);
                 for (OpcionPregunta opcion : opciones) {
@@ -98,52 +98,52 @@ public class PreguntaEncuestaController {
                     nodeOpcion.put("contenido", opcion.getContenido());
                     nodeOpcion.put("letra", opcion.getLetra());
                     nodeOpcion.put("esOtro", opcion.getEsOtro());
-                    
+
                     arrayOpciones.add(nodeOpcion);
                 }
-                
+
                 node.put("opcionPregunta", arrayOpciones);
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-    
+
     @RequestMapping("{encuesta}/nuevo")
     public String nuevo(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        
+
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
         PreguntaExamen pregunta = new PreguntaExamen();
         pregunta.setExamenVirtual(encuesta);
         List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(encuesta);
-        
+
         model.addAttribute("categorias", categorias);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
         model.addAttribute("pregunta", pregunta);
         return "academico/encuestaestudiantil/pregunta/preguntaForm";
     }
-    
+
     @RequestMapping("{pregunta}/update")
     public String update(@PathVariable("pregunta") Long idPregunta, Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         PreguntaExamen pregunta = service.findPregunta(idPregunta);
         List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(pregunta.getExamenVirtual());
         List<TipoLikert> tipos = service.allTipoLikert(pregunta.getTipoLikert());
-        
+
         model.addAttribute("tiposLikert", tipos);
         model.addAttribute("categorias", categorias);
         model.addAttribute("cicloAcademico", cicloAcademico);
@@ -151,7 +151,7 @@ public class PreguntaEncuestaController {
         model.addAttribute("pregunta", pregunta);
         return "academico/encuestaestudiantil/pregunta/preguntaForm";
     }
-    
+
     @RequestMapping("save")
     public String save(PreguntaExamen pregunta, RedirectAttributes redirectAttr, Model model, HttpSession session) {
         ExamenVirtual encuesta = pregunta.getExamenVirtual();
@@ -164,31 +164,31 @@ public class PreguntaEncuestaController {
                 service.updatePregunta(pregunta, ds);
                 Notificaciones.crearMsg("Registro actualizado", redirectAttr);
             }
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, redirectAttr);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
         }
-        
+
         return "redirect:/academico/encuestaestudiantil/editor/pregunta/" + encuesta.getId();
     }
-    
+
     @ResponseBody
     @RequestMapping("allReferencia")
     public JsonResponse allReferencia(PreguntaExamen pregunta, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             List<PreguntaExamen> preguntas = service.allReferencia(pregunta);
             Context ctx = new Context();
             ctx.setVariable("preguntas", preguntas);
             String htmlContent = springHtml.process("encuesta/pregunta/referencias", ctx);
             response.setData(htmlContent);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -196,19 +196,19 @@ public class PreguntaEncuestaController {
         } finally {
             return response;
         }
-        
+
     }
-    
+
     @ResponseBody
     @RequestMapping("delete")
     public JsonResponse delete(PreguntaExamen pregunta, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
         try {
             service.deletePregunta(pregunta);
             response.setMessage("Registro eliminado satisfactoriamente");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -216,21 +216,21 @@ public class PreguntaEncuestaController {
         } finally {
             return response;
         }
-        
+
     }
-    
+
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(PreguntaExamen pregunta, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoPregunta(pregunta, ds);
             response.setMessage("Se actualizó el estado satisfactoriamente.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -238,26 +238,26 @@ public class PreguntaEncuestaController {
         } finally {
             return response;
         }
-        
+
     }
-    
+
     @ResponseBody
     @RequestMapping("allOpcionReferencia")
     public JsonResponse allOpcionReferencia(
             @RequestParam("nombre") String nombre,
             @RequestParam("encuesta") Long encuesta,
             HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             ExamenVirtual evaluacionVirtual = new ExamenVirtual(encuesta);
-            
+
             List<OpcionPregunta> opciones = service.allOpcionesByName(nombre, evaluacionVirtual);
             ArrayNode array = new ArrayNode(jsonFactory);
-            
+
             for (OpcionPregunta opcion : opciones) {
                 ObjectNode a = new ObjectNode(jsonFactory);
                 a.put("id", opcion.getId());
@@ -267,11 +267,11 @@ public class PreguntaEncuestaController {
                 a.put("referenciaTexto", opcion.getPregunta().getTexto());
                 array.add(a);
             }
-            
+
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -279,33 +279,33 @@ public class PreguntaEncuestaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("sort")
     public JsonResponse sort(PreguntaExamen pregunta, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
         try {
             service.upateNumeroPregunta(pregunta);
             response.setMessage("Se modificó el número de pregunta satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        
+
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("alltipolikert")
     public JsonResponse allTipoLikert(HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
         try {
-            
+
             List<TipoLikert> tiposLikert = service.allTipoLikert();
             Map<Integer, List<TipoLikert>> tiposLikertMap = TypesUtil.convertListToMapList("opciones", tiposLikert);
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -339,8 +339,8 @@ public class PreguntaEncuestaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        
+
         return response;
     }
-    
+
 }
