@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ANU;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_CUR_DIR;
 
@@ -119,6 +120,20 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
         return all(sql);
     }
 
+    @Override
+    public List<CursoDirigido> allByCicloAcademicoAlumno(MatriculaResumen matriculaResumen) {
+       Octavia sql = new Octavia()
+                .from(CursoDirigido.class, "cd")
+                .join("tramite tra", "facultad fac", "curso ", "estado es")
+                .join("tra.tipoTramite")
+                .left("tra.alumno al", "tra.cicloAcademico ca", "userRegistro ur")
+                .filter("es.codigo", SOL_CUR_DIR.name())
+                .filter("ca.id", matriculaResumen.getCicloAcademico())
+                .filter("al.id", matriculaResumen.getAlumno());
+
+        return all(sql);
+    }
+    
     @Override
     public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()

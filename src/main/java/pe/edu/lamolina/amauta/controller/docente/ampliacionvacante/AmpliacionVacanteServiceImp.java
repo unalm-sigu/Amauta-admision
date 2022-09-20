@@ -7,16 +7,20 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.jboss.resteasy.client.jaxrs.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -37,8 +41,10 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.academico.DeudaMaterialAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
@@ -46,17 +52,41 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCalificacionCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.RestriccionCarreraDAO;
+import pe.edu.lamolina.amauta.dao.academico.RestriccionFacultadDAO;
+import pe.edu.lamolina.amauta.dao.academico.RestriccionModalidadDAO;
+import pe.edu.lamolina.amauta.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.TopeMatriculaDAO;
+import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.finanza.AlumnoPagoVeranoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionModalidad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.TopeMatricula;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.enums.AportesEnum;
+import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
+import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SUL;
+import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
 import static pe.edu.lamolina.model.enums.TipoCreditoEnum.FIJO;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
+import pe.edu.lamolina.model.enums.TipoRepitenciaEnum;
 import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
+import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
+import pe.edu.lamolina.model.tramite.CursoDirigido;
 
 @Service
 @Transactional(readOnly = true)
@@ -105,9 +135,36 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     @Autowired
     TopeMatriculaDAO topeMatriculaDAO;
-    
+
     @Autowired
     AlumnoPagoVeranoDAO alumnoPagoVeranoDAO;
+
+    @Autowired
+    DeudaMaterialAlumnoDAO deudaMaterialAlumnoDAO;
+
+    @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+
+    @Autowired
+    CursoDirigidoDAO cursoDirigidoDAO;
+
+    @Autowired
+    RestriccionCarreraDAO restriccionCarreraDAO;
+
+    @Autowired
+    RestriccionFacultadDAO restriccionFacultadDAO;
+
+    @Autowired
+    RestriccionModalidadDAO restriccionModalidadDAO;
+
+    @Autowired
+    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    @Autowired
+    AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -427,6 +484,15 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             if (cicloAcademico.isTipoRegular()) {
                 this.validarTopeCreditosMatricular(alumno, matriculaResumen, creditosAmatricular);
+                this.validarDeudaMaterial(alumno);
+                this.validarAportes(alumno, cicloAcademico);
+                this.validarCursoDirigido(matriculaResumen, curso);
+                this.validadarRestriccionCarrera(matriculaResumen.getAlumno(), seccion);
+                this.validadarRestriccionFacultad(matriculaResumen.getAlumno(), seccion);
+                this.validadarRestriccionModalidad(matriculaResumen.getAlumno(), seccion);
+                this.validadarRestriccionRepitencia(matriculaResumen.getAlumno(), seccion, curso);
+                this.validarRestriccionCAPA(matriculaResumen.getAlumno(), seccion);
+                this.validadarRestriccionSimultaneo(alumnoCursoCurricula, matriculaResumen);
             }
 
             if (cicloAcademico.isTipoNivelacion()) {
@@ -441,6 +507,168 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }
 
     }
+
+    private void validadarRestriccionSimultaneo(AlumnoCursoCurricula alumnoCursoCurricula, MatriculaResumen matriculaResumen) {
+
+        if (Arrays.asList(SIM, SUL).contains(alumnoCursoCurricula.getEstadoEnum()) || alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() == ELC) {
+            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumno(matriculaResumen.getAlumno().getId());
+
+
+            List<AlumnoCursoSimultaneo> acss = alumnoCursoSimultaneoDAO.allByAlumnoCursoCurricula(alumnoCursoCurricula);
+            List<String> cursosSimultaneoRequeridos = new ArrayList<>();
+            for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : acss) {
+                MatriculaCurso matriculaCurso = matriculaCursos.stream()
+                        .filter(x -> x.getCurso().getId().equals(alumnoCursoSimultaneo.getCurso().getId())).findFirst().orElse(null);
+                if (matriculaCurso == null) {
+                    cursosSimultaneoRequeridos.add(alumnoCursoSimultaneo.getCurso().getNombre());
+                }
+            }
+
+            if (!cursosSimultaneoRequeridos.isEmpty()) {
+                String msg = String.format("Primero debe matricularse en los cursos requisitos. ");
+                String cur = "";
+                for (String cursosSimultaneoRequerido : cursosSimultaneoRequeridos) {
+                    cur = cur + cursosSimultaneoRequerido + ", ";
+                }
+                msg = msg.concat(cur);
+                throw new PhobosException(msg.substring(0, msg.length() - 2));
+            }
+        }
+    }
+
+    private void validarRestriccionCAPA(Alumno alumno, Seccion seccion) {
+        if (seccion.getRestriccionCapa() != null && seccion.getRestriccionCapa() > 0) {
+            if (alumno.getCreditosAprobadosConvalidados() < seccion.getRestriccionCapa()) {
+                throw new PhobosException("Sus Creditos Aprobados deben ser mayor igual a %s", seccion.getRestriccionCapa());
+            }
+        }
+    }
+
+    private void validadarRestriccionRepitencia(Alumno alumno, Seccion seccion, Curso curso) {
+
+        List<RestriccionRepitencia> restriccionRepitencias = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
+        Map<String, RestriccionRepitencia> restriccionRepitenciasMap = TypesUtil.convertListToMap("tipoRepitencia.codigo", restriccionRepitencias);
+        RestriccionRepitencia hasRestriccionIngresante = restriccionRepitenciasMap.get(TipoRepitenciaEnum.ING.name());
+        RestriccionRepitencia hasRestriccionRepitente = restriccionRepitenciasMap.get(TipoRepitenciaEnum.REP.name());
+        RestriccionRepitencia hasRestriccionRetirado = restriccionRepitenciasMap.get(TipoRepitenciaEnum.RET.name());
+
+        List<AlumnoCicloCurso> cursoAprobado = alumnoCicloCursoDAO.allAprobadoByAlumnoCurso(alumno, curso);
+        boolean ingresante = Arrays.asList(AcademicoConstantine.CODIGO_INGRESANTE).contains(alumno.getSituacionAcademica().getCodigo());
+        boolean repitente = (!cursoAprobado.isEmpty());
+        boolean retirado = false;
+
+        if (hasRestriccionIngresante != null && !ingresante) {
+
+            String msg = String.format("La sección %s está restringida a ingresantes ", seccion.getCodigo2());
+            throw new PhobosException(msg);
+        }
+        if (hasRestriccionRepitente != null && !repitente) {
+            String msg = String.format("La sección %s está restringida a repitentes ", seccion.getCodigo2());
+            throw new PhobosException(msg);
+        }
+        if (hasRestriccionRetirado != null && retirado) {
+            String msg = String.format("La sección %s está restringida a retirados ", seccion.getCodigo2());
+            throw new PhobosException(msg);
+        }
+
+    }
+
+    private void validadarRestriccionModalidad(Alumno alumno, Seccion seccion) {
+        List<RestriccionModalidad> restriccionModalidades = restriccionModalidadDAO.allActivasBySeccion(seccion);
+        if (!CollectionUtils.isEmpty(restriccionModalidades)) {
+            boolean requiereModalidad = true;
+            String modd = "";
+            for (RestriccionModalidad restriccionModalidad : restriccionModalidades) {
+                ModalidadEstudio modalidadRestringida = restriccionModalidad.getModalidadEstudio();
+                modd = modd + modalidadRestringida.getNombre() + "  ";
+                if (alumno.getModalidadEstudio().getId().longValue() == modalidadRestringida.getId()) {
+                    requiereModalidad = false;
+                }
+            }
+            if (requiereModalidad) {
+                String msg = String.format("Esta sección está restringida a la modalidad de %s  ", modd);
+                throw new PhobosException(msg);
+            }
+        }
+    }
+
+    private void validadarRestriccionFacultad(Alumno alumno, Seccion seccion) {
+        List<RestriccionFacultad> restriccionFacultades = restriccionFacultadDAO.allActivasBySeccion(seccion);
+        if (!CollectionUtils.isEmpty(restriccionFacultades)) {
+            boolean requiereFacultad = true;
+            String farr = "";
+            for (RestriccionFacultad restriccionCarrera : restriccionFacultades) {
+                Facultad facultadRestringida = restriccionCarrera.getFacultad();
+                farr = farr + facultadRestringida.getNombre() + "  ";
+                if (alumno.getCarrera().getFacultad().getId().longValue() == facultadRestringida.getId()) {
+                    requiereFacultad = false;
+                }
+            }
+            if (requiereFacultad) {
+                String msg = String.format("Esta sección está restringida a la facultad de  %s ", farr);
+                throw new PhobosException(msg);
+            }
+        }
+    }
+
+    private void validadarRestriccionCarrera(Alumno alumno, Seccion seccion) {
+        List<RestriccionCarrera> restriccionCarreras = restriccionCarreraDAO.allActivasBySeccion(seccion);
+        if (restriccionCarreras != null) {
+            if (!restriccionCarreras.isEmpty()) {
+                boolean requiereCarrera = true;
+                String carr = "";
+                for (RestriccionCarrera restriccionCarrera : restriccionCarreras) {
+                    Carrera carreraRestringida = restriccionCarrera.getCarrera();
+                    carr = carr + carreraRestringida.getNombreCorto() + "  ";
+                    if (alumno.getCarrera().getId().longValue() == carreraRestringida.getId()) {
+                        requiereCarrera = false;
+                    }
+                }
+                if (requiereCarrera) {
+                    String msg = String.format("Esta sección está restringida a la carrera de  %s ", carr);
+                    throw new PhobosException(msg);
+                }
+            }
+        }
+    }
+
+    private void validarCursoDirigido(MatriculaResumen matriculaResumen, Curso cursoBD) {
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoAlumno(matriculaResumen);
+
+        for (CursoDirigido cursoDirigido : cursoDirigidos) {
+
+            Assert.isFalse(Objects.equals(cursoDirigido.getCurso().getId(), cursoBD.getId()), "El curso ha sido solicitado como dirigido.");
+        }
+    }
+
+    private void validarDeudaMaterial(Alumno alumno) {
+        List<DeudaMaterialAlumno> deudaMaterialAlumno = deudaMaterialAlumnoDAO.allByAlumno(alumno);
+        if (!deudaMaterialAlumno.isEmpty()) {
+            throw new PhobosException(String.format("Alumno %s por deuda material", alumno.getPersona().getNombreCompleto()));
+        }
+    }
+
+    private void validarAportes(Alumno alumno, CicloAcademico academico) {
+
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAportesByAlumnoCiclo(alumno, academico);
+
+        if (aporteAlumnoCiclos.isEmpty()) {
+            throw new PhobosException(String.format("El alumno %s no cuenta con aportes generados", alumno.getPersona().getNombreCompleto()));
+        }
+
+        for (AporteAlumnoCiclo aporteAlumnoCiclo : aporteAlumnoCiclos) {
+
+            if (aporteAlumnoCiclo.getNumeroCuota() == 1
+                    && aporteAlumnoCiclo.getEstadoEnum() == EstadoAporteEnum.DEBE
+                    && aporteAlumnoCiclo.getAporteCiclo().getAporte().getCodigoEnum() != AportesEnum.A26
+                    && aporteAlumnoCiclo.getMonto().compareTo(BigDecimal.ZERO) > 0) {
+
+                throw new PhobosException(String.format("El alumno %s no ha pagado su cuota.", alumno.getPersona().getNombreCompleto()));
+            }
+        }
+
+    }
+
     public AlumnoPagoVerano getAlumnoPago(CicloAcademico cicloAcademico, Alumno alumno) {
         AlumnoPagoVerano alupago = alumnoPagoVeranoDAO.findAlumnoByCiclo(alumno, cicloAcademico);
         if (alupago == null) {

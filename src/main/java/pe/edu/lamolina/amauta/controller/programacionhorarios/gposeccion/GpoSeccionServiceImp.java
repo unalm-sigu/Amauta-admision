@@ -162,6 +162,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.academico.AmpliacionVacantesDAO;
 import pe.edu.lamolina.amauta.dao.academico.CambioAulaGrupoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CuotaGpoHorasDAO;
+import pe.edu.lamolina.amauta.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DescuentoSeccionVeranoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EvaluacionDAO;
@@ -175,8 +176,10 @@ import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.horario.SeccionCursoCachimbosDAO;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 
 @Slf4j
 @Service
@@ -233,6 +236,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     private final TipoGrupoHorasDAO tipoGrupoHorasDAO;
     private final TipoRepitenciaDAO tipoRepitenciaDAO;
     private final VacanteAlumnoDAO vacanteAlumnoDAO;
+    private final SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
 
     private final ResponseRestService responseRestService;
     private final VerificadorService verificadorService;
@@ -250,8 +254,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
-    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2NjM1NjM1NDAsImlhdCI6MTY2MDU2OTU3NH0.vyChT6QU-957M5i8OV_FpWfvEq1OIlK2MgOOf5RJlcM";
-
+    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2Njg4ODk4MDAsImlhdCI6MTY2MzU5ODkzNX0.vI2ns2ZD6imdFAo1G2SnUF2ypi1rpTJbVp8RN1A4v0A";
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -1107,8 +1110,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<AmpliacionVacantes> ampliacioness = ampliacionVacanteDAO.allBySeccion(seccionBD);
 
         usuarioProgramacionService.anularSeccion(seccioForm, ds.getUsuario());
+        ObjectUtil.printAttr(seccionBD);
+        List<SeccionCursoCachimbos> cursoCachimbos = seccionCursoCachimbosDAO.allBySeccion(seccionBD);
 
-        if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty()) {
+        if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty() && cursoCachimbos.isEmpty()) {
             log.debug("seccionBD {} revisar en saco de anular on encuestas", seccionBD.getId());
             log.debug("seccionBD {}", seccionBD.getId());
             this.deleteDependenciasSeccion(seccionBD);
@@ -2226,7 +2231,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     if (horarioAula.getSeccion() != null) {
                         msg = String.format("Sección %s", horarioAula.getSeccion().getCodigo2());
                     }
-                    
+
                     String cruce = String.format("*%s Día %s, Hora %s, Solicitud Reserva %s",
                             msg,
                             horarioAula.getDia().getSimbolo(),
@@ -2243,7 +2248,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (aulaAntes != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, aulaAntes);
         }
-        
+
         LOOP_HORARIO_SECCION:
         for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
             if (aula.getPermiteCruce() == 0) {
@@ -2274,7 +2279,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 horarioAulaDAO.save(horarioAula);
             }
         }
-        
+
         Seccion seccionUpd = new Seccion(seccion.getId());
         seccionUpd.setAula(aula);
 

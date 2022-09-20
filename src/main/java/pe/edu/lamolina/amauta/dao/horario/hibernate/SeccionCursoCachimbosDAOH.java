@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.amauta.dao.horario.SeccionCursoCachimbosDAO;
+import pe.edu.lamolina.model.academico.Seccion;
 
 @Repository
 public class SeccionCursoCachimbosDAOH extends AbstractEasyDAO<SeccionCursoCachimbos> implements SeccionCursoCachimbosDAO {
@@ -56,6 +57,17 @@ public class SeccionCursoCachimbosDAOH extends AbstractEasyDAO<SeccionCursoCachi
                 .join("seccion se", "cursoCachimbos ch")
                 .join("ch.cicloAcademico ci", "ch.carrera", "ch.curso")
                 .filter("ci.id", ciclo);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionCursoCachimbos> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoCachimbos.class, "scc")
+                .join("seccion se", "se.grupoSeccion gs", "cursoCachimbos ch")
+                .join("ch.cicloAcademico ci", "ch.carrera", "ch.curso")
+                .filter("ci.id", seccion.getGrupoSeccion().getCicloAcademico())
+                .filter("se.id", seccion.getId());
         return all(sql);
     }
 
