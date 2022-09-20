@@ -621,8 +621,10 @@ public class ColaboradorServiceImp implements ColaboradorService {
         for (FuncionColaborador funcionColaborador : mapNuevo.values()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             perfiles.add(perfil);
-            log.info("[updateColaborador] perfiles-nuevos.size={}", perfiles.size());
+            log.info("[updateColaborador] perfil-nuevo.id={}", perfil.getId());
         }
+
+        log.info("[updateColaborador] perfiles-nuevos.size={}", perfiles.size());
         if (usuarioColaborador != null) {
             Oficina oficinaMain = oficinaDAO.find(colaboradorForm.getOficina().getId());
             perfiles.add(colaboradorForm.getCargo());
