@@ -195,6 +195,12 @@ public class ResolucionExistenteController {
         response.setSuccess(Boolean.TRUE);
         response.setMessage(GlobalMessages.CREATED);
 
+        if (!respuesta.isEmpty() && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
+                response.setSuccess(Boolean.FALSE);
+                response.setMessage(respuesta.get(0));
+            return response;
+        }
+        
         switch (tipo) {
             case REIC:
             case RCI:
@@ -210,7 +216,7 @@ public class ResolucionExistenteController {
                 }
                 break;
             case TRAS_INT:
-                //service.generarNuevoPlan(resolucion, ds);
+//                service.generarNuevoPlan(resolucion, ds);
                 break;
             case TRAS:
             case INTES:

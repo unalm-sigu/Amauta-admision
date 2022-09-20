@@ -407,14 +407,19 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         log.debug("tipoResolucion existe {}", resolucionValidacion != null);
 
+        List<String> respuesta = new ArrayList();
         if (resolucionValidacion != null) {
-            throw new PhobosException(
-                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
-                            resolucion.getSerie(),
-                            resolucion.getNumero(),
-                            resolucion.getOficina().getNombre()));
+            respuesta.add(String.format("Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+                    resolucion.getSerie(),
+                    resolucion.getNumero(),
+                    resolucion.getOficina().getNombre()));
+//            throw new PhobosException(
+//                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
+//                            resolucion.getSerie(),
+//                            resolucion.getNumero(),
+//                            resolucion.getOficina().getNombre()));
+            return respuesta;
         }
-
         ObjectUtil.eliminarAttrSinId(resolucion, "cicloAplica");
 
         TipoResolucionEnum tipoResolucionEnum = resolucion.getTipoResolucion().getTipoEnum();
@@ -454,7 +459,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucionDAO.save(resolucion);
 
-        List<String> respuesta = new ArrayList();
         switch (tipoResolucionEnum) {
             case REIC:
                 respuesta = Arrays.asList(this.saveReincorporaciones(resolucion, ds));

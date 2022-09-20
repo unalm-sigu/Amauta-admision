@@ -192,9 +192,16 @@
 
                             } else {
 
-                                $vue.errores = data.data;
-                                $vue.$refs.modalError.open();
-                                notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+                                if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                    notify(data.message, 'error');
+                                } else {
+                                    $vue.errores = data.data;
+                                    $vue.$refs.modalError.open();
+                                    notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+                                }
+
+
+
 
                             }
 
