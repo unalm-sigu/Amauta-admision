@@ -106,7 +106,7 @@
                                         <span class="block">{{seccion.codigo2}}</span>
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
 
-                                        <span v-if="seccion.modoDictado == 'VIRTUAL' &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
 
                                     </td>
 
