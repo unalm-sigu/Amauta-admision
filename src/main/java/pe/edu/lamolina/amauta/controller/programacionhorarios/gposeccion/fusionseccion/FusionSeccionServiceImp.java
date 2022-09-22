@@ -34,8 +34,10 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.horario.HorarioAula;
 
 @Service
 @Transactional(readOnly = true)
@@ -62,6 +64,8 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
 
     @Autowired
     ResponseRestService responseRestService;
@@ -210,6 +214,22 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
                         logger.debug("seccionTCUR bloqueado por no tener ninguna seccion PCUR activa {}", seccionTCUR.getId());
                     }
                 }
+            }
+
+            List<HorarioSeccion> horarioSecciones = horarioSeccionDAO.allBySeccion(origenUpd);
+            if (!horarioSecciones.isEmpty()) {
+                horarioSecciones.stream().forEach(horarioSeccion -> {
+                    horarioSeccion.setAula(null);
+                    horarioSeccionDAO.update(horarioSeccion);
+                });
+            }
+
+            List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(origenUpd);
+
+            if (!horariosAula.isEmpty()) {
+                horariosAula.stream().forEach(horarioAula -> {
+                    horarioAulaDAO.delete(horarioAula);
+                });
             }
 
         } else {
