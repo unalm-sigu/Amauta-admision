@@ -142,6 +142,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     private final PromedioService promedioService;
     private final ReunionConsejoService reunionConsejoService;
 
+    private final String CODIGO_REGISTRO = "UR";
+
     @Override
     public List<Tramite> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
@@ -353,7 +355,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     private AutorizacionRegistro crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {
         DateTime today = new DateTime();
-        
+
         AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
         if (autorizacionRegistro == null) {
             autorizacionRegistro = new AutorizacionRegistro();
@@ -546,7 +548,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         if (alumnoConsejero != null) {
             alumno.setConsejero(alumnoConsejero.getConsejero());
         }
+        Oficina oficina = oficinaDAO.findByCode(CODIGO_REGISTRO);
 
+        ctx.setVariable("oficina", oficina);
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("curso", curso);
