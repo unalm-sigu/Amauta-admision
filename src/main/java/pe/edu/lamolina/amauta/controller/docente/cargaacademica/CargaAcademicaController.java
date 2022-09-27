@@ -104,6 +104,7 @@ public class CargaAcademicaController {
                         .from(seccion)
                         .only("id,tipoSeccionEnum,codigo2,matriculados,verInformacion,horarioTexto,linkZoom,modoDictado")
                         .join("aula", "codigo,nombre,usuarioZoom,passZoom")
+                        .join("aula.aulaSuperior", "id, codigo, nombre")
                         .join("grupoHoras", "codigo")
                         .json();
 

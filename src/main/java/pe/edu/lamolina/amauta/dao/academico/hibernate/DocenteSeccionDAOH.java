@@ -497,7 +497,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .join("cur.modalidadEstudio")
-                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .leftJoin("sec.aula au", "au.aulaSuperior ausp", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT)
                 .filter("doc.id", docente)
