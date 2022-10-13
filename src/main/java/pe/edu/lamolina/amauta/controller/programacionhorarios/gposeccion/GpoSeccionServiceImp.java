@@ -1104,6 +1104,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccionBD);
+        List<EncuestaDocente> encuestasProfesorSeccionAnulado = new ArrayList<>();
+        for (DocenteSeccion docenteSeccion : docentesSeccion) {
+            List<EncuestaDocente> encuestasProfesorSeccion = encuestaDocenteDAO.allByDocenteSeccion(docenteSeccion);
+            for (EncuestaDocente encuestaDocente : encuestasProfesorSeccion) {
+                if (encuestaDocente.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
+                    Assert.isTrue(encuestasProfesorSeccion.isEmpty(), "Esta sección del curso contiene una encuesta docente");
+                } else {
+                    encuestasProfesorSeccionAnulado.add(encuestaDocente);
+                }
+            }
+        }
+
         TokenIngresante token = responseRestService.createToken(ds);
         JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
@@ -1116,8 +1129,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty() && cursoCachimbos.isEmpty()) {
             log.debug("seccionBD {} revisar en saco de anular on encuestas", seccionBD.getId());
             log.debug("seccionBD {}", seccionBD.getId());
-            this.deleteDependenciasSeccion(seccionBD);
-            seccionDAO.delete(seccionBD);
+
+            if (encuestasProfesorSeccionAnulado.isEmpty()) {
+                this.deleteDependenciasSeccion(seccionBD);
+                seccionDAO.delete(seccionBD);
+            }
+
             log.debug("seccion eliminada {}");
             List<Seccion> seccionesAll = seccionDAO.allByGpoSeccion(grupoSeccion);
             log.debug("seccionesAll {}", seccionesAll.size());
