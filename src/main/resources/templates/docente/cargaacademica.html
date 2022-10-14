@@ -114,11 +114,9 @@
                                         <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
                                         <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="Object.keys(seccion).includes('aula') &amp;&amp;
-                                                            seccion.aula.id != null &amp;&amp;
-                                                            seccion.aula.usuarioZoom != null &amp;&amp;
-                                                            seccion.aula.aulaSuperior.codigo == 'M-VIRTUAL'"
-                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; 
+                                              seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')" 
+                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
                                     </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
@@ -180,11 +178,9 @@
                                         <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
                                         <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="Object.keys(seccion).includes('aula') &amp;&amp;
-                                              seccion.aula.id != null &amp;&amp;
-                                              seccion.aula.usuarioZoom != null &amp;&amp;
-                                              seccion.aula.aulaSuperior.codigo == 'M-VIRTUAL'"
-                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; 
+                                              seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')" 
+                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
                                     </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>

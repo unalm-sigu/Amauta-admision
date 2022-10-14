@@ -54,7 +54,7 @@ new Vue({
         },
         dataZoomModal(item) {
             let $vue = this;
-            $vue.aulaDataZoom = item;
+            $vue.aulaDataZoom = item.aula;
             $vue.$refs.modalDataZoom.open();
         },
         linkZoomModal(seccion) {
