@@ -459,7 +459,7 @@ public class ResolucionExistenteController {
                 prac.setAlumno(prac.getTramite().getAlumno());
             }
 
-            ArrayNode array = JaneHelper.from(practicasPreProfesionals).only("id")
+            ArrayNode array = JaneHelper.from(practicasPreProfesionals).only("id,creditos")
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
