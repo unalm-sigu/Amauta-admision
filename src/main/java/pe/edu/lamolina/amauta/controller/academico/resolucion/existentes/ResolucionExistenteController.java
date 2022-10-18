@@ -216,6 +216,11 @@ public class ResolucionExistenteController {
                 }
                 break;
             case TRAS_INT:
+                msg = respuesta;
+                if (!msg.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                }
+                response.setData(msg);
 //                service.generarNuevoPlan(resolucion, ds);
                 break;
             case TRAS:

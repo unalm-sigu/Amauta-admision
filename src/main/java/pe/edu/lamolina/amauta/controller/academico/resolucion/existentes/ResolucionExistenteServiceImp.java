@@ -425,13 +425,18 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         TipoResolucionEnum tipoResolucionEnum = resolucion.getTipoResolucion().getTipoEnum();
 
         switch (tipoResolucionEnum) {
+            case TRAS_INT:
+                this.validarTrasladoInterno(resolucion, respuesta, ds);// aca pendtien
+                if (!respuesta.isEmpty()) {
+                    return respuesta;
+                }
+                break;
             case REIC:
             case RCI:
             case ANCI:
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
-            case TRAS_INT:
             case INTES:
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
@@ -506,6 +511,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
         }
         return respuesta;
+    }
+
+    private List<String> validarTrasladoInterno(Resolucion resolucion, List<String> respuesta, DataSessionPivot ds) {
+        for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
+
+            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+
+            if (traslado == null) {
+                respuesta.add(String.format("El alumno con codigo %s no cuenta con una solicitud de traslado interno pendiente.",
+                        tramiteTrasladoForm.getAlumno().getCodigo()));
+            }
+        }
+        return respuesta;
+
     }
 
     private List<String> saveCursoDirigido(Resolucion resolucion, DataSessionPivot ds) {
