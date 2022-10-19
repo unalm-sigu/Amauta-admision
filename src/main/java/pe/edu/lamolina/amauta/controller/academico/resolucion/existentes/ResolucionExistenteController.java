@@ -216,6 +216,11 @@ public class ResolucionExistenteController {
                 }
                 break;
             case TRAS_INT:
+                msg = respuesta;
+                if (!msg.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                }
+                response.setData(msg);
 //                service.generarNuevoPlan(resolucion, ds);
                 break;
             case TRAS:
@@ -459,7 +464,7 @@ public class ResolucionExistenteController {
                 prac.setAlumno(prac.getTramite().getAlumno());
             }
 
-            ArrayNode array = JaneHelper.from(practicasPreProfesionals).only("id")
+            ArrayNode array = JaneHelper.from(practicasPreProfesionals).only("id,creditos")
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")

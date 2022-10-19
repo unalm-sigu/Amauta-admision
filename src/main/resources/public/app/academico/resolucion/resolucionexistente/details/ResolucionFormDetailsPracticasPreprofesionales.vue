@@ -48,7 +48,7 @@
                     </td>
 
                     <td class="v-middle text-center" >
-                        <input v-if="validColumCreditos(resolucion)" class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
+                        <input class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
                     </td>
 
                     <td class="v-middle">
