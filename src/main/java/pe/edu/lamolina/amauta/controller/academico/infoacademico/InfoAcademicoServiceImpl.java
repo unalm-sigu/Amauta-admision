@@ -100,6 +100,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
@@ -195,6 +196,17 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         Map<Long, List<CursoEquivalente>> mapCursoEquivalente = TypesUtil.convertListToMapList("cursoCurricula.id", cursoEquivalentes);
 
         List<AlumnoCursoCurricula> cursosComodin = alumnoCursoCurriculaDAO.allByAlumnoComodin(alumno);
+        
+        List<CursoCurricula> cursosCurriculaEquivalenteAlumno = cursosPlanAlumno.stream()
+                .filter(x->x.getEstadoEnum().equals(CursoCurriculaEstadoEnum.EQUIV))
+                .map(AlumnoCursoCurricula::getCursoCurricula)
+                .collect(Collectors.toList());
+        
+        List<CursoEquivalente> cursosEquivalentesAlumno = cursoEquivalenteDAO.allActivoByCursosCurriculas(cursosCurriculaEquivalenteAlumno);
+        List<Curso> cursosAprobadosXequivalencia = cursosEquivalentesAlumno.stream().map(CursoEquivalente::getCursoEquivalente).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinMenosAprobadosXequivalente = cursosComodin.stream()
+                            .filter(x->!cursosAprobadosXequivalencia.contains(x.getCurso())).collect(Collectors.toList());
+                
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
                 "id",
@@ -265,7 +277,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             });
             cursosJson.add(objNode);
         }
-        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosComodin) {
+//        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosComodin) {
+        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosComodinMenosAprobadosXequivalente) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
                 "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos", "estadoMatricula", "estadoMatriculaEnum",
                 "estadoRegistro",
