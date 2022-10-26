@@ -69,7 +69,9 @@
                                                     </td>
                                                     <td class="v-middle">
                                                         <span class="block"> {{item.tramite.estadoEnum.value}}</span>
-                                                        <span class="block"> <b>¿Qué falta hacer?</b> {{item.tramite.accionTramiteBienestar.queHacer}}</span>
+                                                        <span class="block" v-if="item.tramite.accionTramiteBienestar"> 
+                                                            <b>¿Qué falta hacer?</b> {{item.tramite.accionTramiteBienestar.queHacer}}
+                                                        </span>
                                                     </td>
 
                                                     <td class="v-middle">
