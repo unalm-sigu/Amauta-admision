@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.zelper.model.TramitesAcademicos;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
+
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -113,6 +115,7 @@ public class ResolucionExistenteController {
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
         model.addAttribute("IS_EDICION", FALSE);
+        model.addAttribute("IS_ANULAR", FALSE);
 
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
@@ -152,6 +155,44 @@ public class ResolucionExistenteController {
         model.addAttribute("resolucion", objectNode);
         model.addAttribute("IS_EDICION", TRUE);
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
+    }
+
+    @RequestMapping(value = "/{idResolucion}/anularTramiteTitulo", method = RequestMethod.GET)
+    public String anularTramiteTituloResolucionExistente(@PathVariable(value = "idResolucion") Long idResolucion, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        ArrayNode tipoResolucionJson = JaneHelper
+                .from(service.allTipoResolucionByCodigo(TIPOS_RESOLUCIONES))
+                .array();
+
+        ArrayNode oficinasJson = JaneHelper
+                .from(service.allOficinasResolucion(ds))
+                .only("id,nombre,codigo,codigoDocumento,instanciaOficina")
+                .array();
+
+        ArrayNode ciclosJson = JaneHelper
+                .from(service.ciclosAnteriores(40))
+                .only("id,codigo,descripcion")
+                .array();
+
+        ArrayNode carrerasJson = JaneHelper
+                .from(service.allCarrera())
+                .only("id,nombre,codigo")
+                .array();
+
+        Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
+
+        ObjectNode objectNode = this.findDataResolucion(resolucionDB);
+
+        model.addAttribute("carreras", carrerasJson);
+        model.addAttribute("oficinas", oficinasJson);
+        model.addAttribute("tiposResolucion", tipoResolucionJson);
+        model.addAttribute("ciclos", ciclosJson);
+        model.addAttribute("resolucion", objectNode);
+        model.addAttribute("IS_ANULAR", TRUE);
+        return "academico/resolucion/resolucionexistentes/resolucionExistentes";
+
     }
 
     @ResponseBody
@@ -311,6 +352,24 @@ public class ResolucionExistenteController {
                 throw new PhobosException("Tipo de trámite no soportado");
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anularTramiteTitulo")
+    public JsonResponse anular (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TramiteTitulo tramiteTitulo = resolucionesExistentesDTO.getTramiteTitulo();
+        Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
+        boolean respuesta = service.anularAlumnoDeResolucionTitulo(resolucion, tramiteTitulo, ds.getUsuario(), ds);
+        if(respuesta){
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage(TramitesAcademicos.TRAMITE_TITULO_ANULADO);
+        }else {
+            response.setSuccess(Boolean.FALSE);
+            response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_TITULO);
+        }
         return response;
     }
 

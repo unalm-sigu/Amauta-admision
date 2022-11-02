@@ -75,16 +75,20 @@
                     </div>
 
 
-                    <button v-if="resolucion.id" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
-                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                        Actualizar
+
+                    <button v-if="resolucion.id && visible == false" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
+                      <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+                      Actualizar
+                    </button>
+                    <button v-else-if="resolucion.id && visible == true" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
+                      <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+                      Actualizar
                     </button>
 
-                    <button  v-else="" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
+                    <button  v-if="resolucion.id == null" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
                         <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
                         Guardar
                     </button>
-
 
                 </section>
             </section>
@@ -146,6 +150,7 @@
         data() {
             return {
                 errores: [],
+                visible: IS_EDICION,
                 resolucion: IS_EDICION ? JSON.parse(resolucionJson) : {},
                 resolucionNew: {
                     reincorporaciones: [],
@@ -164,10 +169,10 @@
         },
         mounted: function () {
             let $vue = this;
-            if (IS_EDICION) {
-                $vue.resolucion = JSON.parse(resolucionJson);
+            if (IS_EDICION || IS_ANULAR) {
+              $vue.resolucion = JSON.parse(resolucionJson);
             } else {
-                $vue.resolucion = {...$vue.resolucionNew};
+              $vue.resolucion = {...$vue.resolucionNew};
             }
         },
         methods: {

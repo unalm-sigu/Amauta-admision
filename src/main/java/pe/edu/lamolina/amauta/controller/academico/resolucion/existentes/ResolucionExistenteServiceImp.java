@@ -1945,6 +1945,74 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         return tramiteTraslados;
     }
 
+    @Override
+    @Transactional
+    public boolean anularAlumnoDeResolucionTitulo(Resolucion resolucion, TramiteTitulo tramiteTitulo, Usuario usuario, DataSessionPivot ds) {
+
+        boolean tramiteTituloAnulado = false;
+
+        TramiteTitulo tramiteTituloDB = tramiteTituloDAO.find(tramiteTitulo.getId());
+        Alumno alumno = tramiteTituloDB.getTramite().getAlumno();
+        GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.TIT, alumno.getCarrera());
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+        Resolucion resolucionValidacion = resolucionDAO.findByOficinaSerieNumero(resolucionBD.getOficina(), resolucionBD.getSerie(), resolucionBD.getNumero());
+        ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumno, gradoAcademico);
+
+        if (tramiteTituloDB == null) {
+            throw new PhobosException("No se encontró el Trámite Título");
+        }
+
+        if(resolucionBD == null) {
+            throw new PhobosException("No se encontró la Resolución de Título");
+        }
+
+        log.debug("oficina {}", resolucionBD.getOficina().getId());
+        log.debug("serie {}", resolucionBD.getSerie());
+        log.debug("numero {}", resolucionBD.getNumero());
+        log.debug("tipoResolucion {}", resolucionBD.getTipoResolucion().getTipoEnum().name());
+        log.debug("Resolucion válido? {}", resolucionValidacion != null);
+
+        if (resolucionValidacion == null) {
+            throw new PhobosException("La Resolución de Título no cuenta con número de serie ni oficina válido");
+        }
+
+        if (obtencionGradoRegistrado != null) {
+            obtencionGradoDAO.delete(obtencionGradoRegistrado);
+        } else {
+            throw new PhobosException("No existe el Grado Obtencion Titulo para el alumno " + alumno.getCodigo());
+        }
+
+        Tramite tramite = tramiteTituloDB.getTramite();
+        tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramite.setFechaRespuesta(null);
+        tramite.setUserRespuesta(null);
+        tramite.setFinalizado(Boolean.FALSE);
+        tramite.setEstadoTramite(estadoTramite);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.update(tramite);
+
+        tramiteTituloDB.setEstado(TramiteEstadoEnum.SOL.name());
+        tramiteTituloDB.setFechaResolucion(null);
+        tramiteTituloDB.setUsuarioResolucion(null);
+        tramiteTituloDB.setResolucion(null);
+        tramiteTituloDB.setTramite(tramite);
+        tramiteTituloDAO.update(tramiteTituloDB);
+
+        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+        egresado.setPromedioAcumulado(alumno.getPromedioAcumulado());
+        egresado.setFechaTitulacion(resolucionBD.getFecha());
+        egresado.setUserRegistroTitulado(ds.getUsuario());
+        egresado.setTitulo(gradoAcademico);
+        egresadoDAO.update(egresado);
+
+        tramiteTituloAnulado = true;
+
+        return tramiteTituloAnulado;
+
+    }
+
     private void updateTramitesTrasladoInterno(Resolucion resolucion, DataSessionPivot ds) {
 
         if (resolucion.getTramiteTraslado().isEmpty()) {

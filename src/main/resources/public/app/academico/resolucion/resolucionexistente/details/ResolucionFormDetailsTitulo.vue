@@ -64,7 +64,9 @@
             </tbody>
         </table>
 
-        <button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <button type="button" v-if="isEdicion == true" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <button type="button" v-if="isAnular == false" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
 
     </div>
 </template>
@@ -87,11 +89,12 @@
             return {
                 alumnos: [],
                 isEdicion: IS_EDICION,
+                isAnular: IS_ANULAR
             };
         },
         mounted: function () {
             let $vue = this;
-            if (!$vue.isEdicion) {
+            if ($vue.isEdicion === false || $vue.isAnular === false) {
                 $vue.allTitulos();
             }
         },
@@ -102,9 +105,36 @@
                 $vue.$forceUpdate();
             },
             del(index) {
-                let $vue = this;
+              let $vue = this;
+              if($vue.isAnular){
+                bootbox.confirm({
+                  message: '¿Seguro que desea retirar al alumno de esta resolución? ',
+                  buttons: {
+                    confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                  },
+                  callback: function (result) {
+                    if (result) {
+                      $vue.showLoader("Espere un momento por favor");
+                      $vue.errores = [];
+                      axios_.post(APP.url('academico/resolucion/existentes/anularTramiteTitulo'), {"tramiteTitulo": $vue.resolucion.tramiteTitulos[index], "resolucion": $vue.resolucion})
+                          .then(({data}) => {
+                            if (data.success) {
+                              notify(data.message, 'info');
+                              location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramiteTitulo");
+                            } else {
+                              notify("Se produjo un error al anular el Trámite Titulo de la Resolución", 'error');
+                            }
+                            $vue.hideLoader();
+                            $vue.$forceUpdate();
+                          }, () => $vue.hideLoader());
+                    }
+                  }
+                });
+              } else {
                 $vue.resolucion.tramiteTitulos.splice(index, 1);
                 $vue.$forceUpdate();
+              }
             },
             searchAlumno(nombre) {
 

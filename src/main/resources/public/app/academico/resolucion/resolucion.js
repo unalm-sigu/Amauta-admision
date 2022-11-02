@@ -113,6 +113,10 @@ var app = new Vue({
             e.preventDefault();
             location.href = APP.url("academico/resolucion/existentes/" + resolucion.id);
         },
+        anularAlumnoEnResolucion: function (resolucion, e) {
+            e.preventDefault();
+            location.href = APP.url("academico/resolucion/existentes/" + resolucion.id + "/anularTramiteTitulo");
+        },
         loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();
             this.resolucion = resolucion;
