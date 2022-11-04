@@ -800,6 +800,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
+                this.saveCursoDirigido(resolucionForm, ds);
                 break;
             case PRACTICAS:
                 respuesta = Arrays.asList(this.saveTramitePracticas(resolucionForm, ds));

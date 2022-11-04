@@ -48,30 +48,32 @@
                         </div>
                     </td>
                     <td class="v-middle">
-                        <div class="col-md-12" v-if="cursoDirigido.seleccionado">
+                        <!--<div class="col-md-12" v-if="cursoDirigido.seleccionado">-->
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <multiselect 
-                                    v-model="cursoDirigido.docenteAsignado" 
+                                <multiselect
+                                    v-model="cursoDirigido.docenteAsignado"
                                     v-bind:options="docentes"
+                                    v-bind:custom-label="nombreDocenteAsignado"
                                     v-on:search-change="findDocente"
                                     placeholder="Seleccione un docente"
                                     v-bind:show-labels="false"
                                     v-bind:allow-empty="false"
                                     deselect-label="No se puede eliminar este valor"
-                                    track-by="id" 
+                                    track-by="id"
                                     required="true"
                                     v-bind:internal-search="false"
                                     v-bind:hide-selected="true"
                                     v-bind:showNoOptions="true"
                                     v-bind:disabled="isEdicion &amp;&amp; !cursoDirigido.id" >
-
                                     <template slot="singleLabel" slot-scope="props">
-                                        <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                                        <span class=""> {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
                                     <template slot="option" slot-scope="props">
-                                        <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                                        <div class="option__desc">
+                                          <span class="option__title block bold"> {{ props.option.persona.nombreCompleto }}</span>
+                                        </div>
                                     </template>
-
                                 </multiselect>
                                 <input v-model="cursoDirigido.docenteAsignado" required="true" type="text" class="hide"/>
                             </div>
@@ -84,7 +86,7 @@
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="cursoDirigido.seleccionado"
-                                   checked="0"
+                                   checked
                                    v-on:change="cambioSeleccionado(cursoDirigido)"
                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                             <span class="slider round"></span>
@@ -95,7 +97,6 @@
                             <input type="checkbox" 
                                    v-model="cursoDirigido.rechazado"
                                    v-on:change="cambioRechazado(cursoDirigido)"
-                                   checked="0"
                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                             <span class="slider round"></span>
                         </label>
@@ -130,7 +131,7 @@
             return {
                 alumnos: [],
                 docentes: [],
-                isEdicion: IS_EDICION,
+                isEdicion: !IS_EDICION,
             };
         },
         mounted: function () {
@@ -177,6 +178,9 @@
             },
             cambioSeleccionado(cursoDirigido) {
                 cursoDirigido.rechazado = false;
+            },
+            nombreDocenteAsignado({persona}){
+                return persona.apellidosNombres;
             }
         }
     };

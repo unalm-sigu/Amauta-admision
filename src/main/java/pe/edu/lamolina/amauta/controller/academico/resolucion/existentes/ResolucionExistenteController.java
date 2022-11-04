@@ -293,11 +293,12 @@ public class ResolucionExistenteController {
     @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
 
-        if (!(resolucion.isTipoTramiteBachiller()
-                || resolucion.isTipoTramiteTitulo()
-                || resolucion.isTipoTramitePracticas()
-                || resolucion.isTipoTrasladoInterno()
-                || resolucion.isTipoRetiroCiclo())) {
+        if (!(resolucion.isTipoTramiteBachiller() ||
+                resolucion.isTipoTramiteTitulo() ||
+                resolucion.isTipoTramitePracticas() ||
+                resolucion.isTipoTrasladoInterno() ||
+                resolucion.isTipoRetiroCiclo() ||
+                resolucion.isTipoCursoDirigido())) {
             throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
         }
 
@@ -562,6 +563,25 @@ public class ResolucionExistenteController {
                     .array();
 
             objectNode.set("tramiteTraslado", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
+
+            List<CursoDirigido> cursosDirigido = service.allCursodirigido(resolucion);
+            for (CursoDirigido cursoDirigido : cursosDirigido) {
+                cursoDirigido.setAlumno(cursoDirigido.getTramite().getAlumno());
+            }
+            ArrayNode array = JaneHelper.from(cursosDirigido)
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("docenteAsignado", "id, codigo, estado")
+                    .join("docenteAsignado.persona", "id, apellidosNombres, numeroDocIdentidad, estado")
+                    .join("tramite", "id")
+                    .join("cicloAcademico", "id,descripcion,codigo")
+                    .array();
+
+            objectNode.set("cursoDirigido", array);
 
         }
 
