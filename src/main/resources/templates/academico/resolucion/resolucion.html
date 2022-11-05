@@ -84,7 +84,7 @@
                                                             <a class="aceptar-expandir-sistema"  
                                                                v-on:click="editarResolucionOther(item,$event)" href="#"
                                                                v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
-                                                               item.isTipoTramitePracticas" 
+                                                               item.isTipoTramitePracticas || item.isTipoCursoDirigido"
                                                                >
                                                                 Editar
                                                             </a>
@@ -92,6 +92,10 @@
                                                                v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" 
                                                                v-on:click="loadModalSubirDoc(item,$event)" 
                                                                href="#">Subir PDF</a>
+                                                            <a class="aceptar-expandir-sistema"
+                                                               v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
+                                                               v-if="item.isTipoTramiteTitulo"
+                                                            >Anular Alumno(s)</a>
                                                         </li>
                                                     </ul>
                                                 </td>
