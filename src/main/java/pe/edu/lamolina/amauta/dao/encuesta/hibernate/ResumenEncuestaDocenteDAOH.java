@@ -6,8 +6,8 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
-import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.amauta.dao.encuesta.ResumenEncuestaDocenteDAO;
+import pe.edu.lamolina.model.enums.encuesta.TipoPreguntaEncuestaEnum;
 
 @Repository
 public class ResumenEncuestaDocenteDAOH extends AbstractEasyDAO<ResumenEncuestaDocente> implements ResumenEncuestaDocenteDAO {

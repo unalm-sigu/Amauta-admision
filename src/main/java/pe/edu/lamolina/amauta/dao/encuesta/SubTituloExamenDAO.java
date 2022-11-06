@@ -13,7 +13,7 @@ public interface SubTituloExamenDAO extends EasyDAO<SubTituloExamen> {
 
     List<SubTituloExamen> allByTema(TemaExamenVirtual tema);
 
-    SubTituloExamen findSubTituloEvaluacionVirtual(Long instancia);
+    SubTituloExamen findSubTituloExamen(Long instancia);
 
     SubTituloExamen findLastActivo(TemaExamenVirtual temaEvaluacionVirtual);
 

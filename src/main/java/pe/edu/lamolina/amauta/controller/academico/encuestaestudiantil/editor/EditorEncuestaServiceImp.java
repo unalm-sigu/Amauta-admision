@@ -18,7 +18,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -32,7 +31,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
-import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PreguntaEstadoEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
@@ -48,6 +46,7 @@ import pe.edu.lamolina.amauta.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.encuesta.ExamenVirtualEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -101,22 +100,25 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
 
     @Override
     @Transactional
-    public void saveEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
-        encuesta.setEstado(ExamenVirtualEstadoEnum.CRE);
-        encuesta.setPreguntasDisponibles(0);
-        encuesta.setPreguntasVisibles(0);
-        encuesta.setUserCreacion(ds.getUsuario());
-        encuesta.setFechaCreacion(new Date());
+    public void saveEncuesta(ExamenVirtual encuestaForm, DataSessionPivot ds) {
+        Assert.isNotNull(encuestaForm.getTipoExamen(), "No ha indicado el tipo de encuesta");
+        TipoExamenVirtual tipoExamen = tipoExamenVirtualDAO.find(encuestaForm.getTipoExamen().getId());
+
+        encuestaForm.setEstadoEnum(ExamenVirtualEstadoEnum.CRE);
+        encuestaForm.setPreguntasDisponibles(0);
+        encuestaForm.setPreguntasVisibles(0);
+        encuestaForm.setUserCreacion(ds.getUsuario());
+        encuestaForm.setFechaCreacion(new Date());
 
         ExamenVirtual ultimaEncuesta = examenVirtualDAO.findEncuestaUltimoCodigo();
         if (ultimaEncuesta == null) {
-            encuesta.setCodigo("ENC001");
+            encuestaForm.setCodigo(tipoExamen.getCodigoExamen() + "001");
         } else {
             Integer nroEnc = Integer.valueOf(ultimaEncuesta.getCodigo().substring(3)) + 1;
-            encuesta.setCodigo("ENC" + NumberFormat.codigo(nroEnc, 3));
+            encuestaForm.setCodigo(tipoExamen.getCodigoExamen() + NumberFormat.codigo(nroEnc, 3));
         }
 
-        examenVirtualDAO.save(encuesta);
+        examenVirtualDAO.save(encuestaForm);
     }
 
     @Override
@@ -161,9 +163,9 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         Map<Long, List<OpcionPregunta>> mapOpciones = TypesUtil.convertListToMapList("pregunta.id", opciones);
 
         for (PreguntaExamen pregunta : preguntas) {
-            pregunta.setOpcionPregunta(mapOpciones.get(pregunta.getId()));
-            if (pregunta.getOpcionPregunta() == null) {
-                pregunta.setOpcionPregunta(new ArrayList());
+            pregunta.setOpcionesPregunta(mapOpciones.get(pregunta.getId()));
+            if (pregunta.getOpcionesPregunta() == null) {
+                pregunta.setOpcionesPregunta(new ArrayList());
             }
         }
 
@@ -180,7 +182,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             preguntaNew.setUserCreacion(ds.getUsuario());
             preguntaNew.setFechaCreacion(new Date());
             preguntaNew.setExamenVirtual(encuestaNew);
-            preguntaNew.setOpcionPregunta(new ArrayList());
+            preguntaNew.setOpcionesPregunta(new ArrayList());
             if (pregunta.getTipoLikert() != null) {
                 preguntaNew.setTipoLikert(pregunta.getTipoLikert());
             }
@@ -193,7 +195,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
 
             mapPreguntasNew.put(pregunta.getNumero(), preguntaNew);
 
-            List<OpcionPregunta> opcionPgta = pregunta.getOpcionPregunta();
+            List<OpcionPregunta> opcionPgta = pregunta.getOpcionesPregunta();
             for (OpcionPregunta opcion : opcionPgta) {
                 OpcionPregunta opcionNew = new OpcionPregunta(opcion);
                 opcionNew.setUserCreacion(ds.getUsuario());
@@ -201,7 +203,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
                 opcionNew.setPregunta(preguntaNew);
                 opcionPreguntaDAO.save(opcionNew);
 
-                preguntaNew.getOpcionPregunta().add(opcionNew);
+                preguntaNew.getOpcionesPregunta().add(opcionNew);
                 mapOpcionesNew.put(pregunta.getNumero() + "-" + opcion.getLetra(), opcionNew);
             }
 
@@ -228,12 +230,12 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
 
         ExamenVirtual encuestaBD = examenVirtualDAO.findExamenVirtual(encuesta);
         if (encuestaBD.getEstado() == null) {
-            encuestaBD.setEstado(ExamenVirtualEstadoEnum.INA);
+            encuestaBD.setEstadoEnum(ExamenVirtualEstadoEnum.INA);
         }
 
         if (encuestaBD.getEstadoEnum() == ExamenVirtualEstadoEnum.ACT) {
             Long respuestas = examenVirtualDAO.countRespuestas(encuestaBD);
-            encuestaBD.setEstado(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
+            encuestaBD.setEstadoEnum(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
             examenVirtualDAO.update(encuestaBD);
             return;
         }
@@ -245,11 +247,11 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         ExamenVirtual encuestaActiva = examenVirtualDAO.findEncuestaActivaByTipo(encuestaBD.getTipoExamen());
         if (encuestaActiva != null) {
             Long respuestas = examenVirtualDAO.countRespuestas(encuestaActiva);
-            encuestaActiva.setEstado(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
+            encuestaActiva.setEstadoEnum(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
             examenVirtualDAO.update(encuestaActiva);
         }
 
-        encuestaBD.setEstado(ExamenVirtualEstadoEnum.ACT);
+        encuestaBD.setEstadoEnum(ExamenVirtualEstadoEnum.ACT);
         examenVirtualDAO.update(encuestaBD);
 
     }
@@ -263,7 +265,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         Map<Long, PreguntaExamen> mapPreguntas = TypesUtil.convertListToMap("id", preguntas);
 
         preguntas.forEach((pregunta) -> {
-            pregunta.setOpcionPregunta(mapOpciones.get(pregunta.getId()));
+            pregunta.setOpcionesPregunta(mapOpciones.get(pregunta.getId()));
         });
 
         Map<String, OpcionPregunta> mapOpcionesStr = new LinkedHashMap();

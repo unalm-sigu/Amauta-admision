@@ -51,7 +51,7 @@ public class SubTituloExamenDAOH extends AbstractEasyDAO<SubTituloExamen> implem
     }
 
     @Override
-    public SubTituloExamen findSubTituloEvaluacionVirtual(Long instancia) {
+    public SubTituloExamen findSubTituloExamen(Long instancia) {
         Octavia sql = Octavia.query()
                 .from(SubTituloExamen.class, "subti")
                 .join("temaExamen tema")

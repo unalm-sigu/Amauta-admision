@@ -4,7 +4,7 @@
 
     <groupId>pe.edu.lamolina</groupId>
     <artifactId>amauta</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>lamolina-amauta</name>
@@ -232,14 +232,14 @@
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <artifactId>octavia</artifactId>
-            <version>1.1.6</version>
+            <version>1.1.7</version>
         </dependency>
         
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.18</version>
-            <type>jar</type>
+            <version>1.18.22</version>
+            <scope>provided</scope>
         </dependency>
 
         
@@ -278,7 +278,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.30.52</version>
+            <version>0.30.53</version>
         </dependency>
         
     </dependencies>

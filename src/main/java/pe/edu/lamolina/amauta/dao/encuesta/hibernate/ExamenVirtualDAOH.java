@@ -7,11 +7,12 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_CUR;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_DOC;
 import pe.edu.lamolina.amauta.dao.encuesta.ExamenVirtualDAO;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.encuesta.ExamenVirtualEstadoEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
@@ -29,11 +30,12 @@ public class ExamenVirtualDAOH extends AbstractEasyDAO<ExamenVirtual> implements
     public List<ExamenVirtual> allEncuestasByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ExamenVirtual.class, "ev")
-                .join("tipoExamen tipo")
-                .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC))
+                .join("tipoExamen te", "te.oficinaGestora og")
+                .filter("og.codigo", OficinaEnum.OERA)
                 .searchFields("ev.nombre", "ev.estado", "ev.codigo")
                 .orderBy("ev.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override

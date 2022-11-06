@@ -1,21 +1,21 @@
-$(function() {
+$(function () {
 
     var Pregunta = {
-        init: function() {
+        init: function () {
 
             Pregunta.allTiposLikert();
 
             $('#tipo').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function(e) {
+            }).on('change', function (e) {
                 Pregunta.loadTipoPregunta(e);
             });
 
             $('#placePregunta').find('[name="likertInicio"]').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function(e) {
+            }).on('change', function (e) {
 
                 $('#placePregunta').find('input[type="hidden"]').remove();
                 var self = $(e.currentTarget);
@@ -25,7 +25,7 @@ $(function() {
                 for (var i = 0; i < limite; i++) {
                     var numeroItem = i + 1;
                     var letra = char.charAt(i);
-                    var item3 = '<input name="opcionPregunta[' + i + '].contenido" value="' + numeroItem + '" type="hidden"/>';
+                    var item3 = '<input name="opcionesPregunta[' + i + '].contenido" value="' + numeroItem + '" type="hidden"/>';
                     opciones = opciones + item3;
                 }
                 $('#placePregunta').append($(opciones));
@@ -36,7 +36,7 @@ $(function() {
             $('#placePregunta').find('[name="multiple"]').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function(e) {
+            }).on('change', function (e) {
 
                 $('#placePregunta').find('input[type="hidden"]').remove();
                 var self = $(e.currentTarget);
@@ -46,8 +46,8 @@ $(function() {
                 for (var i = 0; i < limite; i++) {
                     var numeroItem = i + 1;
                     var letra = char.charAt(i);
-                    var item1 = '<input name="opcionPregunta[' + i + '].esMulti" value="1" type="hidden"/>';
-                    var item3 = '<input name="opcionPregunta[' + i + '].contenido" value="Nombre" type="hidden"/>';
+                    var item1 = '<input name="opcionesPregunta[' + i + '].esMulti" value="1" type="hidden"/>';
+                    var item3 = '<input name="opcionesPregunta[' + i + '].contenido" value="Nombre" type="hidden"/>';
                     opciones = opciones + item1 + item3;
                 }
                 $('#placePregunta').append($(opciones));
@@ -61,29 +61,29 @@ $(function() {
                     url: APP.url("academico/encuestaestudiantil/editor/pregunta/allOpcionReferencia"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {
                             nombre: term,
                             page: page,
                             encuesta: $('[name="examenVirtual.id"]').val()
                         };
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev"), referenciaNumero: element.attr('data-pre')});
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return '<b>Pgta. ' + info.referenciaNumero + '</b> - ' + '<b>Opción ' + info.codigo + '</b>  - ' + info.nombre;
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return '<b>Pgta. ' + info.referenciaNumero + '</b> - ' + '<b>Opción ' + info.codigo + '</b>  - ' + info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             });
@@ -97,7 +97,7 @@ $(function() {
         idReferenciaPregunta: null,
         nameReferenciaPregunta: null,
         numeroReferenciaPregunta: null,
-        loadTipoPregunta: function(e) {
+        loadTipoPregunta: function (e) {
 
             var self = $(e.currentTarget);
             var tipo = self.val();
@@ -130,7 +130,7 @@ $(function() {
                 $('#placePregunta').find('[name="multiple"]').select2({
                     minimumResultsForSearch: -1,
                     allowClear: true
-                }).on('change', function(e) {
+                }).on('change', function (e) {
 
                     $('#placePregunta').find('input[type="hidden"]').remove();
                     var self = $(e.currentTarget);
@@ -140,8 +140,8 @@ $(function() {
                     for (var i = 0; i < limite; i++) {
                         var numeroItem = i + 1;
                         var letra = char.charAt(i);
-                        var item2 = '<input name="opcionPregunta[' + i + '].esMulti" value="1" type="hidden"/>';
-                        var item3 = '<input name="opcionPregunta[' + i + '].contenido" value="Nombre" type="hidden"/>';
+                        var item2 = '<input name="opcionesPregunta[' + i + '].esMulti" value="1" type="hidden"/>';
+                        var item3 = '<input name="opcionesPregunta[' + i + '].contenido" value="Nombre" type="hidden"/>';
                         opciones = opciones + item2 + item3;
                     }
                     $('#placePregunta').append($(opciones));
@@ -170,7 +170,7 @@ $(function() {
                 $('#placePregunta').find('[name="likertInicio"]').select2({
                     minimumResultsForSearch: -1,
                     allowClear: true
-                }).on('change', function(e) {
+                }).on('change', function (e) {
 
                     $('#placePregunta').find('input[type="hidden"]').remove();
                     var self = $(e.currentTarget);
@@ -180,7 +180,7 @@ $(function() {
                     for (var i = 0; i < limite; i++) {
                         var numeroItem = i + 1;
                         var letra = char.charAt(i);
-                        var item3 = '<input name="opcionPregunta[' + i + '].contenido" value="' + numeroItem + '" type="hidden"/>';
+                        var item3 = '<input name="opcionesPregunta[' + i + '].contenido" value="' + numeroItem + '" type="hidden"/>';
                         opciones = opciones + item3;
                     }
                     $('#placePregunta').append($(opciones));
@@ -199,7 +199,7 @@ $(function() {
             }
 
         },
-        preview: function(e) {
+        preview: function (e) {
             var mimodal = bootbox.alert({
                 size: "large",
                 title: "Pregunta",
@@ -207,7 +207,7 @@ $(function() {
                 buttons: {
                     ok: {label: "Aceptar", className: "btn-link"}
                 }
-            }).on('shown.bs.modal', function() {
+            }).on('shown.bs.modal', function () {
                 mimodal.find('.modal-body').css({
                     'overflow-y': 'scroll',
                     'max-height': '600px'});
@@ -219,13 +219,13 @@ $(function() {
                 var indice = 0;
                 var char = 'abcdefghijklmnopqrstuvwxyz';
 
-                $.each(parmForm, function(i, v) {
+                $.each(parmForm, function (i, v) {
                     //console.log(i)
                     //console.log(v)
                     var names = v.name.split('.');
                     if (names.length > 1) {
                         var index = names[0].replace(/[\[\]']+/g, '');
-                        index = index.replace('opcionPregunta', '');
+                        index = index.replace('opcionesPregunta', '');
                         if (!opciones[index]) {
                             opciones[index] = new Object();
                         }
@@ -237,7 +237,7 @@ $(function() {
                     }
                 });
 
-                parametros['opcionPregunta'] = opciones;
+                parametros['opcionesPregunta'] = opciones;
 
                 if (parametros.tipo) {
                     if (parametros.tipo == 'LIKERT') {
@@ -247,7 +247,7 @@ $(function() {
                             if (tipoLik != '') {
                                 var tpo = Pregunta.tiposLikert.find(el => el.cant == lik);
                                 var opt = tpo.tipos.find(el => el.id == tipoLik);
-                                $.each(parametros['opcionPregunta'], function(i, v) {
+                                $.each(parametros['opcionesPregunta'], function (i, v) {
                                     var ooo = opt.opciones.find(el => el.peso == v.contenido);
                                     v.contenido = ooo.opcion;
                                     v.letra = ooo.peso;
@@ -263,7 +263,7 @@ $(function() {
                 mimodal.find('.modal-body').find("select.select2single").select2({minimumResultsForSearch: -1});
             });
         },
-        removerOpcion: function(e) {
+        removerOpcion: function (e) {
             var self = $(e.currentTarget);
             var tr = self.closest('tr');
             var cantidadOpciones = $('#placePregunta').find('table>tbody>tr');
@@ -274,7 +274,7 @@ $(function() {
             tr.remove();
             Pregunta.reindexOpcion();
         },
-        addOpcion: function(e) {
+        addOpcion: function (e) {
             var cantidadOpciones = $('#placePregunta').find('table>tbody>tr');
             if (cantidadOpciones.length > 25) {
                 return;
@@ -293,15 +293,15 @@ $(function() {
 
                 self.find('td:first').text(char.charAt(i));
 
-                self.find('td:eq(1)>input').attr('name', 'opcionPregunta[' + (i) + '].contenido');
+                self.find('td:eq(1)>input').attr('name', 'opcionesPregunta[' + (i) + '].contenido');
                 self.find('td:eq(1)>input').attr('data-parsley-errors-container', '#erroropcion' + numeracion);
                 self.find('td:eq(1)>.tagerror').attr('id', 'erroropcion' + numeracion);
 
-                self.find('td:eq(2)>input').attr('name', 'opcionPregunta[' + (i) + '].esOtro');
+                self.find('td:eq(2)>input').attr('name', 'opcionesPregunta[' + (i) + '].esOtro');
                 self.find('td:eq(2)>input').attr('data-parsley-errors-container', '#errorotro' + numeracion);
                 self.find('td:eq(2)>.tagerror').attr('id', 'errorotro' + numeracion);
 
-                self.find('td:eq(3)>input.itemReferencia').attr('name', 'opcionPregunta[' + (i) + '].referencia.id');
+                self.find('td:eq(3)>input.itemReferencia').attr('name', 'opcionesPregunta[' + (i) + '].referencia.id');
 
             });
             $('#placePregunta').parsley();
