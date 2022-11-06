@@ -95,11 +95,11 @@ public class TemaEncuestaController {
             jtema.put("subtitulosVisibles", tema.getSubtitulosVisibles());
             jtema.put("bloquesVisibles", 0);
 
-            if (tema.getSubTituloEvaluacionVirtual().size() > 0) {
+            if (tema.getSubtitulos().size() > 0) {
 
                 ArrayNode arraySubTitle = new ArrayNode(jsonFactory);
 
-                for (SubTituloExamen subtitulo : tema.getSubTituloEvaluacionVirtual()) {
+                for (SubTituloExamen subtitulo : tema.getSubtitulos()) {
 
                     ObjectNode jtitle = new ObjectNode(jsonFactory);
 

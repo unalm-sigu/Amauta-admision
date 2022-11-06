@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.asignacionaula;
 
-import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,7 +136,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             horarioSeccionDAO.resetAsignacionAulaAutoBySecciones(seccionesByCiclo);
             horarioAulaDAO.deleteBySecciones(seccionesByCiclo);
             asignacionAulaDAO.delete(asignacionAula);
-        }else{
+        } else {
             List<Seccion> seccionesByCiclo = seccionDAO.allSeccionesAulaAutoByCiclo(ds.getCicloAcademico());
             seccionDAO.resetAsignacionAulaAuto(seccionesByCiclo);
             horarioSeccionDAO.resetAsignacionAulaAutoBySecciones(seccionesByCiclo);
@@ -149,11 +148,11 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     public AsignacionAula findAsignacionAula(AsignacionAula asignacionAula) {
         return asignacionAulaDAO.find(asignacionAula.getId());
     }
-    
+
     @Override
-    public AsignacionAula saveAsignacionAula(FormAsignacionAula asignacionAulaForm, DataSessionPivot ds){
+    public AsignacionAula saveAsignacionAula(FormAsignacionAula asignacionAulaForm, DataSessionPivot ds) {
         AsignacionAula asignacionAula = asignacionAulaForm.getAsignacionAula();
-        
+
         if (asignacionAula == null) {
             asignacionAula = new AsignacionAula();
         }
@@ -183,32 +182,30 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     @Override
     @Transactional
     public void ejecutarAsigacionParcial(List<Seccion> seccionesForm, DataSessionPivot ds) {
-        
-        //List<CursoCicloAcademico> cursosCiclosAcademicos = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico(), CicloAcademicoEstadoEnum.ACT);
 
+        //List<CursoCicloAcademico> cursosCiclosAcademicos = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico(), CicloAcademicoEstadoEnum.ACT);
         List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(ds.getCicloAcademico(), SeccionEstadoEnum.ACT);
-        
+
         EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.CLASES_PRE);
-        
+
         List<HorarioSeccion> horarios = horarioSeccionDAO.allBySeccionesSortByDiaHora(seccionesByCiclo);
 
         Map<Long, List<HorarioSeccion>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
-        
-        Map<Long, Seccion> mapSeccionByCiclo = TypesUtil.convertListToMap("id", seccionesByCiclo);
-        
-        for (Seccion seccionItem : seccionesForm) {
-            
-            Seccion seccion = mapSeccionByCiclo.get(seccionItem.getId());
-            
-            //TipoCarpeta tipoCarpeta = this.getTipoCarpeta(seccion, cursosCiclosAcademicos);
 
+        Map<Long, Seccion> mapSeccionByCiclo = TypesUtil.convertListToMap("id", seccionesByCiclo);
+
+        for (Seccion seccionItem : seccionesForm) {
+
+            Seccion seccion = mapSeccionByCiclo.get(seccionItem.getId());
+
+            //TipoCarpeta tipoCarpeta = this.getTipoCarpeta(seccion, cursosCiclosAcademicos);
             List<HorarioSeccion> horariosSecciones = mapHorariosBySeccion.get(seccionItem.getId());
             seccion.setHorarioSeccion(horariosSecciones);
-            
+
             Aula aula = seccionItem.getAula();
-                               
+
             List<HorarioAula> horariosAulasSave = new ArrayList<>();
-            
+
             for (HorarioSeccion horarioSeccion : horariosSecciones) {
                 HorarioAula horarioAulaSave = new HorarioAula(seccionItem, horarioSeccion.getDia(), horarioSeccion.getHora(), aula);
                 horarioAulaSave.setTipoEnum(TipoHorarioAulaEnum.DICT);
@@ -217,10 +214,10 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 horarioAulaSave.setFechaInicio(eventoCicloDictado.getFechaInicio()); //horarioAulaSave.setFechaInicio(fechaInicioClases);
                 horarioAulaSave.setFechaFin(eventoCicloDictado.getFechaFin());
                 horariosAulasSave.add(horarioAulaSave);
-            }  
-            
+            }
+
             horarioAulaDAO.saveList(horariosAulasSave);
-         
+
             Seccion seccionUpd = new Seccion(seccionItem.getId());
             seccionUpd.setAula(aula);
             seccionUpd.setFechaAsignacionAuto(ds.getFechaAccionAudit());
@@ -228,20 +225,20 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             seccionUpd.setHorarioSeccion(seccion.getHorarioSeccion());
             this.updateSeccion(seccionUpd);
         }
-        
+
     }
-    
+
     @Override
     @Transactional
     //public List<Seccion> findSeccionesForAsignacionAula(DataSessionPivot ds) {
     public SeccionesResumen findSeccionesForAsignacionAula(DataSessionPivot ds) {
-        
+
         AsignacionAula asignacionAula = asignacionAulaDAO.findByCiclo(ds.getCicloAcademico());
-        
-        if(asignacionAula != null){
+
+        if (asignacionAula != null) {
             throw new PhobosException("Ya existe una asignación de aulas registrada.");
         }
-        
+
         List<CursoCicloAcademico> cursosCiclosAcademicos = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico(), CicloAcademicoEstadoEnum.ACT);
 
         List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(ds.getCicloAcademico(), SeccionEstadoEnum.ACT);
@@ -257,7 +254,6 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .collect(Collectors.toList());
 
         //System.out.println("Cantidad de registros con secciones sin aula, con grupo hora, con modalidad pregrado y boletin pregrado: " + seccionesByCiclo.size());
-        
         //Ordernar por horas semanalaes de mayor a menor
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getVacantes().compareTo(p1.getVacantes()));
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
@@ -298,16 +294,14 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         Map<Long, DocenteSeccion> mapDocentesSeccionPrincipalesBySeccion = TypesUtil.convertListToMap("seccion.id", docentesSeccionPrincipalesByCiclo);
 
         //List<Aula> aulasAsignadas = new ArrayList<>();
-
         int seccionesTipoLab = 0;
         int seccionesTipoAul = 0;
         int seccionesAsignadas = 0;
         //int countSeccionSinGrupoHora = 0;
-        
+
         //Boolean paraAsignarAula = null;
-        
         List<Seccion> seccionesAsignar = new ArrayList<>();
-        
+
         FOR_SEC:
         for (Seccion seccion : seccionesByCiclo) {
 
@@ -321,7 +315,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 continue;
             }
             seccion.setHorarioSeccion(horariosSecciones);
-            
+
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
             if (docenteSeccionPrincipal == null) {
                 //System.out.println(seccion.getId() + " - Seccion: " + seccion.getCodigo2() + " - Docente Seccion NN");
@@ -335,19 +329,19 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             if (distanciaPabellonByDepartamento == null) {
                 //System.out.println(seccion.getId() + " - Seccion: " + seccion.getCodigo2() + " - Docente Seccion principal " + docenteSeccionPrincipal.getDocente().getCodigo() + " - Departamento Sin Distancia pabellon");
                 continue;
-            }            
-            
+            }
+
             //if(seccion.getCodigo2().equals("6640") || seccion.getCodigo2().equals("6641")) { // IF INICIO
             for (DistanciaPabellon distanciaPabellon : distanciaPabellonByDepartamento) {
 
                 List<Aula> aulasByPabellon = TypesUtil.getListNotNull(mapAulasByModulo.get(distanciaPabellon.getPabellon().getId()));
                 aulasByPabellon = aulasByPabellon.stream()
                         .filter(x -> x.getAforo() >= seccion.getVacantes())
-//                        .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
+                        //                        .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
                         .collect(Collectors.toList());
                 //Ordenamos las aulas por aforo de mayor a menor
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
-                
+
 //              FOR_AULA:
                 for (Aula aula : aulasByPabellon) {
 
@@ -359,7 +353,6 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                     }
 
                     //System.out.println("seccion id:" + seccion.getId() + " clave: " + seccion.getCodigo2() + " -> horariosSecciones: " + horariosSecciones.size() + " -> aula id: " + aula.getId() + " aula: " + aula.getCodigo());
-                    
                     List<HorarioAula> horariosAulasSave = new ArrayList<>();
                     for (HorarioSeccion horarioSeccion : horariosSecciones) {
                         String key = aula.getId() + "-" + horarioSeccion.getDia().getId() + "-" + horarioSeccion.getHora().getId();
@@ -381,12 +374,11 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                             aula.setHorarioReservaAula(new ArrayList<>());
                         }
                         aula.getHorariosAula().add(horarioAulaSave.clone());*/
-                        
+
                         //horarioAulaDAO.save(horarioAulaSave);
                         horariosAulasSave.add(horarioAulaSave);
-                        
+
                         //System.out.println("asignado -> " + horarioAulaSave.toString());
-                        
                         //INICIO CAMBIO HECHO POR DAVID PINEDA
                         if (TypesUtil.getListNotNull(mapsHorarioAulaByAulaForDictado.get(key)).isEmpty()) {
                             mapsHorarioAulaByAulaForDictado.put(key, Arrays.asList(horarioAulaSave));
@@ -394,23 +386,23 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                             mapsHorarioAulaByAulaForDictado.get(key).add(horarioAulaSave);
                         }
 
-                    }  
+                    }
                     if (horariosAulasSave.size() == horariosSecciones.size()) {
                         //horarioAulaDAO.saveList(horariosAulasSave);
-                        
+
                         Seccion seccionUpd = new Seccion(seccion.getId());
-                        seccionUpd.setAula(aula);                        
+                        seccionUpd.setAula(aula);
                         seccionesAsignar.add(seccionUpd);
                         //seccionUpd.setFechaAsignacionAuto(ds.getFechaAccionAudit());
                         //seccionUpd.setAulaAsignadaAuto(Boolean.TRUE);
                         //seccionUpd.setHorarioSeccion(seccion.getHorarioSeccion());
                         //this.updateSeccion(seccionUpd);
-                        
+
                         if (tipoCarpeta.getCodigo().equals(TipoCarpetaEnum.AUL.name())) {
                             seccionesTipoAul++;
                         }
                         if (tipoCarpeta.getCodigo().equals(TipoCarpetaEnum.LAB.name())) {
-                             seccionesTipoLab++;
+                            seccionesTipoLab++;
                         }
                         //seccionesAsignadas = aulasAsignadas.size();
                         seccionesAsignadas++;
@@ -432,7 +424,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     @Transactional
     public AsignacionAula procesarAsignacionAulas(AsignacionAula asignacionAula, DataSessionPivot ds) {
         if (asignacionAula != null && asignacionAula.getId() != null) {
-           //this.deleteAsignacion(asignacionAula);
+            //this.deleteAsignacion(asignacionAula);
         }
 
         List<CursoCicloAcademico> cursosCiclosAcademicos = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico(), CicloAcademicoEstadoEnum.ACT);
@@ -450,7 +442,6 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .collect(Collectors.toList());
 
         //System.out.println("Cantidad de registros con secciones sin aula, con grupo hora, con modalidad pregrado y boletin pregrado: " + seccionesByCiclo.size());
-        
         //Ordernar por horas semanalaes de mayor a menor
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getVacantes().compareTo(p1.getVacantes()));
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
@@ -491,14 +482,12 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         Map<Long, DocenteSeccion> mapDocentesSeccionPrincipalesBySeccion = TypesUtil.convertListToMap("seccion.id", docentesSeccionPrincipalesByCiclo);
 
         //List<Aula> aulasAsignadas = new ArrayList<>();
-
         int seccionesTipoLab = 0;
         int seccionesTipoAul = 0;
         int seccionesAsignadas = 0;
         //int countSeccionSinGrupoHora = 0;
-        
+
         //Boolean paraAsignarAula = null;
-        
         FOR_SEC:
         for (Seccion seccion : seccionesByCiclo) {
 
@@ -512,7 +501,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 continue;
             }
             seccion.setHorarioSeccion(horariosSecciones);
-            
+
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
             if (docenteSeccionPrincipal == null) {
                 //System.out.println(seccion.getId() + " - Seccion: " + seccion.getCodigo2() + " - Docente Seccion NN");
@@ -526,19 +515,19 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             if (distanciaPabellonByDepartamento == null) {
                 //System.out.println(seccion.getId() + " - Seccion: " + seccion.getCodigo2() + " - Docente Seccion principal " + docenteSeccionPrincipal.getDocente().getCodigo() + " - Departamento Sin Distancia pabellon");
                 continue;
-            }            
-            
+            }
+
             //if(seccion.getCodigo2().equals("6640") || seccion.getCodigo2().equals("6641")) { // IF INICIO
             for (DistanciaPabellon distanciaPabellon : distanciaPabellonByDepartamento) {
 
                 List<Aula> aulasByPabellon = TypesUtil.getListNotNull(mapAulasByModulo.get(distanciaPabellon.getPabellon().getId()));
                 aulasByPabellon = aulasByPabellon.stream()
                         .filter(x -> x.getAforo() >= seccion.getVacantes())
-//                        .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
+                        //                        .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
                         .collect(Collectors.toList());
                 //Ordenamos las aulas por aforo de mayor a menor
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
-                
+
 //              FOR_AULA:
                 for (Aula aula : aulasByPabellon) {
 
@@ -550,7 +539,6 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                     }
 
                     //System.out.println("seccion id:" + seccion.getId() + " clave: " + seccion.getCodigo2() + " -> horariosSecciones: " + horariosSecciones.size() + " -> aula id: " + aula.getId() + " aula: " + aula.getCodigo());
-                    
                     List<HorarioAula> horariosAulasSave = new ArrayList<>();
                     for (HorarioSeccion horarioSeccion : horariosSecciones) {
                         String key = aula.getId() + "-" + horarioSeccion.getDia().getId() + "-" + horarioSeccion.getHora().getId();
@@ -572,12 +560,11 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                             aula.setHorarioReservaAula(new ArrayList<>());
                         }
                         aula.getHorariosAula().add(horarioAulaSave.clone());*/
-                        
+
                         //horarioAulaDAO.save(horarioAulaSave);
                         horariosAulasSave.add(horarioAulaSave);
-                        
+
                         //System.out.println("asignado -> " + horarioAulaSave.toString());
-                        
                         //INICIO CAMBIO HECHO POR DAVID PINEDA
                         if (TypesUtil.getListNotNull(mapsHorarioAulaByAulaForDictado.get(key)).isEmpty()) {
                             mapsHorarioAulaByAulaForDictado.put(key, Arrays.asList(horarioAulaSave));
@@ -585,22 +572,22 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                             mapsHorarioAulaByAulaForDictado.get(key).add(horarioAulaSave);
                         }
 
-                    }  
+                    }
                     if (horariosAulasSave.size() == horariosSecciones.size()) {
                         horarioAulaDAO.saveList(horariosAulasSave);
-                        
+
                         Seccion seccionUpd = new Seccion(seccion.getId());
                         seccionUpd.setAula(aula);
                         seccionUpd.setFechaAsignacionAuto(ds.getFechaAccionAudit());
                         seccionUpd.setAulaAsignadaAuto(Boolean.TRUE);
                         seccionUpd.setHorarioSeccion(seccion.getHorarioSeccion());
                         this.updateSeccion(seccionUpd);
-                        
+
                         if (tipoCarpeta.getCodigo().equals(TipoCarpetaEnum.AUL.name())) {
                             seccionesTipoAul++;
                         }
                         if (tipoCarpeta.getCodigo().equals(TipoCarpetaEnum.LAB.name())) {
-                             seccionesTipoLab++;
+                            seccionesTipoLab++;
                         }
                         //seccionesAsignadas = aulasAsignadas.size();
                         seccionesAsignadas++;
@@ -609,7 +596,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 }
             }
         }
-        
+
         if (asignacionAula == null) {
             asignacionAula = new AsignacionAula();
         }
@@ -636,7 +623,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         return asignacionAula;
 
     }
-    
+
     //@Override
     //@Transient
     public AsignacionAula procesarAsignacionAulas1(AsignacionAula asignacionAula, DataSessionPivot ds) {
@@ -731,7 +718,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             } else {
 
                 esDocenteConDiscapacidad = docenteSeccionPrincipal.getDocente().getPersona().getConDiscapacidad() == 1;
-                seccion.settDocenteSeccion(docenteSeccionPrincipal);
+                seccion.setTDocenteSeccion(docenteSeccionPrincipal);
             }
 
             List<DistanciaPabellon> distanciaPabellonByDepartamento = mapDistanciaPabellones.get(departamentoAcademicoDocente.getId());

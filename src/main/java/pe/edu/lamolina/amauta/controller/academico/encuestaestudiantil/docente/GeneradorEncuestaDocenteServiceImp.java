@@ -134,7 +134,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaDocente);
         List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(encuestaDocente.getEncuesta());
-        encuestaDocente.getEncuesta().setTema(temas);
+        encuestaDocente.getEncuesta().setTemas(temas);
 
         List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaDocente, new ArrayList());
         Map<Long, EncuestaDocente> mapEncuestaByProfeSecc = TypesUtil.convertListToMap("docenteSeccion.id", encuestasDocentes);
@@ -218,7 +218,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             mapEncusProfesModalidadades.put(encuProfeModalidad.getKey(), encuProfeModalidad);
 
             ExamenVirtual encuesta = encuestaEstudiantil.getEncuesta();
-            List<TemaExamenVirtual> temas = encuesta.getTema();
+            List<TemaExamenVirtual> temas = encuesta.getTemas();
             for (TemaExamenVirtual tema : temas) {
                 PuntajeEncuestaDocenteModalidad puntaje = new PuntajeEncuestaDocenteModalidad();
                 puntaje.setEncuestaDocenteModalidad(encuProfeModalidad);
@@ -500,7 +500,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaDocente);
         List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(encuestaDocente.getEncuesta());
-        encuestaDocente.getEncuesta().setTema(temas);
+        encuestaDocente.getEncuesta().setTemas(temas);
 
         List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaDocente, new ArrayList());
         Map<Long, EncuestaDocente> mapEncuestaByProfeSecc = TypesUtil.convertListToMap("docenteSeccion.id", encuestasDocentes);

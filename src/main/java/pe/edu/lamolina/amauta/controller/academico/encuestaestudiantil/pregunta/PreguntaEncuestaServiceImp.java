@@ -19,10 +19,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.TipoLikert;
 import pe.edu.lamolina.amauta.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PreguntaExamenDAO;
-import pe.edu.lamolina.model.enums.EstadoOpcionPreguntaEnum;
-import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
 import pe.edu.lamolina.model.enums.PreguntaEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
@@ -31,6 +28,9 @@ import pe.edu.lamolina.amauta.dao.encuesta.OpcionLikertDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TemaExamenVirtualDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoLikertDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.encuesta.EstadoOpcionPreguntaEnum;
+import pe.edu.lamolina.model.enums.encuesta.ExamenVirtualEstadoEnum;
+import pe.edu.lamolina.model.enums.encuesta.TipoPreguntaEncuestaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,9 +60,9 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         Map<Long, List<OpcionPregunta>> mapOpciones = TypesUtil.convertListToMapList("pregunta.id", opciones);
 
         for (PreguntaExamen pregunta : preguntas) {
-            pregunta.setOpcionPregunta(mapOpciones.get(pregunta.getId()));
-            if (pregunta.getOpcionPregunta() == null) {
-                pregunta.setOpcionPregunta(new ArrayList());
+            pregunta.setOpcionesPregunta(mapOpciones.get(pregunta.getId()));
+            if (pregunta.getOpcionesPregunta() == null) {
+                pregunta.setOpcionesPregunta(new ArrayList());
             }
         }
         return preguntas;
@@ -77,7 +77,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         }
         ObjectUtil.eliminarAttrSinId(pregunta, "tema");
         ObjectUtil.eliminarAttrSinId(pregunta, "tipoLikert");
-        pregunta.setEstado(PreguntaEstadoEnum.ACT);
+        pregunta.setEstadoEnum(PreguntaEstadoEnum.ACT);
 
         PreguntaExamen preguntaTopNumero = preguntaExamenDAO.findMayorNumero(pregunta.getExamenVirtual());
         Integer mayorNumero = 1;
@@ -102,7 +102,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         examenVirtualDAO.update(encuesta);
 
         ObjectUtil.eliminarAttrSinId(pregunta, "opcionReferencia");
-        List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
+        List<OpcionPregunta> opciones = pregunta.getOpcionesPregunta();
 
         List<OpcionLikert> opcionesLikert = opcionLikertDAO.allOpcionLikert();
         Map<Long, List<OpcionLikert>> opcionesLikertMap = TypesUtil.convertListToMapList("tipoLikert.id", opcionesLikert);
@@ -190,7 +190,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             }
         }
 
-        List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
+        List<OpcionPregunta> opciones = pregunta.getOpcionesPregunta();
         for (OpcionPregunta opcion : opciones) {
             Integer indice = opciones.indexOf(opcion);
             Integer idPeso = indice + 1;
@@ -234,7 +234,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
     public PreguntaExamen findPregunta(Long idPregunta) {
         PreguntaExamen pregunta = preguntaExamenDAO.findPregunta(idPregunta);
         List<OpcionPregunta> opciones = opcionPreguntaDAO.allByPregunta(pregunta);
-        pregunta.setOpcionPregunta(opciones);
+        pregunta.setOpcionesPregunta(opciones);
 
         return pregunta;
     }
@@ -300,7 +300,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             encuesta.setPreguntasVisibles(encuesta.getPreguntasVisibles() - 1);
         }
 
-        preguntaBD.setEstado(pregunta.getEstadoEnum());
+        preguntaBD.setEstadoEnum(pregunta.getEstadoEnum());
         preguntaBD.setUserModificacion(ds.getUsuario());
         preguntaBD.setFechaModificacion(new Date());
         preguntaExamenDAO.update(preguntaBD);
@@ -384,7 +384,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         List<TipoLikert> tipos = new ArrayList();
         for (TipoLikert tipo : tiposMap.values()) {
             List<OpcionLikert> misOpciones = opcionesMap.get(tipo.getId());
-            tipo.setOpcionLikert(misOpciones);
+            tipo.setOpcionesLikerts(misOpciones);
             tipos.add(tipo);
         }
         return tipos;

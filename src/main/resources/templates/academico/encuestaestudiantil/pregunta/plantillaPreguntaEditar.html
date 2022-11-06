@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="item,iter : ${pregunta.opcionPregunta}">
+                <tr th:each="item,iter : ${pregunta.opcionesPregunta}">
 
                     <td class="v-middle bold" th:text="|${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)} )|"></td>
 
@@ -20,7 +20,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                                th:value="${item.contenido}"
                                type="text"/>
 
@@ -31,7 +31,7 @@
                     <td class="v-middle">
 
                         <input th:attr="data-parsley-errors-container=${'#errorotro'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].esOtro'}"
                                th:checked="${item.esOtro}"
                                type="checkbox" value="1"/>
 
@@ -92,7 +92,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="item,iter : ${pregunta.opcionPregunta}">
+                <tr th:each="item,iter : ${pregunta.opcionesPregunta}">
 
                     <td class="v-middle bold" th:text="|${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)} )|"></td>
 
@@ -100,7 +100,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                                th:value="${item.contenido}"
                                type="text"/>
 
@@ -111,7 +111,7 @@
                     <td class="v-middle">
 
                         <input th:attr="data-parsley-errors-container=${'#errorotro'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].esOtro'}"
                                th:checked="${item.esOtro}"
                                type="checkbox" value="1"/>
 
@@ -161,18 +161,18 @@
             <select class="form-control" required="true" name="multiple">
                 <option th:each="i : ${#numbers.sequence(1,15)}"
                         th:value="${i}"
-                        th:selected="${pregunta.opcionPregunta.size()==i}"
+                        th:selected="${pregunta.opcionesPregunta.size()==i}"
                         th:text="${i}">15</option>
             </select>
         </div>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}"
-               th:name="${'opcionPregunta['+iter.index+'].esMulti'}"
+        <input th:each="item,iter : ${pregunta.opcionesPregunta}"
+               th:name="${'opcionesPregunta['+iter.index+'].esMulti'}"
                value="1"
                type="hidden"/>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}"
-               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+        <input th:each="item,iter : ${pregunta.opcionesPregunta}"
+               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                value="Nombre"
                type="hidden"/>
 
@@ -196,8 +196,8 @@
         </div>
     </div>
 
-    <input name="opcionPregunta[0].contenido" value="Sí" type="hidden"/>
-    <input name="opcionPregunta[1].contenido" value="No" type="hidden"/>
+    <input name="opcionesPregunta[0].contenido" value="Sí" type="hidden"/>
+    <input name="opcionesPregunta[1].contenido" value="No" type="hidden"/>
 
 </div>
 
@@ -217,8 +217,8 @@
         </div>
     </div>
 
-    <input name="opcionPregunta[0].contenido" value="Verdadero" type="hidden"/>
-    <input name="opcionPregunta[1].contenido" value="Falso" type="hidden"/>
+    <input name="opcionesPregunta[0].contenido" value="Verdadero" type="hidden"/>
+    <input name="opcionesPregunta[1].contenido" value="Falso" type="hidden"/>
 
 </div>
 
@@ -231,13 +231,13 @@
             <select class="form-control" required="true" name="likertInicio">
                 <option th:each="i : ${#numbers.sequence(2,15)}"
                         th:value="${i}"
-                        th:selected="${pregunta.opcionPregunta.size()==i}"
+                        th:selected="${pregunta.opcionesPregunta.size()==i}"
                         th:text="${i}">15</option>
             </select>
         </div>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}"
-               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+        <input th:each="item,iter : ${pregunta.opcionesPregunta}"
+               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                th:value="${iter.count}"
                type="hidden"/>
 
@@ -263,7 +263,7 @@
 
         <div class="col-sm-4 col-sm-offset-2 ">
             <textarea class="form-control" readonly="true" name=""></textarea>
-            <input name="opcionPregunta[0].esTexto" value="1" type="hidden"/>
+            <input name="opcionesPregunta[0].esTexto" value="1" type="hidden"/>
         </div>
 
     </div>

@@ -26,25 +26,25 @@ import pe.edu.lamolina.amauta.dao.encuesta.TemaExamenVirtualDAO;
 public class TemaEncuestaServiceImp implements TemaEncuestaService {
 
     @Autowired
-    TemaExamenVirtualDAO temaEvaluacionVirtualDAO;
+    TemaExamenVirtualDAO temaExamenVirtualDAO;
 
     @Autowired
-    SubTituloExamenDAO subTituloEvaluacionVirtualDAO;
+    SubTituloExamenDAO subTituloExamenDAO;
 
     @Autowired
-    BloquePreguntasDAO bloqueEvaluacionVirtualDAO;
+    BloquePreguntasDAO bloquePreguntasDAO;
 
     @Autowired
-    ExamenVirtualDAO evaluacionVirtualDAO;
+    ExamenVirtualDAO examenVirtualDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<TemaExamenVirtual> allTema(ExamenVirtual examenVirtual) {
 
-        List<TemaExamenVirtual> temas = temaEvaluacionVirtualDAO.allByEvaluacion(examenVirtual);
-        List<SubTituloExamen> subTitulos = subTituloEvaluacionVirtualDAO.allByTemas(temas);
-        List<BloquePreguntas> bloques = bloqueEvaluacionVirtualDAO.allBysubtitulos(subTitulos);
+        List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(examenVirtual);
+        List<SubTituloExamen> subTitulos = subTituloExamenDAO.allByTemas(temas);
+        List<BloquePreguntas> bloques = bloquePreguntasDAO.allBysubtitulos(subTitulos);
 
         Map<Long, List<BloquePreguntas>> mapBloques = TypesUtil.convertListToMapList("subTituloExamen.id", bloques);
 
@@ -63,7 +63,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             if (subtituloo == null) {
                 subtituloo = new ArrayList<>();
             }
-            tema.setSubTituloEvaluacionVirtual(subtituloo);
+            tema.setSubtitulos(subtituloo);
         });
 
         return temas;
@@ -75,7 +75,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     public void saveTema(TemaExamenVirtual tema) {
 
         tema.setEstado(EstadoTemaEnum.ACT.name());
-        List<TemaExamenVirtual> temas = temaEvaluacionVirtualDAO.allByEvaluacion(tema.getExamenVirtual());
+        List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(tema.getExamenVirtual());
         Map<Integer, TemaExamenVirtual> mapTemas = TypesUtil.convertListToMap("orden", temas);
 
         Integer tamanoList = mapTemas.size();
@@ -83,7 +83,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
         tema.setOrden(ordenAsignado);
 
         if (tamanoList < 1) {
-            temaEvaluacionVirtualDAO.save(tema);
+            temaExamenVirtualDAO.save(tema);
             return;
         }
 
@@ -98,12 +98,12 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
         }
 
         tema.setOrden(ordenAsignado);
-        temaEvaluacionVirtualDAO.save(tema);
+        temaExamenVirtualDAO.save(tema);
 
         while (mapTemaUsado != null) {
             ordenAsignado++;
             mapTemaUsado.setOrden(ordenAsignado);
-            temaEvaluacionVirtualDAO.update(mapTemaUsado);
+            temaExamenVirtualDAO.update(mapTemaUsado);
             mapTemaUsado = mapTemas.get(ordenAsignado);
         }
     }
@@ -111,13 +111,13 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     @Override
     @Transactional
     public void updateTema(TemaExamenVirtual tema) {
-        TemaExamenVirtual temaEvaluacionVirtual = temaEvaluacionVirtualDAO.find(tema.getId());
+        TemaExamenVirtual temaEvaluacionVirtual = temaExamenVirtualDAO.find(tema.getId());
         temaEvaluacionVirtual.setNombre(tema.getNombre());
         temaEvaluacionVirtual.setCodigo(tema.getCodigo());
         temaEvaluacionVirtual.setSubtitulosVisibles(tema.getSubtitulosVisibles());
         temaEvaluacionVirtual.setPreguntasVisibles(tema.getPreguntasVisibles());
         temaEvaluacionVirtual.setPesoCategoria(tema.getPesoCategoria());
-        temaEvaluacionVirtualDAO.update(temaEvaluacionVirtual);
+        temaExamenVirtualDAO.update(temaEvaluacionVirtual);
     }
 
     @Override
@@ -125,67 +125,67 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     public void saveSubTitulo(SubTituloExamen subtitulo) {
         subtitulo.setEstado(EstadoSubTituloEnum.ACT.name());
         subtitulo.setOrden(0);
-        subTituloEvaluacionVirtualDAO.save(subtitulo);
+        subTituloExamenDAO.save(subtitulo);
     }
 
     @Override
     @Transactional
     public void updateSubTitulo(SubTituloExamen subtitulo) {
-        SubTituloExamen subTituloEvaluacionVirtual = subTituloEvaluacionVirtualDAO.find(subtitulo.getId());
-        subTituloEvaluacionVirtual.setNombre(subtitulo.getNombre());
-        subTituloEvaluacionVirtual.setBloquesVisibles(subtitulo.getBloquesVisibles());
-        subTituloEvaluacionVirtual.setPreguntasVisibles(subtitulo.getPreguntasVisibles());
-        subTituloEvaluacionVirtualDAO.update(subTituloEvaluacionVirtual);
+        SubTituloExamen subTituloExamen = subTituloExamenDAO.find(subtitulo.getId());
+        subTituloExamen.setNombre(subtitulo.getNombre());
+        subTituloExamen.setBloquesVisibles(subtitulo.getBloquesVisibles());
+        subTituloExamen.setPreguntasVisibles(subtitulo.getPreguntasVisibles());
+        subTituloExamenDAO.update(subTituloExamen);
     }
 
     @Override
     @Transactional
     public void updateBloque(BloquePreguntas bloque) {
-        BloquePreguntas bloqueEvaluacionVirtual = bloqueEvaluacionVirtualDAO.find(bloque.getId());
+        BloquePreguntas bloqueEvaluacionVirtual = bloquePreguntasDAO.find(bloque.getId());
         bloqueEvaluacionVirtual.setContenido(bloque.getContenido());
         bloqueEvaluacionVirtual.setNombre(bloque.getNombre());
         bloqueEvaluacionVirtual.setPreguntasVisibles(bloque.getPreguntasVisibles());
-        bloqueEvaluacionVirtualDAO.update(bloqueEvaluacionVirtual);
+        bloquePreguntasDAO.update(bloqueEvaluacionVirtual);
     }
 
     @Override
     @Transactional
     public void saveBloque(BloquePreguntas bloque) {
         bloque.setEstado(EstadoBloqueEnum.ACT.name());
-        bloqueEvaluacionVirtualDAO.save(bloque);
+        bloquePreguntasDAO.save(bloque);
     }
 
     @Override
     @Transactional
     public void deleteSubTitulo(SubTituloExamen subtitulo) {
-        subTituloEvaluacionVirtualDAO.delete(subtitulo);
+        subTituloExamenDAO.delete(subtitulo);
     }
 
     @Override
     @Transactional
     public void deleteTema(TemaExamenVirtual tema) {
-        temaEvaluacionVirtualDAO.delete(tema);
+        temaExamenVirtualDAO.delete(tema);
     }
 
     @Override
     @Transactional
     public void deleteBloque(BloquePreguntas bloque) {
-        bloqueEvaluacionVirtualDAO.delete(bloque);
+        bloquePreguntasDAO.delete(bloque);
     }
 
     @Override
     public TemaExamenVirtual findTema(TemaExamenVirtual tema) {
-        return temaEvaluacionVirtualDAO.find(tema.getId());
+        return temaExamenVirtualDAO.find(tema.getId());
     }
 
     @Override
     public BloquePreguntas findBloque(BloquePreguntas bloque) {
-        return bloqueEvaluacionVirtualDAO.find(bloque.getId());
+        return bloquePreguntasDAO.find(bloque.getId());
     }
 
     @Override
     public SubTituloExamen findSubTitulo(SubTituloExamen subtitulo) {
-        return subTituloEvaluacionVirtualDAO.find(subtitulo.getId());
+        return subTituloExamenDAO.find(subtitulo.getId());
     }
 
     @Override
@@ -204,7 +204,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     @Transactional
     private void itemSortTema(Integer itemSort, Long instancia) {
 
-        TemaExamenVirtual temaEvaluacionVirtual = temaEvaluacionVirtualDAO.find(instancia);
+        TemaExamenVirtual temaEvaluacionVirtual = temaExamenVirtualDAO.find(instancia);
         if (temaEvaluacionVirtual == null) {
             return;
         }
@@ -216,46 +216,46 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             return;
         }
 
-        TemaExamenVirtual temaEvaluacionVirtualUsurper = temaEvaluacionVirtualDAO.findByEvaluacionOrden(temaEvaluacionVirtual, newPlace);
+        TemaExamenVirtual temaEvaluacionVirtualUsurper = temaExamenVirtualDAO.findByEvaluacionOrden(temaEvaluacionVirtual, newPlace);
 
         temaEvaluacionVirtual.setOrden(newPlace);
-        temaEvaluacionVirtualDAO.update(temaEvaluacionVirtual);
+        temaExamenVirtualDAO.update(temaEvaluacionVirtual);
 
         if (temaEvaluacionVirtualUsurper == null) {
             return;
         }
 
         temaEvaluacionVirtualUsurper.setOrden(oldPlace);
-        temaEvaluacionVirtualDAO.update(temaEvaluacionVirtualUsurper);
+        temaExamenVirtualDAO.update(temaEvaluacionVirtualUsurper);
 
     }
 
     @Transactional
     private void itemSortSubTitulo(Integer itemSort, Long instancia) {
 
-        SubTituloExamen subTituloEvaluacionVirtual = subTituloEvaluacionVirtualDAO.find(instancia);
-        if (subTituloEvaluacionVirtual == null) {
+        SubTituloExamen subTituloExamen = subTituloExamenDAO.find(instancia);
+        if (subTituloExamen == null) {
             return;
         }
 
-        Integer oldPlace = subTituloEvaluacionVirtual.getOrden();
+        Integer oldPlace = subTituloExamen.getOrden();
         Integer newPlace = oldPlace + itemSort;
 
         if (newPlace < 1) {
             return;
         }
 
-        SubTituloExamen subTituloEvaluacionVirtualUsurper = subTituloEvaluacionVirtualDAO.findByTemaOrden(subTituloEvaluacionVirtual, newPlace);
+        SubTituloExamen subTituloExamenSuper = subTituloExamenDAO.findByTemaOrden(subTituloExamen, newPlace);
 
-        subTituloEvaluacionVirtual.setOrden(newPlace);
-        subTituloEvaluacionVirtualDAO.update(subTituloEvaluacionVirtual);
+        subTituloExamen.setOrden(newPlace);
+        subTituloExamenDAO.update(subTituloExamen);
 
-        if (subTituloEvaluacionVirtualUsurper == null) {
+        if (subTituloExamenSuper == null) {
             return;
         }
 
-        subTituloEvaluacionVirtualUsurper.setOrden(oldPlace);
-        subTituloEvaluacionVirtualDAO.update(subTituloEvaluacionVirtualUsurper);
+        subTituloExamenSuper.setOrden(oldPlace);
+        subTituloExamenDAO.update(subTituloExamenSuper);
 
     }
 
@@ -276,7 +276,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     @Transactional
     private void changeEstadoTema(Long instancia) {
 
-        TemaExamenVirtual temaEvaluacionVirtual = temaEvaluacionVirtualDAO.findTemaExamenVirtual(new TemaExamenVirtual(instancia));
+        TemaExamenVirtual temaEvaluacionVirtual = temaExamenVirtualDAO.findTemaExamenVirtual(new TemaExamenVirtual(instancia));
 
         if (temaEvaluacionVirtual.getEstado() == null) {
             temaEvaluacionVirtual.setEstado(EstadoTemaEnum.INA.name());
@@ -285,7 +285,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
         boolean activo = EstadoTemaEnum.ACT.name().equalsIgnoreCase(temaEvaluacionVirtual.getEstado());
 
         if (!activo) {
-            TemaExamenVirtual lastActivoTema = temaEvaluacionVirtualDAO.findLastActivo(temaEvaluacionVirtual.getExamenVirtual());
+            TemaExamenVirtual lastActivoTema = temaExamenVirtualDAO.findLastActivo(temaEvaluacionVirtual.getExamenVirtual());
             Integer ordenActual = 1;
             if (lastActivoTema != null) {
                 ordenActual = lastActivoTema.getOrden();
@@ -293,13 +293,13 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             }
             temaEvaluacionVirtual.setOrden(ordenActual);
             temaEvaluacionVirtual.setEstado(EstadoTemaEnum.ACT.name());
-            temaEvaluacionVirtualDAO.update(temaEvaluacionVirtual);
+            temaExamenVirtualDAO.update(temaEvaluacionVirtual);
             return;
         }
 
         Integer ordenRemovido = temaEvaluacionVirtual.getOrden();
 
-        TemaExamenVirtual lastInactivoTema = temaEvaluacionVirtualDAO.findLastInactivo(temaEvaluacionVirtual.getExamenVirtual());
+        TemaExamenVirtual lastInactivoTema = temaExamenVirtualDAO.findLastInactivo(temaEvaluacionVirtual.getExamenVirtual());
         Integer lastOrden = 1000;
 
         if (lastInactivoTema != null) {
@@ -309,9 +309,9 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
 
         temaEvaluacionVirtual.setOrden(lastOrden);
         temaEvaluacionVirtual.setEstado(EstadoTemaEnum.INA.name());
-        temaEvaluacionVirtualDAO.update(temaEvaluacionVirtual);
+        temaExamenVirtualDAO.update(temaEvaluacionVirtual);
 
-        List<TemaExamenVirtual> temasActivos = temaEvaluacionVirtualDAO.allActivoByEvaluacion(temaEvaluacionVirtual.getExamenVirtual());
+        List<TemaExamenVirtual> temasActivos = temaExamenVirtualDAO.allActivoByEvaluacion(temaEvaluacionVirtual.getExamenVirtual());
         Map<Integer, TemaExamenVirtual> mapTemasActivos = TypesUtil.convertListToMap("orden", temasActivos);
 
         ordenRemovido++;
@@ -321,7 +321,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             Integer ordenActual = temaaa.getOrden();
             ordenActual--;
             temaaa.setOrden(ordenActual);
-            temaEvaluacionVirtualDAO.update(temaaa);
+            temaExamenVirtualDAO.update(temaaa);
             ordenRemovido++;
             temaaa = mapTemasActivos.get(ordenRemovido);
         }
@@ -331,31 +331,31 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     @Transactional
     private void changeEstadoSortSubTitulo(Long instancia) {
 
-        SubTituloExamen subTituloEvaluacionVirtual = subTituloEvaluacionVirtualDAO.findSubTituloEvaluacionVirtual(instancia);
-        TemaExamenVirtual temaEvaluacionVirtual = subTituloEvaluacionVirtual.getTemaExamen();
+        SubTituloExamen subTituloExamen = subTituloExamenDAO.findSubTituloExamen(instancia);
+        TemaExamenVirtual temaExamenVirtual = subTituloExamen.getTemaExamen();
 
-        if (subTituloEvaluacionVirtual.getEstado() == null) {
-            subTituloEvaluacionVirtual.setEstado(EstadoSubTituloEnum.INA.name());
+        if (subTituloExamen.getEstado() == null) {
+            subTituloExamen.setEstado(EstadoSubTituloEnum.INA.name());
         }
 
-        boolean activo = EstadoSubTituloEnum.ACT.name().equalsIgnoreCase(subTituloEvaluacionVirtual.getEstado());
+        boolean activo = EstadoSubTituloEnum.ACT.name().equalsIgnoreCase(subTituloExamen.getEstado());
 
         if (!activo) {
-            SubTituloExamen lastActivoSubtitulo = subTituloEvaluacionVirtualDAO.findLastActivo(temaEvaluacionVirtual);
+            SubTituloExamen ultimoSubtitulo = subTituloExamenDAO.findLastActivo(temaExamenVirtual);
             Integer ordenActual = 1;
-            if (lastActivoSubtitulo != null) {
-                ordenActual = lastActivoSubtitulo.getOrden();
+            if (ultimoSubtitulo != null) {
+                ordenActual = ultimoSubtitulo.getOrden();
                 ordenActual++;
             }
-            subTituloEvaluacionVirtual.setOrden(ordenActual);
-            subTituloEvaluacionVirtual.setEstado(EstadoSubTituloEnum.ACT.name());
-            subTituloEvaluacionVirtualDAO.update(subTituloEvaluacionVirtual);
+            subTituloExamen.setOrden(ordenActual);
+            subTituloExamen.setEstado(EstadoSubTituloEnum.ACT.name());
+            subTituloExamenDAO.update(subTituloExamen);
             return;
         }
 
-        Integer ordenRemovido = subTituloEvaluacionVirtual.getOrden();
+        Integer ordenRemovido = subTituloExamen.getOrden();
 
-        SubTituloExamen lastInactivoSubtitulo = subTituloEvaluacionVirtualDAO.findLastInactivo(temaEvaluacionVirtual);
+        SubTituloExamen lastInactivoSubtitulo = subTituloExamenDAO.findLastInactivo(temaExamenVirtual);
         Integer lastOrden = 1000;
 
         if (lastInactivoSubtitulo != null) {
@@ -363,12 +363,12 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             lastOrden++;
         }
 
-        subTituloEvaluacionVirtual.setOrden(lastOrden);
-        subTituloEvaluacionVirtual.setEstado(EstadoSubTituloEnum.INA.name());
-        subTituloEvaluacionVirtualDAO.update(subTituloEvaluacionVirtual);
+        subTituloExamen.setOrden(lastOrden);
+        subTituloExamen.setEstado(EstadoSubTituloEnum.INA.name());
+        subTituloExamenDAO.update(subTituloExamen);
 
-        List<SubTituloExamen> subtitulosActivo = subTituloEvaluacionVirtualDAO.allActivoByTema(temaEvaluacionVirtual);
-        Map<Integer, SubTituloExamen> mapSubtitulosActivo = TypesUtil.convertListToMap("orden", subtitulosActivo);
+        List<SubTituloExamen> subtitulosActivos = subTituloExamenDAO.allActivoByTema(temaExamenVirtual);
+        Map<Integer, SubTituloExamen> mapSubtitulosActivo = TypesUtil.convertListToMap("orden", subtitulosActivos);
 
         ordenRemovido++;
         SubTituloExamen subtituloo = mapSubtitulosActivo.get(ordenRemovido);
@@ -377,7 +377,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
             Integer ordenActual = subtituloo.getOrden();
             ordenActual--;
             subtituloo.setOrden(ordenActual);
-            subTituloEvaluacionVirtualDAO.update(subtituloo);
+            subTituloExamenDAO.update(subtituloo);
             ordenRemovido++;
             subtituloo = mapSubtitulosActivo.get(ordenRemovido);
         }
@@ -387,7 +387,7 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
     @Transactional
     private void changeEstadoSortBloque(Long instancia) {
 
-        BloquePreguntas bloqueEvaluacionVirtual = bloqueEvaluacionVirtualDAO.findBloqueEvaluacionVirtual(instancia);
+        BloquePreguntas bloqueEvaluacionVirtual = bloquePreguntasDAO.findBloqueEvaluacionVirtual(instancia);
 
         if (bloqueEvaluacionVirtual.getEstado() == null) {
             bloqueEvaluacionVirtual.setEstado(EstadoBloqueEnum.INA.name());
@@ -397,18 +397,18 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
 
         if (!activo) {
             bloqueEvaluacionVirtual.setEstado(EstadoBloqueEnum.ACT.name());
-            bloqueEvaluacionVirtualDAO.update(bloqueEvaluacionVirtual);
+            bloquePreguntasDAO.update(bloqueEvaluacionVirtual);
             return;
         }
 
         bloqueEvaluacionVirtual.setEstado(EstadoBloqueEnum.INA.name());
-        bloqueEvaluacionVirtualDAO.update(bloqueEvaluacionVirtual);
+        bloquePreguntasDAO.update(bloqueEvaluacionVirtual);
 
     }
 
     @Override
     public ExamenVirtual findEncuesta(Long idEncuesta) {
-        return evaluacionVirtualDAO.find(idEncuesta);
+        return examenVirtualDAO.find(idEncuesta);
     }
 
 }

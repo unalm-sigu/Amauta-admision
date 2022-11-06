@@ -21,7 +21,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+i}"></p>
@@ -31,7 +31,7 @@
                     <td class="v-middle">
                         <input class=""
                                th:attr="data-parsley-errors-container=${'#errorotro'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].esOtro'}"
                                type="checkbox" value="1"/>
 
                         <p th:id="${'errorotro'+i}"></p>
@@ -90,7 +90,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].contenido'}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+i}"></p>
@@ -100,7 +100,7 @@
                     <td class="v-middle">
                         <input class=""
                                th:attr="data-parsley-errors-container=${'#errorotro'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:name="${'opcionesPregunta['+iter.index+'].esOtro'}"
                                type="checkbox" value="1"/>
 
                         <p th:id="${'errorotro'+i}"></p>
@@ -150,8 +150,8 @@
             </select>
         </div>
 
-        <input name="opcionPregunta[0].esMulti" value="1" type="hidden"/>
-        <input name="opcionPregunta[0].contenido" value="Nombre" type="hidden"/>
+        <input name="opcionesPregunta[0].esMulti" value="1" type="hidden"/>
+        <input name="opcionesPregunta[0].contenido" value="Nombre" type="hidden"/>
 
     </div>
 
@@ -173,8 +173,8 @@
         </div>
     </div>
 
-    <input name="opcionPregunta[0].contenido" value="Sí" type="hidden"/>
-    <input name="opcionPregunta[1].contenido" value="No" type="hidden"/>
+    <input name="opcionesPregunta[0].contenido" value="Sí" type="hidden"/>
+    <input name="opcionesPregunta[1].contenido" value="No" type="hidden"/>
 
 </div>
 
@@ -194,8 +194,8 @@
         </div>
     </div>
 
-    <input name="opcionPregunta[0].contenido" value="Verdadero" type="hidden"/>
-    <input name="opcionPregunta[1].contenido" value="Falso" type="hidden"/>
+    <input name="opcionesPregunta[0].contenido" value="Verdadero" type="hidden"/>
+    <input name="opcionesPregunta[1].contenido" value="Falso" type="hidden"/>
 
 </div>
 
@@ -214,8 +214,8 @@
         </div>
 
 
-        <input name="opcionPregunta[0].contenido" value="1" type="hidden"/>
-        <input name="opcionPregunta[1].contenido" value="2" type="hidden"/>
+        <input name="opcionesPregunta[0].contenido" value="1" type="hidden"/>
+        <input name="opcionesPregunta[1].contenido" value="2" type="hidden"/>
 
     </div>
 
@@ -235,7 +235,7 @@
 
         <div class="col-sm-4 col-sm-offset-2 ">
             <textarea class="form-control" readonly="true" name=""></textarea>
-            <input name="opcionPregunta[0].esTexto" value="1" type="hidden"/>
+            <input name="opcionesPregunta[0].esTexto" value="1" type="hidden"/>
         </div>
 
     </div>
@@ -249,14 +249,14 @@
             <input class="form-control"
                    required="true"
                    data-parsley-errors-container="#erroropcion0"
-                   name="opcionPregunta[0].contenido"
+                   name="opcionesPregunta[0].contenido"
                    type="text"/>
             <p class="tagerror" id="erroropcion0"></p>
         </td>
 
         <td class="v-middle">
             <input data-parsley-errors-container="#errorotro0"
-                   name="opcionPregunta[0].esOtro"
+                   name="opcionesPregunta[0].esOtro"
                    type="checkbox" value="1"/>
             <p class="tagerror" id="errorotro0"></p>
         </td>
@@ -282,7 +282,7 @@
             <input class="form-control"
                    required="true"
                    data-parsley-errors-container="#erroropcion0"
-                   name="opcionPregunta[0].contenido"
+                   name="opcionesPregunta[0].contenido"
                    type="text"/>
 
             <p class="tagerror" id="erroropcion0"></p>
@@ -291,7 +291,7 @@
 
         <td class="v-middle">
 
-            <input name="opcionPregunta[0].esMulti"
+            <input name="opcionesPregunta[0].esMulti"
                    type="hidden"
                    value="1"/>
 

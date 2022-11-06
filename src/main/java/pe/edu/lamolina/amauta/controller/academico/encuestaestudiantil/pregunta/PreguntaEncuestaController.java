@@ -23,21 +23,19 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.encuestaestudiantil.OpcionLikert;
 import pe.edu.lamolina.model.encuestaestudiantil.TipoLikert;
-import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.encuesta.TipoPreguntaEncuestaEnum;
 
 @Controller
 @RequestMapping("academico/encuestaestudiantil/editor/pregunta")
@@ -82,7 +80,7 @@ public class PreguntaEncuestaController {
                 node.put("estadoEncuesta", encuesta.getEstado());
                 node.put("estadoEnum", pregunta.getEstadoEnum().getValue());
                 node.put("max", pregunta.getNumero() == preguntaTop.getNumero().intValue());
-                node.put("opciones", pregunta.getOpcionPregunta().size());
+                node.put("opciones", pregunta.getOpcionesPregunta().size());
 
                 if (pregunta.getOpcionReferencia() != null) {
                     OpcionPregunta opcionRef = pregunta.getOpcionReferencia();
@@ -91,7 +89,7 @@ public class PreguntaEncuestaController {
                     node.put("referencias", referencias);
                 }
 
-                List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
+                List<OpcionPregunta> opciones = pregunta.getOpcionesPregunta();
                 ArrayNode arrayOpciones = new ArrayNode(JsonNodeFactory.instance);
                 for (OpcionPregunta opcion : opciones) {
                     ObjectNode nodeOpcion = new ObjectNode(JsonNodeFactory.instance);
@@ -102,7 +100,7 @@ public class PreguntaEncuestaController {
                     arrayOpciones.add(nodeOpcion);
                 }
 
-                node.put("opcionPregunta", arrayOpciones);
+                node.put("opcionesPregunta", arrayOpciones);
                 array.add(node);
             }
 
@@ -320,7 +318,7 @@ public class PreguntaEncuestaController {
                     subtipo.put("id", tipo.getId());
                     subtipo.put("grupo", tipo.getGrupo());
                     ArrayNode arrayOpciones = new ArrayNode(jsonFactory);
-                    for (OpcionLikert opcionLikert : tipo.getOpcionLikert()) {
+                    for (OpcionLikert opcionLikert : tipo.getOpcionesLikerts()) {
                         ObjectNode nodeOpcion = new ObjectNode(jsonFactory);
                         nodeOpcion.put("opcion", opcionLikert.getOpcion());
                         nodeOpcion.put("peso", opcionLikert.getPeso());

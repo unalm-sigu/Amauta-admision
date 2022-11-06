@@ -9,7 +9,7 @@
         {{if tipo=='SIMPLE' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr >
                     <td> {{:letra}}) </td>
                     <td class="text-left col-xs-12">  
@@ -23,11 +23,11 @@
             </tbody>
         </table>
         {{/if}}
-        
+
         {{if tipo=='RPTA_MULTIPLE' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr >
                     <td> {{:letra}}) </td>
                     <td class="text-left col-xs-12">  
@@ -45,7 +45,7 @@
         {{if tipo=='SINO' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr>
                     <td> {{:letra}}) </td>
                     <td class="text-left col-xs-12">  {{:contenido}} </td>
@@ -58,7 +58,7 @@
         {{if tipo=='VEFA' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr >
                     <td> {{:letra}}) </td>
                     <td class="text-left col-xs-12">{{:contenido}} </td>
@@ -71,7 +71,7 @@
         {{if tipo=='LIKERT' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr>
                     <td> {{:letra}}) </td>
                     <td class="text-left col-xs-12"> {{:contenido}} </td>
@@ -84,7 +84,7 @@
         {{if tipo=='MULTIPLE' }}
         <table class="table table-preview">
             <tbody>
-                {{for opcionPregunta }}
+                {{for opcionesPregunta }}
                 <tr>
                     <td class="v-middle"> 
                         <input type="checkbox" />
