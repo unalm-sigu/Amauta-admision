@@ -48,13 +48,11 @@
                         </div>
                     </td>
                     <td class="v-middle">
-                        <!--<pre>{{resolucion["cursoDirigido"][index]}}</pre>-->
                         <div class="col-md-12" v-if="cursoDirigido.isSeleccionado">
                             <div class="form-group">
                                 <multiselect
                                     v-model="cursoDirigido.docenteAsignado"
                                     v-bind:options="docentes"
-                                    v-bind:custom-label="nombreDocenteAsignado"
                                     v-on:search-change="findDocente"
                                     placeholder="Seleccione un docente"
                                     v-bind:show-labels="false"
@@ -177,10 +175,10 @@
             },
             cambioSeleccionado(cursoDirigido) {
                 cursoDirigido.rechazado = false;
-            },
-            nombreDocenteAsignado({persona}){
-                return persona.apellidosNombres;
             }
+            /*nombreDocenteAsignado({persona}){
+                return persona.apellidosNombres;
+            }*/
         }
     };
 </script>
