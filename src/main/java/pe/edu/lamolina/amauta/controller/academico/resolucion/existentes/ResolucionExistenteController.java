@@ -569,6 +569,7 @@ public class ResolucionExistenteController {
             List<CursoDirigido> cursosDirigido = service.allCursodirigido(resolucion);
             for (CursoDirigido cursoDirigido : cursosDirigido) {
                 cursoDirigido.setAlumno(cursoDirigido.getTramite().getAlumno());
+                cursoDirigido.setSeleccionado(true);
             }
             ArrayNode array = JaneHelper.from(cursosDirigido)
                     .join("alumno", "id,codigo")

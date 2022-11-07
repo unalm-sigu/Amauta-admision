@@ -48,8 +48,8 @@
                         </div>
                     </td>
                     <td class="v-middle">
-                        <!--<div class="col-md-12" v-if="cursoDirigido.seleccionado">-->
-                        <div class="col-md-12">
+                        <!--<pre>{{resolucion["cursoDirigido"][index]}}</pre>-->
+                        <div class="col-md-12" v-if="cursoDirigido.isSeleccionado">
                             <div class="form-group">
                                 <multiselect
                                     v-model="cursoDirigido.docenteAsignado"
@@ -85,8 +85,7 @@
                     <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
-                                   v-model="cursoDirigido.seleccionado"
-                                   checked
+                                   v-model="cursoDirigido.isSeleccionado"
                                    v-on:change="cambioSeleccionado(cursoDirigido)"
                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                             <span class="slider round"></span>
@@ -174,7 +173,7 @@
                         });
             },
             cambioRechazado(cursoDirigido) {
-                cursoDirigido.seleccionado = false;
+                cursoDirigido.isSeleccionado = true;
             },
             cambioSeleccionado(cursoDirigido) {
                 cursoDirigido.rechazado = false;
