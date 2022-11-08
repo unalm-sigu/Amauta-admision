@@ -145,16 +145,17 @@ public class TemaEncuestaController {
     @ResponseBody
     @RequestMapping("saveTema")
     public JsonResponse saveTema(TemaExamenVirtual tema, HttpSession session) {
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        
         JsonResponse response = new JsonResponse();
 
         try {
 
             if (tema.getId() == null) {
-                service.saveTema(tema);
+                service.saveTema(tema,ds.getUsuario());
                 response.setMessage("Registro creado satisfactoriamente");
             } else {
-                service.updateTema(tema);
+                service.updateTema(tema,ds.getUsuario());
                 response.setMessage("Registro actualizado satisfactoriamente");
             }
 

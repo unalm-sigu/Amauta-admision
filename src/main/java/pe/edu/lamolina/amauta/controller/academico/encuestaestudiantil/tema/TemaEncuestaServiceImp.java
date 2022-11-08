@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.tema;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import pe.edu.lamolina.amauta.dao.encuesta.BloquePreguntasDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.SubTituloExamenDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TemaExamenVirtualDAO;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Service
 @Transactional(readOnly = true)
@@ -72,9 +74,11 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
 
     @Override
     @Transactional
-    public void saveTema(TemaExamenVirtual tema) {
+    public void saveTema(TemaExamenVirtual tema, Usuario usuario) {
 
         tema.setEstado(EstadoTemaEnum.ACT.name());
+        tema.setFechaRegistro(new Date());
+        tema.setUserRegistro(usuario);
         List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(tema.getExamenVirtual());
         Map<Integer, TemaExamenVirtual> mapTemas = TypesUtil.convertListToMap("orden", temas);
 
@@ -110,13 +114,14 @@ public class TemaEncuestaServiceImp implements TemaEncuestaService {
 
     @Override
     @Transactional
-    public void updateTema(TemaExamenVirtual tema) {
+    public void updateTema(TemaExamenVirtual tema, Usuario usuario) {
         TemaExamenVirtual temaEvaluacionVirtual = temaExamenVirtualDAO.find(tema.getId());
         temaEvaluacionVirtual.setNombre(tema.getNombre());
         temaEvaluacionVirtual.setCodigo(tema.getCodigo());
         temaEvaluacionVirtual.setSubtitulosVisibles(tema.getSubtitulosVisibles());
         temaEvaluacionVirtual.setPreguntasVisibles(tema.getPreguntasVisibles());
         temaEvaluacionVirtual.setPesoCategoria(tema.getPesoCategoria());
+        temaEvaluacionVirtual.setUserModificacion(usuario);
         temaExamenVirtualDAO.update(temaEvaluacionVirtual);
     }
 
