@@ -5,14 +5,15 @@ import pe.edu.lamolina.model.examen.BloquePreguntas;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.SubTituloExamen;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface TemaEncuestaService {
 
     public List<TemaExamenVirtual> allTema(ExamenVirtual examenVirtual);
 
-    public void saveTema(TemaExamenVirtual temaExamenVirtual);
+    public void saveTema(TemaExamenVirtual temaExamenVirtual, Usuario usuario);
 
-    public void updateTema(TemaExamenVirtual temaEvaluacionVirtual);
+    public void updateTema(TemaExamenVirtual temaEvaluacionVirtual, Usuario usuario);
 
     public void saveSubTitulo(SubTituloExamen subTituloExamen);
 
