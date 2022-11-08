@@ -63,7 +63,7 @@
                                     v-bind:internal-search="false"
                                     v-bind:hide-selected="true"
                                     v-bind:showNoOptions="true"
-                                    v-bind:disabled="isEdicion &amp;&amp; !cursoDirigido.id" >
+                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null" >
                                     <template slot="singleLabel" slot-scope="props">
                                         <span class=""> {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
@@ -128,7 +128,7 @@
             return {
                 alumnos: [],
                 docentes: [],
-                isEdicion: !IS_EDICION,
+                isEdicion: IS_EDICION,
             };
         },
         mounted: function () {
@@ -170,15 +170,26 @@
                         }, () => {
                         });
             },
-            cambioRechazado(cursoDirigido) {
+            /*cambioRechazado(cursoDirigido) {
                 cursoDirigido.isSeleccionado = true;
             },
             cambioSeleccionado(cursoDirigido) {
                 cursoDirigido.rechazado = false;
-            }
-            /*nombreDocenteAsignado({persona}){
-                return persona.apellidosNombres;
             }*/
+            cambioRechazado(cursoDirigido) {
+                cursoDirigido.rechazado != cursoDirigido.rechazado;
+                if(cursoDirigido.isSeleccionado){
+                    cursoDirigido.seleccionado = false;
+                    cursoDirigido.isSeleccionado = false
+                }
+            },
+            cambioSeleccionado(cursoDirigido) {
+                cursoDirigido.motivoRechazo = "";
+                cursoDirigido.seleccionado = cursoDirigido.isSeleccionado;
+                if(cursoDirigido.rechazado){
+                    cursoDirigido.rechazado = false;
+                }
+            }
         }
     };
 </script>
