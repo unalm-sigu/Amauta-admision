@@ -29,7 +29,7 @@
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder="Ingresa un caracter como mínimo" 
-                                             v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"
+                                             v-bind:disabled="cursoDirigido.id != null"
                                              >
 
                                     <template slot="singleLabel" slot-scope="props">
@@ -63,7 +63,7 @@
                                     v-bind:internal-search="false"
                                     v-bind:hide-selected="true"
                                     v-bind:showNoOptions="true"
-                                    v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null" >
+                                    v-bind:disabled="cursoDirigido.id != null" >
                                     <template slot="singleLabel" slot-scope="props">
                                         <span class=""> {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
@@ -78,14 +78,14 @@
                         </div>
                     </td>
                     <td class="v-middle">
-                        <input class="form-control" v-if="cursoDirigido.rechazado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
+                        <input class="form-control" v-if="cursoDirigido.rechazado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"  v-bind:disabled="cursoDirigido.id != null"/>
                     </td>
                     <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
                                    v-model="cursoDirigido.isSeleccionado"
                                    v-on:change="cambioSeleccionado(cursoDirigido)"
-                                   v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
+                                   v-bind:disabled="cursoDirigido.id != null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
@@ -94,12 +94,12 @@
                             <input type="checkbox" 
                                    v-model="cursoDirigido.rechazado"
                                    v-on:change="cambioRechazado(cursoDirigido)"
-                                   v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
+                                   v-bind:disabled="cursoDirigido.id != null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td class="v-middle">
-                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null">
+                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="cursoDirigido.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
@@ -170,12 +170,6 @@
                         }, () => {
                         });
             },
-            /*cambioRechazado(cursoDirigido) {
-                cursoDirigido.isSeleccionado = true;
-            },
-            cambioSeleccionado(cursoDirigido) {
-                cursoDirigido.rechazado = false;
-            }*/
             cambioRechazado(cursoDirigido) {
                 cursoDirigido.rechazado != cursoDirigido.rechazado;
                 if(cursoDirigido.isSeleccionado){
