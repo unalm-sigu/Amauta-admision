@@ -298,7 +298,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     requisitoCursoCurriculaNew.setFechaRegistro(new Date());
                     requisitoCursoCurriculaNew.setUserRegistro(ds.getUsuario());
                     requisitoCursoCurriculaNew.setSimultaneo(requisitoCursoCurricula.getSimultaneo());
-                    requisitoCursoCurriculaNew.setRequisitosObligatorio(requisitoCursoCurriculaNew.getRequisitosObligatorio());
+                    requisitoCursoCurriculaNew.setRequisitosObligatorio(requisitoCursoCurricula.getRequisitosObligatorio());
                     requisitoCursoCurriculaDAO.save(requisitoCursoCurriculaNew);
                 }
 
@@ -317,7 +317,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     requisitoCursoOpcionalNew.setFechaRegistro(new Date());
                     requisitoCursoOpcionalNew.setSimultaneo(requisitoCursoOpcional.getSimultaneo());
                     requisitoCursoOpcionalNew.setUserRegistro(ds.getUsuario());
-                    requisitoCursoOpcionalNew.setRequisitosObligatorio(requisitoCursoOpcionalNew.getRequisitosObligatorio());
+                    requisitoCursoOpcionalNew.setRequisitosObligatorio(requisitoCursoOpcional.getRequisitosObligatorio());
                     requisitoCursoOpcionalDAO.save(requisitoCursoOpcionalNew);
                 }
 
@@ -336,7 +336,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     requisitoCursoCurriculaDeNew.setFechaRegistro(new Date());
                     requisitoCursoCurriculaDeNew.setUserRegistro(ds.getUsuario());
                     requisitoCursoCurriculaDeNew.setSimultaneo(requisitoCursoCurricula.getSimultaneo());
-                    requisitoCursoCurriculaDeNew.setRequisitosObligatorio(requisitoCursoCurriculaDeNew.getRequisitosObligatorio());
+                    requisitoCursoCurriculaDeNew.setRequisitosObligatorio(requisitoCursoCurricula.getRequisitosObligatorio());
                     requisitoCursoCurriculaDAO.save(requisitoCursoCurriculaDeNew);
                 }
             }
