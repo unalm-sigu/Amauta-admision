@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,6 +202,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
                 opcionNew.setUserCreacion(ds.getUsuario());
                 opcionNew.setFechaCreacion(new Date());
                 opcionNew.setPregunta(preguntaNew);
+                opcionNew.setPeso(opcion.getPeso());
                 opcionPreguntaDAO.save(opcionNew);
 
                 preguntaNew.getOpcionesPregunta().add(opcionNew);
