@@ -209,6 +209,8 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
                 opcion.setPregunta(preguntaBD);
                 opcion.setEstado(EstadoOpcionPreguntaEnum.ACT.name());
                 opcion.setPeso(idPeso);
+                opcion.setFechaCreacion(new Date());
+                opcion.setUserCreacion(ds.getUsuario());
                 opcionPreguntaDAO.save(opcion);
 
             } else {
