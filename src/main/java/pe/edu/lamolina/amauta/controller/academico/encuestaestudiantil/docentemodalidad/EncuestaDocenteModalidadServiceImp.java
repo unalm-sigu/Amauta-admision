@@ -224,7 +224,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         SimpleDateFormat formateador = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-ES"));
 
-        String imgBuilt = buildPlot(puntajes);
+        String imgBuilt = buildPlot(puntajes, edm.getCicloAcademico());
 
         Context ctx = new Context();
         ctx.setVariable("edm", edm);
@@ -331,7 +331,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     }
 
-    private String buildPlot(List<PuntajeEncuestaDocenteModalidad> puntajes) {
+    private String buildPlot(List<PuntajeEncuestaDocenteModalidad> puntajes, CicloAcademico ciclo) {
         Font fontBold = new Font("Arial", Font.BOLD, 16);
         Font fontNormal = new Font("Arial", Font.PLAIN, 12);
         try {
@@ -339,7 +339,11 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             BigDecimal DOS = new BigDecimal("2");
 
             for (PuntajeEncuestaDocenteModalidad puntaje : puntajes) {
-                data.setValue(puntaje.getPuntaje().divide(DOS, 6, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                if (ciclo.getCodigoInt() < 202220) {//solución temporal hasta definir la escala
+                    data.setValue(puntaje.getPuntaje().divide(DOS, 6, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                } else {
+                    data.setValue(puntaje.getPuntaje().setScale(0, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                }
             }
 
             JFreeChart chart = ChartFactory.createBarChart3D(
@@ -373,7 +377,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             range.setTickUnit(new NumberTickUnit(0.5));
             plot.getRangeAxis().setRange(0, 5);
 
-            int width = 1200;
+            int width = 1300;
             int height = 600;
             String fileName = String.format("%s%d.png", PdfImageProvider.ONLY_CHART_ENCUESTA, TypesUtil.getUnixTime());
             ChartUtilities.writeChartAsPNG(new FileOutputStream(GlobalConstantine.TMP_DIR + fileName), chart, width, height);
