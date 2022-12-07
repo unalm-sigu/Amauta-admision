@@ -131,12 +131,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     public EncuestaEstudiantil findEncuestaDocenteWithResumen(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
-        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
-        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = null;
-        if (encuestaModelo != null) {
-            encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
-        }
+//        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+//        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuestaTipoExamen(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC); 
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);

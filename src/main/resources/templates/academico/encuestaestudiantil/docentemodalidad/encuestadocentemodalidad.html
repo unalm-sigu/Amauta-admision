@@ -62,8 +62,14 @@
                                                     <span class="block m-b-xs">{{ item.modalidadEstudio.nombre }}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <span class="block"> <b>Base 5:</b> {{item.puntajeBase5.toFixed(2)}} </span>
-                                                    <span class="block"> <b>Base 10:</b> {{item.puntajeBase10.toFixed(2)}} </span>
+                                                    <div v-if="base10(cicloAcademico.codigo)">                                                        
+                                                        <span class="block"> <b>Base 10:</b> {{item.puntajeBase10.toFixed(2)}} </span>
+                                                        <span class="block"> <b>Base 5:</b> {{item.puntajeBase5.toFixed(2)}} </span>
+                                                    </div>
+                                                    <div v-if="base5(cicloAcademico.codigo)">                                                        
+                                                        <span class="block"> <b>Base 5:</b> {{item.puntajeBase10.toFixed(2)}} </span>
+                                                    </div>
+
                                                     <span class="block"> <b>Encuestados:</b> {{item.alumnosEncuestados}} </span>
                                                 </td>
                                                 <td class="v-middle text-center">

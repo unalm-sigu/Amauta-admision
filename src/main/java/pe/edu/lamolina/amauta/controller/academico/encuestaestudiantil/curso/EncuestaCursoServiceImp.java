@@ -171,12 +171,10 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
 
     @Override
     public EncuestaEstudiantil findEncuestaCursoWithResumen(CicloAcademico cicloAcademico) {
-        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
-        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = null;
-        if (encuestaModelo != null) {
-            encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
-        }
+//        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
+//        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuestaTipoExamen(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
+
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);
@@ -191,9 +189,10 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             boolean esSimultaneo = false;
             if (cfg != null) {
                 if (cfg.getSimultaneo() == 1) {
-                    TipoExamenVirtual tipoEncuestaDoc = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
-                    ExamenVirtual encuestaModeloDoc = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuestaDoc);
-                    EncuestaEstudiantil encuestaDoc = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModeloDoc);
+//                    TipoExamenVirtual tipoEncuestaDoc = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+//                    ExamenVirtual encuestaModeloDoc = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuestaDoc);
+
+                    EncuestaEstudiantil encuestaDoc = encuestaEstudiantilDAO.findByCicloEncuestaTipoExamen(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
                     cfg = configuraEncuestaDAO.findByEncuesta(encuestaDoc);
                     esSimultaneo = true;
                 }
@@ -298,7 +297,6 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
 //        boolean esSinConfig = encuestaBD.getEstadoEnum() == EncuestaEstadoEnum.CRE;
 //        boolean esSinData = encuestaBD.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaBD.getObjetivosEncuesta() == 0;
 //        Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
-
         boolean esSimultaneo = encuestaForm.getConfiguraEncuesta().get(0).getSimultaneo() == 1;
         ConfiguraEncuesta configDocente = null;
         if (esSimultaneo) {

@@ -20,4 +20,6 @@ public interface EncuestaEstudiantilDAO extends EasyDAO<EncuestaEstudiantil> {
 
     BigInteger countEncuestaAlumno(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, EncuestaEstudiantilEstadoEnum encuestaEstudiantilEstadoEnum);
 
+    EncuestaEstudiantil findByCicloEncuestaTipoExamen(CicloAcademico ciclo, TipoExamenVirtualEnum tipoExamenVirtualEnum);
+
 }

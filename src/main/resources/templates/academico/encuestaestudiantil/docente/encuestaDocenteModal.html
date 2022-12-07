@@ -225,7 +225,12 @@
             <thead>
                 <tr>
                     <th class="text-center" colspan="12">
+                        <div th:if="${cicloAcademico.codigo} &lt; 202220 ">
                         PUNTAJE ALCANZADO POR CATEGORIA - ESCALA 1 AL 10
+                        </div>
+                        <div th:if="${cicloAcademico.codigo} ge 202220 ">
+                        PUNTAJE ALCANZADO POR CATEGORIA - ESCALA 1 AL 5
+                        </div>
                     </th>
                 </tr>
                 <tr class="text-center">

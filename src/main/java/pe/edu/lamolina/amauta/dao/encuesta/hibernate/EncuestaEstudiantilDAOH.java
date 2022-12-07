@@ -89,4 +89,14 @@ public class EncuestaEstudiantilDAOH extends AbstractEasyDAO<EncuestaEstudiantil
         return (BigInteger) query.uniqueResult();
     }
 
+    @Override
+    public EncuestaEstudiantil findByCicloEncuestaTipoExamen(CicloAcademico ciclo, TipoExamenVirtualEnum tipoEnum) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaEstudiantil.class, "ep")
+                .join("encuesta en", "cicloAcademico ci", "en.tipoExamen tipo")
+                .filter("tipo.codigo", tipoEnum)
+                .filter("ci.id", ciclo);
+        return find(sql);
+    }
+
 }
