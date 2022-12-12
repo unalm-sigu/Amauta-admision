@@ -85,6 +85,7 @@
                     </div>
 
                     <h2 th:inline="text" class="m-b-n">Encuesta de Docentes  [[${cicloAcademico.descripcion}]] </h2>
+                    
                     <div class="block m-b">
                         <span v-if="encuesta.estado=='NCRE'" class="label label-danger">{{encuesta.estadoEnum.value}}</span>
                         <span v-if="encuesta.estado=='CRE'" class="label label-default">{{encuesta.estadoEnum.value}}</span>
@@ -427,6 +428,7 @@
                 /*<![CDATA[*/
                 var visor = /*[[${visor.estadoEnum}]]*/ 'json';
                 var facultadesJson = /*[[${facultadesJson.toString()}]]*/ 'json';
+                var cicloAcademicoJson = /*[[${cicloAcademicoJson.toString()}]]*/ 'json';
                 var departamentosJson = /*[[${departamentosJson.toString()}]]*/ 'json';
                 var modalidadEstudiosJson = /*[[${modalidadEstudios.toString()}]]*/ 'json';
                 var rutaModulo = 'academico/encuestaestudiantil/docente';

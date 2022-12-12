@@ -64,6 +64,7 @@ public class EncuestaDocenteController {
 
         model.addAttribute("modalidadEstudios", arr);
         model.addAttribute("cicloAcademico", ciclo);
+        model.addAttribute("cicloAcademicoJson", JaneHelper.from(ciclo).only("id,nombre,codigo").json());
         model.addAttribute("visor", visorEncuestaDocente);
         model.addAttribute("facultadesJson", JaneHelper.from(facultades).only("id,nombre,codigo").array());
         model.addAttribute("departamentosJson", createDptosAcademicosJson(departamentos));

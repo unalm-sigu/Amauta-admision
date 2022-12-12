@@ -114,6 +114,7 @@ new Vue({
         facultad: null,
         departamento: null,
         facultades: JSON.parse(facultadesJson),
+        cicloAcademico: JSON.parse(cicloAcademicoJson),
         departamentos: JSON.parse(departamentosJson),
         departamentosVer: JSON.parse(departamentosJson),
         modalidadesEstudios: JSON.parse(modalidadEstudiosJson),
@@ -181,7 +182,7 @@ new Vue({
             }
         }
         $vue.loadResumen();
-        
+
     },
     methods: {
         changePageCursos(idCursoNew) {
@@ -425,7 +426,7 @@ new Vue({
         },
         generarEncuesta() {
             let vue = this;
-            
+
             bootbox.confirm({
                 message: '¿Está seguro que desea generar las encuestas de docentes para este ciclo?',
                 buttons: {
@@ -521,16 +522,19 @@ new Vue({
                             $vue.temas = response.data.data;
                             $vue.indicadorClave = $vue.temas[0].encuestaDocente.puntajeBase10;
                             $vue.$refs.modalTemas.open();
-                            $vue.generateChart(response.data.data);
+                            $vue.generateChart(response.data.data, $vue.cicloAcademico);
                         }
                     });
         },
-        generateChart(items) {
+        generateChart(items, cicloAcademico) {
             var aData = [];
             for (var i = 0; i < items.length; i++) {
                 let obj = {};
                 obj.name = items[i].temaEncuesta.nombre;
-                obj.y = items[i].puntaje / 2;
+                obj.y = items[i].puntaje;
+                if (cicloAcademico.codigo < 202220) {
+                    obj.y = obj.y / 2;
+                }
                 aData.push(obj);
             }
 
