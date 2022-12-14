@@ -1,9 +1,13 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#convalTrasladoExterno',
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue")
+    },
     data: {
         alumno: JSON.parse(alumnoJson),
         ciclo: JSON.parse(cicloJson),
+        ciclos: JSON.parse(ciclosJson),
         listTramiteTraslado: JSON.parse(listTramiteTrasladoJson),
         listAlumnoCursoCurricula: JSON.parse(listAlumnoCursoCurriculaJson),
         listCursoConvalidado: JSON.parse(listCursoConvalidadoJson),
@@ -11,13 +15,14 @@ new Vue({
         curso: null,
         cursos: [],
         tramiteTrasladoActivo: {},
-        total: 0
+        total: 0,
+        editarResolucion: false,
+        cicloAcademico: null,
     },
     created: function () {
         let $vue = this;
         $vue.updateListOptions();
         $vue.countTotal();
-//        $vue.findTramiteTrasladoActivo();
     },
     mounted: function () {
         let $vue = this;
@@ -47,23 +52,19 @@ new Vue({
         returnTipoCurso(tipo) {
 
             if (tipo === 'TEO') {
-                return "Teoría"
+                return "Teoría";
             }
             if (tipo === 'TEOPRA') {
-                return "Teoría y Práctica"
-
+                return "Teoría y Práctica";
             }
             if (tipo === 'PRA') {
-                return "Práctica"
-
+                return "Práctica";
             }
         },
         loadCursos(nombre) {
             let $vue = this;
             this.isLoading = true
-
             if (nombre != '' || nombre != null || nombre != undefined) {
-
                 $.ajax({
                     url: APP.url("academico/alumno/allCurso"),
                     dataType: 'json',
@@ -73,10 +74,8 @@ new Vue({
                     if (response.success) {
                         $vue.cursos = response.data;
                     }
-
                     this.isLoading = false;
-                })
-
+                });
             }
         },
         listUpdate(item) {
@@ -86,8 +85,7 @@ new Vue({
                     $vue.listAlumnoCursoCOptions.splice(i, 1);
                 }
             }
-        }
-        ,
+        },
         updateListOptions() {
             let $vue = this;
             $vue.listAlumnoCursoCOptions = [];
@@ -107,9 +105,8 @@ new Vue({
                 return;
             }
             let objectClone = Object.assign({}, $vue.curso);
-            $vue.listUpdate(objectClone);
-            $vue.listCursoConvalidado.push({id: null, curso: objectClone, creditos: objectClone.creditos, tramiteTraslado: {alumno: $vue.alumno}});
-            $vue.updateTotalCreditos($vue.curso, "add");
+            //$vue.listUpdate(objectClone);
+            $vue.listCursoConvalidado.push({id: null, curso: objectClone, creditos: objectClone.creditos, tramiteTraslado: {alumno: $vue.alumno, resolucion: $vue.tramiteTrasladoActivo.resolucion}});
             $vue.curso = null;
         },
         deleteItem(index, item) {
@@ -117,7 +114,6 @@ new Vue({
             $vue.updateTotalCreditos(item.curso, "remove");
             $vue.listCursoConvalidado.splice(index, 1);
             $vue.updateListOptions();
-
         },
         esTrasladoExterno(item) {
             let $vue = this;
@@ -135,7 +131,7 @@ new Vue({
         esIntercambioEstudio(item) {
             let $vue = this;
             var ret = false;
-            
+
             if ($vue.tramiteTrasladoActivo.id != null && $vue.tramiteTrasladoActivo.tipoTraslado == 'INTES') {
                 if (item.tramiteTraslado.tipoTraslado == null || item.tramiteTraslado.tipoTraslado == 'INTES') {
                     ret = true;
@@ -148,7 +144,6 @@ new Vue({
             if (param === "add") {
                 $vue.total = $vue.total + (Number(item.creditos));
             }
-
             if (param === "remove") {
                 $vue.total = $vue.total - (Number(item.creditos));
             }
@@ -176,6 +171,9 @@ new Vue({
             let mapId = new Map();
             let nombre_curso = "";
             let repetido = false;
+            if($vue.tramiteTrasladoActivo.resolucion.id != null){
+                $vue.listCursoConvalidado = $vue.listCursoConvalidado.filter(x => x.tramiteTraslado.resolucion.id == $vue.tramiteTrasladoActivo.resolucion.id);
+            }
             for (var i = 0; i < $vue.listCursoConvalidado.length; i++) {
                 list.push($vue.listCursoConvalidado[i]);
                 if ($vue.listCursoConvalidado[i].id === null && $vue.tramiteTrasladoActivo.tipoTraslado == 'TRAS') {
@@ -196,7 +194,6 @@ new Vue({
                 notify("Debe agregar almenos un curso para convalidar.", "warning");
                 return;
             }
-
             if ($vue.tramiteTrasladoActivo.tipoTraslado === 'INTES') {
                 var form = $("#formTraslado");
                 if (!form.parsley().validate()) {
@@ -204,7 +201,6 @@ new Vue({
                     return;
                 }
             }
-
             let trasladoBean = {listCursoConvalidado: list, total: totalNuevos, alumno: $vue.alumno, tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo)};
             let texto = (list.length > 1 ? 'los ' + list.length + ' cursos seleccionados?' : 'el curso seleccionado?');
             let txtAdvertencia = " <b>Sí acepta, ya no podrá convalidar otros cursos hasta una nueva resolución.</b>";
@@ -216,31 +212,44 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-
                         MODAL.showWait("Espere un momento por favor");
                         axios.post("/" + rutaModulo + "/saveListCursoConvalidado", trasladoBean)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        notify(response.data.message, "success");
-                                        $vue.listCursoConvalidado = response.data.data;
-                                        $vue.updateListOptions();
-                                        $vue.countTotal();
-//                                        $vue.findTramiteTrasladoActivo();
-                                        $vue.tramiteTrasladoActivo = {tipoTraslado: null, id: null};
-                                        $vue.desactivarTraslados();
-                                        MODAL.hideWait();
-                                    } else {
-                                        notify(response.data.message, "warning");
-                                    }
-                                }).catch(e => {
+                            .then(response => {
+                                if (response.data.success) {
+                                    notify(response.data.message, "success");
+                                    $vue.listCursoConvalidado = response.data.data;
+                                    $vue.updateListOptions();
+                                    $vue.countTotal();
+                                    $vue.tramiteTrasladoActivo = {tipoTraslado: null, id: null};
+                                    $vue.desactivarTraslados();
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.data.message, "warning");
+                                }
+                            }).catch(e => {
                             notify(Messages.errorComunicacion, "error");
                         });
 
                     }
                 }
             });
-
-
+        },
+        abrirModalCicloAcademico() {
+            let vue = this;
+            vue.cicloAcademico = null;
+            vue.$refs.modalCambiarCicloTrasladoExterno.open();
+        },
+        cambiarCicloAcademicoTrasladoExterno() {
+            let vue = this;
+            if (!$("#form").parsley().validate()) {
+                return;
+            }
+            vue.listCursoConvalidado.forEach((value, index, array) => {
+                if(value.tramiteTraslado.resolucion.id == vue.tramiteTrasladoActivo.resolucion.id) {
+                    value.tramiteTraslado.cicloAcademico = vue.cicloAcademico;
+                }
+            });
+            vue.$refs.modalCambiarCicloTrasladoExterno.close();
         }
     }
 });

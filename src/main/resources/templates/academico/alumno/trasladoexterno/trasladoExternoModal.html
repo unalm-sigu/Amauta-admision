@@ -1,0 +1,30 @@
+<modal-simple ref="modalCambiarCicloTrasladoExterno"
+              okbtn="Ok"
+              v-bind:okaction="cambiarCicloAcademicoTrasladoExterno">
+    <div slot="header">
+        <h4 class="modal-title">Seleccione el ciclo académico</h4>
+    </div>
+    <div slot="body">
+        <div class="modal-body">
+            <div class="form-group">
+                <form id="form" data-parsley-validate="true">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <label>Ciclo Académico</label>
+                        <multiselect
+                                v-model="cicloAcademico"
+                                deselect-label="Eliminar este valor"
+                                track-by="id"
+                                label="descripcion"
+                                placeholder="Seleccione un ciclo académico"
+                                :options="ciclos"
+                                :searchable="true"
+                                :allow-empty="true">
+                        </multiselect>
+                        <input v-model="cicloAcademico" required="true" type="text" class="hide"/>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</modal-simple>

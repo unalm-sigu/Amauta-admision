@@ -38,4 +38,15 @@ public class CursoConvalidadoDAOH extends AbstractEasyDAO<CursoConvalidado> impl
         this.update(octavia);
     }
 
+    @Override
+    public List<CursoConvalidado> allByTramiteTraslado(TramiteTraslado tramiteTraslado) {
+        Octavia sql = Octavia.query()
+                .from(CursoConvalidado.class, "cc")
+                .join("curso cur", "tramiteTraslado ttr", "ttr.cicloAcademico")
+                .join("cur.departamentoAcademico")
+                .leftJoin("alumnoCicloCurso acc")
+                .filter("ttr.id", tramiteTraslado);
+        return all(sql);
+    }
+
 }

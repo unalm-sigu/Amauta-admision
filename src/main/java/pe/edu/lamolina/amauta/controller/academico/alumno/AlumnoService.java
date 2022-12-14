@@ -94,4 +94,6 @@ public interface AlumnoService {
 
     Docente finDocenteAccesoEspecial();
 
+    List<CicloAcademico> ciclosAcademicosConvalidarCurso(Alumno alumno);
+
 }

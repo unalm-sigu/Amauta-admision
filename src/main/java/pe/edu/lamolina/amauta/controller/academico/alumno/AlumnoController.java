@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -671,17 +672,17 @@ public class AlumnoController {
 
     @RequestMapping("{idAlumno}/trasladoexterno")
     public String convalTrasladoExterno(@PathVariable("idAlumno") Long idAlumno,
-            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
-
+                                        @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
             Alumno alumno = service.findAlumnoFisico(idAlumno);
             List<TramiteTraslado> listTramiteTraslado = service.allTramiteTrasladoByAlumno(alumno);
+            ArrayNode ciclosJson = JaneHelper.from(service.ciclosAcademicosConvalidarCurso(alumno)).only("id, descripcion, descripcion2, year, tipo, estado, codigo").array();
             model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
             model.addAttribute("listAlumnoCursoCurriculaJson", createListAlumnoCursoCurricula(service.allAlumnoCursoCurso(alumno)));
             model.addAttribute("listCursoConvalidadoJson", createListCursoConvalidado(service.alllCursoConvalidadoInTraslado(listTramiteTraslado)));
             model.addAttribute("cicloJson", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"id", "descripcion"}));
+            model.addAttribute("ciclosJson", ciclosJson);
             model.addAttribute("alumnoJson", createAlumnoJson(alumno));
             model.addAttribute("rutaModulo", rutaModulo);
             model.addAttribute("listTramiteTrasladoJson", createListTramiteTrasladoJson(listTramiteTraslado));
@@ -828,7 +829,10 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (CursoConvalidado item : listCursoConvalidado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "nota", "creditos", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso", "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*"});
+                    "id", "nota", "creditos", "fechaRegistro",
+                    "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso",
+                    "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.cicloAplica.*"
+            });
             array.add(node);
         }
         return array;
@@ -846,13 +850,13 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (TramiteTraslado item : listTramiteTraslado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "estado", "tipoTraslado", "tramite.id",
-                "tramite.alumno.persona.id", "cicloAcademico.*",
-                "resolucion.id", "resolucion.fecha", "resolucion.estado",
-                "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
-                "resolucion.userRegistro.persona.apellidosNombres",
-                "resolucion.tipoResolucion.id", "resolucion.tipoResolucion.nombre",
-                "resolucion.oficina.id", "resolucion.oficina.codigo", "resolucion.oficina.nombre"
+                    "id", "estado", "tipoTraslado", "tramite.id",
+                    "tramite.alumno.persona.id", "cicloAcademico.*",
+                    "resolucion.id", "resolucion.fecha", "resolucion.estado",
+                    "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
+                    "resolucion.userRegistro.persona.apellidosNombres",
+                    "resolucion.tipoResolucion.id", "resolucion.tipoResolucion.nombre",
+                    "resolucion.oficina.id", "resolucion.oficina.codigo", "resolucion.oficina.nombre", "resolucion.cicloAplica.*"
             });
             array.add(node);
         }

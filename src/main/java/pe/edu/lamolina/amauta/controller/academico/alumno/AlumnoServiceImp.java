@@ -3,13 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.alumno;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,17 +22,8 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.CursoCicloAcademico;
-import pe.edu.lamolina.model.academico.CursoConvalidado;
-import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.amauta.dao.academico.*;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
@@ -67,21 +52,6 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
-import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoConvalidadoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
-import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
-import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
-import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
@@ -97,8 +67,6 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.persona.OrigenValidacionEnum;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.persona.ValidacionEstadoEnum;
@@ -141,7 +109,7 @@ public class AlumnoServiceImp implements AlumnoService {
     private final UsuarioDAO usuarioDAO;
     private final UsuarioRolDAO usuarioRolDAO;
     private final ValidacionPersonaDAO validacionPersonaDAO;
-
+    private final MatriculaResumenDAO matriculaResumenDAO;
     private final UploadFileS3 uploadFileS3;
 
     @Override
@@ -835,14 +803,58 @@ public class AlumnoServiceImp implements AlumnoService {
     public List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean, CicloAcademico cicloAcademicoSesion, DataSessionPivot ds) {
         Alumno alumno = trasladoBean.getAlumno();
         Integer total = trasladoBean.getTotal();
-        TramiteTraslado tramiteTraslado = trasladoBean.getTramiteTraslado();
+        TramiteTraslado tramiteTraslado = trasladoBean.getTramiteTraslado(); // obtengo ciclo
         List<CursoConvalidado> listCursoConvalidadoNew = trasladoBean.getListCursoConvalidado().stream().filter(x -> x.getTramiteTraslado().getId() == null).collect(Collectors.toList());
         List<CursoConvalidado> listCursoConvalidadoOld = trasladoBean.getListCursoConvalidado().stream().filter(x -> x.getTramiteTraslado().getId() != null).collect(Collectors.toList());
-        for (CursoConvalidado cursoConvalidado : listCursoConvalidadoNew) {
-            tramiteTras(alumno, tramiteTraslado, trasladoBean, total, cursoConvalidado, listCursoConvalidadoNew, ds);
-        }
-        for (CursoConvalidado cursoConvalidado : listCursoConvalidadoOld) {
-            tramiteTras(alumno, cursoConvalidado.getTramiteTraslado(), trasladoBean, total, cursoConvalidado, listCursoConvalidadoOld, ds);
+
+        AlumnoCiclo alumnoCicloDB = alumnoCicloDAO.findByAlumnoCiclo(alumno, trasladoBean.getTramiteTraslado().getCicloAcademico());
+        List<CursoConvalidado> cursoConvalidadosOldCicloDistinto = listCursoConvalidadoOld.stream()
+                .filter(x -> !Objects.equals(x.getTramiteTraslado().getCicloAcademico().getId(), tramiteTraslado.getCicloAcademico().getId()))
+                .collect(Collectors.toList());
+
+        if(cursoConvalidadosOldCicloDistinto != null && cursoConvalidadosOldCicloDistinto.size() > 0) {
+            CursoConvalidado findCursoConvalidado = cursoConvalidadosOldCicloDistinto
+                    .stream()
+                    .filter((x) -> x.getTramiteTraslado().getCicloAcademico().getId() != null)
+                    .findAny()
+                    .orElseThrow(()-> new IllegalArgumentException());
+            CicloAcademico cicloAcademico = cicloAcademicoDAO.find(findCursoConvalidado.getTramiteTraslado().getCicloAcademico().getId());
+            List<CursoConvalidado> cursoConvalidados = cursoConvalidadoDAO.allByTramiteTraslado(tramiteTraslado);
+            Map<Long, CursoConvalidado> mapCursoConvalidados = TypesUtil.convertListToMap("id", cursoConvalidados);
+            tramiteTraslado.setCicloAcademico(cicloAcademico);
+            tramiteTraslado.setAlumno(alumno);
+            tramiteTrasladoDAO.update(tramiteTraslado);
+            AlumnoCiclo alumnoCiclo = null;
+            if(alumnoCicloDB != null) {
+                if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.RCI)){
+                    alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);
+                } else if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)){
+                    alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+                }
+                if(alumnoCiclo != null) {
+                    for (CursoConvalidado cursoConvalidado : cursoConvalidadosOldCicloDistinto) {
+                        cursoConvalidado.setUserModifica(ds.getUsuario());
+                        cursoConvalidado.setFechaModificacion(new Date());
+                        cursoConvalidado.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
+                        cursoConvalidado.setTramiteTraslado(tramiteTraslado);
+                        AlumnoCicloCurso alumnoCicloCurso = mapCursoConvalidados.get(cursoConvalidado.getId()).getAlumnoCicloCurso();
+                        if(alumnoCicloCurso != null) {
+                            this.updateAlumnoCicloCurso(cursoConvalidado, alumnoCiclo, alumnoCicloCurso, ds);
+                        }
+                        cursoConvalidadoDAO.update(cursoConvalidado);
+                    }
+                    if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
+                        alumnoCicloDAO.delete(alumnoCicloDB);
+                    }
+                }
+            }
+        } else {
+            for (CursoConvalidado cursoConvalidado : listCursoConvalidadoNew) {
+                tramiteTras(alumno, tramiteTraslado, trasladoBean, total, cursoConvalidado, listCursoConvalidadoNew, ds);
+            }
+            for (CursoConvalidado cursoConvalidado : listCursoConvalidadoOld) {
+                tramiteTras(alumno, cursoConvalidado.getTramiteTraslado(), trasladoBean, total, cursoConvalidado, listCursoConvalidadoOld, ds);
+            }
         }
         List<TramiteTraslado> listTramiteTraslado = this.allTramiteTrasladoByAlumno(alumno);
         return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
@@ -926,7 +938,21 @@ public class AlumnoServiceImp implements AlumnoService {
     public List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado) {
         return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
     }
-
+    private void updateAlumnoCicloCurso(CursoConvalidado cursoConvalidado, AlumnoCiclo alumnoCiclo, AlumnoCicloCurso alumnoCicloCurso, DataSessionPivot ds) {
+        alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
+        alumnoCicloCurso.setCurso(cursoConvalidado.getCurso());
+        alumnoCicloCurso.setCreditos(cursoConvalidado.getCreditos());
+        alumnoCicloCurso.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
+        alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+        alumnoCicloCurso.setEstaAprobado(1);
+        alumnoCicloCurso.setRegistroActivo(1);
+        alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.TE);
+        alumnoCicloCurso.setVecesCursado(1);
+        alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+        alumnoCicloCurso.setFechaModificacion(new Date());
+        alumnoCicloCursoDAO.update(alumnoCicloCurso);
+        cursoConvalidado.setAlumnoCicloCurso(alumnoCicloCurso);
+    }
     private void saveAlumnoCicloCurso(CursoConvalidado cursoConvalidado, AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
         AlumnoCicloCurso alumnoCicloCurso = new AlumnoCicloCurso();
         alumnoCicloCurso.setFechaRegistro(new Date());
@@ -1102,6 +1128,15 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public Docente finDocenteAccesoEspecial() {
         return docenteDAO.findByCode("1272");//tmp
+    }
+
+    @Override
+    public List<CicloAcademico> ciclosAcademicosConvalidarCurso(Alumno alumno) {
+        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allMatriculaResumenByAlumno(alumno)
+                .stream()
+                .sorted(Comparator.comparing(MatriculaResumen::getId).reversed())
+                .collect(Collectors.toList());
+        return TypesUtil.extractListByAttr("cicloAcademico", matriculasResumen);
     }
 
 }
