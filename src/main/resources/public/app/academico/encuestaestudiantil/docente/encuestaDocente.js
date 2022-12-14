@@ -564,7 +564,7 @@ new Vue({
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
-                            format: '{point.y:.1f} prom.'
+                            format: '{point.y:.2f} prom.'
                         }
                     }
                 },
