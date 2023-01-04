@@ -115,7 +115,7 @@ var app = new Vue({
         },
         anularAlumnoEnResolucion: function (resolucion, e) {
             e.preventDefault();
-            location.href = APP.url("academico/resolucion/existentes/" + resolucion.id + "/anularTramiteTitulo");
+            location.href = APP.url("academico/resolucion/existentes/" + resolucion.id + "/anularTramite");
         },
         loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();

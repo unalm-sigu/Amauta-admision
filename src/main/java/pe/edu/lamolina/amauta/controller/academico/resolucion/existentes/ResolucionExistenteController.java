@@ -157,7 +157,7 @@ public class ResolucionExistenteController {
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
-    @RequestMapping(value = "/{idResolucion}/anularTramiteTitulo", method = RequestMethod.GET)
+    @RequestMapping(value = "/{idResolucion}/anularTramite", method = RequestMethod.GET)
     public String anularTramiteTituloResolucionExistente(@PathVariable(value = "idResolucion") Long idResolucion, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -358,7 +358,7 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping(value = "anularTramiteTitulo")
-    public JsonResponse anular (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+    public JsonResponse anularTramiteTitulo (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TramiteTitulo tramiteTitulo = resolucionesExistentesDTO.getTramiteTitulo();
@@ -370,6 +370,25 @@ public class ResolucionExistenteController {
         }else {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_TITULO);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anularTramiteBachiller")
+    public JsonResponse anularTramiteBachiller (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TramiteBachiller tramiteBachiller = resolucionesExistentesDTO.getTramiteBachiller();
+        Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
+        Alumno alumno = resolucionesExistentesDTO.getAlumno();
+        boolean respuesta = service.anularAlumnoDeResolucionBachiller(alumno, resolucion, tramiteBachiller, ds.getUsuario(), ds);
+        if(respuesta){
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage(TramitesAcademicos.TRAMITE_BACHILLER_ANULADO);
+        }else {
+            response.setSuccess(Boolean.FALSE);
+            response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_BACHILLER);
         }
         return response;
     }

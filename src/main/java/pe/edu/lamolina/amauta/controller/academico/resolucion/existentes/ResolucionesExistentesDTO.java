@@ -1,15 +1,16 @@
 package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 
-import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TramiteTitulo;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.tramite.*;
 
 public class ResolucionesExistentesDTO {
 
+    private Alumno alumno;
     private Resolucion resolucion;
 
     private TramiteTitulo tramiteTitulo;
+
+    private TramiteBachiller tramiteBachiller;
 
     private Tramite tramite;
 
@@ -18,22 +19,12 @@ public class ResolucionesExistentesDTO {
     public ResolucionesExistentesDTO() {
     }
 
-    public ResolucionesExistentesDTO(Resolucion resolucion, TramiteTitulo tramiteTitulo) {
-        this.resolucion = resolucion;
-        this.tramiteTitulo = tramiteTitulo;
+    public Alumno getAlumno() {
+        return alumno;
     }
 
-    public ResolucionesExistentesDTO(Resolucion resolucion, TramiteTitulo tramiteTitulo, Tramite tramite) {
-        this.resolucion = resolucion;
-        this.tramiteTitulo = tramiteTitulo;
-        this.tramite = tramite;
-    }
-
-    public ResolucionesExistentesDTO(Resolucion resolucion, TramiteTitulo tramiteTitulo, Tramite tramite, ObtencionGrado obtencionGrado) {
-        this.resolucion = resolucion;
-        this.tramiteTitulo = tramiteTitulo;
-        this.tramite = tramite;
-        this.obtencionGrado = obtencionGrado;
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
     }
 
     public Resolucion getResolucion() {
@@ -54,6 +45,14 @@ public class ResolucionesExistentesDTO {
 
     public Tramite getTramite() {
         return tramite;
+    }
+
+    public TramiteBachiller getTramiteBachiller() {
+        return tramiteBachiller;
+    }
+
+    public void setTramiteBachiller(TramiteBachiller tramiteBachiller) {
+        this.tramiteBachiller = tramiteBachiller;
     }
 
     public void setTramite(Tramite tramite) {

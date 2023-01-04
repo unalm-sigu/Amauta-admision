@@ -94,7 +94,7 @@
                                                                href="#">Subir PDF</a>
                                                             <a class="aceptar-expandir-sistema"
                                                                v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
-                                                               v-if="item.isTipoTramiteTitulo"
+                                                               v-if="item.isTipoTramiteTitulo || item.isTipoTramiteBachiller"
                                                             >Anular Alumno(s)</a>
                                                         </li>
                                                     </ul>

@@ -7,6 +7,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import static pe.edu.lamolina.model.enums.ResolucionEstadoEnum.ACT;
+
+import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.model.general.Oficina;
@@ -124,6 +126,19 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .filter("res.serie", serie)
                 .filter("res.numero", numero)
                 .limit(1);
+        return this.find(sql);
+    }
+
+    @Override
+    public Resolucion validaResolucion(Oficina oficina, String serie, String numero, TipoResolucionEnum tipoResolucionEnum) {
+        Octavia sql = new Octavia()
+                .from(Resolucion.class,"res")
+                .join("oficina ofi", "tipoResolucion tr", "userRegistro ur", "ur.persona")
+                .left("reunionConsejo re", "cicloAplica")
+                .filter("ofi.id", oficina.getId())
+                .filter("res.serie", serie)
+                .filter("res.numero", numero)
+                .filter("tr.codigo", tipoResolucionEnum.name());
         return this.find(sql);
     }
 

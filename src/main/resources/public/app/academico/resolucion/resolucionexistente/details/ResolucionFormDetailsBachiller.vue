@@ -3,9 +3,7 @@
 
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
 
-        <resolucion-form-filter 
-        v-bind:callfilter="applyFilter" 
-        v-if="!isEdicion"></resolucion-form-filter>
+        <resolucion-form-filter v-bind:callfilter="applyFilter" v-if="!isEdicion"></resolucion-form-filter>
 
         <table class="table table-striped">
             <thead>
@@ -29,11 +27,9 @@
                                          v-bind:internal-search='false'
                                          placeholder=" " 
                                          v-bind:disabled="isEdicion &amp;&amp; bachiller.id">
-
                                 <template slot="singleLabel" slot-scope="props">
                                     <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
                                 </template>
-
                                 <template slot="option" slot-scope="props">
                                     <div class="option__desc">
                                         <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} </span>
@@ -62,8 +58,9 @@
                 </tr>
             </tbody>
         </table>
-
-        <button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <button type="button" v-if="isEdicion == true" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <button type="button" v-if="isAnular == false" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+      <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
 
     </div>
 </template>
@@ -86,13 +83,14 @@
             return {
                 alumnos: [],
                 isEdicion: IS_EDICION,
+                isAnular: IS_ANULAR
             };
         },
         mounted: function () {
             let $vue = this;
-            if (!$vue.isEdicion) {
+            /*if (!$vue.isEdicion) {
                 $vue.allBachillers();
-            }
+            }*/
         },
         methods: {
             add() {
@@ -101,9 +99,37 @@
                 $vue.$forceUpdate();
             },
             del(index) {
-                let $vue = this;
+              let $vue = this;
+              if($vue.isAnular){
+                bootbox.confirm({
+                  message: '¿Seguro que desea retirar al alumno de esta resolución? ',
+                  buttons: {
+                    confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                  },
+                  callback: function (result) {
+                    if (result) {
+                      $vue.showLoader("Espere un momento por favor");
+                      $vue.errores = [];
+                      axios_.post(APP.url('academico/resolucion/existentes/anularTramiteBachiller'), {"alumno": $vue.resolucion.tramiteBachiller[index].alumno, "tramiteBachiller": $vue.resolucion.tramiteBachiller[index], "resolucion": $vue.resolucion})
+                          .then(({data}) => {
+                            if (data.success) {
+                              notify(data.message, 'info');
+                              location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramite");
+                            } else {
+                              console.log(data);
+                              //notify("Se produjo un error al anular el Trámite Bachiller de la Resolución", 'error');
+                            }
+                            $vue.hideLoader();
+                            $vue.$forceUpdate();
+                          }, () => $vue.hideLoader());
+                    }
+                  }
+                });
+              } else {
                 $vue.resolucion.tramiteBachiller.splice(index, 1);
                 $vue.$forceUpdate();
+              }
             },
             searchAlumno(nombre) {
 

@@ -2014,6 +2014,85 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     }
 
+    @Override
+    @Transactional
+    public boolean anularAlumnoDeResolucionBachiller(Alumno alumno, Resolucion resolucion, TramiteBachiller tramiteBachiller, Usuario usuario, DataSessionPivot ds) {
+        boolean tramiteBachillerAnulado = false;
+
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
+        if(resolucionBD == null) {
+            throw new PhobosException("No se encontró la Resolución de Bachiller");
+        }
+
+        TipoResolucionEnum tipoResolucionEnum = resolucionBD.getTipoResolucion().getTipoEnum();
+        Resolucion resolucionValidacion = resolucionDAO.validaResolucion(resolucionBD.getOficina(), resolucionBD.getSerie(), resolucionBD.getNumero(), tipoResolucionEnum);
+        if (resolucionValidacion.getId() == null) {
+            throw new PhobosException("La Resolución de Bachiller no cuenta con número de serie ni oficina válido");
+        }
+
+        TramiteBachiller tramiteBachillerDB = tramiteBachillerDAO.find(tramiteBachiller.getId());
+        if (tramiteBachillerDB == null) {
+            throw new PhobosException("No se encontró el Trámite Bachiller");
+        }
+        Tramite tramite = tramiteBachillerDB.getTramite();
+
+        Alumno alumnoDB = alumnoDAO.find(alumno);
+        if(alumnoDB == null) {
+            throw new PhobosException("No se encontró el alumno en esta Resolución de Bachiller");
+        }
+
+        GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumnoDB.getCarrera());
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumnoDB, gradoAcademico);
+
+        if (obtencionGradoRegistrado == null) {
+            throw new PhobosException("No existe el Grado Obtencion Bachiller para el alumno " + alumnoDB.getCodigo());
+        }
+        log.debug("oficina {}", resolucionBD.getOficina().getId());
+        log.debug("serie {}", resolucionBD.getSerie());
+        log.debug("numero {}", resolucionBD.getNumero());
+        log.debug("tipoResolucion {}", resolucionBD.getTipoResolucion().getTipoEnum().name());
+        log.debug("Resolucion válido? {}", resolucionValidacion != null);
+
+        obtencionGradoDAO.delete(obtencionGradoRegistrado);
+
+        tramite.setAlumno(alumnoDB);
+        tramite.setResolucion(null);
+        tramite.setAceptado(false);
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setFechaRespuesta(null);
+        tramite.setUserRespuesta(null);
+        tramite.setFinalizado(Boolean.FALSE);
+        tramite.setEstadoTramite(estadoTramite);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.update(tramite);
+
+        tramiteBachillerDB.setEstado(TramiteEstadoEnum.ANU.name());
+        tramiteBachillerDB.setFechaResolucion(null);
+        tramiteBachillerDB.setUsuarioResolucion(null);
+        tramiteBachillerDB.setResolucion(null);
+        tramiteBachillerDB.setTramite(tramite);
+        tramiteBachillerDB.setUsuario(ds.getUsuario());
+        tramiteBachillerDAO.update(tramiteBachillerDB);
+
+        Egresado egresado = egresadoDAO.findByAlumno(alumnoDB);
+        if (egresado == null) {
+            throw new PhobosException("No es egresado alumno " + alumnoDB.getCodigo());
+        }
+        egresado.setAlumno(alumnoDB);
+        egresado.setCarrera(alumnoDB.getCarrera());
+        egresado.setFacultad(alumnoDB.getCarrera().getFacultad());
+        egresado.setCicloAcademico(alumnoDB.getCicloActivoRegular());
+        egresado.setTitulo(null);
+        egresado.setGrado(null);
+        egresadoDAO.update(egresado);
+
+        tramiteBachillerAnulado = true;
+        return tramiteBachillerAnulado;
+
+    }
+
     private void updateTramitesTrasladoInterno(Resolucion resolucion, DataSessionPivot ds) {
 
         if (resolucion.getTramiteTraslado().isEmpty()) {
