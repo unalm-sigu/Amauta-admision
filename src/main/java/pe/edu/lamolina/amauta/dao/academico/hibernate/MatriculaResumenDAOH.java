@@ -404,13 +404,17 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("          join aca_situacion_academica sa on mr.id_situacion_inicio = sa.id ");
         strb.append("    where ca.codigo = :CICLO ");
         strb.append("      and me.codigo in (:MOD) ");
-        strb.append("      and sa.codigo <> :SITUACION ");
+        if (cicloAcademico.isTipoRegular()) {
+            strb.append("      and sa.codigo <> :SITUACION ");
+        }
 
         Query query = getCurrentSession()
                 .createSQLQuery(strb.toString())
                 .setParameter("CICLO", cicloAcademico.getCodigo())
-                .setParameterList("MOD", Arrays.asList(PRE.name(), VIS.name()))
-                .setParameter("SITUACION", SituacionAcademicaEnum.S_8.getValue());
+                .setParameterList("MOD", Arrays.asList(PRE.name(), VIS.name()));
+        if (cicloAcademico.isTipoRegular()) {
+            query.setParameter("SITUACION", SituacionAcademicaEnum.S_8.getValue());
+        }
 
         query.executeUpdate();
     }
