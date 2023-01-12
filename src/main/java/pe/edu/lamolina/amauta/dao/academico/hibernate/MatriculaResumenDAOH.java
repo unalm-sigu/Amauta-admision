@@ -1088,16 +1088,18 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.carrera car")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
-                .join("alu.persona")
-                .notIn("sa.codigo", asList(
-                        S_4.getValue(),
-                        S_X.getValue(),
-                        S_U.getValue(),
-                        S_XD.getValue(),
-                        S_4U.getValue(),
-                        S_4T.getValue(),
-                        S_7.getValue()))
-                .in("estado", asList(MAT, NMAT, RCI))
+                .join("alu.persona");
+        if (!cicloOrigen.getCodigo().equals("202220")) {
+            sql.notIn("sa.codigo", asList(
+                    S_4.getValue(),
+                    S_X.getValue(),
+                    S_U.getValue(),
+                    S_XD.getValue(),
+                    S_4U.getValue(),
+                    S_4T.getValue(),
+                    S_7.getValue()));
+        }
+        sql.in("estado", asList(MAT, NMAT, RCI))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
         return all(sql);
