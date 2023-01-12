@@ -52,6 +52,11 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
     @Transactional
     public void ClonarNivelacionDTO(DataSessionPivot ds, ClonarNivelacionDTO clonarNivelacionDTO) {
 
+        List<MatriculaResumen> matriculablesDestino = matriculaResumenDAO.allByCicloClonar(clonarNivelacionDTO.getCicloDestino());
+        if (!matriculablesDestino.isEmpty()) {
+            matriculaResumenDAO.deleteMatriculable(clonarNivelacionDTO.getCicloDestino());
+        }
+
         int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();//2022-I
         int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();//2022-N
         if (codeInicio >= codeFin) {
