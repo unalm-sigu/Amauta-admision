@@ -74,6 +74,11 @@ new Vue({
         asistio() {
             let $vue = this;
             var valid = $('#formAsistio').parsley().validate();
+            //const {fechaAsistencia} = $vue.reunionConsejero;
+            //const formatFechaAsistencia = moment(fechaAsistencia).format("yyyy-MM-ddTHH:mm");
+            //const formatFechaAsistencia = moment(fechaAsistencia).format('MM/DD/YYYY hh:mm:ss a');
+            //console.log(formatFechaAsistencia);
+            //$vue.reunionConsejero[fechaAsistencia] = formatFechaAsistencia;
             if (valid != true) {
                 notify("Ingrese los datos obligatorios.", "error");
                 return;
@@ -89,6 +94,8 @@ new Vue({
                     $vue.$refs.load.loadRemoteData();
                     notify(response.message, "success");
                 }
+            }, error => {
+                console.log(error);
             });
         },
         noAsistio() {

@@ -47,12 +47,8 @@
                     <table class="table table-striped">
                         <thead class="panel panel-heading">
                             <tr>
-                                <th  colspan="2">Alumno</th>
-                                <th>Citar
-                                    <label class="m-t-md checkbox-inline form-control-static">
-                                        <input class="form-control" type="checkbox" id="selectAll"  v-model="selectAll"/>
-                                    </label>
-                                </th>
+                                <th colspan="2">Alumno</th>
+                                <th><div style="display: flex;"><span>Seleccionar todos </span><input style="margin: 0 10px 0;" type="checkbox" id="selectAll"  v-model="selectAll"/></div></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,18 +59,15 @@
                                              class="img-responsive img-thumbnail img-circle div-foto-list">
                                             <img class="img-foto-list" v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
                                         </div>
-
                                         <img v-else-if="alumnoConsejero.alumno.persona.tipoFoto=='COMUN' " 
                                              class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
                                              v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
-
                                         <img v-else="" 
                                              class="img-foto-tempo img-responsive img-thumbnail img-circle" 
                                              v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
                                     </div>                                
                                 </td>
                                 <td class="v-middle">
-
                                     <a class="block text-primary bold h5 m-b-xs m-t-xs" >
                                         {{alumnoConsejero.alumno.persona.apellidosNombres}}
                                     </a>
@@ -94,7 +87,7 @@
                                         {{alumnoConsejero.alumno.situacionAcademica.nombre}}
                                     </p>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <label class="m-t-md checkbox-inline form-control-static">
                                         <input class="form-control" type="checkbox" id="chkbxGenMat"  v-model="alumnoConsejero.seleccionado"/>
                                     </label>
@@ -158,6 +151,37 @@
                         <input type="checkbox" v-model="reunionConsejero.esProblemaEconomico" />
                         <span></span>
                     </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label>Fecha Asistencia</label>
+                    <div class="input-group">
+                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="reunionConsejero.fechaAsistencia" required="true"></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label>Hora inicio</label>
+                    <div class="input-group">
+                        <date-picker v-model="reunionConsejero.horaInicio" v-bind:config="{format: 'hh:mm a'}"></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-clock-o"></span>
+                        </div>
+                    </div>
+                    <input v-model="reunionConsejero.horaInicio" class="hidden" required="true"/>
+                </div>
+                <div class="col-md-3">
+                    <label>Hora fin</label>
+                    <div class="input-group">
+                        <date-picker v-model="reunionConsejero.horaFin" v-bind:config="{format: 'hh:mm a'}"></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-clock-o"></span>
+                        </div>
+                    </div>
+                    <input v-model="reunionConsejero.horaFin" class="hidden" required="true"/>
                 </div>
             </div>
         </div>

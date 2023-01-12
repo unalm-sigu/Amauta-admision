@@ -2,10 +2,7 @@ package pe.edu.lamolina.amauta.controller.reunionConsejero;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
@@ -14,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
@@ -267,10 +265,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         reunionAlumnoConsejeroBD.setEsProblemaSicologico(reunionAlumnoConsejeroForm.getEsProblemaSicologico());
         reunionAlumnoConsejeroBD.setEsRiesgoAcademico(reunionAlumnoConsejeroForm.getEsRiesgoAcademico());
         reunionAlumnoConsejeroBD.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ASIS);
+        reunionAlumnoConsejeroBD.setFechaAsistencia(reunionAlumnoConsejeroForm.getFechaAsistencia());
+        reunionAlumnoConsejeroBD.setHoraInicio(reunionAlumnoConsejeroForm.getHoraInicio());
+        reunionAlumnoConsejeroBD.setHoraFin(reunionAlumnoConsejeroForm.getHoraFin());
         reunionAlumnoConsejeroBD.setFechaModifica(new Date());
         reunionAlumnoConsejeroBD.setUserModifica(ds.getUsuario());
-        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
-
+        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaAsistencia", "horaInicio", "horaFin", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
         AgendaConsejero agendaConsejero = reunionAlumnoConsejeroBD.getAgendaConsejero();
         agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.ATEN);
         agendaConsejero.setFechaModifica(new Date());
