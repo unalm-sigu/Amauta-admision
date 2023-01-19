@@ -1985,7 +1985,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         }
 
         Tramite tramite = tramiteTituloDB.getTramite();
-        tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
         tramite.setFechaRespuesta(null);
         tramite.setUserRespuesta(null);
         tramite.setFinalizado(Boolean.FALSE);
@@ -1994,11 +1994,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramite.setUserModificacion(ds.getUsuario());
         tramiteDAO.update(tramite);
 
-        tramiteTituloDB.setEstado(TramiteEstadoEnum.SOL.name());
+        tramiteTituloDB.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteTituloDB.setFechaResolucion(null);
         tramiteTituloDB.setUsuarioResolucion(null);
         tramiteTituloDB.setResolucion(null);
         tramiteTituloDB.setTramite(tramite);
+        tramiteTituloDB.setMotivo(tramiteTitulo.getMotivo());
+        tramiteTituloDB.setFechaAnulacion(new Date());
+        tramiteTituloDB.setUsuarioAnulaTramite(ds.getUsuario());
         tramiteTituloDAO.update(tramiteTituloDB);
 
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
@@ -2074,6 +2077,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramiteBachillerDB.setResolucion(null);
         tramiteBachillerDB.setTramite(tramite);
         tramiteBachillerDB.setUsuario(ds.getUsuario());
+        tramiteBachillerDB.setMotivo(tramiteBachiller.getMotivo());
+        tramiteBachillerDB.setFechaAnulacion(new Date());
+        tramiteBachillerDB.setUsuarioAnulaTramite(ds.getUsuario());
         tramiteBachillerDAO.update(tramiteBachillerDB);
 
         Egresado egresado = egresadoDAO.findByAlumno(alumnoDB);

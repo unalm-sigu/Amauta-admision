@@ -22,21 +22,22 @@
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
-                                            <tr>
-                                                <th class="col-xs-2">Trámite</th>
-                                                <th class="col-xs-3">Persona</th>
-                                                <th class="col-xs-3">Resolución</th>
-                                                <th class="col-xs-3">Registro</th>
-                                                <th class="col-xs-1">Estado</th>
-                                                <th class="text-center"></th>
-                                            </tr>
+                                        <tr>
+                                            <th class="col-xs-3">Trámite</th>
+                                            <th class="col-xs-2">Persona</th>
+                                            <th class="col-xs-2">Resolución</th>
+                                            <th class="col-xs-2">Registrado</th>
+                                            <th class="col-xs-2">Anulado</th>
+                                            <th class="col-xs-1">Estado</th>
+                                            <th></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td> 
-                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
-                                                    <small class="block text-muted">Documento N° {{item.tramite.descripcion}}</small>
+                                                    <small class="block text-muted">Serie: <b>{{item.tramite.serie}}</b></small>
+                                                    <small class="block text-muted">Número: <b>{{item.tramite.numero}}</b></small>
+                                                    <small class="block text-muted">Documento N° <b>{{item.tramite.descripcion}}</b></small>
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <div class="bock ">
@@ -62,6 +63,17 @@
                                                     {{item.tramite.userRegistro.persona.apellidosNombres}}
                                                     <small class="block text-muted">
                                                         {{item.tramite.fechaRegistro}}
+                                                    </small>
+                                                </td>
+
+                                                <td class="v-middle text-left">
+                                                    <span class="block bold" v-if="item.tramite.estado == 'ANU'"> Motivo </span>
+                                                    <span class="block" v-if="item.tramite.estado == 'ANU'"> {{item.motivo}} </span>
+                                                    <small class="block text-muted" v-if="item.tramite.estado == 'ANU'">
+                                                        <b>{{item.usuarioAnulaTramite.persona.apellidosNombres}}</b>
+                                                    </small>
+                                                    <small class="block text-muted" v-if="item.tramite.estado == 'ANU'">
+                                                        <b>{{item.fechaAnulacion}}</b>
                                                     </small>
                                                 </td>
 

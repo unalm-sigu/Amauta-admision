@@ -108,9 +108,9 @@
                                                                         <li class="pointer"><a v-on:click="openNoAsistenciaModal(reuniones)">No Asistió</a></li>
                                                                         <li class="pointer"><a v-on:click="anular(reuniones)">Anular</a></li>
                                                                     </ul>
-                                                                    <div><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)" v-if="reuniones.estado == 'ASIS'"> Fecha Asistencia: {{ reuniones.fechaAsistencia }} </span></div>
-                                                                    <div><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)" v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaInicio != null"> Hora Inicio: {{ reuniones.horaInicio }} </span></div>
-                                                                    <div><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)" v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaFin != null"> Hora Fin: {{ reuniones.horaFin }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.fechaAsistencia != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Fecha Asistencia: {{ reuniones.fechaAsistencia }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaInicio != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Hora Inicio: {{ reuniones.horaInicio }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaFin != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Hora Fin: {{ reuniones.horaFin }} </span></div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-2">
