@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 
 @Repository
 public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaDocente> implements PuntajeEncuestaDocenteDAO {
@@ -43,6 +44,21 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
         return all(sql);
     }
 
+    @Override
+    public List<PuntajeEncuestaDocente> allByDocenteModalidadCicloAcademicoActivo(Docente docente, ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
+                .join("encuestaDocente ed", "temaEncuesta te")
+                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c", "c.modalidadEstudio me")
+                .filter("d.id", docente)
+                .filter("ca.id", cicloAcademico)
+                .filter("me.id", modalidadEstudio)
+                .filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT.name())
+                .orderBy("c.codigo");
+
+        return all(sql);
+    }
+
+    
     @Override
     public List<PuntajeEncuestaDocente> allByModalidadCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")

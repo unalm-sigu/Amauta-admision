@@ -20,4 +20,6 @@ public interface PuntajeEncuestaDocenteDAO extends EasyDAO<PuntajeEncuestaDocent
 
     List<PuntajeEncuestaDocente> allByModalidadEncuestaCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
 
+    public List<PuntajeEncuestaDocente> allByDocenteModalidadCicloAcademicoActivo(Docente docente, ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
+
 }
