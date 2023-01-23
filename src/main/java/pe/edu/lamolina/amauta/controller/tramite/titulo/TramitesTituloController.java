@@ -56,6 +56,7 @@ public class TramitesTituloController {
         ArrayNode array = JaneHelper.from(tramitesTitulos)
                 .join("tramite")
                 .join("resolucion")
+                .join("usuarioAnulaTramite.persona", "apellidosNombres")
                 .join("tramite.persona", "apellidosNombres")
                 .join("tramite.alumno", "codigo")
                 .join("tramite.alumno.planCurricular")
