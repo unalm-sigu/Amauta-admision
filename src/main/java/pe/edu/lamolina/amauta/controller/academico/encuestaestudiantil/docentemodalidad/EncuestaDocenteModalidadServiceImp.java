@@ -340,9 +340,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
             for (PuntajeEncuestaDocenteModalidad puntaje : puntajes) {
                 if (ciclo.getCodigoInt() < 202220) {//solución temporal hasta definir la escala
-                    data.setValue(puntaje.getPuntaje().divide(DOS, 6, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                    data.setValue(puntaje.getPuntaje().divide(DOS, 6), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
                 } else {
-                    data.setValue(puntaje.getPuntaje().setScale(0, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                    data.setValue(puntaje.getPuntaje(), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
                 }
             }
 
