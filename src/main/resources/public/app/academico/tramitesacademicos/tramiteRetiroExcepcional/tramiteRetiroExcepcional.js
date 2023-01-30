@@ -1,9 +1,9 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#main',
-    components:{
-        ModalSimple:use("/_vue/modules/ModalSimple.vue"),
-        RaptorTable:use("/_vue/modules/RaptorTable.vue"),
+    components: {
+        ModalSimple: use("/_vue/modules/ModalSimple.vue"),
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
     },
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/list'),
@@ -59,8 +59,13 @@ var app = new Vue({
             let $vue = this;
             axios_.post("/academico/tramiteacademico/tramiteRetiroExcepcional/save", $vue.retiroExcepcional)
                     .then(response => {
+                        console.log(response.data);
+                        if (response.data.success) {
+                            notify(response.data.message, "success");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
                         $vue.$refs.load.loadRemoteData();
-                        notify(response.data, "success");
                         $vue.$refs.modalRetiroExcep.close();
                     }, () => {
                         $vue.$refs.modalRetiroExcep.stop();

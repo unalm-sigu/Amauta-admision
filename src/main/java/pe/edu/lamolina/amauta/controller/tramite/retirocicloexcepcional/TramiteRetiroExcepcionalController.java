@@ -17,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -72,10 +74,18 @@ public class TramiteRetiroExcepcionalController {
 
     @ResponseBody
     @RequestMapping("save")
-    public String save(@RequestBody RetiroCiclo retiro, HttpSession session) {
+    public JsonResponse save(@RequestBody RetiroCiclo retiro, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.saveRetiro(retiro, ds);
-        return GlobalMessages.CREATED;
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.FALSE);
+        try {
+            String MSG = service.saveRetiro(retiro, ds);
+            json.setSuccess(MSG.equalsIgnoreCase("OK") ? Boolean.TRUE : Boolean.FALSE);
+            json.setMessage(MSG.equalsIgnoreCase("OK") ? GlobalMessages.CREATED : MSG);
+        } catch (PhobosException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 
     @RequestMapping("{idTramite}/reporte")
