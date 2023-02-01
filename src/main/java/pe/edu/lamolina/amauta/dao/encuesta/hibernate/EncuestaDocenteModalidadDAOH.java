@@ -116,5 +116,16 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
 
         return all(sql);
     }
+    
+    @Override
+    public EncuestaDocenteModalidad findByDocenteModalidadCiclo(Docente docente, ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(EncuestaDocenteModalidad.class, "edm")
+                .join("docente d", "modalidadEstudio me", "cicloAcademico ca")
+                .filter("d.id", docente)
+                .filter("me.id", modalidadEstudio)
+                .filter("ca.id", cicloAcademico);
+
+        return find(sql);
+    }
 
 }
