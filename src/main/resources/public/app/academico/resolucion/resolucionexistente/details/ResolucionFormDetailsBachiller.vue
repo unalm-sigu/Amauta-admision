@@ -88,6 +88,9 @@
         },
         mounted: function () {
             let $vue = this;
+            if ($vue.isEdicion === false || $vue.isAnular === false) {
+                $vue.allBachillers();
+            }
             /*if (!$vue.isEdicion) {
                 $vue.allBachillers();
             }*/
