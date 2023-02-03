@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoOpcionalDAO;
+import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 
 @Repository
 public class RequisitoCursoOpcionalDAOH extends AbstractEasyDAO<RequisitoCursoOpcional> implements RequisitoCursoOpcionalDAO {
@@ -84,6 +85,18 @@ public class RequisitoCursoOpcionalDAOH extends AbstractEasyDAO<RequisitoCursoOp
                 .join("cursoOpcional cop", "cursoRequisitoCurricula crc", "cop.curso", "cop.tipoCursoCurricula")
                 .filter("estado", ACT)
                 .filter("crc.id", cursoElectivo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RequisitoCursoOpcional> allByCursoElectivoGeneral(CursoOpcionalCurricula electivoBD) {
+        Octavia sql = Octavia.query()
+                .from(RequisitoCursoOpcional.class, "rcc")
+                .join("cursoOpcional cop")
+                .leftJoin("cursoRequisitoCurricula crc", "crc.curso", "crc.tipoCursoCurricula")
+                .leftJoin("cursoRequisitoOpcional cro", "cro.curso", "cro.tipoCursoCurricula")
+                .filter("cop.id", electivoBD);
 
         return all(sql);
     }
