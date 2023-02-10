@@ -13,7 +13,7 @@ new Vue({
             header: true,
             title: "Agenda Consejero",
             okbtn: 'Guardar',
-            modalsize: "modal-lg",
+            modalsize: "modal-xl",
             showaccept: true
         },
         asistenciaModal: {
@@ -35,11 +35,14 @@ new Vue({
         agendaConsejero: {},
         alumnosConsejeros: [],
         alumnosConsejerosTemp: [],
+        reunionAlumnoConsejerosTemp: [],
         configDate: {
             format: "DD/MM/YYYY",
             useCurrent: false
         },
         reunionConsejero: {},
+        horasInicio: [],
+        horasFin: [],
         selectAll: false
     },
     mounted: function () {
@@ -56,6 +59,11 @@ new Vue({
             let $vue = this;
             for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
                 $vue.alumnosConsejerosTemp[i].seleccionado = val;
+            }
+            $vue.horasInicio = [];
+            $vue.horasFin = [];
+            if(val == false) {
+                $vue.agendaConsejero.hora = {};
             }
         }
     },
@@ -90,8 +98,9 @@ new Vue({
                 type: 'post',
             }).then(response => {
                 if (response.success) {
-                    $vue.$refs.asistenciaModal.close();
                     $vue.$refs.load.loadRemoteData();
+                    $vue.$refs.asistenciaModal.close();
+                    $vue.init();
                     notify(response.message, "success");
                 }
             }, error => {
@@ -189,6 +198,9 @@ new Vue({
             $vue.init();
             $vue.$refs.agendaModal.title = 'Agenda Consejero';
             $vue.$refs.agendaModal.okbtn = 'Guardar';
+            $('#formSaveOrUpdate').parsley().reset();
+            $vue.horasInicio = [];
+            $vue.horasFin = [];
             $vue.$refs.agendaModal.open();
         },
         openUpdateModal(item) {
@@ -202,11 +214,13 @@ new Vue({
         openAsistenciaModal(item) {
             let $vue = this;
             $vue.reunionConsejero = Object.assign({}, item);
+            $('#formAsistio').parsley().reset();
             $vue.$refs.asistenciaModal.open();
         },
         openNoAsistenciaModal(item) {
             let $vue = this;
             $vue.reunionConsejero = Object.assign({}, item);
+            $('#formNoAsistio').parsley().reset();
             $vue.$refs.noAsistenciaModal.open();
         },
         obtenerInfo(item) {
@@ -222,22 +236,80 @@ new Vue({
                 }
             });
         },
+        seleccionaHora(item) {
+            let $vue = this;
+            let reunionAlumnoConsejeros = [];
+            $vue.agendaConsejero.reunionAlumnoConsejeros = [];
+            for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
+                $vue.horasInicio[i] = item.descripcion;
+                $vue.horasFin[i] = item.descripcionFin;
+                let data = {
+                    alumnoConsejero: $vue.alumnosConsejerosTemp[i],
+                    horaInicio: $vue.horasInicio[i],
+                    horaFin: $vue.horasFin[i]
+                };
+                reunionAlumnoConsejeros.push(data);
+
+            }
+            $vue.agendaConsejero.reunionAlumnoConsejeros = reunionAlumnoConsejeros;
+        },
         save() {
             let $vue = this;
             var valid = $('#formSaveOrUpdate').parsley().validate();
             if (valid != true) {
-                notify("Ingrese los datos obligatorios.", "error");
+                notify("Ingrese los datos obligatorios.", "warning");
                 return;
             }
-            var reunionAlumnoConsejeros = [];
-            for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
-                if ($vue.alumnosConsejerosTemp[i].seleccionado) {
-                    var data = {alumnoConsejero: $vue.alumnosConsejerosTemp[i]};
-                    reunionAlumnoConsejeros.push(data);
+            const formatFecha = /^(0?[1-9]|[12][\d]|3[0-1])[\/](0?[1-9]|1[0-2])[\/](\d{4})$/;
+            if(formatFecha.test($vue.agendaConsejero.fecha)){
+                const dia = $vue.agendaConsejero.fecha.split("/")[0];
+                const mes = $vue.agendaConsejero.fecha.split("/")[1];
+                const anio = $vue.agendaConsejero.fecha.split("/")[2];
+                const fechaActual = moment();
+                //const fechaReunion = moment("2023-01-31 23:59:59");
+                const fechaReunion = moment(`${anio}-${mes}-${dia} 00:00:00`);
+                console.log(fechaReunion.diff(fechaActual, "days"));
+                const diferenciaEnDias = fechaReunion.diff(fechaActual, "days")
+                if(diferenciaEnDias < 0 || isNaN(diferenciaEnDias)) {
+                    //console.log("Invalido", diferenciaEnDias);
+                    notify("Ingrese una fecha válida", "warning");
+                    return;
                 }
             }
-            $vue.agendaConsejero.reunionAlumnoConsejeros = reunionAlumnoConsejeros;
+
+            if($vue.selectAll == false) {
+                console.log("$vue.selectAll", $vue.selectAll);
+                const reunionAlumnoConsejeros = [];
+                $vue.agendaConsejero.reunionAlumnoConsejeros = [];
+                for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
+                    if ($vue.alumnosConsejerosTemp[i].seleccionado) {
+                        let data = {
+                            alumnoConsejero: $vue.alumnosConsejerosTemp[i],
+                            horaInicio: $vue.horasInicio[i],
+                            horaFin: $vue.horasFin[i]
+                        };
+                        reunionAlumnoConsejeros.push(data);
+                    }
+                }
+                $vue.agendaConsejero.reunionAlumnoConsejeros = reunionAlumnoConsejeros;
+            }
+
             $vue.agendaConsejero.consejero = $vue.consejeroSelect;
+
+            if($vue.agendaConsejero.reunionAlumnoConsejeros.length == 0) {
+                notify("Seleccione alumno(s).", "warning");
+                return;
+            }
+            $vue.agendaConsejero.reunionAlumnoConsejeros.forEach(item => {
+                if(item.horaInicio == undefined) {
+                    notify( `Alumno ${item.alumnoConsejero.alumno.codigo} no cuenta con hora de inicio.`, "warning");
+                    return;
+                }
+                if(item.horaFin == undefined) {
+                    notify( `Alumno ${item.alumnoConsejero.alumno.codigo} no cuenta con hora fin.`, "warning");
+                    return;
+                }
+            });
 
             $.ajax({
                 url: APP.url(rutaModulo + "/save"),
@@ -262,7 +334,9 @@ new Vue({
             var reunionAlumnoConsejeros = [];
             for (var i = 0; i < $vue.alumnosConsejerosTemp.length; i++) {
                 if ($vue.alumnosConsejerosTemp[i].seleccionado) {
-                    var data = {alumnoConsejero: $vue.alumnosConsejerosTemp[i]};
+                    var data = {
+                        alumnoConsejero: $vue.alumnosConsejerosTemp[i]
+                    };
                     reunionAlumnoConsejeros.push(data);
                 }
             }
@@ -307,6 +381,26 @@ new Vue({
         reporte() {
             let $vue = this;
             location.href = APP.url('consejeria/agendaconsejero/reporteReuniones/' + $vue.consejeroSelect.carrera.id);
+        },
+        mostrarMenu(item) {
+            const selector = document.body.querySelector('.nav-link');
+            let parentNode = selector.parentNode;
+            let childNode = selector.childNodes;
+            console.log(childNode);
+            while (parentNode !== null && parentNode !== document.documentElement) {
+                //console.log(selector.classList);
+                if (parentNode.classList.contains('collapse')) {
+                    parentNode.classList.add('show');
+                    const parentNavLink = document.body.querySelector(
+                        '[data-bs-target="#' + parentNode.id + '"]'
+                    );
+                    //console.log(parentNavLink);
+                    parentNavLink.classList.remove('collapsed');
+                    parentNavLink.classList.add('active');
+                }
+                parentNode = parentNode.parentNode;
+            }
+            selector.classList.add('active');
         }
     }
 });

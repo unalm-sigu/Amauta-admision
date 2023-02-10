@@ -39,7 +39,7 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
         long t1 = System.currentTimeMillis();
         Insecto sql = Insecto.createInsert()
                 .into(ReunionAlumnoConsejero.class)
-                .columns("estado", "alumnoConsejero", "agendaConsejero", "fechaRegistro", "userRegistro")
+                .columns("estado", "fechaAsistencia", "horaInicio", "horaFin", "alumnoConsejero", "agendaConsejero", "fechaRegistro", "userRegistro")
                 .values(reunionAlumnoConsejeros);
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());
@@ -66,14 +66,16 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .from(ReunionAlumnoConsejero.class, "rac")
                 .join("alumnoConsejero ac", "agendaConsejero acon", "ac.cicloAcademico ca")
                 .join("ac.alumno al", "al.persona per", "per.tipoDocumento")
-                .join("ac.consejero con", "acon.hora","con.colaborador coo")
+                .join("ac.consejero con", "con.colaborador coo")
+                .leftJoin("acon.hora")
                 .join("al.carrera car", "car.facultad")
                 .searchFields("acon.titulo", "al.codigo", "per.numeroDocIdentidad", "acon.fecha")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("ca.id", cicloAcademico)
                 .filter("coo.codigo", consejero.getColaborador().getCodigo())
-                .orderBy("acon.fecha", "acon.hora");
+                .orderBy("rac.id desc");
+                //.orderBy("acon.fecha", "acon.hora");
 
         return all(sql);
     }

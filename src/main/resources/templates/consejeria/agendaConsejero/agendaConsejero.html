@@ -33,6 +33,36 @@
                 color: #fff;
             }
 
+            @media (min-width: 768px) {
+                .modal-xl {
+                    width: 90%;
+                    max-width:1200px;
+                }
+            }
+
+            .collapse:not(.show) {
+                display: none;
+            }
+
+            nav-link {
+                padding: 0.125rem 0.25rem;
+            }
+
+            .nav-link.collapsed .sidenav-collapse-arrow {
+                transform: rotate(-90deg);
+            }
+
+            .nav-link.active {
+                border-color: transparent;
+                background-color: #2f2f2f;
+                color: white;
+            }
+
+            .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+                background-color: #e3e3e3;
+                opacity: 1;
+            }
+
         </style>
     </head>
     <body>
@@ -90,7 +120,7 @@
                                                         </span>
                                                         <span class="block">                                                            
                                                             <span class=" bold"> Fecha: </span>
-                                                            {{item.fecha}} - {{item.hora.descripcion}}
+                                                            {{item.fecha}}
                                                         </span>
                                                     </td>
                                                     <td class="v-middle">
@@ -103,14 +133,15 @@
                                                             <div class="col-md-4">
                                                                 <div class="dropdown">
                                                                     <span id="dropdownMenu1" class="bold dropdown-toggle pointer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" v-bind:class="styleColor(reuniones.estadoEnum)" v-text="reuniones.estadoEnum.value">  </span>
+                                                                    <span v-if="reuniones.estado == 'AGEN'" class="bold" style="font-size: 16px;"><i class="fa fa-angle-down"></i></span>
                                                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" v-if="reuniones.estado == 'AGEN' ">
                                                                         <li class="pointer"><a v-on:click="openAsistenciaModal(reuniones)">Asistió</a></li>
                                                                         <li class="pointer"><a v-on:click="openNoAsistenciaModal(reuniones)">No Asistió</a></li>
                                                                         <li class="pointer"><a v-on:click="anular(reuniones)">Anular</a></li>
                                                                     </ul>
-                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.fechaAsistencia != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Fecha Asistencia: {{ reuniones.fechaAsistencia }} </span></div>
-                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaInicio != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Hora Inicio: {{ reuniones.horaInicio }} </span></div>
-                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaFin != null"><span class="bold pointer" v-bind:class="styleColor(reuniones.estadoEnum)"> Hora Fin: {{ reuniones.horaFin }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.fechaAsistencia != null"><span> <span class="bold">Fecha Asistencia:</span> {{ reuniones.fechaAsistencia }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaInicio != null"><span> <span class="bold">Hora Inicio:</span> {{ reuniones.horaInicio }} </span></div>
+                                                                    <div v-if="reuniones.estado == 'ASIS' &amp;&amp; reuniones.horaFin != null"><span> <span class="bold">Hora Fin:</span> {{ reuniones.horaFin }} </span></div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-2">
