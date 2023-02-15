@@ -187,26 +187,28 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         List<CursoCurricula> cursosCicloPlan = cursoCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
+        List<AlumnoCursoCurricula> cursosPlanAlumnoInactivosCaducados = alumnoCursoCurriculaDAO.allByAlumnoCursosCurriculaInactivos(alumno, cursosCicloPlan);
         List<AlumnoCursoCurricula> cursosPlanAlumnoOpcional = alumnoCursoCurriculaDAO.allByAlumnoCursosOpcional(alumno);
         List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosCicloPlan);
         List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByPlanCurricular(alumno.getPlanCurricular());
         Map<Long, Long> mapRequisitoByCurricula = requisitoCursoCurriculas.stream().collect(Collectors.groupingBy(x -> x.getCursoCurricula().getId(), Collectors.counting()));
         Map<Long, List<RequisitoCursoCurricula>> mapCountRequisitos = TypesUtil.convertListToMapList("cursoCurricula.id", requisitoCursoCurriculas);
         Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = TypesUtil.convertListToMap("cursoCurricula.id", cursosPlanAlumno);
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoInactivosCaducados = TypesUtil.convertListToMap("cursoCurricula.curso.id", cursosPlanAlumnoInactivosCaducados);
         Map<Long, List<CursoEquivalente>> mapCursoEquivalente = TypesUtil.convertListToMapList("cursoCurricula.id", cursoEquivalentes);
 
         List<AlumnoCursoCurricula> cursosComodin = alumnoCursoCurriculaDAO.allByAlumnoComodin(alumno);
-        
+
         List<CursoCurricula> cursosCurriculaEquivalenteAlumno = cursosPlanAlumno.stream()
-                .filter(x->x.getEstadoEnum().equals(CursoCurriculaEstadoEnum.EQUIV))
+                .filter(x -> x.getEstadoEnum().equals(CursoCurriculaEstadoEnum.EQUIV))
                 .map(AlumnoCursoCurricula::getCursoCurricula)
                 .collect(Collectors.toList());
-        
+
         List<CursoEquivalente> cursosEquivalentesAlumno = cursoEquivalenteDAO.allActivoByCursosCurriculas(cursosCurriculaEquivalenteAlumno);
         List<Curso> cursosAprobadosXequivalencia = cursosEquivalentesAlumno.stream().map(CursoEquivalente::getCursoEquivalente).collect(Collectors.toList());
         List<AlumnoCursoCurricula> cursosComodinMenosAprobadosXequivalente = cursosComodin.stream()
-                            .filter(x->!cursosAprobadosXequivalencia.contains(x.getCurso())).collect(Collectors.toList());
-                
+                .filter(x -> !cursosAprobadosXequivalencia.contains(x.getCurso())).collect(Collectors.toList());
+
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
                 "id",
@@ -224,11 +226,17 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             });
 
             Long countReq = mapRequisitoByCurricula.get(alumnoCursoCurricula.getCursoCurricula().getId());
+            log.debug("CursoCurricula() {} {}", alumnoCursoCurricula.getCursoCurricula().getCurso().getCodigo(), alumnoCursoCurricula.getCursoCurricula().getCurso().getNombre());
             objNode.put("cantRequisitos", countReq == null ? 0 : countReq);
             List<RequisitoCursoCurricula> preRequisitos = mapCountRequisitos.get(alumnoCursoCurricula.getCursoCurricula().getId());
 
             ArrayNode arrayPreRequisitos = new ArrayNode(JsonNodeFactory.instance);
             List<RequisitoCursoCurricula> cursosRequisitos = preRequisitos == null ? new ArrayList<>() : preRequisitos;
+            log.debug("cursosRequisitos {}", cursosRequisitos.size());
+            for (RequisitoCursoCurricula cursosRequisito : cursosRequisitos) {
+//                log.debug("cursosCurricula {} {}", cursosRequisito.getCursoCurricula().getCurso().getCodigo(), cursosRequisito.getCursoCurricula().getCurso().getNombre());
+                log.debug("cursosRequisito {} {}", cursosRequisito.getCursoRequisito().getCurso().getCodigo(), cursosRequisito.getCursoRequisito().getCurso().getNombre());
+            }
             for (RequisitoCursoCurricula requisito : cursosRequisitos) {
                 ObjectNode nodeRequisito = new ObjectNode(JsonNodeFactory.instance);
                 nodeRequisito.put("curso", requisito.getCursoRequisito().getCurso().getNombre());
@@ -241,13 +249,27 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getCurso().getTipoCursoEnum().getValue());
 
                 AlumnoCursoCurricula alumnoCurs = mapAlumnoCurso.get(requisito.getCursoRequisito().getId());
+//                log.debug("requisito FOR {} {}", requisito.getCursoRequisito().getCurso().getCodigo(), requisito.getCursoRequisito().getCurso().getNombre());
                 if (alumnoCurs == null) {
+                    log.debug("AlumnoCursoCurricula es nulo no tiene aprobado por si ha llevado ");
                     List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapCursoEquivalente.get(requisito.getCursoRequisito().getId()));
+                    log.debug("cursosEquivalentes del requisito {}", cursosEquivalentes.size());
                     for (CursoEquivalente cursosEquivalente : cursosEquivalentes) {
+
+                        log.debug("CursoEquivalente del equivalente {} {}", cursosEquivalente.getCursoCurricula().getCurso().getCodigo(), requisito.getCursoCurricula().getCurso().getNombre());
                         if (cursosEquivalente.getCursoCaduco() == null) {
+                            log.debug("CursoEquivalente no es caduco ");
                             continue;
                         }
+                        log.debug("CursoEquivalente del equivalente caduco {} {}", cursosEquivalente.getCursoCaduco().getCurso().getCodigo(), cursosEquivalente.getCursoCaduco().getCurso().getNombre());
+
                         alumnoCurs = mapAlumnoCurso.get(cursosEquivalente.getCursoCaduco().getId());
+                        if (alumnoCurs == null) {
+                            AlumnoCursoCurricula alumnoCursInactivoCaduco = mapAlumnoCursoInactivosCaducados.get(cursosEquivalente.getCursoCaduco().getCurso().getId());
+                            log.debug("alumnoCursInactivoCaduco {} {}", alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getCodigo(),alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getNombre());
+                            alumnoCurs = alumnoCursInactivoCaduco;
+                        }
+
                         nodeRequisito.put("estado", alumnoCurs.getEstadoEnum().name());
                         nodeRequisito.put("porEquivalencia", true);
                         nodeRequisito.put("estadoMatricula", alumnoCurs.getEstadoMatricula());
