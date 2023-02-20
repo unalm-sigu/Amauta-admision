@@ -236,7 +236,7 @@ new Vue({
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
-                return  codigo + " - " + persona.nombreCompleto;
+                return  'Matrícula: '+ codigo + " - " + persona.nombreCompleto;
             }
             return "";
         },

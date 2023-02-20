@@ -561,15 +561,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     @Override
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia subQuery = new Octavia()
-                .from(MatriculaResumen.class, "mr")
-                .join("alumno alum")
-                .filter("cicloAcademico", cicloAcademico);
-
-        Octavia subQueryRetiro = new Octavia()
-                .from(RetiroCiclo.class, "rc")
-                .join("alumno alumrc", "cicloRegistro cr")
-                .filter("cr.id", cicloAcademico);
+//        Octavia subQuery = new Octavia()
+//                .from(MatriculaResumen.class, "mr")
+//                .join("alumno alum")
+//                .filter("cicloAcademico", cicloAcademico);
+//
+//        Octavia subQueryRetiro = new Octavia()
+//                .from(RetiroCiclo.class, "rc")
+//                .join("alumno alumrc", "cicloRegistro cr")
+//                .filter("cr.id", cicloAcademico);
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -582,13 +582,13 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
-                .beginBlock()
-                .__().notExists(subQuery)
-                .__().linkedBy("alu.id", "alum.id")
-                .__().exists(subQueryRetiro)
-                .__().linkedBy("alu.id", "alumrc.id")
-                .endBlock()
-                .limit(15);
+//                .beginBlock()
+////                .__().exists(subQuery)
+//                .__().linkedBy("alu.id", "alum.id")
+////                .__().exists(subQueryRetiro)
+//                .__().linkedBy("alu.id", "alumrc.id")
+//                .endBlock()
+                .limit(30);
         return sql.all(getCurrentSession());
     }
 
