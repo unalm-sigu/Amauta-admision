@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.DocenteEstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
@@ -70,8 +71,9 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")
-                .leftJoin("modalidadEstudio", "departamentoAcademico da", "da.facultad")
-                .filter("per.id", persona);
+                .leftJoin("modalidadEstudio me", "departamentoAcademico da", "da.facultad")
+                .filter("per.id", persona)
+                .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG));
 
         return all(sql);
     }
@@ -179,7 +181,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .leftJoin("dpto.facultad fa")
                 .in("dpto.id", departamentos)
                 .filter("doc.estado", estado)
-                .orderBy("fa.id","dpto.id","per.paterno");
+                .orderBy("fa.id", "dpto.id", "per.paterno");
         return all(sql);
     }
 
@@ -251,8 +253,8 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 
         return all(sql);
     }
-    
-        @Override
+
+    @Override
     public List<Docente> allByNombreActivoFilter(String nombre, Integer cantidad, String codigoDep) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         System.out.println("nombre = <<" + nombre + ">>");
