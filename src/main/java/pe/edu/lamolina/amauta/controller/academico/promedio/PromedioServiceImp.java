@@ -710,7 +710,7 @@ public class PromedioServiceImp implements PromedioService {
                         return alumnoCiclo;
                     }
 
-                    this.printSystem("Error en alumno " + alumno.getCodigo()
+                    this.printSystem("Error en alumnoo " + alumno.getCodigo()
                             + ": ciclo.egreso=" + egresado.getCicloAcademico().getCodigoAnterior()
                             + " ultimo-ciclo-mat=" + cicloAlumno.getCodigoAnterior(), showError);
                     if (alumno.getCodigo().equals("20131157")) {
@@ -829,7 +829,8 @@ public class PromedioServiceImp implements PromedioService {
 
         CicloAcademico cicloEgreso = egresado.getCicloAcademico();
         CicloAcademico cicloAlumno = alumnoCiclo.getCicloAcademico();
-        return cicloEgreso.getCodigoInt() >= cicloAlumno.getCodigoInt();
+        
+        return egresado.getCicloAcademico().getCodigoInt() >= alumnoCiclo.getCicloAcademico().getCodigoInt();
     }
 
     private AlumnoCiclo getAlumnoCicloIngreso(

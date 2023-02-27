@@ -199,4 +199,19 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
         return find(sql);
     }
 
+    @Override
+    public ObtencionGrado findByAlumnoBachillerAceptado(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(ObtencionGrado.class, "og")
+                .join("estadoTramite et", "alumno al")
+                .left("al.carrera car", "al.persona per", "per.tipoDocumento td", "resolucion re")
+                .left("tramite tr", "gradoAcademico ga")
+                .filter("ga.tipo", BACH)
+                .filter("al.id", alumno)
+                .filter("et.codigo", TramiteEstadoEnum.ACEP);
+
+        return find(sql);
+    }
+
+    
 }

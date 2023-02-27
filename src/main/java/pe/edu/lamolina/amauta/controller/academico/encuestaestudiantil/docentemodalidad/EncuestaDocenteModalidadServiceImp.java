@@ -120,7 +120,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     @Override
     public Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad) {
         EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
-
+                
         List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademicoActivo(edm.getDocente(), edm.getModalidadEstudio(), edm.getCicloAcademico());
 
         List<PuntajeEncuestaDocenteModalidad> puntajes = puntajeEncuestaDocenteModalidadDAO.allByEncuestaDocenteModalidad(encuestaDocenteModalidad);

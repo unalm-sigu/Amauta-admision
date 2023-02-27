@@ -201,8 +201,11 @@ public class ProfesorServiceImp implements ProfesorService {
         }
 
         List<Docente> docentesBD = docenteDAO.allByPersona(docente.getPersona());
-        log.debug("existe docente en db {}", (docentesBD != null));
-        Assert.isTrue(docentesBD.isEmpty(), "Docente ya existe");
+        List<Docente> docentesPRE_EPG = docentesBD.stream()
+                                        .filter(x -> !x.getModalidadEstudio().isPregrado() || !x.getModalidadEstudio().isPostgrado())
+                                        .collect(Collectors.toList());
+        log.debug("existe docente en db {}", (docentesPRE_EPG != null));
+        Assert.isTrue(docentesPRE_EPG.isEmpty(), "Docente ya existe");
 
         log.debug("guardando docente ...");
         docente.setEstadoEnum(DocenteEstadoEnum.ACT);

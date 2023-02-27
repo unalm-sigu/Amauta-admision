@@ -29,4 +29,6 @@ public interface ObtencionGradoDAO extends EasyDAO<ObtencionGrado> {
 
     ObtencionGrado findByAlumno(Alumno alumno);
 
+    ObtencionGrado findByAlumnoBachillerAceptado(Alumno alumno);
+
 }

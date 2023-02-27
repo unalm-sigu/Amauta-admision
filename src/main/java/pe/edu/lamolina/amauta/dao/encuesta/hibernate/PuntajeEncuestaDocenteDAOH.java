@@ -48,8 +48,8 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
     @Override
     public List<PuntajeEncuestaDocente> allByDocenteModalidadCicloAcademicoActivo(Docente docente, ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
-                .join("encuestaDocente ed", "temaEncuesta te")
-                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c", "c.modalidadEstudio me")
+                .join("encuestaDocente ed", "temaEncuesta te","ed.modalidadEstudio me")//la molidad lo cambie por el ED y no por el curso
+                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c")
                 .filter("d.id", docente)
                 .filter("ca.id", cicloAcademico)
                 .filter("me.id", modalidadEstudio)
