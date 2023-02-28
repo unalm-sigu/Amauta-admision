@@ -106,22 +106,27 @@
             },
             del(index) {
               let $vue = this;
-              if($vue.isAnular){
+              if($vue.isAnular) {
                 bootbox.confirm({
-                  message: '¿Seguro que desea retirar al alumno de esta resolución? ',
+                  message: "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
+                      "<p>Ingrese motivo: </p>" +
+                      "<textarea id='motivo' cols='75' rows='3'></textarea>",
+                  //message: '¿Seguro que desea retirar al alumno de esta resolución? ',
                   buttons: {
                     confirm: {label: 'Sí, aceptar', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                   },
+                  inputType: 'textarea',
                   callback: function (result) {
                     if (result) {
                       $vue.showLoader("Espere un momento por favor");
                       $vue.errores = [];
+                      $vue.resolucion.tramiteTitulos[index].motivo = $("#motivo").val();
                       axios_.post(APP.url('academico/resolucion/existentes/anularTramiteTitulo'), {"tramiteTitulo": $vue.resolucion.tramiteTitulos[index], "resolucion": $vue.resolucion})
                           .then(({data}) => {
                             if (data.success) {
                               notify(data.message, 'info');
-                              location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramiteTitulo");
+                              location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramite");
                             } else {
                               notify("Se produjo un error al anular el Trámite Titulo de la Resolución", 'error');
                             }

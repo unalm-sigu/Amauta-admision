@@ -91,9 +91,8 @@ public class ReunionConsejeroController {
             Map<Long, List<ReunionAlumnoConsejero>> map = TypesUtil.convertListToMapList("agendaConsejero.id", reunionAlumnoConsejeros);
             List<AgendaConsejero> agendaConsejeros = reunionAlumnoConsejeros.stream().map(x -> x.getAgendaConsejero()).distinct().collect(Collectors.toList());
 
-            service.verificarVencimiento(agendaConsejeros);
-            Collections.sort(agendaConsejeros,
-                    (AgendaConsejero a, AgendaConsejero b) -> a.getEstadoEnum().getValuePrioridad().compareTo(b.getEstadoEnum().getValuePrioridad()));
+            //service.verificarVencimiento(agendaConsejeros);
+            //Collections.sort(agendaConsejeros,(AgendaConsejero a, AgendaConsejero b) -> a.getEstadoEnum().getValuePrioridad().compareTo(b.getEstadoEnum().getValuePrioridad()));
 
             ArrayNode arrayNodeAgenda = new ArrayNode(JsonNodeFactory.instance);
             for (AgendaConsejero agendaConsejero : agendaConsejeros) {
@@ -119,7 +118,7 @@ public class ReunionConsejeroController {
             response.setFiltered(filter.getFiltered());
             response.setTotal(filter.getTotal());
 
-//            response.setData();
+//            // response.setData();
         } catch (Exception e) {
             e.printStackTrace();
             response.setTotal(0);

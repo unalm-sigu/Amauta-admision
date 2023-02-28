@@ -7,7 +7,9 @@ import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 
 public interface ResumenEncuestaDocenteDAO extends EasyDAO<ResumenEncuestaDocente> {
 
-    public List<ResumenEncuestaDocente> allByEncuestaDocente(EncuestaDocente encuestaDocente);
+    List<ResumenEncuestaDocente> allByEncuestaDocente(EncuestaDocente encuestaDocente);
+
+    List<ResumenEncuestaDocente> allInfoByEncuestaDocente(EncuestaDocente encuestaDocente);
 
 }
 

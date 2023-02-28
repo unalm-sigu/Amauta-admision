@@ -10,6 +10,8 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
+import pe.edu.lamolina.model.encuestaestudiantil.RespuestaEncuestaAlumno;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 
 @Repository
 public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaDocente> implements PuntajeEncuestaDocenteDAO {
@@ -44,6 +46,20 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
     }
 
     @Override
+    public List<PuntajeEncuestaDocente> allByDocenteModalidadCicloAcademicoActivo(Docente docente, ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
+                .join("encuestaDocente ed", "temaEncuesta te","ed.modalidadEstudio me")//la molidad lo cambie por el ED y no por el curso
+                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c")
+                .filter("d.id", docente)
+                .filter("ca.id", cicloAcademico)
+                .filter("me.id", modalidadEstudio)
+                .filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT.name())
+                .orderBy("c.codigo");
+
+        return all(sql);
+    }
+
+    @Override
     public List<PuntajeEncuestaDocente> allByModalidadCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
                 .join("encuestaDocente ed", "temaEncuesta te")
@@ -64,8 +80,17 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
 
         return all(sql);
     }
-    
-    
+    @Override
+    public List<PuntajeEncuestaDocente> allByEncuestaDocenteActivo(EncuestaDocente encuestaDocente) {
+        Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
+                .join("encuestaDocente ed", "temaEncuesta te")
+                .filter("ed.id", encuestaDocente)
+                .filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT.name())
+                .orderBy("te.nombre");
+
+        return all(sql);
+    }
+
     @Override
     public List<PuntajeEncuestaDocente> allByModalidadEncuestaCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
@@ -75,6 +100,34 @@ public class PuntajeEncuestaDocenteDAOH extends AbstractEasyDAO<PuntajeEncuestaD
                 .filter("ca.id", cicloAcademico)
                 .filter("mo.id", modalidadEstudio)
                 .orderBy("c.codigo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PuntajeEncuestaDocente> allByModalidadEncuestaCicloAcademicoACT(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(PuntajeEncuestaDocente.class, "ped")
+                .join("encuestaDocente ed", "temaEncuesta te")
+                .join("ed.docenteSeccion ds", "ds.docente d", "ds.seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso c", "c.modalidadEstudio me")
+                .join("ed.modalidadEstudio mo")
+                .filter("ca.id", cicloAcademico)
+                .filter("mo.id", modalidadEstudio)
+                .filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT.name())
+                .orderBy("c.codigo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PuntajeEncuestaDocente> findInfo(EncuestaDocente encuestaDocente) {
+        Octavia sql = Octavia.query()
+                .select("rea.encuestaDocente", "pe.tema", "avg(op.numero)", "stddev(op.numero)")
+                .into(PuntajeEncuestaDocente.class)
+                .from(RespuestaEncuestaAlumno.class, "rea")
+                .join("rea.opcion op", "op.pregunta pe", "rea.encuestaDocente ed", "pe.tema")
+                //.filter("pe.tipo", TipoPreguntaEncuestaEnum.LIKERT)
+                .filter("ed.id", encuestaDocente)
+                .groupBy("rea.encuestaDocente", "pe.tema");
 
         return all(sql);
     }

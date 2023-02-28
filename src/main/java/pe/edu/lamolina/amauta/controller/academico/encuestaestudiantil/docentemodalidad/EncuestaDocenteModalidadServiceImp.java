@@ -120,8 +120,8 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     @Override
     public Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad) {
         EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
-
-        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademico(edm.getDocente(), edm.getModalidadEstudio(), edm.getCicloAcademico());
+                
+        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademicoActivo(edm.getDocente(), edm.getModalidadEstudio(), edm.getCicloAcademico());
 
         List<PuntajeEncuestaDocenteModalidad> puntajes = puntajeEncuestaDocenteModalidadDAO.allByEncuestaDocenteModalidad(encuestaDocenteModalidad);
 
@@ -268,7 +268,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCiclo(cicloAcademico, modalidadEstudio, departamentos);
 
-        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadEncuestaCicloAcademico(modalidadEstudio, cicloAcademico);
+        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadEncuestaCicloAcademicoACT(modalidadEstudio, cicloAcademico);
 
         Map<Long, List<PuntajeEncuestaDocente>> pedsXdocente = peds.stream()
                 .collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getDocente().getId()));
@@ -306,7 +306,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
             List<EncuestaDocenteModalidad> encuestas = encuestaDocenteModalidadDAO.allConEncuestadosByCicloDocente(cicloAcademico, modalidadEstudio, departamentos, new Docente(idDocente));
 
-            List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademico(new Docente(idDocente), modalidadEstudio, cicloAcademico);
+            List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademicoActivo(new Docente(idDocente), modalidadEstudio, cicloAcademico);
 
             Map<Long, List<PuntajeEncuestaDocente>> pedsXdocente = peds.stream()
                     .collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getDocente().getId()));
@@ -340,9 +340,9 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
             for (PuntajeEncuestaDocenteModalidad puntaje : puntajes) {
                 if (ciclo.getCodigoInt() < 202220) {//solución temporal hasta definir la escala
-                    data.setValue(puntaje.getPuntaje().divide(DOS, 6, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                    data.setValue(puntaje.getPuntaje().divide(DOS, 6), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
                 } else {
-                    data.setValue(puntaje.getPuntaje().setScale(0, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                    data.setValue(puntaje.getPuntaje(), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
                 }
             }
 

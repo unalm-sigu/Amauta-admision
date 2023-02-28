@@ -2,18 +2,18 @@ package pe.edu.lamolina.amauta.controller.reunionConsejero;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
@@ -77,7 +77,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     @Transactional
     public void save(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
 
-        this.verificarInfo(agendaConsejeroForm);
+        //this.verificarInfo(agendaConsejeroForm);
 
         AgendaConsejero agendaConsejero = new AgendaConsejero();
         agendaConsejero.setConsejero(agendaConsejeroForm.getConsejero());
@@ -87,11 +87,13 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         agendaConsejero.setHora(agendaConsejeroForm.getHora());
         agendaConsejero.setAsunto(agendaConsejeroForm.getAsunto());
         agendaConsejero.setCuerpo(agendaConsejeroForm.getCuerpo());
+
         agendaConsejero.setUserRegistro(ds.getUsuario());
         agendaConsejeroDAO.save(agendaConsejero);
 
         Assert.isFalse(agendaConsejeroForm.getReunionAlumnoConsejeros().isEmpty(), "Debe seleccionar como mínimo un alumno.");
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = new ArrayList<>();
+
         for (ReunionAlumnoConsejero reunionAlumnoConsejeroForm : agendaConsejeroForm.getReunionAlumnoConsejeros()) {
             ReunionAlumnoConsejero reunionAlumnoConsejero = new ReunionAlumnoConsejero();
             reunionAlumnoConsejero.setAgendaConsejero(agendaConsejero);
@@ -99,10 +101,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
             reunionAlumnoConsejero.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.AGEN);
             reunionAlumnoConsejero.setFechaRegistro(new Date());
             reunionAlumnoConsejero.setUserRegistro(ds.getUsuario());
+            reunionAlumnoConsejero.setFechaAsistencia(agendaConsejeroForm.getFecha());
+            reunionAlumnoConsejero.setHoraInicio(reunionAlumnoConsejeroForm.getHoraInicio());
+            reunionAlumnoConsejero.setHoraFin(reunionAlumnoConsejeroForm.getHoraFin());
             reunionAlumnoConsejeros.add(reunionAlumnoConsejero);
             this.enviarCorreo(reunionAlumnoConsejero, ContenidoEmailEnum.REUNIONCONSEJERO);
         }
-
         reunionAlumnoConsejeroDAO.saveList(reunionAlumnoConsejeros);
 
     }
@@ -218,7 +222,6 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     @Transactional
     public List<ReunionAlumnoConsejero> listDynatable(DynatableFilter filter, Consejero consejero, DataSessionPivot ds) {
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allDynatableByConsejero(filter, consejero, ds.getCicloAcademico());
-
         return reunionAlumnoConsejeros;
     }
 
@@ -234,7 +237,7 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
 
                 try {
                     DateTime todayForm = new DateTime(agendaConsejero.getFecha());
-
+                    //todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.get);
                     todayForm = new DateTime(todayForm.toString("yyyy-MM-dd") + "T" + agendaConsejero.getHora().getDescripcion2());
                     todayForm = todayForm.plusHours(2); // Se agregan 2 horas de tolerancia.
                     Date dateToday = sdformat.parse(today.toString("yyyy-MM-dd HH:mm"));
@@ -267,10 +270,12 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
         reunionAlumnoConsejeroBD.setEsProblemaSicologico(reunionAlumnoConsejeroForm.getEsProblemaSicologico());
         reunionAlumnoConsejeroBD.setEsRiesgoAcademico(reunionAlumnoConsejeroForm.getEsRiesgoAcademico());
         reunionAlumnoConsejeroBD.setEstadoEnum(ReunionAlumnoConsejeroEstadoEnum.ASIS);
+        reunionAlumnoConsejeroBD.setFechaAsistencia(reunionAlumnoConsejeroForm.getFechaAsistencia());
+        reunionAlumnoConsejeroBD.setHoraInicio(reunionAlumnoConsejeroForm.getHoraInicio());
+        reunionAlumnoConsejeroBD.setHoraFin(reunionAlumnoConsejeroForm.getHoraFin());
         reunionAlumnoConsejeroBD.setFechaModifica(new Date());
         reunionAlumnoConsejeroBD.setUserModifica(ds.getUsuario());
-        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
-
+        reunionAlumnoConsejeroDAO.updateColumns(reunionAlumnoConsejeroBD, "estado", "fechaAsistencia", "horaInicio", "horaFin", "fechaModifica", "userModifica", "comentario", "esRiesgoAcademico", "esProblemaSicologico", "esProblemaEconomico", "esProblemaFamiliar");
         AgendaConsejero agendaConsejero = reunionAlumnoConsejeroBD.getAgendaConsejero();
         agendaConsejero.setEstadoEnum(AgendaConsejeroEstadoEnum.ATEN);
         agendaConsejero.setFechaModifica(new Date());

@@ -148,8 +148,8 @@ public class RestriccionMatriculaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(deuda, ds);
+            response.setMessage("Restricción ingresada");
             response.setSuccess(true);
-            response.setMessage("Restricción actualizada");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import jdk.nashorn.internal.runtime.GlobalConstants;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -95,15 +97,18 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
     @Override
     @Transactional
-    public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+    public String saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+
+        String mensajeJson = "OK";
 
         Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
 
-        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroUniqueNoAnulado(alumnoDB, retiroForm.getCicloAcademico());
+        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroNoAnuladoNiPendiente(alumnoDB, retiroForm.getCicloAcademico());
 
         if (retiroCicloDB != null) {
-            throw new PhobosException("Ya tiene un trámite en el ciclo");
+            return "Ya tiene un trámite en el ciclo " + retiroCicloDB.getCicloAcademico().getDescripcion();
+
         }
 
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
@@ -115,7 +120,13 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
                 break;
             }
         }
-        Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroForm.getCicloAcademico().getDescripcion());
+
+        logger.debug("existttt {}", exist);
+        if (!exist) {
+            return "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroForm.getCicloAcademico().getDescripcion();
+
+        }
+
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.find(retiroForm.getCicloAcademico());
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
@@ -159,6 +170,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             retiroCiclo.setEsContable(Boolean.FALSE);
         }
         retiroCicloDAO.save(retiroCiclo);
+        return mensajeJson;
     }
 
     @Override

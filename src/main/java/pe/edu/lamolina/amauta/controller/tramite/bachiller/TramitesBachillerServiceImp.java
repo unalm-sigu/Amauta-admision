@@ -1,11 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.bachiller;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -291,6 +286,13 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
             throw new PhobosException("El trámite es solo para alumnos de pre grado");
         }
 
+        Integer creditosAprobados = Objects.nonNull(alumnoDB.getCreditosAprobados()) ? alumnoDB.getCreditosAprobados(): 0;
+        Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados(): 0;
+        Integer totalCreditos = creditosAprobados + creditosConvalidados;
+        if (totalCreditos.intValue() < 200) {
+            throw new PhobosException(String.format("Alumno %s no es egresado, cuenta con %s créditos", alumnoDB.getCodigo(), totalCreditos.intValue()));
+        }
+
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
@@ -300,7 +302,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
 
         if (tramite != null) {
-            throw new PhobosException(String.format(" Ya cuenta con un tramite titulo en proceso en el ciclo %s", tramite.getCicloAcademico().getDescripcion2()));
+            throw new PhobosException(String.format(" Alumno %s ya cuenta con tramite bachiller en el ciclo %s", alumnoDB.getCodigo(), tramite.getCicloAcademico().getDescripcion2()));
         }
 
         tramite = new Tramite();

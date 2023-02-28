@@ -282,4 +282,17 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
         return find(sql);
     }
 
+    @Override
+    public RetiroCiclo allByAlumnoCicloRegistroNoAnuladoNiPendiente(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .left("alumno al", "cicloRegistro cr", "cicloAcademico ca")
+                .filter("al.id", alumno)
+                .notIn("rc.estado", Arrays.asList(TramiteEstadoEnum.ANU.name(), TramiteEstadoEnum.PEND.name()))
+                .filter("ca.codigo", ciclo.getCodigo())
+                .limit(1);
+
+        return find(sql);
+    }
+
 }

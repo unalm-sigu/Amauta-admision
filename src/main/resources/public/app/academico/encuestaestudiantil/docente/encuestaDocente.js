@@ -880,7 +880,7 @@ new Vue({
             $vue.configConfirmAction.okclass = okclass;
 
             if (item.estado == "ACT") {
-                let msg = '¿Está seguro que desea <span class="text-danger" bold">desactivar</span> esta encuesta del docente <strong>';
+                let msg = '¿Está seguro que desea <span class="text-danger bold">desactivar</span> esta encuesta del docente <strong>';
                 msg += item.docenteSeccion.docente.persona.apellidosNombres.replace(/,/g, "") + "</strong>?";
 
                 $vue.encuestaDocente = JSON.parse(JSON.stringify(item));

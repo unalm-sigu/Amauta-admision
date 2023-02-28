@@ -9,14 +9,14 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
 public interface TramiteRetiroExcepcionalService {
 
-    public List<RetiroCiclo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds);
+    List<RetiroCiclo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds);
 
-    public void saveRetiro(RetiroCiclo retiro, DataSessionPivot ds);
+    String saveRetiro(RetiroCiclo retiro, DataSessionPivot ds);
 
-    public void anular(RetiroCiclo retiroCiclo, DataSessionPivot ds);
+    void anular(RetiroCiclo retiroCiclo, DataSessionPivot ds);
 
-    public void reporte(Long idTramite, DataSessionPivot ds, Model model);
+    void reporte(Long idTramite, DataSessionPivot ds, Model model);
 
-    public List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds);
+    List<CicloAcademico> getCiclosVeinte(DataSessionPivot ds);
 
 }

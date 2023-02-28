@@ -684,6 +684,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setFechaRegistro(new Date());
         cursoCurricula.setUserRegistro(ds.getUsuario());
+        cursoCurricula.setCreditosRequisitosOr(cursoCurriculaForm.getCreditosRequisitosOr());
+        cursoCurricula.setEstado(CurriculaEstadoEnum.ACT.name());
 
         List<RequisitoCursoCurricula> newRequisitos = new ArrayList();
         for (RequisitoCursoOpcional requisito : preRequisitos) {
@@ -1102,7 +1104,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void deleteCursoOpcional(CursoOpcionalCurricula cursoElectivo) {
         CursoOpcionalCurricula electivoBD = cursoOpcionalCurriculaDAO.find(cursoElectivo.getId());
-        List<RequisitoCursoOpcional> requisitos = requisitoCursoOpcionalDAO.allByCursoElectivo(electivoBD);
+        List<RequisitoCursoOpcional> requisitos = requisitoCursoOpcionalDAO.allByCursoElectivoGeneral(electivoBD);
         for (RequisitoCursoOpcional requisito : requisitos) {
             requisitoCursoOpcionalDAO.delete(requisito);
         }

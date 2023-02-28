@@ -6,12 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.VariableContenidoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -140,7 +143,9 @@ public class MailerServiceImp implements MailerService {
 
             contenido = contenido.replace(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), alumnoPersona.getApellidosNombres());
             contenido = contenido.replace(VariableContenidoEnum.ESTIMADO.getValue(), alumnoPersona.getEstimado());
-            contenido = contenido.replace(VariableContenidoEnum.HORA_REUNION_CONSEJERO.getValue(), agendaConsejero.getHora().getDescripcion());
+
+            //contenido = contenido.replace(VariableContenidoEnum.HORA_REUNION_CONSEJERO.getValue(), agendaConsejero.getHora().getDescripcion());
+            contenido = contenido.replace(VariableContenidoEnum.HORA_REUNION_CONSEJERO.getValue(), StringUtils.join(reunionAlumnoConsejero.getHoraInicio(), " - ", reunionAlumnoConsejero.getHoraFin()));
             contenido = contenido.replace(VariableContenidoEnum.PROFESOR.getValue(), consejeroPersona.getApellidosNombres());
 
             DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

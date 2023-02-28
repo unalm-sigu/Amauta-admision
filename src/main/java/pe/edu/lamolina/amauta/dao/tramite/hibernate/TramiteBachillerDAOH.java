@@ -92,7 +92,9 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ca.codigo desc", "tb.id desc");
+                .orderBy("tb.id desc")
+                ;
+                //.orderBy("ca.codigo desc", "tb.id desc");
 
         return all(sql);
     }

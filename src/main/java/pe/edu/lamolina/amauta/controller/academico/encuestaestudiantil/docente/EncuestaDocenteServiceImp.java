@@ -1,9 +1,12 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docente;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -60,15 +64,22 @@ import pe.edu.lamolina.amauta.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaCursoDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ExamenVirtualDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.OpcionLikertDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.RespuestaEncuestaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ResumenEncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.TipoLikertDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
+import pe.edu.lamolina.model.encuestaestudiantil.OpcionLikert;
+import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
@@ -116,6 +127,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     MatriculaSeccionDAO matriculaSeccionDAO;
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+    @Autowired
+    TipoLikertDAO tipoLikertDAO;
+    @Autowired
+    OpcionLikertDAO opcionLikertDAO;
+    @Autowired
+    EncuestaDocenteModalidadDAO encuestaDocenteModalidadDAO;
+    @Autowired
+    PuntajeEncuestaDocenteModalidadDAO puntajeEncuestaDocenteModalidadDAO;
 
     @Autowired
     VerificadorService verificadorService;
@@ -133,7 +152,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public EncuestaEstudiantil findEncuestaDocenteWithResumen(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
 //        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
 //        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuestaTipoExamen(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC); 
+        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuestaTipoExamen(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);
@@ -295,6 +314,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             case ACT:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == ACT, "La encuesta del docentes ya no se encuentra activa");
                 generadorEncuestaDocenteService.desactivarEncuestaDocente(encuestaForm, ciclo, ds);
+//                if (encuestaBD.getAlumnosEncuestados() > 0L) { //REVISAR al anular recalcular reporte
+//                    this.recalcularPuntaje(encuestaBD, ciclo);// metodo copiado de la tarea de maipi revisar
+//                }
                 break;
             case ANU:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == ANU, "La encuesta del docentes ya no se encuentra inactiva");
@@ -310,6 +332,112 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 break;
             default:
                 throw new PhobosException("Este cambio no procede");
+        }
+    }
+
+    private void recalcularPuntaje(EncuestaDocente encuestaDocente, CicloAcademico ciclo) {
+        Map<Long, Map<Integer, OpcionLikert>> mapLikert = tipoLikertDAO.all().stream().collect(Collectors.toMap(x -> x.getId(), x -> new HashMap<>()));
+        List<OpcionLikert> opciones = opcionLikertDAO.all();
+        for (OpcionLikert opcion : opciones) {
+            Long key = opcion.getTipoLikert().getId();
+            if (!mapLikert.containsKey(key)) {
+                continue;
+            }
+            mapLikert.get(key).put(opcion.getPeso(), opcion);
+        }
+
+        Docente docente = encuestaDocente.getDocenteSeccion().getDocente();
+        ModalidadEstudio modalidad = encuestaDocente.getModalidadEstudio();
+
+        EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.findByDocenteModalidadCiclo(docente, modalidad, ciclo);
+
+        // Crea PuntajeEncuestaDocenteModalidad o actualiza
+        this.actualizarPuntajeEncuestaDocenteModalidad(edm);
+        // Crea PuntajeEncuestaDocente o actualiza
+        this.actualizarEstadisticasEncuestaDocente(encuestaDocente);
+        //
+        this.actualizarEstadisticasPregunta(encuestaDocente, mapLikert);
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void actualizarPuntajeEncuestaDocenteModalidad(EncuestaDocenteModalidad edm) {
+
+        List<PuntajeEncuestaDocenteModalidad> pems = puntajeEncuestaDocenteModalidadDAO.allByEncuestaDocenteModalidad(edm);
+        Map<Long, PuntajeEncuestaDocenteModalidad> map = pems.stream().collect(Collectors.toMap(x -> x.getTemaEncuesta().getId(), x -> x));
+
+        BigDecimal DOS = new BigDecimal("2");
+        BigDecimal prom = BigDecimal.ZERO;
+        List<PuntajeEncuestaDocenteModalidad> infos = puntajeEncuestaDocenteModalidadDAO.allInfo(edm);
+
+        for (PuntajeEncuestaDocenteModalidad info : infos) {
+            prom = prom.add(info.getPuntaje().multiply(info.getTemaEncuesta().getPesoCategoria()));
+
+            PuntajeEncuestaDocenteModalidad db = map.get(info.getTemaEncuesta().getId());
+            Assert.isNotNull(db, "Error al resumir la encuesta");
+            db.setDesviacionStandar(info.getDesviacionStandar());
+            db.setPuntaje(info.getPuntaje());
+            puntajeEncuestaDocenteModalidadDAO.save(db);
+        }
+
+        edm.setPuntajeBase5(prom.divide(DOS, 6, RoundingMode.HALF_UP));
+        edm.setPuntajeBase10(prom);
+        encuestaDocenteModalidadDAO.updateColumns(edm, "puntajeBase5", "puntajeBase10");
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void actualizarEstadisticasEncuestaDocente(EncuestaDocente ed) {
+        List<PuntajeEncuestaDocente> infos = puntajeEncuestaDocenteDAO.findInfo(ed);
+//        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByEncuestaDocente(ed);
+        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByEncuestaDocenteActivo(ed);
+//        List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByModalidadEncuestaCicloAcademicoACT(modalidadEstudio, cicloAcademico);
+
+        Map<Long, PuntajeEncuestaDocente> map = peds.stream().collect(Collectors.toMap(x -> x.getTemaEncuesta().getId(), x -> x));
+        BigDecimal DOS = new BigDecimal("2");
+        BigDecimal prom = BigDecimal.ZERO;
+
+        for (PuntajeEncuestaDocente info : infos) {
+            prom = prom.add(info.getPuntaje().multiply(info.getTemaEncuesta().getPesoCategoria()));
+
+            PuntajeEncuestaDocente db = map.get(info.getTemaEncuesta().getId());
+            if (db == null) {
+                db = new PuntajeEncuestaDocente();
+                db.setEncuestaDocente(ed);
+                db.setTemaEncuesta(info.getTemaEncuesta());
+            }
+            db.setDesviacionStandar(info.getDesviacionStandar());
+            db.setPuntaje(info.getPuntaje());
+            puntajeEncuestaDocenteDAO.save(db);
+        }
+
+        ed.setPuntajeBase10(prom);
+        ed.setPuntajeBase5(prom.divide(DOS, 6, RoundingMode.HALF_UP));
+        encuestaDocenteDAO.updateColumns(ed, "puntajeBase5", "puntajeBase10");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void actualizarEstadisticasPregunta(EncuestaDocente encuestaDocente, Map<Long, Map<Integer, OpcionLikert>> mapLikert) {
+        List<ResumenEncuestaDocente> resumenes = resumenEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
+        Map<Long, ResumenEncuestaDocente> mapResumenes = resumenes.stream().collect(Collectors.toMap(x -> x.getPregunta().getId(), x -> x));
+
+        List<ResumenEncuestaDocente> infos = resumenEncuestaDocenteDAO.allInfoByEncuestaDocente(encuestaDocente);
+
+        logger.debug("la cantidad de infos es {}", infos.size());
+
+        for (ResumenEncuestaDocente info : infos) {
+            Integer aproximado = info.getPuntaje().setScale(0, RoundingMode.HALF_UP).intValue();
+            info.setOpcionLikert(mapLikert.get(info.getTipoLikert().getId()).get(aproximado));
+            ResumenEncuestaDocente resumenBD = mapResumenes.get(info.getPregunta().getId());
+
+            if (resumenBD == null) {
+                resumenEncuestaDocenteDAO.save(info);
+            } else {
+                resumenBD.setDesviacionStandar(info.getDesviacionStandar());
+                resumenBD.setPuntaje(info.getPuntaje());
+                resumenBD.setOpcionLikert(info.getOpcionLikert());
+                resumenEncuestaDocenteDAO.update(resumenBD);
+            }
         }
     }
 
@@ -701,13 +829,13 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         for (PeriodoEncuesta periodoEncuesta : encuestaEstudiantil.getPeriodosEncuesta()) {
 
             if (periodoEncuesta.getId() == null) {
-                
+
                 periodoEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
                 periodoEncuesta.setFechaRegsitro(new Date());
                 periodoEncuesta.setUserRegistro(ds.getUsuario());
                 periodoEncuestaDAO.save(periodoEncuesta);
 
-            } 
+            }
 
         }
 
