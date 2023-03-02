@@ -27,6 +27,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaHistorialDAO;
@@ -76,6 +77,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     private VerificadorClonacionConsejero verificadorClonacionConsejero;
     private ColaboradorDAO colaboradorDAO;
     private DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private MatriculaResumenDAO matriculaResumenDAO;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -180,29 +182,11 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
                 }
             }
 
-            Aconsejado aconsejadoMtbles = alumnoConsejeroDAO.countAconsejadosMatriculables(resumen.getCarrera(), clonarDTO.getDestino());
-            aconsejadoMtbles = (aconsejadoMtbles == null) ? new Aconsejado() : aconsejadoMtbles;
-
-            consejeriaResumen.setAconsejadosActivos(aconsejadoMtbles.getMatriculadosConConsejeros().intValue());
-            consejeriaResumen.setAconsejadosInactivos(aconsejadoMtbles.getNoMatriculadosConConsejeros().intValue());
-            consejeriaResumen.setSinconsejeroActivos(aconsejadoMtbles.getMatriculadosSinConsejeros().intValue());
-            consejeriaResumen.setSinconsejeroInactivos(aconsejadoMtbles.getNoMatriculadosSinConsejeros().intValue());
-
-            Aconsejado aconsejadoNoMtbles = alumnoConsejeroDAO.countAconsejadosNoMatriculables(resumen.getCarrera(), clonarDTO.getDestino());
-            aconsejadoNoMtbles = (aconsejadoNoMtbles == null) ? new Aconsejado() : aconsejadoNoMtbles;
-            consejeriaResumen.setInhabilitados(aconsejadoNoMtbles.getInhabilitados().intValue());
-
-            ConsejeroEstado cont = consejeroDAO.countConsejerosByCarrera(resumen.getCarrera());
-            cont = (cont == null) ? new ConsejeroEstado() : cont;
-            resumen.setConsejerosActivos(cont.getActivos().intValue());
-            consejeriaResumen.setConsejerosInactivos(cont.getInactivos().intValue());
-
-            consejeriaResumenDAO.update(consejeriaResumen);
-
         }
 ////////////
         List<Alumno> ingresantesCicloDestino = alumnoDAO.allIngresantePregradoByCicloIngreso(new ModalidadEstudio(1L), clonarDTO.getDestino());
 
+        log.debug("save IngresantesCicloDestino ");
         for (Alumno alumno : ingresantesCicloDestino) {
             AlumnoConsejero alumnoConsejer = new AlumnoConsejero();
             alumnoConsejer.setAlumno(alumno);
@@ -214,9 +198,24 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             alumnoConsejeroDAO.save(alumnoConsejer);
         }
 
-        List<ConsejeriaResumen> resumenesMasIngresantes = consejeriaResumenDAO.allByCiclo(clonarDTO.getDestino());
+        List<MatriculaResumen> mtrblesNoRegistrados = matriculaResumenDAO.allByCicloSinConsejeria(clonarDTO.getDestino());
 
-        for (ConsejeriaResumen consejeriaResumen : resumenesMasIngresantes) {
+        log.debug("save Matriculables que no estan por su suspención del ciclo pasado ");
+        for (MatriculaResumen mtble : mtrblesNoRegistrados) {
+            AlumnoConsejero alumnoTutor = new AlumnoConsejero();
+            alumnoTutor.setAlumno(mtble.getAlumno());
+            alumnoTutor.setCicloAcademico(clonarDTO.getDestino());
+            alumnoTutor.setConsejero(new Consejero(GlobalConstantine.ID_CONSEJERO_NN));
+            alumnoTutor.setEstadoEnum(ACT);
+            alumnoTutor.setFechaAsigna(new Date());
+            alumnoTutor.setUserAsigna(ds.getUsuario());
+            alumnoConsejeroDAO.save(alumnoTutor);
+        }
+
+        List<ConsejeriaResumen> resumenesGeneral = consejeriaResumenDAO.allByCiclo(clonarDTO.getDestino());
+
+        log.debug("calculando ConsejeriaResumen ");
+        for (ConsejeriaResumen consejeriaResumen : resumenesGeneral) {
             Aconsejado aconsejadoMtbles = alumnoConsejeroDAO.countAconsejadosMatriculables(consejeriaResumen.getCarrera(), clonarDTO.getDestino());
             aconsejadoMtbles = (aconsejadoMtbles == null) ? new Aconsejado() : aconsejadoMtbles;
 
@@ -235,6 +234,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             consejeriaResumen.setConsejerosInactivos(cont.getInactivos().intValue());
 
             consejeriaResumenDAO.update(consejeriaResumen);
+            
         }////////////
 
         log.debug("save ConsejeriaHistorial ");

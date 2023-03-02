@@ -124,4 +124,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public List<MatriculaResumen> allByCicloClonarDestino(CicloAcademico cicloDestino, List<Alumno> alumnos);
 
+    List<MatriculaResumen> allByCicloSinConsejeria(CicloAcademico destino);
+
 }
