@@ -132,7 +132,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             List<AlumnoConsejero> alumnoConsejerosModelo = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getModelo());
             List<AlumnoConsejero> alumnoConsejerosDestino = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getDestino());
 
-            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().
+            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().filter(x->!x.getAlumno().getSituacionAcademica().isEgresado()).
                     collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
             Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream().
