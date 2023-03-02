@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -111,8 +112,11 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             throw new PhobosException("No hay registros en el ciclo de modelo");
         }
 
-        log.debug("deleteByCiclo");
+        log.debug("deleteConsejeriaResumenByCiclo");
         consejeriaResumenDAO.deleteByCiclo(clonarDTO.getDestino());
+
+        log.debug("deleteAlumnoConsejeroByCiclo");
+        alumnoConsejeroDAO.deleteByCiclo(clonarDTO.getDestino());
 
         for (ConsejeriaResumen resumen : resumenes) {
 
@@ -211,7 +215,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
         }
 
         List<ConsejeriaResumen> resumenesMasIngresantes = consejeriaResumenDAO.allByCiclo(clonarDTO.getDestino());
-        
+
         for (ConsejeriaResumen consejeriaResumen : resumenesMasIngresantes) {
             Aconsejado aconsejadoMtbles = alumnoConsejeroDAO.countAconsejadosMatriculables(consejeriaResumen.getCarrera(), clonarDTO.getDestino());
             aconsejadoMtbles = (aconsejadoMtbles == null) ? new Aconsejado() : aconsejadoMtbles;

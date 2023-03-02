@@ -71,7 +71,7 @@ public class AconsejadosCarreraController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
+//        service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
         log.debug("idCarrera {}", idCarrera);
         log.debug("ds.getCicloAcademico() {}", ds.getCicloAcademico().getId());
         List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
