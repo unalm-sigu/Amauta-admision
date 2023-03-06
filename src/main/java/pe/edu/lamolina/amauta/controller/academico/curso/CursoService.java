@@ -34,6 +34,8 @@ public interface CursoService {
 
     List<Idioma> allIdiomas();
 
+    List<Seccion> findByNombreCiclo(String nombre, String ciclo);
+
     List<DepartamentoAcademico> allDepartamentos(Compania cia);
 
     List<Carrera> allCarrerasByPostgrado();

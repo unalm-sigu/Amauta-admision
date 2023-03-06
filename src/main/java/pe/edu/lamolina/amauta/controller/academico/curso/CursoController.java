@@ -139,12 +139,21 @@ public class CursoController {
         response.setSuccess(false);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        boolean flag = false;
+        if (curso.getId() != null) {
+            List<Seccion> cursosProgramado = service.findByNombreCiclo(curso.getCodigo(), ds.getCicloAcademico().getCodigoAnterior());
+            flag = cursosProgramado.size() > 0;
+        }
         try {
-            String mensaje = curso.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
-            Curso cursoBD = service.save(curso, ds);
-            response.setData(cursoBD.getId());
-            response.setMessage(mensaje);
-            response.setSuccess(true);
+            if (!flag) {
+                String mensaje = curso.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
+                Curso cursoBD = service.save(curso, ds);
+                response.setData(cursoBD.getId());
+                response.setMessage(mensaje);
+                response.setSuccess(true);
+            } else {
+                response.setMessage("Error, !!! tiene CURSO PROGRAMADOS Coordine con el área de Programación....!!");
+            }
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -239,9 +248,15 @@ public class CursoController {
         Compania cia = ds.getCompania();
         Curso curso = service.find(id);
 
+        List<Seccion> cursosProgramado = service.findByNombreCiclo(curso.getCodigo(), ds.getCicloAcademico().getCodigo());
+
+        boolean flag = cursosProgramado.size() > 0;
         settingJson(curso, cia, model);
         logger.debug("getOrigen(origen) ::: {}", getOrigen(origen));
+
         model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("cursosprogramados", cursosProgramado);
+        model.addAttribute("flag", flag);
         return "academico/curso/cursoForm";
     }
 
