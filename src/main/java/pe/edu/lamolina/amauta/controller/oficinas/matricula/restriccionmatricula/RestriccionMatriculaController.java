@@ -3,11 +3,16 @@ package pe.edu.lamolina.amauta.controller.oficinas.matricula.restriccionmatricul
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -167,6 +172,19 @@ public class RestriccionMatriculaController {
 
         return "oficinas/matricula/restriccionmatricula/restriccionMatriculaUpload";
 
+    }
+
+    @RequestMapping(value = "/download-excel", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> downloadExcel() throws IOException {
+        byte[] bytes = service.getBlankTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
+        //headers.add("Content-Disposition", "attachment; filename=blank-template.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(bytes);
     }
 
     @ResponseBody
