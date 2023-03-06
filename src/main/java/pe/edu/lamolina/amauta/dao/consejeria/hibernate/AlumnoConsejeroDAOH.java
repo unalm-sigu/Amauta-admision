@@ -26,6 +26,11 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
@@ -202,6 +207,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .filter("ca.id", ciclo)
                 .filter("car.id", carrera)
                 .filter("co.id", consejero)
+                .in("sa.codigo", Arrays.asList(S_N.getValue(),S_1.getValue(),S_2.getValue(),S_3.getValue(), S_5.getValue()))
                 .orderBy("per.paterno", "alu.codigo");
         return all(sql);
     }
