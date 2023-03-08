@@ -29,8 +29,8 @@ public interface OmisoEleccionService {
 
     MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public RetiroCiclo getTramiteRetiro(MatriculaResumen matriculaResumen);
+    RetiroCiclo getTramiteRetiro(MatriculaResumen matriculaResumen);
 
-    public List<ResumenAporteAlumno> allResumenAporteAlumno(Alumno alumno,CicloAcademico cicloAcademico);
+    List<ResumenAporteAlumno> allResumenAporteAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 
 }
