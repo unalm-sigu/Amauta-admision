@@ -702,6 +702,7 @@ public class InfoAcademicoController {
             "situacionAcademica.codigo",
             "situacionAcademica.nombre",
             "situacionAcademica.egresado",
+            "situacionAcademica.graduado",
             "postulantePregrado.modalidadIngreso.nombre",
             "planCurricular.id",
             "planCurricular.carrera.nombre",
