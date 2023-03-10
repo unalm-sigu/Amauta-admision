@@ -10,5 +10,13 @@ new Vue({
 
     },
     methods: {
+
+        validarPromedioGraduado(situacionAcademica) {
+            if (situacionAcademica.codigo == 'E' || situacionAcademica.codigo == 'G') {
+                return true;
+            }
+            return false;
+
+        }
     }
 });
