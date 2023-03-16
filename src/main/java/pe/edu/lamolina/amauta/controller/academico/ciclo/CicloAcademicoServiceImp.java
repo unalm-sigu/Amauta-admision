@@ -10,8 +10,6 @@ import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +18,6 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -120,14 +117,10 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     }
 
     private String getCodigoAnterior(CicloAcademico cicloForm, NumeroCicloAcademicoEnum nroEnum) {
-        TipoCicloEnum tipoEnum = this.getTipo(nroEnum.getValue());
-        if (tipoEnum == TipoCicloEnum.REG) {
+        if (nroEnum.getValue().length() == 1) {
             return cicloForm.getYear() + nroEnum.getValue();
         }
-        if (tipoEnum == TipoCicloEnum.NIV) {
-            return cicloForm.getYear() + nroEnum.getNumeroCiclo();
-        }
-        return null;
+        return cicloForm.getYear() + nroEnum.getNumeroCiclo();
     }
 
     @Override
