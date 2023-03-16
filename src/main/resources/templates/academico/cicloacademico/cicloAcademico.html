@@ -32,11 +32,11 @@
                         </div>
 
                         <div class="btn-group m-t-md">
-                            <a class="btn btn-link" href="#"
-                               v-on:click="cambiarPeriodo(item)"
-                               v-for="item in margen"
-                               v-bind:class="{'btn-info': yearActivo==item}"
-                               v-text="item"></a>
+                            <a class="btn" href="#"
+                               v-for="item in margenes"
+                               v-on:click="cambiarPeriodo(item.year)"
+                               v-bind:class="classCiclo(item)"
+                               v-text="item.year"></a>
                         </div>
 
                         <dynatable />
@@ -54,7 +54,8 @@
 
         <script  th:inline="javascript" >
             /*<![CDATA[*/
-            var margen = /*[[${margen}]]*/'';
+            var margenesJson = /*[[${margenes.toString()}]]*/'';
+            var rutaModulo = /*[[${rutaModulo}]]*/'';
             /*]]>*/
         </script>
 
@@ -62,8 +63,8 @@
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
-        
-        
+
+
         <script th:src="@{/app/academico/cicloacademico/cicloAcademicoDynatable.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/cicloacademico/cicloAcademico.js}" charset="utf-8"></script>
     </div>

@@ -7,7 +7,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
-import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface CicloAcademicoService {
 
@@ -17,9 +16,9 @@ public interface CicloAcademicoService {
 
     void delete(CicloAcademico cicloAcademico);
 
-    void save(CicloAcademico cicloAcademico, Usuario usuario);
+    void save(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    void update(CicloAcademico cicloAcademico, Usuario usuario);
+    void update(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
@@ -37,11 +36,13 @@ public interface CicloAcademicoService {
 
     void pendiente(CicloAcademico cicloAcademico);
 
-    List<Integer> allYear();
+    List<MargenYear> allMargenesByYearModalidad(Integer year, ModalidadEstudio modalidad);
+
+    ModalidadEstudio findModalidadEstudio(ModalidadEstudio modalidadEstudio);
 
     void configurar(CicloAcademico cicloAcademico);
 
-    public void changeVisiblelogin(CicloAcademico cicloAcademico);
+    void changeVisiblelogin(CicloAcademico cicloAcademico);
 
     List<Alumno> ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds);
 

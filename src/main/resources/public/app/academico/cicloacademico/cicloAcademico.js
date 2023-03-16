@@ -4,7 +4,7 @@ new Vue({
         ciclos: [{id: null}],
         cicloAcademico: {id: null},
         motivoAnular: "",
-        margen: [],
+        margenes: JSON.parse(margenesJson),
         yearActivo: null,
         addCicloAcademicoaModal: {
             id: 'modalAddCicloAcademico',
@@ -57,15 +57,18 @@ new Vue({
         });
 
         $(".date").datepicker();
-        vue.margen = margen;
         vue.filtroInicial();
 
     },
     methods: {
         changeModalidad: function (id) {
+            console.log("changeModalidad id=", id)
             dynatable.queries.remove("modalidad");
             dynatable.queries.add("modalidad", id);
             dynatable.process();
+
+            console.log("loadMargenes modalidad=", id, " periodo=", this.yearActivo)
+            this.loadMargenes(this.yearActivo, id);
         },
         formClear: function () {
             $('#formCicloAcademico').parsley('destroy');
@@ -330,6 +333,7 @@ new Vue({
         },
         cambiarPeriodo: function (periodo) {
             var vue = this;
+            console.log("cambiarPeriodo ", periodo)
             dynatable.queries.remove("periodo");
             if (vue.yearActivo == periodo) {
                 vue.yearActivo = null;
@@ -338,18 +342,48 @@ new Vue({
                 dynatable.queries.add("periodo", vue.yearActivo);
             }
             dynatable.process();
+
+            let modalidad = $('#modalidad').val();
+            console.log("loadMargenes modalidad=", modalidad, " periodo=", periodo)
+            this.loadMargenes(periodo, modalidad);
         },
         filtroInicial: function () {
             var vue = this;
             var id = $('#modalidad').val();
-            var periodo = margen[1];
+            var periodo = vue.margenes.find(item => item.activo).year;
             vue.yearActivo = periodo;
             dynatable.queries.remove("periodo");
             dynatable.queries.add("periodo", periodo);
             dynatable.queries.remove("modalidad");
             dynatable.queries.add("modalidad", id);
             dynatable.process();
+        },
+        loadMargenes(year, modalidad) {
+            let payload = {
+                year: year,
+                modalidadEstudio: {id: modalidad}
+            };
 
+            myUtils.axios(VUE_AXIOS.structGetData({
+                url: `/${rutaModulo}/allMargenes`,
+                body: payload
+            })).then(response => this.margenes = response.data.data);
+        },
+        classCiclo(item) {
+            if (item.year === this.yearActivo) {
+                return item.conDatos ? "btn-info" : "btn-danger";
+            }
+
+            let clazz = "btn-link ";
+            if (item.activo) {
+                clazz += "text-success ";
+            } else if (item.conDatos) {
+                clazz += "text-primary ";
+            } else {
+                clazz += "text-danger ";
+            }
+
+            return clazz;
         }
     }
 });

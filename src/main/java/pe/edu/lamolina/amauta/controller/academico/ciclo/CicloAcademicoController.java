@@ -3,20 +3,16 @@ package pe.edu.lamolina.amauta.controller.academico.ciclo;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -38,56 +35,39 @@ import pe.edu.lamolina.amauta.controller.ingresante.muestraslab.MuestrasLabServi
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/cicloacademico")
 public class CicloAcademicoController {
 
-    @Autowired
-    CicloAcademicoService service;
+    private final CicloAcademicoService service;
+    private final MuestrasLabService muestrasLabService;
+    private final AvanceCurricularService avanceCurricularService;
 
-    @Autowired
-    MuestrasLabService muestrasLabService;
-
-    @Autowired
-    AvanceCurricularService avanceCurricularService;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
-        List<Integer> margen = service.allYear();
         List<ModalidadEstudio> modalidades = service.allPrePostgrado(cia);
+        ModalidadEstudio pregrado = modalidades.stream().filter(mod -> mod.getCodigoEnum() == PRE).findFirst().get();
+
+        DateTime today = new DateTime();
+        List<MargenYear> margenes = service.allMargenesByYearModalidad(today.getYear(), pregrado);
+        ArrayNode margenesJson = JaneHelper.from(margenes).array();
+
         model.addAttribute("modalidades", modalidades);
-        model.addAttribute("margen", margen);
+        model.addAttribute("margenes", margenesJson);
         model.addAttribute("numeros", NumeroCicloAcademicoEnum.values());
+        model.addAttribute("rutaModulo", rutaModulo);
+
         return "academico/cicloacademico/cicloAcademico";
     }
 
@@ -96,76 +76,68 @@ public class CicloAcademicoController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        try {
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<CicloAcademico> ciclos = service.allByDynatable(filter);
-            for (CicloAcademico ciclo : ciclos) {
-                ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*", "modalidadEstudio.*"
-                        });
-                array.add(cicloJson);
-            }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<CicloAcademico> ciclos = service.allByDynatable(filter);
+        for (CicloAcademico ciclo : ciclos) {
+            ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*", "modalidadEstudio.*"
+                    });
+            array.add(cicloJson);
         }
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allMargenes")
+    public JsonResponse allMargenes(@RequestBody CicloAcademico cicloForm) {
+        ModalidadEstudio modalidad = service.findModalidadEstudio(cicloForm.getModalidadEstudio());
+        List<MargenYear> margenes = service.allMargenesByYearModalidad(cicloForm.getYear(), modalidad);
+        ArrayNode margenesJson = JaneHelper.from(margenes).array();
+
+        JsonResponse response = new JsonResponse();
+        response.setData(margenesJson);
+        response.setSuccess(Boolean.TRUE);
+
+        return response;
     }
 
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(CicloAcademico cicloAcademico) {
         JsonResponse response = new JsonResponse();
-        try {
-            CicloAcademico cicloAcademicoDB = service.findCicloAcademico(cicloAcademico);
-            ObjectNode cicloJson = JsonHelper.createJson(cicloAcademicoDB, JsonNodeFactory.instance, true,
-                    new String[]{
-                        "*", "modalidadEstudio.*"
-                    });
-            response.setData(cicloJson);
-            response.setSuccess(Boolean.TRUE);
 
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        CicloAcademico cicloAcademicoDB = service.findCicloAcademico(cicloAcademico);
+        ObjectNode cicloJson = JsonHelper.createJson(cicloAcademicoDB, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*", "modalidadEstudio.*"
+                });
+        response.setData(cicloJson);
+        response.setSuccess(Boolean.TRUE);
+
         return response;
     }
 
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(CicloAcademico cicloAcademico, HttpSession session, RedirectAttributes redirectAttr) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Usuario usuario = ds.getUsuario();
 
         JsonResponse response = new JsonResponse();
-        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
-
-            if (cicloAcademico.getId() == null) {
-                service.save(cicloAcademico, usuario);
-                response.setMessage("Ciclo académico creado satisfactoriamente");
-            } else {
-                service.update(cicloAcademico, usuario);
-                response.setMessage("Ciclo académico modificado satisfactoriamente");
-            }
-
-            response.setSuccess(true);
-            response.setData(node);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        if (cicloAcademico.getId() == null) {
+            service.save(cicloAcademico, ds);
+            response.setMessage("Ciclo académico creado satisfactoriamente");
+        } else {
+            service.update(cicloAcademico, ds);
+            response.setMessage("Ciclo académico modificado satisfactoriamente");
         }
+
         return response;
     }
 
