@@ -2706,11 +2706,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico) {
-        List<String> diaHoras = new ArrayList();
+//        List<String> diaHoras = new ArrayList();
         List<HorarioSeccion> horarioSeccion = horarioSeccionDAO.allBySeccion(seccion);
-        for (HorarioSeccion hdiaSecc : horarioSeccion) {
-            diaHoras.add(hdiaSecc.getHoraDia());
-        }
+//        for (HorarioSeccion hdiaSecc : horarioSeccion) {
+//            diaHoras.add(hdiaSecc.getHoraDia());
+//        }
+        List<String> diasHorasSeccion = horarioSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
         Seccion seccionDB = seccionDAO.find(seccion);
         ModalidadEstudio modalidadCurso = seccionDB.getGrupoSeccion().getCurso().getModalidadEstudio();
@@ -2723,10 +2724,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<HorarioAula> horariosAula = new ArrayList();
         log.debug("***pabellon *** {}", pabellon.getId());
-        if (!diaHoras.isEmpty()) {
+        if (!diasHorasSeccion.isEmpty()) {
             if (eventoAcademico != null) {
-                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
-                horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
+//                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
+//                horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
+                horariosAula = horarioAulaDAO.allRangoDiaAndPabellonByDiasHoras(diasHorasSeccion, pabellon,eventoAcademico.getFechaInicio(), eventoAcademico. getFechaFin());
+                
             }
         }
         log.debug("***horariosAula existe *** {}", horariosAula.isEmpty());
