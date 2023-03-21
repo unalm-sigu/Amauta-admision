@@ -428,6 +428,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         if (!Strings.isNullOrEmpty(persona.getRutaFotoTemporal())) {
             Persona personaDB = personaDAO.find(persona.getId());
             personaDB.setRutaFotoTemporal(persona.getRutaFotoTemporal());
+            personaDB.setUserModificacion(ds.getUsuario());
             personaDAO.update(personaDB);
             this.uploadS3(personaDB.getRutaFotoTemporal());
         }

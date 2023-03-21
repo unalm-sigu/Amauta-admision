@@ -370,6 +370,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         personaBD.setEmailCompania(personaForm.getEmailCompania());
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         colaboradorForm.setFechaRegistro(new Date());

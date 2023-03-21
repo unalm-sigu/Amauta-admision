@@ -131,7 +131,7 @@ public class AlumnoController {
         model.addAttribute("resumen", service.findResumen(cantidadEnum, carreras));
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
-         model.addAttribute("soloEditarDatosAlumno", verificadorService.soloEditarDatosAlumno(ds));
+        model.addAttribute("soloEditarDatosAlumno", verificadorService.soloEditarDatosAlumno(ds));
         model.addAttribute("puedeVerHead", verificadorService.puedeVerHeadAlumno(ds));//no ven los de ROL REVISOR_FAC_ECONOMIA
 
         return "academico/alumno/alumno";
@@ -672,7 +672,7 @@ public class AlumnoController {
 
     @RequestMapping("{idAlumno}/trasladoexterno")
     public String convalTrasladoExterno(@PathVariable("idAlumno") Long idAlumno,
-                                        @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Alumno alumno = service.findAlumnoFisico(idAlumno);
@@ -734,7 +734,7 @@ public class AlumnoController {
             response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Los cursos fueron registrados satisfactoriamente.");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
@@ -758,8 +758,10 @@ public class AlumnoController {
     @RequestMapping("saveAccesoEspecial")
     public JsonResponse saveAccesoEspecial(@RequestBody AccesoEspecialBean accesoEspecialBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
-            service.saveAccesoEspecial(accesoEspecialBean);
+            service.saveAccesoEspecial(accesoEspecialBean, ds);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Se asignó el acceso especial al alumno satisfactoriamente.");
         } catch (PhobosException e) {
@@ -829,9 +831,9 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (CursoConvalidado item : listCursoConvalidado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                    "id", "nota", "creditos", "fechaRegistro",
-                    "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso",
-                    "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.cicloAplica.*"
+                "id", "nota", "creditos", "fechaRegistro",
+                "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso",
+                "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.cicloAplica.*"
             });
             array.add(node);
         }
@@ -850,13 +852,13 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (TramiteTraslado item : listTramiteTraslado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                    "id", "estado", "tipoTraslado", "tramite.id",
-                    "tramite.alumno.persona.id", "cicloAcademico.*",
-                    "resolucion.id", "resolucion.fecha", "resolucion.estado",
-                    "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
-                    "resolucion.userRegistro.persona.apellidosNombres",
-                    "resolucion.tipoResolucion.id", "resolucion.tipoResolucion.nombre",
-                    "resolucion.oficina.id", "resolucion.oficina.codigo", "resolucion.oficina.nombre", "resolucion.cicloAplica.*"
+                "id", "estado", "tipoTraslado", "tramite.id",
+                "tramite.alumno.persona.id", "cicloAcademico.*",
+                "resolucion.id", "resolucion.fecha", "resolucion.estado",
+                "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
+                "resolucion.userRegistro.persona.apellidosNombres",
+                "resolucion.tipoResolucion.id", "resolucion.tipoResolucion.nombre",
+                "resolucion.oficina.id", "resolucion.oficina.codigo", "resolucion.oficina.nombre", "resolucion.cicloAplica.*"
             });
             array.add(node);
         }

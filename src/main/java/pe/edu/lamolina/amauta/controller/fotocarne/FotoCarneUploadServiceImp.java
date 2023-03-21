@@ -162,10 +162,10 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
             String urlfoto = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, namaFileUpload);
 
             Persona persona = alumno.getPersona();
-
             persona.setFoto(urlfoto);
+            persona.setUserModificacion(ds.getUsuario());
 
-            personaDAO.updateColumns(persona, "foto");
+            personaDAO.updateColumns(persona, "foto", "userModificacion");
 
             fotosCarneUploadComponent.setAvance(fotosCarneUploadComponent.getAvance() + 1);
 

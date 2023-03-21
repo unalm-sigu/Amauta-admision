@@ -260,6 +260,7 @@ public class UsuarioServiceImp implements UsuarioService {
         personaBD.setTelefono(persona.getTelefono());
         personaBD.setEmail(persona.getEmail());
         personaBD.setEmailCompania(persona.getEmailCompania());
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         return personaBD;
