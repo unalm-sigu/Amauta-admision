@@ -64,7 +64,7 @@ public interface AlumnoService {
 
     List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno);
 
-    List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean,  CicloAcademico cicloAcademico,DataSessionPivot ds);
+    List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
 
@@ -74,7 +74,7 @@ public interface AlumnoService {
 
     void marcarFalla(Alumno alumno);
 
-    void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean);
+    void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean, DataSessionPivot ds);
 
     Usuario findUsuarioByPersona(Persona persona);
 

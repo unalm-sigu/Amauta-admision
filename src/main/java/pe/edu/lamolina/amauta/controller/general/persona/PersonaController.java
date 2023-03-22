@@ -493,7 +493,7 @@ public class PersonaController {
         Rol rol = ds.getRolActivo();
         try {
             String mensaje = "Alumno actualizado.";
-            service.updatePersonaAlumno(persona, ds.getUsuario());
+            service.updatePersonaAlumno(persona, ds);
             Notificaciones.crearMsg(mensaje, redirectAttr);
 
         } catch (PhobosException ex) {
