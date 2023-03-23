@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -20,5 +21,8 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
     TurnoAtencion findByPrioridad(BigDecimal prioridad, CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);
 
-    List<TurnoAtencion> allByCicloEventoEnum(CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);
+    List<TurnoAtencion> allByCicloEventoEnum(CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);    
+
+    List<TurnoAtencion> findAllTurnoAtencionByFecha(Date hoy);
+    
 }

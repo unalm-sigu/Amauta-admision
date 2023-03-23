@@ -161,6 +161,7 @@ public class PersonaServiceImp implements PersonaService {
             personaDAO.save(personaForm);
 
         } else {
+            personaForm.setUserModificacion(ds.getUsuario());
             personaDAO.update(personaForm);
         }
 
@@ -263,6 +264,7 @@ public class PersonaServiceImp implements PersonaService {
         personaBD.setTelefono(persona.getTelefono());
         personaBD.setEmail(persona.getEmail());
         personaBD.setEmailCompania(persona.getEmailCompania());
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
         return personaBD;
     }
@@ -357,9 +359,10 @@ public class PersonaServiceImp implements PersonaService {
 
     @Override
     @Transactional
-    public void updatePersonaAlumno(Persona persona, Usuario usuario) {
+    public void updatePersonaAlumno(Persona persona, DataSessionPivot ds) {
         Persona personaDB = personaDAO.find(persona.getId());
         personaDB.setNombres(persona.getNombres());
+        personaDB.setUserModificacion(ds.getUsuario());
 
         personaDAO.update(personaDB);
     }
@@ -501,6 +504,7 @@ public class PersonaServiceImp implements PersonaService {
         persona.setOrigenValidacionEnum(OrigenValidacionEnum.DOCENTE);
         persona.setFechaValidacion(today.toDate());
         persona.setUserValidacion(ds.getUsuario());
+        persona.setUserModificacion(ds.getUsuario());
         personaDAO.update(persona);
 
         String personaJson = this.getPersonaJsonValidacion(persona);
@@ -524,6 +528,7 @@ public class PersonaServiceImp implements PersonaService {
         persona.setOrigenValidacionEnum(OrigenValidacionEnum.DOCENTE);
         persona.setFechaValidacion(today.toDate());
         persona.setUserValidacion(ds.getUsuario());
+        persona.setUserModificacion(ds.getUsuario());
         personaDAO.update(persona);
 
         String personaJsonFinal = this.getPersonaJsonValidacion(persona);

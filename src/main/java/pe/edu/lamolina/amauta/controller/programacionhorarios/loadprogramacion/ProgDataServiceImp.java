@@ -261,6 +261,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (StringUtils.isEmpty(main.getEmailCompania()) && !StringUtils.isEmpty(persona.getEmailCompania())) {
                 email = persona.getEmailCompania();
                 persona.setEmailCompania(null);
+                persona.setUserModificacion(ds.getUsuario());
                 personaDAO.update(persona);
                 break;
             }
@@ -293,6 +294,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 dni.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
                 dni.setTipoDocumento(persona.getTipoDocumento());
                 persona.setNumeroDocIdentidad(null);
+                persona.setUserModificacion(ds.getUsuario());
                 personaDAO.update(persona);
                 break;
             }
@@ -326,6 +328,7 @@ public class ProgDataServiceImp implements ProgDataService {
             main.setTipoDocumento(tipoDocumento);
             main.setNumeroDocIdentidad(numeroDocIdentidad);
         }
+        main.setUserModificacion(ds.getUsuario());
         personaDAO.update(main);
 
         for (Persona persona : personasVinculadas) {
@@ -370,6 +373,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     copiarDatosPersonales(perzoma, persona);
                     perzoma.setTipoDocumento(persona.getTipoDocumento());
                     perzoma.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
+                    perzoma.setUserModificacion(ds.getUsuario());
                     personaDAO.update(perzoma);
                     System.out.println("return perzoma 111 " + perzoma.getId());
                     return perzoma;
@@ -388,6 +392,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
             Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
             copiarDatosPersonales(perzoma, persona);
+            perzoma.setUserModificacion(ds.getUsuario());
             personaDAO.update(perzoma);
             System.out.println("return perzoma 222 " + perzoma.getId());
             return perzoma;
@@ -395,6 +400,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
         copiarDatosPersonales(perzoma, persona);
+        perzoma.setUserModificacion(ds.getUsuario());
         personaDAO.update(perzoma);
         System.out.println("return perzoma 333 " + perzoma.getId());
         return perzoma;
@@ -446,6 +452,7 @@ public class ProgDataServiceImp implements ProgDataService {
         Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
         if (StringUtils.isEmpty(persona.getEmailCompania())) {
             persona.setEmailCompania(alumno.getEmail());
+            persona.setUserModificacion(ds.getUsuario());
             personaDAO.update(persona);
         }
 
@@ -730,6 +737,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personasVinculadas.size() == 1) {
             Persona pp = personasVinculadas.get(0);
             pp.setEstadoEnum(PersonaEstadoEnum.ACT);
+            pp.setUserModificacion(ds.getUsuario());
             personaDAO.update(pp);
             logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
             return personasVinculadas.get(0);
@@ -741,6 +749,7 @@ public class ProgDataServiceImp implements ProgDataService {
         changePersonasNoMain(personasVinculadas, main, ds);
 
         for (Persona p : personasVinculadas) {
+            p.setUserModificacion(ds.getUsuario());
             personaDAO.update(p);
         }
 

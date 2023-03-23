@@ -279,6 +279,7 @@ public class AlumnoServiceImp implements AlumnoService {
         persona.setOrigenValidacionEnum(OrigenValidacionEnum.ALUMNO_AMAUTA);
         persona.setUserValidacion(ds.getUsuario());
         persona.setFechaValidacion(today.toDate());
+        persona.setUserModificacion(ds.getUsuario());
         personaDAO.update(persona);
 
         ValidacionPersona validacion = new ValidacionPersona();
@@ -369,6 +370,7 @@ public class AlumnoServiceImp implements AlumnoService {
         this.validarEmailConPersona(personaForm.getEmail(), personaBD);
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
 
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
         return personaBD;
     }
@@ -1020,7 +1022,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     @Transactional
-    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean) {
+    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean, DataSessionPivot ds) {
         String CorreoForm = accesoEspecialBean.getCorreo(); // correo a remitir las credenciales
         Persona personaForm = accesoEspecialBean.getAlumno().getPersona();
 
@@ -1036,6 +1038,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         Persona personaBD = personaDAO.find(personaForm.getId());
         personaBD.setEmail(CorreoForm);
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
 //        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEACCESOESPECIAL.name());   PENDIENTE
@@ -1112,6 +1115,7 @@ public class AlumnoServiceImp implements AlumnoService {
         uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, nombreArchivo, true);
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, nombreArchivo);
         alumnoBD.getPersona().setFoto(path);
+        alumnoBD.getPersona().setUserModificacion(ds.getUsuario());
         personaDAO.update(alumnoBD.getPersona());
 
         return alumnoBD;

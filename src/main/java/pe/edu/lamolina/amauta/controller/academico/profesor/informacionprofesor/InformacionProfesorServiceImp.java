@@ -265,12 +265,14 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
         Persona personaDelete = personaDAO.find(docente.getPersona().getId());
         personaDelete.setEmailCompania(null);
         personaDelete.setEmail(null);
+        personaDelete.setUserModificacion(ds.getUsuario());
 
-        personaDAO.updateColumns(personaDelete, "emailCompania", "email");
+        personaDAO.updateColumns(personaDelete, "emailCompania", "email", "userModificacion");
 
         persona.setEmail(email);
         persona.setEmailCompania(email);
-        personaDAO.updateColumns(persona, "emailCompania", "email");
+        persona.setUserModificacion(ds.getUsuario());
+        personaDAO.updateColumns(persona, "emailCompania", "email", "userModificacion");
 
         docente.setPersona(persona);
         docente.setUserModifica(ds.getUsuario());

@@ -325,6 +325,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         personaBD.setEmail(personaForm.getEmail());
         personaBD.setEmailCompania(personaForm.getEmailCompania());
 
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         Usuario usuario = usuarioDAO.findActivoByPersona(personaBD);

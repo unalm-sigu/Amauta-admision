@@ -6,6 +6,7 @@ import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface EventoCicloAcademicoService {
@@ -23,5 +24,7 @@ public interface EventoCicloAcademicoService {
     List<EventoAcademico> allEventoAcademicoByName(String nombre);
 
     List<EventCalendar> allcalendar(CicloAcademico ciclo);
+
+    EventoCicloAcademico findByCicloAndEvento(CicloAcademico cicloAcademico, EventoAcademicoEnum eventoAcademicoEnum);
 
 }
