@@ -105,10 +105,34 @@
                     </tr>
                     <tr >
                         <td> 
-                            <b >Especialidad </b>
+                            <b >Especialidad: </b>
                         </td>
                         <td>
                             <span ><span th:text=" ${alumno.carrera.nombre}"></span> </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${tutor != 'NN'}">
+                        <td> 
+                            <b >Tutor: </b>
+                        </td>
+                        <td>
+                            <span ><span th:text=" ${tutor}"></span> </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${coordinador != 'NN'}">
+                        <td> 
+                            <b >Coordinador: </b>
+                        </td>
+                        <td>
+                            <span ><span th:text=" ${coordinador}"></span> </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${tutor == 'NN' and coordinador == 'NN' }">
+                        <td> 
+                            <b >Tutor o Coordinador: </b>
+                        </td>
+                        <td>
+                            <span >"No tiene ni tutor ni coordinador" </span>
                         </td>
                     </tr>
 

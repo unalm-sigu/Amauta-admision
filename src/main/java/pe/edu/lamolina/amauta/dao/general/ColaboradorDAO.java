@@ -37,6 +37,8 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     Colaborador findDocenteActivoByPersonaDptoAcademico(Persona persona, DepartamentoAcademico departamento);
 
-    public List<Colaborador> allCoordinadorByDynatable(DynatableFilter filter);
+    List<Colaborador> allCoordinadorByDynatable(DynatableFilter filter);
+
+    List<Colaborador> allCoordinatorCodeCareerOfStudent(String concat);
 
 }

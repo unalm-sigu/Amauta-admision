@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
@@ -33,13 +36,17 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.PerfilColaboradorEnum.COORDTUTOR;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -85,6 +92,14 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
+
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
+
+    private String CODIGO_OFICINA_TUTORIA = "CT-";
 
     @Override
     public List<RetiroCiclo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -180,6 +195,21 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoContable(alumno);
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
+        String tutor = "NN";
+        String coordinador = "NN";
+
+        if (alumnoConsejero != null) {
+            tutor = alumnoConsejero.getConsejero().getColaborador().getPersona().getApellidosNombres();
+        } else {
+            List<Colaborador> coordinadores = colaboradorDAO.allCoordinatorCodeCareerOfStudent(CODIGO_OFICINA_TUTORIA.concat(alumno.getCarrera().getCodigo()));
+            Optional<Persona> coordinadorCarrera = coordinadores.stream()
+                    .filter(x -> x.getCargo().getCodigoEnum().equals(COORDTUTOR) && x.getOficina().getPersonaJefe() != null)
+                    .map(Colaborador::getOficina).map(Oficina::getPersonaJefe).distinct().findAny();
+
+            coordinador = coordinadorCarrera.isPresent() ? coordinadorCarrera.get().getApellidosNombres() : "NN";
+        }
+
         AlumnoCiclo ac = null;
 
         InfoRetiroExcepcional infoRetiroExcepcional = new InfoRetiroExcepcional();
@@ -241,6 +271,8 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("matriculaCursos", matriculaCursos);
         ctx.setVariable("retiroCiclos", retiroCiclos);
+        ctx.setVariable("tutor", tutor);
+        ctx.setVariable("coordinador", coordinador);
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
         ctx.setVariable("nombrePdf", "Informe Retiro Excepcional " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
