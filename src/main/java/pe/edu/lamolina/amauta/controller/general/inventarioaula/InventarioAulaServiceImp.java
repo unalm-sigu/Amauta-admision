@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,32 +94,60 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     @Override
     @Transactional
     public void update(Inventario inventario, Usuario user) {
+
         Inventario inventarioDb = inventarioDAO.find(inventario.getId());
-        inventario.setAlmacen(inventarioDb.getAlmacen());
-        inventario.setCodigo(inventario.getCodigo().trim());
-        inventario.setFechaRegistro(inventarioDb.getFechaRegistro());
-        inventario.setUserRegistro(inventarioDb.getUserRegistro());
-        inventario.setEstado(inventarioDb.getEstado());
-        inventarioDAO.update(inventario);
-        String imagen = inventario.getImagentemporal().trim();
-        if (!Strings.isNullOrEmpty(imagen)) {
+        if (inventarioDb == null) {
+            throw new PhobosException("Inventario eliminado o no existe");
+        }else {
+            inventarioDb.setCodigo(inventario.getCodigo().trim());
+            inventarioDb.setFechaRegistro(new Date());
+            inventarioDb.setUserRegistro(user);
+            inventarioDb.setMarca(inventario.getMarca());
+            inventarioDb.setModelo(inventario.getModelo());
+            inventarioDb.setColor(inventario.getColor());
+            inventarioDb.setCondicion(inventario.getCondicion());
+            inventarioDb.setFechaBaja(inventario.getFechaBaja());
+            inventarioDb.setProveedor(inventario.getProveedor());
+            inventarioDb.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
+            inventarioDb.setVidaUtil(inventario.getVidaUtil());
+            //inventarioDb.setDetalleOrdenCompra(inventario.getDetalleOrdenCompra());
+            inventarioDb.setComentario(inventario.getComentario());
+            inventarioDb.setMaterial(inventario.getMaterial());
+            inventarioDb.setLargo(inventario.getLargo());
+            inventarioDb.setAncho(inventario.getAncho());
+            inventarioDb.setAlto(inventario.getAlto());
+
+            inventarioDAO.update(inventarioDb);
+
+            String imagen = inventario.getImagentemporal().trim();
+            String exten= FilenameUtils.getExtension(imagen);
             Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
-            this.sendArchivoS3(imagen);
-            if (archivo != null) {
-                archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
-                archivo.setNombre(imagen);
-                archivoDAO.update(archivo);
-            } else {
-                archivo = new Archivo();
-                archivo.setFechaRegistro(new Date());
-                archivo.setUsuarioRegistro(user);
-                archivo.setIdInstancia(inventario.getId());
-                archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
-                archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
-                archivo.setNombre(imagen);
-                archivoDAO.save(archivo);
+            if (!Strings.isNullOrEmpty(imagen)) {
+
+                this.sendArchivoS3(imagen);
+                if (archivo != null) {
+                    archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
+                    archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
+                    archivo.setNombre(imagen);
+                    archivo.setIdInstancia(inventario.getId());
+                    archivo.setTipo(exten);
+                    archivoDAO.update(archivo);
+                } else {
+                    archivo = new Archivo();
+                    archivo.setIdInstancia(inventario.getId());
+                    archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
+                    archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
+                    archivo.setNombre(imagen);
+                    archivo.setTipo(exten);
+                    archivo.setFechaRegistro(new Date());
+                    archivo.setUsuarioRegistro(user);
+                    archivoDAO.save(archivo);
+                }
+
             }
         }
+
+
     }
 
     @Override
@@ -150,6 +180,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         inventarioDAO.save(inventario);
         
         String imagen = inventario.getImagentemporal().trim();
+        String exten= FilenameUtils.getExtension(imagen);
 
         if (!Strings.isNullOrEmpty(imagen)) {
             this.sendArchivoS3(imagen);
@@ -160,6 +191,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
             archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
             archivo.setNombre(imagen);
+            archivo.setTipo(exten);
             archivoDAO.save(archivo);
         }
 
@@ -178,7 +210,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     }
 
     @Transactional
-    private void saveMultipleInventariado(Inventario inventario, Usuario user) {
+    void saveMultipleInventariado(Inventario inventario, Usuario user) {
 
         inventario.setTimes(Math.abs(inventario.getTimes()));
 
@@ -303,6 +335,8 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         TipoProducto tipoProducto = tipoProductoDAO.findByCode(CodigoTipoProductoEnum.BIENES);
         producto.setTipoProducto(tipoProducto);
         producto.setUnidadPrincipal(new UnidadMedida(1));
+        producto.setUserRegistro(user);
+        producto.setFechaRegistro(new Date());
         productoDAO.save(producto);
     }
 
