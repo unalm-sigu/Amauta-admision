@@ -17,10 +17,26 @@ var root = new Vue({
             $vue.$refs.clonar.open();
         },
         agendaConsejerosURL() {
-            location.href=APP.url('consejeria/administracion/agendaconsejero/') + URL_UTIL.getOrigenURL();
+            location.href = APP.url('consejeria/administracion/agendaconsejero/') + URL_UTIL.getOrigenURL();
         },
         coordinadorConsejerosURL() {
-            location.href=APP.url('consejeria/administracion/coordinador/') + URL_UTIL.getOrigenURL();
+            location.href = APP.url('consejeria/administracion/coordinador/') + URL_UTIL.getOrigenURL();
+        },
+        actualizarEstudiantes() {
+            MODAL.showWait("Espere un momento por favor");
+            axios.post("/consejeria/administracion/actualizarEstudiantes").then(response => {
+                if (response.data.success) {
+                    MODAL.hideWait();
+                    MODAL.hide();
+                    notify(response.data.message, "info");
+                } else {
+                    MODAL.hideWait();
+                    notify(response.data.message, "error");
+                }
+            }).catch(e => {
+                MODAL.hideWait();
+                notify(Messages.errorComunicacion, "error");
+            });
         },
         reloadList() {
             let $vue = this;

@@ -25,7 +25,11 @@ import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.abonoalumno.Observado;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroReporteAgendaDTO;
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.ReunionConsejerosEXCEL;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -216,6 +220,33 @@ public class AdministracionConsejeriaController {
         response.setFiltered(filter.getFiltered());
         response.setTotal(filter.getTotal());
         return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("actualizarEstudiantes")
+    public JsonResponse actualizarEstudiantes(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+//        JsonResponse response = new JsonResponse();
+//        service.actualizarEstudiantes(ds);
+//        return GlobalMessages.UPDATED;
+//        
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(false);
+
+        try {
+            service.actualizarEstudiantes(ds);
+            json.setSuccess(true);
+            json.setMessage(GlobalMessages.UPDATED);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
 
     }
 

@@ -131,6 +131,7 @@ import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CAPA_ULTIM
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -1077,6 +1078,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 return turno;
             }
         }
+        System.out.println("turnos:::: " + turnos.size());
         return turnos.get(turnos.size() - 1);
     }
 
@@ -1390,8 +1392,10 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (cicloActivo.getFechaPrioridades() != null) {
             EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
-            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
-
+            List<TurnoAtencion> turnos =  turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+            if(turnos.isEmpty()){
+                turnos =  turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
+            }
             List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloActivo);
             Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
 
@@ -1732,6 +1736,9 @@ public class MatriculableServiceImp implements MatriculableService {
         if (cicloActivo.getFechaPrioridades() != null) {
             EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
             List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+            if(turnos.isEmpty()){
+            turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
+            }
 
             asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
             matriculaResumenDAO.update(matriculaResumen);

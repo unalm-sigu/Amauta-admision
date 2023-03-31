@@ -234,13 +234,25 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     public List<Colaborador> allCoordinadorByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Colaborador.class, "co")
-                .join("co.persona per", "co.oficina ofi", "co.cargo ca")
+                .join("co.persona per", "co.oficina ofi", "co.cargo ca", "ofi.personaJefe pj")
                 .in("co.estado", Arrays.asList(ACT, PER, VAC, DSC))
                 .in("ca.codigo", Arrays.asList(PerfilColaboradorEnum.COORDTUTOR, PerfilColaboradorEnum.SECUNDA_TUTOR))
                 .searchFields("ofi.nombre", "ca.nombre", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ofi.nombre asc","ca.id");
+                .orderBy("ofi.nombre asc", "ca.id");
+        return all(sql);
+    }
+
+    @Override
+    public List<Colaborador> allCoordinatorCodeCareerOfStudent(String codeCareer) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("co.persona per", "co.oficina ofi", "co.cargo ca", "ofi.personaJefe pj")
+                .in("estado", Arrays.asList(ACT, PER, VAC, DSC))
+                .in("ca.codigo", Arrays.asList(PerfilColaboradorEnum.COORDTUTOR, PerfilColaboradorEnum.SECUNDA_TUTOR))
+                .filter("ofi.codigo", codeCareer);
+
         return all(sql);
     }
 

@@ -22,6 +22,7 @@ import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.FiltroRe
 import pe.edu.lamolina.amauta.controller.consejeria.administracion.view.VerificadorClonacionConsejero;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
+import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejerosService;
 import pe.edu.lamolina.amauta.controller.reunionConsejero.ReunionConsejeroServiceImpl;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
@@ -40,7 +41,6 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.consejeria.AgendaConsejero;
@@ -78,6 +78,8 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     private ColaboradorDAO colaboradorDAO;
     private DepartamentoAcademicoDAO departamentoAcademicoDAO;
     private MatriculaResumenDAO matriculaResumenDAO;
+
+    private ConsejerosService serviceConsejero;
 
     @Override
     public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -132,7 +134,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             List<AlumnoConsejero> alumnoConsejerosModelo = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getModelo());
             List<AlumnoConsejero> alumnoConsejerosDestino = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getDestino());
 
-            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().filter(x->!x.getAlumno().getSituacionAcademica().isEgresado()).
+            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()).
                     collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
             Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream().
@@ -234,7 +236,7 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             consejeriaResumen.setConsejerosInactivos(cont.getInactivos().intValue());
 
             consejeriaResumenDAO.update(consejeriaResumen);
-            
+
         }////////////
 
         log.debug("save ConsejeriaHistorial ");
@@ -352,6 +354,21 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     @Override
     public List<Colaborador> coordinadores(DynatableFilter filter) {
         return colaboradorDAO.allCoordinadorByDynatable(filter);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarEstudiantes(DataSessionPivot ds) {
+        try {
+
+            List<Carrera> carreras = carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+            for (Carrera carrera : carreras) {
+                serviceConsejero.revisarConsejeria(carrera, ds.getCicloAcademico(), false, ds);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

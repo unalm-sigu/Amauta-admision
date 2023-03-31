@@ -25,6 +25,8 @@ public interface AporteAlumnoService {
 
     JsonResponse getEliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
 
+    JsonResponse getRecrearDeudas(CicloAcademico cicloAcademico, Alumno alumno, DataSessionPivot ds);
+
     void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
 
     void eliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);

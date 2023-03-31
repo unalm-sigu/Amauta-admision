@@ -112,8 +112,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     @Override
     @Transactional
-    public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot dataSessionPivot) {
-        Usuario usuario = dataSessionPivot.getUsuario();
+    public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot ds) {
+        Usuario usuario = ds.getUsuario();
         logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
         Persona personaForm = alumnoVisitante.getPersona();
         this.verificarPersona(personaForm);
@@ -132,7 +132,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             }
 
             PersonaHistorial personaHistorial = new PersonaHistorial();
-            personaHistorial.setUsuario(dataSessionPivot.getUsuario());
+            personaHistorial.setUsuario(ds.getUsuario());
             personaHistorial.setPersona(personaDB);
             personaHistorial.setFecha(new Date());
             personaHistorial.setNumeroDocumentoFrom(personaDB.getNumeroDocIdentidad());
@@ -141,7 +141,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
             personaHistorialDAO.save(personaHistorial);
 
-            personaDB = this.updatePersona(personaDB, personaForm);
+            personaDB = this.updatePersona(personaDB, personaForm, ds);
             this.updateUsuarioAlumno(personaDB, usuario, ciclo);
 
             Alumno alumno = alumnoDAO.findByPersona(personaDB, ciclo);
@@ -352,61 +352,6 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         return valor;
     }
 
-    private Persona getPersonaBD(Persona persona, Persona personaForm) {
-        Persona personaBD = personaDAO.find(persona.getId());
-
-        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
-        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
-        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
-        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
-        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
-
-        if (personaForm.getUbicacionNacer() == null) {
-            personaBD.setUbicacionNacer(null);
-        }
-
-        personaBD.setPaisNacer(personaForm.getPaisNacer());
-        personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
-        personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
-        personaBD.setNacionalidad(personaForm.getNacionalidad());
-        personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
-
-        personaDAO.update(personaBD);
-
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, personaForm,
-                Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
-
-        if (sinCambios) {
-            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
-            return personaBD;
-        }
-        personaBD.setNombres(personaForm.getNombres());
-        personaBD.setPaterno(personaForm.getPaterno());
-        personaBD.setMaterno(personaForm.getMaterno());
-        personaBD.setSexo(personaForm.getSexo());
-        personaBD.setFechaNacer(personaForm.getFechaNacer());
-        personaBD.setDireccion(personaForm.getDireccion());
-        personaBD.setCelular(personaForm.getCelular());
-        personaBD.setTelefono(personaForm.getTelefono());
-        personaBD.setEmail(personaForm.getEmail());
-
-        this.validarEmailConPersona(personaForm.getEmail(), persona);
-
-        personaDAO.update(personaBD);
-        return personaBD;
-    }
-
-    private void validarEmailEmpresaConPersona(String email, Persona persona) {
-        if (email != null) {
-            List<Persona> personas = personaDAO.allByEmailEmpresaWithoutPersona(persona);
-            if (!personas.isEmpty()) {
-                Persona pEmail = personas.get(0);
-                TipoDocIdentidad tipo = pEmail.getTipoDocumento();
-                throw new PhobosException("El correo UNALM ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
-            }
-        }
-    }
-
     private void validarEmailConPersona(String email, Persona persona) {
         if (email != null) {
             List<Persona> personas = personaDAO.allByEmailWithoutPersona(persona);
@@ -546,13 +491,12 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
         personaHistorialDAO.save(personaHistorial);
 
-        this.updatePersona(personaBD, personaForm);
+        this.updatePersona(personaBD, personaForm, ds);
         logger.debug("persona  doc {} num  {} found  \n update datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
         this.updateAlumnoVisitante(alumnoVisitante);
     }
 
-    @Transactional
-    private Persona updatePersona(Persona personaBD, Persona personaForm) {
+    private Persona updatePersona(Persona personaBD, Persona personaForm, DataSessionPivot ds) {
 
         ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
         ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
@@ -571,6 +515,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         personaBD.setNacionalidad(personaForm.getNacionalidad());
         personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
+        personaBD.setUserModificacion(ds.getUsuario());
 
         personaDAO.update(personaBD);
 
@@ -595,6 +540,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         this.validarEmailConPersona(personaForm.getEmail(), personaBD);
 
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         return personaBD;

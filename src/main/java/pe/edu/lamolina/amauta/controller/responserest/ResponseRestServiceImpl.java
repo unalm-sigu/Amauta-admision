@@ -286,8 +286,6 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         String url = String.format("%s/aportesRest/agregarAporte", parametro.getValor());
         return this.postToBackEnd(url, json);
     }
-    
-    
 
     @Override
     @Transactional
@@ -313,6 +311,17 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/quitarAporte", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse recrearDeudas(Alumno alumno, DataSessionPivot ds, TokenIngresante token) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+
+        ObjectNode json = createFormJson(ds, token);
+        json.put("idAlumno", alumno.getId());
+
+        String url = String.format("%s/aportesRest/recrearDeudas", parametro.getValor());
         return this.postToBackEnd(url, json);
     }
 

@@ -11,8 +11,8 @@ Vue.component("inicio-component", {
             flag: true,
 //            alumno: JSON.parse(alumnoJson),
             orientacionTmp: {},
-            esEgresado:false,
-            promedioGraduacion:null,
+            esEgresado: false,
+            promedioGraduacion: null,
 
         }
     },
@@ -73,6 +73,12 @@ Vue.component("inicio-component", {
         },
         verNota(notax) {
             return APP.verNota(notax);
+        },
+        validarPromedioGraduado(situacionAcademica) {
+            if (situacionAcademica.egresado || situacionAcademica.graduado) {
+                return true;
+            }
+            return false;
         }
     }
 });

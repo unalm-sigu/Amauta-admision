@@ -277,17 +277,11 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             return;
         }
 
-        Aporte aporteNoVotar = aporteDAO.findByCode(A04);
-        List<AlumnoOmisoEleccion> omisionesBD = alumnoOmisoEleccionDAO.allDeudasByAlumno(alumnoForm);
         CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
 
         JsonResponse json;
         try {
-            if (omisionesBD.isEmpty()) {
-                json = aporteAlumnoService.getEliminarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
-            } else {
-                json = aporteAlumnoService.getModificarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
-            }
+            json = aporteAlumnoService.getRecrearDeudas(cicloModalidad, alumnoBD, ds);
 
         } catch (Exception e) {
             noVotaronService.deshacerAnuladosOmisosSeleccionados(omisionesForm, ds);

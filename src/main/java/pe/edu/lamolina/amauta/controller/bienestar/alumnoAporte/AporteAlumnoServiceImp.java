@@ -115,7 +115,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
 
     @Override
     public void generarAporteSegundaCarreraDeuda(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
         }
@@ -128,8 +128,6 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         JsonResponse jsonResponse = responseRestService.generarAporteSegundaCarreraDeuda(matriculaResumen, ds, token);
         Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
-    
-    
 
     @Override
     public void quitarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
@@ -193,7 +191,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     }
 
     @Override
-    public JsonResponse getEliminarAporte(CicloAcademico ciclo, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+    public JsonResponse getEliminarAporte(CicloAcademico ciclo, MatriculaResumen matriculable, Aporte aporte, DataSessionPivot ds) {
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
         if (generador == null) {
             return null;
@@ -204,7 +202,22 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         }
 
         TokenIngresante token = responseRestService.createToken(ds);
-        return responseRestService.eliminarAporte(matriculaResumen, ds, aporte, token);
+        return responseRestService.eliminarAporte(matriculable, ds, aporte, token);
+    }
+
+    @Override
+    public JsonResponse getRecrearDeudas(CicloAcademico ciclo, Alumno alumno, DataSessionPivot ds) {
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
+        if (generador == null) {
+            return null;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return null;
+        }
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        return responseRestService.recrearDeudas(alumno, ds, token);
     }
 
     @Override

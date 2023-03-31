@@ -55,7 +55,7 @@
                                             </td>
                                             
                                             <td class="v-middle text-center">
-                                                <span v-if="item.alumno.situacionAcademica.codigo=='E'"> {{ item.promedioGraduacion }} </span>
+                                                <span v-if="validarPromedioGraduado(item.alumno.situacionAcademica)"> {{ item.promedioGraduacion }} </span>
                                             </td>
 
                                             <td class="v-middle text-center">

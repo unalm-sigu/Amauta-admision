@@ -1,0 +1,19 @@
+<modal-vik ref="modalAsignarTurno" v-bind="configModalAsignarTurno" v-bind:okaction="procesarAsignacionTurno">
+    <div slot="body">
+        <form v-bind:id="configModalAsignarTurno.form" data-parsley-validate="true">
+            <div class="form-group">   
+                <label>Seleccione turno</label>
+                <select v-model="turnoSeleccionado" class="form-control" id="turnoSeleccionado" :required="true" v-on:change="validaTurno(turnoSeleccionado)" >
+                    <option selected="true">Elija Turno...</option>
+                    <option v-for="turnoAtencion in turnosAtencion" :value="turnoAtencion">
+                        {{turnoAtencion.fecha}} {{turnoAtencion.horaInicio}} - {{turnoAtencion.horaFinal}}
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">   
+                <label>Motivo</label>
+                <textarea class="form-control" placeholder="Describa el motivo" required="true" v-model="matriculaTurno.motivo"></textarea>
+            </div>
+        </form>
+    </div>
+</modal-vik>

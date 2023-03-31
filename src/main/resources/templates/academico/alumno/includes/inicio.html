@@ -293,7 +293,7 @@
                                 <span v-text='alumno.ciclosVeranosTransient'></span>
                             </td>
                         </tr>
-                        <tr v-if="alumno.situacionAcademica.egresado">
+                        <tr v-if="validarPromedioGraduado(alumno.situacionAcademica)">
                             <td>
                                 <strong> Promedio ponderado egresado  </strong>
                             </td>

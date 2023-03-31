@@ -254,7 +254,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
-    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2Nzc2NDY3NDAsImlhdCI6MTY3NDYxMTY2NH0.c7Ujt9i0L78B018075mnbHGlZJGP-vSyWulDdhAxvq4";
+    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2ODI4MzA4MDAsImlhdCI6MTY3ODc1MTM1Mn0.gwRQ8xh6_1oN5WYvWrFwTYREZb0UTZ87HqV52YmDde4";
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -2706,11 +2706,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico) {
-        List<String> diaHoras = new ArrayList();
+//        List<String> diaHoras = new ArrayList();
         List<HorarioSeccion> horarioSeccion = horarioSeccionDAO.allBySeccion(seccion);
-        for (HorarioSeccion hdiaSecc : horarioSeccion) {
-            diaHoras.add(hdiaSecc.getHoraDia());
-        }
+//        for (HorarioSeccion hdiaSecc : horarioSeccion) {
+//            diaHoras.add(hdiaSecc.getHoraDia());
+//        }
+        List<String> diasHorasSeccion = horarioSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
         Seccion seccionDB = seccionDAO.find(seccion);
         ModalidadEstudio modalidadCurso = seccionDB.getGrupoSeccion().getCurso().getModalidadEstudio();
@@ -2723,10 +2724,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<HorarioAula> horariosAula = new ArrayList();
         log.debug("***pabellon *** {}", pabellon.getId());
-        if (!diaHoras.isEmpty()) {
+        if (!diasHorasSeccion.isEmpty()) {
             if (eventoAcademico != null) {
-                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
-                horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
+//                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
+//                horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
+                horariosAula = horarioAulaDAO.allRangoDiaAndPabellonByDiasHoras(diasHorasSeccion, pabellon,eventoAcademico.getFechaInicio(), eventoAcademico. getFechaFin());
+                
             }
         }
         log.debug("***horariosAula existe *** {}", horariosAula.isEmpty());

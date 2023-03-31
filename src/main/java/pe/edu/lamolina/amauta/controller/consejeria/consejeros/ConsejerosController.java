@@ -104,7 +104,7 @@ public class ConsejerosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
+//            service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
             List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);

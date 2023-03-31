@@ -202,8 +202,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
         List<Docente> docentesBD = docenteDAO.allByPersona(docente.getPersona());
         List<Docente> docentesPRE_EPG = docentesBD.stream()
-                                        .filter(x -> !x.getModalidadEstudio().isPregrado() || !x.getModalidadEstudio().isPostgrado())
-                                        .collect(Collectors.toList());
+                .filter(x -> !x.getModalidadEstudio().isPregrado() || !x.getModalidadEstudio().isPostgrado())
+                .collect(Collectors.toList());
         log.debug("existe docente en db {}", (docentesPRE_EPG != null));
         Assert.isTrue(docentesPRE_EPG.isEmpty(), "Docente ya existe");
 
@@ -218,6 +218,7 @@ public class ProfesorServiceImp implements ProfesorService {
         if (hayFotoNueva) {
             this.uploadS3(personaForm.getFoto());
             docente.getPersona().setFoto(personaForm.getFoto());
+            docente.getPersona().setUserModificacion(ds.getUsuario());
             personaDAO.update(docente.getPersona());
         }
 
@@ -263,6 +264,7 @@ public class ProfesorServiceImp implements ProfesorService {
         if (hayFotoNueva) {
             this.uploadS3(personaForm.getRutaFotoTemporal());
             personaBD.setRutaFotoDocumento(this.getPathFotoDocente(personaForm.getRutaFotoTemporal()));
+            personaBD.setUserModificacion(ds.getUsuario());
             personaDAO.update(personaBD);
         }
 
@@ -456,6 +458,7 @@ public class ProfesorServiceImp implements ProfesorService {
         personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
         personaBD.setPaisNacer(personaForm.getPaisNacer());
         personaBD.setNacionalidad(personaForm.getNacionalidad());
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         String tipoDocBDJson = this.getPersonaTipoDocJson(personaBD);

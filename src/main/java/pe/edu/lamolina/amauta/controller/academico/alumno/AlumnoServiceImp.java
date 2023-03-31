@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,7 +233,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 .join("tipoDocumento", "id,simbolo")
                 .json().toString();
 
-        this.updatePersona(personaDB, personaForm);
+        this.updatePersona(personaDB, personaForm, ds);
 
         Usuario usuarioAlumno = usuarioDAO.findActivoByPersona(personaDB);
 
@@ -278,6 +279,7 @@ public class AlumnoServiceImp implements AlumnoService {
         persona.setOrigenValidacionEnum(OrigenValidacionEnum.ALUMNO_AMAUTA);
         persona.setUserValidacion(ds.getUsuario());
         persona.setFechaValidacion(today.toDate());
+        persona.setUserModificacion(ds.getUsuario());
         personaDAO.update(persona);
 
         ValidacionPersona validacion = new ValidacionPersona();
@@ -343,19 +345,20 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoDAO.save(alumno);
     }
 
-    private Persona updatePersona(Persona personaBD, Persona personaForm) {
+    private Persona updatePersona(Persona personaBD, Persona personaForm, DataSessionPivot ds) {
+        LocalDate fechaNacer = new LocalDate(personaForm.getFechaNacer());
         personaBD.setPaisNacer(personaForm.getPaisNacer());
         personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
         personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
         personaBD.setNacionalidad(personaForm.getNacionalidad());
         personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
-
+        personaBD.setUserModificacion(ds.getUsuario());
         personaBD.setNombres(personaForm.getNombres());
         personaBD.setPaterno(personaForm.getPaterno());
         personaBD.setMaterno(personaForm.getMaterno());
         personaBD.setSexo(personaForm.getSexo());
-        personaBD.setFechaNacer(personaForm.getFechaNacer());
+        personaBD.setFechaNacer(fechaNacer.plusDays(1).toDate());
         personaBD.setDireccion(personaForm.getDireccion());
         personaBD.setCelular(personaForm.getCelular());
         personaBD.setTelefono(personaForm.getTelefono());
@@ -367,6 +370,7 @@ public class AlumnoServiceImp implements AlumnoService {
         this.validarEmailConPersona(personaForm.getEmail(), personaBD);
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
 
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
         return personaBD;
     }
@@ -616,7 +620,7 @@ public class AlumnoServiceImp implements AlumnoService {
         personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
         personaHistorialDAO.save(personaHistorial);
 
-        this.updatePersona(personaDB, personaForm);
+        this.updatePersona(personaDB, personaForm, ds);
 
         String personaFinal = JaneHelper
                 .from(personaDB)
@@ -812,12 +816,12 @@ public class AlumnoServiceImp implements AlumnoService {
                 .filter(x -> !Objects.equals(x.getTramiteTraslado().getCicloAcademico().getId(), tramiteTraslado.getCicloAcademico().getId()))
                 .collect(Collectors.toList());
 
-        if(cursoConvalidadosOldCicloDistinto != null && cursoConvalidadosOldCicloDistinto.size() > 0) {
+        if (cursoConvalidadosOldCicloDistinto != null && cursoConvalidadosOldCicloDistinto.size() > 0) {
             CursoConvalidado findCursoConvalidado = cursoConvalidadosOldCicloDistinto
                     .stream()
                     .filter((x) -> x.getTramiteTraslado().getCicloAcademico().getId() != null)
                     .findAny()
-                    .orElseThrow(()-> new IllegalArgumentException());
+                    .orElseThrow(() -> new IllegalArgumentException());
             CicloAcademico cicloAcademico = cicloAcademicoDAO.find(findCursoConvalidado.getTramiteTraslado().getCicloAcademico().getId());
             List<CursoConvalidado> cursoConvalidados = cursoConvalidadoDAO.allByTramiteTraslado(tramiteTraslado);
             Map<Long, CursoConvalidado> mapCursoConvalidados = TypesUtil.convertListToMap("id", cursoConvalidados);
@@ -825,25 +829,25 @@ public class AlumnoServiceImp implements AlumnoService {
             tramiteTraslado.setAlumno(alumno);
             tramiteTrasladoDAO.update(tramiteTraslado);
             AlumnoCiclo alumnoCiclo = null;
-            if(alumnoCicloDB != null) {
-                if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.RCI)){
+            if (alumnoCicloDB != null) {
+                if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.RCI)) {
                     alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);
-                } else if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)){
+                } else if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
                     alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
                 }
-                if(alumnoCiclo != null) {
+                if (alumnoCiclo != null) {
                     for (CursoConvalidado cursoConvalidado : cursoConvalidadosOldCicloDistinto) {
                         cursoConvalidado.setUserModifica(ds.getUsuario());
                         cursoConvalidado.setFechaModificacion(new Date());
                         cursoConvalidado.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
                         cursoConvalidado.setTramiteTraslado(tramiteTraslado);
                         AlumnoCicloCurso alumnoCicloCurso = mapCursoConvalidados.get(cursoConvalidado.getId()).getAlumnoCicloCurso();
-                        if(alumnoCicloCurso != null) {
+                        if (alumnoCicloCurso != null) {
                             this.updateAlumnoCicloCurso(cursoConvalidado, alumnoCiclo, alumnoCicloCurso, ds);
                         }
                         cursoConvalidadoDAO.update(cursoConvalidado);
                     }
-                    if(alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
+                    if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
                         alumnoCicloDAO.delete(alumnoCicloDB);
                     }
                 }
@@ -938,6 +942,7 @@ public class AlumnoServiceImp implements AlumnoService {
     public List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado) {
         return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
     }
+
     private void updateAlumnoCicloCurso(CursoConvalidado cursoConvalidado, AlumnoCiclo alumnoCiclo, AlumnoCicloCurso alumnoCicloCurso, DataSessionPivot ds) {
         alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
         alumnoCicloCurso.setCurso(cursoConvalidado.getCurso());
@@ -953,6 +958,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCicloCursoDAO.update(alumnoCicloCurso);
         cursoConvalidado.setAlumnoCicloCurso(alumnoCicloCurso);
     }
+
     private void saveAlumnoCicloCurso(CursoConvalidado cursoConvalidado, AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
         AlumnoCicloCurso alumnoCicloCurso = new AlumnoCicloCurso();
         alumnoCicloCurso.setFechaRegistro(new Date());
@@ -1016,7 +1022,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     @Transactional
-    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean) {
+    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean, DataSessionPivot ds) {
         String CorreoForm = accesoEspecialBean.getCorreo(); // correo a remitir las credenciales
         Persona personaForm = accesoEspecialBean.getAlumno().getPersona();
 
@@ -1032,6 +1038,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         Persona personaBD = personaDAO.find(personaForm.getId());
         personaBD.setEmail(CorreoForm);
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
 //        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEACCESOESPECIAL.name());   PENDIENTE
@@ -1108,6 +1115,7 @@ public class AlumnoServiceImp implements AlumnoService {
         uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, nombreArchivo, true);
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, nombreArchivo);
         alumnoBD.getPersona().setFoto(path);
+        alumnoBD.getPersona().setUserModificacion(ds.getUsuario());
         personaDAO.update(alumnoBD.getPersona());
 
         return alumnoBD;
