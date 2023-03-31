@@ -43,6 +43,11 @@ new Vue({
         $('[name="times"]').numeric();
     },
     methods: {
+        actualizarRx(e) {
+            console.log(e);
+            let vue=this;
+            vue.$refs.load.loadRemoteData();
+        },
         allProducto() {
             let $vue = this;
             $.ajax({
@@ -96,6 +101,7 @@ new Vue({
                     if (response.success) {
                         vue.producto = response.data;
                         vue.$refs.nuevoProducto.close();
+                        vue.isindividual=false;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -148,6 +154,7 @@ new Vue({
         },
         editarInventario(item) {
             var vue = this;
+            vue.isprocess = true;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/aula/inventario/update'),
@@ -160,9 +167,11 @@ new Vue({
                         vue.producto = response.data.producto;
                         vue.micomentario = response.data.comentario;
                         vue.activonuevo = true;
+                        vue.isindividual=false;
                     } else {
                         notify(response.message, 'error');
                     }
+                    vue.isprocess = false;
                 }, error: function () {
                     notify(Messages.errorComunicacion, "error");
                 }
@@ -191,13 +200,23 @@ new Vue({
                     success: function (response) {
                         if (response.success) {
                             vue.$refs.load.loadRemoteData();
-                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                            return swal({text: response.message, icon: "success", button: false, timer: 1000});
                         } else {
-                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            return swal({
+                                text: response.message,
+                                icon: "error",
+                                dangerMode: true,
+                                button: {text: "Aceptar"}
+                            });
                         }
                     },
                     error: function () {
-                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        return swal({
+                            text: Messages.errorComunicacion,
+                            icon: "error",
+                            dangerMode: true,
+                            button: {text: "Aceptar"}
+                        });
                     }
                 });
             }).catch(err => {
@@ -211,7 +230,7 @@ new Vue({
         },
         inputFilter(newFile, oldFile, prevent) {
             let $vue = this;
-            if (newFile && !oldFile) {
+            if (newFile) {
                 if (!/\.(gif|jpg|jpeg|png|webp)$/i.test(newFile.name)) {
                     swal('Error de tipo de archivo', 'Este archivo no es una imagen!', 'error', {buttons: {ok: "Aceptar"}});
                     return prevent();
@@ -221,30 +240,40 @@ new Vue({
             if (URL && URL.createObjectURL) {
                 $vue.inventario.imagen = URL.createObjectURL(newFile.file)
             }
+            $vue.isprocess = false;
         },
         inputFile(newFile, oldFile) {
             let $vue = this;
             $vue.isprocess = true;
-            if (newFile) {
+            if (newFile && !oldFile) {
                 $('#progress-bar').css('width', newFile.progress + '%');
                 if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
                     if (!$vue.$refs.upload.active) {
                         $vue.$refs.upload.active = true
+                        $vue.isprocess=false;
                     }
                 }
+                $vue.isprocess=false;
             }
+
             if (oldFile && newFile) {
-                if (newFile.success !== oldFile.success) {
+                $vue.isprocess = false;
+                if (newFile.size < 8000000) {
                     $vue.imagentemporal = newFile.response.data.ruta;
                     $vue.isprocess = false;
                 }
+
             }
+            $vue.isprocess=false;
+
         },
+
         nuevoInventario() {
             let vue = this;
             vue.activonuevo = true;
             vue.categoria = null;
             vue.producto = null;
+            //vue.nuevoInventario=false;
             vue.imagentemporal = '';
             vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
         },
@@ -263,13 +292,10 @@ new Vue({
                 }
             }).then((value) => {
 
-                console.log(value);
-
                 if (value != true) {
                     return;
                 }
 
-                console.log('post to backen');
                 vue.updatable = [];
 
                 vue.$refs.load.data.map((v, i) => {
@@ -285,13 +311,23 @@ new Vue({
                         if (response.success) {
                             vue.$refs.load.loadRemoteData();
                             vue.verTablaEditable = false;
-                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                            return swal({text: response.message, icon: "success", button: false, timer: 1000});
                         } else {
-                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            return swal({
+                                text: response.message,
+                                icon: "error",
+                                dangerMode: true,
+                                button: {text: "Aceptar"}
+                            });
                         }
                     },
                     error: function () {
-                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        return swal({
+                            text: Messages.errorComunicacion,
+                            icon: "error",
+                            dangerMode: true,
+                            button: {text: "Aceptar"}
+                        });
                     }
                 });
 
@@ -304,15 +340,20 @@ new Vue({
                 }
             });
         },
-        nextEditable($event) {
+        nextEditable(item) {
             let vue = this;
-            var inx = vue.$refs.editable.indexOf($event.target);
-            var idx = inx + 1;
-            if (vue.$refs.editable.length > idx) {
-                vue.$refs.editable[idx].focus()
-            } else {
-                swal({text: "Ya llegó al último registro", icon: "warning", button: {text: "Aceptar"}});
-            }
-        }
+            // var inx = vue.$refs.editable.indexOf($event.target);
+            // var idx = inx + 1;
+
+            // if (vue.$refs.editable.length > idx) {
+            //     vue.$refs.editable[idx].focus()
+            //
+            // } else {
+            //     swal({text: "Ya llegó al último registro", icon: "warning", button: {text: "Aceptar"}});
+            // }
+            console.log(item);
+            item.codeEdit=true;
+
+        },
     }
-});      
+});
