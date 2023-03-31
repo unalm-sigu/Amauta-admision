@@ -278,7 +278,7 @@ new Vue({
                         notify(error.response.data.message, 'error')
                     });
         },
-        anularTramite(tramite) {
+        /*anularTramite(tramite) {
             let $vue = this;
             bootbox.confirm({
                 message: `¿Seguro que desea anular el tramite?`,
@@ -302,6 +302,72 @@ new Vue({
                     }
                 }
             });
+        },*/
+        anularTramite(tramite) {
+            let $vue = this;
+            console.log(tramite.estadoTramite.codigo); // ACEP
+            if (tramite.estadoTramite.codigo === 'COMP') {
+                const md = bootbox.confirm({
+                    message: "<div class='form-group'>" +
+                            "<h4 class='text-center bold'>¿Seguro que desea anular el trámite?</h4><br/>" +
+                            "<p class='bold'>Ingrese motivo: </p>" +
+                            "<textarea class='form-control' id='motivo' rows='3' maxLength='200' placeholder='Describa un motivo, máximo 200 caracteres'></textarea>" +
+                            "</div>",
+                    //message: `¿Seguro que desea anular el tramite?`,
+                    buttons: {
+                        confirm: {label: 'Sí, anular', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-default"}
+                    },
+                    inputType: 'textarea',
+                    callback: (result) => {
+                        if (result) {
+                            if ($("#motivo").val().trim().length < 1)
+                                return false;
+                            $vue.showLoader();
+                            tramite.motivo = $("#motivo").val();
+                            axios.post('/tramite/solicitudconstancia/anulartramite', tramite)
+                                    .then(response => {
+                                        $vue.hideLoader();
+                                        $vue.$refs.load.loadRemoteData();
+                                        if(response.status === 200) {
+                                            notify(response.data, 'success');
+                                        } else {
+                                            notify(response.status, 'info');
+                                        }                                        
+                                    }, () => {
+                                        $vue.hideLoader();
+                                    })
+                                    .catch(error => {
+                                        notify(error, 'error');
+                                    });
+                        }
+                    }
+                });
+            } else if (tramite.estadoTramite.codigo === 'ACEP') {
+                bootbox.confirm({
+                    message: `¿Seguro que desea anular el tramite?`,
+                    buttons: {
+                        confirm: {label: 'Sí, anular', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-default"}
+                    },
+                    callback: (result) => {
+                        if (result) {
+
+                            $vue.showLoader();
+
+                            axios.get('/tramite/solicitudconstancia/anulartramite/' + tramite.id)
+                                    .then(response => {
+                                        $vue.hideLoader();
+                                        $vue.$refs.load.loadRemoteData();
+                                        notify(response.data.message, response.data.success ? 'info' : 'error');
+                                    }, () => {
+                                        $vue.hideLoader();
+                                    });
+                        }
+                    }
+                });
+            }
+
         },
         entregarTramite(tramite) {
             let $vue = this;
@@ -337,7 +403,7 @@ new Vue({
                         $vue.$refs.modalValidarBoleta.close();
                     }, () => {
                         $vue.$refs.modalValidarBoleta.stop();
-                        notify(Messages.errorComunicacion, 'error')
+                        notify(Messages.errorComunicacion, 'error');
                     });
         },
         subirBoleta(tramite) {

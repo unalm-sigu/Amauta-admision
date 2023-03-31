@@ -29,11 +29,12 @@
                                                     <th class="col-xs-2">Contacto</th>
                                                     <th class="col-xs-2">Trámite</th>
                                                     <th class="col-xs-2">Documento</th>
+                                                    <th class="col-xs-2">Motivo</th>
                                                     <th class="col-xs-1">Estado</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody>                                            
                                                 <tr v-for="item in props.data">
                                                     <td class="v-middle">
                                                         <div class="pull-left">
@@ -83,18 +84,18 @@
                                                         <p v-if='item.fechaEntrega' class="text-xs">Fecha Entrega: {{item.fechaEntrega}}  </p>
                                                         <p v-if='item.numeroFormato' class="text-xs">Número Formato: {{item.numeroFormato}}  </p>
                                                     </td>
-
                                                     <td class="v-middle">
-                                                        <span   v-bind:class="classEstado(item.estadoTramite.codigo)">{{item.estadoTramite.nombre}}</span>
+                                                        <span v-if="item.estadoTramite.codigo === 'ANU'">{{item.motivo}}</span>
                                                     </td>
-
+                                                    <td class="v-middle">
+                                                        <span v-bind:class="classEstado(item.estadoTramite.codigo)">{{item.estadoTramite.nombre}}</span>
+                                                    </td>
                                                     <td class="v-middle ">
                                                         <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
-
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
                                                                 <i class="fa fa-cog"></i>
                                                             </a>
-                                                            <ul  class="dropdown-menu pull-right">
+                                                            <ul class="dropdown-menu pull-right">
 
                                                                 <li>
                                                                     <a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Ver Solicitud Documento</a>
@@ -126,10 +127,12 @@
 
                                                                 <li v-if="item.estadoTramite.codigo!='COMP'" class="divider"></li>
 
-                                                                <li v-if="item.estadoTramite.codigo!='COMP'"> 
+                                                                <!--<li v-if="item.estadoTramite.codigo!='COMP'"> 
+                                                                    <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
+                                                                </li>-->
+                                                                <li>
                                                                     <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
                                                                 </li>
-
                                                             </ul>
                                                         </div>
                                                     </td>

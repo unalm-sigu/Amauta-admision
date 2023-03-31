@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.tramite.constanciacertificado;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.List;
+import javax.servlet.http.HttpSession;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -102,5 +103,7 @@ public interface ConstanciaSolicitudService {
     public void entregarTramite(TramiteDocumentoAcademico tramiteDocumentoAcademico) ;
 
     public BigDecimal getPrecioDocumento(TramiteDocumentoAcademico documentoAcademico);
+
+    public void anularTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession);
 
 }
