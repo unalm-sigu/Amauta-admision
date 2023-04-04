@@ -16,24 +16,26 @@ import pe.edu.lamolina.model.general.Colaborador;
 
 public interface AdministracionConsejeriaService {
 
-    public List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<ConsejeriaHistorial> allConsejeriaHistorialByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public List<CicloAcademico> allCiclo();
+    List<CicloAcademico> allCiclo();
 
-    public void clonar(ClonarConsejerosDTO clonarDTO, DataSessionPivot ds);
+    void clonar(ClonarConsejerosDTO clonarDTO, DataSessionPivot ds);
 
-    public void eliminar(Long idConsejeriaHistorial, DataSessionPivot ds);
+    void eliminar(Long idConsejeriaHistorial, DataSessionPivot ds);
 
-    public List<AgendaConsejero> agendaDynatable(DynatableFilter filter);
+    List<AgendaConsejero> agendaDynatable(DynatableFilter filter);
 
-    public List<Carrera> buscarCarrera(String nombre);
+    List<Carrera> buscarCarrera(String nombre);
 
-    public List<Consejero> buscarConsejero(String nombre);
+    List<Consejero> buscarConsejero(String nombre);
 
-    public List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO);
+    List<ReunionAlumnoConsejero> allReunionAlumnoConsejeroReporte(FiltroReporteAgendaDTO filtroReporteAgendaDTO);
 
-    public List<Alumno> buscarAlumno(String nombre);
+    List<Alumno> buscarAlumno(String nombre);
 
-    public List<Colaborador> coordinadores(DynatableFilter filter);
+    List<Colaborador> coordinadores(DynatableFilter filter);
+
+    void actualizarEstudiantes(DataSessionPivot ds);
 
 }

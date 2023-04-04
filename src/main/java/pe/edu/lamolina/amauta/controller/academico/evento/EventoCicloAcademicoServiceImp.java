@@ -22,8 +22,8 @@ import pe.edu.lamolina.model.general.Color;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.academico.EventoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.general.ColorDAO;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,9 +33,6 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
 
     @Autowired
     EventoAcademicoDAO eventoAcademicoDAO;
@@ -115,6 +112,11 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
             eventoss.add(eventCalendar);
         }
         return eventoss;
+    }
+    
+    @Override
+    public EventoCicloAcademico findByCicloAndEvento(CicloAcademico cicloAcademico, EventoAcademicoEnum eventoAcademicoEnum) {
+        return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoAcademicoEnum);
     }
 
 }

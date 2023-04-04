@@ -23,7 +23,7 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
     public List<Inventario> allByDynatable(DynatableFilter filter, Aula aula) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Inventario.class, "inv")
-                .join("almacen al", "al.aula au", "producto pro")
+                .join("almacen al", "al.aula au", "producto pro","oficinaGestora off")
                 .searchFields("inv.comentario", "inv.codigo", "pro.nombre", "pro.codigo")
                 .filter("au.id", aula)
                 .filter("off.id", ID_OFICINA_OERA)
@@ -35,7 +35,7 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
     public List<Inventario> allById(List<Inventario> inventarios) {
         Octavia sql = Octavia.query()
                 .from(Inventario.class, "inv")
-                .join("almacen al", "al.aula au", "producto pro")
+                .join("almacen al", "al.aula au", "producto pro", "oficinaGestora off")
                 .in("inv.id", inventarios)
                 .filter("off.id", ID_OFICINA_OERA);
         return all(sql);

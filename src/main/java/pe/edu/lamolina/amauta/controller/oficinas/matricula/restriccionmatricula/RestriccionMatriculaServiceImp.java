@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.oficinas.matricula.restriccionmatricula;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,11 +15,8 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -259,5 +257,26 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         deuda.setFechaRegistro(new Date());
         deuda.setUserRegistro(ds.getUsuario());
         deudaAlumnoDAO.save(deuda);
+    }
+
+    @Override
+    public byte[] getBlankTemplate() throws IOException {
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Alumnos");
+        Row row = sheet.createRow(0);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Matricula");
+
+        cell = row.createCell(1);
+        cell.setCellValue("Nombre");
+
+        cell = row.createCell(2);
+        cell.setCellValue("Descripcion");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+
+        return outputStream.toByteArray();
     }
 }

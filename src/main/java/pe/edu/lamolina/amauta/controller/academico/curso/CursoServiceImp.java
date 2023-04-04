@@ -51,6 +51,7 @@ import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.general.IdiomaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -97,6 +98,9 @@ public class CursoServiceImp implements CursoService {
 
     @Autowired
     VerificadorService verificadorService;
+
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
@@ -146,7 +150,7 @@ public class CursoServiceImp implements CursoService {
     private Curso updateCurso(Curso curso, DataSessionPivot ds) {
         validarDatosCurso(curso);
         Curso cursoBD = cursoDAO.find(curso.getId());
-        
+
         cursoBD.setNombre(curso.getNombre());
 
         cursoBD.setCarrera(curso.getCarrera());
@@ -433,4 +437,10 @@ public class CursoServiceImp implements CursoService {
     public List<DocenteSeccion> allDocenteSeccionPrincipalesBySecciones(List<Seccion> secciones) {
         return docenteSeccionDAO.allPrincipalesBySecciones(secciones);
     }
+
+    @Override
+    public List<Seccion> findByNombreCiclo(String nombre, String ciclo) {
+        return seccionDAO.findByNombreCiclo(nombre, ciclo);
+    }
+
 }

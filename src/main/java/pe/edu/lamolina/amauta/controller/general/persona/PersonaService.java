@@ -4,7 +4,6 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
@@ -35,7 +34,7 @@ public interface PersonaService {
 
     String validarEmailCompaniaByPersona(String email, Persona persona);
 
-    void updatePersonaAlumno(Persona persona, Usuario usuario);
+    void updatePersonaAlumno(Persona persona, DataSessionPivot ds);
 
     void saveCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
 

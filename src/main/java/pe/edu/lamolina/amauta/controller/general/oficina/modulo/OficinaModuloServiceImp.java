@@ -299,6 +299,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         if (oficina.getPersonaJefe().getTituloAcademico() != null) {
             Persona jefeBD = personaDAO.find(oficina.getPersonaJefe().getId());
             jefeBD.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
+            jefeBD.setUserModificacion(ds.getUsuario());
             personaDAO.update(jefeBD);
         }
 
@@ -388,6 +389,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         if (oficina.getPersonaJefe().getTituloAcademico() != null) {
             Persona jefeBD = personaDAO.find(oficina.getPersonaJefe().getId());
             jefeBD.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
+            jefeBD.setUserModificacion(ds.getUsuario());
             personaDAO.update(jefeBD);
         }
     }
@@ -488,6 +490,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
         if (oficina.getJefeEncargado().getTituloAcademico() != null) {
             jefeEncargadoBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            jefeEncargadoBD.setUserModificacion(ds.getUsuario());
             personaDAO.update(jefeEncargadoBD);
         }
 
@@ -611,6 +614,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         if (oficina.getJefeEncargado().getTituloAcademico() != null) {
             Persona jefeBD = personaDAO.find(oficina.getJefeEncargado().getId());
             jefeBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            jefeBD.setUserModificacion(ds.getUsuario());
             personaDAO.update(jefeBD);
         }
     }
@@ -927,6 +931,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         personaBD.setEmailCompania(personaForm.getEmailCompania());
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
+        personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
 
         Colaborador colaboradors = colaboradorDAO.findActivoByPersonaOficina(oficinaColaborador, personaBD);

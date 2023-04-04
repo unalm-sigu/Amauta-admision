@@ -266,7 +266,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                         alumnoCurs = mapAlumnoCurso.get(cursosEquivalente.getCursoCaduco().getId());
                         if (alumnoCurs == null) {
                             AlumnoCursoCurricula alumnoCursInactivoCaduco = mapAlumnoCursoInactivosCaducados.get(cursosEquivalente.getCursoCaduco().getCurso().getId());
-                            log.debug("alumnoCursInactivoCaduco {} {}", alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getCodigo(),alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getNombre());
+                            log.debug("alumnoCursInactivoCaduco {} {}", alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getCodigo(), alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getNombre());
                             alumnoCurs = alumnoCursInactivoCaduco;
                         }
 
@@ -411,8 +411,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             }
         }
 
-        if (alumno.getSituacionAcademica().isEgresado()) {
-
+        log.debug("VALIDA PROMEDIO GRADUADO");
+        if (alumno.getSituacionAcademica().isEgresado() || alumno.getSituacionAcademica().isGraduado()) {
+            log.debug("PROMEDIO GRADUADO");
             Egresado egresado = egresadoDAO.findByAlumno(alumno);
             DecimalFormat df = new DecimalFormat("#.00");
             alumno.setPromedioPonderadoGraduacion(egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");

@@ -575,6 +575,7 @@ public class AulaController {
                     .collect(Collectors.toList());
 
             try {
+                System.out.println("full estafas");
                 Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
                 logger.error("Error", e);

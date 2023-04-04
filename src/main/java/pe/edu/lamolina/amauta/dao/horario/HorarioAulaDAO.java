@@ -139,4 +139,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    List<HorarioAula> allRangoDiaAndPabellonByDiasHoras(List<String> diaHoras, Aula pabellon, Date fechaInicio, Date fechaFin);
+
 }

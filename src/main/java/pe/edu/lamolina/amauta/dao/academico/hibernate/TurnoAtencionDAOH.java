@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -9,7 +10,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
 import pe.edu.lamolina.amauta.dao.academico.TurnoAtencionDAO;
 
 @Repository
@@ -80,6 +80,16 @@ public class TurnoAtencionDAOH extends AbstractEasyDAO<TurnoAtencion> implements
                 .filter("ca.id", ciclo)
                 .filter("eva.codigo", eventoEnum);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<TurnoAtencion> findAllTurnoAtencionByFecha(Date hoy) {
+        Octavia sql = Octavia.query()
+                .from(TurnoAtencion.class, "ta")
+                .join("configuracionTurnosAtencion cta")
+                .filter("ta.fechaHoraInicio", ">", hoy)
+                .orderBy("ta.prioridadInicio");
         return all(sql);
     }
 

@@ -28,11 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.albatross.zelpers.miscelanea.*;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
@@ -257,6 +253,24 @@ public class InventarioAulaController {
         JsonResponse response = new JsonResponse();
         try {
 
+//            if (inventarioForm.getId() == null) {
+//                throw new PhobosException(GlobalMessages.ERROR_GENERAL);
+//            } else {
+//                JsonNodeFactory jFactory = JsonNodeFactory.instance;
+//                Inventario inventario = service.find(inventarioForm);
+//                ObjectNode jInventario = JsonHelper.createJson(inventario, jFactory, true, new String[]{
+//                        "*",
+//                        "almacen.*",
+//                        "producto.*",
+//                        "producto.productoSuperior.*",
+//                        "producto.unidadPrincipal.*"
+//                });
+//
+//                response.setData(jInventario);
+//            }
+            //response.setSuccess(Boolean.TRUE);
+
+
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             Inventario inventario = service.find(inventarioForm);
             ObjectNode jInventario = JsonHelper.createJson(inventario, jFactory, true, new String[]{
@@ -321,20 +335,23 @@ public class InventarioAulaController {
     }
 
     @ResponseBody
-    @RequestMapping("upload")
+    @RequestMapping(value = "upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
 
+
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ObjectNode json = new ObjectNode(jsonFactory);
+
 
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
             String absoluteName = GlobalConstantine.TMP_DIR + fileName;
             FileHelper.saveToDisk(archivo, absoluteName);
+
 
             json.put("name", archivo.getOriginalFilename());
             json.put("ruta", fileName);

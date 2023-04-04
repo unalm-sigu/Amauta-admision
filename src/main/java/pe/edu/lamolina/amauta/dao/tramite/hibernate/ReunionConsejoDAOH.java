@@ -51,7 +51,7 @@ public class ReunionConsejoDAOH extends AbstractEasyDAO<ReunionConsejo> implemen
         return all(sql);
     }
 
-    @Override
+    /*@Override
     public List<ReunionConsejo> allByDynatable(DynatableFilter filter, List<Oficina> oficina) {
         DateTime hoy = new DateTime();
         DynatableSql sql = new DynatableSql(filter)
@@ -61,6 +61,17 @@ public class ReunionConsejoDAOH extends AbstractEasyDAO<ReunionConsejo> implemen
                 .filter("fecha", ">=", hoy.toDate())
                 .searchFields("gh.codigo");
         return sql.all(getCurrentSession());
+    }*/
+    
+    @Override
+    public List<ReunionConsejo> allByDynatable(DynatableFilter filter, List<Oficina> oficina) {
+        DateTime hoy = new DateTime();
+        Octavia sql = Octavia.query()
+                .from(ReunionConsejo.class, "rc")
+                .join("oficina ofi")
+                .filter("fecha", ">=", hoy.toDate())
+                .in("ofi.id", oficina);
+        return all(sql);
     }
 
 }

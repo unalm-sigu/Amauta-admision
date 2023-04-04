@@ -53,6 +53,8 @@ public interface ResponseRestService {
 
     JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, TokenIngresante token);
 
+    JsonResponse recrearDeudas(Alumno alumno, DataSessionPivot ds, TokenIngresante token);
+
     JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, TokenIngresante token);
 
     JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
@@ -61,5 +63,6 @@ public interface ResponseRestService {
 
     JsonResponse retirarAlumnoMatricularSeccion(List<MatriculaCurso> matriculaCursos, Seccion destino, EstadoMatriculaEnum estadoMatriculaEnum, TokenIngresante token, DataSessionPivot ds);
 
-    public JsonResponse generarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
+    JsonResponse generarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
+
 }

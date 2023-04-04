@@ -68,8 +68,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico find(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEnum);
 
-    List<CicloAcademico> all();
-
     List<CicloAcademico> allActivesByModalidad(ModalidadEstudio modalidad, String[] orderBy);
 
     List<CicloAcademico> allCicloByName(String nombre);
@@ -145,5 +143,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     List<CicloAcademico> allPregradoNivelByRange(int yearinit, int yearend);
 
     List<CicloAcademico> allMenorRegularPreByCantidad(int maxResultado, CicloAcademico cicloAcademico);
+
+    List<CicloAcademico> allByYearModalidadEnum(int year, ModalidadEstudioEnum modalidadEnum);
 
 }

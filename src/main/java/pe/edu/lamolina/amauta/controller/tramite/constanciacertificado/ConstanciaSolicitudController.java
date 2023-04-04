@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -576,6 +577,28 @@ public class ConstanciaSolicitudController {
         }
         return response;
     }
+
+    @RequestMapping(value = "anulartramite", method = RequestMethod.POST)
+    public ResponseEntity<String> anularTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession) {
+        service.anularTramiteDocumentoAcademico(tramiteDocumentoAcademico, httpSession);
+        return ResponseEntity.ok("Registro eliminado satisfactoriamente");
+    }
+    
+//    @ResponseBody
+//    @RequestMapping(value = "anulartramite", method = RequestMethod.POST)
+//    public JsonResponse anularTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession) {
+//        JsonResponse response = new JsonResponse();
+//        try {            
+//            service.anularTramiteDocumentoAcademico(tramiteDocumentoAcademico, httpSession);
+//            response.setSuccess(Boolean.TRUE);
+//            response.setMessage("Registro eliminado satisfactoriamente. jaja");
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
 
     @ResponseBody
     @RequestMapping(value = "calcularPrecio", method = RequestMethod.POST)

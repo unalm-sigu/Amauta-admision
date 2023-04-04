@@ -102,7 +102,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
                 .leftJoin("secc.aula au", "au.oficinaSupervisora ofi")
-                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                //.filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletine)

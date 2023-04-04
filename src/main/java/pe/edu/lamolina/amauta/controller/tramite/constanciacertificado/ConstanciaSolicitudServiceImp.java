@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import javax.servlet.http.HttpSession;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -428,6 +429,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         if (!Strings.isNullOrEmpty(persona.getRutaFotoTemporal())) {
             Persona personaDB = personaDAO.find(persona.getId());
             personaDB.setRutaFotoTemporal(persona.getRutaFotoTemporal());
+            personaDB.setUserModificacion(ds.getUsuario());
             personaDAO.update(personaDB);
             this.uploadS3(personaDB.getRutaFotoTemporal());
         }
@@ -1044,14 +1046,22 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void anularTramite(Long idTramiteDocumentoAcademico) {
 
         TramiteDocumentoAcademico tramiteDocumentoAcademico
-                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
-
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));       
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
+        
+        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
 
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Tramite tramiteDB = tramiteDAO.find(tramite.getId());
+        tramiteDB.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramiteDAO.update(tramiteDB);
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setTramite(tramite);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
     }
 
@@ -1157,6 +1167,30 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         if (!alumno.getModalidadEstudio().isPregrado()) {
             throw new PhobosException("El trámite solo está permitido para alumnos de pregrado");
         }
+    }
+
+    @Transactional
+    @Override
+    public void anularTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession) {
+        DataSessionPivot dataSessionPivot = (DataSessionPivot) httpSession.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TramiteDocumentoAcademico tramiteDocumentoAcademicoDB = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(tramiteDocumentoAcademico.getId()));
+        if (tramiteDocumentoAcademicoDB == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Tramite tramiteDB = tramiteDAO.find(tramite.getId());
+        tramiteDB.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramiteDAO.update(tramiteDB);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        tramiteDocumentoAcademicoDB.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademicoDB.setMotivo(tramiteDocumentoAcademico.getMotivo());
+        tramiteDocumentoAcademicoDB.setUserAnulacion(dataSessionPivot.getUsuario());
+        tramiteDocumentoAcademicoDB.setFechaAnulacion(new Date());
+        tramiteDocumentoAcademicoDB.setTramite(tramiteDB);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademicoDB);
     }
 
 }

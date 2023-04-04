@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.oficinas.matricula.restriccionmatricula;
 
+import java.io.IOException;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -23,5 +24,7 @@ public interface RestriccionMatriculaService {
     List<String> cargarDeudas(MultipartFile file, Oficina tipo, DataSessionPivot ds);
 
     public void save(DeudaMaterialAlumno deuda, DataSessionPivot ds);
+
+    byte[] getBlankTemplate() throws IOException;
 
 }
