@@ -34,24 +34,25 @@
             </div>
 
             <div th:if="${planCurricular.id}" >
-                <h2 th:inline="text" class="m-b-n"
+                <span class="m-b-xxs h3 block">Plan de Estudios</span>
+                <h3 th:inline="text" class="m-b-xs m-t-xxs text-primary"
                     th:if="${planCurricular.carrera.modalidadEstudio.codigo=='PRE'}">
-                    Plan de Estudios: [[${planCurricular.carrera.nombre}]] 
-                </h2>
-                <h2 th:inline="text" class="m-b-n"
+                    [[${planCurricular.carrera.nombre}]] 
+                </h3>
+                <h3 th:inline="text" class="m-b-xs m-t-xxs text-primary"
                     th:if="${planCurricular.carrera.modalidadEstudio.codigo=='EPG'}">
-                    Plan de Estudios: [[${planCurricular.carrera.tipoEnum.value}]] en [[${planCurricular.carrera.nombre}]] 
-                </h2>
-                <h2 th:inline="text" class="m-b-n"
+                    [[${planCurricular.carrera.tipoEnum.value}]] en [[${planCurricular.carrera.nombre}]] 
+                </h3>
+                <span th:inline="text" class="m-b-xs m-t-xxs block h4 text-info"
                     th:if="${planCurricular.orientacionCarrera}">
-                    | Orientación [[${planCurricular.orientacionCarrera.nombre}]]
-                </h2>
+                    <b>Orientación:</b> [[${planCurricular.orientacionCarrera.nombre}]]
+                </span>
             </div>
             
             <div th:if="${planCurricular.id}">
                 <span class="block" 
                       th:if="${planCurricular.carrera.modalidadEstudio.codigo=='PRE'}" th:inline="text">
-                    Facultad [[${planCurricular.carrera.facultad.nombre}]] - [[${planCurricular.carrera.modalidadEstudio.nombre}]]
+                    Facultad [[${planCurricular.carrera.facultad.nombre}]]
                 </span>
             </div>
             <span th:if="${planCurricular.id}" th:inline="text" class="block bold m-b-lg">
