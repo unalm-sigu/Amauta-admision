@@ -1,9 +1,6 @@
 package pe.edu.lamolina.amauta.controller.general.responsableaula;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -128,9 +125,13 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
             responsableAula.setUserRegistro(ds.getUsuario());
             responsableAulaDAO.save(responsableAula);
         } else {
-            responsableAula.setFechaActualizacion(ds.getFechaAccionAudit());
+            responsableAula.setFechaActualizacion(new Date());
             responsableAula.setUserActualizacion(ds.getUsuario());
+
             responsableAulaDAO.update(responsableAula);
+            Persona personaBD = personaDAO.find(responsableAula.getPersona().getId());
+            personaBD.setCelular(responsableAula.getPersona().getCelular());
+            personaDAO.update(personaBD);
         }
 
         List<ResponsableAulaAsignacion> responsableByPersonaBD = responsableAulaAsignacionDAO.allByResponsable(Arrays.asList(responsableAula), EstadoEnum.ACT);
