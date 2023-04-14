@@ -194,14 +194,18 @@ Vue.component("avance-component", {
                 url: APP.url('academico/alumno/' + $vue.alumno.id + '/avance'),
                 contentType: "application/json",
                 success: function (response) {
-                    $vue.cursosCurricula = response.data.cursos;
-                    if ($vue.cursosCurricula[0].numeroCiclo == 0) {
-                        $vue.showCiclo = 0;
+                    if (response.success) {
+                        $vue.cursosCurricula = response.data.cursos;
+                        if ($vue.cursosCurricula[0].numeroCiclo == 0) {
+                            $vue.showCiclo = 0;
+                        }
+                        $vue.ciclosCurricula = response.data.ciclos;
+                        $vue.resumenAlumno = response.data.resumenAlumno;
+                        $vue.resumenPlan = response.data.resumenPlan;
+                        $vue.cantidadCursos = $vue.cursosCurricula.length;
+                    } else {
+                        notify(response.message, 'error');
                     }
-                    $vue.ciclosCurricula = response.data.ciclos;
-                    $vue.resumenAlumno = response.data.resumenAlumno;
-                    $vue.resumenPlan = response.data.resumenPlan;
-                    $vue.cantidadCursos = $vue.cursosCurricula.length;
                 }
             });
         },
@@ -268,7 +272,7 @@ Vue.component("avance-component", {
             }
         },
         modalEqui(item) {
-           
+
             if (item.estado === 'EQUIV') {
                 $.ajax({
                     method: 'POST',
@@ -280,7 +284,7 @@ Vue.component("avance-component", {
                         if (response.success) {
                             var table = "<table class='table table-striped'> \n\
                                             <thead class='panel panel-heading'> \n\
-                                            <tr> <th class='col-md-1 v-middle text-center'>Código</th> \n\
+                                            <tr> <th class='col-md-1 v-middle text-center'>CÃ³digo</th> \n\
                                             <th class='col-md-6 v-middle'>Curso</th> \n\
                                             <th class='col-md-2 v-middle'>Nota</th> \n\
                                             <th class='col-md-3 v-middle'>Ciclo Apr.</th>  \n\

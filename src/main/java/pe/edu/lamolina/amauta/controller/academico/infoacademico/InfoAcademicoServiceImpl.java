@@ -162,6 +162,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
 
         List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
+        if (ciclosAlumno.isEmpty()) {
+            throw new PhobosException("No tiene generado su avance curricular");
+        }
         AlumnoCursoCurricula max = ciclosAlumno.stream().max(Comparator.comparing(AlumnoCursoCurricula::getNumeroCiclo)).get();
         Map<Integer, Long> counters = ciclosAlumno.stream()
                 .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
@@ -266,7 +269,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                         alumnoCurs = mapAlumnoCurso.get(cursosEquivalente.getCursoCaduco().getId());
                         if (alumnoCurs == null) {
                             AlumnoCursoCurricula alumnoCursInactivoCaduco = mapAlumnoCursoInactivosCaducados.get(cursosEquivalente.getCursoCaduco().getCurso().getId());
-                            log.debug("alumnoCursInactivoCaduco {} {}", alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getCodigo(), alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getNombre());
+                            if (alumnoCursInactivoCaduco == null) {
+                                throw new PhobosException("El curso " + cursosEquivalente.getCursoCaduco().getCurso().getCodigo() + " " + cursosEquivalente.getCursoCaduco().getCurso().getNombre()
+                                        + " tiene como equivalente un curso caduco");
+                            } else {
+                                log.debug("alumnoCursInactivoCaduco {} {}", alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getCodigo(), alumnoCursInactivoCaduco.getCursoCurricula().getCurso().getNombre());
+                            }
                             alumnoCurs = alumnoCursInactivoCaduco;
                         }
 
@@ -574,7 +582,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
-            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+            throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
         }
         alumno = alumnoDAO.find(alumno);
         if (alumno.getModalidadEstudio().isPregrado()) {
@@ -721,7 +729,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
-            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+            throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
         }
         Alumno alumno = alumnoDAO.find(alumnoForm);
         promedioService.calcularSituacionAcademica(alumno, ds);
@@ -731,7 +739,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void calcularPromedios(DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
-            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+            throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
         }
         List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
 
@@ -992,14 +1000,14 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
 
         if (orientacionBD == null) {
-            throw new PhobosException("La orientación no existe en la base de datos");
+            throw new PhobosException("La orientaciÃ³n no existe en la base de datos");
         }
 
         Carrera carrAlu = alumnoBD.getCarrera();
         Carrera carrOri = orientacionBD.getCarrera();
 
         if (carrAlu.getId() != carrOri.getId().longValue()) {
-            throw new PhobosException("La orientación no corresponde a la especialidad del alumno");
+            throw new PhobosException("La orientaciÃ³n no corresponde a la especialidad del alumno");
         }
 
         alumnoBD.setOrientacionCarrera(orientacionBD);
@@ -1034,7 +1042,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
 
             if (alumnoBD.getPlanCurricular() == null) {
-                throw new PhobosException("La orientación no cuenta con plan curricular.");
+                throw new PhobosException("La orientaciÃ³n no cuenta con plan curricular.");
             }
 
             avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumnoBD, ds);
@@ -1208,7 +1216,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
-            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
+            throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
         }
 
         List<Alumno> alumnos = alumnoDAO.correccionNivelacion(ds.getCicloAcademico());
