@@ -88,6 +88,9 @@ public interface ResolucionExistenteService {
     public List<TramiteTraslado> allTramiteTrasladoByResolucion(Resolucion resolucion);
 
     boolean anularAlumnoDeResolucionTitulo(Resolucion resolucion, TramiteTitulo tramiteTitulo, Usuario usuario, DataSessionPivot ds);
+    
     boolean anularAlumnoDeResolucionBachiller(Alumno alumno, Resolucion resolucion, TramiteBachiller tramiteBachiller, Usuario usuario, DataSessionPivot ds);
+    
+    boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds);
 
 }
