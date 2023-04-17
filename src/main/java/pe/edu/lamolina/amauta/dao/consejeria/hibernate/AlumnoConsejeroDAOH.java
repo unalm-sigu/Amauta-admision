@@ -207,7 +207,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .filter("ca.id", ciclo)
                 .filter("car.id", carrera)
                 .filter("co.id", consejero)
-                .in("sa.codigo", Arrays.asList(S_N.getValue(),S_1.getValue(),S_2.getValue(),S_3.getValue(), S_5.getValue()))
+                //.in("sa.codigo", Arrays.asList(S_N.getValue(),S_1.getValue(),S_2.getValue(),S_3.getValue(), S_5.getValue()))  // SE DESACTIVO SOLO POR EL CICLO 2023-I
                 .orderBy("per.paterno", "alu.codigo");
         return all(sql);
     }
