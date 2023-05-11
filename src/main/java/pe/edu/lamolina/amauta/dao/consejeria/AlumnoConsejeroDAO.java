@@ -39,20 +39,20 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
     
     List<AlumnoConsejero> allByDynatablePersonaTutor(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor);
 
-    public AlumnoConsejero findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+    AlumnoConsejero findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public List<AlumnoConsejero> allByDynatablePersonaTutorCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
+    List<AlumnoConsejero> allByDynatablePersonaTutorCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
 
-    public List<AlumnoConsejero> allByCarreraCiclo(Carrera carrera, CicloAcademico cicloAcademico);
+    List<AlumnoConsejero> allByCarreraCiclo(Carrera carrera, CicloAcademico cicloAcademico);
 
-    public void deleteByCiclo(CicloAcademico cicloAcademico);
+    void deleteByCiclo(CicloAcademico cicloAcademico);
 
-    public AlumnoConsejero findAll(Long idAlumnoConsejero);
+    AlumnoConsejero findAll(Long idAlumnoConsejero);
 
-    public List<AlumnoConsejero> allSimpleByCicloConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico);
+    List<AlumnoConsejero> allSimpleByCicloConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico);
 
-    public List<AlumnoConsejero> allByDynatablePersonaTutorCarreraOERA(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
+    List<AlumnoConsejero> allByDynatablePersonaTutorCarreraOERA(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
 
-    public Long countConsejeria(CicloAcademico cicloAcademico, Carrera carrera, String estado);
+    Long countConsejeria(CicloAcademico cicloAcademico, Carrera carrera, String estado);
 
 }

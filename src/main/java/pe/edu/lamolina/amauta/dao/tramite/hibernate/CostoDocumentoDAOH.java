@@ -6,11 +6,11 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.tramite.CostoDocumentoDAO;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Repository
 public class CostoDocumentoDAOH extends AbstractEasyDAO<PrecioDocumento> implements CostoDocumentoDAO {

@@ -35,10 +35,16 @@
                                 <div class="col-lg-2 bold">Sexo</div>
                                 <div class="col-lg-10" v-text="alumno.persona.sexoEnum.value"></div>
                             </div>
-                            <div class="row h5 m-t-xs m-b-n" v-if="alumno.persona.numeroDocIdentidad != '' ">
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.persona.numeroDocIdentidad != '' ">
                                 <div class="col-lg-2 bold" v-text="alumno.persona.tipoDocumento.simbolo"></div>
                                 <div class="col-lg-10" v-text="alumno.persona.numeroDocIdentidad"></div>
                             </div>
+                            
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.tutorOcoordinador != '' ">
+                                <div class="col-lg-2 bold">Tutor</div>
+                                <div class="col-lg-10" v-text="alumno.tutorOcoordinador"></div>
+                            </div>
+                            
                         </div>
                     </td>
                 </tr>

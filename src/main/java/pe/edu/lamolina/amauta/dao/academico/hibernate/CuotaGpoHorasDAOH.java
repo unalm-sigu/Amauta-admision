@@ -11,13 +11,13 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.amauta.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
 import pe.edu.lamolina.amauta.controller.academico.cuotagpohoras.LetraCuotaUtilizadaBean;
 import pe.edu.lamolina.amauta.dao.academico.CuotaGpoHorasDAO;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Repository
 public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> implements CuotaGpoHorasDAO {

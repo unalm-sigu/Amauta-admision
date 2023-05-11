@@ -18,8 +18,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.OficinaNivel;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -33,8 +31,10 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
+import pe.edu.lamolina.model.enums.oficina.OficinaNivel;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {

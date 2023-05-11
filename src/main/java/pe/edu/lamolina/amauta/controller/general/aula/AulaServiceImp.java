@@ -23,9 +23,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import static pe.edu.lamolina.model.enums.OficinaEnum.DEPACT;
-import static pe.edu.lamolina.model.enums.OficinaEnum.DEPFIS;
 import static pe.edu.lamolina.model.enums.RolEnum.INF_OBUAE;
 import static pe.edu.lamolina.model.enums.RolEnum.IOREA;
 import static pe.edu.lamolina.model.enums.RolEnum.OREA;
@@ -66,6 +63,9 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPACT;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPFIS;
 
 @Service
 @Transactional(readOnly = true)

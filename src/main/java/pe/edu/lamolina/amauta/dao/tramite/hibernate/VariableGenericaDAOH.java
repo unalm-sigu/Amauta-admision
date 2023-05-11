@@ -4,9 +4,9 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.amauta.dao.tramite.VariableGenericaDAO;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
 
 @Repository
 public class VariableGenericaDAOH extends AbstractEasyDAO<VariableGenerica> implements VariableGenericaDAO {
