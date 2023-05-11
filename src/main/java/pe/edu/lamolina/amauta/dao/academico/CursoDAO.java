@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CursoDirigidoDTO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -71,5 +72,7 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allProgramadosByCiclo(CicloAcademico ciclo);
 
     public List<Curso> allByDynatableNombreCurso(DynatableFilter filter);
+
+    List<CursoDirigidoDTO> allCursosDirigidosByCiclo(CicloAcademico cicloAcademico);
 
 }

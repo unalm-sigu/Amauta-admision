@@ -1,30 +1,21 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.BooleanType;
+import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.CursoCachimbos;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.academico.PlanCalificacion;
-import pe.edu.lamolina.model.academico.Seccion;
-import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CursoDirigidoDTO;
+import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
@@ -32,11 +23,16 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
+
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public CursoDAOH() {
         super();
         setClazz(Curso.class);
@@ -507,6 +503,77 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
         return all(sql);
         
+    }
+
+    @Override
+    public List<CursoDirigidoDTO> allCursosDirigidosByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select ")
+            .append("cur.codigo codCurso, ")
+            .append("cur.nombre nomCurso, ")
+            .append("sec.codigo2 seccion, ")
+            .append("case ")
+            .append(" when sec.tipo_seccion = 'PRA'  then 'PRÁCTICA' ")
+            .append(" when sec.tipo_seccion = 'PCUR' then 'PRÁCTICA' ")
+            .append(" when sec.tipo_seccion = 'TCUR' then 'TEORÍA' ")
+            .append(" when sec.tipo_seccion = 'TEO'  then 'TEORÍA' ")
+            .append("end tipo, ")
+            .append("gh.codigo grupo, ")
+            .append("concat(dsec.porcentaje_carga, '%') carga, ")
+            .append("au.codigo aula, ")
+            .append("coalesce(doc.codigo, '') codDocente, ")
+            .append("concat(coalesce(per.paterno, ''), ' ', coalesce(per.materno, ''), ', ', coalesce(per.nombres, '')) nomDocente, ")
+            .append("gsec.curso_dirigido esDirigido, ")
+            .append("sec.modo_dictado modalidad, ")
+            .append("sec.matriculados matriculados, ")
+            .append("concat('Departamento Academico de ', da.nombre) departamento, ")
+            .append("concat('Facultad de ', fa.nombre) facultad, ")
+            .append("ca.descripcion cicloAcademico ")
+            .append("from aca_seccion sec ")
+            .append("join aca_grupo_seccion gsec on sec.id_grupo_seccion = gsec.id ")
+            .append("join aca_ciclo_academico ca on ca.id = gsec.id_ciclo ")
+            .append("join aca_curso cur on gsec.id_curso = cur.id ")
+            .append("join aca_docente_seccion dsec on dsec.id_seccion = sec.id ")
+            .append("join aca_docente doc on dsec.id_docente = doc.id ")
+            .append("join gen_persona per on doc.id_persona = per.id ")
+            .append("left join hor_horario_seccion hs on hs.id_seccion = sec.id ")
+            .append("left join gen_dia di on hs.id_dia = di.id ")
+            .append("left join hor_hora ho on hs.id_hora = ho.id ")
+            .append("join hor_grupo_horas gh on sec.id_grupo_horas = gh.id ")
+            .append("left join gen_aula au on sec.id_aula = au.id ")
+            .append("left join gen_aula ausp on au.id_aula_superior = ausp.id ")
+            .append("left join gen_tipo_carpeta tc on sec.id_tipo_carpeta = tc.id ")
+            .append("join aca_anexo_boletin ab on gsec.id_anexo_boletin = ab.id ")
+            .append("join aca_anexo_boletin absp on ab.id_anexo_superior = absp.id ")
+            .append("join aca_departamento_academico da on doc.id_departamento_academico = da.id ")
+            .append("join aca_facultad fa on da.id_facultad = fa.id ")
+            .append("where ca.id = ").append(cicloAcademico.getId()).append(" ")
+            .append("and absp.codigo <> 'G04' ")
+            .append("and ca.id_modalidad_estudio = 1 ")
+            .append("and cur.id_modalidad_estudio = 1 ")
+            .append("and sec.estado = 'ACT' ")
+            .append("and gsec.estado = 'ACT' ")
+            .append("and gsec.curso_dirigido is true ")
+            .append("group by dsec.id ")
+            .append("order by facultad, departamento, nomDocente");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("codCurso", StringType.INSTANCE)
+                .addScalar("nomCurso", StringType.INSTANCE)
+                .addScalar("seccion", StringType.INSTANCE)
+                .addScalar("tipo", StringType.INSTANCE)
+                .addScalar("grupo", StringType.INSTANCE)
+                .addScalar("carga", StringType.INSTANCE)
+                .addScalar("aula", StringType.INSTANCE)
+                .addScalar("codDocente", StringType.INSTANCE)
+                .addScalar("nomDocente", StringType.INSTANCE)
+                .addScalar("esDirigido", BooleanType.INSTANCE)
+                .addScalar("modalidad", StringType.INSTANCE)
+                .addScalar("matriculados", StringType.INSTANCE)
+                .addScalar("departamento", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("cicloAcademico", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(CursoDirigidoDTO.class));
+        return query.list();
     }
 
 }

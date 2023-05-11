@@ -613,6 +613,28 @@ new Vue({
         copiarLink() {
             let $vue = this;
             navigator.clipboard.writeText($vue.seccionMain.linkZoom);
+        },
+        calcularCreditoCarga(item) {
+            if(item.porcentajeCarga > 0) {
+                if(item.porcentajeCarga == 100) {
+                    return item.creditosCarga * 0.33;
+                }
+            }
+        },
+        totalCreditos(item) {
+            let sumCreditosPRE = 0;
+            for (let el of item) {
+                for (let seccion of el.secciones) {
+                    for (let docenteSeccion of seccion.docenteSeccion) {
+                        if(el.cursoDirigido) {
+                            sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;
+                        } else {
+                            sumCreditosPRE += docenteSeccion.creditosCarga;
+                        }
+                    }
+                }
+            }
+            return sumCreditosPRE;
         }
     }
 });
