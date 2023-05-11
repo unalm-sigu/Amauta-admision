@@ -54,7 +54,6 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
@@ -113,6 +112,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_II;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_III;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_IV;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = true)

@@ -96,7 +96,7 @@ public class InfoAcademicoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
+        Alumno alumno = service.findWithallInfo(new Alumno(idAlumno),ds);
         List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
 
         logger.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
@@ -374,7 +374,7 @@ public class InfoAcademicoController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
+            Alumno alumno = service.findWithallInfo(new Alumno(idAlumno),ds);
             ObjectNode alumnoJson = createAlumnoJson(alumno);
             response.setData(alumnoJson);
             response.setSuccess(Boolean.TRUE);
@@ -726,7 +726,8 @@ public class InfoAcademicoController {
             "persona.telefono",
             "persona.celular",
             "persona.email",
-            "persona.tipoDocumento.simbolo"
+            "persona.tipoDocumento.simbolo",
+            "tutorOcoordinador"
         });
         return alumnoJson;
     }

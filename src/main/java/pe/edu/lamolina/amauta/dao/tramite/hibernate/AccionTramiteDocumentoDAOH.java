@@ -4,11 +4,11 @@ import java.util.List;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteDocumentoDAO;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
 
 @Repository
 public class AccionTramiteDocumentoDAOH extends AbstractEasyDAO<AccionTramiteDocumento> implements AccionTramiteDocumentoDAO {

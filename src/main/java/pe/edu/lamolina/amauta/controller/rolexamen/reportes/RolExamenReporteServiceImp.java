@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +18,10 @@ import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoEspecialDAO;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
@@ -38,6 +35,7 @@ import pe.edu.lamolina.amauta.dao.rolexamen.AulaCursoMasivoDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.GrupoRegularExamenDAO;
 import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoRegularDAO;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = true)

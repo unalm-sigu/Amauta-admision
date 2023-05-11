@@ -11,7 +11,6 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.ResponsableAula;
@@ -23,6 +22,7 @@ import pe.edu.lamolina.amauta.dao.general.ResponsableAulaAsignacionDAO;
 import pe.edu.lamolina.amauta.dao.general.ResponsableAulaDAO;
 import pe.edu.lamolina.amauta.dao.general.TurnoAtencionAaulaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = false)

@@ -2,7 +2,6 @@ package pe.edu.lamolina.amauta.controller.tramite.cambioplancurricular;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +45,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -62,6 +60,7 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = true)

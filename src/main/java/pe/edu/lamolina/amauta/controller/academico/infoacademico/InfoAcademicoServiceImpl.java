@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
@@ -89,6 +90,8 @@ import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
@@ -100,9 +103,14 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.PerfilColaboradorEnum.COORDTUTOR;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -140,9 +148,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final RetiroCursoDAO retiroCursoDAO;
     private final TramiteBachillerDAO tramiteBachillerDAO;
     private final TramiteTituloDAO tramiteTituloDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     private final AvanceCurricularService avanceCurricularService;
     private final PromedioService promedioService;
+
+    private final String CODIGO_OFICINA_TUTORIA = "CT-";
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
@@ -358,7 +370,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
-    public Alumno findWithallInfo(Alumno alumnoId) {
+    public Alumno findWithallInfo(Alumno alumnoId, DataSessionPivot ds) {
 
         Alumno alumno = alumnoDAO.findAllInfo(alumnoId.getId());
 
@@ -427,6 +439,22 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             alumno.setPromedioPonderadoGraduacion(egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
 
         }
+
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
+        String tutorOcoordinador = "NN";
+
+        if (alumnoConsejero != null) {
+            tutorOcoordinador = alumnoConsejero.getConsejero().getColaborador().getPersona().getApellidosNombres();
+        } else {
+            List<Colaborador> coordinadores = colaboradorDAO.allCoordinatorCodeCareerOfStudent(CODIGO_OFICINA_TUTORIA.concat(alumno.getCarrera().getCodigo()));
+            Optional<Persona> coordinadorCarrera = coordinadores.stream()
+                    .filter(x -> x.getCargo().getCodigoEnum().equals(COORDTUTOR) && x.getOficina().getPersonaJefe() != null)
+                    .map(Colaborador::getOficina).map(Oficina::getPersonaJefe).distinct().findAny();
+
+            tutorOcoordinador = coordinadorCarrera.isPresent() ? coordinadorCarrera.get().getApellidosNombres() : "NN";
+        }
+        alumno.setTutorOcoordinador(tutorOcoordinador);
+
         return alumno;
     }
 

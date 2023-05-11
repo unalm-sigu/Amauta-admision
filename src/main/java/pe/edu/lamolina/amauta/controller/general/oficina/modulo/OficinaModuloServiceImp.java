@@ -35,7 +35,6 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.NivelOficinaEnum;
-import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
@@ -83,6 +82,7 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 

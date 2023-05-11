@@ -35,7 +35,6 @@ import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -44,6 +43,7 @@ import pe.edu.lamolina.amauta.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.amauta.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Repository
 public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements GrupoSeccionDAO {

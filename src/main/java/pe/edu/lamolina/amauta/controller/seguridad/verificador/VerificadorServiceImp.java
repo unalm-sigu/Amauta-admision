@@ -24,11 +24,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
-import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
@@ -46,8 +41,14 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
-import static pe.edu.lamolina.model.enums.OficinaEnum.ASOERA;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OBUAE;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.ASOERA;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.BAN;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.EPG;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OBUAE;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.VACA;
 import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
@@ -97,7 +98,7 @@ public class VerificadorServiceImp implements VerificadorService {
     public CantidadItemsEnum verificarCantidad(TipoOficinaEnum tipoOficinaSolicitud, HttpServletRequest request, DataSessionPivot ds) {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
         for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
+            if (oficina.getCodigoEnum() == VACA || oficina.getCodigoEnum() == OERA) {
                 return CantidadItemsEnum.TODOS;
             }
             if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
@@ -911,7 +912,7 @@ public class VerificadorServiceImp implements VerificadorService {
             Rol rol = userRol.getRol();
 
             boolean esRolEPG = rol.getCodigoEnum() == RolEnum.OPER_PROGH_EPG;
-            boolean esOficinaEPG = oficinaMain.getCodigoEnum() == EPG;
+            boolean esOficinaEPG = oficinaMain.getCodigoEnum() == OficinaEnum.EPG;
             if (esRolEPG && esOficinaEPG) {
                 return true;
             }
