@@ -216,6 +216,10 @@ new Vue({
             let $vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
+
+            $("[name='persona.paisDomicilio.id']").removeAttr('required');
+            $("[name='persona.direccion']").removeAttr('required');
+            
             if (!$("#formDocente").parsley().validate() == true) {
                 self.btnEnable();
                 notify("Falta llenar campos en el formulario, verifique.", "error");
@@ -615,8 +619,8 @@ new Vue({
             navigator.clipboard.writeText($vue.seccionMain.linkZoom);
         },
         calcularCreditoCarga(item) {
-            if(item.porcentajeCarga > 0) {
-                if(item.porcentajeCarga == 100) {
+            if (item.porcentajeCarga > 0) {
+                if (item.porcentajeCarga == 100) {
                     return item.creditosCarga * 0.33;
                 }
             }
@@ -626,7 +630,7 @@ new Vue({
             for (let el of item) {
                 for (let seccion of el.secciones) {
                     for (let docenteSeccion of seccion.docenteSeccion) {
-                        if(el.cursoDirigido) {
+                        if (el.cursoDirigido) {
                             sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;
                         } else {
                             sumCreditosPRE += docenteSeccion.creditosCarga;

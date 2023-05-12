@@ -271,13 +271,14 @@
 
         <paissearh 
             v-bind:pais="docente.persona.paisDomicilio"
-            v-bind:nombre="'persona.paisDomicilio.id'"/>
+            v-bind:nombre="'persona.paisDomicilio.id'"
+            v-bind:required="false"/>
 
 
     </div>
 </div>
 
-<div v-if="docente.persona.paisDomicilio.codigo=='PE'"    class="col-sm-6">
+<div v-if="docente.persona.paisDomicilio.codigo=='PE'" class="col-sm-6">
     <div class="form-group">
 
         <label>Ubicación Domicilio</label>
@@ -297,8 +298,7 @@
         <input type="text"
                class="form-control"
                name="persona.direccion"
-               v-model="docente.persona.direccion"
-               data-trigger="change" required="true" />
+               v-model="docente.persona.direccion" required="true"/>
 
     </div>
 </div>

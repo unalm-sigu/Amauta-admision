@@ -9,7 +9,7 @@ Vue.component("paissearh", {
     },
     props: {
         pais: {id: null},
-        nombre: {type: String, default: ''},
+        nombre: {type: String, default: ''}  
     },
     mounted: function () {
         let vue = this;
