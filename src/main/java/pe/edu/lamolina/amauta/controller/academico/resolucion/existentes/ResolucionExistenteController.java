@@ -52,6 +52,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -469,14 +470,30 @@ public class ResolucionExistenteController {
                     .array();
 
         } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
-            List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
-            return JaneHelper.from(graduados)
-                    .join("cicloAcademico", "id,descripcion,nombre")
-                    .join("gradoAcademico", "nombre")
-                    .join("alumno", "codigo")
-                    .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
-                    .join("alumno.persona.tipoDocumento", "id,simbolo")
-                    .array();
+
+             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
+                List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
+                return JaneHelper.from(graduados)
+                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .join("gradoAcademico", "nombre")
+                        .join("alumno", "codigo")
+                        .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
+                        .join("alumno.persona.tipoDocumento", "id,simbolo")
+                        .array();
+
+            } else {
+                List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
+                return JaneHelper.from(tramiteBachiller)
+                        .join("tramite.alumno", "codigo")
+                        .join("tramite.cicloAcademico", "descripcion")
+                        .join("tramite.persona", "paterno,materno,nombres")
+                        .join("resolucion.oficina", "codigo,id")
+                        .join("resolucion")
+                        //                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .array();
+            }
+
+            
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)

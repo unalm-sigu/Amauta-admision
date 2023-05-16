@@ -304,6 +304,7 @@ var app = new Vue({
         allAlumnos(item) {
             let $vue = this;
             $vue.tipo = item.tipoResolucion.codigo;
+            $vue.codigoOficina = item.oficina.codigo;            
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
