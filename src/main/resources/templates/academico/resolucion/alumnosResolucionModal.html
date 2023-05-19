@@ -6,7 +6,7 @@
                 <thead>
                     <tr>
                         <th>Alumnos</th>
-                        <th v-if="tipo == 'BACHI' || tipo == 'TITUL'">
+                        <th v-if="tipo == 'BACHI' ||'BACHIFAC' || tipo == 'TITUL'">
                             <span  v-if="codigoOficina=='UNA'">Grado/Título</span>
                             <span  v-if="codigoOficina!=='UNA'">Nombres</span>
                         </th>                                                                        
@@ -131,7 +131,7 @@
                         </td>
                     </tr>
 
-                    <tr v-for="item in alumnoTramiteBachiller" v-if="(tipo == 'BACHI' || tipo == 'TITUL') ">
+                    <tr v-for="item in alumnoTramiteBachiller" v-if="(tipo == 'BACHI' || tipo == 'BACHIFAC' || tipo == 'TITUL') ">
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
                             <span class="block">

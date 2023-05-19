@@ -447,12 +447,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucion.setCicloAplica(ds.getCicloAcademico());
                 break;
             case BACHI:
-                if (resolucion.getOficina().getCodigoDocumento().equals("UNA")) {
-                    resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
-                } else {
-                    resolucion.setNumeroVisible(resolucion.getDescripcion());
-                }
+                resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
+            case BACHIFAC:
+                resolucion.setNumeroVisible(resolucion.getDescripcion());
             case TITUL:
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
@@ -498,6 +496,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case BACHI:
                 this.saveTramiteBachiller(resolucion, ds);
                 break;
+            case BACHIFAC:
+                this.saveTramiteBachiller(resolucion, ds);
+                break;                
             case TITUL:
                 this.saveTramiteTitulo(resolucion, ds);
                 break;

@@ -41,6 +41,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHIFAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
@@ -84,7 +85,9 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.BACHI,
             TipoResolucionEnum.TITUL,
             TipoResolucionEnum.PRACTICAS,
-            TipoResolucionEnum.ING_HIS
+            TipoResolucionEnum.ING_HIS,
+            TipoResolucionEnum.BACHIFAC
+            
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -269,6 +272,7 @@ public class ResolucionExistenteController {
             case INTES:
             case ING_HIS:
             case BACHI:
+            case BACHIFAC:
             case TITUL:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
@@ -469,7 +473,7 @@ public class ResolucionExistenteController {
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
 
-        } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
+        } else if (Arrays.asList(BACHIFAC,BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
 
              if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
                 List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);

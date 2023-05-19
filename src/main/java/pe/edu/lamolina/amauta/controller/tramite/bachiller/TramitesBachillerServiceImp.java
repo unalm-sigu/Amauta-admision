@@ -289,6 +289,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         Integer creditosAprobados = Objects.nonNull(alumnoDB.getCreditosAprobados()) ? alumnoDB.getCreditosAprobados(): 0;
         Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados(): 0;
         Integer totalCreditos = creditosAprobados + creditosConvalidados;
+        
         if (totalCreditos.intValue() < 200) {
             throw new PhobosException(String.format("Alumno %s no es egresado, cuenta con %s créditos", alumnoDB.getCodigo(), totalCreditos.intValue()));
         }
