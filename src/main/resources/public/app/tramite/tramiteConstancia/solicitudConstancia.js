@@ -367,8 +367,20 @@ new Vue({
                     }
                 });
             }
-
         },
+        /*editarTramite(tramite) {
+            let $vue = this;
+            console.log(tramite.estadoTramite.codigo); // ACEP
+            if (tramite.estadoTramite.codigo !== 'COMP') {
+                axios.get('/tramite/solicitudconstancia/solicitud/' + tramite.id + '/editar')
+                    .then(response => {
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+        },*/
         entregarTramite(tramite) {
             let $vue = this;
             $vue.$refs.modalEntregarTramite.open();

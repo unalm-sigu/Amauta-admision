@@ -54,6 +54,9 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.general.Archivo;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
 public class ConstanciaSolicitudController {
@@ -224,12 +227,93 @@ public class ConstanciaSolicitudController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            if (documentoAcademico.getId() == null) {
+                service.update(documentoAcademico, ds);
+            } else {
+                service.updateTramiteDocumentoAcademico(documentoAcademico, ds);
+            }
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("downloadWord/{id}")
     public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr) {
 
         generadorWordSolicitudService.downloadWord(new TramiteDocumentoAcademico(id), respons);
     }
 
+    @RequestMapping("solicitud/{idSolicitud}/editar")
+    public String editar(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
+        List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+
+        TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+        if (documentoAcademico != null) {
+
+            node = JaneHelper.from(documentoAcademico)
+                    .join("idioma")
+                    .join("tramite")
+                    .join("estadoTramite")
+                    .join("tramite.alumno")
+                    .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.carrera.facultad")
+                    .join("tramite.alumno.persona")
+                    .join("tramite.alumno.persona.tipoDocumento")
+                    .join("tipoDocumentoAcademico")
+                    .json();
+
+            Long idAlumno = (Long) ObjectUtil.getParentTree(documentoAcademico, "tramite.alumno.id");
+            logger.debug("idAlumno {}", idAlumno);
+            model.addAttribute("idAlumno", idAlumno);
+        }
+
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+
+        for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+
+            ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
+
+            ObjectNode objectNode = JaneHelper.from(tipoDocumentoAcademico).json();
+
+            ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
+
+            for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
+
+                arrayPrecios.add(JaneHelper.from(precioDocumento).join("idioma").json());
+
+                arrayIdiomas.add(JaneHelper.from(precioDocumento.getIdioma()).json());
+
+            }
+
+            objectNode.set("idiomas", arrayIdiomas);
+
+            objectNode.set("precioDocumento", arrayPrecios);
+
+            arrayNode.add(objectNode);
+        }
+
+        model.addAttribute("tiposDocumentoAcademico", arrayNode);
+        model.addAttribute("solicitud", node);
+        model.addAttribute("IS_EDICION", TRUE);
+        return "tramite/tramiteConstancia/editarSolicitud";
+
+    }
     @RequestMapping("solicitud/{idSolicitud}")
     public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
@@ -285,6 +369,7 @@ public class ConstanciaSolicitudController {
 
         model.addAttribute("tiposDocumentoAcademico", arrayNode);
         model.addAttribute("solicitud", node);
+        model.addAttribute("IS_EDICION", FALSE);
         return "tramite/tramiteConstancia/solicitud";
     }
 
