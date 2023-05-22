@@ -41,6 +41,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHIFAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
@@ -52,6 +53,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -83,7 +85,9 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.BACHI,
             TipoResolucionEnum.TITUL,
             TipoResolucionEnum.PRACTICAS,
-            TipoResolucionEnum.ING_HIS
+            TipoResolucionEnum.ING_HIS,
+            TipoResolucionEnum.BACHIFAC
+            
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -268,6 +272,7 @@ public class ResolucionExistenteController {
             case INTES:
             case ING_HIS:
             case BACHI:
+            case BACHIFAC:
             case TITUL:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
@@ -394,6 +399,25 @@ public class ResolucionExistenteController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "anularTramiteCursoDirigido")
+    public JsonResponse anularTramiteCursoDirigido (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CursoDirigido cursoDirigido = resolucionesExistentesDTO.getCursoDirigido();
+        Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
+        Alumno alumno = resolucionesExistentesDTO.getAlumno();
+        boolean respuesta = service.anularAlumnoDeResolucionCursoDirigido(alumno, resolucion, cursoDirigido, ds);
+        if(respuesta){
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage(TramitesAcademicos.TRAMITE_CURSO_DIRIGIDO);
+        }else {
+            response.setSuccess(Boolean.FALSE);
+            response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_CURSO_DIRIGIDO);
+        }
+        return response;
+    }
+    
+    @ResponseBody
     @RequestMapping("alumnos")
     public ArrayNode alumnos(@RequestBody Resolucion resolucion) {
 
@@ -449,15 +473,31 @@ public class ResolucionExistenteController {
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
 
-        } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
-            List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
-            return JaneHelper.from(graduados)
-                    .join("cicloAcademico", "id,descripcion,nombre")
-                    .join("gradoAcademico", "nombre")
-                    .join("alumno", "codigo")
-                    .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
-                    .join("alumno.persona.tipoDocumento", "id,simbolo")
-                    .array();
+        } else if (Arrays.asList(BACHIFAC,BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
+
+             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
+                List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
+                return JaneHelper.from(graduados)
+                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .join("gradoAcademico", "nombre")
+                        .join("alumno", "codigo")
+                        .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
+                        .join("alumno.persona.tipoDocumento", "id,simbolo")
+                        .array();
+
+            } else {
+                List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
+                return JaneHelper.from(tramiteBachiller)
+                        .join("tramite.alumno", "codigo")
+                        .join("tramite.cicloAcademico", "descripcion")
+                        .join("tramite.persona", "paterno,materno,nombres")
+                        .join("resolucion.oficina", "codigo,id")
+                        .join("resolucion")
+                        //                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .array();
+            }
+
+            
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)
@@ -598,7 +638,7 @@ public class ResolucionExistenteController {
                     .join("docenteAsignado", "id, codigo, estado")
                     .join("docenteAsignado.persona", "id, apellidosNombres, numeroDocIdentidad, estado")
                     .join("tramite", "id")
-                    .join("cicloAcademico", "id,descripcion,codigo")
+                    //.join("cicloAcademico", "id,descripcion,codigo")
                     .array();
 
             objectNode.set("cursoDirigido", array);

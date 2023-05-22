@@ -1,8 +1,7 @@
 <template>
     <div>
-
+        
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
-
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -99,26 +98,28 @@
                         </label>
                     </td>
                     <td class="v-middle">
-                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="cursoDirigido.id != null">
+                        <button type="button" v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
 
-
+                
             </tbody>
         </table>
 
-        <button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
-
+        <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
+        <button type="button" v-if="isEdicion == true" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+        <button type="button" v-if="isAnular == false" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
 
     </div>
 </template>
 
 <script>
     module.exports = {
+        mixins: [VueLoader],
         props: {
-            resolucion: {type: Object, default: {}},
+            resolucion: {type: Object, default: {}}
         },
         model: {
             prop: 'resolucion',
@@ -129,10 +130,12 @@
                 alumnos: [],
                 docentes: [],
                 isEdicion: IS_EDICION,
+                isAnular: IS_ANULAR
             };
         },
         mounted: function () {
             let $vue = this;
+            //console.log("$vue...", $vue);
         },
         methods: {
             add() {
@@ -142,8 +145,45 @@
             },
             del(index) {
                 let $vue = this;
-                $vue.resolucion.cursoDirigido.splice(index, 1);
-                $vue.$forceUpdate();
+                if($vue.isAnular) {                
+                    bootbox.confirm({
+                        message: "<div class='form-group'>" +
+                                "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
+                                "<p class='bold'>Ingrese motivo: </p>" +
+                                "<textarea class='form-control' id='motivo' rows='3' maxLength='200' placeholder='Describa un motivo, máximo 200 caracteres'></textarea>" +
+                                "</div>",                        
+                        buttons: {
+                            confirm: {label: 'Sí, anular', className: "btn-danger"},
+                            cancel: {label: 'Cancelar', className: "btn-default"}
+                        },
+                        inputType: 'textarea',
+                        callback: function (result) {                            
+                            if (result) {
+                                if ($("#motivo").val().trim().length < 1) {
+                                    return false;
+                                }
+                                $vue.showLoader("Espere un momento por favor");
+                                $vue.errores = [];
+                                $vue.resolucion.cursoDirigido[index].motivoAnulacion = $("#motivo").val();
+
+                                axios_.post(APP.url('academico/resolucion/existentes/anularTramiteCursoDirigido'), {"alumno": $vue.resolucion.cursoDirigido[index].alumno, "cursoDirigido": $vue.resolucion.cursoDirigido[index], "resolucion": $vue.resolucion})
+                                .then(({data}) => {
+                                    if (data.success) {
+                                        notify(data.message, 'info');
+                                        location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramite");
+                                    } else {
+                                        notify(data.message, 'error');
+                                    }
+                                    $vue.hideLoader();
+                                    $vue.$forceUpdate();
+                                }, () => $vue.hideLoader());
+                            }
+                        }
+                    });
+                } else {
+                  $vue.resolucion.cursoDirigido.splice(index, 1);
+                  $vue.$forceUpdate();
+                }
             },
             searchAlumno(nombre) {
                 let $vue = this;
@@ -185,5 +225,6 @@
                 }
             }
         }
-    };
+    }
 </script>
+

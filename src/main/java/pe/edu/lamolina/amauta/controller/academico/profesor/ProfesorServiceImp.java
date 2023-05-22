@@ -36,7 +36,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -65,6 +64,7 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -191,7 +191,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
             Persona personaBD = personaDAO.find(personaForm.getId());
             hayFotoNueva = this.hayFotoNueva(personaBD, personaForm);
-            boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva);
+            boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva, null, null);
             personaJsonInicial = personaService.getPersonaJsonValidacion(personaBD);
             if (hayCambios) {
                 this.savePersona(personaBD, personaForm, ds);
@@ -255,8 +255,13 @@ public class ProfesorServiceImp implements ProfesorService {
         Persona personaBD = personaDAO.find(personaForm.getId());
         String personaJsonInicial = personaService.getPersonaJsonValidacion(personaBD);
 
+        Docente docenteBDD = docenteDAO.find(docente.getId());
+        Docente docenteForm = docente;
+
         boolean hayFotoNueva = !Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal());
-        boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva);
+        boolean hayCambios = this.revisarPersona(personaBD, personaForm, hayFotoNueva, docenteBDD, docenteForm);
+
+//        hayCambios = this.revisarDocente(docenteBDD, docenteForm);
         if (hayCambios) {
             this.savePersona(personaBD, personaForm, ds);
         }
@@ -367,7 +372,7 @@ public class ProfesorServiceImp implements ProfesorService {
         }
     }
 
-    private boolean revisarPersona(Persona personaBD, Persona personaForm, boolean hayFotoNueva) {
+    private boolean revisarPersona(Persona personaBD, Persona personaForm, boolean hayFotoNueva, Docente docenteBDD, Docente docenteForm) {
         ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
         ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
         ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
@@ -377,7 +382,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
         String personaJsonBD = this.getPersonaJson(personaBD);
         String personaJsonForm = this.getPersonaJson(personaForm);
-        Assert.isTrue(hayFotoNueva || !personaJsonBD.equals(personaJsonForm), "No hay cambios registrados");
+        Boolean actualizarDocente = this.validarDptoModalidad(docenteBDD, docenteForm);
+
+        Assert.isTrue(hayFotoNueva || !personaJsonBD.equals(personaJsonForm) || actualizarDocente, "No hay cambios registrados");
 
         return !personaJsonBD.equals(personaJsonForm);
     }
@@ -685,6 +692,15 @@ public class ProfesorServiceImp implements ProfesorService {
                 .only("id,numeroDocIdentidad")
                 .join("tipoDocumento", "id")
                 .json().toString();
+    }
+
+    private Boolean validarDptoModalidad(Docente docenteBDD, Docente docenteForm) {
+
+        if (docenteBDD.getDepartamentoAcademico().getId() == docenteForm.getDepartamentoAcademico().getId().longValue()
+                && docenteBDD.getModalidadEstudio().getId() == docenteForm.getModalidadEstudio().getId().longValue()) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
     }
 
 }

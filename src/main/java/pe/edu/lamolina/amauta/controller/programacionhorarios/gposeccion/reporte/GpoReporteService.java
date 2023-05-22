@@ -1,6 +1,8 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte;
 
 import java.util.List;
+
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CursoDirigidoDTO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -36,5 +38,7 @@ public interface GpoReporteService {
     List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO);
 
     List<ReporteOficina> allReportesProgramacion(CicloAcademico ciclo, DataSessionPivot ds);
+
+    List<CursoDirigidoDTO> cursosDirigidos(CicloAcademico cicloAcademico);
 
 }

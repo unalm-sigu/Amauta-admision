@@ -304,6 +304,7 @@ var app = new Vue({
         allAlumnos(item) {
             let $vue = this;
             $vue.tipo = item.tipoResolucion.codigo;
+            $vue.codigoOficina = item.oficina.codigo;
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
@@ -324,6 +325,8 @@ var app = new Vue({
                             $vue.alumnoTramiteTraslado = data[0]; ///retorn solo 1 registro
                         } else if ($vue.tipo == "BACHI") {
                             $vue.alumnoTramiteBachiller = data;
+                        } else if ($vue.tipo == "BACHIFAC") {
+                            $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "TITUL") {
                             $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "PRACTICAS") {
@@ -338,7 +341,8 @@ var app = new Vue({
 
                         $vue.$refs.modalAlumnos.open();
 
-                    }, () => {});
+                    }, () => {
+                    });
 
         },
         urlAcademico(item) {

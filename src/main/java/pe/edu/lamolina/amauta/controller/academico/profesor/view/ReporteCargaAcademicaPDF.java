@@ -304,6 +304,10 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             sj.add(grupoSeccion.getCurso().getCodigo());
             sj.add(" ");
             sj.add(grupoSeccion.getCurso().getTpc());
+            if(grupoSeccion.getCursoDirigido()) {
+                sj.add(" ");
+                sj.add("Curso Dirigido");
+            }
 
             this.textCell(tableBody, sj.toString(), false);
 
@@ -318,10 +322,23 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
 
                 String porcentajeCarga = docenteSeccion.getPorcentajeCarga() != null ? docenteSeccion.getPorcentajeCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
-                String creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
+                BigDecimal creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN) : ZERO;
+                //String creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
+                String credito;
+                if(grupoSeccion.getCursoDirigido()) {
+                    if(creditosCarga.compareTo(ZERO) == 0) {
+                        credito = "";
+                    } else {
+                        credito = creditosCarga.multiply(new BigDecimal(0.33)).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
+                    }
+                } else {
+                    credito = creditosCarga.toString();
+                }
 
                 this.textCell(tableBody, porcentajeCarga, true);
-                this.textCell(tableBody, creditosCarga, true);
+                this.textCell(tableBody, credito, true);
+                //this.textCell(tableBody, creditosCarga, true);
+
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 
@@ -436,14 +453,19 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             for (Seccion seccion : secciones) {
                 List<DocenteSeccion> profesSeccion = seccion.getDocenteSeccion();
                 for (DocenteSeccion profeSecc : profesSeccion) {
-                    BigDecimal creaditos = profeSecc.getCreditosCarga();
+                    BigDecimal creditos;
+                    if(grupoSeccion.getCursoDirigido()) {
+                        creditos = profeSecc.getCreditosCarga().multiply(new BigDecimal(0.33));
+                    } else {
+                        creditos = profeSecc.getCreditosCarga();
+                    }
                     if (profeSecc.getCreditosCarga() == null) {
-                        creaditos = ZERO;
+                        creditos = ZERO;
                     }
                     if (anexoSup.isAnexoCursosPostgrado()) {
-                        total.creditosPosgrado = total.creditosPosgrado.add(creaditos);
+                        total.creditosPosgrado = total.creditosPosgrado.add(creditos);
                     } else {
-                        total.creditosPregrado = total.creditosPregrado.add(creaditos);
+                        total.creditosPregrado = total.creditosPregrado.add(creditos);
                     }
                 }
             }

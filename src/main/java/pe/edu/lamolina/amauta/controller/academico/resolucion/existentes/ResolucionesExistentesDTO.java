@@ -6,9 +6,12 @@ import pe.edu.lamolina.model.tramite.*;
 public class ResolucionesExistentesDTO {
 
     private Alumno alumno;
+    
     private Resolucion resolucion;
 
     private TramiteTitulo tramiteTitulo;
+    
+    private CursoDirigido cursoDirigido;
 
     private TramiteBachiller tramiteBachiller;
 
@@ -41,6 +44,14 @@ public class ResolucionesExistentesDTO {
 
     public void setTramiteTitulo(TramiteTitulo tramiteTitulo) {
         this.tramiteTitulo = tramiteTitulo;
+    }
+
+    public CursoDirigido getCursoDirigido() {
+        return cursoDirigido;
+    }
+
+    public void setCursoDirigido(CursoDirigido cursoDirigido) {
+        this.cursoDirigido = cursoDirigido;
     }
 
     public Tramite getTramite() {

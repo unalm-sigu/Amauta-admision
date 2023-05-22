@@ -521,9 +521,10 @@ public class ProfesorController {
 
                 ObjectNode node = JaneHelper
                         .from(grupoSeccion)
-                        .only("id,estadoEnum,estadoGrupoEnum")
+                        .only("id, estadoEnum, estadoGrupoEnum, cursoDirigido")
                         .join("cicloAcademico", "tipoEnum")
-                        .join("curso", "codigo,nombre,tpc")
+                        .join("curso", "codigo, nombre, tpc")
+                        .join("curso.modalidadEstudio", "id, nombre, estado, codigo")
                         .join("planCalificacion", "id")
                         .json();
 

@@ -16,7 +16,7 @@
 
                     <div v-if="resolucion.tipoResolucion">
 
-                        <div v-if="resolucion.tipoResolucion.isTramiteBachiller">
+                        <div v-if="resolucion.tipoResolucion.isTramiteBachiller || resolucion.tipoResolucion.isTramiteBachillerFacultad">
                             <resolucion-form-details-bachiller v-model="resolucion"></resolucion-form-details-bachiller>
                         </div>
 

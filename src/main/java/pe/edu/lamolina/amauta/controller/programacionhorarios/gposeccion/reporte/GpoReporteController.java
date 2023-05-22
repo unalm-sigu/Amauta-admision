@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CursoDirigidoDTO;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.*;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -38,10 +40,6 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.boletinacademico.B
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
-import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteAlumnosPorSeccionExcelView;
-import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
-import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
-import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
@@ -64,6 +62,9 @@ public class GpoReporteController {
 
     @Autowired
     ReporteCrucesExcelView reporteCrucesExcelView;
+
+    @Autowired
+    ReporteCursoDirigidoExcelView reporteCursoDirigidoExcelView;
 
     @Autowired
     ReporteSeccionesByFilterExcelView reporteSeccionesByFilterExcelView;
@@ -390,6 +391,23 @@ public class GpoReporteController {
         model.addAttribute("cantidadMatriculados", cantidadMatriculados);
         model.addAttribute("seccionDTO", seccionDTO);
         return new ModelAndView(reporteCantidadAlumnosPorSeccionExcelView);
+    }
+
+    @RequestMapping("reporteCursoDirigido")
+    public ModelAndView reporteCursoDirigido(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoCursoDirigido.xlsx");
+
+        List<CursoDirigidoDTO> cursosDirigidos = service.cursosDirigidos(cicloAcademico);
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("cursosDirigidos", cursosDirigidos);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteCursoDirigidoExcelView);
+
+
     }
 
 }

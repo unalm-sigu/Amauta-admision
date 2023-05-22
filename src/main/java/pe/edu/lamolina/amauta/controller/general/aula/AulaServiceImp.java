@@ -21,27 +21,16 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
-import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import static pe.edu.lamolina.model.enums.OficinaEnum.DEPACT;
-import static pe.edu.lamolina.model.enums.OficinaEnum.DEPFIS;
+import pe.edu.lamolina.model.enums.*;
+
 import static pe.edu.lamolina.model.enums.RolEnum.INF_OBUAE;
 import static pe.edu.lamolina.model.enums.RolEnum.IOREA;
 import static pe.edu.lamolina.model.enums.RolEnum.OREA;
 import static pe.edu.lamolina.model.enums.RolEnum.RESCULT;
 import static pe.edu.lamolina.model.enums.RolEnum.RESDEP;
-import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
-import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
-import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
-import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.ResponsableAula;
-import pe.edu.lamolina.model.general.ResponsableAulaAsignacion;
-import pe.edu.lamolina.model.general.Sede;
-import pe.edu.lamolina.model.general.TipoAula;
-import pe.edu.lamolina.model.general.TipoCarpeta;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.*;
+
+import pe.edu.lamolina.model.general.*;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -66,6 +55,7 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -119,6 +109,9 @@ public class AulaServiceImp implements AulaService {
     @Autowired
     ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
 
+    private final String SOPORTE_TECNICO_DERA="SOPORTE_TECNICO_DERA";
+    private final String PERSONAL_AULA="PAULA";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -128,7 +121,25 @@ public class AulaServiceImp implements AulaService {
 
         Boolean filterObu = this.filterByRol(ds);
 
-        List<Aula> aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
+        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
+        List<Aula> aulas= new ArrayList<>();
+
+        Long idPersona = ds.getUsuario().getPersona().getId();
+        List<ResponsableAulaAsignacion> responsableAulas = responsableAulaAsignacionDAO.allByAulas(idPersona);
+        List<Long> aulaSuperior =responsableAulas.stream().map(a->a.getAula().getId()).collect(Collectors.toList());
+
+
+        if(roles.contains(SOPORTE_TECNICO_DERA)){
+            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+            aulas = aulaDAO.allByDynatable(filter, oficinaDera);
+        } else if (roles.contains(PERSONAL_AULA)) {
+            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+            aulas = aulaDAO.allByDynatable(filter, oficinaDera, aulaSuperior);
+        } else {
+            aulas = aulaDAO.allByDynatable(filter,filterObu,oficina);
+        }
+
+//        List<Aula> aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
         List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(ds.getCicloAcademico(), aulas, TipoHorarioAulaEnum.DICT);
@@ -153,6 +164,28 @@ public class AulaServiceImp implements AulaService {
             }
         }
         return aulas;
+    }
+
+    @Override
+    public List<TipoAula> allTiposAula(DataSessionPivot ds) {
+        List<TipoAula> tipox = new ArrayList();
+        List<TipoAula> tipos = new ArrayList<>();
+        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
+        if(roles.contains(SOPORTE_TECNICO_DERA)){
+            tipos = tipoAulaDAO.allByCodigos(Arrays.asList("AUL","AUD"));
+        }else{
+            tipos = tipoAulaDAO.all();
+        }
+
+        for (TipoAula tipo : tipos) {
+            TipoAula ta = new TipoAula(tipo.getId());
+            ta.setCodigo(tipo.getCodigo());
+            ta.setNombre(tipo.getNombre());
+            ta.setTipoAmbiente(tipo.getTipoAmbienteEnum());
+            tipox.add(ta);
+        }
+        return tipox;
+
     }
 
     @Override
@@ -588,6 +621,7 @@ public class AulaServiceImp implements AulaService {
         }
         return Boolean.FALSE;
     }
+
 
     public Oficina findOficina(OficinaEnum oficinaEnum, Rol role, Usuario usuario) {
         UsuarioRol rol = usuarioRolDAO.findByOficinaRolUser(oficinaEnum, role, usuario);

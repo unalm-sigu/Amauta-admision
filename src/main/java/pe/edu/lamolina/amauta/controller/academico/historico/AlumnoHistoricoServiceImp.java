@@ -18,19 +18,14 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoVisitanteDAO;
-import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaHistorialDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
@@ -439,7 +434,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         alumnoCiclo.setCreditosCursadosCiclo(0);
         alumnoCiclo.setCreditosAcumulados(0);
         alumnoCiclo.setSituacionInicio(alumnoCiclo.getAlumno().getSituacionAcademica());
-        alumnoCiclo.setTipoMigracion(TipoMigracionEnum.AREG);
+        alumnoCiclo.setTipoMigracionEnum(TipoMigracionEnum.AREG);
 
         alumnoCicloDAO.save(alumnoCiclo);
 

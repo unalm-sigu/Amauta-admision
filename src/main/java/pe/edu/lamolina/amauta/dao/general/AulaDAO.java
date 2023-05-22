@@ -4,9 +4,9 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 
@@ -17,6 +17,8 @@ public interface AulaDAO extends EasyDAO<Aula> {
     Aula findActiveByCode(String code);
 
     List<Aula> allByDynatable(DynatableFilter filter, boolean filterObu, Oficina oficina);
+    List<Aula> allByDynatable(DynatableFilter filter, Oficina oficina);
+    List<Aula> allByDynatable(DynatableFilter filter, Oficina oficina, List<Long> id);
 
     Integer findAforoByEdificio(Aula aula);
 

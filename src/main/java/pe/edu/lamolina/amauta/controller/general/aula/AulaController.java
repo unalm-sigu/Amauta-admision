@@ -68,6 +68,8 @@ public class AulaController {
     HorarioAulaCicloPDF horarioAulaCicloPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String SOPORTE_TECNICO_DERA="SOPORTE_TECNICO_DERA";
+    private final String PERSONAL_AULA="PAULA";
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -99,9 +101,16 @@ public class AulaController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
+        boolean isSoporteDera = roles.contains(SOPORTE_TECNICO_DERA);
+        boolean isPersonalDera = roles.contains(PERSONAL_AULA);
+        model.addAttribute("validarSoporteDera",isSoporteDera);
+        model.addAttribute("validarPersonalDera",isPersonalDera);
+
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
-        List<TipoAula> tiposAulas = service.allTiposAula();
+        List<TipoAula> tiposAulas = service.allTiposAula(ds);
         ArrayNode jTipoAulas = new ArrayNode(JsonNodeFactory.instance);
         for (TipoAula tiposAula : tiposAulas) {
             jTipoAulas.add(JsonHelper.createJson(tiposAula, JsonNodeFactory.instance, false, new String[]{

@@ -260,24 +260,25 @@ new Vue({
                 notify("Ingrese los datos obligatorios.", "warning");
                 return;
             }
-            const formatFecha = /^(0?[1-9]|[12][\d]|3[0-1])[\/](0?[1-9]|1[0-2])[\/](\d{4})$/;
-            if(formatFecha.test($vue.agendaConsejero.fecha)){
-                const dia = $vue.agendaConsejero.fecha.split("/")[0];
-                const mes = $vue.agendaConsejero.fecha.split("/")[1];
-                const anio = $vue.agendaConsejero.fecha.split("/")[2];
-                const fechaActual = moment();
-                //const fechaReunion = moment("2023-01-31 23:59:59");
-                const fechaReunion = moment(`${anio}-${mes}-${dia} 00:00:00`);
-                console.log(fechaReunion.diff(fechaActual, "days"));
-                const diferenciaEnDias = fechaReunion.diff(fechaActual, "days")
-                if(diferenciaEnDias < 0 || isNaN(diferenciaEnDias)) {
-                    //console.log("Invalido", diferenciaEnDias);
-                    notify("Ingrese una fecha válida", "warning");
-                    return;
-                }
-            }
+// NO ELIMINAR FILTRO FECHA            
+//            const formatFecha = /^(0?[1-9]|[12][\d]|3[0-1])[\/](0?[1-9]|1[0-2])[\/](\d{4})$/;
+//            if(formatFecha.test($vue.agendaConsejero.fecha)){
+//                const dia = $vue.agendaConsejero.fecha.split("/")[0];
+//                const mes = $vue.agendaConsejero.fecha.split("/")[1];
+//                const anio = $vue.agendaConsejero.fecha.split("/")[2];
+//                const fechaActual = moment();
+//                //const fechaReunion = moment("2023-01-31 23:59:59");
+//                const fechaReunion = moment(`${anio}-${mes}-${dia} 00:00:00`);
+//                console.log(fechaReunion.diff(fechaActual, "days"));
+//                const diferenciaEnDias = fechaReunion.diff(fechaActual, "days");
+//                if(diferenciaEnDias < 0 || isNaN(diferenciaEnDias)) {
+//                    //console.log("Invalido", diferenciaEnDias);
+//                    notify("Ingrese una fecha válida", "warning");
+//                    return;
+//                }
+//            }
 
-            if($vue.selectAll == false) {
+            if($vue.selectAll === false) {
                 console.log("$vue.selectAll", $vue.selectAll);
                 const reunionAlumnoConsejeros = [];
                 $vue.agendaConsejero.reunionAlumnoConsejeros = [];

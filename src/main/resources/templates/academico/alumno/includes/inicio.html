@@ -35,10 +35,16 @@
                                 <div class="col-lg-2 bold">Sexo</div>
                                 <div class="col-lg-10" v-text="alumno.persona.sexoEnum.value"></div>
                             </div>
-                            <div class="row h5 m-t-xs m-b-n" v-if="alumno.persona.numeroDocIdentidad != '' ">
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.persona.numeroDocIdentidad != '' ">
                                 <div class="col-lg-2 bold" v-text="alumno.persona.tipoDocumento.simbolo"></div>
                                 <div class="col-lg-10" v-text="alumno.persona.numeroDocIdentidad"></div>
                             </div>
+
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.tutorOcoordinador != '' ">
+                                <div class="col-lg-2 bold">Tutor</div>
+                                <div class="col-lg-10" v-text="alumno.tutorOcoordinador"></div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -201,7 +207,7 @@
 
                         <tr v-if="alumno.resolucionBachiller">
                             <td>
-                                <strong> Bachiller  </strong>
+                                <strong> Resolucion UNALM Bachiller  </strong>
                             </td>
                             <td>
                                 <span v-text="alumno.resolucionBachiller"></span>
@@ -210,13 +216,28 @@
 
                         <tr v-if="alumno.fechaBachiller">
                             <td>
-                                <strong>Fecha bachiller  </strong>
+                                <strong>Fecha Res. Bachiller</strong>
                             </td>
                             <td>
                                 <span v-text="alumno.fechaBachiller"></span>
                             </td>
                         </tr>
-
+                        <tr v-if="alumno.resolucionBachillerFacultad">
+                            <td>
+                                <strong> Resolucion Facultad Bachiller</strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.resolucionBachillerFacultad"></span>
+                            </td>
+                        </tr>
+                        <tr v-if="alumno.fechaBachillerFacultad">
+                            <td>
+                                <strong>Fecha Res. Fac. Bachiller  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.fechaBachillerFacultad"></span>
+                            </td>
+                        </tr> 
 
                     </tbody>
                 </table>

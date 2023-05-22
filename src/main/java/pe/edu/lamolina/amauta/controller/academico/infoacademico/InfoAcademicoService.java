@@ -29,7 +29,7 @@ public interface InfoAcademicoService {
 
     List<Hora> allHoras();
 
-    Alumno findWithallInfo(Alumno alumno);
+    Alumno findWithallInfo(Alumno alumno, DataSessionPivot ds);
 
     void generarAvance(Alumno alumno, DataSessionPivot ds);
 

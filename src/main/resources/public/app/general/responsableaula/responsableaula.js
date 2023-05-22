@@ -61,6 +61,7 @@ new Vue({
                         vue.responsableAula = response.data;
                         vue.turnosAtencionAula = response.data.turnosAtencionAulas;
                         vue.$refs.modalResponsableAula.open();
+                        vue.changeTurnoAtencion(vue.turnosAtencionAula);
                         MODAL.hideWait();
                     } else {
                         MODAL.hideWait();
@@ -136,8 +137,15 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }, changeTurnoAtencion() {
-
+        },
+        changeTurnoAtencion(turnosAtencionAula) {
+            let vue = this;
+            for (var i = 0; i < turnosAtencionAula.length; i++) {
+                if (vue.turnosAtencionAula[i].aulas.length > 0) {
+                    vue.turnoAtencionSeleccionado = vue.turnosAtencionAula[i];
+                    return;
+                }
+            }
         }, labelAula(item) {
             if (item.id == undefined) {
                 return "";

@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CursoDirigidoDTO;
+import pe.edu.lamolina.amauta.dao.academico.*;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -28,7 +30,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmbitoReporteEnum;
 import pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
@@ -41,19 +42,13 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSecc
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
-import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
-import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.general.ReporteOficinaDAO;
 import pe.edu.lamolina.amauta.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.general.Persona;
 
 @Service
@@ -79,6 +74,9 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Autowired
     SeccionDAO seccionDAO;
+
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
@@ -598,4 +596,8 @@ public class GpoReporteServiceImp implements GpoReporteService {
         return reportes;
     }
 
+    @Override
+    public List<CursoDirigidoDTO> cursosDirigidos(CicloAcademico cicloAcademico) {
+        return cursoDAO.allCursosDirigidosByCiclo(cicloAcademico);
+    }
 }

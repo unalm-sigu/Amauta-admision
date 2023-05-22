@@ -49,7 +49,7 @@
 
                                 <span class="row">
                                     <div class="col-sm-12">
-                                        <p class="text-primary block">{{props.option.apellidosNombres}}</p> 
+                                        <p class="text-primary block">{{props.option.apellidosNombres}}</p>
                                         <p class="block">DNI: {{props.option.numeroDocIdentidad}}</p>
                                         <p class="block">Telefono: {{props.option.telefono}}</p>
                                         <p class="block">Celular: {{props.option.celular}}</p>
@@ -58,6 +58,15 @@
 
                             </template>
                         </multiselect>
+                    </div>
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="text"
+                               class="form-control"
+                               name="celular"
+                               required="true"
+                               v-model="responsableAula.persona.celular"
+                        />
                     </div>
                     <div class="form-group">
                         <label> Turno Atención </label>
@@ -80,7 +89,7 @@
                         <multiselect v-model='turnoAtencionSeleccionado.aulas'
                                      label='codigo'
                                      v-bind:custom-label='labelAula'
-                                     v-bind:multiple="true" 
+                                     v-bind:multiple="true"
                                      placeholder=""
                                      deselect-label=""
                                      select-label=""

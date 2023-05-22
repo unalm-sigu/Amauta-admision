@@ -5,6 +5,8 @@ import pe.edu.lamolina.amauta.dao.general.TipoAulaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
+import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
@@ -19,6 +21,16 @@ public class TipoAulaDAOH extends AbstractEasyDAO<TipoAula> implements TipoAulaD
     public List<TipoAula> all() {
         Octavia sql = Octavia.query()
                 .from(TipoAula.class, "ta")
+                .orderBy("ta.nombre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<TipoAula> allByCodigos(List<String> codigos) {
+        Octavia sql = Octavia.query()
+                .from(TipoAula.class, "ta")
+                .in("ta.codigo",codigos)
                 .orderBy("ta.nombre");
 
         return all(sql);
