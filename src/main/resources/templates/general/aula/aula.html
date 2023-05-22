@@ -8,8 +8,8 @@
             <div id="aulaVUE" v-cloak="">
                 <header class="header b-b padder-lg">
 
-                    <div class="btn-group pull-right">
-                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                    <div class="btn-group pull-right" v-if="!isSoporteDera &amp;&amp; !isPersonalDera">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" >
                             Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
@@ -27,9 +27,9 @@
                         <section class="panel-body">
 
                             <raptor-table v-bind:url="aulasURL" v-bind:preload="false" ref="raptorAulas">
-
                                 <div slot="header">
-                                    <div class="col-md-8">
+                                    <div class="col-md-8" v-if="!isSoporteDera &amp;&amp; !isPersonalDera">
+
                                         <multiselect v-model='tipoAula'
                                                      track-by='codigo'
                                                      v-bind:internal-search='true'
@@ -40,7 +40,7 @@
                                                      select-label="Seleccione este tipo de aula"
                                                      deselect-label="Remover selección"
                                                      v-on:input="changeTipoAula"
-                                                     >
+                                        >
                                         </multiselect>
                                     </div>
                                 </div>
@@ -127,19 +127,19 @@
                                                         </a> 
 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="editar(item)">Editar</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
-                                                            <li v-if="item.estado == 'CRE' "><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
+                                                            <li v-if="item.estado == 'ACT' &amp;&amp; !isSoporteDera &amp;&amp; !isPersonalDera"><a v-on:click="editar(item)">Editar</a></li>
+                                                            <li v-if="item.estado == 'ACT' &amp;&amp; !isSoporteDera &amp;&amp; !isPersonalDera"><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
+                                                            <li v-if="item.estado == 'CRE' &amp;&amp; !isSoporteDera &amp;&amp; !isPersonalDera"><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
                                                             <li v-if="item.estado == 'ACT' "><a href="#" v-on:click.prevent="verHorarioAula(item)">Ver horario</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a href="#" v-on:click.prevent="dataZoom(item)">Data Zoom</a></li>
-                                                            <li><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
+                                                            <li v-if="item.estado == 'ACT' &amp;&amp; !isSoporteDera &amp;&amp; !isPersonalDera"><a href="#" v-on:click.prevent="dataZoom(item)">Data Zoom</a></li>
+                                                            <li v-if="!isSoporteDera &amp;&amp; !isPersonalDera" ><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
 
                                                             <template v-if="item.tipoAmbiente != 'EDI' ">
                                                                 <li class="divider"></li>
                                                                 <li><a v-on:click="verInventarioPage(item)" >Inventario</a></li>
                                                                 <li><a v-on:click="verInventarioResumen(item)" >Resumen Inventario</a></li>
-                                                                <li><a v-on:click="horarioSemanalPDF(item)" class="descarga-pdf">Reporte Semanal PDF</a></li>
-                                                                <li><a v-on:click="reporteProgramacion(item)" class="descarga-pdf">Reporte Aulas Programadas</a></li>
+                                                                <li v-if="!isSoporteDera &amp;&amp; !isPersonalDera"><a v-on:click="horarioSemanalPDF(item)" class="descarga-pdf">Reporte Semanal PDF</a></li>
+                                                                <li v-if="!isSoporteDera &amp;&amp; !isPersonalDera"><a v-on:click="reporteProgramacion(item)" class="descarga-pdf">Reporte Aulas Programadas</a></li>
                                                             </template>
                                                         </ul>
                                                     </div>
@@ -169,6 +169,8 @@
                 /*<![CDATA[*/
                 var rutaModulo = 'general/aula';
                 var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
+                var validarSoporteDera = /*[[${validarSoporteDera}]]*/ {};
+                var validarPersonalDera =  /*[[${validarPersonalDera}]]*/ {};
                 /*]]>*/
             </script>
 

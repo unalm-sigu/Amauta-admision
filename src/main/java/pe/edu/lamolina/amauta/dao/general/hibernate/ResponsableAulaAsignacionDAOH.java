@@ -7,6 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.ResponsableAulaAsignacion;
 import pe.edu.lamolina.amauta.dao.general.ResponsableAulaAsignacionDAO;
@@ -45,6 +46,15 @@ public class ResponsableAulaAsignacionDAOH extends AbstractEasyDAO<ResponsableAu
                 .from(ResponsableAulaAsignacion.class, "ras")
                 .join("turnoAtencionAula ta", "aula au", "responsableAula ra", "ra.persona per")
                 .in("ra.estado", Arrays.asList(estados));
+        return all(sql);
+    }
+
+    @Override
+    public List<ResponsableAulaAsignacion> allByAulas(Long persona) {
+        Octavia sql = Octavia.query()
+                .from(ResponsableAulaAsignacion.class, "raa")
+                .join("responsableAula ra", "ra.persona per", "aula au")
+                .filter("per.id", persona);
         return all(sql);
     }
 

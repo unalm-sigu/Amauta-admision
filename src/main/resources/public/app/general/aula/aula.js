@@ -7,7 +7,11 @@ new Vue({
         aula: {},
         aulaZoom: {},
         tipoAulas: JSON.parse(tipoAulasJson),
+        isSoporteDera: JSON.parse(validarSoporteDera),
+        isPersonalDera: JSON.parse(validarPersonalDera),
+        // soporteAulas:JSON.parse(soporteAulasJson),
         tipoAula: null,
+        // soporteAula: null,
         modalCambioEstado: {
             id: 'modalCambioEstado',
             header: true,
