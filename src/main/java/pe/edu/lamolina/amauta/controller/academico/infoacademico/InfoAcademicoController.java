@@ -686,6 +686,8 @@ public class InfoAcademicoController {
             "creditosConvalidados",
             "resolucionTitulo",
             "resolucionBachiller",
+            "resolucionBachillerFacultad",
+            "fechaBachillerFacultad",         
             // --- //
             "carrera.codigo",
             "carrera.nombre",

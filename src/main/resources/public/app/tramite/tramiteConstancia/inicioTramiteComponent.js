@@ -13,12 +13,14 @@ Vue.component("inicio-tram-component", {
             guardando: false,
             ciclo: {},
             isUpdate: false,
+            isEdit: IS_EDICION,
             tramiteAcademico: {},
         }
     },
     mounted() {
         let $vue = this;
-        $vue.isUpdate = $vue.solicitud.id != null;
+        console.log("$vue.isEdit ...", $vue.isEdit);
+        //$vue.isUpdate = $vue.solicitud.id != null;
     },
     watch: {
         // un getter computado
@@ -123,6 +125,31 @@ Vue.component("inicio-tram-component", {
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/save'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.solicitud),
+                success: function (response) {
+                    if (response.success) {
+                        location.href = APP.url("tramite/solicitudconstancia");
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
+        },
+        updateForm() {
+            let $vue = this;
+            $vue.solicitud.tramite = $vue.tramite;
+            $vue.solicitud.valorParametro = $vue.ciclo.descripcion;
+
+            var valid = $('#formSolicitudConstancia').parsley().validate();
+            if (valid != true) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/solicitudconstancia/update'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.solicitud),
                 success: function (response) {

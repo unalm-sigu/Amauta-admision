@@ -408,6 +408,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.debug("{}", alumno.getResolucionBachiller());
         }
 
+        log.debug("tramiteBachillerFacultad");
+        TramiteBachiller tramiteBachillerFacultad = tramiteBachillerDAO.findByAlumnoFacultadACEP(alumno);
+        if (tramiteBachillerFacultad != null) {
+            alumno.setResolucionBachillerFacultad(tramiteBachillerFacultad.getResolucionFacultad().getNumeroVisible());
+            alumno.setFechaBachillerFacultad(tramiteBachillerFacultad.getResolucionFacultad().getFecha());
+            log.debug("{}", alumno.getResolucionBachillerFacultad());
+            log.debug("{}", alumno.getFechaBachillerFacultad());
+        }
+        
         log.debug("tramiteTitulo");
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoACEP(alumno);
         if (tramiteTitulo != null) {

@@ -58,9 +58,9 @@
                 </tr>
             </tbody>
         </table>
-      <button type="button" v-if="isEdicion == true" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
-      <button type="button" v-if="isAnular == false" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
-      <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
+        <button type="button" v-if="isEdicion == true" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+        <button type="button" v-if="isAnular == false" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+        <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
 
     </div>
 </template>
@@ -83,7 +83,8 @@
             return {
                 alumnos: [],
                 isEdicion: IS_EDICION,
-                isAnular: IS_ANULAR
+                isAnular: IS_ANULAR,
+                oficinaCodigo: ''
             };
         },
         mounted: function () {
@@ -92,8 +93,8 @@
                 $vue.allBachillers();
             }
             /*if (!$vue.isEdicion) {
-                $vue.allBachillers();
-            }*/
+             $vue.allBachillers();
+             }*/
         },
         methods: {
             add() {
@@ -102,42 +103,42 @@
                 $vue.$forceUpdate();
             },
             del(index) {
-              let $vue = this;
-              if($vue.isAnular){
-                bootbox.confirm({
-                  message: "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
-                      "<p>Ingrese motivo: </p>" +
-                      "<textarea id='motivo' cols='75' rows='3'></textarea>",
-                  //message: '¿Seguro que desea retirar al alumno de esta resolución? ',
-                  buttons: {
-                    confirm: {label: 'Sí, aceptar', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                  },
-                  inputType: 'textarea',
-                  callback: function (result) {
-                    if (result) {
-                      $vue.showLoader("Espere un momento por favor");
-                      $vue.errores = [];
-                      $vue.resolucion.tramiteBachiller[index].motivo = $("#motivo").val();
-                      axios_.post(APP.url('academico/resolucion/existentes/anularTramiteBachiller'), {"alumno": $vue.resolucion.tramiteBachiller[index].alumno, "tramiteBachiller": $vue.resolucion.tramiteBachiller[index], "resolucion": $vue.resolucion})
-                          .then(({data}) => {
-                            if (data.success) {
-                              notify(data.message, 'info');
-                              location.href = APP.url('academico/resolucion/existentes/'+ $vue.resolucion.id + "/anularTramite");
-                            } else {
-                              //console.log(data);
-                              notify("Se produjo un error al anular el Trámite Bachiller de la Resolución", 'error');
+                let $vue = this;
+                if ($vue.isAnular) {
+                    bootbox.confirm({
+                        message: "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
+                                "<p>Ingrese motivo: </p>" +
+                                "<textarea id='motivo' cols='75' rows='3'></textarea>",
+                        //message: '¿Seguro que desea retirar al alumno de esta resolución? ',
+                        buttons: {
+                            confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+                            cancel: {label: 'Cancelar', className: "btn-link"}
+                        },
+                        inputType: 'textarea',
+                        callback: function (result) {
+                            if (result) {
+                                $vue.showLoader("Espere un momento por favor");
+                                $vue.errores = [];
+                                $vue.resolucion.tramiteBachiller[index].motivo = $("#motivo").val();
+                                axios_.post(APP.url('academico/resolucion/existentes/anularTramiteBachiller'), {"alumno": $vue.resolucion.tramiteBachiller[index].alumno, "tramiteBachiller": $vue.resolucion.tramiteBachiller[index], "resolucion": $vue.resolucion})
+                                        .then(({data}) => {
+                                            if (data.success) {
+                                                notify(data.message, 'info');
+                                                location.href = APP.url('academico/resolucion/existentes/' + $vue.resolucion.id + "/anularTramite");
+                                            } else {
+                                                //console.log(data);
+                                                notify("Se produjo un error al anular el Trámite Bachiller de la Resolución", 'error');
+                                            }
+                                            $vue.hideLoader();
+                                            $vue.$forceUpdate();
+                                        }, () => $vue.hideLoader());
                             }
-                            $vue.hideLoader();
-                            $vue.$forceUpdate();
-                          }, () => $vue.hideLoader());
-                    }
-                  }
-                });
-              } else {
-                $vue.resolucion.tramiteBachiller.splice(index, 1);
-                $vue.$forceUpdate();
-              }
+                        }
+                    });
+                } else {
+                    $vue.resolucion.tramiteBachiller.splice(index, 1);
+                    $vue.$forceUpdate();
+                }
             },
             searchAlumno(nombre) {
 
@@ -155,11 +156,12 @@
             allBachillers() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allBachiller"))
+                axios_.get(APP.url("academico/resolucion/existentes/allBachiller"),
+                        {params: {oficinaCodigo: $vue.resolucion.oficina.codigo}})
                         .then(({data}) => {
-                        $vue.resolucion.tramiteBachiller = data;
-                        $vue.hideLoader();
-                        $vue.$forceUpdate();
+                            $vue.resolucion.tramiteBachiller = data;
+                            $vue.hideLoader();
+                            $vue.$forceUpdate();
                         }, () => $vue.hideLoader());
             },
         }
