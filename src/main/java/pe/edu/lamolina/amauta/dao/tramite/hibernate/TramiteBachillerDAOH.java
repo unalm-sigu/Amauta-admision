@@ -83,6 +83,17 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
     }
 
     @Override
+    public List<TramiteBachiller> allByResolucionFacultad(Resolucion resolucionDB) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class)
+                .join("resolucionFacultad res")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .filter("res.id",resolucionDB);
+
+        return all(sql);
+    }
+
+    @Override
     public List<TramiteBachiller> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteBachiller.class, "tb")

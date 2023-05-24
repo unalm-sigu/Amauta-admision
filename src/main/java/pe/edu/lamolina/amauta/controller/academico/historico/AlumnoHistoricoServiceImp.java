@@ -439,7 +439,7 @@ public class AlumnoHistoricoServiceImp implements AlumnoHistoricoService {
         alumnoCiclo.setCreditosCursadosCiclo(0);
         alumnoCiclo.setCreditosAcumulados(0);
         alumnoCiclo.setSituacionInicio(alumnoCiclo.getAlumno().getSituacionAcademica());
-        alumnoCiclo.setTipoMigracion(TipoMigracionEnum.AREG);
+        alumnoCiclo.setTipoMigracionEnum(TipoMigracionEnum.AREG);
 
         alumnoCicloDAO.save(alumnoCiclo);
 

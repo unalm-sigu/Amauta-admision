@@ -111,7 +111,7 @@ public class HistoMigraServiceImp implements HistoMigraService {
             aluCiclo.setSituacionInicio(new SituacionAcademica(SituacionAcademicaEnum.S_N));
             aluCiclo.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_N));
             aluCiclo.setEstadoEnum(MAT);
-            aluCiclo.setTipoMigracion(TipoMigracionEnum.NREG);
+            aluCiclo.setTipoMigracionEnum(TipoMigracionEnum.NREG);
             alumnoCicloDAO.save(aluCiclo);
         }
 

@@ -17,6 +17,8 @@ public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
     TramiteBachiller findByAlumnoAct(Alumno alumno);
 
     List<TramiteBachiller> allByResolucion(Resolucion resolucionDB);
+    
+     List<TramiteBachiller> allByResolucionFacultad(Resolucion resolucionDB);
 
     List<TramiteBachiller> allByDynatable(DynatableFilter filter);
 

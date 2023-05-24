@@ -332,6 +332,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<TramiteBachiller> allTramiteBachillerFacultad(Resolucion resolucionDB) {
+        return tramiteBachillerDAO.allByResolucionFacultad(resolucionDB);
+    }
+
+    @Override
     public List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB) {
         return tramiteTituloDAO.allByResolucion(resolucionDB);
     }
@@ -401,7 +406,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         log.debug("tipoResolucion {}", tipoResolucion.getTipoEnum().name());
 
         resolucion.setSerie(cleanNumero(resolucion.getSerie()));
-        resolucion.setNumero(cleanNumero(resolucion.getNumero()));
+        resolucion.setNumero(resolucion.getNumero());
+//        resolucion.setNumero(cleanNumero(resolucion.getNumero()));
 
         Resolucion resolucionValidacion = resolucionDAO.findByOficinaSerieNumero(resolucion.getOficina(), resolucion.getSerie(), resolucion.getNumero());
 
@@ -498,7 +504,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case BACHIFAC:
                 this.saveTramiteBachiller(resolucion, ds);
-                break;                
+                break;
             case TITUL:
                 this.saveTramiteTitulo(resolucion, ds);
                 break;
@@ -801,6 +807,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case BACHI:
                 this.saveTramiteBachiller(resolucionForm, ds);
                 break;
+            case BACHIFAC:
+                this.saveTramiteBachiller(resolucionForm, ds);
+                break;                    
             case TITUL:
                 this.saveTramiteTitulo(resolucionForm, ds);
                 break;
