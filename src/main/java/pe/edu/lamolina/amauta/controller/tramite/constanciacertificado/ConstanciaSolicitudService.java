@@ -106,4 +106,6 @@ public interface ConstanciaSolicitudService {
 
     public void anularTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession);
 
+    public void update(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
+
 }

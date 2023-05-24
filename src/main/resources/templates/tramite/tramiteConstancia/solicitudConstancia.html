@@ -34,7 +34,7 @@
                                                     <th></th>
                                                 </tr>
                                             </thead>
-                                            <tbody>                                            
+                                            <tbody>
                                                 <tr v-for="item in props.data">
                                                     <td class="v-middle">
                                                         <div class="pull-left">
@@ -125,11 +125,15 @@
                                                                     <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="descargarTramite(item)"  href="#">Descargar World</a>
                                                                 </li>
 
-                                                                <li v-if="item.estadoTramite.codigo!='COMP'" class="divider"></li>
+                                                                <!--<li v-if="item.estadoTramite.codigo!='COMP'" class="divider"></li>-->
+                                                                <li class="divider"></li>
 
                                                                 <!--<li v-if="item.estadoTramite.codigo!='COMP'"> 
                                                                     <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
                                                                 </li>-->
+                                                                <li v-if="item.estadoTramite.codigo!='COMP'">
+                                                                    <a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id + '/editar'">Editar</a>
+                                                                </li>
                                                                 <li>
                                                                     <a v-on:click.prevent="anularTramite(item)"  href="#">Anular</a>
                                                                 </li>

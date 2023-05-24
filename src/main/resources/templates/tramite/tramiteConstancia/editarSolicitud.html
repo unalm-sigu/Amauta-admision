@@ -1,0 +1,51 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Solicitud Constancia </title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <a class="pull-right btn btn-default  btn-sm"
+                       th:href="@{/tramite/solicitudconstancia}" >
+                        Regresar
+                    </a>
+                    <h1 >Tramite de Constancias y Certificados</h1>
+                    <p class="block text-primary h4" v-if="solicitud.id">
+                        <span v-if="solicitud.tipoDocumentoAcademico">{{solicitud.tipoDocumentoAcademico.nombre}}</span>
+                    </p>
+                </header>
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+                            <div class="wrapper-md" >
+                                <section class="panel">
+                                    <section class="panel-body">
+                                        <div v-show="1 == tabId">
+                                            <inicio-tram-component v-bind:tramite="tramite" ref="loadTramite"></inicio-tram-component>
+                                        </div>
+                                    </section>
+                                </section> 
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </div>
+            <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var tiposDocumentoAcademicoJson = /*[[${tiposDocumentoAcademico.toString()}]]*/ 'json';
+                var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
+                var ID_ALUMNO = /*[[${idAlumno}]]*/ '';
+                var IS_EDICION = /*[[${IS_EDICION}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/tramite/tramiteConstancia/editarSolicitud.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

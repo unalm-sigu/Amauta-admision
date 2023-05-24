@@ -22,6 +22,7 @@ public interface AulaService {
 
     List<Aula> allByDynatable(DynatableFilter filter, DataSessionPivot ds);
 
+    List<TipoAula> allTiposAula(DataSessionPivot ds);
     List<TipoAula> allTiposAula();
 
     List<Aula> allAulasSuperioresByName(String nombre);

@@ -538,6 +538,83 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
+    @Transactional
+    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
+
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+
+        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+
+        if (tipo.getRequiereEgresado() != null) {
+            if (tipo.getRequiereEgresado() > 0) {
+                this.validarAlumnoEgresado(alumno);
+            }
+        }
+
+        if (tipo.getRequierePosgrado() != null) {
+            if (tipo.getRequierePosgrado() > 0) {
+                this.validarAlumnoPosgrado(alumno);
+            }
+        }
+
+        if (tipo.getRequierePregrado() != null) {
+            if (tipo.getRequierePregrado() > 0) {
+                this.validarAlumnoPregrado(alumno);
+            }
+        }
+
+        Usuario usuario = ds.getUsuario();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        Compania compania = ds.getCompania();
+        DateTime today = new DateTime();
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.CRE);
+        TipoDocumentoCompaniaEnum tipoConEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.TRAM_CONS : TipoDocumentoCompaniaEnum.TRAM_CERT;
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
+
+        Persona persona = alumno.getPersona();
+
+        tramite.setAlumno(alumno);
+        tramite.setTipoSolicitante(TipoSolicitanteEnum.ALU.name());
+        tramite.setCicloAcademico(cicloAcademico);
+        tramite.setCompania(compania);
+        tramite.setEstado(estadoTramite.getCodigo());
+        tramite.setFechaRegistro(today.toDate());
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setTipoTramite(tipoTramite);
+        tramite.setUserRegistro(usuario);
+        tramite.setPersona(persona);
+        tramiteDAO.update(tramite);
+
+        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        tramiteDocumentoAcademico.setCantidadCiclos(1);
+        BigDecimal monto = precio.getPrecio();
+        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            Long count = this.cantidadCiclosRegularAprobado(alumno);
+            tramiteDocumentoAcademico.setCantidadCiclos(count.intValue());
+            monto = precio.getPrecio().multiply(new BigDecimal(count));
+        }
+
+        OficinaEnum oficinaEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
+        Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
+
+        tramiteDocumentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
+
+        tramiteDocumentoAcademico.setTramite(tramite);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setCostoTotal(monto);
+        tramiteDocumentoAcademico.setCostoUnitario(precio.getPrecio());
+        tramiteDocumentoAcademico.setTipoDocumentoCompania(tipoDocumentoCompania);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+
+    }
+
+    @Override
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
 
         List<TipoDocumentoAcademico> tipoDocumentoAcademicos = tipoDocumentoAcademicoDAO.allWhyPrecios();

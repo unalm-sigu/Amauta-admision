@@ -17,8 +17,7 @@
                         v-bind:allow-empty="false"
                         track-by="id"
                         v-on:input="clearOption"
-                        v-bind:disabled='isUpdate'
-                        >
+                        > <!--v-bind:disabled='isUpdate'-->
 
                         <template slot="singleLabel" slot-scope="props">
                             <div class="option__small">
@@ -51,9 +50,8 @@
                         v-bind:show-labels="false"
                         v-bind:allow-empty="false"
                         track-by="id"
-                        v-bind:disabled='isUpdate'
                         v-on:select="idiomaDocumento"
-                        >
+                        > <!--v-bind:disabled='isUpdate'-->
                     </multiselect>
 
                 </div>
@@ -72,9 +70,8 @@
                         v-bind:show-labels="false"
                         v-bind:allow-empty="true"
                         track-by="id"
-                        v-bind:disabled='isUpdate'
                         v-on:select="costoDocumentoEvent"
-                        >
+                        > <!--v-bind:disabled='isUpdate'-->
                     </multiselect>
                 </div>
             </div>
@@ -167,16 +164,24 @@
                     </div>
                 </div>
 
-
-
                 <div class="panel-footer col-xs-12 text-center">
 
                     <button  type="button"
                              class="btn btn-success"
+                             v-if="!isEdit"
                              v-on:click.prevent="submitForm"
-                             v-bind:disabled="guardando">
-                        <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar
+                             ><!--v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 -->
+                        Guardar
+                        <!--<i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar-->
                     </button>
+<!--                    <button  type="button"-->
+<!--                             class="btn btn-success"-->
+<!--                             v-else-if="isEdit"-->
+<!--                             v-on:click.prevent="updateForm"-->
+<!--                             >&lt;!&ndash;v-bind:disabled="guardando"&ndash;&gt;-->
+<!--                        Actualizar-->
+<!--                        &lt;!&ndash;<i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Actualizar&ndash;&gt;-->
+<!--                    </button>-->
 
                 </div>
             </div>

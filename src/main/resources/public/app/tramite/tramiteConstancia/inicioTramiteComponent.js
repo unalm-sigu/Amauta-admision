@@ -6,6 +6,7 @@ Vue.component("inicio-tram-component", {
     data: function () {
         return {
             solicitud: JSON.parse(solicitudJson),
+            solicitudUpd: {},
             tiposDocumentoAcademico: JSON.parse(tiposDocumentoAcademicoJson),
             idiomas: [],
             alumnos: [],
@@ -13,12 +14,14 @@ Vue.component("inicio-tram-component", {
             guardando: false,
             ciclo: {},
             isUpdate: false,
-            tramiteAcademico: {},
+            isEdit: IS_EDICION,
+            tramiteAcademico: {}
         }
     },
     mounted() {
         let $vue = this;
-        $vue.isUpdate = $vue.solicitud.id != null;
+        console.log("$vue.solicitud mounted....", $vue.solicitud);
+        //$vue.isUpdate = $vue.solicitud.id != null;
     },
     watch: {
         // un getter computado
@@ -48,21 +51,20 @@ Vue.component("inicio-tram-component", {
             $vue.findAlumno(item.id);
         },
         clearOption(data) {
-            
             let $vue = this;
+            $vue.solicitudUpd = { ... $vue.solicitud};
             $vue.solicitud = {};
             $vue.ciclo = {};
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
-
             Vue.set($vue.solicitud, "personaContacto", data.persona.nombreCompleto);
             Vue.set($vue.solicitud, "telefono", data.persona.telefono);
             Vue.set($vue.solicitud, "celular", data.persona.celular);
             Vue.set($vue.solicitud, "email", data.persona.email);
-
         },
         idiomaDocumento(value) {
             let $vue = this;
+            //console.log("ideoma ....", $vue.solicitud);
             this.$delete($vue.solicitud, 'idioma');
             $vue.costoDocumento = "";
             $vue.showCostoDocumento = false;
@@ -98,7 +100,6 @@ Vue.component("inicio-tram-component", {
 
             axios.post('/tramite/solicitudconstancia/calcularPrecio', $vue.tramiteAcademico)
                     .then(response => {
-                        console.log(response);
                         if (response.data.success) {
                             $vue.showCostoDocumento = response.data.data.showCostoDocumento;
                             $vue.costoDocumento = response.data.data.costoDocumento;
@@ -109,7 +110,6 @@ Vue.component("inicio-tram-component", {
                             $vue.showCostoDocumento = false;
                         }
                     });
-
         },
         submitForm() {
             let $vue = this;
@@ -135,6 +135,30 @@ Vue.component("inicio-tram-component", {
                     notify(Messages.errorComunicacion, "error");
                 }
             });
+        },
+        updateForm() {
+            let $vue = this;
+
+
+            var valid = $('#formSolicitudConstancia').parsley().validate();
+            if (valid != true) {
+                return;
+            }
+            /*$.ajax({
+                method: 'POST',
+                url: APP.url('tramite/solicitudconstancia/update'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.solicitud),
+                success: function (response) {
+                    if (response.success) {
+                        location.href = APP.url("tramite/solicitudconstancia");
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });*/
         },
         subirFoto() {
             let $vue = this;
