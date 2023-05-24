@@ -54,6 +54,8 @@ public interface ResolucionExistenteService {
     List<ObtencionGrado> allObtencionGrado(Resolucion resolucion);
 
     List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
+    
+    List<TramiteBachiller> allTramiteBachillerFacultad(Resolucion resolucionDB);
 
     List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB);
 
