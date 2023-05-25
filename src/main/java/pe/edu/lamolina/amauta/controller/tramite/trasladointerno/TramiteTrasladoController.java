@@ -93,7 +93,6 @@ public class TramiteTrasladoController {
     @ResponseBody
     @RequestMapping("save")
     public ResponseEntity save(@RequestBody TramiteTraslado tramiteTrasladoForm, HttpSession session) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.saveTramiteTraslado(tramiteTrasladoForm, ds);
         return new ResponseEntity(GlobalMessages.UPDATED, OK);
@@ -104,6 +103,9 @@ public class TramiteTrasladoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Context context = service.reporte(new Tramite(id), ds);
+        /*if(context.getVariables().isEmpty()) {
+            return new ModelAndView("academico/tramitescademicos/tramiteTraslado/tramiteTraslado");
+        }*/
         model.addAllAttributes(context.getVariables());
         return new ModelAndView(reporteTramiteTraslado);
     }
