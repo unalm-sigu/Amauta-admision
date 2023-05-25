@@ -87,7 +87,6 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.PRACTICAS,
             TipoResolucionEnum.ING_HIS,
             TipoResolucionEnum.BACHIFAC
-            
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -241,11 +240,11 @@ public class ResolucionExistenteController {
         response.setMessage(GlobalMessages.CREATED);
 
         if (!respuesta.isEmpty() && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
-                response.setSuccess(Boolean.FALSE);
-                response.setMessage(respuesta.get(0));
+            response.setSuccess(Boolean.FALSE);
+            response.setMessage(respuesta.get(0));
             return response;
         }
-        
+
         switch (tipo) {
             case REIC:
             case RCI:
@@ -298,12 +297,13 @@ public class ResolucionExistenteController {
     @RequestMapping("update")
     public JsonResponse update(@RequestBody Resolucion resolucion, HttpSession session) {
 
-        if (!(resolucion.isTipoTramiteBachiller() ||
-                resolucion.isTipoTramiteTitulo() ||
-                resolucion.isTipoTramitePracticas() ||
-                resolucion.isTipoTrasladoInterno() ||
-                resolucion.isTipoRetiroCiclo() ||
-                resolucion.isTipoCursoDirigido())) {
+        if (!(resolucion.isTipoTramiteBachiller()
+                || resolucion.isTipoTramiteTitulo()
+                || resolucion.isTipoTramitePracticas()
+                || resolucion.isTipoTrasladoInterno()
+                || resolucion.isTipoRetiroCiclo()
+                || resolucion.isTipoTramiteBachillerFacultad()
+                || resolucion.isTipoCursoDirigido())) {
             throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
         }
 
@@ -339,6 +339,7 @@ public class ResolucionExistenteController {
             case INTES:
             case ING_HIS:
             case BACHI:
+            case BACHIFAC:
             case TITUL:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
@@ -363,16 +364,16 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping(value = "anularTramiteTitulo")
-    public JsonResponse anularTramiteTitulo (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+    public JsonResponse anularTramiteTitulo(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TramiteTitulo tramiteTitulo = resolucionesExistentesDTO.getTramiteTitulo();
         Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
         boolean respuesta = service.anularAlumnoDeResolucionTitulo(resolucion, tramiteTitulo, ds.getUsuario(), ds);
-        if(respuesta){
+        if (respuesta) {
             response.setSuccess(Boolean.TRUE);
             response.setMessage(TramitesAcademicos.TRAMITE_TITULO_ANULADO);
-        }else {
+        } else {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_TITULO);
         }
@@ -381,17 +382,17 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping(value = "anularTramiteBachiller")
-    public JsonResponse anularTramiteBachiller (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+    public JsonResponse anularTramiteBachiller(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TramiteBachiller tramiteBachiller = resolucionesExistentesDTO.getTramiteBachiller();
         Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
         Alumno alumno = resolucionesExistentesDTO.getAlumno();
         boolean respuesta = service.anularAlumnoDeResolucionBachiller(alumno, resolucion, tramiteBachiller, ds.getUsuario(), ds);
-        if(respuesta){
+        if (respuesta) {
             response.setSuccess(Boolean.TRUE);
             response.setMessage(TramitesAcademicos.TRAMITE_BACHILLER_ANULADO);
-        }else {
+        } else {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_BACHILLER);
         }
@@ -400,23 +401,23 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping(value = "anularTramiteCursoDirigido")
-    public JsonResponse anularTramiteCursoDirigido (@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+    public JsonResponse anularTramiteCursoDirigido(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CursoDirigido cursoDirigido = resolucionesExistentesDTO.getCursoDirigido();
         Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
         Alumno alumno = resolucionesExistentesDTO.getAlumno();
         boolean respuesta = service.anularAlumnoDeResolucionCursoDirigido(alumno, resolucion, cursoDirigido, ds);
-        if(respuesta){
+        if (respuesta) {
             response.setSuccess(Boolean.TRUE);
             response.setMessage(TramitesAcademicos.TRAMITE_CURSO_DIRIGIDO);
-        }else {
+        } else {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_CURSO_DIRIGIDO);
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("alumnos")
     public ArrayNode alumnos(@RequestBody Resolucion resolucion) {
@@ -473,9 +474,9 @@ public class ResolucionExistenteController {
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
 
-        } else if (Arrays.asList(BACHIFAC,BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
+        } else if (Arrays.asList(BACHIFAC, BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
 
-             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
+            if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
                 List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
                 return JaneHelper.from(graduados)
                         .join("cicloAcademico", "id,descripcion,nombre")
@@ -497,7 +498,6 @@ public class ResolucionExistenteController {
                         .array();
             }
 
-            
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)
@@ -542,6 +542,23 @@ public class ResolucionExistenteController {
         if (resolucion.getTipoResolucion().getCodigo().equals(BACHI.name())) {
 
             List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucion);
+
+            for (TramiteBachiller bachiller : bachillers) {
+                bachiller.setAlumno(bachiller.getTramite().getAlumno());
+            }
+
+            ArrayNode array = JaneHelper.from(bachillers).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("tramiteBachiller", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(BACHIFAC.name())) {
+            List<TramiteBachiller> bachillers = service.allTramiteBachillerFacultad(resolucion);
 
             for (TramiteBachiller bachiller : bachillers) {
                 bachiller.setAlumno(bachiller.getTramite().getAlumno());
