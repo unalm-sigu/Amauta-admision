@@ -8,7 +8,7 @@ import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -30,7 +30,7 @@ import pe.edu.lamolina.amauta.controller.consejeria.consejeros.AConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 
-@Service
+@Repository
 public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements ConsejeroDAO {
 
     public ConsejeroDAOH() {
@@ -250,10 +250,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
     @Override
     public Consejero findByPersonaCarrera(Persona persona, Carrera carrera) {
-
         Octavia sql = Octavia.query()
                 .from(Consejero.class, "conse")
                 .join("carrera ca", "colaborador cola", "cola.persona per")
+                .leftJoin("per.tipoDocumento")
                 .filter("per.id", persona)
                 .filter("ca.id", carrera);
         return find(sql);

@@ -890,13 +890,20 @@ div.notas {
 .progress-bar[aria-valuenow="0"]{
     background-color: #4fc244;
 }
-.alert-orange{
+.alert-orange {
     color: #fff;
     background-color: #d4b638;
     border-color: #d5c5b1;
     font-size: 15px;
     padding: 5px !important;
 }
+
+.alert-primary {
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+}
+            
 .btn.btn-success.inscribirse{
     padding: 10px 27px;
     text-transform: uppercase;
@@ -2204,6 +2211,10 @@ only screen and (                min-resolution: 2dppx) {
 .input-group-addon {
     border-color: black;
 }
+.item-form-gray {
+    background: #F5F7F9;
+}
+
 .item-form-control {
     border-color: #cbd5dd;
     border-radius: 4px;

@@ -12,21 +12,21 @@ import pe.edu.lamolina.model.academico.Carrera;
 
 public interface AconsejadosTutorService {
 
-    public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
+    List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
 
     List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera, DataSessionPivot ds);
 
     List<AlumnoConsejero> allByDynatableByCarreraReporte(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
 
-    public AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico);
+    AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico);
 
     void matriculaAutorizacion(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public Persona findPersona(Long idPersona);
+    Persona findPersona(Long idPersona);
 
-    public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera,DataSessionPivot ds);
+    AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera, DataSessionPivot ds);
 
-    public void eliminarAlumnoConsejero(Long idAlumnoConsejero);
+    void eliminarAlumnoConsejero(Long idAlumnoConsejero);
 
-    public void quitarTutor(Long idAlumnoConsejero);
+    void quitarTutor(Long idAlumnoConsejero);
 }

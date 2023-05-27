@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,33 +22,23 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoConsejeroDAO alumnoConsejeroDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final PersonaDAO personaDAO;
 
-    @Autowired
-    AlumnoConsejeroDAO alumnoConsejeroDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    PersonaDAO personaDAO;
-
-    @Autowired
-    TramiteBachillerDAO tramiteBachillerDAO;
-
-    @Autowired
-    VerificadorService verificadorService;
+    private final VerificadorService verificadorService;
 
     @Override
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
@@ -56,7 +46,6 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
-        logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
@@ -86,7 +75,6 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
 
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
-        logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
@@ -113,7 +101,6 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
 
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
-        logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());

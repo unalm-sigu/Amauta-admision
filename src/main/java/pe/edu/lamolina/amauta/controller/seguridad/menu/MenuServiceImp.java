@@ -471,10 +471,6 @@ public class MenuServiceImp implements MenuService {
         Sistema sistema = new Sistema(despliegueConfig.getSistema());
         String entorno = despliegueConfig.getAmbiente().toUpperCase();
         List<MenuRol> menusRoles = menuRolDAO.allBySistemaEntorno(sistema, entorno);
-        for (MenuRol mr : menusRoles) {
-            Menu menu = mr.getMenu();
-            System.out.println("menu=" + menu.getClave() + " entorno=" + menu.getEntornos() + " nombre=" + menu.getNombre());
-        }
         visorMenu.setMenusRoles(menusRoles);
     }
 
