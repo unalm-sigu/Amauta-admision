@@ -191,7 +191,7 @@ public class ResolucionExistenteController {
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
-        model.addAttribute("ciclos", ciclosJson);
+        model.addAttribute("ciclos", ciclosJson);        
         model.addAttribute("resolucion", objectNode);
         model.addAttribute("IS_ANULAR", TRUE);
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
@@ -710,6 +710,30 @@ public class ResolucionExistenteController {
 
     }
 
+      @ResponseBody
+    @RequestMapping("allBachillerFacultad")
+    public ArrayNode allBachillerFacultad(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteBachiller> tramitesBachiller = service.allBachillerFacultad(ds);
+
+        for (TramiteBachiller tramiteBachiller : tramitesBachiller) {
+            tramiteBachiller.setAlumno(tramiteBachiller.getTramite().getAlumno());
+            tramiteBachiller.setSeleccionado(Boolean.FALSE);
+        }
+
+        return JaneHelper.from(tramitesBachiller)
+                .join("tramite")
+                .join("alumno", "id,codigo")
+                .join("alumno.carrera", "id,codigo,nombre")
+                .join("alumno.carrera.facultad", "id,codigo,nombre,simbolo")
+                .join("alumno.persona", "id,apellidosNombres")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+
+    }
+    
     @ResponseBody
     @RequestMapping("allTitulo")
     public ArrayNode allTitulo(HttpSession session) {

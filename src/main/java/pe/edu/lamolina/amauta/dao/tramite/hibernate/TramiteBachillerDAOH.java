@@ -58,6 +58,18 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         return find(sql);
     }
 
+        @Override
+    public TramiteBachiller findByAlumnoActFacultad(Alumno alumno) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
+                .join("car.facultad")
+                .filter("tb.estadofacultad", SOL)
+                .filter("al.id", alumno);
+
+        return find(sql);
+    }
+    
     @Override
     public TramiteBachiller findByAlumnoACEP(Alumno alumno) {
         Octavia sql = new Octavia();
@@ -88,7 +100,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class)
                 .join("resolucionFacultad res")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
-                .filter("res.id",resolucionDB);
+                .filter("res.id", resolucionDB);
 
         return all(sql);
     }
@@ -150,6 +162,19 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucionFacultad", resolucion);
+        return all(sql);
+    }
+
+    @Override
+    public List<TramiteBachiller> allByFacultadSolicitados() {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .left("al.situacionAcademica")
+                .filter("tb.estadofacultad", TramiteEstadoEnum.SOL)
+                .orderBy("per.paterno");
+
         return all(sql);
     }
 

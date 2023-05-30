@@ -325,6 +325,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TramiteBachiller bachiller = new TramiteBachiller();
         bachiller.setTramite(tramite);
         bachiller.setEstado(TramiteEstadoEnum.SOL.name());
+        bachiller.setEstadofacultad(TramiteEstadoEnum.SOL.name()); 
         bachiller.setFechaRegistro(new Date());
         bachiller.setUsuario(ds.getUsuario());
         tramiteBachillerDAO.save(bachiller);

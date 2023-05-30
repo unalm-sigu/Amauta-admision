@@ -50,7 +50,6 @@ public class ResolucionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
-        
         return "academico/resolucion/resolucion";
     }
 
