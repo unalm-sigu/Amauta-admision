@@ -111,7 +111,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.cicloAcademico ca")
                 .join("tr.alumno al", "al.persona per", "tr.tipoTramite tt")
-                .left("al.carrera car", "car.facultad ", "al.planCurricular", "al.situacionAcademica")
+                .left("al.carrera car", "car.facultad ", "al.planCurricular", "al.situacionAcademica","usuarioAnulaTramite uat","uat.persona")
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

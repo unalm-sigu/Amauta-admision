@@ -101,6 +101,12 @@ var app = new Vue({
                 }
             });
 
+        },
+        validarTramiteAnular(item) {
+            if (item.tramite.estado == 'ANU' && item.usuarioAnulaTramite != null) {
+                return true;
+            }
+            return false;
         }
     }
 })
