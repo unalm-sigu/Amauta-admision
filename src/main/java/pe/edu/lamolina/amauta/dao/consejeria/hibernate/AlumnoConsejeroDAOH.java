@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.LongType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -26,17 +26,12 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 
-@Service
+@Repository
 public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implements AlumnoConsejeroDAO {
 
     public AlumnoConsejeroDAOH() {
@@ -485,13 +480,14 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     }
 
     @Override
-    public AlumnoConsejero findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+    public AlumnoConsejero findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(AlumnoConsejero.class, "ac")
-                .join("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
-                .join("co.colaborador col", "col.persona")
+                .join("consejero con", "cicloAcademico ca", "alumno alu", "alu.carrera car")
+                .join("con.colaborador col", "col.persona perc", "con.carrera")
+                .leftJoin("perc.tipoDocumento")
                 .filter("estado", EstadoEnum.ACT)
-                .filter("ca.id", cicloAcademico)
+                .filter("ca.id", ciclo)
                 .filter("alu.id", alumno);
         return find(sql);
     }

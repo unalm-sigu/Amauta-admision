@@ -2,7 +2,7 @@ package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.consejeria.AgendaConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
 
-@Service
+@Repository
 public class AgendaConsejeroDAOH extends AbstractEasyDAO<AgendaConsejero> implements AgendaConsejeroDAO {
 
     public AgendaConsejeroDAOH() {

@@ -2,7 +2,7 @@ package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.TutorSolicitud;
 
-@Service
+@Repository
 public class TutorSolicitudDAOH extends AbstractEasyDAO<TutorSolicitud> implements TutorSolicitudDAO {
 
     public TutorSolicitudDAOH() {

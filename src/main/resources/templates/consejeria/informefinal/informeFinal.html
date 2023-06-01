@@ -1,0 +1,28 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Derivar tutorado a otra área</title>
+        <style>
+        </style>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="firstVue"  v-cloak=""></div>
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var consejeroJson = /*[[${consejeroJson.toString()}]]*/ 'json';
+                var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
+                var tienePermiso = /*[[${tienePermiso}]]*/ 'json';
+                var esConsejero = /*[[${esConsejero}]]*/ 'json';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+                var origen = /*[[${origen}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/consejeria/informefinal/informeFinal.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

@@ -8,7 +8,7 @@ import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -29,13 +29,25 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.AConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 
-@Service
+@Repository
 public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements ConsejeroDAO {
 
     public ConsejeroDAOH() {
         super();
         setClazz(Consejero.class);
+    }
+
+    @Override
+    public Consejero find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("carrera ca", "colaborador col", "col.persona per", "ca.facultad")
+                .leftJoin("per.tipoDocumento")
+                .filter("con.id", id);
+
+        return find(sql);
     }
 
     @Override
@@ -250,12 +262,30 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
     @Override
     public Consejero findByPersonaCarrera(Persona persona, Carrera carrera) {
-
         Octavia sql = Octavia.query()
                 .from(Consejero.class, "conse")
                 .join("carrera ca", "colaborador cola", "cola.persona per")
+                .leftJoin("per.tipoDocumento")
                 .filter("per.id", persona)
                 .filter("ca.id", carrera);
+        return find(sql);
+    }
+
+    @Override
+    public Consejero findByPersonaCiclo(Persona persona, CicloAcademico ciclo) {
+        Octavia subqQuery = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("cicloAcademico ci", "consejero cona")
+                .filter("ci.id", ciclo);
+
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per")
+                .leftJoin("per.tipoDocumento")
+                .filter("per.id", persona)
+                .exists(subqQuery)
+                .linkedBy("con.id", "cona.id");
+
         return find(sql);
     }
 

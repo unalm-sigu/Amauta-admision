@@ -347,14 +347,6 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         this.update(updateSql);
     }
 
-    public void updateColumns(MatriculaCurso matriculaCurso, String... columns) {
-        Octavia sql = Octavia.update(MatriculaCurso.class, "se");
-        for (String column : columns) {
-            sql.set(matriculaCurso, column);
-        }
-        this.update(sql);
-    }
-
     @Override
     public List<MatriculaCurso> allByCiclosFull(List<CicloAcademico> ciclos) {
         Octavia sqlSubquery = Octavia.query()
@@ -395,6 +387,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
                 .filter("ca.id", cicloAcademico)
                 .filter("mc.ocultoMaipi", 1);
+
         return all(sql);
     }
 
@@ -407,6 +400,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("ca.id", ciclo)
                 .filter("mc.estado", EstadoMatriculaEnum.MAT)
                 .in("cu.id", cursos);
+
         return all(sql);
     }
 
@@ -437,6 +431,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .leftJoin("alu.orientacionCarrera", "alu.situacionAcademica", "alu.cicloIngreso")
                 .filter("ca.id", cicloAcademico)
                 .filter("mc.estado", MAT);
+
         return all(sql);
     }
 
@@ -447,7 +442,8 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.MAT.name(), EstadoMatriculaEnum.RCI.name()))
                 .filter("ca.codigo", ciclo.getCodigo())
                 .filter("alu.id", alumno);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -457,7 +453,18 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name()))
                 .filter("ca.codigo", cicloAcademico.getCodigo())
                 .filter("mr.id", matriculaResumen);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ci", "curso cu")
+                .filter("ci.codigo", ciclo.getCodigo())
+                .filter("alu.id", alumno);
+
+        return all(sql);
     }
 
 }

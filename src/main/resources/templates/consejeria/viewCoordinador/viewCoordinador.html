@@ -192,8 +192,13 @@
                                                             <i class="fa fa-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            
+
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
+
+                                                            <li role="separator" class="divider"></li>
+                                                            <li class="pointer"><a v-bind:href="planificar(item)">Planificar</a></li>
+                                                            <li class="pointer"><a v-bind:href="agendar(item)">Agendar</a></li>
+                                                            <li class="pointer"><a v-bind:href="derivar(item)">Derivar</a></li>
 
                                                         </ul>
 
@@ -220,7 +225,7 @@
                 var personaJson = /*[[${persona.toString()}]]*/ 'json';
                 var carreraJson = /*[[${carrera.toString()}]]*/ 'json';
                 var origen = /*[[${origen}]]*/ 'json';
-                var rutaModulo = 'consejeria/aconsejadostutor';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
                 /*]]>*/
             </script>
 

@@ -905,6 +905,38 @@ window.myUtils = {
 
         return obj.id;
     },
+    getObjectName(obj) {
+        if (obj === undefined) {
+            return "";
+        }
+        if (obj === null) {
+            return "";
+        }
+        if (obj.name === undefined) {
+            return "";
+        }
+        if (obj.name === null) {
+            return "";
+        }
+
+        return obj.name;
+    },
+    getObjectAttr(obj, attr) {
+        if (obj === undefined) {
+            return "";
+        }
+        if (obj === null) {
+            return "";
+        }
+        if (obj[attr] === undefined) {
+            return "";
+        }
+        if (obj[attr] === null) {
+            return "";
+        }
+
+        return obj[attr];
+    },
     commas(n) {
         var options = {
             minimumFractionDigits: 2,

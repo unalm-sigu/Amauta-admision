@@ -119,7 +119,7 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url(rutaModulo + "/countData/" + $vue.persona.id + "/" + $vue.carrera.id),
+                url: `/${rutaModulo}/countData/${$vue.persona.id}/${$vue.carrera.id}`,
                 data: {idCarrera: $vue.carreraSelect.id},
                 dataType: 'json',
                 type: 'post',
@@ -130,6 +130,15 @@ new Vue({
         },
         urlAcademico(item) {
             return APP.url('academico/alumno/' + item.id + '/infoacademico') + URL_UTIL.getOrigenURL();
+        },
+        planificar(item) {
+            return `/${rutaModulo}/${item.alumno.id}/planificacion${myUtils.getOrigenURL()}`;
+        },
+        agendar(item) {
+            return `/${rutaModulo}/${item.alumno.id}/agendarTutorado${myUtils.getOrigenURL()}`;
+        },
+        derivar(item) {
+            return `/${rutaModulo}/${item.alumno.id}/derivarTutorado${myUtils.getOrigenURL()}`;
         }
     }
 });
