@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.AConsejeroEstado;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 
 @Repository
 public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements ConsejeroDAO {
@@ -36,6 +37,17 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     public ConsejeroDAOH() {
         super();
         setClazz(Consejero.class);
+    }
+
+    @Override
+    public Consejero find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("carrera ca", "colaborador col", "col.persona per", "ca.facultad")
+                .leftJoin("per.tipoDocumento")
+                .filter("con.id", id);
+
+        return find(sql);
     }
 
     @Override
@@ -256,6 +268,24 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .leftJoin("per.tipoDocumento")
                 .filter("per.id", persona)
                 .filter("ca.id", carrera);
+        return find(sql);
+    }
+
+    @Override
+    public Consejero findByPersonaCiclo(Persona persona, CicloAcademico ciclo) {
+        Octavia subqQuery = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("cicloAcademico ci", "consejero cona")
+                .filter("ci.id", ciclo);
+
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per")
+                .leftJoin("per.tipoDocumento")
+                .filter("per.id", persona)
+                .exists(subqQuery)
+                .linkedBy("con.id", "cona.id");
+
         return find(sql);
     }
 

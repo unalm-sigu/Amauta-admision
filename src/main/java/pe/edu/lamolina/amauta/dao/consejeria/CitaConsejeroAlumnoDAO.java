@@ -10,8 +10,16 @@ import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
 
 public interface CitaConsejeroAlumnoDAO extends EasyDAO<CitaConsejeroAlumno> {
 
+    CitaConsejeroAlumno findUltimoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+
     List<CitaConsejeroAlumno> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo);
 
     List<CitaConsejeroAlumno> allByAlumnoFecha(Alumno alumno, Date fecha);
+
+    List<CitaConsejeroAlumno> allUltimosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+
+    List<CitaConsejeroAlumno> allUltimosByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    List<CitaConsejeroAlumno> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 
 }

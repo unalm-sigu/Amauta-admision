@@ -18,7 +18,6 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
-import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.CitaConsejeroAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ObjetivoCitaConsejeroDAO;
@@ -27,6 +26,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.CANCELADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.NO_ASISTIO;
@@ -49,7 +49,6 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
     private final ObjetivoCitaConsejeroDAO objetivoCitaConsejeroDAO;
 
     private final PlanTutoriaService planTutoriaService;
-    private final VerificadorService verificadorService;
 
     @Override
     public List<CitaConsejeroAlumno> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -78,7 +77,6 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
     @Override
     @Transactional
     public void saveCitaTutorizada(CitaConsejeroAlumno citaForm, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
-        DateTime today = new DateTime();
         LocalDate hoy = new LocalDate();
 
         boolean esConsejero = planTutoriaService.verificarConsejero(alumno, ciclo, ds);
@@ -95,28 +93,9 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         Assert.isTrue(citas.isEmpty(), "Este tutorado ya tiene programada una cita para esta fecha");
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ciclo);
+        List<CitaConsejeroAlumno> citasPasadas = citaConsejeroAlumnoDAO.allUltimosByAlumnoCiclo(alumno, ciclo);
 
-        CitaConsejeroAlumno cita = new CitaConsejeroAlumno();
-        cita.setAlumno(alumno);
-        cita.setCicloAcademico(ciclo);
-        cita.setConsejero(alumnoConsejero.getConsejero());
-        cita.setEstadoEnum(PENDIENTE);
-        cita.setPostergado(false);
-        cita.setFecha(citaForm.getFecha());
-        cita.setHora(citaForm.getHora());
-        cita.setAsunto(citaForm.getAsunto());
-        cita.setUserRegistro(ds.getUsuario());
-        cita.setFechaRegistro(today.toDate());
-        citaConsejeroAlumnoDAO.save(cita);
-
-        citaForm.getPlanesTutoriales().forEach(plan -> {
-            ObjetivoCitaConsejero objetivo = new ObjetivoCitaConsejero();
-            objetivo.setCitaConsejeroAlumno(cita);
-            objetivo.setObjetivoTutorial(plan);
-            objetivo.setUserRegistro(ds.getUsuario());
-            objetivo.setFechaRegistro(today.toDate());
-            objetivoCitaConsejeroDAO.save(objetivo);
-        });
+        this.crearCita(citaForm, null, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds);
 
     }
 
@@ -141,6 +120,12 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
             objetivos.forEach(objetivo -> objetivoCitaConsejeroDAO.delete(objetivo));
 
             citaConsejeroAlumnoDAO.delete(cita);
+
+            CitaConsejeroAlumno ultimaCita = citaConsejeroAlumnoDAO.findUltimoByAlumnoCiclo(alumno, ciclo);
+            if (ultimaCita != null) {
+                ultimaCita.setUltimoMensaje(true);
+                citaConsejeroAlumnoDAO.update(ultimaCita);
+            }
             return;
         }
 
@@ -237,6 +222,7 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         Assert.isFalse(fechaAhora.equals(fechaAntes), "La nueva fecha y hora es la misma que la cita anterior");
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ciclo);
+        List<CitaConsejeroAlumno> citasPasadas = citaConsejeroAlumnoDAO.allUltimosByAlumnoCiclo(alumno, ciclo);
 
         cita.setMotivoPostergacion(citaForm.getMotivoPostergacion());
         cita.setEstadoEnum(REPROGRAMADA);
@@ -245,13 +231,28 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         cita.setFechaModificacion(today.toDate());
         citaConsejeroAlumnoDAO.update(cita);
 
+        this.crearCita(citaForm, citaForm, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds);
+
+    }
+
+    private void crearCita(
+            CitaConsejeroAlumno citaForm,
+            CitaConsejeroAlumno citaPostergada,
+            Alumno alumno,
+            CicloAcademico ciclo,
+            Consejero consejero,
+            List<CitaConsejeroAlumno> citasPasadas,
+            DataSessionPivot ds) {
+
+        DateTime today = new DateTime();
         CitaConsejeroAlumno newCita = new CitaConsejeroAlumno();
         newCita.setAlumno(alumno);
         newCita.setCicloAcademico(ciclo);
-        newCita.setConsejero(alumnoConsejero.getConsejero());
+        newCita.setConsejero(consejero);
         newCita.setEstadoEnum(PENDIENTE);
         newCita.setPostergado(false);
-        newCita.setCitaPostergada(cita);
+        newCita.setUltimoMensaje(true);
+        newCita.setCitaPostergada(citaPostergada);
         newCita.setFecha(citaForm.getFecha());
         newCita.setHora(citaForm.getHora());
         newCita.setAsunto(citaForm.getAsunto());
@@ -268,6 +269,10 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
             objetivoCitaConsejeroDAO.save(objetivo);
         });
 
+        citasPasadas.forEach(citaPasada -> {
+            citaPasada.setUltimoMensaje(false);
+            citaConsejeroAlumnoDAO.update(citaPasada);
+        });
     }
 
     private String getFechaHora(CitaConsejeroAlumno cita) {

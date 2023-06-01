@@ -20,6 +20,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.AconsejadosTutorController;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
@@ -35,6 +36,8 @@ public class AconsejadosCarreraController {
 
     @Autowired
     AconsejadosCarreraService service;
+    @Autowired
+    AconsejadosTutorController aconsejadosTutorController;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -56,6 +59,8 @@ public class AconsejadosCarreraController {
         model.addAttribute("esInformaticoOERA", service.esInformaticoOERA(ds));
         
         model.addAttribute("RUTA_MODULO", getClass().getAnnotation(RequestMapping.class).value()[0]);
+        
+        model.addAttribute("rutaModuloTutor", aconsejadosTutorController.rutaModulo);
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
     }

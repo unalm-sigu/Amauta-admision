@@ -29,4 +29,16 @@ public class PlanTutorialDAOH extends AbstractEasyDAO<PlanTutorial> implements P
         return all(sql);
     }
 
+    @Override
+    public List<PlanTutorial> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(PlanTutorial.class, "pt")
+                .join("alumno alu", "cicloAcademico ci")
+                .filter("ci.id", ciclo)
+                .in("alu.id", alumnos)
+                .orderBy("pt.codigo");
+
+        return all(sql);
+    }
+
 }

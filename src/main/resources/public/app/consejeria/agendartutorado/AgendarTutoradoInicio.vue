@@ -51,7 +51,7 @@
                                             {{consejero.colaborador.persona.apellidosNombres}}
                                         </h3>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div v-if="esConsejero" class="col-md-2">
                                         <div class="pull-right">
                                             <button v-on:click.prevent="addCita" class="btn btn-primary">Crear cita</button>
                                         </div>

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.PathParam;
@@ -32,12 +34,18 @@ import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import static pe.edu.lamolina.model.enums.consejeria.TipoCualidadAlumnoEnum.CARACTERISTICA;
+import static pe.edu.lamolina.model.enums.consejeria.TipoCualidadAlumnoEnum.MAPA_EMPATIA;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tutoria.AlumnoCualidad;
+import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
+import pe.edu.lamolina.model.tutoria.PlanTutorial;
 
 @Slf4j
 @Controller
@@ -55,7 +63,9 @@ public class AconsejadosTutorController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
 
+        model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
         model.addAttribute("personaJson", this.createPersonaJson(ds.getPersona()));
         model.addAttribute("departamentoJson", this.createDepartamentoJson(ds.getDepartamentoAcademico()));
         model.addAttribute("cicloJson", this.createCicloJson(ds.getCicloAcademico()));
@@ -77,6 +87,8 @@ public class AconsejadosTutorController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("rutaModulo", rutaModulo);
+
         return "consejeria/viewCoordinador/viewCoordinador";
     }
 
@@ -90,8 +102,8 @@ public class AconsejadosTutorController {
 
         Persona persona = service.findPersona(idPersona);
         List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), persona, new Carrera(idCarrera), ds);
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoConsejero alumnoTutor : alumnosTutor) {
             ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
                     new String[]{
@@ -140,26 +152,66 @@ public class AconsejadosTutorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<AlumnoConsejero> alumnosTutor = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
-        ArrayNode array = JaneHelper
-                .from(alumnosTutor)
-                .join("alumno", "id,codigo,creditosCursados,creditosAprobados,promedioAcumulado")
-                .join("alumno.cicloIngreso", "descripcion")
-                .join("alumno.situacionAcademica", "codigo,nombre")
-                .join("alumno.persona", "apellidosNombres,numeroDocIdentidad,emailCompania,sexo,tipoFoto,rutaFoto")
-                .join("alumno.persona.tipoDocumento", "simbolo")
-                .join("alumno.carrera", "nombre,tipo,tipoEnum")
-                .join("alumno.carrera.facultad", "nombre")
-                .join("alumno.modalidadEstudio", "codigo,nombre")
-                .join("consejero", "id")
-                .join("consejero.colaborador", "codigo")
-                .join("cicloAcademico", "id,descripcion")
-                .array();
+        List<Alumno> alumnos = alumnosTutor.stream().map(tutor -> tutor.getAlumno()).collect(Collectors.toList());
+        Map<Long, List<PlanTutorial>> mapPlanes = service.allPlanes(alumnos, ds.getCicloAcademico());
+        Map<Long, List<AlumnoCualidad>> mapCualidades = service.allCualidades(alumnos, ds.getCicloAcademico());
+        Map<Long, CitaConsejeroAlumno> mapCitas = service.allCitas(alumnos, ds.getCicloAcademico());
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (AlumnoConsejero tutorado : alumnosTutor) {
+            ObjectNode node = JaneHelper
+                    .from(tutorado)
+                    .join("alumno", "id,codigo,creditosCursados,creditosAprobados,promedioAcumulado")
+                    .join("alumno.cicloIngreso", "descripcion")
+                    .join("alumno.situacionAcademica", "codigo,nombre")
+                    .join("alumno.persona", "apellidosNombres,numeroDocIdentidad,emailCompania,sexo,tipoFoto,rutaFoto")
+                    .join("alumno.persona.tipoDocumento", "simbolo")
+                    .join("alumno.carrera", "nombre,tipo,tipoEnum")
+                    .join("alumno.carrera.facultad", "nombre")
+                    .join("alumno.modalidadEstudio", "codigo,nombre")
+                    .join("consejero", "id")
+                    .join("consejero.colaborador", "codigo")
+                    .join("cicloAcademico", "id,descripcion")
+                    .json();
+
+            List<PlanTutorial> planes = mapPlanes.get(tutorado.getAlumno().getId());
+            List<AlumnoCualidad> cualidades = mapCualidades.get(tutorado.getAlumno().getId());
+            List<AlumnoCualidad> caracter = this.allCaracteristicas(cualidades);
+            List<AlumnoCualidad> empatia = this.allMapaEmpatia(cualidades);
+            CitaConsejeroAlumno cita = mapCitas.get(tutorado.getAlumno().getId());
+
+            node.put("tienePlanes", !planes.isEmpty());
+            node.put("tieneCaracterizacion", !caracter.isEmpty());
+            node.put("tieneMapaEmpatia", !empatia.isEmpty());
+            node.set("ultimoMensaje", this.createCitaJson(cita));
+
+            array.add(node);
+        }
 
         json.setFiltered(filter.getFiltered());
         json.setData(array);
         json.setTotal(filter.getTotal());
 
         return json;
+    }
+
+    private ObjectNode createCitaJson(CitaConsejeroAlumno cita) {
+        return JaneHelper
+                .from(cita)
+                .only("id,estado,fecha,hora,estadoEnum")
+                .json();
+    }
+
+    private List<AlumnoCualidad> allCaracteristicas(List<AlumnoCualidad> cualidades) {
+        return cualidades.stream()
+                .filter(cualidad -> cualidad.getTipoCualidadAlumno().getTipoCualidadEnum() == CARACTERISTICA)
+                .collect(Collectors.toList());
+    }
+
+    private List<AlumnoCualidad> allMapaEmpatia(List<AlumnoCualidad> cualidades) {
+        return cualidades.stream()
+                .filter(cualidad -> cualidad.getTipoCualidadAlumno().getTipoCualidadEnum() == MAPA_EMPATIA)
+                .collect(Collectors.toList());
     }
 
     @ResponseBody
@@ -316,6 +368,17 @@ public class AconsejadosTutorController {
     public String quitarTutor(@PathVariable("idAlumnoConsejero") Long idAlumnoConsejero, Model model, HttpSession session) {
         service.quitarTutor(idAlumnoConsejero);
         return GlobalMessages.UPDATED;
+    }
+
+    private ObjectNode createConsejeroJson(Consejero consejero) {
+        return JaneHelper
+                .from(consejero)
+                .only("id,estado,fechaInicio,fechaFin")
+                .join("carrera", "codigo,nombre")
+                .join("colaborador", "id")
+                .join("colaborador.persona", "apellidosNombres,numeroDocIdentidad")
+                .join("colaborador.persona.tipoDocumento", "simbolo")
+                .json();
     }
 
     private ObjectNode createPersonaJson(Persona persona) {

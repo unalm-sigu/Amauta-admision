@@ -69,7 +69,7 @@ public class AgendarTutoradoController {
 
     @ResponseBody
     @RequestMapping("{idAlumno}/allCitasTutorizadas")
-    public DynatableResponse list(@PathVariable("idAlumno") Long idAlumno, DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    public DynatableResponse allCitasTutorizadas(@PathVariable("idAlumno") Long idAlumno, DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<CitaConsejeroAlumno> citas = service.allByDynatable(filter, new Alumno(idAlumno), ds.getCicloAcademico(), ds);
 

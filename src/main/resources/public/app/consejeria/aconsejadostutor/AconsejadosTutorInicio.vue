@@ -1,8 +1,13 @@
 <template>
     <div>
         <header class="header b-b padder-lg">
-            <div class="btn-group pull-right">
-                <a class="btn btn-primary dropdown-toggle pull-right" v-bind:href="rutaInforme()"> Descargar Informe</a>
+
+            <div class="pull-right m-t-md">                
+                <button class="btn btn-primary btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
+                <ul class="dropdown-menu pointer">
+                    <li><a v-bind:href="rutaInforme()"> Descargar tutorados </a></li>
+                    <li><a v-bind:href="crearInforme()"> Crear informe final </a></li>
+                </ul>
             </div>
 
             <h2>Alumnos Tutorados {{ciclo.descripcion}}</h2>
@@ -14,7 +19,6 @@
         <section class="wrapper-lg">
             <section class="panel m-b-md">
                 <section class="panel-body">
-
 
                     <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="true" ref="raptorTuto">
                         <div slot="header">
@@ -45,9 +49,11 @@
                             <table class="table table-striped">
                                 <thead class="panel panel-heading">
                                     <tr>
-                                        <th class="col-md-6 v-middle text-center"  colspan="2">Estudiante</th>
+                                        <th class="col-md-4 v-middle text-center"  colspan="2">Estudiante</th>
                                         <th class="col-md-3 v-middle text-center">Resumen Académico</th>
-                                        <th class="col-md-2 v-middle text-center">Estado Matrícula</th>
+                                        <th class="col-md-1 v-middle text-center">Estado Matrícula</th>
+                                        <th class="col-md-2 v-middle text-center">Última cita</th>
+                                        <th class="col-md-2 v-middle text-center">Plan tutorial</th>
                                         <th class=""></th>
                                     </tr>
                                 </thead>
@@ -109,6 +115,41 @@
                                             <span v-else="" class="label label-danger">
                                                 {{item.estadoMatriculableEnum.value}}
                                             </span>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <template v-if="item.ultimoMensaje.id">
+                                                <div class="m-b">
+                                                    <span v-bind:class="classEstadoCita(item.ultimoMensaje)" class="label">
+                                                        {{item.ultimoMensaje.estadoEnum.value}}
+                                                    </span>
+                                                </div>
+                                                <div><b>Fecha:</b> {{item.ultimoMensaje.fecha}}</div>
+                                                <div><b>Hora:</b> {{item.ultimoMensaje.hora}}</div>
+                                            </template>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <div class="block">
+                                                <div v-bind:class="classTener(item.tienePlanes)" class="label">
+                                                    <span v-if="item.tienePlanes">PLAN</span>
+                                                    <span v-else="">S/Plan</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="block">
+                                                <div v-bind:class="classTener(item.tieneCaracterizacion)" class="label">
+                                                    <span v-if="item.tieneCaracterizacion">CARAC</span>
+                                                    <span v-else="">S/Carac.</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="block">
+                                                <div v-bind:class="classTener(item.tieneMapaEmpatia)" class="label">
+                                                    <span v-if="item.tieneMapaEmpatia">MAPA</span>
+                                                    <span v-else="">S/Mapa</span>
+                                                </div>
+                                            </div>
 
                                             <div class="block m-t">
                                                 <span class="label label-primary">
@@ -167,6 +208,7 @@
                 ciclo: JSON.parse(cicloJson),
                 departamento: JSON.parse(departamentoJson),
                 persona: JSON.parse(personaJson),
+                consejero: JSON.parse(consejeroJson),
                 carreraSelect: {},
                 seleccionado: '',
                 bgColorClass: {sinconsejero: '', activo: ''},
@@ -277,7 +319,7 @@
                 this.verificarPlan(item, url);
             },
             derivar(item) {
-                let url = `/${rutaModulo}/${item.alumno.id}/derivarTurados${myUtils.getOrigenURL()}`;
+                let url = `/${rutaModulo}/${item.alumno.id}/derivarTutorado${myUtils.getOrigenURL()}`;
                 this.verificarPlan(item, url);
             },
             verificarPlan(item, url) {
@@ -298,6 +340,30 @@
                         location.href = url;
                     }
                 });
+            },
+            crearInforme() {
+                let url = `/${rutaModulo}/${this.consejero.id}/informefinal${myUtils.getOrigenURL()}`;
+                return url;
+            },
+            classTener(tiene) {
+                if (tiene) {
+                    return "label-success";
+                }
+                return "label-danger";
+            },
+            classEstadoCita(cita) {
+                if (cita.estado === 'PENDIENTE') {
+                    return "label-primary";
+                } else if (cita.estado === 'NO_ASISTIO') {
+                    return "label-danger";
+                } else if (cita.estado === 'CANCELADA') {
+                    return "label-danger";
+                } else if (cita.estado === 'REALIZADA') {
+                    return "label-success";
+                } else if (cita.estado === 'REPROGRAMADA') {
+                    return "label-default";
+                }
+                return "label-default";
             },
 
             // metodos genericos

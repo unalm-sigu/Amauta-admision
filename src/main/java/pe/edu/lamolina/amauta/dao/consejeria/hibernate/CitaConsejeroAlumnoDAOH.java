@@ -34,6 +34,21 @@ public class CitaConsejeroAlumnoDAOH extends AbstractEasyDAO<CitaConsejeroAlumno
     }
 
     @Override
+    public CitaConsejeroAlumno findUltimoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(CitaConsejeroAlumno.class, "cca")
+                .join("alumno alu", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("cicloAcademico ci")
+                .leftJoin("perc.tipoDocumento")
+                .filter("alu.id", alumno)
+                .filter("ci.id", ciclo)
+                .orderBy("cca.id DESC")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
     public List<CitaConsejeroAlumno> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CitaConsejeroAlumno.class, "cca")
@@ -41,8 +56,6 @@ public class CitaConsejeroAlumnoDAOH extends AbstractEasyDAO<CitaConsejeroAlumno
                 .join("cicloAcademico ci")
                 .leftJoin("perc.tipoDocumento")
                 .searchFields("cca.fecha", "cca.asunto", "perc.numeroDocIdentidad")
-                .searchComplexField("concat(coalesce(perc.paterno,''),' ',coalesce(perc.materno,''),' ',coalesce(perc.nombres,''))")
-                .searchComplexField("concat(coalesce(perc.nombres,''),' ',coalesce(perc.paterno,''),' ',coalesce(perc.materno,''))")
                 .filter("alu.id", alumno)
                 .filter("ci.id", ciclo)
                 .orderBy("cca.id desc");
@@ -58,6 +71,41 @@ public class CitaConsejeroAlumnoDAOH extends AbstractEasyDAO<CitaConsejeroAlumno
                 .filter("alu.id", alumno)
                 .filter("cca.estado", EstadoCitaTutorEnum.PENDIENTE)
                 .filter("cca.fecha", fecha);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CitaConsejeroAlumno> allUltimosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(CitaConsejeroAlumno.class, "cca")
+                .join("alumno alu", "consejero con", "cicloAcademico ci")
+                .filter("alu.id", alumno)
+                .filter("ci.id", ciclo)
+                .filter("ultimoMensaje", 1);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CitaConsejeroAlumno> allUltimosByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(CitaConsejeroAlumno.class, "cca")
+                .join("alumno alu", "consejero con", "cicloAcademico ci")
+                .in("alu.id", alumnos)
+                .filter("ci.id", ciclo)
+                .filter("ultimoMensaje", 1);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CitaConsejeroAlumno> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(CitaConsejeroAlumno.class, "cca")
+                .join("alumno alu", "consejero con", "cicloAcademico ci")
+                .in("alu.id", alumnos)
+                .filter("ci.id", ciclo);
 
         return all(sql);
     }

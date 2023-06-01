@@ -78,7 +78,6 @@
                 citaNueva: null,
                 raptor: null,
                 visible: false,
-                editar: false,
                 objetivos: [],
                 form: "id-form-add-cita",
                 title: "Crear cita tutorizada",

@@ -27,6 +27,16 @@ public class AlumnoCualidadDAOH extends AbstractEasyDAO<AlumnoCualidad> implemen
     }
 
     @Override
+    public List<AlumnoCualidad> allByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = new Octavia()
+                .from(AlumnoCualidad.class, "acu")
+                .join("alumno alu", "tipoCualidadAlumno tca")
+                .in("alu.id", alumnos);
+
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoCualidad> allByAlumnoTipoCualidad(Alumno alumno, String tipoCualidad) {
         Octavia sql = new Octavia()
                 .from(AlumnoCualidad.class, "acu")

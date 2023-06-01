@@ -10,4 +10,6 @@ public interface PlanTutorialDAO extends EasyDAO<PlanTutorial> {
 
     List<PlanTutorial> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
+    List<PlanTutorial> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+
 }

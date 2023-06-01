@@ -59,8 +59,6 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     void updateInasistencias(MatriculaCurso matCurso);
 
-    void updateColumns(MatriculaCurso matriculaCursoUpd, String... columns);
-
     MatriculaCurso findByMatriculaCursoAndNotEstado(MatriculaResumen matriculaResumen, Curso curso, EstadoMatriculaEnum... estadoMatriculaEnum);
 
     List<MatriculaCurso> allByCiclosFull(List<CicloAcademico> ciclos);
@@ -75,10 +73,12 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     int updateList(List<MatriculaCurso> matriculaCursos, String... columns);
 
-    public List<MatriculaCurso> allmatriculadoByCiclo(CicloAcademico cicloAcademico);
+    List<MatriculaCurso> allmatriculadoByCiclo(CicloAcademico cicloAcademico);
 
-    public List<MatriculaCurso> allActivoByAlumnoCicloExpRCU(Alumno alumno, CicloAcademico ciclo);
+    List<MatriculaCurso> allActivoByAlumnoCicloExpRCU(Alumno alumno, CicloAcademico ciclo);
 
-    public List<MatriculaCurso> allMatriculadoByCicloMatricula(MatriculaResumen matriculaResumen, CicloAcademico cicloAcademico);
+    List<MatriculaCurso> allMatriculadoByCicloMatricula(MatriculaResumen matriculaResumen, CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
 }

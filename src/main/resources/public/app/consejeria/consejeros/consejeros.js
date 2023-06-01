@@ -549,6 +549,9 @@ new Vue({
             location.href = APP.url('consejeria/aconsejadostutor/viewCoordinador/' + item.colaborador.persona.id + "/" + $vue.carreraSelect.id) + $vue.getOrigenURL();
 
         },
+        rutaInforme(item) {
+            return `/${rutaModuloTutor}/${item.id}/informefinal${myUtils.getOrigenURL()}`;
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);

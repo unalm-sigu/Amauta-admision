@@ -9,6 +9,8 @@ public interface AlumnoCualidadDAO extends EasyDAO<AlumnoCualidad> {
 
     List<AlumnoCualidad> allByAlumno(Alumno alumno);
 
+    List<AlumnoCualidad> allByAlumnos(List<Alumno> alumnos);
+
     List<AlumnoCualidad> allByAlumnoTipoCualidad(Alumno alumno, String tipoCualidad);
 
 }
