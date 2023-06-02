@@ -189,9 +189,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         historialSorted.putAll(historial);
 
         List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
-        
-        Map<Long,AlumnoCiclo> alumnosCiclosFiltrados=alumnosCiclos.stream()
-                .collect(Collectors.toMap(x->x.getId(),y->y,(w,z)->w));
+
+        Map<Long, AlumnoCiclo> alumnosCiclosFiltrados = alumnosCiclos.stream()
+                .collect(Collectors.toMap(x -> x.getId(), y -> y, (w, z) -> w));
 
         long ciclosRegular = alumnosCiclosFiltrados.values().stream()
                 .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
@@ -228,8 +228,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 alumnoCiclo = alumnoCic;
             }
         }
-        
-        if(alumno.getCicloActivo()==null){
+
+        if (alumno.getCicloActivo() == null) {
             throw new PhobosException("El alumno no tiene ciclo activo");
         }
 
@@ -253,8 +253,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
-        
-        Postulante postulante=postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(),alumno.getCicloIngreso());
+
+        Postulante postulante = postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(), alumno.getCicloIngreso());
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
@@ -266,7 +266,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
         ctx.setVariable("ciclosRegularesEstudiados", ciclosRegular);
-        ctx.setVariable("modalidadIngreso",postulante!=null? postulante.getModalidadIngreso().getNombre():null);
+        ctx.setVariable("modalidadIngreso", postulante != null ? postulante.getModalidadIngreso().getNombre() : null);
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
@@ -286,10 +286,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
             throw new PhobosException("El trámite es solo para alumnos de pre grado");
         }
 
-        Integer creditosAprobados = Objects.nonNull(alumnoDB.getCreditosAprobados()) ? alumnoDB.getCreditosAprobados(): 0;
-        Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados(): 0;
+        Integer creditosAprobados = Objects.nonNull(alumnoDB.getCreditosAprobados()) ? alumnoDB.getCreditosAprobados() : 0;
+        Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados() : 0;
         Integer totalCreditos = creditosAprobados + creditosConvalidados;
-        
+
         if (totalCreditos.intValue() < 200) {
             throw new PhobosException(String.format("Alumno %s no es egresado, cuenta con %s créditos", alumnoDB.getCodigo(), totalCreditos.intValue()));
         }
@@ -325,6 +325,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TramiteBachiller bachiller = new TramiteBachiller();
         bachiller.setTramite(tramite);
         bachiller.setEstado(TramiteEstadoEnum.SOL.name());
+        bachiller.setEstadofacultad(TramiteEstadoEnum.SOL.name());
         bachiller.setFechaRegistro(new Date());
         bachiller.setUsuario(ds.getUsuario());
         tramiteBachillerDAO.save(bachiller);
@@ -348,6 +349,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     }
 
     @Override
+    @Transactional
     public void anular(TramiteBachiller tramiteBachiller, DataSessionPivot ds) {
         tramiteBachiller = tramiteBachillerDAO.find(tramiteBachiller.getId());
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
@@ -367,7 +369,15 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramiteDAO.updateEstado(tramite);
 
         tramiteBachiller.setEstado(TramiteEstadoEnum.ANU.name());
-        tramiteBachillerDAO.updateColumns(tramiteBachiller, "estado");
+        tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ANU.name());
+        tramiteBachiller.setUsuarioAnulaTramite(ds.getUsuario());
+
+        tramiteBachillerDAO.updateColumns(tramiteBachiller, "estado","estadofacultad");
+
+        Egresado egresado = egresadoDAO.findByAlumno(tramiteBachiller.getTramite().getAlumno());
+        if (egresado.getId() != null) {
+            egresadoDAO.delete(egresado);
+        }
 
     }
 

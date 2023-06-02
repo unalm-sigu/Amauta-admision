@@ -93,7 +93,6 @@ public class TramiteTrasladoController {
     @ResponseBody
     @RequestMapping("save")
     public ResponseEntity save(@RequestBody TramiteTraslado tramiteTrasladoForm, HttpSession session) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.saveTramiteTraslado(tramiteTrasladoForm, ds);
         return new ResponseEntity(GlobalMessages.UPDATED, OK);

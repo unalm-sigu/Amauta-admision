@@ -352,6 +352,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<TramiteBachiller> allBachillerFacultad(DataSessionPivot ds) {
+        return tramiteBachillerDAO.allByFacultadSolicitados();
+    }    
+
+    @Override
     public List<TramiteTitulo> allTitulos(DataSessionPivot ds) {
         return tramiteTituloDAO.allBySolicitados();
     }
@@ -456,7 +461,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
             case BACHIFAC:
-                resolucion.setNumeroVisible(resolucion.getDescripcion());
+                resolucion.setNumeroVisible(resolucion.getDescripcionFacultad());
+                break;
             case TITUL:
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
@@ -503,7 +509,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramiteBachiller(resolucion, ds);
                 break;
             case BACHIFAC:
-                this.saveTramiteBachiller(resolucion, ds);
+                this.saveTramiteBachillerFacultad(resolucion, ds);
                 break;
             case TITUL:
                 this.saveTramiteTitulo(resolucion, ds);
@@ -757,8 +763,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucionForm.setCicloAplica(ds.getCicloAcademico());
                 break;
             case BACHI:
+//                this.saveTramiteBachiller(resolucionForm, ds);
+                resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+                break;
+            case BACHIFAC:
+//                this.saveTramiteBachillerFacultad(resolucionForm, ds);
+                resolucionBD.setNumeroVisible(resolucionForm.getDescripcionFacultad());
+                break;                
             case TITUL:
-                resolucionForm.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
+                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
@@ -776,7 +789,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+//        resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
 
         resolucionBD.setUserActualizacion(usuario);
         resolucionBD.setFechaActualizacion(new Date());
@@ -808,8 +821,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramiteBachiller(resolucionForm, ds);
                 break;
             case BACHIFAC:
-                this.saveTramiteBachiller(resolucionForm, ds);
-                break;                    
+                this.saveTramiteBachillerFacultad(resolucionForm, ds);
+                break;
             case TITUL:
                 this.saveTramiteTitulo(resolucionForm, ds);
                 break;
@@ -1426,12 +1439,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 continue;
             }
 
-            if (resolucion.getOficina().getCodigoDocumento().equals("UNA")) {
-                tramiteBachiller.setResolucion(resolucion);
-                tramiteBachiller.setEstado(TramiteEstadoEnum.ACEP.name());
-            } else {
-                tramiteBachiller.setResolucionFacultad(resolucion);
-            }
+            tramiteBachiller.setResolucion(resolucion);
+            tramiteBachiller.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteBachiller.setFechaResolucion(new Date());
             tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
             tramiteBachillerDAO.update(tramiteBachiller);
@@ -1444,7 +1453,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
 
-            if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
                 if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
                     Alumno alumno = alumnoDAO.find(tramiteBachiller.getTramite().getAlumno());
                     GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
@@ -1517,10 +1525,65 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                         }
                     }
                 }
-            }
         }
     }
+    
+    void saveTramiteBachillerFacultad(Resolucion resolucion, DataSessionPivot ds) {
 
+        if (resolucion.getTramiteBachiller().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
+
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(ds.getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
+
+        if (eventoCicloAcademico == null) {
+            throw new PhobosException("No se ha configurado las fechas de inicio y fin del  ciclo " + ds.getCicloAcademico().getDescripcion());
+        }
+
+        List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
+                .collect(Collectors.toList());
+
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+
+        List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
+                .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
+                .collect(Collectors.toList());
+
+        for (TramiteBachiller bachiller : tramiteBachillers) {
+
+            TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
+
+            if (tramiteBachiller == null) {
+                throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
+            }
+
+            if (!tramiteBachiller.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+                log.debug("Solo esta permitido agregar alumnos en modo edición");
+                continue;
+            }
+
+            tramiteBachiller.setResolucionFacultad(resolucion);
+            tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
+            tramiteBachiller.setFechaResolucion(new Date());
+            tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
+            tramiteBachillerDAO.update(tramiteBachiller);
+
+            Tramite tramite = tramiteBachiller.getTramite();
+//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setFechaRespuesta(new Date());
+            tramite.setUserRespuesta(ds.getUsuario());
+            tramite.setFinalizado(Boolean.TRUE);
+            tramite.setEstadoTramite(estadoTramite);
+            tramiteDAO.update(tramite);
+
+           }
+    }
+    
+    
     private void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds) {
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
@@ -2060,6 +2123,12 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         }
         Tramite tramite = tramiteBachillerDB.getTramite();
 
+        log.debug("oficina {}", resolucionBD.getOficina().getId());
+        log.debug("serie {}", resolucionBD.getSerie());
+        log.debug("numero {}", resolucionBD.getNumero());
+        log.debug("tipoResolucion {}", resolucionBD.getTipoResolucion().getTipoEnum().name());
+        log.debug("Resolucion válido? {}", resolucionValidacion != null);
+
         Alumno alumnoDB = alumnoDAO.find(alumno);
         if (alumnoDB == null) {
             throw new PhobosException("No se encontró el alumno en esta Resolución de Bachiller");
@@ -2067,19 +2136,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumnoDB.getCarrera());
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
-        ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumnoDB, gradoAcademico);
 
-        if (obtencionGradoRegistrado == null) {
-            throw new PhobosException("No existe el Grado Obtencion Bachiller para el alumno " + alumnoDB.getCodigo());
+        if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
+            ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumnoDB, gradoAcademico);
+            if (obtencionGradoRegistrado == null) {
+                throw new PhobosException("No existe el Grado Obtencion Bachiller para el alumno " + alumnoDB.getCodigo());
+            }
+            obtencionGradoDAO.delete(obtencionGradoRegistrado);
         }
-        log.debug("oficina {}", resolucionBD.getOficina().getId());
-        log.debug("serie {}", resolucionBD.getSerie());
-        log.debug("numero {}", resolucionBD.getNumero());
-        log.debug("tipoResolucion {}", resolucionBD.getTipoResolucion().getTipoEnum().name());
-        log.debug("Resolucion válido? {}", resolucionValidacion != null);
-
-        obtencionGradoDAO.delete(obtencionGradoRegistrado);
-
+        
         tramite.setAlumno(alumnoDB);
         tramite.setResolucion(null);
         tramite.setAceptado(false);
@@ -2103,17 +2168,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramiteBachillerDB.setUsuarioAnulaTramite(ds.getUsuario());
         tramiteBachillerDAO.update(tramiteBachillerDB);
 
-        Egresado egresado = egresadoDAO.findByAlumno(alumnoDB);
-        if (egresado == null) {
-            throw new PhobosException("No es egresado alumno " + alumnoDB.getCodigo());
+        if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
+            Egresado egresado = egresadoDAO.findByAlumno(alumnoDB);
+            if (egresado == null) {
+                throw new PhobosException("No es egresado alumno " + alumnoDB.getCodigo());
+            }
+            egresado.setAlumno(alumnoDB);
+            egresado.setCarrera(alumnoDB.getCarrera());
+            egresado.setFacultad(alumnoDB.getCarrera().getFacultad());
+            egresado.setCicloAcademico(alumnoDB.getCicloActivoRegular());
+            egresado.setTitulo(null);
+            egresado.setGrado(null);
+            egresadoDAO.update(egresado);
+
         }
-        egresado.setAlumno(alumnoDB);
-        egresado.setCarrera(alumnoDB.getCarrera());
-        egresado.setFacultad(alumnoDB.getCarrera().getFacultad());
-        egresado.setCicloAcademico(alumnoDB.getCicloActivoRegular());
-        egresado.setTitulo(null);
-        egresado.setGrado(null);
-        egresadoDAO.update(egresado);
 
         tramiteBachillerAnulado = true;
         return tramiteBachillerAnulado;

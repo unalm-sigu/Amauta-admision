@@ -90,7 +90,12 @@
         mounted: function () {
             let $vue = this;
             if ($vue.isEdicion === false || $vue.isAnular === false) {
-                $vue.allBachillers();
+                if ($vue.resolucion.tipoResolucion.id === 107) {
+                    $vue.allBachillersFacultad();
+                } else {
+                    $vue.allBachillers();
+                }
+
             }
             /*if (!$vue.isEdicion) {
              $vue.allBachillers();
@@ -164,6 +169,18 @@
                             $vue.$forceUpdate();
                         }, () => $vue.hideLoader());
             },
+            allBachillersFacultad() {
+                let $vue = this;
+                $vue.showLoader("Espere un momento por favor");
+                axios_.get(APP.url("academico/resolucion/existentes/allBachillerFacultad"),
+                        {params: {oficinaCodigo: $vue.resolucion.oficina.codigo}})
+                        .then(({data}) => {
+                            $vue.resolucion.tramiteBachiller = data;
+                            $vue.hideLoader();
+                            $vue.$forceUpdate();
+                        }, () => $vue.hideLoader());
+            },            
         }
+        
     };
 </script>

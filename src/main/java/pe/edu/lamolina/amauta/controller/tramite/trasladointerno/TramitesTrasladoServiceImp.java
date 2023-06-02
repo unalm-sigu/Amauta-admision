@@ -180,9 +180,17 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
     public Context reporte(Tramite idTramite, DataSessionPivot ds) {
 
         Tramite tramite = tramiteDAO.findById(idTramite);
+
         TramiteTraslado traslado = tramiteTrasladoDAO.findByTramite(tramite);
+
         tramite = tramiteDAO.find(tramite.getId());
+
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+
+        List<TramiteTraslado> trasladosInternos = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(alumno);
+
+        trasladosInternos.stream().filter(x -> x.getEstadoEnum().equals(TramiteEstadoEnum.RCHD)).collect(Collectors.toList());
+
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
 
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
@@ -233,6 +241,11 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
+
+        if(Objects.isNull(traslado.getCarrera()) && Objects.isNull(traslado.getCarreraOrigen())) {
+            throw new PhobosException(String.format("Alumno con cógido %s aún no cuenta con carrera de Origen ni Destino", alumno.getCodigo()));
+        }
+
         List<Carrera> carreras = carreraDAO.allByFilter(traslado.getCarrera().getFacultad(), EstadoEnum.ACT);
         boolean especificarCarrera = false;
         if (carreras.size() > 1 || Objects.equals(traslado.getCarrera().getFacultad().getId(), traslado.getCarreraOrigen().getFacultad().getId())) {
@@ -245,6 +258,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         }
 
         Context ctx = new Context();
+
         ctx.setVariable("especificarCarrera", especificarCarrera);
         ctx.setVariable("especificarCarreraOrigen", especificarCarreraOrigen);
         ctx.setVariable("traslado", traslado);
@@ -252,6 +266,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("historial", historialSorted);
+        ctx.setVariable("trasladosInternos", trasladosInternos);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
