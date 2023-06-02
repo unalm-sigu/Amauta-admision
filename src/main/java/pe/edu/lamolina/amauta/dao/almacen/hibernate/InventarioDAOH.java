@@ -6,9 +6,11 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.almacen.Almacen;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.amauta.dao.almacen.InventarioDAO;
+
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.ID_OFICINA_OERA;
 
 @Repository
@@ -37,6 +39,16 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
                 .from(Inventario.class, "inv")
                 .join("almacen al", "al.aula au", "producto pro", "oficinaGestora off")
                 .in("inv.id", inventarios)
+                .filter("off.id", ID_OFICINA_OERA);
+        return all(sql);
+    }
+
+    @Override
+    public List<Inventario> findByAlmacen(Almacen almacen){
+        Octavia sql = Octavia.query()
+                .from(Inventario.class, "inv")
+                .join("almacen al", "al.aula au", "producto pro", "oficinaGestora off")
+                .filter("al.id", almacen)
                 .filter("off.id", ID_OFICINA_OERA);
         return all(sql);
     }

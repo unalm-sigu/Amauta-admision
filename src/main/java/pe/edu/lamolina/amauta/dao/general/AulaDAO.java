@@ -20,6 +20,8 @@ public interface AulaDAO extends EasyDAO<Aula> {
     List<Aula> allByDynatable(DynatableFilter filter, Oficina oficina);
     List<Aula> allByDynatable(DynatableFilter filter, Oficina oficina, List<Long> id);
 
+    List<Aula> allAulas();
+
     Integer findAforoByEdificio(Aula aula);
 
     List<Aula> allAulasSuperioresByName(String forLike);

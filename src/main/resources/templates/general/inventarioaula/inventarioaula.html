@@ -562,7 +562,10 @@
                                                 </li>
                                                 <li><a href="#"
                                                        v-on:click.prevent="eliminarInventario(item)">Eliminar</a></li>
-                                                <li><a href="">Trasladar</a></li>
+                                                <li><a v-on:click="listarAulas(item)" class="pointer">
+                                                    Trasladar
+                                                </a></li>
+
                                             </ul>
                                         </div>
                                     </td>
@@ -631,6 +634,30 @@
 
 
             </div>
+        </modal-vik>
+
+        <modal-vik ref="modalListaAulas" v-bind="modalListaAulas" v-bind:okaction="guardarTraslado">
+            <div slot="body" id="modalListaAulas">
+                <form id='formTrasladar' class="form-horizontal" data-parsley-validate="true">
+                    <label>
+                        Lista de aulas
+                    </label>
+                    <multiselect
+                            label="nombre"
+                            placeholder="Escoge el aula"
+                            required="true"
+                            v-model="aulaFin"
+                            v-bind:options="aulas"
+                            v-bind:show-labels="false"
+                            v-bind:limit="15">
+                    </multiselect>
+                    <p></p>
+                    <label for="exampleFormControlTextarea1">Motivo</label>
+                    <textarea v-model="motivo" class="form-control" placeholder="Ingresa el motivo del traslado" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    <p></p>
+                </form>
+            </div>
+
         </modal-vik>
 
     </div>

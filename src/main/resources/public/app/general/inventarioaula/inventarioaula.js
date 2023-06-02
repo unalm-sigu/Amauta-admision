@@ -32,6 +32,24 @@ new Vue({
         isindividual: false,
         verTablaEditable: false,
         updatable: [],
+        aulas:[],
+        aulaFin:null,
+        modalListaAulas: {
+            id: 'modalListaAulas',
+            header: true,
+            cancelbtn: 'Cerrar',
+            cancelclass: 'btn btn-link',
+            okbtn: 'Guardar',
+            showaccept: true
+            // okaction: vue.guardarTraslado(),
+        },
+        inventarioTraslado: {
+            id: '',
+            inventario: {id: ''},
+            aulaInicio: {id: null},
+            aulaFin: {id: null},
+            motivo: ''
+        }
     },
     mounted: function () {
         let $vue = this;
@@ -44,7 +62,6 @@ new Vue({
     },
     methods: {
         actualizarRx(e) {
-            console.log(e);
             let vue=this;
             vue.$refs.load.loadRemoteData();
         },
@@ -354,6 +371,58 @@ new Vue({
             console.log(item);
             item.codeEdit=true;
 
+        },
+        listarAulas(inventarioId) {
+            let $vue = this;
+            $vue.inventarioTraslado.inventario.id=inventarioId.id;
+            $vue.allAulas();
+            $vue.$refs.modalListaAulas.title = "Listar Aulas y Auditorios";
+            $vue.$refs.modalListaAulas.open();
+            //$vue.$refs.modalListaAulas.okaction = $vue.guardarTraslado();
+        },
+        allAulas() {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('general/aula/inventario/allAulas'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        $vue.aulas = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
+        },
+        guardarTraslado() {
+            var vue = this;
+            vue.inventarioTraslado.aulaFin.id = vue.aulaFin.id;
+            vue.inventarioTraslado.motivo = vue.motivo;
+            vue.inventarioTraslado.aulaInicio.id = vue.aula.id;
+            $.ajax({
+                method: 'POST',
+                contentType: "application/json",
+                url: APP.url('general/aula/inventario/traslado'),
+                data: JSON.stringify(vue.inventarioTraslado),
+                success: function (response) {
+                    if (response.success) {
+                        vue.$refs.modalListaAulas.close();
+                        vue.$refs.load.loadRemoteData();
+                        notify(response.message, "info");
+                        vue.aulaFin = '';
+                        vue.motivo='';
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
         },
     }
 });
