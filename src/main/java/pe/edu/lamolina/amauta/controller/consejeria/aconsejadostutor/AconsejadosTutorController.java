@@ -175,7 +175,7 @@ public class AconsejadosTutorController {
                     .join("alumno.situacionAcademica", "codigo,nombre")
                     .join("alumno.persona", "apellidosNombres,numeroDocIdentidad,emailCompania,sexo,tipoFoto,rutaFoto")
                     .join("alumno.persona.tipoDocumento", "simbolo")
-                    .join("alumno.carrera", "nombre,tipo,tipoEnum")
+                    .join("alumno.carrera", "codigo,nombre,tipo,tipoEnum")
                     .join("alumno.carrera.facultad", "nombre")
                     .join("alumno.modalidadEstudio", "codigo,nombre")
                     .join("consejero", "id")

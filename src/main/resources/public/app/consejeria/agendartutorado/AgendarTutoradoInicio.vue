@@ -64,7 +64,8 @@
                     </template>
 
                     <div v-else="" class="alert alert-danger">
-                        <h3>Usted no es el consejero del alumno seleccionado</h3>
+                        <h3 v-if="carrerasDiferentes">La especialidad del alumno es {{alumno.carrera.nombre}}, sin embargo la del tutor es {{consejero.carrera.nombre}}</h3>
+                        <h3 v-else="">Usted no es el consejero del alumno seleccionado</h3>
                     </div>
 
                 </section>
@@ -301,6 +302,22 @@
             },
             esReprogramable(item) {
                 return ['PENDIENTE', 'CANCELADA'].includes(item.estado);
+            },
+            carrerasDiferentes() {
+                if (!this.alumno.carrera) {
+                    return false;
+                }
+                if (!this.alumno.carrera.codigo) {
+                    return false;
+                }
+                if (!this.consejero.carrera) {
+                    return false;
+                }
+                if (!this.consejero.carrera.codigo) {
+                    return false;
+                }
+
+                return this.alumno.carrera.codigo !== this.consejero.carrera.codigo;
             },
 
             // metodos genericos

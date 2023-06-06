@@ -143,26 +143,34 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <div class="block">
-                                                <div v-bind:class="classTener(item.tienePlanes)" class="label">
-                                                    <span v-if="item.tienePlanes">PLAN</span>
-                                                    <span v-else="">S/Plan</span>
+                                            <template v-if="item.alumno.carrera.codigo == consejero.carrera.codigo">
+                                                <div class="block">
+                                                    <div v-bind:class="classTener(item.tienePlanes)" class="label">
+                                                        <span v-if="item.tienePlanes">PLAN</span>
+                                                        <span v-else="">S/Plan</span>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="block">
-                                                <div v-bind:class="classTener(item.tieneCaracterizacion)" class="label">
-                                                    <span v-if="item.tieneCaracterizacion">CARAC</span>
-                                                    <span v-else="">S/Carac.</span>
+                                                <div class="block">
+                                                    <div v-bind:class="classTener(item.tieneCaracterizacion)" class="label">
+                                                        <span v-if="item.tieneCaracterizacion">CARAC</span>
+                                                        <span v-else="">S/Carac.</span>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="block">
-                                                <div v-bind:class="classTener(item.tieneMapaEmpatia)" class="label">
-                                                    <span v-if="item.tieneMapaEmpatia">MAPA</span>
-                                                    <span v-else="">S/Mapa</span>
+                                                <div class="block">
+                                                    <div v-bind:class="classTener(item.tieneMapaEmpatia)" class="label">
+                                                        <span v-if="item.tieneMapaEmpatia">MAPA</span>
+                                                        <span v-else="">S/Mapa</span>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </template>
+                                            
+                                            <template v-else="">
+                                                <div v-on:click="verMalaAsignacion(item)" class="block pointer">
+                                                    <i class="fa fa-exclamation-circle fa-3x text-warning" aria-hidden="true"></i>
+                                                </div>
+                                            </template>
 
                                             <div class="block m-t">
                                                 <span class="label label-primary">
@@ -219,6 +227,8 @@
         },
         data() {
             return {
+                idModalConfirm: "id-modal-confirm-tutorados",
+                idModalInfo: "id-modal-info-tutorados",
                 aconsejadosURL: `/${rutaModulo}/list`,
                 ciclo: JSON.parse(cicloJson),
                 departamento: JSON.parse(departamentoJson),
@@ -355,6 +365,17 @@
                     if (info.tienePlan && info.tieneCaracteristicas && info.tieneMapaEmpatia) {
                         location.href = url;
                     }
+                });
+            },
+            verMalaAsignacion(item) {
+                let info = '<h3 class="m-b">Diferente especialidades</h3>';
+                info += `<p>El tutorado se encuentra en la especialidad de <span class="text-primary">${item.alumno.carrera.nombre}</span>. `;
+                info += `Sin embargo, el tutor está asignado a la especialidad de `;
+                info += `<span class="text-primary">${this.consejero.carrera.nombre}</span>.</p>`;
+
+                this.$refs.modalInfo.open({
+                    id: this.idModalInfo,
+                    message: info
                 });
             },
             crearInforme() {
