@@ -127,6 +127,7 @@ public class ConsejerosController {
                             "docente.departamentoAcademico.nombre",
                             "docente.codigo",
                             "docente.departamentoAcademico.id",
+                            "informe.estado",
                             "informe.id",
                             "informe.serie",
                             "informe.numero"

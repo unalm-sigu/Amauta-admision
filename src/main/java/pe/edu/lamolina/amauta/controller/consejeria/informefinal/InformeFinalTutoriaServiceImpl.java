@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
-import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -85,6 +84,9 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
     private final BigDecimal NOTA_MINIMA = new BigDecimal("10.5");
     private final String ONCE = "11";
     private final List<String> CURSOS_EXTENSION = Arrays.asList("DEPORTE", "TALLER_CULTURAL");
+    private final List<EstadoEnum> ESTADOS_PENDIENTES = Arrays.asList(EstadoEnum.PEN, EstadoEnum.OBS);
+    private final List<EstadoEnum> ESTADOS_ACEPTADOS = Arrays.asList(EstadoEnum.ACP, EstadoEnum.OBS);
+    private final List<EstadoEnum> ESTADOS_VISIBLES = Arrays.asList(EstadoEnum.PEN, EstadoEnum.ACP, EstadoEnum.OBS);
 
     @Override
     public Consejero findConsejero(Consejero consejeroForm) {
@@ -126,9 +128,13 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
     }
 
     @Override
-    public Boolean verificarConsejero(CicloAcademico ciclo, DataSessionPivot ds) {
+    public Boolean verificarConsejero(Consejero consejeroForm, CicloAcademico ciclo, DataSessionPivot ds) {
         Consejero consejero = consejeroDAO.findByPersonaCiclo(ds.getPersona(), ciclo);
         if (consejero == null) {
+            return false;
+        }
+
+        if (!consejeroForm.equals(consejero)) {
             return false;
         }
 
@@ -136,9 +142,22 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
     }
 
     @Override
+    public Boolean verificarCoordinador(Consejero consejeroForm, DataSessionPivot ds) {
+        Consejero consejero = consejeroDAO.find(consejeroForm.getId());
+        if (consejero == null) {
+            return false;
+        }
+        return verificadorService.esCoordinadorConsejeria(ds, consejero.getCarrera());
+    }
+
+    @Override
     @Transactional
     public InformeFinalTutoria findInforme(Consejero consejeroForm, CicloAcademico ciclo, DataSessionPivot ds) {
-        Consejero consejero = consejeroDAO.find(consejeroForm.getId());
+        Consejero consejero = null;
+        if (consejeroForm != null && consejeroForm.getId() != null) {
+            consejero = consejeroDAO.find(consejeroForm.getId());
+        }
+
         if (consejero == null) {
             InformeFinalTutoria informe = new InformeFinalTutoria();
             informe.setComentarioInforme("Es tutor no existe en el sistema");
@@ -154,7 +173,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
 
         InformeFinalTutoria informeBD = informeFinalTutoriaDAO.findActivoByConsejeroCiclo(consejero, ciclo);
         if (informeBD == null) {
-            boolean esConsejero = this.verificarConsejero(ciclo, ds);
+            boolean esConsejero = this.verificarConsejero(consejeroForm, ciclo, ds);
             if (!esConsejero) {
                 InformeFinalTutoria informe = new InformeFinalTutoria();
                 informe.setComentarioInforme("El tutor aún no ha creado el informe final");
@@ -224,7 +243,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
         Assert.isTrue(informeBD.getConsejero().equals(consejero), "Este informe corresponde a otro tutor");
         Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
-        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.PEN, "Este informe ya no puede ser modificado");
+        Assert.isTrue(ESTADOS_PENDIENTES.contains(informeBD.getEstadoEnum()), "Este informe ya no puede ser modificado");
 
         List<AlumnoConsejero> tutorados = alumnoConsejeroDAO.allByConsejeroCiclo(consejero, ciclo);
         Assert.isFalse(tutorados.isEmpty(), "No tiene tutorados asignados");
@@ -555,7 +574,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
         Assert.isTrue(informeBD.getConsejero().equals(consejero), "Este informe corresponde a otro tutor");
         Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
-        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.PEN, "Este informe ya no puede ser modificado");
+        Assert.isTrue(ESTADOS_PENDIENTES.contains(informeBD.getEstadoEnum()), "Este informe ya no puede ser modificado");
 
         Assert.isNotNull(informeForm.getDificultades(), "No ha indicado las dificultades del informe");
         Assert.isFalse(informeForm.getDificultades().equals(informeBD.getDificultades()), "No ha enviado datos nuevos para guardar");
@@ -578,7 +597,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
         Assert.isTrue(informeBD.getConsejero().equals(consejero), "Este informe corresponde a otro tutor");
         Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
-        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.PEN, "Este informe ya no puede ser modificado");
+        Assert.isTrue(ESTADOS_PENDIENTES.contains(informeBD.getEstadoEnum()), "Este informe ya no puede ser modificado");
 
         Assert.isNotNull(informeForm.getSugerencias(), "No ha indicado las sugerencias del informe");
         Assert.isFalse(informeForm.getSugerencias().equals(informeBD.getSugerencias()), "No ha enviado datos nuevos para guardar");
@@ -601,7 +620,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
         Assert.isTrue(informeBD.getConsejero().equals(consejero), "Este informe corresponde a otro tutor");
         Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
-        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.PEN, "Este informe ya no puede ser modificado");
+        Assert.isTrue(ESTADOS_PENDIENTES.contains(informeBD.getEstadoEnum()), "Este informe ya no puede ser modificado");
 
         Assert.isNotNull(informeForm.getConclusiones(), "No ha indicado las conclusiones del informe");
         Assert.isFalse(informeForm.getConclusiones().equals(informeBD.getConclusiones()), "No ha enviado datos nuevos para guardar");
@@ -624,7 +643,7 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
         Assert.isTrue(informeBD.getConsejero().equals(consejero), "Este informe corresponde a otro tutor");
         Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
-        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.PEN, "Este informe ya no puede ser enviado");
+        Assert.isTrue(ESTADOS_PENDIENTES.contains(informeBD.getEstadoEnum()), "Este informe ya no puede ser enviado");
 
         Assert.isNotNull(informeBD.getDificultades(), "Falta que registre las dificultades en el informe");
         Assert.isNotNull(informeBD.getSugerencias(), "Falta que registre las sugerencias en el informe");
@@ -673,6 +692,38 @@ public class InformeFinalTutoriaServiceImpl implements InformeFinalTutoriaServic
         informeBD.setFecha(today.toDate());
         informeBD.setUserEmision(ds.getUsuario());
         informeBD.setFechaEmision(today.toDate());
+        informeFinalTutoriaDAO.update(informeBD);
+    }
+
+    @Override
+    @Transactional
+    public void aceptarInforme(InformeFinalTutoria informeForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        Assert.isNotNull(informeForm.getId(), "No ha indicado el ID del informe");
+        Assert.isNotNull(informeForm.getEstado(), "No ha indicado el ESTADO del informe");
+
+        InformeFinalTutoria informeBD = informeFinalTutoriaDAO.find(informeForm.getId());
+        Assert.isNotNull(informeBD, "No existe el informe que ha seleccionado");
+        Assert.isTrue(informeBD.getCicloAcademico().equals(ciclo), "Este informe corresponde a otro ciclo académico");
+        Assert.isTrue(informeBD.getEstadoEnum() == EstadoEnum.ACT, "Este informe no puede ser enviado al tutor");
+
+        boolean esCoordinador = verificadorService.esCoordinadorConsejeria(ds, informeBD.getCarrera());
+        Assert.isTrue(esCoordinador, "Usted no tiene permiso para ejecutar esta operación");
+        Assert.isTrue(ESTADOS_ACEPTADOS.contains(informeForm.getEstadoEnum()), "No está indicando el estado correcto");
+
+        informeBD.setEstadoEnum(informeForm.getEstadoEnum());
+        if (informeForm.getEstadoEnum() == EstadoEnum.OBS) {
+            Assert.isNotNull(informeForm.getObservaciones(), "No ha indicado las observaciones");
+
+            informeBD.setObservaciones(informeForm.getObservaciones());
+            informeBD.setUserModificacion(ds.getUsuario());
+            informeBD.setFechaModificacion(today.toDate());
+
+        } else {
+            informeBD.setUserAceptacion(ds.getUsuario());
+            informeBD.setFechaAceptacion(today.toDate());
+        }
+
         informeFinalTutoriaDAO.update(informeBD);
     }
 

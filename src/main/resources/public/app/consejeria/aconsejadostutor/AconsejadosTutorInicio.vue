@@ -6,7 +6,8 @@
                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
                 <ul class="dropdown-menu pointer">
                     <li><a v-bind:href="rutaInforme()"> Descargar tutorados </a></li>
-                    <li><a v-bind:href="crearInforme()"> Crear informe final </a></li>
+                    <li><a v-bind:href="crearInforme()"> {{menuInforme()}} </a></li>
+                    <li><a v-on:click="verEncuesta"> Encuesta satisfacción </a></li>
                 </ul>
             </div>
 
@@ -43,6 +44,18 @@
                                         </a>
                                     </div>
                                 </div> 
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="pull-right" v-if="informe.id">
+                                    <div class="block v-middle text-center">
+                                        <a v-bind:href="crearInforme()" class="pointer">
+                                            <i v-bind:class="classInforme()" 
+                                               class="fa fa-file-text fa-3x" aria-hidden="true"></i>
+                                            <div v-bind:class="classInforme()">{{textoInforme()}}</div>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <template scope="props" >
@@ -186,6 +199,7 @@
 
         <modal-confirm ref="modalConfirm"></modal-confirm>
         <modal-info ref="modalInfo"></modal-info>
+        <modal-encuesta ref="modalEncuesta"></modal-encuesta>
     </div>
 
 </template>
@@ -197,10 +211,11 @@
     const InfoAlumno = httpVueLoader('/app/_componentes/InfoAlumno.vue');
     const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
     const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
+    const ModalEncuesta = httpVueLoader('./ModalEncuesta.vue');
 
     module.exports = {
         components: {
-            ModalConfirm, ModalInfo, FotoPersona, InfoAlumno
+            ModalConfirm, ModalInfo, FotoPersona, InfoAlumno, ModalEncuesta
         },
         data() {
             return {
@@ -209,6 +224,7 @@
                 departamento: JSON.parse(departamentoJson),
                 persona: JSON.parse(personaJson),
                 consejero: JSON.parse(consejeroJson),
+                informe: JSON.parse(informeJson),
                 carreraSelect: {},
                 seleccionado: '',
                 bgColorClass: {sinconsejero: '', activo: ''},
@@ -345,6 +361,9 @@
                 let url = `/${rutaModulo}/${this.consejero.id}/informefinal${myUtils.getOrigenURL()}`;
                 return url;
             },
+            verEncuesta() {
+                this.$refs.modalEncuesta.open(this.consejero);
+            },
             classTener(tiene) {
                 if (tiene) {
                     return "label-success";
@@ -364,6 +383,40 @@
                     return "label-default";
                 }
                 return "label-default";
+            },
+            classInforme() {
+                if (this.informe.estado === 'PEN') {
+                    return "text-warning";
+                } else if (this.informe.estado === 'ACT') {
+                    return "text-primary";
+                } else if (this.informe.estado === 'OBS') {
+                    return "text-danger";
+                } else if (this.informe.estado === 'ACP') {
+                    return "text-success";
+                }
+                return "";
+            },
+            textoInforme() {
+                if (this.informe.estado === 'PEN') {
+                    return "Editando";
+                } else if (this.informe.estado === 'ACT') {
+                    return "Enviado";
+                } else if (this.informe.estado === 'OBS') {
+                    return "Observado";
+                } else if (this.informe.estado === 'ACP') {
+                    return "Aprobado";
+                }
+                return "";
+            },
+            menuInforme() {
+                if (this.informe.estado === 'ACT') {
+                    return "Ver informe";
+                } else if (this.informe.estado === 'OBS') {
+                    return "Corregir informe";
+                } else if (this.informe.estado === 'ACP') {
+                    return "Ver informe";
+                }
+                return "Crear informe final";
             },
 
             // metodos genericos

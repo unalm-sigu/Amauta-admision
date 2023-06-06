@@ -12,6 +12,8 @@ public interface InformeFinalTutoriaDAO extends EasyDAO<InformeFinalTutoria> {
 
     InformeFinalTutoria findPendienteByConsejeroCiclo(Consejero consejero, CicloAcademico ciclo);
 
+    InformeFinalTutoria findByConsejeroCiclo(Consejero consejero, CicloAcademico ciclo);
+
     List<InformeFinalTutoria> allActivosByConsejerosCiclo(List<Consejero> consejeros, CicloAcademico ciclo);
 
 }

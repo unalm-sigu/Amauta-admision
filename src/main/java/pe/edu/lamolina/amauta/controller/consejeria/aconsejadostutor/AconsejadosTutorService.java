@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ResumenEncuestaTutoria;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
@@ -12,13 +13,17 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.tutoria.AlumnoCualidad;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
+import pe.edu.lamolina.model.tutoria.InformeFinalTutoria;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
 
 public interface AconsejadosTutorService {
 
     Consejero findConsejero(Persona persona, CicloAcademico ciclo);
+
+    InformeFinalTutoria findInforme(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
 
     List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, Persona persona);
 
@@ -43,5 +48,9 @@ public interface AconsejadosTutorService {
     Map<Long, List<AlumnoCualidad>> allCualidades(List<Alumno> alumnos, CicloAcademico ciclo);
 
     Map<Long, CitaConsejeroAlumno> allCitas(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    List<PreguntaExamen> allPreguntasEncuesta(CicloAcademico ciclo);
+
+    List<ResumenEncuestaTutoria> allDataEncuesta(Consejero consejero, List<PreguntaExamen> preguntas, CicloAcademico ciclo, DataSessionPivot ds);
 
 }
