@@ -138,7 +138,7 @@
     const FotoPersona = httpVueLoader('/app/_componentes/FotoPersonaAlumno.vue');
     const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
     const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
-    const StepProgress = httpVueLoader('/app/_componentes/StepProgress.vue');
+    const StepProgress = httpVueLoader('/app/_componentes/SStepProgress.vue');
     const PartesInforme = httpVueLoader('./PartesInforme.vue');
     const DificultadesInforme = httpVueLoader('./DificultadesInforme.vue');
     const SugerenciasInforme = httpVueLoader('./SugerenciasInforme.vue');
