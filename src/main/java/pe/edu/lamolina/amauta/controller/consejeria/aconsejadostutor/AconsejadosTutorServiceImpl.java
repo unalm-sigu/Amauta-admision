@@ -1,5 +1,9 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ResumenEncuestaTutoria;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -25,14 +30,28 @@ import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoCualidadDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.CitaConsejeroAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.InformeFinalTutoriaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.PlanTutorialDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.EncuestaPublicadaDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.OpcionPreguntaDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.PreguntaExamenDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.RespuestaEncuestaDAO;
+import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
+import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
+import pe.edu.lamolina.model.examen.EncuestaPublicada;
+import pe.edu.lamolina.model.examen.ExamenVirtual;
+import pe.edu.lamolina.model.examen.OpcionPregunta;
+import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.RespuestaEncuesta;
+import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.tutoria.AlumnoCualidad;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
+import pe.edu.lamolina.model.tutoria.InformeFinalTutoria;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
 
 @Slf4j
@@ -46,11 +65,18 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     private final AlumnoConsejeroDAO alumnoConsejeroDAO;
     private final CitaConsejeroAlumnoDAO citaConsejeroAlumnoDAO;
     private final ConsejeroDAO consejeroDAO;
+    private final EncuestaPublicadaDAO encuestaPublicadaDAO;
+    private final InformeFinalTutoriaDAO informeFinalTutoriaDAO;
     private final MatriculaResumenDAO matriculaResumenDAO;
+    private final OpcionPreguntaDAO opcionPreguntaDAO;
     private final PersonaDAO personaDAO;
     private final PlanTutorialDAO planTutorialDAO;
+    private final PreguntaExamenDAO preguntaExamenDAO;
+    private final RespuestaEncuestaDAO respuestaEncuestaDAO;
+    private final TipoExamenVirtualDAO tipoExamenVirtualDAO;
 
     private final VerificadorService verificadorService;
+    private final BigDecimal CIEN = new BigDecimal(100);
 
     @Override
     public Consejero findConsejero(Persona persona, CicloAcademico ciclo) {
@@ -59,6 +85,23 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
             return new Consejero();
         }
         return consejero;
+    }
+
+    @Override
+    public InformeFinalTutoria findInforme(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds) {
+        if (consejero == null) {
+            return new InformeFinalTutoria();
+        }
+        if (consejero.getId() == null) {
+            return new InformeFinalTutoria();
+        }
+        if (consejero.getColaborador().getPersona().equals(ds.getPersona())) {
+            InformeFinalTutoria informe = informeFinalTutoriaDAO.findByConsejeroCiclo(consejero, ciclo);
+            if (informe != null) {
+                return informe;
+            }
+        }
+        return new InformeFinalTutoria();
     }
 
     @Override
@@ -246,6 +289,106 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         }
 
         return mapCitas;
+    }
+
+    @Override
+    public List<PreguntaExamen> allPreguntasEncuesta(CicloAcademico ciclo) {
+        TipoExamenVirtual tipoEncuTutor = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_TUTOR);
+        List<EncuestaPublicada> publicaciones = encuestaPublicadaDAO.allByCicloTipo(ciclo, tipoEncuTutor);
+
+        if (publicaciones.isEmpty()) {
+            return new ArrayList();
+        }
+
+        ExamenVirtual encuesta = publicaciones.get(0).getExamenVirtual();
+        List<PreguntaExamen> preguntas = preguntaExamenDAO.allActivasByEncuesta(encuesta);
+
+        List<OpcionPregunta> opcionesAll = opcionPreguntaDAO.allByPreguntas(preguntas);
+        Map<Long, List<OpcionPregunta>> mapOpciones = opcionesAll.stream()
+                .collect(Collectors.groupingBy(opcion -> opcion.getPregunta().getId(), Collectors.toList()));
+
+        preguntas.forEach(pgta -> {
+            List<OpcionPregunta> opciones = mapOpciones.get(pgta.getId());
+            pgta.setOpcionesPregunta(opciones);
+        });
+
+        return preguntas;
+    }
+
+    @Override
+    public List<ResumenEncuestaTutoria> allDataEncuesta(Consejero consejero, List<PreguntaExamen> preguntas, CicloAcademico ciclo, DataSessionPivot ds) {
+        if (preguntas.isEmpty()) {
+            return new ArrayList();
+        }
+
+        List<AlumnoConsejero> tutorados = alumnoConsejeroDAO.allByConsejeroCiclo(consejero, ciclo);
+        List<Alumno> alumnos = tutorados.stream()
+                .map(tuto -> tuto.getAlumno())
+                .collect(Collectors.toList());
+
+        if (alumnos.isEmpty()) {
+            return new ArrayList();
+        }
+
+        ExamenVirtual encuesta = preguntas.get(0).getExamenVirtual();
+        List<OpcionPregunta> opciones = preguntas.get(0).getOpcionesPregunta();
+        List<RespuestaEncuesta> respuestas = respuestaEncuestaDAO.allByAlumnosEncuestaCiclo(alumnos, encuesta, ciclo);
+
+        Date fechaMax = respuestas.stream()
+                .map(rpta -> rpta.getAlumnoEncuesta().getFechaFin())
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+
+        Date fechaMin = respuestas.stream()
+                .map(rpta -> rpta.getAlumnoEncuesta().getFechaFin())
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+
+        List<Alumno> encuestados = respuestas.stream()
+                .map(rpta -> rpta.getAlumnoEncuesta().getAlumno())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<ResumenEncuestaTutoria> resumenes = new ArrayList();
+        for (PreguntaExamen pregunta : preguntas) {
+            ResumenEncuestaTutoria resumen = new ResumenEncuestaTutoria();
+
+            Map<String, BigDecimal> puntajes = new HashMap();
+            for (OpcionPregunta opcion : opciones) {
+                BigDecimal porcentaje = this.getPorcentaje(pregunta, opcion.getLetra(), respuestas, encuestados);
+                puntajes.put(opcion.getLetra(), porcentaje);
+            }
+
+            resumen.setDesde(fechaMin);
+            resumen.setHasta(fechaMax);
+            resumen.setEncuestados(encuestados.size());
+            resumen.setPregunta(pregunta);
+            resumen.setPuntajes(puntajes);
+            resumenes.add(resumen);
+        }
+
+        return resumenes;
+    }
+
+    private BigDecimal getPorcentaje(PreguntaExamen pregunta, String letra, List<RespuestaEncuesta> respuestas, List<Alumno> encuestados) {
+        if (encuestados.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        List<RespuestaEncuesta> seleccionadas = respuestas.stream()
+                .filter(rpta -> rpta.getOpcionRespuesta().getPregunta().getId().equals(pregunta.getId()))
+                .filter(rpta -> rpta.getOpcionRespuesta().getLetra().equals(letra))
+                .collect(Collectors.toList());
+
+        if (seleccionadas.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal totalEncuestados = new BigDecimal(encuestados.size());
+        BigDecimal respondones = new BigDecimal(seleccionadas.size());
+        BigDecimal porcentaje = respondones.multiply(CIEN).divide(totalEncuestados, 4, RoundingMode.HALF_UP);
+
+        return porcentaje;
     }
 
 }

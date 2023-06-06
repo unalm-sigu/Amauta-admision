@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -35,7 +34,6 @@ public class InformeFinalTutoriaController {
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final InformeFinalTutoriaService service;
-    private final PlanTutoriaService planTutoriaService;
     private final VerificadorService verificadorService;
 
     @RequestMapping("{idConsejero}/informefinal")
@@ -51,7 +49,8 @@ public class InformeFinalTutoriaController {
         model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("tienePermiso", service.tienePermiso(consejero, ciclo, ds));
-        model.addAttribute("esConsejero", service.verificarConsejero(ciclo, ds));
+        model.addAttribute("esConsejero", service.verificarConsejero(new Consejero(idConsejero), ciclo, ds));
+        model.addAttribute("esCoordinador", service.verificarCoordinador(new Consejero(idConsejero), ds));
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/consejeria/aconsejadostutor"));
 
@@ -138,6 +137,19 @@ public class InformeFinalTutoriaController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("aceptarInforme")
+    public JsonResponse aceptarInforme(@RequestBody InformeFinalTutoria informe, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.aceptarInforme(informe, ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se envió la respuesta al tutor");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
     private ObjectNode createConsejeroJson(Consejero consejero) {
         return JaneHelper
                 .from(consejero)
@@ -155,11 +167,14 @@ public class InformeFinalTutoriaController {
 
         ObjectNode node = JaneHelper
                 .from(informe)
-                .only("id,estado,estadoEnum,serie,numero,fecha,fechaEmision,dificultades,sugerencias,conclusiones,comentarioInforme")
+                .only("id,estado,estadoEnum,serie,numero,fecha,fechaEmision,fechaAceptacion,fechaModificacion")
+                .only("dificultades,sugerencias,conclusiones,observaciones,comentarioInforme")
                 .join("cicloAcademico", "id")
                 .join("carrera", "id")
                 .join("consejero", "id")
                 .join("tipoDocumento", "id")
+                .join("userAceptacion", "id")
+                .join("userAceptacion.persona", "nombreConTitulo")
                 .json();
 
         node.set("itemsInforme", itemsJson);

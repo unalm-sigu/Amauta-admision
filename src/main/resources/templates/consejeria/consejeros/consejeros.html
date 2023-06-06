@@ -184,7 +184,8 @@
 
                                                     <td class="v-middle text-center">
                                                         <a v-if="item.informe.id" v-bind:href="rutaInforme(item)">
-                                                            <i class="fa fa-file-text fa-3x pointer text-success" aria-hidden="true"></i>
+                                                            <i v-bind:class="classInforme(item.informe)" 
+                                                               class="fa fa-file-text fa-3x pointer" aria-hidden="true"></i>
                                                         </a>
                                                         <i v-else="" class="fa fa-file-text fa-3x" aria-hidden="true"></i>
                                                     </td>

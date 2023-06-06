@@ -19,13 +19,24 @@ public class InformeFinalTutoriaDAOH extends AbstractEasyDAO<InformeFinalTutoria
     }
 
     @Override
+    public InformeFinalTutoria find(long id) {
+        Octavia sql = Octavia.query()
+                .from(InformeFinalTutoria.class, "inf")
+                .join("consejero con", "cicloAcademico ci", "carrera ca", "tipoDocumento td")
+                .filter("inf.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public InformeFinalTutoria findActivoByConsejeroCiclo(Consejero consejero, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(InformeFinalTutoria.class, "inf")
                 .join("consejero con", "cicloAcademico ci", "carrera ca", "tipoDocumento td")
+                .leftJoin("userAceptacion uac", "uac.persona")
                 .filter("con.id", consejero)
                 .filter("ci.id", ciclo)
-                .filter("estado", EstadoEnum.ACT);
+                .filter("estado", "<>", EstadoEnum.PEN);
 
         return find(sql);
     }
@@ -43,13 +54,24 @@ public class InformeFinalTutoriaDAOH extends AbstractEasyDAO<InformeFinalTutoria
     }
 
     @Override
+    public InformeFinalTutoria findByConsejeroCiclo(Consejero consejero, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(InformeFinalTutoria.class, "inf")
+                .join("consejero con", "cicloAcademico ci", "carrera ca", "tipoDocumento td")
+                .filter("con.id", consejero)
+                .filter("ci.id", ciclo);
+
+        return find(sql);
+    }
+
+    @Override
     public List<InformeFinalTutoria> allActivosByConsejerosCiclo(List<Consejero> consejeros, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(InformeFinalTutoria.class, "inf")
                 .join("consejero con", "cicloAcademico ci", "carrera ca", "tipoDocumento td")
                 .in("con.id", consejeros)
                 .filter("ci.id", ciclo)
-                .filter("estado", EstadoEnum.ACT);
+                .filter("estado", "<>", EstadoEnum.PEN);
 
         return all(sql);
     }

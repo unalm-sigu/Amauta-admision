@@ -11,7 +11,9 @@ public interface InformeFinalTutoriaService {
 
     Boolean tienePermiso(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
 
-    Boolean verificarConsejero(CicloAcademico ciclo, DataSessionPivot ds);
+    Boolean verificarConsejero(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
+
+    Boolean verificarCoordinador(Consejero consejero, DataSessionPivot ds);
 
     InformeFinalTutoria findInforme(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
 
@@ -24,5 +26,7 @@ public interface InformeFinalTutoriaService {
     void conclusionesInforme(InformeFinalTutoria informe, CicloAcademico ciclo, DataSessionPivot ds);
 
     void enviarInforme(InformeFinalTutoria informe, CicloAcademico ciclo, DataSessionPivot ds);
+
+    void aceptarInforme(InformeFinalTutoria informe, CicloAcademico ciclo, DataSessionPivot ds);
 
 }

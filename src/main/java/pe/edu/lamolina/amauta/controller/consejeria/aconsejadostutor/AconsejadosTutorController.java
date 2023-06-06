@@ -3,6 +3,8 @@ package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ReporteAconsejadosTutorExcelView;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ResumenEncuestaTutoria;
 import pe.edu.lamolina.amauta.controller.matricula.tutorsolicitud.TutorSolicitudService;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
@@ -42,9 +45,13 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import static pe.edu.lamolina.model.enums.consejeria.TipoCualidadAlumnoEnum.CARACTERISTICA;
 import static pe.edu.lamolina.model.enums.consejeria.TipoCualidadAlumnoEnum.MAPA_EMPATIA;
+import pe.edu.lamolina.model.examen.ExamenVirtual;
+import pe.edu.lamolina.model.examen.OpcionPregunta;
+import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tutoria.AlumnoCualidad;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
+import pe.edu.lamolina.model.tutoria.InformeFinalTutoria;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
 
 @Slf4j
@@ -64,11 +71,13 @@ public class AconsejadosTutorController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
+        InformeFinalTutoria informe = service.findInforme(consejero, ds.getCicloAcademico(), ds);
 
         model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
         model.addAttribute("personaJson", this.createPersonaJson(ds.getPersona()));
         model.addAttribute("departamentoJson", this.createDepartamentoJson(ds.getDepartamentoAcademico()));
         model.addAttribute("cicloJson", this.createCicloJson(ds.getCicloAcademico()));
+        model.addAttribute("informeJson", this.createInformeJson(informe));
         model.addAttribute("rutaModulo", rutaModulo);
 
         return "consejeria/aconsejadostutor/aconsejadosTutor";
@@ -370,6 +379,81 @@ public class AconsejadosTutorController {
         return GlobalMessages.UPDATED;
     }
 
+    @ResponseBody
+    @RequestMapping("allDataEncu")
+    public JsonResponse allDataEncu(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<OpcionPregunta> opciones = new ArrayList();
+        ExamenVirtual encuesta = new ExamenVirtual();
+
+        Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
+        List<PreguntaExamen> preguntas = service.allPreguntasEncuesta(ds.getCicloAcademico());
+        List<ResumenEncuestaTutoria> resumenes = service.allDataEncuesta(consejero, preguntas, ds.getCicloAcademico(), ds);
+
+        if (!preguntas.isEmpty()) {
+            opciones = preguntas.get(0).getOpcionesPregunta();
+            encuesta = preguntas.get(0).getExamenVirtual();
+        }
+
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        node.set("preguntas", this.createPreguntasJson(preguntas));
+        node.set("opciones", this.createOpcionesJson(opciones));
+        node.set("encuesta", this.createEncuestaJson(encuesta));
+        node.set("respuestas", this.createRespuestaJson(resumenes));
+
+        JsonResponse json = new JsonResponse();
+        json.setData(node);
+        json.setSuccess(true);
+
+        return json;
+    }
+
+    private ArrayNode createRespuestaJson(List<ResumenEncuestaTutoria> resumenes) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (ResumenEncuestaTutoria resumen : resumenes) {
+            ObjectNode node = JaneHelper
+                    .from(resumen)
+                    .join("pregunta", "id,numero,texto")
+                    .json();
+
+            ArrayNode rptas = new ArrayNode(JsonNodeFactory.instance);
+            Map<String, BigDecimal> puntajes = resumen.getPuntajes();
+            for (Map.Entry<String, BigDecimal> puntaje : puntajes.entrySet()) {
+                ObjectNode nodeRpta = new ObjectNode(JsonNodeFactory.instance);
+                nodeRpta.put(puntaje.getKey(), puntaje.getValue());
+                rptas.add(nodeRpta);
+            }
+
+            node.set("puntajes", rptas);
+            array.add(node);
+        }
+
+        return array;
+    }
+
+    private ObjectNode createEncuestaJson(ExamenVirtual encuesta) {
+        return JaneHelper
+                .from(encuesta)
+                .only("id,nombre,codigo,estado")
+                .json();
+    }
+
+    private ArrayNode createPreguntasJson(List<PreguntaExamen> preguntas) {
+        return JaneHelper
+                .from(preguntas)
+                .only("id,estado,tipo,numero,texto")
+                .join("examenVirtual", "codigo,nombre")
+                .array();
+    }
+
+    private ArrayNode createOpcionesJson(List<OpcionPregunta> opciones) {
+        return JaneHelper
+                .from(opciones)
+                .only("id,numero,letra,contenido")
+                .array();
+    }
+
     private ObjectNode createConsejeroJson(Consejero consejero) {
         return JaneHelper
                 .from(consejero)
@@ -399,6 +483,13 @@ public class AconsejadosTutorController {
         return JaneHelper
                 .from(ciclo)
                 .only("id,descripcion,descripcion2")
+                .json();
+    }
+
+    private ObjectNode createInformeJson(InformeFinalTutoria informe) {
+        return JaneHelper
+                .from(informe)
+                .only("id,estado,comentarioInforme")
                 .json();
     }
 

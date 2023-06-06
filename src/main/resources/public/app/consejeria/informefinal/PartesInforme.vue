@@ -2,7 +2,7 @@
     <div>
         <div class="col-md-10">
             <div class="pull-right m-b-sm m-t-sm">
-                <button v-if="esConsejero && informe.estado == 'PEN' "
+                <button v-if="esConsejero && ['PEN','OBS'].includes(informe.estado) "
                         v-on:click="calcularCantidades" class="btn btn-primary">
                     Calcular cantidades
                 </button>
@@ -54,6 +54,9 @@
             };
         },
         methods: {
+            iniciar() {
+                
+            },
             calcularCantidades() {
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirm,
@@ -70,17 +73,29 @@
                 });
 
                 this.$refs.modalConfirm.open(config);
-
-
             },
-            getModal() {
-                return this.$refs.modalEditarCita;
+            validar() {
+                if (this.informe.itemsInforme.length === 0) {
+                    notify("No hay actividades que cuantificar", "error");
+                    return false;
+                }
+
+                let cantidad = 0;
+                for (let idx in this.informe.itemsInforme) {
+                    let item = this.informe.itemsInforme[idx];
+                    if (item.cantidad != "" && !isNaN(item.cantidad)) {
+                        cantidad += parseInt(item.cantidad);
+                    }
+                }
+
+                if (cantidad == 0) {
+                    notify("Debe ejecutar el cálculo de actividades de la tutoría", "error");
+                }
+
+                return cantidad > 0;
             },
 
             // metodos genericos
-            getListIds(list) {
-                return list.map(item => item.id).join(',');
-            },
             getObjectId: myUtils.getObjectId,
             getObjectName: myUtils.getObjectName,
             commas: myUtils.commas
