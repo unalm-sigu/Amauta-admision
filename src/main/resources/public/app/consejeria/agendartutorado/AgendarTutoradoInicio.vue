@@ -110,10 +110,15 @@
                                             <div>{{item.fechaRegistro.split(' ')[1]}}</div>
                                         </td>
                                         <td class="v-middle text-center">
-                                            <span v-bind:class="classEstado(item)" class="label">{{item.estadoEnum.value}}</span>
+                                            <div class="block">
+                                                <span v-bind:class="classEstado(item)" class="label">{{item.estadoEnum.value}}</span>
+                                            </div>
 
                                             <template v-if="item.motivoPostergacion">
                                                 <i v-on:click="verMotivo(item)" class="fa fa-comments fa-lg pointer m-t-sm" aria-hidden="true"></i>
+                                            </template>
+                                            <template v-if="item.conclusiones">
+                                                <i v-on:click="verConclusiones(item)" class="fa fa-comments fa-lg pointer m-t-sm" aria-hidden="true"></i>
                                             </template>
                                         </td>
 
@@ -252,7 +257,16 @@
             verMotivo(item) {
                 let info = '<h3 class="m-b">Motivo de la postegación</h3>';
                 info += `<p>${item.motivoPostergacion}</p>`;
-                
+
+                this.$refs.modalInfo.open({
+                    id: this.idModalInfo,
+                    message: info
+                });
+            },
+            verConclusiones(item) {
+                let info = '<h3 class="m-b">Comentarios de la cita</h3>';
+                info += `<p>${item.conclusiones}</p>`;
+
                 this.$refs.modalInfo.open({
                     id: this.idModalInfo,
                     message: info
