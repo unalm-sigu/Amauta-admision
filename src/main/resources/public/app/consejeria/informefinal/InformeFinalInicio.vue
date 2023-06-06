@@ -70,7 +70,7 @@
                                     </div>
                                 </template>
 
-                                <div v-if="esCoordinador && informe.estado == 'OBS' " class="row">
+                                <div v-if="(esCoordinador || esConsejero) && informe.estado == 'OBS' " class="row">
                                     <div class="col-md-6">
                                         <div class="alert alert-danger m-t">
                                             <h4>Observaciones:</h4>
