@@ -82,6 +82,11 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div v-if="['REALIZADA','NO_ASISTIO'].includes(citaNueva.estado) " class="form-group">
+                        <label> Comentarios de la cita (opcional)</label>
+                        <textarea v-model="citaNueva.conclusiones" class="form-control" rows="4"></textarea>
+                    </div>
 
                 </template>
             </form>

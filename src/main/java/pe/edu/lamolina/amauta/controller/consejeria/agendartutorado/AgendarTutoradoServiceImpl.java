@@ -297,6 +297,7 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         Assert.isTrue(estados.contains(citaForm.getEstadoEnum()), "No ha indicado si asistió o no a la cita");
 
         cita.setEstadoEnum(citaForm.getEstadoEnum());
+        cita.setConclusiones(citaForm.getConclusiones());
         cita.setUserModificacion(ds.getUsuario());
         cita.setFechaModificacion(today.toDate());
         citaConsejeroAlumnoDAO.update(cita);

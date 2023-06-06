@@ -9,11 +9,14 @@
                         Editar
                     </div>
                 </div>
-                <div class="col-md-11">
+                <div class="col-md-1">
                     <label class="switch">
                         <input type="checkbox" v-model="editar" v-on:change="changeEditar" />
                         <span></span>
                     </label>
+                </div>
+                <div class="col-md-3">
+                    <span v-if="editar" class="text-danger bold">Máximo 100 objetivos</span>
                 </div>
             </div>
 
@@ -34,7 +37,9 @@
                             <td>{{item.codigo}}</td>
                             <td>
                                 <template v-if="editar">
-                                    <input v-model="item.necesidad" type="text" class="form-control" required="yes"/>
+                                    <textarea v-model="item.necesidad" 
+                                              v-bind:id="'necesidad-'+index"
+                                              v-on:keyup="resize(1,'necesidad-'+index)" class="form-control" required="yes"></textarea>
                                 </template>
                                 <template v-else="">
                                     {{item.necesidad}}
@@ -42,7 +47,9 @@
                             </td>
                             <td>
                                 <template v-if="editar">
-                                    <input v-model="item.objetivo" type="text" class="form-control" required="yes"/>
+                                    <textarea v-model="item.objetivo" 
+                                              v-bind:id="'objetivo-'+index"
+                                              v-on:keyup="resize(1,'objetivo-'+index)" class="form-control" required="yes"></textarea>
                                 </template>
                                 <template v-else="">
                                     {{item.objetivo}}
@@ -50,7 +57,9 @@
                             </td>
                             <td>
                                 <template v-if="editar">
-                                    <input v-model="item.estrategiaTutorial" type="text" class="form-control"/>
+                                    <textarea v-model="item.estrategiaTutorial" 
+                                              v-bind:id="'estrategiaTutorial-'+index"
+                                              v-on:keyup="resize(1,'estrategiaTutorial-'+index)" class="form-control"></textarea>
                                 </template>
                                 <template v-else="">
                                     {{item.estrategiaTutorial}}
@@ -58,7 +67,9 @@
                             </td>
                             <td>
                                 <template v-if="editar">
-                                    <input v-model="item.accionesImplicadas" type="text" class="form-control"/>
+                                    <textarea v-model="item.accionesImplicadas" 
+                                              v-bind:id="'accionesImplicadas-'+index"
+                                              v-on:keyup="resize(1,'accionesImplicadas-'+index)" class="form-control"></textarea>
                                 </template>
                                 <template v-else="">
                                     {{item.accionesImplicadas}}
@@ -126,6 +137,7 @@
         methods: {
             loadPlanesTutoria() {
                 console.log("loadPlanesTutoria tiempo=", new Date().getTime())
+                
                 myUtils.axios(VUE_AXIOS.structGetData({
                     url: `/${rutaModulo}/allPlanesTutoria`,
                     body: {id: this.alumno.id}
@@ -135,6 +147,13 @@
                 setTimeout(() => {
                     if (!this.editar) {
                         this.loadPlanesTutoria();
+                    } else {
+                        for (let idx in this.planes) {
+                            this.resize(1, 'necesidad-' + idx);
+                            this.resize(1, 'objetivo-' + idx);
+                            this.resize(1, 'estrategiaTutorial-' + idx);
+                            this.resize(1, 'accionesImplicadas-' + idx);
+                        }
                     }
                 }, 400);
             },
@@ -146,6 +165,7 @@
             },
             saveDatos() {
                 console.log("saveDatos tiempo=", new Date().getTime())
+                
                 let form = $("#" + this.form);
                 if (!form.parsley().validate()) {
                     return;
@@ -191,6 +211,20 @@
                 });
 
                 this.$refs.modalConfirm.open(config);
+            },
+            resize(min, id) {
+                const texta = $("#" + id);
+                texta.prop("rows", min);
+
+                const scroll = texta.prop("scrollHeight");
+                const rows = Math.ceil(scroll / 23);
+
+                let rowsFinal = rows;
+                if (rows < min) {
+                    rowsFinal = min;
+                }
+
+                texta.prop("rows", rowsFinal);
             },
 
             // metodos genericos
