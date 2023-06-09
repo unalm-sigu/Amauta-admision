@@ -34,6 +34,17 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
     }
 
     @Override
+    public List<Inventario> allByDynatable(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Inventario.class, "inv")
+                .join("almacen al", "al.aula au", "producto pro","oficinaGestora off")
+                .searchFields("inv.comentario","au.nombre", "inv.codigo", "pro.nombre", "pro.codigo")
+                .filter("off.id", ID_OFICINA_OERA)
+                .orderBy("au.nombre asc");
+        return all(sql);
+    }
+
+    @Override
     public List<Inventario> allById(List<Inventario> inventarios) {
         Octavia sql = Octavia.query()
                 .from(Inventario.class, "inv")
@@ -51,6 +62,17 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
                 .filter("al.id", almacen)
                 .filter("off.id", ID_OFICINA_OERA);
         return all(sql);
+    }
+
+    @Override
+    public Inventario findLastCodeInventarioByOficina() {
+        Octavia sql = Octavia.query()
+                .from(Inventario.class,"inv")
+                .join("oficinaGestora off")
+                .filter("off.id",ID_OFICINA_OERA)
+                .orderBy("inv.id desc")
+                .limit(1);
+        return find(sql);
     }
 
 }

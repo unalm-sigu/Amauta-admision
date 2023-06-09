@@ -166,20 +166,28 @@
                                             </div>
 
 
-                                            <div v-if="!isindividual" class="col-sm-4">
+<!--                                            <div v-if="!isindividual" class="col-sm-4">-->
+<!--                                                <div class="form-group">-->
+<!--                                                    <label>Código</label>-->
+<!--                                                    <input type="text"-->
+<!--                                                           class="form-control"-->
+<!--                                                           name="codigo"-->
+<!--                                                           required="true"-->
+<!--                                                           v-model="inventario.codigo"-->
+<!--                                                    />-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+                                            <div v-if="!isindividual"  class="col-sm-4">
                                                 <div class="form-group">
-                                                    <label>Código</label>
+                                                    <label>Inventario</label>
                                                     <input type="text"
                                                            class="form-control"
-                                                           name="codigo"
-                                                           required="true"
-                                                           v-model="inventario.codigo"
+                                                           name='numeroInventario'
+                                                           v-model="inventario.numeroInventario"
                                                     />
                                                 </div>
                                             </div>
-
-
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-2">
                                                 <div class="form-group">
                                                     <label>Marca</label>
                                                     <input type="text"
@@ -189,6 +197,7 @@
                                                     />
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -500,8 +509,9 @@
                             <table class="table table-striped table-hover">
                                 <thead>
                                 <tr>
-                                    <th class="col-sm-5 v-middle">Artículo</th>
-                                    <th class="col-sm-3 v-middle">Número</th>
+                                    <th class="col-sm-3 v-middle">Artículo</th>
+                                    <th class="col-sm-3 v-middle">Codigo</th>
+                                    <th class="col-sm-2">Inventario</th>
                                     <th class="col-sm-3 v-middle">Característica</th>
                                     <th class="col-sm-1 text-center v-middle">Condicíon</th>
                                     <th></th>
@@ -516,18 +526,21 @@
                                     </td>
 
                                     <td class="v-middle">
-                                        <input type="text"
-                                               ref="editable"
-                                               v-on:change="nextEditable(item)"
-                                               v-if="verTablaEditable"
-                                               class="form-control"
-                                               v-model="item.codigo"/>
-                                        <p v-if="!verTablaEditable">{{ item.codigo }}</p>
+                                        <p>{{ item.codigo }}</p>
                                     </td>
                                     <!--                                                <td class="v-middle">-->
                                     <!--                                                    <input type="text" v-if="verTablaEditable" v-model="item.codigo"/>-->
                                     <!--                                                    <p v-if="!verTablaEditable">{{item.codigo}}</p>-->
                                     <!--                                                </td>-->
+                                    <td class="v-middle">
+                                        <input type="text"
+                                               ref="editable"
+                                               v-on:change="nextEditable(item)"
+                                               v-if="verTablaEditable"
+                                               class="form-control"
+                                               v-model="item.numeroInventario"/>
+                                        <p v-if="!verTablaEditable">{{ item.numeroInventario }}</p>
+                                    </td>
 
                                     <td class="v-middle">
                                         <p v-if="item.marca" class="block text-sm"><b>Marca : </b>{{ item.marca }}</p>
