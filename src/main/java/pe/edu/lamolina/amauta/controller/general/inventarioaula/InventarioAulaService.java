@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.InventarioTraslado;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface InventarioAulaService {
@@ -13,6 +14,8 @@ public interface InventarioAulaService {
     Aula findAula(Long idaula);
 
     List<Inventario> allByDynatable(DynatableFilter filter, Aula aula);
+    List<Inventario> allByDynatable(DynatableFilter filter);
+    List<Aula> allAulas();
 
     void update(Inventario inventario, Usuario user);
 
@@ -31,5 +34,9 @@ public interface InventarioAulaService {
     void updateResumen(ResumenInventario resumen);
 
     void updateInventarioCode(List<Inventario> inventarios, Usuario user);
+
+    void saveTrasladoInventario(InventarioTraslado inventarioTraslado, Usuario user);
+
+    List<InventarioTraslado> productosTraslado(Integer id);
 
 }

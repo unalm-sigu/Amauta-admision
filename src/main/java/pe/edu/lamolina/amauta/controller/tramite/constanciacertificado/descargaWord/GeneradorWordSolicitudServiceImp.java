@@ -98,6 +98,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NIVEL_ACADEMICO;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
@@ -497,6 +498,14 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case NIVEL_ACADEMICO:
                             text = text.replace(enums.getValue(), getNivelUltimoCicloRegular(alumnoCiclos.get(idx)) + "");
                             break;
+                        case CICLO_ACADEMICO:
+                            MatriculaResumen matriResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademicoAct);
+                            if (matriResumen == null) {
+                                throw new PhobosException("El alumno con matricula " + alumno.getCodigo() + " no esta matriculado en el ciclo " + cicloAcademicoAct.getDescripcion());
+                            }
+                            text = text.replace(enums.getValue(), cicloAcademicoAct.getDescripcion());
+                            break;
+
                         case CICLO_MATRICULA:
                             if (alumnoCiclos.get(idx).getCicloAcademico().getCodigo().equals(cicloAcademicoAct.getCodigo())) {
                                 if (isEspanol) {

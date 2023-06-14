@@ -17,6 +17,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.general.InventarioTrasladoDAO;
 import pe.edu.lamolina.model.almacen.Almacen;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
@@ -25,9 +26,7 @@ import pe.edu.lamolina.model.almacen.TipoProducto;
 import pe.edu.lamolina.model.enums.CodigoTipoProductoEnum;
 import pe.edu.lamolina.model.enums.EstadoInventarioEnum;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
-import pe.edu.lamolina.model.general.Archivo;
-import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.model.general.UnidadMedida;
+import pe.edu.lamolina.model.general.*;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.almacen.AlmacenDAO;
 import pe.edu.lamolina.amauta.dao.almacen.InventarioDAO;
@@ -39,7 +38,6 @@ import pe.edu.lamolina.amauta.dao.general.AulaDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.ID_OFICINA_OERA;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.general.Oficina;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,6 +57,9 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
 
     @Autowired
     ResumenInventarioDAO resumenInventarioDAO;
+
+    @Autowired
+    InventarioTrasladoDAO inventarioTrasladoDAO;
 
     @Autowired
     AlmacenDAO almacenDAO;
@@ -92,6 +93,28 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     }
 
     @Override
+    public List<Inventario> allByDynatable(DynatableFilter filter) {
+        List<Inventario> inventarios=inventarioDAO.allByDynatable(filter);
+        List<Long> idInventarios = inventarios.stream().map(x -> x.getId()).collect(Collectors.toList());
+        List<Archivo> archivos = archivoDAO.allByInstanciasTipoInstancia(idInventarios, InstanciaEnum.INVENTARIO);
+        Map<Long, Archivo> archivosMap = TypesUtil.convertListToMap("idInstancia", archivos);
+        for (Inventario inventarioo : inventarios) {
+            Archivo archivo = archivosMap.get(inventarioo.getId());
+            if (archivo != null) {
+                inventarioo.setImagen(archivo.getRuta());
+            }
+        }
+        return inventarios;
+    }
+
+
+    @Override
+    public List<Aula> allAulas() {
+        List<Aula> aulas=aulaDAO.allAulas();
+        return aulas;
+    }
+
+    @Override
     @Transactional
     public void update(Inventario inventario, Usuario user) {
 
@@ -99,7 +122,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         if (inventarioDb == null) {
             throw new PhobosException("Inventario eliminado o no existe");
         }else {
-            inventarioDb.setCodigo(inventario.getCodigo().trim());
+//            inventarioDb.setCodigo(inventario.getCodigo().trim());
             inventarioDb.setFechaRegistro(new Date());
             inventarioDb.setUserRegistro(user);
             inventarioDb.setMarca(inventario.getMarca());
@@ -111,6 +134,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioDb.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
             inventarioDb.setVidaUtil(inventario.getVidaUtil());
             //inventarioDb.setDetalleOrdenCompra(inventario.getDetalleOrdenCompra());
+            inventarioDb.setNumeroInventario(inventario.getNumeroInventario().trim());
             inventarioDb.setComentario(inventario.getComentario());
             inventarioDb.setMaterial(inventario.getMaterial());
             inventarioDb.setLargo(inventario.getLargo());
@@ -171,8 +195,19 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             almacen.setFechaRegistro(new Date());
             almacenDAO.save(almacen);
         }
+        Inventario last = inventarioDAO.findLastCodeInventarioByOficina();
+        if (last == null) {
+            inventario.setCodigo("DERA000001");
+        } else {
+            int i = Integer.parseInt(last.getCodigo().substring(4, 10));
+            i++;
+            String full = String.format("%06d", i);
+            inventario.setCodigo("DERA" + full);
+        }
+
         inventario.setAlmacen(almacen);
-        inventario.setCodigo(inventario.getCodigo().trim());
+//        inventario.setCodigo(inventario.getCodigo().trim());
+        inventario.setNumeroInventario(inventario.getNumeroInventario().trim());
         inventario.setFechaRegistro(new Date());
         inventario.setUserRegistro(user);
         inventario.setEstadoEnum(EstadoInventarioEnum.DISP);
@@ -266,6 +301,16 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioNew.setComentario(inventario.getComentario());
             inventarioNew.setOficinaGestora(new Oficina(ID_OFICINA_OERA));
 
+            Inventario last = inventarioDAO.findLastCodeInventarioByOficina();
+            if (last == null) {
+                inventarioNew.setCodigo("DERA000001");
+            } else {
+                int m = Integer.parseInt(last.getCodigo().substring(4, 10));
+                m++;
+                String full = String.format("%06d", m);
+                inventarioNew.setCodigo("DERA" + full);
+            }
+
             inventarioDAO.save(inventarioNew);
             resumen.setCantidad((resumen.getCantidad() + 1));
         }
@@ -291,7 +336,13 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
                 resumenInventarioDAO.update(resumen);
             }
         }
-        inventarioDAO.delete(inventarioDb);
+        List<InventarioTraslado> inventarioTraslado=inventarioTrasladoDAO.allByInventario(inventario);
+        if (inventarioTraslado.size() > 0) {
+            throw new PhobosException("No se puede eliminar el producto, cuenta con traslado, comuniquese con el area de soporte");
+        }else{
+            inventarioDAO.delete(inventarioDb);
+        }
+
     }
 
     @Override
@@ -375,9 +426,128 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         Map<Long, Inventario> inventariosDbMap = TypesUtil.convertListToMap("id", inventariosDb);
         for (Inventario inventario : inventariosFilter) {
             Inventario inventarioDb = inventariosDbMap.get(inventario.getId());
-            inventarioDb.setCodigo(inventario.getCodigo());
+            inventarioDb.setNumeroInventario(inventario.getNumeroInventario());
             inventarioDAO.update(inventarioDb);
         }
     }
+
+    @Override
+    @Transactional
+    public void saveTrasladoInventario(InventarioTraslado inventarioTraslado, Usuario user) {
+
+        Almacen almAulaInicio = almacenDAO.findByAula(inventarioTraslado.getAulaInicio());
+        List<Inventario> inventariosAlmAulaInicio = inventarioDAO.findByAlmacen(almAulaInicio);
+        Almacen almAulaFin = almacenDAO.findByAula(inventarioTraslado.getAulaFin());
+
+        if (inventariosAlmAulaInicio.size() == 1 && almAulaFin == null) {
+        //if (inventarioAuInicialUnoAulaFinVacio(inventariosAlmAulaInicio.size(), almAulaFin)) {
+            almAulaInicio.setAula(inventarioTraslado.getAulaFin());
+            almAulaInicio.setUserRegistro(user);
+            almAulaInicio.setFechaRegistro(new Date());
+            almacenDAO.update(almAulaInicio);
+
+            ResumenInventario  resumenInventario= resumenInventarioDAO.findByAlmacenProducto(almAulaInicio,inventariosAlmAulaInicio.get(0).getProducto());
+            resumenInventario.setAlmacen(almAulaInicio);
+            resumenInventarioDAO.update(resumenInventario);
+
+        } else if (inventariosAlmAulaInicio.size() > 1 && almAulaFin == null) {
+            Almacen almacenNew = new Almacen();
+            almacenNew.setAula(inventarioTraslado.getAulaFin());
+            almacenNew.setUserRegistro(user);
+            almacenNew.setFechaRegistro(new Date());
+            almacenDAO.save(almacenNew);
+
+            Inventario inventarioAulaFinNew = inventarioDAO.find(inventarioTraslado.getInventario().getId());
+            inventarioAulaFinNew.setAlmacen(almacenNew);
+            inventarioDAO.update(inventarioAulaFinNew);
+
+            ResumenInventario  resumenInventarioAulaInicial= resumenInventarioDAO.findByAlmacenProducto(almAulaInicio,inventarioAulaFinNew.getProducto());
+            if(resumenInventarioAulaInicial.getCantidad() > 1){
+                resumenInventarioAulaInicial.setCantidad(resumenInventarioAulaInicial.getCantidad() - 1);
+                resumenInventarioDAO.update(resumenInventarioAulaInicial);
+
+                ResumenInventario resInventarioAulaFinNew=new ResumenInventario();
+                resInventarioAulaFinNew.setAlmacen(almacenNew);
+                resInventarioAulaFinNew.setProducto(inventarioAulaFinNew.getProducto());
+                resInventarioAulaFinNew.setCantidad(1);
+                resInventarioAulaFinNew.setVisibleReporteParcial(0);
+                resumenInventarioDAO.save(resInventarioAulaFinNew);
+            }else{
+                resumenInventarioAulaInicial.setAlmacen(almAulaInicio);
+                resumenInventarioDAO.update(resumenInventarioAulaInicial);
+            }
+
+        } else if (inventariosAlmAulaInicio.size() > 1 && almAulaFin != null) {
+            Inventario inventarioUpdFin = inventarioDAO.find(inventarioTraslado.getInventario().getId());
+            inventarioUpdFin.setAlmacen(almAulaFin);
+            inventarioDAO.update(inventarioUpdFin);
+
+            ResumenInventario resumenInventarioAI = resumenInventarioDAO.findByAlmacenProducto(almAulaInicio,inventarioUpdFin.getProducto());//por rogelio
+            ResumenInventario resumenInventarioAF = resumenInventarioDAO.findByAlmacenProducto(almAulaFin,inventarioUpdFin.getProducto());
+            if(resumenInventarioAI.getCantidad() > 1){
+                resumenInventarioAI.setCantidad(resumenInventarioAI.getCantidad() - 1);
+                resumenInventarioDAO.update(resumenInventarioAI);
+
+                if(resumenInventarioAF != null){
+                    resumenInventarioAF.setCantidad(resumenInventarioAF.getCantidad() + 1);
+                    resumenInventarioDAO.update(resumenInventarioAF);
+                }else{
+                    ResumenInventario resumenInventarioFin = new ResumenInventario();
+                    resumenInventarioFin.setProducto(inventarioUpdFin.getProducto());
+                    resumenInventarioFin.setAlmacen(inventarioUpdFin.getAlmacen());
+                    resumenInventarioFin.setCantidad(1);
+                    resumenInventarioFin.setVisibleReporteParcial(0);
+                    resumenInventarioDAO.save(resumenInventarioFin);
+                }
+
+            }else{//si es igual a 1
+                resumenInventarioDAO.delete(resumenInventarioAI);
+
+                if(resumenInventarioAF != null){
+                    resumenInventarioAF.setCantidad(resumenInventarioAF.getCantidad() + 1);
+                    resumenInventarioDAO.update(resumenInventarioAF);
+                }else{
+                    ResumenInventario resumenInventarioFin = new ResumenInventario();
+                    resumenInventarioFin.setProducto(inventarioUpdFin.getProducto());
+                    resumenInventarioFin.setAlmacen(inventarioUpdFin.getAlmacen());
+                    resumenInventarioFin.setCantidad(1);
+                    resumenInventarioFin.setVisibleReporteParcial(0);
+                    resumenInventarioDAO.save(resumenInventarioFin);
+                }
+            }
+
+
+        } else if (inventariosAlmAulaInicio.size() == 1 && almAulaFin != null) {
+            Inventario inventarioUpd = inventarioDAO.find(inventarioTraslado.getInventario().getId());
+            inventarioUpd.setAlmacen(almAulaFin);
+            inventarioDAO.update(inventarioUpd);
+
+            ResumenInventario resumenInventario = resumenInventarioDAO.findByAlmacenProducto(almAulaInicio,inventarioUpd.getProducto());
+            ResumenInventario resumenInventarioAF = resumenInventarioDAO.findByAlmacenProducto(almAulaFin,inventarioUpd.getProducto());
+            if(resumenInventario != null){
+                resumenInventarioDAO.delete(resumenInventario);
+                resumenInventarioAF.setCantidad(resumenInventarioAF.getCantidad() + 1);
+                resumenInventarioDAO.update(resumenInventarioAF);
+            }
+            almacenDAO.delete(almAulaInicio);
+        }
+
+        InventarioTraslado inventarioTrasladoNew = new InventarioTraslado();
+        inventarioTrasladoNew.setMotivo(inventarioTraslado.getMotivo());
+        inventarioTrasladoNew.setFechaRegistro(new Date());
+        inventarioTrasladoNew.setUserRegistro(user);
+        inventarioTrasladoNew.setInventario(inventarioTraslado.getInventario());
+        inventarioTrasladoNew.setAulaInicio(inventarioTraslado.getAulaInicio());
+        inventarioTrasladoNew.setAulaFin(inventarioTraslado.getAulaFin());
+        inventarioTrasladoDAO.save(inventarioTrasladoNew);
+
+    }
+
+    @Override
+    public List<InventarioTraslado> productosTraslado(Integer id) {
+        List<InventarioTraslado> productosTraslado=inventarioTrasladoDAO.allTrasladosProducto(id);
+        return productosTraslado;
+    }
+
 
 }

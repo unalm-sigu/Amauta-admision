@@ -695,8 +695,7 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     private Boolean validarDptoModalidad(Docente docenteBDD, Docente docenteForm) {
-
-        if (docenteBDD.getDepartamentoAcademico().getId() == docenteForm.getDepartamentoAcademico().getId().longValue()
+        if (docenteBDD != null && docenteBDD.getDepartamentoAcademico().getId() == docenteForm.getDepartamentoAcademico().getId().longValue()
                 && docenteBDD.getModalidadEstudio().getId() == docenteForm.getModalidadEstudio().getId().longValue()) {
             return Boolean.FALSE;
         }

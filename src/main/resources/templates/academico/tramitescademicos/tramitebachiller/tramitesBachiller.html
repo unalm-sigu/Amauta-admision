@@ -22,15 +22,15 @@
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
-                                        <tr>
-                                            <th class="col-xs-3">Trámite</th>
-                                            <th class="col-xs-2">Persona</th>
-                                            <th class="col-xs-2">Resolución</th>
-                                            <th class="col-xs-2">Registrado</th>
-                                            <th class="col-xs-2">Anulado</th>
-                                            <th class="col-xs-1">Estado</th>
-                                            <th></th>
-                                        </tr>
+                                            <tr>
+                                                <th class="col-xs-3">Trámite</th>
+                                                <th class="col-xs-2">Persona</th>
+                                                <th class="col-xs-2">Resolución</th>
+                                                <th class="col-xs-2">Registrado</th>
+                                                <th class="col-xs-2">Anulado</th>
+                                                <th class="col-xs-1">Estado</th>
+                                                <th></th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data"> 
@@ -67,12 +67,12 @@
                                                 </td>
 
                                                 <td class="v-middle text-left">
-                                                    <span class="block bold" v-if="item.tramite.estado == 'ANU'"> Motivo </span>
-                                                    <span class="block" v-if="item.tramite.estado == 'ANU'"> {{item.motivo}} </span>
-                                                    <small class="block text-muted" v-if="item.tramite.estado == 'ANU'">
+                                                    <span class="block bold" v-if="validarTramiteAnular(item)"> Motivo </span>
+                                                    <span class="block" v-if="validarTramiteAnular(item)"> {{item.motivo}} </span>
+                                                    <small class="block text-muted" v-if="validarTramiteAnular(item)">
                                                         <b>{{item.usuarioAnulaTramite.persona.apellidosNombres}}</b>
                                                     </small>
-                                                    <small class="block text-muted" v-if="item.tramite.estado == 'ANU'">
+                                                    <small class="block text-muted" v-if="validarTramiteAnular(item)">
                                                         <b>{{item.fechaAnulacion}}</b>
                                                     </small>
                                                 </td>

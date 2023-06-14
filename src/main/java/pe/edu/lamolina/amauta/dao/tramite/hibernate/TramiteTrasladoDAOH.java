@@ -188,4 +188,16 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         return all(sql);
     }
 
+    @Override
+    public List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(TramiteTraslado.class, "tras")
+                .join("tramite tra", "tra.alumno al")
+                .left("carrera carF", "carreraOrigen carO")
+                .left("resolucion res")
+                .filter("tras.tipoTraslado", TipoTramiteTrasladoEnum.TRAS_INT)
+                .filter("al.id", alumno)
+                .orderBy("tras.id desc");
+        return all(sql);
+    }
 }

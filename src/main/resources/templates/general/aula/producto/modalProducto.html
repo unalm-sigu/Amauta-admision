@@ -1,0 +1,32 @@
+<modal-vik ref="modalTraslados" v-bind="modalTraslados">
+    <div slot="body" id="modalTraslados" data-parsley-validate="true">
+        <p>
+            Inventario
+        </p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-md-3">Aula Inicial</th>
+                    <th class="col-md-3">Aula Final</th>
+                    <th>Fecha</th>
+                    <th>Motivo</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in traslados">
+                    <td class="capitalize">{{item.aulaInicio.nombre}}</td>
+                    <td class="text-capitalize">{{item.aulaFin.nombre}}</td>
+                    <td>{{item.fechaRegistro}}</td>
+                    <td class="text-capitalize">{{item.motivo}}</td>
+                    <td>{{item.userRegistro.persona.nombres}}{{" "}}{{item.userRegistro.persona.paterno}}{{" "}} {{item.userRegistro.persona.materno}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</modal-vik>
+<modal-vik ref="modalImagenProducto" v-bind="modalImagenProducto">
+    <div slot="body" id="modalImagenProducto" data-parsley-validate="true">
+        <img width="100%" height="100%" v-bind:src="rutaImagen" th:onerror="|this.src='@{/phobos/images/img.svg}';|"/>
+    </div>
+</modal-vik>

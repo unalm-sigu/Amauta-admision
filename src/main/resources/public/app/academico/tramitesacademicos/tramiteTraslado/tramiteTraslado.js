@@ -16,6 +16,11 @@ var app = new Vue({
             return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporte(item) {
+
+            /*AXIOS.get(APP.url('academico/tramiteacademico/tramiteTraslado/' + item.tramite.id + '/reporte'))
+                .then(({data}) => {
+                    location.href = APP.url('academico/tramiteacademico/tramiteTraslado')
+                });*/
             return APP.url('academico/tramiteacademico/tramiteTraslado/' + item.tramite.id + '/reporte');
         },
         nuevo() {

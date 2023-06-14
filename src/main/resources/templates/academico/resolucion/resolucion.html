@@ -83,7 +83,7 @@
 
                                                             <a class="aceptar-expandir-sistema"  
                                                                v-on:click="editarResolucionOther(item,$event)" href="#"
-                                                               v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
+                                                               v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad || item.isTipoTramiteTitulo || 
                                                                item.isTipoTramitePracticas || item.isTipoCursoDirigido"
                                                                >
                                                                 Editar
@@ -94,7 +94,7 @@
                                                                href="#">Subir PDF</a>
                                                             <a class="aceptar-expandir-sistema"
                                                                v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
-                                                               v-if="item.isTipoTramiteTitulo || item.isTipoTramiteBachiller || item.isTipoCursoDirigido"
+                                                               v-if="item.isTipoTramiteTitulo || item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad || item.isTipoCursoDirigido"
                                                             >Anular Alumno(s)</a>
                                                         </li>
                                                     </ul>

@@ -99,6 +99,20 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Aula> allAulas() {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join( "tipoAula ta", "oficinaSupervisora os")
+                .in("ta.codigo",Arrays.asList( TipoAulaEnum.AUL.name(),"AUD"))
+                .filter("os.codigo", "OERA")
+//                .in("aus.id",Arrays.asList(108L))
+                .orderBy("au.id desc");
+
+        return all(sql);
+
+    }
+
     public List<Aula> allProgramadasSinHorario(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")

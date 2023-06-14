@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
 import pe.edu.lamolina.model.enums.TipoArticuloEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.InventarioTraslado;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -120,6 +121,35 @@ public class InventarioAulaController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("allAulas")
+    public JsonResponse allAulas(){
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+            List<Aula> aulas = service.allAulas();
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Aula aula : aulas){
+                ObjectNode jInventario = JsonHelper.createJson(aula, jsonNodeFactory, true, new String[]{
+                        "id",
+                        "codigo",
+                        "nombre"
+                });
+                array.add(jInventario);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 
     @ResponseBody
     @RequestMapping("{idaula}/all")
@@ -368,6 +398,28 @@ public class InventarioAulaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "traslado")
+    public JsonResponse saveTraslado(@RequestBody InventarioTraslado inventarioTraslado, HttpSession session){
+        JsonResponse response = new JsonResponse();
+        ObjectUtil.printAttr(inventarioTraslado);
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            if (inventarioTraslado.getId() == null) {
+                Usuario user = ds.getUsuario();
+                service.saveTrasladoInventario(inventarioTraslado, user);
+                response.setMessage("Traslado agregado satisfactoriamente");
+            }
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
     }
 
 }
