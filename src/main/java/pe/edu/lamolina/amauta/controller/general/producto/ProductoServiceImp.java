@@ -21,7 +21,8 @@ public class ProductoServiceImp implements ProductoService {
 
     @Override
     public List<Producto> allProductosByAulas() {
-        return null;
+        List<Producto> productos=productoDAO.allProductosOficina();
+        return productos;
     }
 
 //    @Override

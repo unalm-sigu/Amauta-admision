@@ -18,5 +18,7 @@ public interface ProductoDAO extends EasyDAO<Producto> {
 //    List<Inventario> allByDynatable(DynatableFilter filter);
 
     public Producto findLastByCodeInventario(CodigoTipoProductoEnum codigoTipoProductoEnum);
+    public List<Producto> allProductosOficina();
+    public List<Producto> allProductosDera();
 
 }

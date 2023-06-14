@@ -38,7 +38,7 @@ public class InventarioDAOH extends AbstractEasyDAO<Inventario> implements Inven
         DynatableSql sql = new DynatableSql(filter)
                 .from(Inventario.class, "inv")
                 .join("almacen al", "al.aula au", "producto pro","oficinaGestora off")
-                .searchFields("inv.comentario","au.nombre", "inv.codigo", "pro.nombre", "pro.codigo")
+                .searchFields("inv.comentario","au.nombre", "inv.numeroInventario", "pro.nombre", "pro.codigo")
                 .filter("off.id", ID_OFICINA_OERA)
                 .orderBy("au.nombre asc");
         return all(sql);

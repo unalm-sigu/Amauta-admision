@@ -76,15 +76,14 @@
 
 
                 <section class="wrapper-lg">
-                    <section v-if="encuesta.estado == 'NCRE' "
-                             class="panel m-b-xs">
+                    <section class="panel m-b-xs">
                         <section class="panel-body">
 
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['activo']">
                                         <a class="text-success pointer" v-on:click="verEstados('activo')">
-                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasActivas}}</div>
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.nombre}}</div>
                                             <div class="block m-b-xs m-t">Activos</div>
                                         </a>
                                     </div>
@@ -175,30 +174,22 @@
                         </section>
                     </section>
 
-                    <section v-if="configuraEncuesta.cantidadMinimaAlumnosPregrado != null"
-                             class="panel m-b-xs">
-                        <section class="panel-body">
-                            <div class="col-md-12 h4 bold m-t-xs">Condiciones:</div>
-                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPregrado}} alumnos como mínimo para pregrado</div>
-                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPosgrado}} alumnos como mínimo para posgrado</div>
-                            <div class="col-md-3">{{configuraEncuesta.cantidadMaximaDocentes}} docentes como máximo por sección</div>
-                            <div class="col-md-3" v-if="configuraEncuesta.encuestaTeoriaPractica==1">Una encuesta si el docente es de teoría y práctica</div>
-                            <div class="col-md-3">{{configuraEncuesta.diasEncuesta}} días de encuesta para secciónes polidocentes</div>
-                        </section>
-                    </section>
+<!--                    <section v-if="configuraEncuesta.cantidadMinimaAlumnosPregrado != null"-->
+<!--                             class="panel m-b-xs">-->
+<!--                        <section class="panel-body">-->
+<!--                            <div class="col-md-12 h4 bold m-t-xs">Condiciones:</div>-->
+<!--                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPregrado}} alumnos como mínimo para pregrado</div>-->
+<!--                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPosgrado}} alumnos como mínimo para posgrado</div>-->
+<!--                            <div class="col-md-3">{{configuraEncuesta.cantidadMaximaDocentes}} docentes como máximo por sección</div>-->
+<!--                            <div class="col-md-3" v-if="configuraEncuesta.encuestaTeoriaPractica==1">Una encuesta si el docente es de teoría y práctica</div>-->
+<!--                            <div class="col-md-3">{{configuraEncuesta.diasEncuesta}} días de encuesta para secciónes polidocentes</div>-->
+<!--                        </section>-->
+<!--                    </section>-->
 
                     <section class="panel">
                         <section class="panel-body">
                             
                               <div id="containerPRE"></div>
-
-                        </section>
-                    </section>
-
-                    <section class="panel">
-                        <section class="panel-body">
-                            
-                              <div id="containerPOST"></div>
 
                         </section>
                     </section>
@@ -209,8 +200,8 @@
         </div>
 
         <div layout:fragment="js">
-            
-            <script th:src="@{/app/academico/encuestaestudiantil/resumen/resumen.js}" charset="utf-8"></script>
+
+            <script th:src="@{/app/general/producto/resumen.js}" charset="utf-8"></script>
             
         </div>
 

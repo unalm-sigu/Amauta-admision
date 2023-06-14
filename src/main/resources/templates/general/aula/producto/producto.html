@@ -77,7 +77,7 @@
                                                     <span >{{item.almacen.aula.nombre}}</span>
                                                 </td>
                                                 <td class="v-middle">
-                                                    <span >{{item.codigo}}</span>
+                                                    <span >{{item.numeroInventario}}</span>
                                                 </td>
 
 <!--                                                <td class="v-middle">-->
@@ -123,6 +123,7 @@
 
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a v-on:click="verTraslados(item)">Historial</a></li>
+                                                            <li><a v-bind:href="'/general/aula/inventario/' + item.almacen.aula.id">Ir a ubicacion</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

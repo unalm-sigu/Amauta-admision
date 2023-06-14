@@ -1,6 +1,8 @@
 package pe.edu.lamolina.amauta.dao.almacen.hibernate;
 
 import java.util.List;
+
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -80,5 +82,31 @@ public class ProductoDAOH extends AbstractEasyDAO<Producto> implements ProductoD
                 .limit(1);
         return find(sql);
     }
+
+    @Override
+    public List<Producto> allProductosOficina() {
+        Octavia sql = Octavia.query()
+                .from(Producto.class, "prod")
+                .join("tipoProducto tip", "unidadPrincipal uni")
+                .leftJoin("productoSuperior sup")
+                .filter("tip.codigo", CodigoTipoProductoEnum.BIENES.name());
+        return all(sql);
+    }
+
+    @Override
+    public List<Producto> allProductosDera(){
+        StringBuilder sql = new StringBuilder();
+        sql.append("select inv.* ");
+        sql.append("from alm_inventario as inv");
+        sql.append("join gen_oficina as off on inv.id_oficina_gestora=off.id");
+        sql.append("where off.id=50");
+
+//        Query query = getCurrentSession().createQuery(sql.toString())
+//                .addEntity("prod",Producto.class)
+//                .addEntity();
+
+        return null;
+    }
+
 
 }

@@ -3,7 +3,6 @@ package pe.edu.lamolina.amauta.controller.general.producto;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.scene.shape.Arc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,17 +53,12 @@ public class ProductoController {
         DynatableResponse json = new DynatableResponse();
         try {
             List<Inventario> inventarios=inventarioAulaService.allByDynatable(filter);
-//            Archivo archivo=inventarioAulaService.find(Inventario);
             JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
             ArrayNode array=new ArrayNode(jsonNodeFactory);
             for(Inventario inventario: inventarios){
                 ObjectNode node = JsonHelper.createJson(inventario, jsonNodeFactory,true,new String[]{
-                        "*","almacen.aula.nombre","producto.nombre","producto.codigo"
+                        "*","almacen.aula.nombre","almacen.aula.id","producto.nombre","producto.codigo"
                 });
-//                ArrayNode arrayArchivo= new ArrayNode(jsonNodeFactory);
-//                for(Archivo archivo : inventario.getArchivo()){
-//
-//                }
                 array.add(node);
             }
             json.setData(array);
