@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.*;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -79,22 +80,7 @@ import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_MATRICULABLE;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
-import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
-import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
-import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
-import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.GradoAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
-import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CambioNotaMasBajaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.CambioNotaDAO;
@@ -180,6 +166,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final TramiteTituloDAO tramiteTituloDAO;
     private final TramiteTrasladoDAO tramiteTrasladoDAO;
     private final VisorCalculoNotas visorCalculoNotas;
+
+    private final GrupoSeccionDAO grupoSeccionDAO;
 
     private final AvanceCurricularService avanceCurricularService;
     private final GpoSeccionService gpoSeccionService;
@@ -2192,7 +2180,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Transactional
     public boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds) {
 
-        boolean tramiteBachillerAnulado;
+        boolean cursoDirigidorAnulado = false;
 
         Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
         if (resolucionBD == null) {
@@ -2248,8 +2236,44 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         cursoDirigidoDB.setUsuarioAnulaTramite(ds.getUsuario());
         cursoDirigidoDAO.update(cursoDirigidoDB);
 
-        tramiteBachillerAnulado = true;
-        return tramiteBachillerAnulado;
+
+        Curso curso = cursoDirigidoDB.getCurso();
+        MatriculaResumen matriculaResumenDB = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
+        MatriculaCurso matriculaCursoDB = matriculaCursoDAO.findByMatriculaCurso(matriculaResumenDB, curso);
+        AlumnoCursoCurricula alumnoCursoCurriculaDB = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumnoDB, curso);
+        List<GrupoSeccion> grupoSeccionListDB = grupoSeccionDAO.allByCursoAndDirigido(curso, ds.getCicloAcademico());
+        for (GrupoSeccion grupoSeccion : grupoSeccionListDB) {
+            for (Seccion seccion : grupoSeccion.getSecciones()) {
+                Integer vacantes = seccion.getVacantes() == 0 ? 0: seccion.getVacantes() - 1;
+                seccion.setVacantes(vacantes);
+                Integer matriculados = seccion.getMatriculados() == 0 ? 0: seccion.getMatriculados() - 1;
+                seccion.setMatriculados(matriculados);
+                Integer retirados = seccion.getRetirados() + 1;
+                seccion.setRetirados(retirados);
+                seccionDAO.update(seccion);
+                MatriculaSeccion matriculaSeccionDB = matriculaSeccionDAO.findByMatriculaMatSeccion(matriculaResumenDB, seccion);
+                matriculaSeccionDB.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                matriculaSeccionDB.setFechaAnula(new Date());
+                matriculaSeccionDB.setUserRegistro(ds.getUsuario());
+                matriculaSeccionDB.setSeccion(seccion);
+                matriculaSeccionDB.setFechaMatricula(null);
+                matriculaSeccionDB.setUserMatricula(null);
+                matriculaSeccionDAO.update(matriculaSeccionDB);
+            }
+        }
+        if (alumnoCursoCurriculaDB != null) {
+            alumnoCursoCurriculaDB.setEstadoMatriculaEnum(null);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurriculaDB);
+        }
+
+        matriculaCursoDB.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        matriculaCursoDB.setUserMatricula(null);
+        matriculaCursoDB.setFechaMatricula(null);
+        matriculaCursoDB.setFechaAnula(new Date());
+        matriculaCursoDB.setUserAnula(ds.getUsuario());
+        matriculaCursoDAO.update(matriculaCursoDB);
+
+        return !cursoDirigidorAnulado;
 
     }
 
