@@ -13,7 +13,10 @@ public interface InventarioDAO extends EasyDAO<Inventario> {
 
     public List<Inventario> allByDynatable(DynatableFilter filter, Aula aula);
 
+    public List<Inventario> allByDynatable(DynatableFilter filter);
+
     public List<Inventario> allById(List<Inventario> inventarios);
     public List<Inventario> findByAlmacen(Almacen almacen);
+    public Inventario findLastCodeInventarioByOficina();
 
 }

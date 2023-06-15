@@ -14,6 +14,7 @@ public interface InventarioAulaService {
     Aula findAula(Long idaula);
 
     List<Inventario> allByDynatable(DynatableFilter filter, Aula aula);
+    List<Inventario> allByDynatable(DynatableFilter filter);
     List<Aula> allAulas();
 
     void update(Inventario inventario, Usuario user);
@@ -35,5 +36,7 @@ public interface InventarioAulaService {
     void updateInventarioCode(List<Inventario> inventarios, Usuario user);
 
     void saveTrasladoInventario(InventarioTraslado inventarioTraslado, Usuario user);
+
+    List<InventarioTraslado> productosTraslado(Integer id);
 
 }

@@ -93,6 +93,22 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     }
 
     @Override
+    public List<Inventario> allByDynatable(DynatableFilter filter) {
+        List<Inventario> inventarios=inventarioDAO.allByDynatable(filter);
+        List<Long> idInventarios = inventarios.stream().map(x -> x.getId()).collect(Collectors.toList());
+        List<Archivo> archivos = archivoDAO.allByInstanciasTipoInstancia(idInventarios, InstanciaEnum.INVENTARIO);
+        Map<Long, Archivo> archivosMap = TypesUtil.convertListToMap("idInstancia", archivos);
+        for (Inventario inventarioo : inventarios) {
+            Archivo archivo = archivosMap.get(inventarioo.getId());
+            if (archivo != null) {
+                inventarioo.setImagen(archivo.getRuta());
+            }
+        }
+        return inventarios;
+    }
+
+
+    @Override
     public List<Aula> allAulas() {
         List<Aula> aulas=aulaDAO.allAulas();
         return aulas;
@@ -106,7 +122,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         if (inventarioDb == null) {
             throw new PhobosException("Inventario eliminado o no existe");
         }else {
-            inventarioDb.setCodigo(inventario.getCodigo().trim());
+//            inventarioDb.setCodigo(inventario.getCodigo().trim());
             inventarioDb.setFechaRegistro(new Date());
             inventarioDb.setUserRegistro(user);
             inventarioDb.setMarca(inventario.getMarca());
@@ -118,6 +134,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioDb.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
             inventarioDb.setVidaUtil(inventario.getVidaUtil());
             //inventarioDb.setDetalleOrdenCompra(inventario.getDetalleOrdenCompra());
+            inventarioDb.setNumeroInventario(inventario.getNumeroInventario().trim());
             inventarioDb.setComentario(inventario.getComentario());
             inventarioDb.setMaterial(inventario.getMaterial());
             inventarioDb.setLargo(inventario.getLargo());
@@ -178,8 +195,19 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             almacen.setFechaRegistro(new Date());
             almacenDAO.save(almacen);
         }
+        Inventario last = inventarioDAO.findLastCodeInventarioByOficina();
+        if (last == null) {
+            inventario.setCodigo("DERA000001");
+        } else {
+            int i = Integer.parseInt(last.getCodigo().substring(4, 10));
+            i++;
+            String full = String.format("%06d", i);
+            inventario.setCodigo("DERA" + full);
+        }
+
         inventario.setAlmacen(almacen);
-        inventario.setCodigo(inventario.getCodigo().trim());
+//        inventario.setCodigo(inventario.getCodigo().trim());
+        inventario.setNumeroInventario(inventario.getNumeroInventario().trim());
         inventario.setFechaRegistro(new Date());
         inventario.setUserRegistro(user);
         inventario.setEstadoEnum(EstadoInventarioEnum.DISP);
@@ -272,6 +300,16 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioNew.setVidaUtil(inventario.getVidaUtil());
             inventarioNew.setComentario(inventario.getComentario());
             inventarioNew.setOficinaGestora(new Oficina(ID_OFICINA_OERA));
+
+            Inventario last = inventarioDAO.findLastCodeInventarioByOficina();
+            if (last == null) {
+                inventarioNew.setCodigo("DERA000001");
+            } else {
+                int m = Integer.parseInt(last.getCodigo().substring(4, 10));
+                m++;
+                String full = String.format("%06d", m);
+                inventarioNew.setCodigo("DERA" + full);
+            }
 
             inventarioDAO.save(inventarioNew);
             resumen.setCantidad((resumen.getCantidad() + 1));
@@ -388,7 +426,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         Map<Long, Inventario> inventariosDbMap = TypesUtil.convertListToMap("id", inventariosDb);
         for (Inventario inventario : inventariosFilter) {
             Inventario inventarioDb = inventariosDbMap.get(inventario.getId());
-            inventarioDb.setCodigo(inventario.getCodigo());
+            inventarioDb.setNumeroInventario(inventario.getNumeroInventario());
             inventarioDAO.update(inventarioDb);
         }
     }
@@ -505,8 +543,10 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
 
     }
 
-    private boolean inventarioAuInicialUnoAulaFinVacio(int inventariosSize, Almacen almAulaFin) {
-        return inventariosSize == 1 && almAulaFin == null;
+    @Override
+    public List<InventarioTraslado> productosTraslado(Integer id) {
+        List<InventarioTraslado> productosTraslado=inventarioTrasladoDAO.allTrasladosProducto(id);
+        return productosTraslado;
     }
 
 
