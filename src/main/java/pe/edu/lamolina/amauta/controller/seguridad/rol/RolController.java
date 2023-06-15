@@ -40,15 +40,17 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
+import pe.edu.lamolina.amauta.controller.seguridad.verificarurl.VerificarUrlControServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("seguridad/rol")
-public class RolController {
+public class RolController extends VerificarUrlControServiceImp {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     RolService service;
@@ -87,7 +89,10 @@ public class RolController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        if (!this.accesoSessionUrl(ds, rutaModulo)) {
+            return "redirect:/logout";
+        }
         return "seguridad/rol/rolSistema";
 
     }
