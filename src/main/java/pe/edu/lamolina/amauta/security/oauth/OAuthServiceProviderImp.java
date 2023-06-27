@@ -512,6 +512,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         
         String entorno = despliegueConfig.getAmbiente().toUpperCase();
         List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema, entorno);
+        ds.setMenusAcceso(menusBD);
         System.out.println("menusBD.size = " + menusBD.size());
         return menuService.allMenuOrdered(menusBD);
     }

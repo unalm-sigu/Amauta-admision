@@ -7,11 +7,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.general.InventarioTrasladoDAO;
 import pe.edu.lamolina.model.almacen.Inventario;
-import pe.edu.lamolina.model.enums.TipoAulaEnum;
-import pe.edu.lamolina.model.general.Aula;
+
 import pe.edu.lamolina.model.general.InventarioTraslado;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -29,6 +27,19 @@ public class InventarioTrasladoDAOH extends AbstractEasyDAO<InventarioTraslado> 
                 .from(InventarioTraslado.class, "it")
                 .filter("it.inventario", inventario)
                 .orderBy("it.id desc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<InventarioTraslado> allTrasladosProducto(Integer id) {
+        Octavia sql = Octavia.query()
+                .from(InventarioTraslado.class, "it")
+                .join("inventario inv","aulaFin auf","aulaInicio aui","userRegistro usr")
+                .join("inv.producto prod")
+                .join("usr.persona per")
+                .filter("it.inventario", id)
+                .orderBy("it.id asc");
 
         return all(sql);
     }

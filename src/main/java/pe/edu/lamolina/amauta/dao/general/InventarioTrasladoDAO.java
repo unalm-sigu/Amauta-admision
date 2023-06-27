@@ -8,5 +8,6 @@ import java.util.List;
 public interface InventarioTrasladoDAO extends EasyDAO<InventarioTraslado> {
 
     List<InventarioTraslado> allByInventario(Inventario inventario);
+    List<InventarioTraslado> allTrasladosProducto(Integer id);
 
 }

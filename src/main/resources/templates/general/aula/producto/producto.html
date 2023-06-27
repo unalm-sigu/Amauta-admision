@@ -1,0 +1,162 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Producto Aulas</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="aulaVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2>Lista de productos</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="aulasURL" v-bind:preload="false" ref="raptorAulas">
+<!--                                <div slot="header">-->
+<!--                                    <div class="col-md-8" v-if="!isSoporteDera &amp;&amp; !isPersonalDera">-->
+
+<!--                                        <multiselect v-model='tipoAula'-->
+<!--                                                     track-by='codigo'-->
+<!--                                                     v-bind:internal-search='true'-->
+<!--                                                     v-bind:options='tipoAulas'-->
+<!--                                                     v-bind:allow-empty="true"-->
+<!--                                                     placeholder="Seleccione el tipo de Aula"-->
+<!--                                                     label="nombre"-->
+<!--                                                     select-label="Seleccione este tipo de aula"-->
+<!--                                                     deselect-label="Remover selección"-->
+<!--                                                     v-on:input="changeTipoAula"-->
+<!--                                        >-->
+<!--                                        </multiselect>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+
+
+
+                                <template scope="props" >
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr class="">
+                                                <th>Imagen</th>
+                                                <th class="col-md-3">Nombre</th>
+                                                <th class="col-md-3">Ubicación</th>
+                                                <th>Codigo Inventario</th>
+                                                <th class="col-md-1">Condicion</th>
+                                                <th class="col-md-1"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td><div v-on:click="verImagen(item)">
+                                                    <img height="100" width="100"  class="img-rounded pointer" v-bind:src="item.imagen" th:onerror="|this.src='@{/phobos/images/img.svg}';|" />
+                                                </div></td>
+
+                                                <td class="v-middle">
+                                                    <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                        {{item.producto.nombre}}
+                                                    </a>
+                                                    <p v-if="item.marca" class="block text-sm"><b>Marca : </b>{{ item.marca }}</p>
+                                                    <p v-if="item.modelo" class="block text-sm"><b>Modelo : </b>{{ item.modelo }}
+                                                    </p>
+                                                    <p v-if="item.serie" class="block text-sm"><b>Serie : </b>{{ item.serie }}</p>
+                                                    <p v-if="item.anoFabricacion" class="block text-sm"><b>Fabricación
+                                                        : </b>{{ item.anoFabricacion }}</p>
+                                                    <p v-if="item.color" class="block text-sm"><b>Color : </b>{{ item.color }}</p>
+                                                    <p v-if="item.material" class="block text-sm"><b>Material
+                                                        : </b>{{ item.material }}</p>
+                                                    <p v-if="item.largo &amp;&amp; item.alto  &amp;&amp;  item.ancho"
+                                                       class="block text-sm"><b>Medida
+                                                        : </b>{{ item.largo }}x{{ item.alto }}x{{ item.ancho }}</p>
+                                                    <span v-if="item.fechaVencimientoGarantia" class="block text-sm"><b>Vencimiento
+                                                        : </b>{{item.fechaVencimientoGarantia}}</span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span >{{item.almacen.aula.nombre}}</span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span >{{item.numeroInventario}}</span>
+                                                </td>
+
+<!--                                                <td class="v-middle">-->
+<!--                                                    <span v-if="item.tipoAmbiente == 'EDI' ">-->
+<!--                                                        <a v-if="item.aulasContenido > 0" v-on:click="verAulas(item)" class="ver-aulas-contenido pointer">-->
+<!--                                                            <span class="estado-blue">{{item.aulasContenido}}</span>-->
+<!--                                                        </a>-->
+<!--                                                        <span v-else="" class="estado-gray">{{item.aulasContenido}}</span>-->
+<!--                                                    </span>-->
+<!--                                                    <span v-if="item.tipoAmbiente != 'EDI'">-->
+<!--                                                        <a v-if="item.cantidadinventarios > 0" v-on:click="verInventario(item)" class="pointer">-->
+<!--                                                            <i class="fa fa-tasks" aria-hidden="true"></i>-->
+<!--                                                        </a>-->
+<!--                                                    </span>-->
+<!--                                                </td>-->
+
+<!--                                                <td class=" v-middle">-->
+<!--                                                    <span class="clear">-->
+<!--                                                        <span v-if="item.estado == 'ACT' " class="label label-primary"> {{item.estadoEnum.value}} </span>-->
+<!--                                                        <label v-else="" class="label label-warning" data-toggle="tooltip" v-bind:title="item.motivoAnulacion"> {{item.estadoEnum.value}} </label>-->
+<!--                                                    </span>-->
+<!--                                                </td> -->
+<!--                                                <td class="v-middle">-->
+<!--                                                    <span >{{item.condicion}}</span>-->
+<!--                                                </td>-->
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.condicion=='NUEVO' "
+                                                          class=" label label-success">{{ item.condicionEnum.value }}</span>
+                                                    <span v-if="item.condicion=='VIEJO' "
+                                                          class=" label label-danger">{{ item.condicionEnum.value }}</span>
+                                                    <span v-if="item.condicion=='MEDIO' "
+                                                          class=" label label-warning">{{ item.condicionEnum.value }}</span>
+                                                </td>
+<!--                                                <td class="v-middle">-->
+<!--                                                    <span >{{item.producto.codigo}}</span>-->
+<!--                                                </td>-->
+
+                                                <td class="v-middle">
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a>
+
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click="verTraslados(item)">Historial</a></li>
+                                                            <li><a v-bind:href="'/general/aula/inventario/' + item.almacen.aula.id">Ir a ubicacion</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                            
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="general/aula/producto/modalProducto"/>
+            </div>
+
+            <div th:substituteby="templates/modal"/>
+            
+        </div>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'general/aula/producto';
+                /*]]>*/
+            </script>
+
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/general/producto/producto.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

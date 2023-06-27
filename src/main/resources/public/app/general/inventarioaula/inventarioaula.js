@@ -41,7 +41,6 @@ new Vue({
             cancelclass: 'btn btn-link',
             okbtn: 'Guardar',
             showaccept: true
-            // okaction: vue.guardarTraslado(),
         },
         inventarioTraslado: {
             id: '',
@@ -316,7 +315,7 @@ new Vue({
                 vue.updatable = [];
 
                 vue.$refs.load.data.map((v, i) => {
-                    vue.updatable.push({id: v.id, codigo: v.codigo, codeEdit: v.codeEdit});
+                    vue.updatable.push({id: v.id, numeroInventario: v.numeroInventario, codeEdit: v.codeEdit});
                 });
 
                 $.ajax({
@@ -378,7 +377,6 @@ new Vue({
             $vue.allAulas();
             $vue.$refs.modalListaAulas.title = "Listar Aulas y Auditorios";
             $vue.$refs.modalListaAulas.open();
-            //$vue.$refs.modalListaAulas.okaction = $vue.guardarTraslado();
         },
         allAulas() {
             let $vue = this;
