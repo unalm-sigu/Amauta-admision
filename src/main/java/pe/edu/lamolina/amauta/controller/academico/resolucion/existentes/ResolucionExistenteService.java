@@ -67,6 +67,10 @@ public interface ResolucionExistenteService {
 
     List<TramiteTitulo> allTitulos(DataSessionPivot ds);
 
+    List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds);
+
+    public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion);
+
     List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 
     List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);

@@ -354,11 +354,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<TramiteBachiller> allBachillerFacultad(DataSessionPivot ds) {
         return tramiteBachillerDAO.allByFacultadSolicitados();
-    }    
+    }
 
     @Override
     public List<TramiteTitulo> allTitulos(DataSessionPivot ds) {
         return tramiteTituloDAO.allBySolicitados();
+    }
+
+    @Override
+    public List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds) {
+        return tramiteTituloDAO.allBySolicitadosFacultad();
     }
 
     @Override
@@ -466,6 +471,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case TITUL:
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
+            case TITULBAC:
+                resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
+                break;
             case PRACTICAS:
                 this.requiereCicloAplica(resolucion.getCicloAplica());
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
@@ -514,6 +522,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case TITUL:
                 this.saveTramiteTitulo(resolucion, ds);
                 break;
+            case TITULBAC:
+                this.saveTramiteTituloFacultad(resolucion, ds);
+                break;                
             case CAMBIO_PLAN_CURRICULAR:
                 this.saveCambioPlanCurricular(resolucion);
                 break;
@@ -769,7 +780,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case BACHIFAC:
 //                this.saveTramiteBachillerFacultad(resolucionForm, ds);
                 resolucionBD.setNumeroVisible(resolucionForm.getDescripcionFacultad());
-                break;                
+                break;
             case TITUL:
                 resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
@@ -1453,81 +1464,81 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
 
-                if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-                    Alumno alumno = alumnoDAO.find(tramiteBachiller.getTramite().getAlumno());
-                    GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
-                    ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumno, gradoAcademico);
-                    if (obtencionGradoRegistrado == null) {
-                        ObtencionGrado obtencionGrado = new ObtencionGrado();
-                        obtencionGrado.setAlumno(alumno);
-                        obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
-                        obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
-                        obtencionGrado.setFechaRegistro(new Date());
-                        obtencionGrado.setGradoAcademico(gradoAcademico);
-                        obtencionGrado.setResolucion(resolucion);
-                        obtencionGrado.setFechaObtencion(resolucion.getFecha());
-                        obtencionGrado.setTramite(tramite);
-                        obtencionGrado.setUserObtencion(ds.getUsuario());
-                        obtencionGrado.setUserRegistro(ds.getUsuario());
-                        obtencionGradoDAO.save(obtencionGrado);
-                    }
-                    BigDecimal sumNotasCreditos = BigDecimal.ZERO;
-                    BigDecimal sumCreditos = BigDecimal.ZERO;
+            if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
+                Alumno alumno = alumnoDAO.find(tramiteBachiller.getTramite().getAlumno());
+                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
+                ObtencionGrado obtencionGradoRegistrado = obtencionGradoDAO.getByAlumnoGrado(alumno, gradoAcademico);
+                if (obtencionGradoRegistrado == null) {
+                    ObtencionGrado obtencionGrado = new ObtencionGrado();
+                    obtencionGrado.setAlumno(alumno);
+                    obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
+                    obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
+                    obtencionGrado.setFechaRegistro(new Date());
+                    obtencionGrado.setGradoAcademico(gradoAcademico);
+                    obtencionGrado.setResolucion(resolucion);
+                    obtencionGrado.setFechaObtencion(resolucion.getFecha());
+                    obtencionGrado.setTramite(tramite);
+                    obtencionGrado.setUserObtencion(ds.getUsuario());
+                    obtencionGrado.setUserRegistro(ds.getUsuario());
+                    obtencionGradoDAO.save(obtencionGrado);
+                }
+                BigDecimal sumNotasCreditos = BigDecimal.ZERO;
+                BigDecimal sumCreditos = BigDecimal.ZERO;
 
-                    List<AlumnoCicloCurso> alumnoCicloCursos = mapAlumnoCicloCurso.get(alumno.getId());
-                    AlumnoCiclo alumnoCiclo = new AlumnoCiclo();
-                    for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
-                        alumnoCiclo = cursoAluCicloEach.getAlumnoCiclo();
-                        if (cursoAluCicloEach.getCreditos() > 0
-                                && cursoAluCicloEach.isAprobado()
-                                && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
+                List<AlumnoCicloCurso> alumnoCicloCursos = mapAlumnoCicloCurso.get(alumno.getId());
+                AlumnoCiclo alumnoCiclo = new AlumnoCiclo();
+                for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
+                    alumnoCiclo = cursoAluCicloEach.getAlumnoCiclo();
+                    if (cursoAluCicloEach.getCreditos() > 0
+                            && cursoAluCicloEach.isAprobado()
+                            && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
 
-                            BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
-                            BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getCreditos());
+                        BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
+                        BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getCreditos());
 
-                            sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
-                            sumCreditos = sumCreditos.add(creditosBig);
+                        sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
+                        sumCreditos = sumCreditos.add(creditosBig);
 
-                        }
-                    }
-                    BigDecimal ppg = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.HALF_UP);
-                    Egresado egresado = egresadoDAO.findByAlumno(alumno);
-                    egresado.setAlumno(alumno);
-                    egresado.setCarrera(alumno.getCarrera());
-                    egresado.setCicloAcademico(alumno.getCicloActivoRegular());
-                    egresado.setFacultad(alumno.getCarrera().getFacultad());
-                    egresado.setFechaRegistroEgresado(resolucion.getFecha());
-                    egresado.setUserRegistroEgresado(ds.getUsuario());
-                    egresado.setFechaEgresado(eventoCicloAcademico.getFechaFin());
-                    egresado.setGrado(gradoAcademico);
-                    egresado.setPromedioGraduacion(ppg);
-                    egresado.setEsPrincipal(1);
-                    egresado.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
-                    egresado.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
-                    egresado.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
-                    egresado.setPuntajeAcumulado(alumnoCiclo.getPuntajeAcumulado());
-                    egresadoDAO.update(egresado);
-
-                    SituacionAcademica situacionAcademica = alumno.getSituacionAcademica();
-
-                    if (situacionAcademica == null || (!situacionAcademica.isEgresado())) {
-
-                        alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                        alumnoDAO.updateColumns(alumno, "situacionAcademica");
-
-                        AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
-
-                        if (alumnoCicloDb.getSituacionFinal() == null
-                                || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
-
-                            alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                            alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
-                        }
                     }
                 }
+                BigDecimal ppg = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.HALF_UP);
+                Egresado egresado = egresadoDAO.findByAlumno(alumno);
+                egresado.setAlumno(alumno);
+                egresado.setCarrera(alumno.getCarrera());
+                egresado.setCicloAcademico(alumno.getCicloActivoRegular());
+                egresado.setFacultad(alumno.getCarrera().getFacultad());
+                egresado.setFechaRegistroEgresado(resolucion.getFecha());
+                egresado.setUserRegistroEgresado(ds.getUsuario());
+                egresado.setFechaEgresado(eventoCicloAcademico.getFechaFin());
+                egresado.setGrado(gradoAcademico);
+                egresado.setPromedioGraduacion(ppg);
+                egresado.setEsPrincipal(1);
+                egresado.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
+                egresado.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
+                egresado.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
+                egresado.setPuntajeAcumulado(alumnoCiclo.getPuntajeAcumulado());
+                egresadoDAO.update(egresado);
+
+                SituacionAcademica situacionAcademica = alumno.getSituacionAcademica();
+
+                if (situacionAcademica == null || (!situacionAcademica.isEgresado())) {
+
+                    alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+                    alumnoDAO.updateColumns(alumno, "situacionAcademica");
+
+                    AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
+
+                    if (alumnoCicloDb.getSituacionFinal() == null
+                            || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
+
+                        alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+                        alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
+                    }
+                }
+            }
         }
     }
-    
+
     void saveTramiteBachillerFacultad(Resolucion resolucion, DataSessionPivot ds) {
 
         if (resolucion.getTramiteBachiller().isEmpty()) {
@@ -1580,10 +1591,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
 
-           }
+        }
     }
-    
-    
+
     private void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds) {
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
@@ -1650,7 +1660,52 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
         }
     }
+private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot ds) {
 
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
+
+        if (resolucion.getTramiteTitulos().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+//            resolucion.getTramiteTitulos()
+//            .stream()
+//            .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
+//            .forEach(x-> System.out.println(x.getAlumno().getCodigo() ));
+        
+        
+         List<TramiteTitulo> tramiteTitulos = resolucion.getTramiteTitulos()
+                .stream()
+                .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
+                .collect(Collectors.toList());
+
+        for (TramiteTitulo titulo : tramiteTitulos) {
+
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
+            if (tramiteTitulo == null) {
+                throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
+            }
+            if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+                log.debug("Solo esta permitido agregar alumnos en modo edición");
+                continue;
+            }
+            tramiteTitulo.setEstadoTitulo(TramiteEstadoEnum.ACEP.name());
+            tramiteTitulo.setFechaResolucion(new Date());
+            tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
+            tramiteTitulo.setResolucionFacultad(resolucion);
+            tramiteTituloDAO.update(tramiteTitulo);
+
+            Tramite tramite = tramiteTitulo.getTramite();
+//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setFechaRespuesta(new Date());
+            tramite.setUserRespuesta(ds.getUsuario());
+            tramite.setFinalizado(Boolean.TRUE);
+            tramite.setEstadoTramite(estadoTramite);
+            tramiteDAO.update(tramite);            
+          }
+    }
+ 
+    
     private String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
@@ -2144,7 +2199,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
             obtencionGradoDAO.delete(obtencionGradoRegistrado);
         }
-        
+
         tramite.setAlumno(alumnoDB);
         tramite.setResolucion(null);
         tramite.setAceptado(false);
@@ -2296,6 +2351,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<TramiteBachiller> allResulucionFacultad(Resolucion resolucion) {
-        return tramiteBachillerDAO.allBySolicitadosFacultad(resolucion);
+        return tramiteBachillerDAO .allBySolicitadosFacultad(resolucion);
+    }       
+
+    @Override
+    public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion) {
+       return tramiteTituloDAO.allByTituloFacultad(resolucion);
     }
 }

@@ -15,12 +15,12 @@ public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
     List<TramiteBachiller> allByTramites(List<Tramite> tramites);
 
     TramiteBachiller findByAlumnoAct(Alumno alumno);
-    
+
     TramiteBachiller findByAlumnoActFacultad(Alumno alumno);
 
     List<TramiteBachiller> allByResolucion(Resolucion resolucionDB);
-    
-     List<TramiteBachiller> allByResolucionFacultad(Resolucion resolucionDB);
+
+    List<TramiteBachiller> allByResolucionFacultad(Resolucion resolucionDB);
 
     List<TramiteBachiller> allByDynatable(DynatableFilter filter);
 
@@ -31,7 +31,7 @@ public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
     List<TramiteBachiller> allByAlumnosAct(List<Alumno> alumnos);
 
     public List<TramiteBachiller> allBySolicitadosFacultad(Resolucion resolucion);
-    
+
     List<TramiteBachiller> allByFacultadSolicitados();
 
     public TramiteBachiller findByAlumnoFacultadACEP(Alumno alumno);

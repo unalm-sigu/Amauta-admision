@@ -51,6 +51,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITULBAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
@@ -86,7 +87,8 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.TITUL,
             TipoResolucionEnum.PRACTICAS,
             TipoResolucionEnum.ING_HIS,
-            TipoResolucionEnum.BACHIFAC
+            TipoResolucionEnum.BACHIFAC,
+            TipoResolucionEnum.TITULBAC
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -191,7 +193,7 @@ public class ResolucionExistenteController {
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
-        model.addAttribute("ciclos", ciclosJson);        
+        model.addAttribute("ciclos", ciclosJson);
         model.addAttribute("resolucion", objectNode);
         model.addAttribute("IS_ANULAR", TRUE);
         return "academico/resolucion/resolucionexistentes/resolucionExistentes";
@@ -273,6 +275,7 @@ public class ResolucionExistenteController {
             case BACHI:
             case BACHIFAC:
             case TITUL:
+            case TITULBAC:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
@@ -497,7 +500,18 @@ public class ResolucionExistenteController {
                         //                        .join("cicloAcademico", "id,descripcion,nombre")
                         .array();
             }
-
+        
+        } else if (tipoResolucionEnum == TITULBAC) {
+                List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultad(resolucion);
+                return JaneHelper.from(tramiteTitulo)
+                        .join("tramite.alumno", "codigo")
+                        .join("tramite.cicloAcademico", "descripcion")
+                        .join("tramite.persona", "paterno,materno,nombres")
+                        .join("resolucion.oficina", "codigo,id")
+                        .join("resolucion")
+                        //                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .array();
+                
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)
@@ -710,7 +724,7 @@ public class ResolucionExistenteController {
 
     }
 
-      @ResponseBody
+    @ResponseBody
     @RequestMapping("allBachillerFacultad")
     public ArrayNode allBachillerFacultad(HttpSession session) {
 
@@ -733,7 +747,7 @@ public class ResolucionExistenteController {
                 .array();
 
     }
-    
+
     @ResponseBody
     @RequestMapping("allTitulo")
     public ArrayNode allTitulo(HttpSession session) {
@@ -747,6 +761,26 @@ public class ResolucionExistenteController {
         }
 
         return JaneHelper.from(tramiteTitulos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allTituloFacultad")
+    public ArrayNode allTituloFacultad(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteTitulo> tramiteTitulosFacultad = service.allTitulosFacultad(ds);
+
+        for (TramiteTitulo tramiteTitulo : tramiteTitulosFacultad) {
+            tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
+            tramiteTitulo.setSeleccionado(Boolean.FALSE);
+        }
+        return JaneHelper.from(tramiteTitulosFacultad)
                 .join("alumno")
                 .join("alumno.carrera")
                 .join("alumno.carrera.facultad")

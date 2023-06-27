@@ -21,7 +21,13 @@ public interface TramiteTituloDAO extends EasyDAO<TramiteTitulo> {
     public List<TramiteTitulo> allByDynatable(DynatableFilter filter);
 
     TramiteTitulo findByAlumnoACEP(Alumno alumno);
+    
+    TramiteTitulo findByAlumnoFacultadACEP(Alumno alumno);
 
     public List<TramiteTitulo> allBySolicitados();
+
+    public List<TramiteTitulo> allBySolicitadosFacultad();
+    
+    public List<TramiteTitulo> allByTituloFacultad(Resolucion resolucion);
 
 }

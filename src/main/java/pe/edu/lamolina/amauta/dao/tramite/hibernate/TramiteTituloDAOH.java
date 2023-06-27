@@ -69,6 +69,17 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
+    public TramiteTitulo findByAlumnoFacultadACEP(Alumno alumno) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .join("resolucionFacultad")
+                .filter("tb.estadoTitulo", TramiteEstadoEnum.ACEP)
+                .filter("al.id", alumno);
+        return find(sql);
+    }
+
+    @Override
     public List<TramiteTitulo> allByResolucion(Resolucion resolucionDB) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class)
@@ -90,7 +101,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ca.codigo desc","tb.id desc");
+                .orderBy("ca.codigo desc", "tb.id desc");
 
         return all(sql);
     }
@@ -104,6 +115,27 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
                 .filter("tt.estado", TramiteEstadoEnum.SOL)
                 .orderBy("per.paterno");
 
+        return all(sql);
+    }
+
+    @Override
+    public List<TramiteTitulo> allBySolicitadosFacultad() {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tt")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL)
+                .orderBy("per.paterno");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<TramiteTitulo> allByTituloFacultad(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
+                .filter("tb.resolucionFacultad", resolucion);
         return all(sql);
     }
 

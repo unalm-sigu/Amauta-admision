@@ -6,9 +6,7 @@
             <section class="panel m-b-xs">
                 <section class="panel-body">
 
-                    <resolucion-form-header v-bind:resolucion="resolucion"></resolucion-form-header>
-
-                </section>
+                    <resolucion-form-header v-bind:resolucion="resolucion"></resolucion-form-header>    </section>
             </section>
 
             <section class="panel m-b-xs">
@@ -55,7 +53,11 @@
                         <div v-if="resolucion.tipoResolucion.isTramiteTitulo">
                             <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
                         </div>
-
+                        
+                        <div v-if="resolucion.tipoResolucion.isTramiteTituloResolucion">
+                            <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
+                        </div>
+                        
                         <div v-if="resolucion.tipoResolucion.isTrasladoInterno">
                             <resolucion-form-details-traslado-interno v-model="resolucion"></resolucion-form-details-traslado-interno>
                         </div>
@@ -204,9 +206,6 @@
                                     $vue.$refs.modalError.open();
                                     notify("Algunos alumnos no pudieron ser matriculados.", 'error');
                                 }
-
-
-
 
                             }
 
