@@ -264,7 +264,8 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         tramiteDAO.updateEstado(tramite);
 
         tramiteTitulo.setEstado(TramiteEstadoEnum.ANU.name());
-        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado");
+        tramiteTitulo.setUsuarioAnulaTramite(ds.getUsuario());
+        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado","usuarioAnulaTramite");
     }
 
     public Tramite findByTramite(Long id) {
