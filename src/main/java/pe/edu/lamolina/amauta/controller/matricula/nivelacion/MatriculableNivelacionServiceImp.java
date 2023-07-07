@@ -108,15 +108,15 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
                 matriculaResumenXAlumnoRegistrado.put(alumno.getId(), matriculaResumen);
                 continue;
             }
-            if ((alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())
-                    || (alumno.getCicloIngreso().getId() == origen.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())) {
-                continue;
-            }
-            if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_E) {
-                continue;
-            }
+//            if ((alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
+//                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())
+//                    || (alumno.getCicloIngreso().getId() == origen.getId().longValue()
+//                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9 && !matriculaOrigen.isEstadoMAT())) {
+//                continue;
+//            }
+//            if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_E) {
+//                continue;
+//            }
             matriculaResumen = new MatriculaResumen();
             matriculaResumen.setSituacionInicio(alumno.getSituacionAcademica());
             matriculaResumen.setAlumno(alumno);
@@ -124,9 +124,7 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumen.setTurnoAtencion(null);
 
-            if (alumno.getCicloIngreso().getId() == origen.getId().longValue()
-                    || (alumno.getCicloIngreso().getId() == cicloAcademicoAnterior.getId().longValue()
-                    && alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_9)) {
+            if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_8) {
                 matriculaResumen.setPrioridad(ONE);
             } else {
                 matriculaResumen.setPrioridad(matriculaOrigen.getPrioridad());
