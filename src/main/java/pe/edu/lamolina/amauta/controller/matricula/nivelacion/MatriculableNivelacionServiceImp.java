@@ -57,8 +57,8 @@ public class MatriculableNivelacionServiceImp implements MatriculableNivelacionS
             matriculaResumenDAO.deleteMatriculable(clonarNivelacionDTO.getCicloDestino());
         }
 
-        int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();//2022-I
-        int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();//2022-N
+        int codeInicio = clonarNivelacionDTO.getCicloOrigen().getCodigoInt();
+        int codeFin = clonarNivelacionDTO.getCicloDestino().getCodigoInt();
         if (codeInicio >= codeFin) {
             throw new PhobosException("Ciclos no validos");
         }
