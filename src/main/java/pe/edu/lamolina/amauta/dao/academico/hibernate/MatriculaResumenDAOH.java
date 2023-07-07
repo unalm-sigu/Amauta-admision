@@ -43,7 +43,10 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -1119,6 +1122,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 S_4T.getValue(),
                 S_9.getValue(),
                 S_E.getValue(),
+                S_D.getValue(),
+                S_RA.getValue(),
+                S_R.getValue(),
                 S_7.getValue()));
 //        }
         sql.in("estado", asList(MAT, NMAT, RCI))
