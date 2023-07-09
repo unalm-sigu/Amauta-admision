@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.preciocursoestructura.PrecioCursoEstructuraService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
@@ -101,6 +103,8 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
         for (CursoCicloAcademico cursoCicloForm : cursosCicloForm) {
             CursoCicloAcademico cursoCicloBD = mapCursoCiclo.get(cursoCicloForm.getId());
             PrecioCursoEstructura precioTPC = mapPrecioTPC.get(cursoCicloBD.getCurso().getTpc());
+
+            Assert.isTrue(precioTPC != null, "T.P.C. del curso no configurado, actualice el TPC con su precio.");
 
             if (precioTPC.getPrecio().compareTo(cursoCicloForm.getPrecio()) == 0) {
                 cursoCicloBD.setPrecioPersonalizado(Boolean.FALSE);

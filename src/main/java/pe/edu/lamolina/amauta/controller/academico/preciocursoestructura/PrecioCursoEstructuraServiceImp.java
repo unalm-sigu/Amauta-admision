@@ -96,12 +96,12 @@ public class PrecioCursoEstructuraServiceImp implements PrecioCursoEstructuraSer
     public void actualizarTPC(DataSessionPivot ds) {
         List<CursoCicloAcademico> cursosCA = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico());
         List<Curso> cursos = cursosCA.stream().map(CursoCicloAcademico::getCurso).distinct().collect(Collectors.toList());
-        
+
         List<PrecioCursoEstructura> preciosCursoBD = precioCursoEstructuraDAO.allByCicloAcademico(ds.getCicloAcademico());
         List<String> tpcs = preciosCursoBD.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toList());
-        
+
         for (Curso cur : cursos) {
-            if(!tpcs.contains(cur.getTpc())){
+            if (!tpcs.contains(cur.getTpc())) {
                 PrecioCursoEstructura cursoEstructura = new PrecioCursoEstructura();
                 cursoEstructura.setCicloAcademico(ds.getCicloAcademico());
                 cursoEstructura.setTpc(cur.getTpc());
@@ -111,9 +111,9 @@ public class PrecioCursoEstructuraServiceImp implements PrecioCursoEstructuraSer
                 cursoEstructura.setUserPrecio(ds.getUsuario());
                 cursoEstructura.setFechaPrecio(new Date());
                 precioCursoEstructuraDAO.save(cursoEstructura);
+                tpcs.add(cursoEstructura.getTpc());
             }
         }
-        
 
     }
 
