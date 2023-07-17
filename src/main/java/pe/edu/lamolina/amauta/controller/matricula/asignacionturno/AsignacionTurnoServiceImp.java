@@ -86,7 +86,12 @@ public class AsignacionTurnoServiceImp implements AsignacionTurnoService {
         DataSessionPivot dataSessionPivot = dataSessionPivot(httpSession);
         CicloAcademico cicloAcademico = dataSessionPivot.getCicloAcademico();
         Usuario usuario = dataSessionPivot.getUsuario();
-        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoService.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.MAT_REG);
+        EventoCicloAcademico eventoCicloAcademico = null;
+        if(cicloAcademico.getTipo().equals("NIV")) {
+            eventoCicloAcademico = eventoCicloAcademicoService.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.MAT_VER);            
+        } else {
+           eventoCicloAcademico = eventoCicloAcademicoService.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.MAT_REG);             
+        }
         boolean seRegistro = false;
         if (!Optional.ofNullable(matriculaTurnoForm.getId()).isPresent()) {
             MatriculaResumen matriculaResumenDB = matriculaResumenDAO.find(matriculaTurnoForm.getMatriculaResumen().getId()); 
