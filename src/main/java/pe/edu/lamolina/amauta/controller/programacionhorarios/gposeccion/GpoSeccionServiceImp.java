@@ -252,7 +252,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
-    public static String tokenZoom = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2ODI4MzA4MDAsImlhdCI6MTY3ODc1MTM1Mn0.gwRQ8xh6_1oN5WYvWrFwTYREZb0UTZ87HqV52YmDde4";
+    
+    public static String tokenZoom = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2OTM1NDQzNDAsImlhdCI6MTY4OTYxMjMyNH0.UUXu0L2xHeVHJl7fav_Jni20ZrQ-h0qrCTZhw825lng";
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
