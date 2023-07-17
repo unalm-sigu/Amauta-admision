@@ -59,7 +59,7 @@ public class AsignacionTurnoController {
         if (registrado) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
