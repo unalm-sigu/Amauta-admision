@@ -93,7 +93,7 @@ public class AsignacionTurnoServiceImp implements AsignacionTurnoService {
            eventoCicloAcademico = eventoCicloAcademicoService.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.MAT_REG);             
         }
         boolean seRegistro = false;
-        if (!Optional.ofNullable(matriculaTurnoForm.getId()).isPresent()) {
+        /*if (!Optional.ofNullable(matriculaTurnoForm.getId()).isPresent()) {
             MatriculaResumen matriculaResumenDB = matriculaResumenDAO.find(matriculaTurnoForm.getMatriculaResumen().getId()); 
             MatriculaTurno matriculaTurnoDB = matriculaTurnoDAO.findMatriculaTurnoByTurnoAtencion(matriculaTurnoForm.getTurnoAtencion());
             if(Objects.isNull(matriculaTurnoDB)) {
@@ -108,7 +108,21 @@ public class AsignacionTurnoServiceImp implements AsignacionTurnoService {
                 matriculaTurnoDAO.save(matriculaTurnoDB);                
                 seRegistro = true;
             }
-        }        
+        }*/
+        MatriculaResumen matriculaResumenDB = matriculaResumenDAO.find(matriculaTurnoForm.getMatriculaResumen().getId()); 
+        MatriculaTurno matriculaTurnoDB = matriculaTurnoDAO.findMatriculaTurnoByTurnoAtencion(matriculaTurnoForm.getTurnoAtencion());
+        if(Objects.isNull(matriculaTurnoDB)) {
+            matriculaTurnoDB = new MatriculaTurno();
+            matriculaTurnoDB.setFechaRegistro(new Date());
+            matriculaTurnoDB.setMatriculaResumen(matriculaResumenDB);
+            matriculaTurnoDB.setMotivo(matriculaTurnoForm.getMotivo());
+            matriculaTurnoDB.setTurnoAtencion(matriculaTurnoForm.getTurnoAtencion());
+            matriculaTurnoDB.setEventoAcademico(eventoCicloAcademico.getEventoAcademico());
+            matriculaTurnoDB.setVecesIngreso(0);
+            matriculaTurnoDB.setUserRegistro(usuario);
+            matriculaTurnoDAO.save(matriculaTurnoDB);                
+            seRegistro = true;
+        }
         return seRegistro;
     }
 
