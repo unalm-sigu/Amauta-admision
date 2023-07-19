@@ -10,14 +10,17 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
+import pe.edu.lamolina.amauta.controller.mensajeria.chatunalm.ChatUnalmService;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.CitaConsejeroAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ObjetivoCitaConsejeroDAO;
@@ -27,12 +30,14 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.constantines.BienestarConstantine;
 import pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.CANCELADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.NO_ASISTIO;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.PENDIENTE;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REALIZADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REPROGRAMADA;
+import pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
 import pe.edu.lamolina.model.tutoria.ObjetivoCitaConsejero;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
@@ -48,7 +53,9 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
     private final CitaConsejeroAlumnoDAO citaConsejeroAlumnoDAO;
     private final ObjetivoCitaConsejeroDAO objetivoCitaConsejeroDAO;
 
+    private final ChatUnalmService chatUnalmService;
     private final PlanTutoriaService planTutoriaService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<CitaConsejeroAlumno> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -273,6 +280,20 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
             citaPasada.setUltimoMensaje(false);
             citaConsejeroAlumnoDAO.update(citaPasada);
         });
+
+        TipoAsuntoMensajeEnum asunto = TipoAsuntoMensajeEnum.CITA_CONSEJERO;
+        String contenido = chatUnalmService.crearContenido(asunto, newCita);
+
+        chatUnalmService.enviarMensaje(asunto.getValue(), contenido, ds.getDocente(), alumno, ds);
+
+        String msg = JaneHelper
+                .from(newCita)
+                .join("alumno")
+                .join("cicloAcademico")
+                .join("consejero")
+                .json().toString();
+
+        rabbitTemplate.convertAndSend(BienestarConstantine.QUEUE_CHAT_MAIPI, msg);
     }
 
     private String getFechaHora(CitaConsejeroAlumno cita) {

@@ -193,7 +193,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
     @Override
     public Consejero finByIdPersona(Persona persona) {
-        return consejeroDAO.finByIdPersona(persona);
+        return consejeroDAO.findByPersona(persona);
     }
 
     @Override

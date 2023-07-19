@@ -17,7 +17,7 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter);
 
-    Consejero finByIdPersona(Persona persona);
+    Consejero findByPersona(Persona persona);
 
     ConsejeroEstado countConsejerosByCarrera(Carrera carrera);
 
