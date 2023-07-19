@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
-import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoDerivadoAtencionDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TipoAtencionTutoradoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TipoRemitenteDerivacionDAO;
@@ -35,14 +33,12 @@ import pe.edu.lamolina.model.tutoria.TipoRemitenteDerivacion;
 @Transactional(readOnly = true)
 public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
 
-    private final AlumnoConsejeroDAO alumnoConsejeroDAO;
     private final AlumnoDerivadoAtencionDAO alumnoDerivadoAtencionDAO;
     private final MatriculaCursoDAO matriculaCursoDAO;
     private final TipoAtencionTutoradoDAO tipoAtencionTutoradoDAO;
     private final TipoRemitenteDerivacionDAO tipoRemitenteDerivacionDAO;
 
     private final PlanTutoriaService planTutoriaService;
-    private final VerificadorService verificadorService;
 
     @Override
     public List<AlumnoDerivadoAtencion> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {

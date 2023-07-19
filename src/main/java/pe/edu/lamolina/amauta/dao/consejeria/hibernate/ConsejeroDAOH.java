@@ -92,12 +92,13 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public Consejero finByIdPersona(Persona persona) {
+    public Consejero findByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .selectDistinct("con")
                 .from(Colaborador.class, "col")
                 .join("persona per", "consejero con")
                 .filter("per.id", persona);
+
         return find(sql);
     }
 
