@@ -330,6 +330,12 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<TramiteTitulo> allTramiteTituloFacultad(Resolucion resolucionDB) {
+         return tramiteTituloDAO.allByResolucionFacultad(resolucionDB);
+    }
+    
+
+    @Override
     public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB) {
         return practicaPreProfesionalesDAO.allByResolucion(resolucionDB);
     }
@@ -772,6 +778,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case TITUL:
                 resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
+            case TITULBAC:
+                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
+                break;                
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
                 this.requiereCicloAplica(resolucionForm.getCicloAplica());
@@ -825,6 +834,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case TITUL:
                 this.saveTramiteTitulo(resolucionForm, ds);
                 break;
+            case TITULBAC:
+                this.saveTramiteTituloFacultad(resolucionForm, ds);
+                break;                
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
@@ -1543,7 +1555,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
                 .collect(Collectors.toList());
-
+        
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -2382,4 +2394,11 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
     public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion) {
        return tramiteTituloDAO.allByTituloFacultad(resolucion);
     }
+
+    @Override
+    public List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion) {
+       return tramiteTituloDAO.allByTituloFacultadRes(resolucion);
+    }
+
+
 }

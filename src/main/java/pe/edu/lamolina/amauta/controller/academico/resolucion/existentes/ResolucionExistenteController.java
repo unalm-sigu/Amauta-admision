@@ -302,6 +302,7 @@ public class ResolucionExistenteController {
 
         if (!(resolucion.isTipoTramiteBachiller()
                 || resolucion.isTipoTramiteTitulo()
+                || resolucion.isTipoTramiteTituloFacultad()
                 || resolucion.isTipoTramitePracticas()
                 || resolucion.isTipoTrasladoInterno()
                 || resolucion.isTipoRetiroCiclo()
@@ -344,6 +345,7 @@ public class ResolucionExistenteController {
             case BACHI:
             case BACHIFAC:
             case TITUL:
+            case TITULBAC:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
@@ -476,9 +478,7 @@ public class ResolucionExistenteController {
                     .join("tramite.alumno.persona")
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
-
-        } else if (Arrays.asList(BACHIFAC, BACHI, TITUL, OBTE_GRADO).contains(tipoResolucionEnum)) {
-
+        } else if (Arrays.asList(BACHI, OBTE_GRADO).contains(tipoResolucionEnum)) {
             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
                 List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
                 return JaneHelper.from(graduados)
@@ -497,11 +497,29 @@ public class ResolucionExistenteController {
                         .join("tramite.persona", "paterno,materno,nombres")
                         .join("resolucion.oficina", "codigo,id")
                         .join("resolucion")
-                        //                        .join("cicloAcademico", "id,descripcion,nombre")
                         .array();
-            }
-        
-        } else if (tipoResolucionEnum == TITULBAC) {
+            }        
+        } else if (tipoResolucionEnum == BACHIFAC){
+                        List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
+                return JaneHelper.from(tramiteBachiller)
+                        .join("tramite.alumno", "codigo")
+                        .join("tramite.cicloAcademico", "descripcion")
+                        .join("tramite.persona", "paterno,materno,nombres")
+                        .join("resolucion.oficina", "codigo,id")
+                        .join("resolucion")
+                        .array();
+        }
+        else if (tipoResolucionEnum == TITUL){
+                List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultadRes(resolucion);
+                return JaneHelper.from(tramiteTitulo)
+                        .join("tramite.alumno", "codigo")
+                        .join("tramite.cicloAcademico", "descripcion")
+                        .join("tramite.persona", "paterno,materno,nombres")
+                        .join("resolucion.oficina", "codigo,id")
+                        .join("resolucion")
+                        //                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .array();        
+        }else if (tipoResolucionEnum == TITULBAC) {
                 List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultad(resolucion);
                 return JaneHelper.from(tramiteTitulo)
                         .join("tramite.alumno", "codigo")
@@ -510,8 +528,7 @@ public class ResolucionExistenteController {
                         .join("resolucion.oficina", "codigo,id")
                         .join("resolucion")
                         //                        .join("cicloAcademico", "id,descripcion,nombre")
-                        .array();
-                
+                        .array();                
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)
@@ -530,7 +547,6 @@ public class ResolucionExistenteController {
                     .join("alumno.persona.tipoDocumento")
                     .join("cicloReadmitido")
                     .array();
-
         } else if (tipoResolucionEnum == CAMBIO_PLAN_CURRICULAR) {
             List<CambioPlanCurricular> cambioPlanCurriculares = service.allCambioPlanCurricularByResolucion(resolucion);
             return JaneHelper.from(cambioPlanCurriculares)
@@ -588,7 +604,26 @@ public class ResolucionExistenteController {
 
             objectNode.set("tramiteBachiller", array);
 
-        } else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
+        }else if (resolucion.getTipoResolucion().getCodigo().equals(TITULBAC.name())){
+            List<TramiteTitulo> tramiteTitulos = service.allTramiteTituloFacultad(resolucion);
+
+            for (TramiteTitulo tit : tramiteTitulos) {
+                tit.setAlumno(tit.getTramite().getAlumno());
+            }
+
+            ArrayNode array = JaneHelper.from(tramiteTitulos).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("tramiteTitulos", array);
+        
+        
+        }
+        else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
 
             List<TramiteTitulo> tramiteTitulos = service.allTramiteTitulo(resolucion);
 

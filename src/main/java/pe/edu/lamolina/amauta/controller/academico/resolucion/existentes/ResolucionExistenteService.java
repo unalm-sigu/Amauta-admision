@@ -59,6 +59,8 @@ public interface ResolucionExistenteService {
 
     List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB);
 
+    public List<TramiteTitulo> allTramiteTituloFacultad(Resolucion resolucion);
+
     List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB);
 
     List<TramiteBachiller> allBachiller(DataSessionPivot ds);
@@ -68,8 +70,6 @@ public interface ResolucionExistenteService {
     List<TramiteTitulo> allTitulos(DataSessionPivot ds);
 
     List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds);
-
-    public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion);
 
     List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 
@@ -102,5 +102,9 @@ public interface ResolucionExistenteService {
     boolean anularAlumnoDeResolucionBachiller(Alumno alumno, Resolucion resolucion, TramiteBachiller tramiteBachiller, Usuario usuario, DataSessionPivot ds);
 
     boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds);
+
+    public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion);
+
+    public List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion);
 
 }

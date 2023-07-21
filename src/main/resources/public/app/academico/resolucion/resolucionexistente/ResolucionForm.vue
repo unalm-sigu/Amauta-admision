@@ -49,15 +49,18 @@
                         <div v-if="resolucion.tipoResolucion.isRetiroCiclo">
                             <resolucion-form-details-retiro-ciclo v-model="resolucion"></resolucion-form-details-retiro-ciclo>
                         </div>
-
                         <div v-if="resolucion.tipoResolucion.isTramiteTitulo">
                             <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
                         </div>
                         
+                        <div v-if="resolucion.tipoResolucion.isTramiteTituloFacultad">
+                            <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
+                        </div>
+
                         <div v-if="resolucion.tipoResolucion.isTramiteTituloResolucion">
                             <resolucion-form-details-titulo v-model="resolucion"></resolucion-form-details-titulo>
                         </div>
-                        
+
                         <div v-if="resolucion.tipoResolucion.isTrasladoInterno">
                             <resolucion-form-details-traslado-interno v-model="resolucion"></resolucion-form-details-traslado-interno>
                         </div>
@@ -79,12 +82,12 @@
 
 
                     <button v-if="resolucion.id && visible == false" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
-                      <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                      Actualizar
+                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+                        Actualizar
                     </button>
                     <button v-else-if="resolucion.id && visible == true" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
-                      <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
-                      Actualizar
+                        <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+                        Actualizar
                     </button>
 
                     <button  v-if="resolucion.id == null" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">
@@ -172,9 +175,9 @@
         mounted: function () {
             let $vue = this;
             if (IS_EDICION || IS_ANULAR) {
-              $vue.resolucion = JSON.parse(resolucionJson);
+                $vue.resolucion = JSON.parse(resolucionJson);
             } else {
-              $vue.resolucion = {...$vue.resolucionNew};
+                $vue.resolucion = {...$vue.resolucionNew};
             }
         },
         methods: {

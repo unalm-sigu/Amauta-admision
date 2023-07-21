@@ -131,11 +131,29 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
+    public List<TramiteTitulo> allByResolucionFacultad(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
+                .filter("tb.resolucionFacultad", resolucion);
+        return all(sql);
+    }
+
+    @Override
     public List<TramiteTitulo> allByTituloFacultad(Resolucion resolucion) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucionFacultad", resolucion);
+        return all(sql);
+    }
+
+    @Override
+    public List<TramiteTitulo> allByTituloFacultadRes(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
+                .filter("tb.resolucion", resolucion);
         return all(sql);
     }
 
