@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.consejeria.derivartutorado;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -12,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoDerivadoAtencionDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TipoAtencionTutoradoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TipoRemitenteDerivacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -21,7 +24,14 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.consejeria.EstadoDerivacionEnum;
+import pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.CENMED;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.PSICOLOGO;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.PSICOPEDAGOGO;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.TUTORES;
+import pe.edu.lamolina.model.medico.DerivacionPaciente;
 import pe.edu.lamolina.model.tutoria.AlumnoDerivadoAtencion;
 import pe.edu.lamolina.model.tutoria.TipoAtencionTutorado;
 import pe.edu.lamolina.model.tutoria.TipoRemitenteDerivacion;
@@ -33,7 +43,9 @@ import pe.edu.lamolina.model.tutoria.TipoRemitenteDerivacion;
 @Transactional(readOnly = true)
 public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
 
+    private final AlumnoDAO alumnoDAO;
     private final AlumnoDerivadoAtencionDAO alumnoDerivadoAtencionDAO;
+    private final ConsejeroDAO consejeroDAO;
     private final MatriculaCursoDAO matriculaCursoDAO;
     private final TipoAtencionTutoradoDAO tipoAtencionTutoradoDAO;
     private final TipoRemitenteDerivacionDAO tipoRemitenteDerivacionDAO;
@@ -73,21 +85,45 @@ public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
         Assert.isNotNull(derivacionForm.getTipoAtencionTutorado(), "No ha indicado el tipo de atención");
         Assert.isNotNull(derivacionForm.getMotivoDerivacion(), "No ha indicado el motivo");
 
-        TipoRemitenteDerivacion tipoRemitente = tipoRemitenteDerivacionDAO.findByCodigo("TUTOR");
+        Consejero consejero = this.findConsejero(alumno, ds);
 
-        AlumnoDerivadoAtencion derivacion = new AlumnoDerivadoAtencion();
-        derivacion.setEstadoEnum(EstadoDerivacionEnum.PENDIENTE);
-        derivacion.setAlumno(alumno);
-        derivacion.setCicloAcademico(ciclo);
-        derivacion.setPersonaRemitente(ds.getPersona());
-        derivacion.setTipoRemitenteDerivacion(tipoRemitente);
-        derivacion.setTipoAtencionTutorado(derivacionForm.getTipoAtencionTutorado());
-        derivacion.setCurso(derivacionForm.getCurso());
-        derivacion.setMotivoDerivacion(derivacionForm.getMotivoDerivacion());
-        derivacion.setUserRegistro(ds.getUsuario());
-        derivacion.setFechaRegistro(today.toDate());
-        alumnoDerivadoAtencionDAO.save(derivacion);
+        TipoRemitenteDerivacion tipoRemitente = tipoRemitenteDerivacionDAO.findByCodigoNodo(NodoDerivacionEnum.TUTOR);
+        TipoAtencionTutorado tipoAtencion = tipoAtencionTutoradoDAO.find(derivacionForm.getTipoAtencionTutorado().getId());
 
+        AlumnoDerivadoAtencion derivacionTutor = new AlumnoDerivadoAtencion();
+        derivacionTutor.setEstadoEnum(EstadoDerivacionEnum.PENDIENTE);
+        derivacionTutor.setAlumno(alumno);
+        derivacionTutor.setCicloAcademico(ciclo);
+        derivacionTutor.setPersonaRemitente(ds.getPersona());
+        derivacionTutor.setTipoRemitenteDerivacion(tipoRemitente);
+        derivacionTutor.setTipoAtencionTutorado(tipoAtencion);
+        derivacionTutor.setCurso(derivacionForm.getCurso());
+        derivacionTutor.setMotivoDerivacion(derivacionForm.getMotivoDerivacion());
+        derivacionTutor.setUserRegistro(ds.getUsuario());
+        derivacionTutor.setFechaRegistro(today.toDate());
+        alumnoDerivadoAtencionDAO.save(derivacionTutor);
+
+        List<NodoDerivacionEnum> nodosCentroMedico = Arrays.asList(PSICOLOGO, PSICOPEDAGOGO);
+        if (nodosCentroMedico.contains(tipoAtencion.getCodigoNodoEnum())) {
+            DerivacionPaciente derivacion = new DerivacionPaciente();
+            derivacion.setTipoOrigenEnum(TUTORES);
+            derivacion.setTipoDestinoEnum(CENMED);
+            derivacion.setAlumno(alumno);
+            derivacion.setConsejero(consejero);
+            derivacion.setColaborador(consejero.getColaborador());
+            derivacion.setMotivo(derivacionTutor.getMotivoDerivacion());
+            derivacion.setEstadoEnum(EstadoDerivacionEnum.PENDIENTE);
+            //derivacion.set
+        }
+
+    }
+
+    private Consejero findConsejero(Alumno alumno, DataSessionPivot ds) {
+        if (alumno.getCarrera() == null) {
+            alumno = alumnoDAO.findAllInfo(alumno.getId());
+        }
+
+        return consejeroDAO.findByPersonaCarrera(ds.getPersona(), alumno.getCarrera());
     }
 
 }
