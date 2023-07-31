@@ -1211,19 +1211,22 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(S_4);
                     this.printLogger("Caso 34", showLog);
 
-                } else if (alumnoCiclo.isAprobado() && alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
-                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
-                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
-                    this.printLogger("Caso 36", showLog);
+                } 
+                else if ((!alumnoCiclo.getSituacionInicio().isEnPrueba() && !alumnoCiclo.getSituacionInicio().isSuspendido()) 
+                        && alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
+                    
+                        situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+                        alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
+                        this.printLogger("Caso 36", showLog);
 
-                }
-                
-                else if (!alumnoCiclo.isAprobado() && alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
-                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4);
-                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
-                    this.printLogger("Caso 36", showLog);
+                } 
 
-                }
+//                else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
+//                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+//                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
+//                    this.printLogger("Caso 36", showLog);
+//
+//                }
                 
                 else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
