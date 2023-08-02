@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.TipoRemitenteDerivacionDAO;
+import pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum;
 import pe.edu.lamolina.model.tutoria.TipoRemitenteDerivacion;
 
 @Repository
@@ -19,6 +20,18 @@ public class TipoRemitenteDerivacionDAOH extends AbstractEasyDAO<TipoRemitenteDe
         Octavia sql = new Octavia()
                 .from(TipoRemitenteDerivacion.class, "tr")
                 .filter("tr.codigo", codigo);
+
+        return find(sql);
+    }
+
+    @Override
+    public TipoRemitenteDerivacion findByCodigoNodo(NodoDerivacionEnum nodo) {
+        Octavia sql = new Octavia()
+                .from(TipoRemitenteDerivacion.class, "tr")
+                .filter("tr.codigo", nodo);
+
+        System.out.println("nodo = " + nodo.name());
+        System.out.println("sql = " + sql.toString());
 
         return find(sql);
     }

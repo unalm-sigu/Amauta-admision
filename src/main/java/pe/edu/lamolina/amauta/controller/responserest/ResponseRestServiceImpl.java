@@ -38,6 +38,7 @@ import pe.edu.lamolina.amauta.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.medico.dto.PacienteDTO;
 
 @Service
 public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> implements ResponseRestService {
@@ -389,6 +390,16 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         ObjectNode json = createFormJson(ds, token);
 
         String url = String.format("%s/matriculaSeccion/limpiarCache", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse crearPaciente(Persona persona, DataSessionPivot ds, TokenIngresante token) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+        PacienteDTO paciente = new PacienteDTO(ds.getUsuario().getId(), token.getValor(), persona.getId());
+        ObjectNode json = JaneHelper.from(paciente).json();
+
+        String url = String.format("%s/centromedicorest/crearPaciente", parametro.getValor());
         return this.postToBackEnd(url, json);
     }
 

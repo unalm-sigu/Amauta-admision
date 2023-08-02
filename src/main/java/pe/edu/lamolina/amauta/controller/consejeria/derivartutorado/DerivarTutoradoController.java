@@ -97,6 +97,7 @@ public class DerivarTutoradoController {
                     .join("curso", "id,tpc,codigo,nombre")
                     .join("cicloAcademico", "id")
                     .join("alumno", "id")
+                    .join("userModificacion.persona", "nomPaternoMat")
                     .json();
 
             array.add(node);

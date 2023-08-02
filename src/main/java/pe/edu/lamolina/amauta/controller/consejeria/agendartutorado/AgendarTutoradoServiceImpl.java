@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.constantines.BienestarConstantine;
+import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.CANCELADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.NO_ASISTIO;
@@ -38,6 +39,7 @@ import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.PENDIEN
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REALIZADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REPROGRAMADA;
 import pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum;
+import pe.edu.lamolina.model.social.AsuntoMensaje;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
 import pe.edu.lamolina.model.tutoria.ObjetivoCitaConsejero;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
@@ -281,10 +283,14 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
             citaConsejeroAlumnoDAO.update(citaPasada);
         });
 
-        TipoAsuntoMensajeEnum asunto = TipoAsuntoMensajeEnum.CITA_CONSEJERO;
-        String contenido = chatUnalmService.crearContenido(asunto, newCita);
+        TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR;
+        String contenido = chatUnalmService.crearContenido(tipoAsunto, newCita);
 
-        chatUnalmService.enviarMensaje(asunto.getValue(), contenido, ds.getDocente(), alumno, ds);
+        AsuntoMensaje asunto = new AsuntoMensaje(
+                tipoAsunto.getValue(),
+                NombreTablasEnum.TUTO_CITA_CONSEJERO_ALUMNO,
+                newCita.getId());
+        chatUnalmService.enviarMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
 
         String msg = JaneHelper
                 .from(newCita)
