@@ -1,7 +1,6 @@
 package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
-import static java.util.Locale.filter;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -30,6 +29,7 @@ public class AlumnoDerivadoAtencionDAOH extends AbstractEasyDAO<AlumnoDerivadoAt
                 .leftJoin("medico med", "med.colaborador colm", "colm.persona")
                 .leftJoin("colaborador col", "col.persona perco", "perco.tipoDocumento")
                 .leftJoin("col.oficina ofi", "ofi.oficinaPrincipal", "col.cargo")
+                .leftJoin("userModificacion usm", "usm.persona")
                 .searchFields("ada.motivoDerivacion", "perr.numeroDocIdentidad", "esp.nombre", "cur.codigo", "cur.nombre")
                 .filter("alu.id", alumno)
                 .filter("ci.id", ciclo)

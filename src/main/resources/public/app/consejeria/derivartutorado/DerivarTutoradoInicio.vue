@@ -80,9 +80,9 @@
                                 <thead class="panel panel-heading">
                                     <tr>
                                         <th class="col-md-3 v-middle">Remitente</th>
-                                        <th class="col-md-4 v-middle">Derivación</th>
-                                        <th class="col-md-3 v-middle">Motivo</th>
-                                        <th class="col-md-1 v-middle">Respuesta</th>
+                                        <th class="col-md-3 v-middle">Destino</th>
+                                        <th class="col-md-3 v-middle">Motivo / Respuesta</th>
+                                        <th class="col-md-2 v-middle text-center">Respuesta</th>
                                         <th class="col-md-1 v-middle text-center">Estado</th>
                                         <th class=""></th>
                                     </tr>
@@ -91,7 +91,8 @@
                                     <tr v-for="item in props.data">
                                         <td class="v-middle">
                                             <div class="text-primary">{{item.personaRemitente.apellidosNombres}}</div>
-                                            <div>{{item.tipoRemitenteDerivacion.nombre}}</div>
+                                            <div class="bold">{{item.tipoRemitenteDerivacion.nombre}}</div>
+                                            <div class="block">{{item.fechaRegistro.split(' ')[0]}}</div>
                                         </td>
                                         <td class="v-middle">
                                             <template v-if="item.tipoAtencionTutorado.grupoAtencion == 'ESPECIALIZADA' ">
@@ -107,14 +108,29 @@
                                             </template>
                                         </td>
                                         <td class="v-middle">
-                                            <div>{{item.motivoDerivacion}}</div>
+                                            <div class="block"> <strong>Motivo: </strong> {{item.motivoDerivacion}}</div>
+                                            <div v-if="item.descripcion" class="block"> <strong>Respuesta: </strong> {{item.descripcion}}</div>
                                         </td>
-                                        <td class="v-middle">
-
+                                        <td class="v-middle text-center">
+                                            <template v-if="item.fechaModificacion">
+                                                <div class="block">
+                                                    {{item.fechaModificacion.split(' ')[0]}}
+                                                </div>
+                                                <div class="block">
+                                                    {{getHora(item.fechaModificacion.split(' ')[1])}}
+                                                </div>
+                                                <div class="block text-primary">
+                                                    {{item.userModificacion.persona.nomPaternoMat}}
+                                                </div>
+                                            </template>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <div v-bind:class="classEstado(item)"
+                                                 class="label">{{item.estadoEnum.value}}</div>
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <div class="dropdown actions">
+                                            <!--div class="dropdown actions">
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                                     <i class="fa fa-cog"></i>
                                                 </a>
@@ -122,7 +138,7 @@
                                                     <li class="pointer"><a>Ver cita</a></li>
                                                     <li role="separator" class="divider"></li>
                                                 </ul>
-                                            </div>
+                                            </div-->
                                         </td>
                                     </tr>
                                 </tbody>
@@ -201,6 +217,27 @@
                 }
 
                 return this.alumno.carrera.codigo !== this.consejero.carrera.codigo;
+            },
+            classEstado(item) {
+                if (item.estado == 'PENDIENTE') {
+                    return "label-warning";
+                } else if (item.estado == 'REALIZADA') {
+                    return "label-success";
+                }
+                return "label-danger";
+            },
+            getHora(string) {
+                const regexHora = /^(\d{2}):(\d{2}):(\d{2})$/;
+                const match = string.match(regexHora);
+
+                if (match) {
+                    const horas = match[1];
+                    const minutos = match[2];
+                    return `${horas}:${minutos}`;
+
+                } else {
+                    return null;
+                }
             },
 
             // metodos genericos
