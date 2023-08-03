@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.edu.lamolina.amauta.controller.seguridad.verificarurl.VerificarUrlControServiceImp;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -40,7 +41,9 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("seguridad/usuario")
-public class UsuarioController {
+public class UsuarioController extends VerificarUrlControServiceImp {
+
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     UsuarioService service;
@@ -73,7 +76,11 @@ public class UsuarioController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model) {
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        if (!this.accesoSessionUrl(ds, rutaModulo)) {
+            return "redirect:/logout";
+        }
 
         List<Rol> userRoles = service.listRol();
         model.addAttribute("roles", userRoles);
@@ -144,7 +151,7 @@ public class UsuarioController {
         byte[] decoded = Base64.getDecoder().decode(origen);
         String decodedString = new String(decoded);
         System.out.println(decodedString);
-        
+
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("origen", decodedString);

@@ -61,6 +61,8 @@ new Vue({
                     .then(response => {
                         console.log(response);
                         $vue.$refs.modalAsignarTurno.confirmReaction(response.data.success);
+                        $vue.$refs.raptorAsignacionTurno.loadRemoteData();
+                        $vue.$refs.modalAsignarTurno.close();
                         /*if (response.data.success) {
                             $vue.$refs.raptorAsignacionTurno.loadRemoteData();
                             $vue.$refs.modalAsignarTurno.close();

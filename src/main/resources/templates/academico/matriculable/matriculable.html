@@ -5,6 +5,7 @@
 
     <body>
         <div layout:fragment="main" >
+                                                    
             <div id="matriculableVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">        
@@ -82,7 +83,7 @@
                                             v-bind:options="situaciones"
                                             v-bind:allow-empty="true"
                                             track-by="id"
-                                            placeholder=" Situación Académica "
+                                            placeholder=" Situación Académica Anterior"
                                             label='nombre'
                                             v-on:input="changeSeleccion()"
                                             v-bind:internal-search="true"
@@ -253,9 +254,9 @@
 
                                                 <td class="v-middle text-center">
                                                     <span class="block">{{item.puntajePrioridad}}</span>
-                                                    <span class="block" v-if="item.situacionInicio.id != ''">I: {{item.situacionInicio.nombre}} </span>
+                                                    <span class="block" v-if="item.situacionInicio.id != ''" ><strong>Sit. Anterior: </strong>{{item.situacionInicio.nombre}}</span>
                                                     <span class="block" v-if="item.situacionFinal.id != ''">F: {{item.situacionFinal.nombre}} </span>
-                                                    <span class="block h5 text-primary m-t-xs m-b-xs">{{item.alumno.situacionAcademica.nombre}}</span>
+                                                    <span class="block h5 text-primary m-t-xs m-b-xs"><strong>Sit. Actual:</strong> {{item.alumno.situacionAcademica.nombre}}</span>
 
                                                 </td>
 
@@ -267,7 +268,7 @@
 
                                                 <td class='v-middle '>
                                                     <div v-if="ciclo.fechaPrioridades != null &amp;&amp; item.cicloAcademicoInfo.descripcion != ''">
-                                                        <span class="block" ><span class="bold">Ciclo:</span> {{item.cicloAcademicoInfo.descripcion}}</span>
+                                                        <span class="block"><span class="bold">Ciclo:</span> {{item.cicloAcademicoInfo.descripcion}}</span>
                                                         <span class="block"><span class="bold">pps:</span> {{item.promedioSemestral}}</span>
                                                         <span class="block"><span class="bold">capa:</span> {{item.creditosAprobadosAcumulados}}</span>
                                                         <span class="block"><span class="bold">caps:</span> {{item.creditosAprobadosCiclo}}</span>
@@ -356,7 +357,7 @@
                 var estadosMatriculaJson = /*[[${estadosMatricula}]]*/ 'json';
                 var rutaModulo = 'academico/matriculable';
                 /*]]>*/
-            </script>
+               </script>
             <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>
         </div>

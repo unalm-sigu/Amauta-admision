@@ -69,6 +69,8 @@ public class DataSessionPivot implements Serializable {
 
     private String rutaEncuentaSunedu;
 
+    private List<Menu> menusAcceso;
+
     public List<Colaborador> getColaborador() {
         return colaborador;
     }
@@ -265,6 +267,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setRutaEncuentaSunedu(String rutaEncuentaSunedu) {
         this.rutaEncuentaSunedu = rutaEncuentaSunedu;
+    }
+
+    public List<Menu> getMenusAcceso() {
+        return menusAcceso;
+    }
+
+    public void setMenusAcceso(List<Menu> menusAcceso) {
+        this.menusAcceso = menusAcceso;
     }
 
 }

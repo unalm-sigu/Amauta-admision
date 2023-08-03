@@ -693,6 +693,8 @@ public class InfoAcademicoController {
             "resolucionBachiller",
             "resolucionBachillerFacultad",
             "fechaBachillerFacultad",
+            "resolucionTituloFacultad",
+            "fechaTituloFacultad",
             // --- //
             "carrera.codigo",
             "carrera.nombre",

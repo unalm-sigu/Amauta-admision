@@ -186,7 +186,7 @@
                                 <span v-text="alumno.fechaEgreso"></span>
                             </td>
                         </tr>
-
+                        <!-- INICIO Resolucion TITULO UNALM-->
                         <tr v-if="alumno.resolucionTitulo">
                             <td>
                                 <strong> Título </strong>
@@ -203,11 +203,29 @@
                             <td>
                                 <span v-text="alumno.fechaTitulo"></span>
                             </td>
+                        </tr>                        
+
+                        <tr v-if="alumno.resolucionTituloFacultad">
+                            <td>
+                                <strong> Res.Facult.Título </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.resolucionTituloFacultad"></span>
+                            </td>
                         </tr>
+                        <tr v-if="alumno.fechaTituloFacultad">
+                            <td>
+                                <strong>Fecha Res.Fac.título </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.fechaTituloFacultad"></span>
+                            </td>
+                        </tr>   
+                                               
 
                         <tr v-if="alumno.resolucionBachiller">
                             <td>
-                                <strong> Resolucion UNALM Bachiller  </strong>
+                                <strong> Res.UNALM Bachiller  </strong>
                             </td>
                             <td>
                                 <span v-text="alumno.resolucionBachiller"></span>
@@ -222,9 +240,10 @@
                                 <span v-text="alumno.fechaBachiller"></span>
                             </td>
                         </tr>
+
                         <tr v-if="alumno.resolucionBachillerFacultad">
                             <td>
-                                <strong> Resolucion Facultad Bachiller</strong>
+                                <strong>Res.Facultad Bachiller</strong>
                             </td>
                             <td>
                                 <span v-text="alumno.resolucionBachillerFacultad"></span>
@@ -232,7 +251,7 @@
                         </tr>
                         <tr v-if="alumno.fechaBachillerFacultad">
                             <td>
-                                <strong>Fecha Res. Fac. Bachiller  </strong>
+                                <strong>Fecha Res.Fac.Bachiller</strong>
                             </td>
                             <td>
                                 <span v-text="alumno.fechaBachillerFacultad"></span>

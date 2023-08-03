@@ -431,6 +431,16 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             alumno.setFechaTitulo((Date) ObjectUtil.getParentTree(tramiteTitulo, "resolucion.fecha"));
             log.debug("{}", alumno.getResolucionTitulo());
         }
+
+        log.debug("tramiteTituloFacultad");
+        TramiteTitulo tramiteTituloFacultad = tramiteTituloDAO.findByAlumnoFacultadACEP(alumno);
+        if (tramiteTituloFacultad != null) {
+            alumno.setResolucionTituloFacultad(tramiteTituloFacultad.getResolucionFacultad().getNumeroVisible());
+            alumno.setFechaTituloFacultad(tramiteTituloFacultad.getResolucionFacultad().getFecha());
+            log.debug("{}", alumno.getResolucionTituloFacultad());
+            log.debug("{}", alumno.getFechaTituloFacultad());
+        }
+        
         if (alumno.getCicloActivo() != null) {
             if (alumno.getSituacionAcademica() != null) {
                 if (alumno.getSituacionAcademica().isEgresado()) {

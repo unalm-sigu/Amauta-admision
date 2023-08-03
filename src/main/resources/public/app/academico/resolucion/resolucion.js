@@ -329,6 +329,8 @@ var app = new Vue({
                             $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "TITUL") {
                             $vue.alumnoTramiteBachiller = data;
+                        } else if ($vue.tipo == "TITULBAC") {
+                            $vue.alumnoTramiteBachiller = data;                            
                         } else if ($vue.tipo == "PRACTICAS") {
                             $vue.alumnoTramitePracticas = data;
                         } else if ($vue.tipo == "TRAS_INT") {

@@ -43,6 +43,10 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -880,7 +884,6 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return all(sql);
     }
 
-    
     @Override
     public List<MatriculaResumen> allByCiclos(List<CicloAcademico> ciclos) {
         Octavia sql = Octavia.query()
@@ -1109,16 +1112,21 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .left("mr.situacionInicio si", "mr.situacionFinal sf")
                 .join("alu.persona");
-        if (!cicloOrigen.getCodigo().equals("202220")) {
-            sql.notIn("sa.codigo", asList(
-                    S_4.getValue(),
-                    S_X.getValue(),
-                    S_U.getValue(),
-                    S_XD.getValue(),
-                    S_4U.getValue(),
-                    S_4T.getValue(),
-                    S_7.getValue()));
-        }
+//        if (!cicloOrigen.getCodigo().equals("202220")) {
+        sql.notIn("sa.codigo", asList(
+                S_4.getValue(),
+                S_X.getValue(),
+                S_U.getValue(),
+                S_XD.getValue(),
+                S_4U.getValue(),
+                S_4T.getValue(),
+                S_9.getValue(),
+                S_E.getValue(),
+                S_D.getValue(),
+                S_RA.getValue(),
+                S_R.getValue(),
+                S_7.getValue()));
+//        }
         sql.in("estado", asList(MAT, NMAT, RCI))
                 .filter("me.codigo", PRE)
                 .filter("ca.codigo", cicloOrigen.getCodigo());
