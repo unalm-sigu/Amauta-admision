@@ -41,6 +41,9 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.ASOERA;
@@ -60,6 +63,7 @@ public class VerificadorServiceImp implements VerificadorService {
 
     private final AnexoBoletinDAO anexoBoletinDAO;
     private final CarreraDAO carreraDAO;
+    private final ConsejeroDAO consejeroDAO;
     private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
     private final FacultadDAO facultadDAO;
     private final OficinaDAO oficinaDAO;
@@ -1198,6 +1202,49 @@ public class VerificadorServiceImp implements VerificadorService {
             if (rol.getCodigoEnum() == RolEnum.TRAM_DOCUM_OERA) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean esConsejeroCarrera(DataSessionPivot ds, Carrera carrera) {
+        Consejero consejero = consejeroDAO.findByPersonaCarrera(ds.getPersona(), carrera);
+        if (consejero == null) {
+            return false;
+        }
+        return (consejero.getEstadoEnum() == EstadoEnum.ACT);
+    }
+
+    @Override
+    public boolean esCoordinadorConsejeria(DataSessionPivot ds, Carrera carrera) {
+        String codigo = "CT-" + carrera.getCodigo();
+        Oficina oficina = oficinaService.findByCodigo(codigo);
+        if (oficina == null) {
+            return false;
+        }
+
+        if (oficina.getPersonaJefe() != null && oficina.getPersonaJefe().equals(ds.getPersona())) {
+            return true;
+        }
+        if (oficina.getJefeEncargado() != null && oficina.getJefeEncargado().equals(ds.getPersona())) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean esJefeCarrera(DataSessionPivot ds, Carrera carrera) {
+        String codigo = "E" + carrera.getCodigo();
+        Oficina oficina = oficinaService.findByCodigo(codigo);
+        if (oficina == null) {
+            return false;
+        }
+
+        if (oficina.getPersonaJefe() != null && oficina.getPersonaJefe().equals(ds.getPersona())) {
+            return true;
+        }
+        if (oficina.getJefeEncargado() != null && oficina.getJefeEncargado().equals(ds.getPersona())) {
+            return true;
         }
         return false;
     }

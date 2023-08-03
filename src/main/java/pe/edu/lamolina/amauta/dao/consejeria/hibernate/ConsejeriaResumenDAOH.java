@@ -2,7 +2,7 @@ package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -10,7 +10,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
 
-@Service
+@Repository
 public class ConsejeriaResumenDAOH extends AbstractEasyDAO<ConsejeriaResumen> implements ConsejeriaResumenDAO {
 
     public ConsejeriaResumenDAOH() {

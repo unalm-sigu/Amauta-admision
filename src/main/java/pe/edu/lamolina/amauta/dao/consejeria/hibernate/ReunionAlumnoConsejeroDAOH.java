@@ -1,10 +1,9 @@
 package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -22,7 +21,7 @@ import pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.ReunionAlumnoConsejeroEstadoEnum.AGEN;
 
 @Slf4j
-@Service
+@Repository
 public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoConsejero> implements ReunionAlumnoConsejeroDAO {
 
     public ReunionAlumnoConsejeroDAOH() {
@@ -75,7 +74,7 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .filter("ca.id", cicloAcademico)
                 .filter("coo.codigo", consejero.getColaborador().getCodigo())
                 .orderBy("rac.id desc");
-                //.orderBy("acon.fecha", "acon.hora");
+        //.orderBy("acon.fecha", "acon.hora");
 
         return all(sql);
     }
@@ -116,8 +115,8 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
         if (filtroReporteAgendaDTO.getConsejero() != null) {
             sql.filter("con.id", filtroReporteAgendaDTO.getConsejero());
         }
-        
-        if (filtroReporteAgendaDTO.getAlumno()!= null) {
+
+        if (filtroReporteAgendaDTO.getAlumno() != null) {
             sql.filter("al.id", filtroReporteAgendaDTO.getAlumno());
         }
 
@@ -127,12 +126,12 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
 
     @Override
     public List<ReunionAlumnoConsejero> allByAgendaConsejeros(List<AgendaConsejero> agendaConsejeros) {
-        
+
         Octavia sql = new Octavia()
                 .from(ReunionAlumnoConsejero.class, "rac")
                 .join("rac.agendaConsejero ag")
-                .left("rac.alumnoConsejero ac","ac.cicloAcademico ca")
-                .left("ac.alumno al","al.persona per","al.carrera car")
+                .left("rac.alumnoConsejero ac", "ac.cicloAcademico ca")
+                .left("ac.alumno al", "al.persona per", "al.carrera car")
                 .in("ag.id", agendaConsejeros);
         return all(sql);
     }

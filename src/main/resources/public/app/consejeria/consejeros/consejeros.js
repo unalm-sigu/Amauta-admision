@@ -402,7 +402,8 @@ new Vue({
             let carrera = $vue.carreraSelect.id;
             $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
-        }, agregarAlumno() {
+        },
+        agregarAlumno() {
             let $vue = this;
             console.log("agregarAlumno");
             /*
@@ -462,7 +463,8 @@ new Vue({
                 return "";
             }
             return item.codigo + " - " + item.persona.nombreCompleto;
-        }, aceptarNuevosAconsejados() {
+        },
+        aceptarNuevosAconsejados() {
             let $vue = this;
             $vue.alumnoConsejero.consejero.alumno = $vue.alumnosSeleccionados;
 
@@ -489,7 +491,8 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }, consejerosPorEspecialidad() {
+        },
+        consejerosPorEspecialidad() {
             let $vue = this;
             let ruta = "/consejeria/consejeros/consejerosPorEspecialidad";
 
@@ -507,7 +510,8 @@ new Vue({
                     notify(Messages.errorComunicacion, 'error')
                 }
             });
-        }, tutoradosPorCondicion(item) {
+        },
+        tutoradosPorCondicion(item) {
             let $vue = this;
             let ruta = "/consejeria/consejeros/aconsejadosPorCondicion";
             console.log(ruta);
@@ -526,7 +530,8 @@ new Vue({
                     notify(Messages.errorComunicacion, 'error')
                 }
             });
-        }, reporteTutoradosOtraEspecialidad() {
+        },
+        reporteTutoradosOtraEspecialidad() {
             let $vue = this;
             let ruta = "/consejeria/consejeros/reporteTutoradosOtraEspecialidad";
             $.fileDownload(ruta, {
@@ -549,9 +554,24 @@ new Vue({
             location.href = APP.url('consejeria/aconsejadostutor/viewCoordinador/' + item.colaborador.persona.id + "/" + $vue.carreraSelect.id) + $vue.getOrigenURL();
 
         },
+        rutaInforme(item) {
+            return `/${rutaModuloTutor}/${item.id}/informefinal${myUtils.getOrigenURL()}`;
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        classInforme(informe) {
+            if (informe.estado === 'PEN') {
+                return "text-warning";
+            } else if (informe.estado === 'ACT') {
+                return "text-primary";
+            } else if (informe.estado === 'OBS') {
+                return "text-danger";
+            } else if (informe.estado === 'ACP') {
+                return "text-success";
+            }
+            return "";
         }
     }
 });

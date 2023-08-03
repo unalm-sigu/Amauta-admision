@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.AconsejadosTutorController;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.AconsejadosTutorService;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
@@ -53,6 +54,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 public class ConsejerosController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     ConsejerosService service;
@@ -78,6 +80,9 @@ public class ConsejerosController {
     @Autowired
     TutoradosConsejeroOtraCarreraExcelView tutoradosConsejeroOtraCarreraExcelView;
 
+    @Autowired
+    AconsejadosTutorController aconsejadosTutorController;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -90,6 +95,8 @@ public class ConsejerosController {
 
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
+        model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("rutaModuloTutor", aconsejadosTutorController.rutaModulo);
 
         return "consejeria/consejeros/consejeros";
     }
@@ -104,7 +111,6 @@ public class ConsejerosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-//            service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
             List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -120,7 +126,11 @@ public class ConsejerosController {
                             "colaborador.persona.tipoDocumento.simbolo",
                             "docente.departamentoAcademico.nombre",
                             "docente.codigo",
-                            "docente.departamentoAcademico.id"
+                            "docente.departamentoAcademico.id",
+                            "informe.estado",
+                            "informe.id",
+                            "informe.serie",
+                            "informe.numero"
                         });
 
                 array.add(node);

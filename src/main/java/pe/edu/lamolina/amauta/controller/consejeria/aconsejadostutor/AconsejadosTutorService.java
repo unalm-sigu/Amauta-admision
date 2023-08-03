@@ -1,32 +1,56 @@
 package pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.consejeria.aconsejadostutor.view.ResumenEncuestaTutoria;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.tutoria.AlumnoCualidad;
+import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
+import pe.edu.lamolina.model.tutoria.InformeFinalTutoria;
+import pe.edu.lamolina.model.tutoria.PlanTutorial;
 
 public interface AconsejadosTutorService {
 
-    public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
+    Consejero findConsejero(Persona persona, CicloAcademico ciclo);
 
-    List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera, DataSessionPivot ds);
+    InformeFinalTutoria findInforme(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<AlumnoConsejero> allByDynatableByCarreraReporte(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor, Carrera carrera);
+    List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, Persona persona);
 
-    public AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico);
+    List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico ciclo, Persona tutor, Carrera carrera, DataSessionPivot ds);
+
+    List<AlumnoConsejero> allByDynatableByCarreraReporte(DynatableFilter filter, CicloAcademico ciclo, Persona tutor, Carrera carrera);
+
+    AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico ciclo);
 
     void matriculaAutorizacion(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public Persona findPersona(Long idPersona);
+    Persona findPersona(Long idPersona);
 
-    public AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico cicloAcademico, Carrera carrera,DataSessionPivot ds);
+    AconsejadoEstadoBean allByPersonaCarrera(Persona person, CicloAcademico ciclo, Carrera carrera, DataSessionPivot ds);
 
-    public void eliminarAlumnoConsejero(Long idAlumnoConsejero);
+    void eliminarAlumnoConsejero(Long idAlumnoConsejero);
 
-    public void quitarTutor(Long idAlumnoConsejero);
+    void quitarTutor(Long idAlumnoConsejero);
+
+    Map<Long, List<PlanTutorial>> allPlanes(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    Map<Long, List<AlumnoCualidad>> allCualidades(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    Map<Long, CitaConsejeroAlumno> allCitas(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    List<PreguntaExamen> allPreguntasEncuesta(CicloAcademico ciclo);
+
+    List<ResumenEncuestaTutoria> allDataEncuesta(Consejero consejero, List<PreguntaExamen> preguntas, CicloAcademico ciclo, DataSessionPivot ds);
+
 }

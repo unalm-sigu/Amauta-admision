@@ -115,6 +115,11 @@ public class OficinaServiceImp implements OficinaService {
         return oficinasTodas;
     }
 
+    @Override
+    public Oficina findByCodigo(String codigo) {
+        return oficinaDAO.findByCode(codigo);
+    }
+
     private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
         List<Oficina> oficinasTodas = allOficinasOrganizadas();
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);

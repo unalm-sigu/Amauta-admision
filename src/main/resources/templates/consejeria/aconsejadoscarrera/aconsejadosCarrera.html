@@ -176,6 +176,11 @@
                                                             <li th:if="${esInformaticoOERA}" role="presentation" class="divider"></li>
                                                             <li th:if="${esInformaticoOERA}" class="pointer"><a v-on:click="quitarTutorado(item)">Quitar Tutor</a></li>
 
+                                                            <li role="separator" class="divider"></li>
+                                                            <li class="pointer"><a v-bind:href="planificar(item)">Planificar</a></li>
+                                                            <li class="pointer"><a v-bind:href="agendar(item)">Agendar</a></li>
+                                                            <li class="pointer"><a v-bind:href="derivar(item)">Derivar</a></li>
+
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -212,6 +217,7 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ '';
                 var carrerasJson = /*[[${carreras}]]*/ '';
                 var RUTA_MODULO = /*[[${RUTA_MODULO}]]*/ '';
+                var rutaModuloTutor = /*[[${rutaModuloTutor}]]*/ '';
                 /*]]>*/
             </script>
 
