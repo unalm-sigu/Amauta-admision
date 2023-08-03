@@ -9,7 +9,7 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import pe.edu.lamolina.amauta.controller.mensajeria.queue.ChatUnalmQueue;
+import pe.edu.lamolina.amauta.controller.queue.ReceptorQueue;
 import pe.edu.lamolina.model.constantines.BienestarConstantine;
 
 @Configuration
@@ -21,12 +21,17 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue queueChatUnalm() {
+        return new Queue(BienestarConstantine.QUEUE_CHAT_AMAUTA);
+    }
+
+    @Bean
     TopicExchange exchange() {
         return new TopicExchange("mensaje-chat-unalm");
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
+    Binding bindingChatUnalm(Queue queue, TopicExchange exchange) {
         return BindingBuilder
                 .bind(queue)
                 .to(exchange)
@@ -34,12 +39,11 @@ public class RabbitConfig {
     }
 
     @Bean()
-    MessageListenerAdapter listenerAdapter(ChatUnalmQueue receiver) {
+    MessageListenerAdapter listenerAdapter(ReceptorQueue receiver) {
         MessageListenerAdapter listener = new MessageListenerAdapter(receiver);
-        listener.addQueueOrTagToMethodName(BienestarConstantine.QUEUE_CHAT_AMAUTA, "handleMessage");
+        listener.addQueueOrTagToMethodName(BienestarConstantine.QUEUE_CHAT_AMAUTA, "handleMessageChatUnalm");
         return listener;
     }
-
 
     @Bean
     SimpleMessageListenerContainer listenerContainer(ConnectionFactory connectionFactory,

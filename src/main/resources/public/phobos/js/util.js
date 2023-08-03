@@ -827,6 +827,62 @@ const Messages = {
     confirmAccept: '¿Seguro que desea aceptar?',
 };
 
+
+window.mySounds = {
+    sounds: [
+        {buffer: null, audioSource: null, code: 'CRASH', path: '/app/_sounds/car-explosion.mp3'},
+        {buffer: null, audioSource: null, code: 'DING', path: '/app/_sounds/air-plane-ding.mp3'},
+        {buffer: null, audioSource: null, code: 'OPEN', path: '/app/_sounds/open-soda-can.mp3'},
+        {buffer: null, audioSource: null, code: 'MARBIES', path: '/app/_sounds/marbles-daniel-simon.mp3'},
+        {buffer: null, audioSource: null, code: 'SIRENA', path: '/app/_sounds/sirena-patrol.mp3'},
+        {buffer: null, audioSource: null, code: 'SINGLE', path: '/app/_sounds/single-water.mp3'}
+    ],
+    loadSounds() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        for (let idx in mySounds.sounds) {
+            let sound = mySounds.sounds[idx];
+            const request = new XMLHttpRequest();
+            request.open('GET', sound.path, true);
+            request.responseType = 'arraybuffer';
+            request.onload = () => {
+                audioCtx.decodeAudioData(request.response, (buffer) => {
+                    sound.buffer = buffer;
+                });
+            };
+            request.send();
+        }
+    },
+    playAudio(code) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        for (let idx in mySounds.sounds) {
+            let sound = mySounds.sounds[idx];
+            if (sound.code === code) {
+                const audioSource = audioCtx.createBufferSource();
+                audioSource.buffer = sound.buffer;
+                audioSource.loop = false;
+                audioSource.connect(audioCtx.destination);
+                audioSource.start();
+
+                sound.audioSource = audioSource;
+            }
+        }
+    },
+    stopAudio(code) {
+        for (let idx in mySounds.sounds) {
+            let sound = mySounds.sounds[idx];
+            if (sound.code === code) {
+                if (sound.audioSource) {
+                    sound.audioSource.stop();
+                }
+            }
+        }
+    }
+};
+
 window.myUtils = {
     axios(config) {
         return new Promise((resolve, reject) => {
