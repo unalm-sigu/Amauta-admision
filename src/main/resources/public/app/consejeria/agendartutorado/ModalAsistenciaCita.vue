@@ -11,14 +11,14 @@
                     <div class="row m-t">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Fecha cita</label>
+                                <label>Fecha programada</label>
                                 <div class="item-form-control item-form-gray text-primary">{{citaNueva.fecha}}</div>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Hora</label>
+                                <label>Hora programada</label>
                                 <div class="item-form-control item-form-gray text-primary">{{citaNueva.hora}}</div>
                             </div>
                         </div>
@@ -82,8 +82,47 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div v-if="['REALIZADA','NO_ASISTIO'].includes(citaNueva.estado) " class="form-group">
+                        <div v-if="citaNueva.estado == 'REALIZADA' " class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Fecha realizada</label>
+                                    <div class="input-group date">
+                                        <date-picker v-model="citaNueva.fechaRealizada"
+                                                     required="true"
+                                                     v-bind:config="configDate"
+                                                     v-bind:wrap="true" >
+                                        </date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <date-picker v-model="citaNueva.horaInicio"
+                                                 required="true"
+                                                 v-bind:config="configDateStd">
+                                    </date-picker>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <date-picker v-model="citaNueva.horaFin"
+                                                 required="true"
+                                                 v-bind:config="configDateStd">
+                                    </date-picker>
+                                </div>
+                            </div>
+                        </div>
+
+
                         <label> Comentarios de la cita (opcional)</label>
                         <textarea v-model="citaNueva.conclusiones" class="form-control" rows="4"></textarea>
                     </div>
@@ -114,7 +153,15 @@
                     okclass: "btn-success",
                     modalsize: "modal-lg",
                     showaccept: false
-                })
+                }),
+                configDateStd: {
+                    format: 'HH:mm',
+                    locale: 'es'
+                },
+                configDate: {
+                    format: 'DD/MM/YYYY',
+                    locale: 'es'
+                }
             };
         },
         methods: {
@@ -122,8 +169,11 @@
                 var form = $("#" + this.form);
                 form.parsley().destroy();
 
-                this.raptor = raptor;
                 this.citaNueva = config.cita;
+                this.citaNueva.fechaRealizada = this.getFechaActual();
+                this.citaNueva.horaFin = this.getHoraActual();
+                
+                this.raptor = raptor;
                 this.alumno = config.alumno;
                 this.visible = true;
                 this.modalAsistenciaCita.showaccept = false;
@@ -147,6 +197,29 @@
                     raptor: this.raptor,
                     body: this.citaNueva
                 }));
+            },
+            getHoraActual() {
+                const hoy = new Date();
+
+                let horas = hoy.getHours();
+                let minutos = hoy.getMinutes();
+
+                horas = horas < 10 ? "0" + horas : horas;
+                minutos = minutos < 10 ? "0" + minutos : minutos;
+
+                return `${horas}:${minutos}`;
+            },
+            getFechaActual() {
+                const hoy = new Date();
+
+                let dia = hoy.getDate();
+                let mes = hoy.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que se suma 1.
+                let anio = hoy.getFullYear();
+
+                dia = dia < 10 ? "0" + dia : dia;
+                mes = mes < 10 ? "0" + mes : mes;
+
+                return `${dia}/${mes}/${anio}`;
             },
             getModal() {
                 return this.$refs.modalAsistenciaCita;

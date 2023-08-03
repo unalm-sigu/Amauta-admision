@@ -79,9 +79,10 @@
                             <table class="table table-striped">
                                 <thead class="panel panel-heading">
                                     <tr>
-                                        <th class="col-md-1 v-middle text-center">Fecha/hora cita</th>
+                                        <th class="col-md-1 v-middle text-center">Fecha/hora programada</th>
+                                        <th class="col-md-1 v-middle text-center">Fecha/hora realizada</th>
                                         <th class="col-md-4 v-middle">Asunto</th>
-                                        <th class="col-md-5 v-middle">Consejero</th>
+                                        <th class="col-md-4 v-middle">Consejero</th>
                                         <th class="v-middle text-center">Objetivos</th>
                                         <th class="col-md-1 v-middle text-center">Fecha creación</th>
                                         <th class="col-md-1 v-middle text-center">Estado</th>
@@ -91,9 +92,22 @@
                                 <tbody>
                                     <tr v-for="item in props.data">
                                         <td class="v-middle text-center">
-                                            <div class="text-primary">{{item.fecha}}</div>
-                                            <div>{{item.hora}}</div>
+                                            <div class="text-primary block">{{item.fecha}}</div>
+                                            <small class="block">{{item.hora}}</small>
                                         </td>
+
+                                        <td class="v-middle text-center">
+                                            <template v-if="item.estado == 'REALIZADA' ">
+                                                <div class="text-primary block">{{item.fechaRealizada}}</div>
+                                                <small class="block">{{item.horaInicio}} - {{item.horaFin}}</small>
+                                            </template>
+
+                                            <template v-if="item.estado == 'NO_ASISTIO' ">
+                                                <span v-bind:class="classEstado(item)" class="label">{{item.estadoEnum.value}}</span>
+                                            </template>
+                                        </td>
+
+
                                         <td class="v-middle">
                                             <div>{{verTexto(item.asunto,80)}}</div>
                                         </td>
