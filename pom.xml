@@ -285,7 +285,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.33.34-chatAmauta-SNAPSHOT</version>
+            <version>0.33.34-SNAPSHOT</version>
         </dependency>
         
     </dependencies>
