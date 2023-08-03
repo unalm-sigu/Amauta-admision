@@ -214,9 +214,9 @@
                 const stompClient = Stomp.over(socket);
 
                 stompClient.connect({}, function (frame) {
-                    let canal = `/broken/chatunalm/d${vue.persona.codigo}@unalm.edu.pe`;
+                    let canal = `/monitoreo/chatunalm/d${vue.persona.codigo}@unalm.edu.pe`;
                     if (vue.docente.id) {
-                        canal = `/broken/chatunalm/d${vue.docente.codigo}@unalm.edu.pe`;
+                        canal = `/monitoreo/chatunalm/d${vue.docente.codigo}@unalm.edu.pe`;
                     }
                     stompClient.subscribe(canal, function (messageOutput) {
                         var mensajeChat = JSON.parse(messageOutput.body);
