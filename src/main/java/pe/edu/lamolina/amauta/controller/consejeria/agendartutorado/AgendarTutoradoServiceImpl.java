@@ -415,8 +415,22 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         List<EstadoCitaTutorEnum> estados = Arrays.asList(REALIZADA, NO_ASISTIO);
         Assert.isTrue(estados.contains(citaForm.getEstadoEnum()), "No ha indicado si asistió o no a la cita");
 
+        if (citaForm.getEstadoEnum() == REALIZADA) {
+            Assert.isNotNull(citaForm.getFechaRealizada(), "No ha indicado la fecha cuando se realizó la cita");
+            Assert.isNotNull(citaForm.getHoraInicio(), "No ha indicado la hora de inicio de la cita");
+            Assert.isNotNull(citaForm.getHoraFin(), "No ha indicado la hora fina de la cita");
+
+        } else {
+            citaForm.setFechaRealizada(null);
+            citaForm.setHoraInicio(null);
+            citaForm.setHoraFin(null);
+        }
+
         cita.setEstadoEnum(citaForm.getEstadoEnum());
         cita.setConclusiones(citaForm.getConclusiones());
+        cita.setFechaRealizada(citaForm.getFechaRealizada());
+        cita.setHoraInicio(citaForm.getHoraInicio());
+        cita.setHoraFin(citaForm.getHoraFin());
         cita.setUserModificacion(ds.getUsuario());
         cita.setFechaModificacion(today.toDate());
         citaConsejeroAlumnoDAO.update(cita);
