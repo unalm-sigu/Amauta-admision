@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.mensajeria.chatunalm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -80,7 +79,7 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
 
     @Override
     public List<AsuntoMensaje> allAsuntos(DataSessionPivot ds) {
-        List<MensajeSistema> mensajesAll = new ArrayList();
+        List<MensajeSistema> mensajesAll;
         if (ds.getDocente() != null) {
             mensajesAll = mensajeSistemaDAO.allPendientesByDocente(ds.getDocente());
         } else {
@@ -94,7 +93,13 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
                 .map(msg -> msg.getAsuntoMensaje())
                 .collect(Collectors.toList());
 
-        List<AsuntoMensajeUsuario> resumenesAsuntosUser = asuntoMensajeUsuarioDAO.allByAsuntos(asuntos);
+        List<AsuntoMensajeUsuario> resumenesAsuntosUser;
+        if (ds.getDocente() != null) {
+            resumenesAsuntosUser = asuntoMensajeUsuarioDAO.allByAsuntosDocente(asuntos, ds.getDocente());
+        } else {
+            resumenesAsuntosUser = asuntoMensajeUsuarioDAO.allByAsuntosPersona(asuntos, ds.getPersona());
+        }
+
         Map<Long, AsuntoMensajeUsuario> mapResumen = resumenesAsuntosUser.stream()
                 .collect(Collectors.toMap(amu -> amu.getAsuntoMensaje().getId(), Function.identity()));
 
@@ -115,7 +120,6 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
         boolean esDocente = ds.getDocente() != null;
         MensajeSistema mensaje = mensajeSistemaDAO.find(mensajeForm.getId());
         Assert.isNotNull(mensaje, "No se pudo ubicar el registro que desea marcar");
-        Assert.isNotNull(mensaje.getDestinatario().getAlumno(), "Este mensaje no corresponde a un alumno");
 
         Docente docente = mensaje.getDestinatario().getDocente();
         if (esDocente) {

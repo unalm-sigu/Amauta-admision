@@ -14,7 +14,7 @@
                         <span v-bind:class="classCantidad"
                               class="badge badge-pill up-chat">{{asuntos.length}}</span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right w-md animate fadeIn mt-2 p-0">
+                    <div class="dropdown-menu dropdown-menu-chat dropdown-menu-right w-md animate fadeIn mt-2 p-0">
                         <div class="scrollable hover" style="max-height: 250px">
                             <div class="list">
 
@@ -22,32 +22,6 @@
 
                                     <div class="list-item " data-id="item-6">
                                         <span class="w-24-chat avatar-chat circle-chat brown">
-                                            <span class="fa fa-envelope"></span>
-                                        </span>
-                                        <div class="list-body">
-                                            <a href="" class="item-title _500">
-                                                {{item.mensajePrincipal.remitente.persona.nomPaterno}}
-                                            </a>
-
-                                            <div class="item-except text-sm text-muted h-1x">
-                                                {{item.asunto}}
-                                            </div>
-
-                                            <div class="item-tag tag hide">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span v-if="item.mensajePrincipal.esHoy" class="item-date text-xs text-muted">
-                                                {{item.mensajePrincipal.hora}}
-                                            </span>
-                                            <span v-else="" class="item-date text-xs text-muted">
-                                                {{item.mensajePrincipal.fechaCorta}}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-item " data-id="item-6">
-                                        <span class="w-24 avatar circle brown">
                                             <span class="fa fa-envelope"></span>
                                         </span>
                                         <div class="list-body">
@@ -97,13 +71,20 @@
             </ul>
 
         </div>
+
+        <!--<modal-base></modal-base>-->
+        <modal-mensaje ref="modalMensaje"></modal-mensaje>
     </div>
 
 </template>
 <script>
 
+
+    const ModalMensaje = httpVueLoader('./ModalMensaje.vue');
+
     module.exports = {
         components: {
+            ModalMensaje
         },
 
         data() {
@@ -113,7 +94,8 @@
                 rutaModulo: `mensajeria/chatunalm`,
                 docente: {modalidadEstudio: {}, departamentoAcademico: {facultad: {}}},
                 persona: {tipoDocumento: {}},
-                asuntos: []
+                asuntos: [],
+                idModalMensaje: "id-modal-mensaje-chat-unalm"
             };
         },
         mounted() {
@@ -145,7 +127,19 @@
                 });
             },
             verMensajes(item, index) {
-                Swal.fire({
+
+                let config = {
+                    id: this.idModalMensaje,
+                    message: item.mensajePrincipal.mensaje,
+                    okbtn: "Aceptar",
+                    okclass: "btn-primary"
+                };
+                
+                this.$refs.modalMensaje.open(config, item, this.asuntos, index, this.rutaModulo);
+
+                return;
+                //Swal.fire({
+                swal({
                     showCancelButton: false,
                     title: item.asunto,
                     html: item.mensajePrincipal.mensaje,
