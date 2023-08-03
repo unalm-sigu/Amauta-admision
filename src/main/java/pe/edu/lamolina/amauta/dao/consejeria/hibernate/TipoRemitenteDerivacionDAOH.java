@@ -30,9 +30,6 @@ public class TipoRemitenteDerivacionDAOH extends AbstractEasyDAO<TipoRemitenteDe
                 .from(TipoRemitenteDerivacion.class, "tr")
                 .filter("tr.codigo", nodo);
 
-        System.out.println("nodo = " + nodo.name());
-        System.out.println("sql = " + sql.toString());
-
         return find(sql);
     }
 

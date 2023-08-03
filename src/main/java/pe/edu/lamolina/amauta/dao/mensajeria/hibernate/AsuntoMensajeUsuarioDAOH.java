@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.mensajeria.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -25,5 +26,15 @@ public class AsuntoMensajeUsuarioDAOH extends AbstractEasyDAO<AsuntoMensajeUsuar
                 .filter("um.id", usuario);
 
         return find(sql);
+    }
+
+    @Override
+    public List<AsuntoMensajeUsuario> allByAsuntos(List<AsuntoMensaje> asuntos) {
+        Octavia sql = Octavia.query()
+                .from(AsuntoMensajeUsuario.class, "amu")
+                .join("asuntoMensaje am")
+                .in("am.id", asuntos);
+
+        return all(sql);
     }
 }

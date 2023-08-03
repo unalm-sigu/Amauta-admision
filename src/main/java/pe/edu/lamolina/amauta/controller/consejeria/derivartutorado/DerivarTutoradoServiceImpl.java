@@ -8,12 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.controller.consejeria.plantutoria.PlanTutoriaService;
 import pe.edu.lamolina.amauta.controller.medico.paciente.PacienteService;
@@ -32,14 +30,18 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.consejeria.Consejero;
-import pe.edu.lamolina.model.constantines.BienestarConstantine;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.consejeria.EstadoDerivacionEnum;
 import pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.AAEE;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.ASESOR_CURSO;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.CENMED;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.DIRECTOR_EEGG;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.JEFE_DPTO_CULTURALES;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.JEFE_DPTO_DEPORTES;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.PSICOLOGO;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.PSICOPEDAGOGO;
+import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.PSICOPEDAGOGO_TALLER;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.TRABAJADORA_SOCIAL;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.TUTOR;
 import static pe.edu.lamolina.model.enums.consejeria.NodoDerivacionEnum.TUTORES;
@@ -75,7 +77,6 @@ public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
     private final ChatUnalmService chatUnalmService;
     private final PlanTutoriaService planTutoriaService;
     private final PacienteService pacienteService;
-    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<AlumnoDerivadoAtencion> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -132,7 +133,7 @@ public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
         derivacionTutor.setFechaRegistro(today.toDate());
         alumnoDerivadoAtencionDAO.save(derivacionTutor);
 
-        List<NodoDerivacionEnum> nodosCentroMedico = Arrays.asList(PSICOLOGO, PSICOPEDAGOGO);
+        List<NodoDerivacionEnum> nodosCentroMedico = Arrays.asList(PSICOLOGO, PSICOPEDAGOGO, PSICOPEDAGOGO_TALLER);
         if (nodosCentroMedico.contains(tipoAtencion.getCodigoNodoEnum())) {
             LocalDate fechaPropuesta = this.plusDays(hoy, 2);
             Paciente paciente = pacienteService.findPaciente(alumno.getPersona(), ds);
@@ -141,6 +142,8 @@ public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
             if (tipoAtencion.getCodigoNodoEnum() == PSICOLOGO) {
                 especialidad = especialidadMedicaDAO.findByCodigoEnum(ConsultorioEnum.PSICO);
             } else if (tipoAtencion.getCodigoNodoEnum() == PSICOPEDAGOGO) {
+                especialidad = especialidadMedicaDAO.findByCodigoEnum(ConsultorioEnum.PSICOPE);
+            } else if (tipoAtencion.getCodigoNodoEnum() == PSICOPEDAGOGO_TALLER) {
                 especialidad = especialidadMedicaDAO.findByCodigoEnum(ConsultorioEnum.PSICOPE);
             }
 
@@ -198,30 +201,35 @@ public class DerivarTutoradoServiceImpl implements DerivarTutoradoService {
                 tipoAsunto.getValue(),
                 NombreTablasEnum.TUTO_ALUMNO_DERIVADO_ATENCION,
                 derivacionTutor.getId());
-        MensajeSistema mensaje = chatUnalmService.enviarMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
-        mensaje.setHoraPrefija(mensaje.getHora());
-
-        String msg = JaneHelper
-                .from(mensaje)
-                .only("id,mensaje,fechaRegistro,horaPrefija")
-                .join("asuntoMensaje", "id,asunto")
-                .join("remitente", "id,userWebsocket")
-                .join("remitente.persona", "nombres,paterno,materno")
-                .join("destinatario", "id,userWebsocket")
-                .join("destinatario.persona", "nombres,paterno,materno")
-                .json().toString();
-
-        rabbitTemplate.convertAndSend(BienestarConstantine.QUEUE_CHAT_MAIPI, msg);
+        MensajeSistema mensaje = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+        chatUnalmService.enviarMensajeChat(mensaje);
 
     }
 
     private TipoAsuntoMensajeEnum getTipoAsunto(TipoAtencionTutorado tipoAtencion) {
         if (tipoAtencion.getCodigoNodoEnum() == TRABAJADORA_SOCIAL) {
             return TipoAsuntoMensajeEnum.DERIVA_TUTOR_AAEE;
+
         } else if (tipoAtencion.getCodigoNodoEnum() == PSICOLOGO) {
             return TipoAsuntoMensajeEnum.DERIVA_TUTOR_PSICOLOGIA;
+
         } else if (tipoAtencion.getCodigoNodoEnum() == PSICOPEDAGOGO) {
             return TipoAsuntoMensajeEnum.DERIVA_TUTOR_PSICOPEDAGOGIA;
+
+        } else if (tipoAtencion.getCodigoNodoEnum() == PSICOPEDAGOGO_TALLER) {
+            return TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_VIVENCIAL;
+
+        } else if (tipoAtencion.getCodigoNodoEnum() == ASESOR_CURSO) {
+            return TipoAsuntoMensajeEnum.DERIVA_TUTOR_ASESORIA_CURSO;
+
+        } else if (tipoAtencion.getCodigoNodoEnum() == DIRECTOR_EEGG) {
+            return TipoAsuntoMensajeEnum.DERIVA_TUTOR_SEMINARIO;
+
+        } else if (tipoAtencion.getCodigoNodoEnum() == JEFE_DPTO_DEPORTES) {
+            return TipoAsuntoMensajeEnum.DERIVA_TUTOR_DEPORTES;
+
+        } else if (tipoAtencion.getCodigoNodoEnum() == JEFE_DPTO_CULTURALES) {
+            return TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_CULTURAL;
         }
 
         return null;

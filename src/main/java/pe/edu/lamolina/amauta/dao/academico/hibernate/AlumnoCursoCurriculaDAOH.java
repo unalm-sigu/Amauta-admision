@@ -24,7 +24,6 @@ import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Repository
 public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricula> implements AlumnoCursoCurriculaDAO {

@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.consejeria.agendartutorado;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -10,12 +11,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -24,22 +23,24 @@ import pe.edu.lamolina.amauta.controller.mensajeria.chatunalm.ChatUnalmService;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.CitaConsejeroAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ObjetivoCitaConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.mensajeria.MensajeSistemaDAO;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
-import pe.edu.lamolina.model.constantines.BienestarConstantine;
-import pe.edu.lamolina.model.enums.NombreTablasEnum;
+import static pe.edu.lamolina.model.enums.NombreTablasEnum.TUTO_CITA_CONSEJERO_ALUMNO;
 import pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.CANCELADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.NO_ASISTIO;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.PENDIENTE;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REALIZADA;
 import static pe.edu.lamolina.model.enums.consejeria.EstadoCitaTutorEnum.REPROGRAMADA;
+import pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum;
 import pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum;
 import pe.edu.lamolina.model.social.AsuntoMensaje;
+import pe.edu.lamolina.model.social.MensajeSistema;
 import pe.edu.lamolina.model.tutoria.CitaConsejeroAlumno;
 import pe.edu.lamolina.model.tutoria.ObjetivoCitaConsejero;
 import pe.edu.lamolina.model.tutoria.PlanTutorial;
@@ -53,11 +54,11 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
 
     private final AlumnoConsejeroDAO alumnoConsejeroDAO;
     private final CitaConsejeroAlumnoDAO citaConsejeroAlumnoDAO;
+    private final MensajeSistemaDAO mensajeSistemaDAO;
     private final ObjetivoCitaConsejeroDAO objetivoCitaConsejeroDAO;
 
     private final ChatUnalmService chatUnalmService;
     private final PlanTutoriaService planTutoriaService;
-    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<CitaConsejeroAlumno> allByDynatable(DynatableFilter filter, Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -104,7 +105,8 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ciclo);
         List<CitaConsejeroAlumno> citasPasadas = citaConsejeroAlumnoDAO.allUltimosByAlumnoCiclo(alumno, ciclo);
 
-        this.crearCita(citaForm, null, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds);
+        boolean esCitaNueva = true;
+        this.crearCita(citaForm, null, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds, esCitaNueva);
 
     }
 
@@ -135,6 +137,8 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
                 ultimaCita.setUltimoMensaje(true);
                 citaConsejeroAlumnoDAO.update(ultimaCita);
             }
+
+            this.anularMensaje(cita, alumno, ds);
             return;
         }
 
@@ -142,6 +146,40 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         cita.setUserModificacion(ds.getUsuario());
         cita.setFechaModificacion(today.toDate());
         citaConsejeroAlumnoDAO.update(cita);
+
+        this.anularMensaje(cita, alumno, ds);
+
+    }
+
+    private void anularMensaje(CitaConsejeroAlumno cita, Alumno alumno, DataSessionPivot ds) {
+        MensajeSistema mensaje = mensajeSistemaDAO.findByTablaInstancia(TUTO_CITA_CONSEJERO_ALUMNO, cita.getId());
+        if (mensaje == null) {
+            return;
+        }
+
+        if (mensaje.getEstadoEnum() == EstadoMensajeEnum.ENVIADO) {
+            mensaje.setEstadoEnum(EstadoMensajeEnum.ANULADO);
+            mensaje.setUserAnulacion(ds.getUsuario());
+            mensaje.setFechaAnulacion(new Date());
+            mensajeSistemaDAO.update(mensaje);
+
+            chatUnalmService.enviarMensajeChat(mensaje);
+            return;
+        }
+
+        if (mensaje.getEstadoEnum() == EstadoMensajeEnum.LEIDO) {
+            TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR_ANULADA;
+            String contenido = chatUnalmService.crearContenido(tipoAsunto, cita);
+
+            AsuntoMensaje asunto = new AsuntoMensaje(
+                    tipoAsunto.getValue(),
+                    TUTO_CITA_CONSEJERO_ALUMNO,
+                    cita.getId());
+            chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+
+            MensajeSistema mensajeDos = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+            chatUnalmService.enviarMensajeChat(mensajeDos);
+        }
     }
 
     @Override
@@ -204,11 +242,11 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
         LocalDate hoy = new LocalDate();
         List<EstadoCitaTutorEnum> estados = Arrays.asList(PENDIENTE, CANCELADA);
 
-        CitaConsejeroAlumno cita = citaConsejeroAlumnoDAO.find(citaForm.getId());
-        Assert.isNotNull(cita, "No se ha ubicado la cita que desea postergar");
-        Assert.isTrue(estados.contains(cita.getEstadoEnum()), "Esta cita no puede ser reprogramada");
+        CitaConsejeroAlumno citaAntes = citaConsejeroAlumnoDAO.find(citaForm.getId());
+        Assert.isNotNull(citaAntes, "No se ha ubicado la cita que desea postergar");
+        Assert.isTrue(estados.contains(citaAntes.getEstadoEnum()), "Esta cita no puede ser reprogramada");
 
-        Alumno alumno = cita.getAlumno();
+        Alumno alumno = citaAntes.getAlumno();
         boolean esConsejero = planTutoriaService.verificarConsejero(alumno, ciclo, ds);
         Assert.isTrue(esConsejero, "Usted no tiene permiso para modificar las citas de este tutorado");
 
@@ -222,36 +260,38 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
 
         List<CitaConsejeroAlumno> citasAll = citaConsejeroAlumnoDAO.allByAlumnoFecha(alumno, citaForm.getFecha());
         List<CitaConsejeroAlumno> citas = citasAll.stream()
-                .filter(otraCita -> !otraCita.getId().equals(cita.getId()))
+                .filter(otraCita -> !otraCita.getId().equals(citaAntes.getId()))
                 .collect(Collectors.toList());
         Assert.isTrue(citas.isEmpty(), "Este tutorado ya tiene programada una cita para esta fecha");
 
-        String fechaAntes = this.getFechaHora(cita);
+        String fechaAntes = this.getFechaHora(citaAntes);
         String fechaAhora = this.getFechaHora(citaForm);
         Assert.isFalse(fechaAhora.equals(fechaAntes), "La nueva fecha y hora es la misma que la cita anterior");
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ciclo);
         List<CitaConsejeroAlumno> citasPasadas = citaConsejeroAlumnoDAO.allUltimosByAlumnoCiclo(alumno, ciclo);
 
-        cita.setMotivoPostergacion(citaForm.getMotivoPostergacion());
-        cita.setEstadoEnum(REPROGRAMADA);
-        cita.setPostergado(true);
-        cita.setUserModificacion(ds.getUsuario());
-        cita.setFechaModificacion(today.toDate());
-        citaConsejeroAlumnoDAO.update(cita);
+        citaAntes.setMotivoPostergacion(citaForm.getMotivoPostergacion());
+        citaAntes.setEstadoEnum(REPROGRAMADA);
+        citaAntes.setPostergado(true);
+        citaAntes.setUserModificacion(ds.getUsuario());
+        citaAntes.setFechaModificacion(today.toDate());
+        citaConsejeroAlumnoDAO.update(citaAntes);
 
-        this.crearCita(citaForm, citaForm, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds);
-
+        boolean esCitaPostergada = false;
+        CitaConsejeroAlumno citaNueva = this.crearCita(citaForm, citaForm, alumno, ciclo, alumnoConsejero.getConsejero(), citasPasadas, ds, esCitaPostergada);
+        this.notificarReprogramacion(citaAntes, citaNueva, alumno, ds);
     }
 
-    private void crearCita(
+    private CitaConsejeroAlumno crearCita(
             CitaConsejeroAlumno citaForm,
             CitaConsejeroAlumno citaPostergada,
             Alumno alumno,
             CicloAcademico ciclo,
             Consejero consejero,
             List<CitaConsejeroAlumno> citasPasadas,
-            DataSessionPivot ds) {
+            DataSessionPivot ds,
+            boolean esCitaNueva) {
 
         DateTime today = new DateTime();
         CitaConsejeroAlumno newCita = new CitaConsejeroAlumno();
@@ -283,23 +323,75 @@ public class AgendarTutoradoServiceImpl implements AgendarTutoradoService {
             citaConsejeroAlumnoDAO.update(citaPasada);
         });
 
-        TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR;
-        String contenido = chatUnalmService.crearContenido(tipoAsunto, newCita);
+        if (esCitaNueva) {
+            TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR;
+            String contenido = chatUnalmService.crearContenido(tipoAsunto, newCita);
 
-        AsuntoMensaje asunto = new AsuntoMensaje(
-                tipoAsunto.getValue(),
-                NombreTablasEnum.TUTO_CITA_CONSEJERO_ALUMNO,
-                newCita.getId());
-        chatUnalmService.enviarMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+            AsuntoMensaje asunto = new AsuntoMensaje(
+                    tipoAsunto.getValue(),
+                    TUTO_CITA_CONSEJERO_ALUMNO,
+                    newCita.getId());
 
-        String msg = JaneHelper
-                .from(newCita)
-                .join("alumno")
-                .join("cicloAcademico")
-                .join("consejero")
-                .json().toString();
+            MensajeSistema mensaje = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+            chatUnalmService.enviarMensajeChat(mensaje);
+        }
+        return newCita;
+    }
 
-        rabbitTemplate.convertAndSend(BienestarConstantine.QUEUE_CHAT_MAIPI, msg);
+    private void notificarReprogramacion(CitaConsejeroAlumno citaCancelada, CitaConsejeroAlumno citaNueva, Alumno alumno, DataSessionPivot ds) {
+        MensajeSistema mensajeCitaCancelada = mensajeSistemaDAO.findByTablaInstancia(TUTO_CITA_CONSEJERO_ALUMNO, citaCancelada.getId());
+
+        if (mensajeCitaCancelada == null) {
+            TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR;
+            String contenido = chatUnalmService.crearContenido(tipoAsunto, citaNueva);
+
+            AsuntoMensaje asunto = new AsuntoMensaje(
+                    tipoAsunto.getValue(),
+                    TUTO_CITA_CONSEJERO_ALUMNO,
+                    citaNueva.getId());
+
+            MensajeSistema mensaje = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+            chatUnalmService.enviarMensajeChat(mensaje);
+            return;
+        }
+
+        if (mensajeCitaCancelada.getEstadoEnum() == EstadoMensajeEnum.ENVIADO) {
+            {
+                mensajeCitaCancelada.setEstadoEnum(EstadoMensajeEnum.ANULADO);
+                mensajeCitaCancelada.setUserAnulacion(ds.getUsuario());
+                mensajeCitaCancelada.setFechaAnulacion(new Date());
+                mensajeSistemaDAO.update(mensajeCitaCancelada);
+
+                chatUnalmService.enviarMensajeChat(mensajeCitaCancelada);
+            }
+
+            {
+                TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR;
+                String contenido = chatUnalmService.crearContenido(tipoAsunto, citaNueva);
+
+                AsuntoMensaje asunto = new AsuntoMensaje(
+                        tipoAsunto.getValue(),
+                        TUTO_CITA_CONSEJERO_ALUMNO,
+                        citaNueva.getId());
+
+                MensajeSistema mensaje = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+                chatUnalmService.enviarMensajeChatDelay(mensaje, 2000);
+            }
+            return;
+        }
+
+        if (mensajeCitaCancelada.getEstadoEnum() == EstadoMensajeEnum.LEIDO) {
+            TipoAsuntoMensajeEnum tipoAsunto = TipoAsuntoMensajeEnum.CITA_TUTOR_POSTERGADA;
+            String contenido = chatUnalmService.crearContenido(tipoAsunto, citaNueva);
+
+            AsuntoMensaje asunto = new AsuntoMensaje(
+                    tipoAsunto.getValue(),
+                    TUTO_CITA_CONSEJERO_ALUMNO,
+                    citaNueva.getId());
+
+            MensajeSistema mensaje = chatUnalmService.crearMensaje(asunto, contenido, ds.getDocente(), alumno, ds);
+            chatUnalmService.enviarMensajeChat(mensaje);
+        }
     }
 
     private String getFechaHora(CitaConsejeroAlumno cita) {

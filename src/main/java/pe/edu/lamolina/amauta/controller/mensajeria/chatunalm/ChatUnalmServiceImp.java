@@ -1,16 +1,24 @@
 package pe.edu.lamolina.amauta.controller.mensajeria.chatunalm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
@@ -20,14 +28,26 @@ import pe.edu.lamolina.amauta.dao.mensajeria.MensajeSistemaDAO;
 import pe.edu.lamolina.amauta.dao.mensajeria.UsuarioMensajeriaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.constantines.BienestarConstantine;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum;
+import static pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum.ENVIADO;
+import static pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum.LEIDO;
 import pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR_ANULADA;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR_POSTERGADA;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_AAEE;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_ASESORIA_CURSO;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_DEPORTES;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_PSICOLOGIA;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_PSICOPEDAGOGIA;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_SEMINARIO;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_CULTURAL;
+import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_VIVENCIAL;
 import pe.edu.lamolina.model.enums.mensajeria.TipoSistemaEnum;
 import pe.edu.lamolina.model.enums.mensajeria.TipoUserMensajeriaEnum;
 import pe.edu.lamolina.model.general.Persona;
@@ -49,15 +69,81 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
     private final AlumnoDAO alumnoDAO;
     private final AsuntoMensajeDAO asuntoMensajeDAO;
     private final AsuntoMensajeUsuarioDAO asuntoMensajeUsuarioDAO;
+    private final CursoDAO cursoDAO;
     private final ConsejeroDAO consejeroDAO;
     private final ContenidoCartaDAO contenidoCartaDAO;
     private final DocenteDAO docenteDAO;
     private final MensajeSistemaDAO mensajeSistemaDAO;
     private final UsuarioMensajeriaDAO usuarioMensajeriaDAO;
 
+    private final RabbitTemplate rabbitTemplate;
+
+    @Override
+    public List<AsuntoMensaje> allAsuntos(DataSessionPivot ds) {
+        List<MensajeSistema> mensajesAll = new ArrayList();
+        if (ds.getDocente() != null) {
+            mensajesAll = mensajeSistemaDAO.allPendientesByDocente(ds.getDocente());
+        } else {
+            mensajesAll = mensajeSistemaDAO.allPendientesByPersona(ds.getPersona());
+        }
+
+        Map<Long, List<MensajeSistema>> mapMensajes = mensajesAll.stream()
+                .collect(Collectors.groupingBy(msg -> msg.getAsuntoMensaje().getId()));
+
+        List<AsuntoMensaje> asuntos = mensajesAll.stream()
+                .map(msg -> msg.getAsuntoMensaje())
+                .collect(Collectors.toList());
+
+        List<AsuntoMensajeUsuario> resumenesAsuntosUser = asuntoMensajeUsuarioDAO.allByAsuntos(asuntos);
+        Map<Long, AsuntoMensajeUsuario> mapResumen = resumenesAsuntosUser.stream()
+                .collect(Collectors.toMap(amu -> amu.getAsuntoMensaje().getId(), Function.identity()));
+
+        asuntos.forEach(asunto -> {
+            List<MensajeSistema> mensajes = mapMensajes.get(asunto.getId());
+            AsuntoMensajeUsuario resumen = mapResumen.get(asunto.getId());
+            asunto.setMensajes(mensajes);
+            asunto.setMensajePrincipal(mensajes.get(0));
+            asunto.setResumenUsuario(resumen);
+        });
+
+        return asuntos;
+    }
+
     @Override
     @Transactional
-    public MensajeSistema enviarMensaje(AsuntoMensaje asunto, String contenido, Docente docente, Alumno alumno, DataSessionPivot ds) {
+    public void marcarMensaje(MensajeSistema mensajeForm, DataSessionPivot ds) {
+        boolean esDocente = ds.getDocente() != null;
+        MensajeSistema mensaje = mensajeSistemaDAO.find(mensajeForm.getId());
+        Assert.isNotNull(mensaje, "No se pudo ubicar el registro que desea marcar");
+        Assert.isNotNull(mensaje.getDestinatario().getAlumno(), "Este mensaje no corresponde a un alumno");
+
+        Docente docente = mensaje.getDestinatario().getDocente();
+        if (esDocente) {
+            Assert.isTrue(docente.equals(ds.getDocente()), "Este mensaje pertenece a otro docente");
+        }
+
+        Persona persona = mensaje.getDestinatario().getPersona();
+        Assert.isTrue(persona.equals(ds.getPersona()), "Este mensaje pertenece a otra persona");
+        Assert.isTrue(mensaje.getEstadoEnum() == ENVIADO, "Este mensaje ya fue leido");
+
+        mensaje.setEstadoEnum(LEIDO);
+        mensaje.setUserLectura(ds.getUsuario());
+        mensaje.setFechaLectura(new Date());
+        mensajeSistemaDAO.update(mensaje);
+
+        AsuntoMensaje asunto = mensaje.getAsuntoMensaje();
+        AsuntoMensajeUsuario resumenUser = asuntoMensajeUsuarioDAO.findByAsuntoUsuario(asunto, mensaje.getDestinatario());
+        Assert.isNotNull(resumenUser, "No se pudo ubicar el resumen del usuario para este asunto del mensaje");
+
+        resumenUser.setPendientesLeer(resumenUser.getPendientesLeer() - 1);
+        resumenUser.setUserModificacion(ds.getUsuario());
+        resumenUser.setFechaModificacion(new Date());
+        asuntoMensajeUsuarioDAO.update(resumenUser);
+    }
+
+    @Override
+    @Transactional
+    public MensajeSistema crearMensaje(AsuntoMensaje asunto, String contenido, Docente docente, Alumno alumno, DataSessionPivot ds) {
         UsuarioMensajeria userDocente = this.getUsuario(docente, ds);
         UsuarioMensajeria userAlumno = this.getUsuario(alumno, ds);
 
@@ -176,8 +262,10 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
             return null;
         }
 
+        List<TipoAsuntoMensajeEnum> asuntosTutor = Arrays.asList(CITA_TUTOR, CITA_TUTOR_ANULADA, CITA_TUTOR_POSTERGADA);
+
         String contenido = carta.getContenido();
-        if (tipoAsunto == TipoAsuntoMensajeEnum.CITA_TUTOR) {
+        if (asuntosTutor.contains(tipoAsunto)) {
             Assert.isNotNull(cita.getFecha(), "No indicó la fecha de la cita");
             Assert.isNotNull(cita.getHora(), "No indicó la hora de la cita");
 
@@ -207,10 +295,27 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
         }
 
         String contenido = carta.getContenido();
-        List<TipoAsuntoMensajeEnum> asuntos = Arrays.asList(DERIVA_TUTOR_PSICOLOGIA, DERIVA_TUTOR_PSICOPEDAGOGIA, DERIVA_TUTOR_AAEE);
-        if (asuntos.contains(tipoAsunto)) {
+        List<TipoAsuntoMensajeEnum> asuntosSimples = Arrays.asList(
+                DERIVA_TUTOR_AAEE,
+                DERIVA_TUTOR_PSICOLOGIA, DERIVA_TUTOR_PSICOPEDAGOGIA, DERIVA_TUTOR_TALLER_VIVENCIAL,
+                DERIVA_TUTOR_DEPORTES, DERIVA_TUTOR_TALLER_CULTURAL
+        );
+
+        List<TipoAsuntoMensajeEnum> asuntosCursos = Arrays.asList(
+                DERIVA_TUTOR_ASESORIA_CURSO, DERIVA_TUTOR_SEMINARIO
+        );
+
+        if (asuntosSimples.contains(tipoAsunto)) {
             Alumno alumnoBD = alumnoDAO.findAllInfo(derivacionTutor.getAlumno().getId());
             contenido = contenido.replaceAll("PRM_ESTIMADO", this.getEstimado(alumnoBD.getPersona()));
+            return contenido;
+
+        } else if (asuntosCursos.contains(tipoAsunto)) {
+            Alumno alumnoBD = alumnoDAO.findAllInfo(derivacionTutor.getAlumno().getId());
+            contenido = contenido.replaceAll("PRM_ESTIMADO", this.getEstimado(alumnoBD.getPersona()));
+
+            Curso curso = cursoDAO.find(derivacionTutor.getCurso().getId());
+            contenido = contenido.replaceAll("PRM_CURSO", curso.getNombre());
             return contenido;
         }
 
@@ -225,6 +330,34 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
             return "Estimada";
         }
         return "Estimado(a)";
+    }
+
+    @Async
+    @Override
+    public void enviarMensajeChat(MensajeSistema mensaje) {
+        this.enviarChat(mensaje);
+    }
+
+    @Override
+    public void enviarMensajeChatDelay(MensajeSistema mensaje, int milisegundos) {
+        TypesUtil.delay(milisegundos);
+        this.enviarChat(mensaje);
+    }
+
+    private void enviarChat(MensajeSistema mensaje) {
+        mensaje.setHoraPrefija(mensaje.getHora());
+
+        String msg = JaneHelper
+                .from(mensaje)
+                .only("id,mensaje,estado,fechaRegistro,horaPrefija")
+                .join("asuntoMensaje", "id,asunto")
+                .join("remitente", "id,userWebsocket")
+                .join("remitente.persona", "nombres,paterno,materno")
+                .join("destinatario", "id,userWebsocket")
+                .join("destinatario.persona", "nombres,paterno,materno")
+                .json().toString();
+
+        rabbitTemplate.convertAndSend(BienestarConstantine.QUEUE_CHAT_MAIPI, msg);
     }
 
 }
