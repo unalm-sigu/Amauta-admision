@@ -4,7 +4,7 @@
 
     <groupId>pe.edu.lamolina</groupId>
     <artifactId>amauta</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.3</version>
     <packaging>jar</packaging>
 
     <name>lamolina-amauta</name>
