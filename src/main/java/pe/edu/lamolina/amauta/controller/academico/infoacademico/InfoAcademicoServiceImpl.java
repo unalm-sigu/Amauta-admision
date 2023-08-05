@@ -440,7 +440,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.debug("{}", alumno.getResolucionTituloFacultad());
             log.debug("{}", alumno.getFechaTituloFacultad());
         }
-        
+
         if (alumno.getCicloActivo() != null) {
             if (alumno.getSituacionAcademica() != null) {
                 if (alumno.getSituacionAcademica().isEgresado()) {
@@ -786,6 +786,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
         }
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_RA) {
+            throw new PhobosException("Alumno renunciante no se recalcula promedios.");
+        }
         promedioService.calcularSituacionAcademica(alumno, ds);
     }
 

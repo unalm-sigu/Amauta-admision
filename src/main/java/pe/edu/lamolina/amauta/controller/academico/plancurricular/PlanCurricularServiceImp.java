@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.plancurricular;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -107,6 +108,7 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_I;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_II;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_III;
@@ -1439,6 +1441,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void generarAvanceCurricular(PlanCurricular plan, DataSessionPivot ds) {
         List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(plan);
+//        List<Alumno> alumnosSinAluRenunciantes = alumnos.stream().filter(x -> x.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
+//                .collect(Collectors.toList());
         avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
     }
 

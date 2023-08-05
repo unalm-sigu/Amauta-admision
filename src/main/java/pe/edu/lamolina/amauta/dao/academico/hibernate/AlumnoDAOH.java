@@ -55,6 +55,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_G;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_SS;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -260,7 +261,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("planCurricular pc")
+                .join("planCurricular pc","situacionAcademica sa")
                 .filter("planCurricular", planCurricular);
 
         return all(sql);
@@ -1199,7 +1200,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
-                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X))
+                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
                 .__().notExists(subQuery)
                 .__().linkedBy("alu.id", "alum.id")
                 .__().notExists(sqlSub)

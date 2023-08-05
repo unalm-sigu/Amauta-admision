@@ -83,7 +83,7 @@
                                             v-bind:options="situaciones"
                                             v-bind:allow-empty="true"
                                             track-by="id"
-                                            placeholder=" Situación Académica Anterior"
+                                            placeholder=" Situación Académica Actual"
                                             label='nombre'
                                             v-on:input="changeSeleccion()"
                                             v-bind:internal-search="true"
@@ -254,10 +254,10 @@
 
                                                 <td class="v-middle text-center">
                                                     <span class="block">{{item.puntajePrioridad}}</span>
-                                                    <span class="block" v-if="item.situacionInicio.id != ''" ><strong>Sit. Anterior: </strong>{{item.situacionInicio.nombre}}</span>
+<!--                                                    <span class="block" v-if="item.situacionInicio.id != ''" ><strong>Sit. Anterior: </strong>{{item.situacionInicio.nombre}}</span>
                                                     <span class="block" v-if="item.situacionFinal.id != ''">F: {{item.situacionFinal.nombre}} </span>
-                                                    <span class="block h5 text-primary m-t-xs m-b-xs"><strong>Sit. Actual:</strong> {{item.alumno.situacionAcademica.nombre}}</span>
-
+                                                    <span class="block h5 text-primary m-t-xs m-b-xs"><strong>Sit. Actual:</strong> {{item.alumno.situacionAcademica.nombre}}</span>-->
+                                                    <span class="block"><strong>Sit. Actual:</strong> {{item.alumno.situacionAcademica.nombre}}</span>
                                                 </td>
 
                                                 <td class="v-middle text-center">
