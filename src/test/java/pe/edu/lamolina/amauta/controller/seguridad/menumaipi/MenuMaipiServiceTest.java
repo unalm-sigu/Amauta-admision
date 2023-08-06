@@ -11,12 +11,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
-import pe.edu.lamolina.amauta.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.amauta.dao.seguridad.MenuDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.MenuRolDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.RolSistemaDAO;
-import pe.edu.lamolina.amauta.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Sistema;
@@ -27,16 +22,6 @@ public class MenuMaipiServiceTest {
     @Mock
     private MenuDAO menuDAO;
     @Mock
-    private RolDAO rolDAO;
-    @Mock
-    private MenuRolDAO menuRolDAO;
-    @Mock
-    private RolSistemaDAO rolSistemaDAO;
-    @Mock
-    private SistemaDAO sistemaDAO;
-    @Mock
-    private VisorMenu visorMenu;
-    @Mock
     private DespliegueConfig despliegueConfig;
 
     private MenuMaipiService menuMaipiService;
@@ -44,15 +29,15 @@ public class MenuMaipiServiceTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        
+
         menuMaipiService = new MenuMaipiServiceImp(
-            menuDAO,
-            rolDAO,
-            menuRolDAO,
-            rolSistemaDAO,
-            sistemaDAO,
-            visorMenu,
-            despliegueConfig);
+                menuDAO,
+                null,//menuRolDAO,
+                null, //rolDAO,
+                null, //rolSistemaDAO,
+                null, //sistemaDAO,
+                null, //visorMenu,
+                despliegueConfig, null);
     }
 
     @Test
@@ -62,12 +47,12 @@ public class MenuMaipiServiceTest {
         when(menuDAO.find(any(Long.class))).thenReturn(mm);
         when(menuDAO.allBySuperMenu(any(Sistema.class), any(Menu.class))).thenReturn(new ArrayList());
         when(despliegueConfig.getAmbiente()).thenReturn("PROD");
-        
+
         Menu menu = menuMaipiService.find(new Menu(11111L));
-        
+
         ObjectNode json = JaneHelper.from(menu).json();
         log.debug(json.toString());
-        
+
     }
 
     private Menu createMenuPregrado() {
