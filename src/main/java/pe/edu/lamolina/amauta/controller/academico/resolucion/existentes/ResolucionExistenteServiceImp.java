@@ -2245,6 +2245,66 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
 
     @Override
     @Transactional
+    public boolean anularAlumnoDeResolucionTramiteTraslado(Alumno alumno, Resolucion resolucion, TramiteTraslado tramiteTraslado, DataSessionPivot ds) {
+        
+        boolean tramiteTrasladoInternoAnulado = false;
+
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
+        if (resolucionBD == null) {
+            throw new PhobosException("No se encontró la Resolución de Traslado Interno");
+        }
+
+        TipoResolucionEnum tipoResolucionEnum = resolucionBD.getTipoResolucion().getTipoEnum();
+        Resolucion resolucionValidacion = resolucionDAO.validaResolucion(resolucionBD.getOficina(), resolucionBD.getSerie(), resolucionBD.getNumero(), tipoResolucionEnum);
+        if (resolucionValidacion.getId() == null) {
+            throw new PhobosException("La Resolución de Traslado Interno no cuenta con número de serie ni oficina válido");
+        }
+
+        TramiteTraslado tramiteTrasladoDB = tramiteTrasladoDAO.find(tramiteTraslado.getId());
+        if (tramiteTrasladoDB == null) {
+            throw new PhobosException("No se encontró el Trámite de Traslado Interno");
+        }
+        Tramite tramiteDB = tramiteTrasladoDB.getTramite();
+
+        log.debug("oficina {}", resolucionBD.getOficina().getId());
+        log.debug("serie {}", resolucionBD.getSerie());
+        log.debug("numero {}", resolucionBD.getNumero());
+        log.debug("tipoResolucion {}", resolucionBD.getTipoResolucion().getTipoEnum().name());
+        log.debug("Resolucion válido? {}", Objects.nonNull(resolucionValidacion));
+
+        Alumno alumnoDB = alumnoDAO.find(alumno);
+        if (alumnoDB == null) {
+            throw new PhobosException("No se encontró el alumno en esta Resolución de Traslado Interno");
+        }
+        
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
+
+        tramiteDB.setAlumno(alumnoDB);
+        tramiteDB.setResolucion(null);
+        tramiteDB.setAceptado(false);
+        tramiteDB.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramiteDB.setFechaRespuesta(null);
+        tramiteDB.setUserRespuesta(null);
+        tramiteDB.setFinalizado(Boolean.FALSE);
+        tramiteDB.setEstadoTramite(estadoTramite);
+        tramiteDB.setFechaModificacion(new Date());
+        tramiteDB.setUserModificacion(ds.getUsuario());
+        tramiteDAO.update(tramiteDB);
+       
+        tramiteTrasladoDB.setResolucion(null);
+        tramiteTrasladoDB.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramiteTrasladoDB.setUsuarioAnulaTramite(ds.getUsuario());
+        tramiteTrasladoDB.setFechaAnulacion(new Date());
+        tramiteTrasladoDB.setMotivoAnulacion(tramiteTraslado.getMotivoAnulacion());
+        tramiteTrasladoDB.setTramite(tramiteDB);
+        tramiteTrasladoDAO.update(tramiteTrasladoDB);
+
+        return !tramiteTrasladoInternoAnulado;
+        
+    }
+    
+    @Override
+    @Transactional
     public boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds) {
 
         boolean cursoDirigidorAnulado = false;

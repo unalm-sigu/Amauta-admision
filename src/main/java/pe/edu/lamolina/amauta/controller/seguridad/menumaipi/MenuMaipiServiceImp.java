@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
+import pe.edu.lamolina.model.constantines.BienestarConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -44,12 +46,14 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 public class MenuMaipiServiceImp implements MenuMaipiService {
 
     private final MenuDAO menuDAO;
-    private final RolDAO rolDAO;
     private final MenuRolDAO menuRolDAO;
+    private final RolDAO rolDAO;
     private final RolSistemaDAO rolSistemaDAO;
     private final SistemaDAO sistemaDAO;
     private final VisorMenu visorMenu;
+
     private final DespliegueConfig despliegueConfig;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<Menu> allMenuSystem(Sistema sistema) {
@@ -103,6 +107,11 @@ public class MenuMaipiServiceImp implements MenuMaipiService {
         this.setModalidades(menu, menuBD);
 
         menuDAO.update(menuBD);
+    }
+
+    @Override
+    public void reloadMenusMaipi() {
+        rabbitTemplate.convertAndSend(BienestarConstantine.QUEUE_PROCESOS_MAIPI, "LOAD_MENU");
     }
 
     @Override

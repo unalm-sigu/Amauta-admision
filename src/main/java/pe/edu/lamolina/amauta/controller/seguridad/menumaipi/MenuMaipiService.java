@@ -14,6 +14,8 @@ public interface MenuMaipiService {
 
     void update(Menu menu);
 
+    void reloadMenusMaipi();
+
     Menu find(Menu menu);
 
     List<Menu> allMenuOrdered(List<Menu> menusBD);
