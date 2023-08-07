@@ -71,14 +71,14 @@
                                                         
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="fa fa-cog"></i>
-                                                        </a> 
-                                                        
+                                                        </a>
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a v-bind:href="urlReporte(item)">Reporte</a></li>
                                                             <!--<li ><a href="#" v-on:click.prevent="urlReporte(item)">Reporte</a></li>-->
                                                             <li role="presentation" class="divider"></li>
-                                                            <li ><a href="#" v-on:click.prevent="anularTarmite(item)">Anular</a></li>
+                                                            <li><a href="#" v-on:click.prevent="anularTarmite(item)">Anular</a></li>
+                                                            <!--<li><a href="#" v-if="item.estado != 'ANU'" v-on:click.prevent="anularTarmite(item)">Anular</a></li>-->
                                                         </ul>
 
                                                     </div>

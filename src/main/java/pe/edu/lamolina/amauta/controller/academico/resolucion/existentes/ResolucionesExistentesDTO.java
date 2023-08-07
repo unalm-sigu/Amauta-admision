@@ -1,81 +1,36 @@
 package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.tramite.*;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 public class ResolucionesExistentesDTO {
 
     private Alumno alumno;
     
-    private Resolucion resolucion;
+    private Tramite tramite;
 
     private TramiteTitulo tramiteTitulo;
     
+    private TramiteBachiller tramiteBachiller;
+    
+    private TramiteTraslado tramiteTraslado;
+
     private CursoDirigido cursoDirigido;
 
-    private TramiteBachiller tramiteBachiller;
-
-    private Tramite tramite;
+    private Resolucion resolucion;
 
     private ObtencionGrado obtencionGrado;
 
     public ResolucionesExistentesDTO() {
-    }
-
-    public Alumno getAlumno() {
-        return alumno;
-    }
-
-    public void setAlumno(Alumno alumno) {
-        this.alumno = alumno;
-    }
-
-    public Resolucion getResolucion() {
-        return resolucion;
-    }
-
-    public void setResolucion(Resolucion resolucion) {
-        this.resolucion = resolucion;
-    }
-
-    public TramiteTitulo getTramiteTitulo() {
-        return tramiteTitulo;
-    }
-
-    public void setTramiteTitulo(TramiteTitulo tramiteTitulo) {
-        this.tramiteTitulo = tramiteTitulo;
-    }
-
-    public CursoDirigido getCursoDirigido() {
-        return cursoDirigido;
-    }
-
-    public void setCursoDirigido(CursoDirigido cursoDirigido) {
-        this.cursoDirigido = cursoDirigido;
-    }
-
-    public Tramite getTramite() {
-        return tramite;
-    }
-
-    public TramiteBachiller getTramiteBachiller() {
-        return tramiteBachiller;
-    }
-
-    public void setTramiteBachiller(TramiteBachiller tramiteBachiller) {
-        this.tramiteBachiller = tramiteBachiller;
-    }
-
-    public void setTramite(Tramite tramite) {
-        this.tramite = tramite;
-    }
-
-    public ObtencionGrado getObtencionGrado() {
-        return obtencionGrado;
-    }
-
-    public void setObtencionGrado(ObtencionGrado obtencionGrado) {
-        this.obtencionGrado = obtencionGrado;
     }
 
 }

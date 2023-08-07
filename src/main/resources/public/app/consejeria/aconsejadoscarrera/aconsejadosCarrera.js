@@ -28,7 +28,7 @@ new Vue({
         alumnoConsejeroForm: {},
         count: {activos: 0, sinConsejero: 0, sinAsignar: 0},
         loadResumen: false,
-        axios:moduleAxios(RUTA_MODULO)
+        axios: moduleAxios(RUTA_MODULO)
     },
     mounted: function () {
         let $vue = this;
@@ -180,7 +180,7 @@ new Vue({
                         }, () => {
                             return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         });
-                        
+
             }).catch(err => {
                 if (err) {
                     swal(APP.errorComunicacion, "error");
@@ -259,6 +259,15 @@ new Vue({
                     swal.close();
                 }
             });
+        },
+        planificar(item) {
+            return `/${rutaModuloTutor}/${item.alumno.id}/planificacion${myUtils.getOrigenURL()}`;
+        },
+        agendar(item) {
+            return `/${rutaModuloTutor}/${item.alumno.id}/agendarTutorado${myUtils.getOrigenURL()}`;
+        },
+        derivar(item) {
+            return `/${rutaModuloTutor}/${item.alumno.id}/derivarTutorado${myUtils.getOrigenURL()}`;
         }
     }
 });

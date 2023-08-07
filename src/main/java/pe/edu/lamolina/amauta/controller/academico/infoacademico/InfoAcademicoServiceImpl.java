@@ -89,6 +89,8 @@ import pe.edu.lamolina.amauta.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
+import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
+import pe.edu.lamolina.amauta.dao.admision.TemaCicloDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
@@ -103,6 +105,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.calificacion.TemaCiclo;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -111,6 +114,8 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.inscripcion.Evaluado;
+import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -134,6 +139,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final DiaDAO diaDAO;
     private final DocenteSeccionDAO docenteSeccionDAO;
     private final EgresadoDAO egresadoDAO;
+    private final EvaluadoDAO evaluadoDAO;
     private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
     private final HoraDAO horaDAO;
     private final HorarioSeccionDAO horarioSeccionDAO;
@@ -146,6 +152,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final ResumenPlanCurricularDAO resumenPlanCurricularDAO;
     private final RetiroCicloDAO retiroCicloDAO;
     private final RetiroCursoDAO retiroCursoDAO;
+    private final TemaCicloDAO temaCicloDAO;
     private final TramiteBachillerDAO tramiteBachillerDAO;
     private final TramiteTituloDAO tramiteTituloDAO;
     private final ColaboradorDAO colaboradorDAO;
@@ -416,7 +423,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.debug("{}", alumno.getResolucionBachillerFacultad());
             log.debug("{}", alumno.getFechaBachillerFacultad());
         }
-        
+
         log.debug("tramiteTitulo");
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoACEP(alumno);
         if (tramiteTitulo != null) {
@@ -433,7 +440,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.debug("{}", alumno.getResolucionTituloFacultad());
             log.debug("{}", alumno.getFechaTituloFacultad());
         }
-        
+
         if (alumno.getCicloActivo() != null) {
             if (alumno.getSituacionAcademica() != null) {
                 if (alumno.getSituacionAcademica().isEgresado()) {
@@ -776,9 +783,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
-            throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
+            throw new PhobosException("Usted no está autorizado para ejecutar esta acción");
         }
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_RA) {
+            throw new PhobosException("Alumno renunciante no se recalcula promedios.");
+        }
         promedioService.calcularSituacionAcademica(alumno, ds);
     }
 
@@ -1273,6 +1283,32 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         for (Alumno alumno : alumnos) {
             promedioService.calcularSituacionAcademica(alumno, ds);
         }
+
+    }
+
+    @Override
+    public Evaluado findEvaluadoAdmision(Alumno alumnoForm) {
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
+        if (alumno.getPostulantePregrado() == null) {
+            return new Evaluado();
+        }
+
+        Evaluado evaluado = evaluadoDAO.findByPostulante(alumno.getPostulantePregrado());
+        if (evaluado == null) {
+            return new Evaluado();
+        }
+        return evaluado;
+    }
+
+    @Override
+    public List<TemaCiclo> allTemasAdmision(Alumno alumnoForm) {
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
+        Postulante postulante = alumno.getPostulantePregrado();
+        if (postulante == null) {
+            return new ArrayList();
+        }
+
+        return temaCicloDAO.allByCiclo(postulante.getCicloPostula());
 
     }
 

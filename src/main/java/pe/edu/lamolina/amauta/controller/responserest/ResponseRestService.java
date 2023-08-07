@@ -65,4 +65,6 @@ public interface ResponseRestService {
 
     JsonResponse generarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
 
+    JsonResponse crearPaciente(Persona persona, DataSessionPivot ds, TokenIngresante token);
+
 }

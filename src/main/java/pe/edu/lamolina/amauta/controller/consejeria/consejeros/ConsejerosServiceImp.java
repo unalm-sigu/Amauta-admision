@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -75,7 +76,9 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.dao.consejeria.InformeFinalTutoriaDAO;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import pe.edu.lamolina.model.tutoria.InformeFinalTutoria;
 
 @Slf4j
 @Service
@@ -94,6 +97,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
     private final ConsejeroDAO consejeroDAO;
     private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
     private final DocenteDAO docenteDAO;
+    private final InformeFinalTutoriaDAO informeFinalTutoriaDAO;
     private final MatriculaResumenDAO matriculaResumenDAO;
     private final OficinaDAO oficinaDAO;
     private final PersonaCargoDAO personaCargoDAO;
@@ -117,9 +121,12 @@ public class ConsejerosServiceImp implements ConsejerosService {
     }
 
     @Override
-    public List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico cicloAcademico, DynatableFilter filter) {
+    public List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico ciclo, DynatableFilter filter) {
 
         List<Consejero> consejeros = consejeroDAO.allByCarreraDynatable(carrera, filter);
+        List<InformeFinalTutoria> informes = informeFinalTutoriaDAO.allActivosByConsejerosCiclo(consejeros, ciclo);
+        Map<Long, InformeFinalTutoria> mapInformes = informes.stream()
+                .collect(Collectors.toMap(info -> info.getConsejero().getId(), Function.identity()));
 
         List<Colaborador> colaboradores = consejeros.stream()
                 .map(x -> x.getColaborador())
@@ -132,7 +139,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
                 .collect(Collectors.toList());
 
         {
-            List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allSimpleByCicloConsejeros(consejeros, cicloAcademico);
+            List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allSimpleByCicloConsejeros(consejeros, ciclo);
 
             Map<Long, List<AlumnoConsejero>> alumnoConsejerosMap = alumnoConsejeros.stream()
                     .collect(groupingBy(x -> x.getConsejero().getId()));
@@ -141,7 +148,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
                     .map(x -> x.getAlumno())
                     .collect(toList());
 
-            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allSimpleByAlumnosCiclo(alumnos, cicloAcademico);
+            List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allSimpleByAlumnosCiclo(alumnos, ciclo);
 
             Map<Long, MatriculaResumen> matriculaResumensMap = matriculaResumens.stream()
                     .collect(toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
@@ -165,6 +172,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
                 consejero.setAconsejadosMat(matriculados);
                 consejero.setAconsejadosNmat(noMatriculados);
+                consejero.setInforme(mapInformes.get(consejero.getId()));
             }
         }
 
@@ -185,7 +193,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
     @Override
     public Consejero finByIdPersona(Persona persona) {
-        return consejeroDAO.finByIdPersona(persona);
+        return consejeroDAO.findByPersona(persona);
     }
 
     @Override

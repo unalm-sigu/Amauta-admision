@@ -127,28 +127,21 @@ public class MenuMaipiController {
     @RequestMapping("save")
     public JsonResponse save(Menu menu, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
+        String message = "Registro creado satisfactoriamente";
+        if (menu.getId() == null) {
+            service.save(menu);
+            service.reloadMenusMaipi();
 
-        try {
-
-            if (menu.getId() == null) {
-                service.save(menu);
-                response.setMessage("Registro creado satisfactoriamente");
-
-            } else {
-                service.update(menu);
-                response.setMessage("Registro actualizado satisfactoriamente");
-            }
-
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        } finally {
-            return response;
+        } else {
+            service.update(menu);
+            service.reloadMenusMaipi();
+            message = "Registro actualizado satisfactoriamente";
         }
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(true);
+        response.setMessage(message);
+        return response;
 
     }
 

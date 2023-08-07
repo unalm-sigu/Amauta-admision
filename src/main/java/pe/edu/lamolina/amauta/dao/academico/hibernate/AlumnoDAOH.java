@@ -42,7 +42,6 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableResumen;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
@@ -52,11 +51,11 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_G;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_SS;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -104,9 +103,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per")
-                .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
-                .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
-                .left("orientacionCarrera", "per.tipoDocumento")
+                .leftJoin("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
+                .leftJoin("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula")
+                .leftJoin("orientacionCarrera", "per.tipoDocumento")
                 .filter("alu.id", id);
 
         return find(sql);
@@ -239,7 +238,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                // .filter("ca.id", cicloAcademico)
                 .in("moe.codigo", modalidades)
                 .orderBy("al.id desc");
 
@@ -263,7 +261,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("planCurricular pc")
+                .join("planCurricular pc","situacionAcademica sa")
                 .filter("planCurricular", planCurricular);
 
         return all(sql);
@@ -561,15 +559,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     @Override
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-//        Octavia subQuery = new Octavia()
-//                .from(MatriculaResumen.class, "mr")
-//                .join("alumno alum")
-//                .filter("cicloAcademico", cicloAcademico);
-//
-//        Octavia subQueryRetiro = new Octavia()
-//                .from(RetiroCiclo.class, "rc")
-//                .join("alumno alumrc", "cicloRegistro cr")
-//                .filter("cr.id", cicloAcademico);
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -582,12 +571,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
-//                .beginBlock()
-////                .__().exists(subQuery)
-//                .__().linkedBy("alu.id", "alum.id")
-////                .__().exists(subQueryRetiro)
-//                .__().linkedBy("alu.id", "alumrc.id")
-//                .endBlock()
                 .limit(30);
         return sql.all(getCurrentSession());
     }
@@ -1217,7 +1200,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
-                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X))
+                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
                 .__().notExists(subQuery)
                 .__().linkedBy("alu.id", "alum.id")
                 .__().notExists(sqlSub)

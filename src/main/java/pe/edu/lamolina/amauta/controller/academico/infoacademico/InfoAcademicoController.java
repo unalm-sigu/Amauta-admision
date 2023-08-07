@@ -3,13 +3,11 @@ package pe.edu.lamolina.amauta.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,24 +46,26 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.amauta.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.calificacion.TemaCiclo;
+import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/alumno")
 public class InfoAcademicoController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
-    @Autowired
-    InfoAcademicoService service;
-
-    @Autowired
-    PlanCurricularService planCurricularService;
-
-    @Autowired
-    ResponseRestService responseRestService;
+    public final InfoAcademicoService service;
+    public final PlanCurricularService planCurricularService;
+    public final ResponseRestService responseRestService;
+    public final VerificadorService verificadorService;
 
     @ResponseBody
     @RequestMapping("{idAlumno}/avance")
@@ -96,40 +96,31 @@ public class InfoAcademicoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        Alumno alumno = service.findWithallInfo(new Alumno(idAlumno),ds);
+        Alumno alumno = service.findWithallInfo(new Alumno(idAlumno), ds);
         List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
 
-        logger.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
-        logger.debug("ciclosVerano  =  {}", alumno.getCiclosVeranosTransient());
-        logger.debug("situacion  =  {}", alumno.getSituacionAcademica().isEgresado());
+        log.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
+        log.debug("ciclosVerano  =  {}", alumno.getCiclosVeranosTransient());
+        log.debug("situacion  =  {}", alumno.getSituacionAcademica().isEgresado());
         ObjectNode alumnoJson = createAlumnoJson(alumno);
         ArrayNode planesJson = createPlanesJson(planes);
         ObjectNode cicloJson = createCicloJson(ciclo);
 
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
-        model.addAttribute("alumno", alumnoJson);
-        model.addAttribute("alumnoTmp", alumno);
-        model.addAttribute("ciclo", cicloJson);
-        model.addAttribute("planes", planesJson);
-        model.addAttribute("puedeCalcular", puedeCalcular);
-        model.addAttribute("origen", getOrigen(origen));
-
         List<Hora> horas = service.allHoras();
-        
         ArrayNode horasJson = JaneHelper.from(horas).array();
 
-        model.addAttribute("horasBD", horasJson);
-        return "academico/alumno/infoAcademico";
-    }
+        model.addAttribute("alumnoJson", alumnoJson);
+        model.addAttribute("alumnoTmp", alumno);
+        model.addAttribute("cicloJson", cicloJson);
+        model.addAttribute("planes", planesJson);
+        model.addAttribute("puedeCalcular", puedeCalcular);
+        model.addAttribute("horasJson", horasJson);
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
+        model.addAttribute("rutaModulo", rutaModulo);
 
-    private String getOrigen(String origen) {
-        if (StringUtils.isEmpty(origen)) {
-            return "/academico/alumno";
-        }
-        byte[] decoded = Base64.getMimeDecoder().decode(origen);
-        String output = new String(decoded);
-        return output;
+        return "academico/alumno/infoAcademico";
     }
 
     @ResponseBody
@@ -162,7 +153,7 @@ public class InfoAcademicoController {
 
         try {
             List<AlumnoCicloCurso> cursosHisto = service.allHistorialAlumno(new Alumno(idAlumno));
-            logger.debug("cursosHisto.size {}",cursosHisto.size());
+            log.debug("cursosHisto.size {}", cursosHisto.size());
             ArrayNode promediosJson = service.allPromediosJson(cursosHisto);
             ArrayNode cursosJson = service.allCursosJson(cursosHisto);
 
@@ -262,18 +253,14 @@ public class InfoAcademicoController {
 
     @ResponseBody
     @RequestMapping("calcularpromedio")
-    public JsonResponse calcularpromedio(Alumno alumnoForm, HttpSession session) {
+    public JsonResponse calcularpromedio(@RequestBody Alumno alumnoForm, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            service.calcularPromedio(alumnoForm, ds);
-            response.setSuccess(true);
-            response.setMessage("Se calculó el promedio satisfactoriamente");
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+
+        service.calcularPromedio(alumnoForm, ds);
+        response.setSuccess(true);
+        response.setMessage("Se calculó el promedio satisfactoriamente");
+
         return response;
     }
 
@@ -371,20 +358,13 @@ public class InfoAcademicoController {
     @ResponseBody
     @RequestMapping("{idAlumno}/data")
     public JsonResponse alumnoData(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Alumno alumno = service.findWithallInfo(new Alumno(idAlumno), ds);
+        ObjectNode alumnoJson = createAlumnoJson(alumno);
+
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Alumno alumno = service.findWithallInfo(new Alumno(idAlumno),ds);
-            ObjectNode alumnoJson = createAlumnoJson(alumno);
-            response.setData(alumnoJson);
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        response.setData(alumnoJson);
+        response.setSuccess(Boolean.TRUE);
 
         return response;
     }
@@ -479,6 +459,34 @@ public class InfoAcademicoController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("notasAdmision")
+    public JsonResponse notasAdmision(@RequestBody Alumno alumno) {
+        Evaluado evaluado = service.findEvaluadoAdmision(alumno);
+        List<TemaCiclo> temasCiclo = service.allTemasAdmision(alumno);
+
+        ObjectNode evaluadoJson = JaneHelper
+                .from(evaluado)
+                .join("postulante", "id")
+                .join("postulante.cicloPostula.cicloAcademico", "id,descripcion")
+                .json();
+
+        ArrayNode temasJson = JaneHelper
+                .from(temasCiclo).only("id,orden")
+                .join("temaExamen")
+                .array();
+
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        node.set("evaluado", evaluadoJson);
+        node.set("temasExamen", temasJson);
+
+        JsonResponse response = new JsonResponse();
+        response.setData(node);
+        response.setSuccess(true);
+
         return response;
     }
 
@@ -589,19 +597,16 @@ public class InfoAcademicoController {
 
     @ResponseBody
     @RequestMapping("{idAlumno}/{idOrientacion}/saveOrientacion")
-    public JsonResponse saveOrientacion(@PathVariable("idAlumno") Long idAlumno, @PathVariable("idOrientacion") Long idOrientacion, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.cambiarOrientacion(new Alumno(idAlumno), new OrientacionCarrera(idOrientacion), ds);
-            response.setSuccess(true);
-            response.setMessage("Se actualizó satisfactoriamente la orientación ");
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
+    public JsonResponse saveOrientacion(
+            @PathVariable("idAlumno") Long idAlumno,
+            @PathVariable("idOrientacion") Long idOrientacion, Model model, HttpSession session) {
 
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.cambiarOrientacion(new Alumno(idAlumno), new OrientacionCarrera(idOrientacion), ds);
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(true);
+        response.setMessage("Se actualizó satisfactoriamente la orientación ");
         return response;
     }
 
@@ -675,10 +680,10 @@ public class InfoAcademicoController {
 
         return response;
     }
-    
+
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-            "id", "codigo","fechaBachiller","fechaTitulo","fechaEgreso","fechaMatricula","promedioPonderadoGraduacion",
+            "id", "codigo", "fechaBachiller", "fechaTitulo", "fechaEgreso", "fechaMatricula", "promedioPonderadoGraduacion",
             "ciclosRegularesTransient", "ciclosVeranosTransient",
             "promedioCarreraAcumulado", "promedioAcumulado",
             "creditosCarreraAprobados", "creditosCarreraCursados",
@@ -715,6 +720,7 @@ public class InfoAcademicoController {
             "planCurricular.cicloInicioVigencia.descripcion",
             "modalidadEstudio.codigo",
             "modalidadEstudio.nombre",
+            "postulantePregrado.id",
             "postulantePregrado.modalidadIngreso.nombre",
             "persona.apellidos",
             "persona.paterno",
@@ -730,6 +736,7 @@ public class InfoAcademicoController {
             "persona.telefono",
             "persona.celular",
             "persona.email",
+            "persona.emailCompania",
             "persona.tipoDocumento.simbolo",
             "tutorOcoordinador"
         });

@@ -427,6 +427,25 @@ public class ResolucionExistenteController {
         }
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "anularTramiteTrasladoInterno")
+    public JsonResponse anularTramiteTrasladoInterno(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TramiteTraslado tramiteTraslado = resolucionesExistentesDTO.getTramiteTraslado();
+        Resolucion resolucion = resolucionesExistentesDTO.getResolucion();
+        Alumno alumno = resolucionesExistentesDTO.getAlumno();
+        boolean respuesta = service.anularAlumnoDeResolucionTramiteTraslado(alumno, resolucion, tramiteTraslado, ds);
+        if (respuesta) {
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage(TramitesAcademicos.TRAMITE_TRASLADO_INTERNO);
+        } else {
+            response.setSuccess(Boolean.FALSE);
+            response.setMessage(TramitesAcademicos.ERROR_ANULAR_RESOLUCION_TRASLADO_INTERNO);
+        }
+        return response;
+    }
 
     @ResponseBody
     @RequestMapping("alumnos")

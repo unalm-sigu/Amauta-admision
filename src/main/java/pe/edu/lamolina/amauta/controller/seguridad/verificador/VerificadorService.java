@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp.CantidadItemsEnum;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
 
 public interface VerificadorService {
 
@@ -86,12 +87,18 @@ public interface VerificadorService {
 
     boolean isDeveloperOERA(DataSessionPivot ds);
 
-    public boolean esCoordinadorIOREA(DataSessionPivot ds);
+    boolean esCoordinadorIOREA(DataSessionPivot ds);
 
-    public boolean isRevisorActaNotasDepartamento(DataSessionPivot ds);
+    boolean isRevisorActaNotasDepartamento(DataSessionPivot ds);
 
-    public boolean esInformaticoOERA(DataSessionPivot ds);
+    boolean esInformaticoOERA(DataSessionPivot ds);
 
-    public boolean soloEditarDatosAlumno(DataSessionPivot ds);
+    boolean soloEditarDatosAlumno(DataSessionPivot ds);
+
+    boolean esConsejeroCarrera(DataSessionPivot ds, Carrera carrera);
+
+    boolean esCoordinadorConsejeria(DataSessionPivot ds, Carrera carrera);
+
+    boolean esJefeCarrera(DataSessionPivot ds, Carrera carrera);
 
 }

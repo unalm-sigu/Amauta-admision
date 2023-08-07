@@ -238,6 +238,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         TramiteTitulo titulo = new TramiteTitulo();
         titulo.setTramite(tramite);
         titulo.setEstado(TramiteEstadoEnum.SOL.name());
+        titulo.setEstadoTitulo(TramiteEstadoEnum.SOL.name());
         titulo.setFechaRegistro(new Date());
         titulo.setUsuario(ds.getUsuario());
         tramiteTituloDAO.save(titulo);

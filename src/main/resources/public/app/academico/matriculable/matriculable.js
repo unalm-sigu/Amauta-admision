@@ -4,7 +4,7 @@ new Vue({
     el: '#matriculableVUE',
     components: {ClonarMatriculableModal,
         ModalSimple: use("/_vue/modules/ModalSimple.vue"),
-        RaptorTable: use("/_vue/modules/RaptorTable.vue"), 
+        RaptorTable: use("/_vue/modules/RaptorTable.vue"),
     },
     data: {
         matriculaURL: APP.url(`${rutaModulo}/list`),
@@ -313,6 +313,10 @@ new Vue({
                         $vue.$refs.load.loadRemoteData();
                         MODAL.hideWait();
                         notify(response.message, "success");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                        
                     }
                 },
                 error: function () {
@@ -491,6 +495,7 @@ new Vue({
                             callback: function () {
                                 $vue.$refs.modalProcesos.close();
                                 $vue.findCiclo();
+                                location.reload();
                             }
                         });
                     }

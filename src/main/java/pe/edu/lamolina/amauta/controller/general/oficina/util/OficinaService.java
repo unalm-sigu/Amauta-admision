@@ -18,4 +18,6 @@ public interface OficinaService {
 
     Oficina findOficinaMain(Oficina oficinaHija, List<Oficina> oficinasTodas);
 
+    Oficina findByCodigo(String codigo);
+
 }

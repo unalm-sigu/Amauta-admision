@@ -253,7 +253,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 continue;
             }
             String values = (String) queries.get(key);
-            sql.filter("si.id", new Long(values));
+            sql.filter("sita.id", new Long(values));
         }
 
     }

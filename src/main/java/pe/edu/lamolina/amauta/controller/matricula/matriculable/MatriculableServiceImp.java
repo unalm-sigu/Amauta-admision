@@ -133,6 +133,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
@@ -346,7 +347,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
                         S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(),
-                        S_6.getValue(), S_T.getValue());
+                        S_6.getValue(), S_T.getValue(), S_RA.getValue());
 
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
@@ -1392,9 +1393,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (cicloActivo.getFechaPrioridades() != null) {
             EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
-            List<TurnoAtencion> turnos =  turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
-            if(turnos.isEmpty()){
-                turnos =  turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
+            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+            if (turnos.isEmpty()) {
+                turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
             }
             List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloActivo);
             Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
@@ -1736,8 +1737,8 @@ public class MatriculableServiceImp implements MatriculableService {
         if (cicloActivo.getFechaPrioridades() != null) {
             EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
             List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
-            if(turnos.isEmpty()){
-            turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
+            if (turnos.isEmpty()) {
+                turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, MAT_REI);
             }
 
             asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);

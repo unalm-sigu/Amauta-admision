@@ -80,7 +80,6 @@
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right" >
                                                         <li role="presentation" v-if='item.autorizado'>
-
                                                             <a class="aceptar-expandir-sistema"  
                                                                v-on:click="editarResolucionOther(item,$event)" href="#"
                                                                v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad 
@@ -96,7 +95,11 @@
                                                                href="#">Subir PDF</a>
                                                             <a class="aceptar-expandir-sistema"
                                                                v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
-                                                               v-if="item.isTipoTramiteTitulo || item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad || item.isTipoCursoDirigido"
+                                                               v-if="item.isTipoTramiteTitulo || 
+                                                                     item.isTipoTramiteBachiller || 
+                                                                     item.isTipoTramiteBachillerFacultad || 
+                                                                     item.isTipoCursoDirigido || 
+                                                                     item.isTipoTrasladoInterno"
                                                             >Anular Alumno(s)</a>
                                                         </li>
                                                     </ul>

@@ -13,7 +13,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -138,8 +138,9 @@
                                         <table id="dynaTable" class="table table-striped">
                                             <thead class="panel panel-heading">
                                                 <tr>
-                                                    <th class="col-md-8 v-middle">Tutor</th>
+                                                    <th class="col-md-7 v-middle">Tutor</th>
                                                     <th class="col-md-3 text-center v-middle" colspan="2">Estudiantes</th>
+                                                    <th class="col-md-1 v-middle text-center">Informe</th>
                                                     <th class="col-md-1 v-middle text-center">Estado</th>
                                                     <th class=""></th>
                                                 </tr>
@@ -182,6 +183,14 @@
                                                     </td>
 
                                                     <td class="v-middle text-center">
+                                                        <a v-if="item.informe.id" v-bind:href="rutaInforme(item)">
+                                                            <i v-bind:class="classInforme(item.informe)" 
+                                                               class="fa fa-file-text fa-3x pointer" aria-hidden="true"></i>
+                                                        </a>
+                                                        <i v-else="" class="fa fa-file-text fa-3x" aria-hidden="true"></i>
+                                                    </td>
+
+                                                    <td class="v-middle text-center">
                                                         <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
                                                         <span v-else="" class="label label-default">Inactivo</span>
                                                     </td>
@@ -216,16 +225,17 @@
 
         <div layout:fragment="js" th:remove="tag">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-        
+
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo}]]*/ 'json';
                 var carrerasJson = /*[[${carreras}]]*/ 'json';
-                var rutaModulo = 'consejeria/consejeros';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+                var rutaModuloTutor = /*[[${rutaModuloTutor}]]*/ 'json';
                 /*]]>*/
             </script>
-            
-            
+
+
             <script th:src="@{/app/consejeria/consejeros/consejeros.js}" charset="utf-8"></script>
         </div>
 
