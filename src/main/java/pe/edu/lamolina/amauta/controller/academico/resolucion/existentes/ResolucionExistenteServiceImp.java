@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,6 +99,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramitePracticaPreProfesionalesDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteRenunciaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -113,6 +115,7 @@ import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
+import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.general.TipoOficina;
@@ -121,6 +124,7 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Slf4j
@@ -164,8 +168,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final TramiteDAO tramiteDAO;
     private final TramitePracticaPreProfesionalesDAO practicaPreProfesionalesDAO;
     private final TramiteTituloDAO tramiteTituloDAO;
+    private final TramiteRenunciaAlumnoDAO tramiteRenunciaAlumnoDAO;
     private final TramiteTrasladoDAO tramiteTrasladoDAO;
     private final VisorCalculoNotas visorCalculoNotas;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
 
     private final GrupoSeccionDAO grupoSeccionDAO;
 
@@ -331,9 +337,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<TramiteTitulo> allTramiteTituloFacultad(Resolucion resolucionDB) {
-         return tramiteTituloDAO.allByResolucionFacultad(resolucionDB);
+        return tramiteTituloDAO.allByResolucionFacultad(resolucionDB);
     }
-    
 
     @Override
     public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB) {
@@ -472,6 +477,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.requiereCicloAplica(resolucion.getCicloAplica());
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
+            case ALUMRENUNCIA:
+                this.requiereCicloAplica(resolucion.getCicloAplica());
+                resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
+                break;
             default:
                 break;
         }
@@ -518,7 +527,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TITULBAC:
                 this.saveTramiteTituloFacultad(resolucion, ds);
-                break;                
+                break;
+            case ALUMRENUNCIA:
+                this.saveTramiteAlumnoRenunciante(resolucion, ds);
+                break;
             case CAMBIO_PLAN_CURRICULAR:
                 this.saveCambioPlanCurricular(resolucion);
                 break;
@@ -780,7 +792,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TITULBAC:
                 resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
-                break;                
+                break;
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
                 this.requiereCicloAplica(resolucionForm.getCicloAplica());
@@ -836,7 +848,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TITULBAC:
                 this.saveTramiteTituloFacultad(resolucionForm, ds);
-                break;                
+                break;
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
@@ -1555,7 +1567,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
                 .collect(Collectors.toList());
-        
+
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -1660,7 +1672,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
         }
     }
-private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot ds) {
+
+    private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot ds) {
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
 
@@ -1672,19 +1685,17 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
 //            .stream()
 //            .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
 //            .forEach(x-> System.out.println(x.getAlumno().getCodigo() ));
-        
-        
-         List<TramiteTitulo> tramiteTitulos = resolucion.getTramiteTitulos()
+        List<TramiteTitulo> tramiteTitulos = resolucion.getTramiteTitulos()
                 .stream()
                 .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
                 .collect(Collectors.toList());
-
         for (TramiteTitulo titulo : tramiteTitulos) {
 
             TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
             }
+
             if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
                 log.debug("Solo esta permitido agregar alumnos en modo edición");
                 continue;
@@ -1701,11 +1712,56 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
             tramite.setUserRespuesta(ds.getUsuario());
             tramite.setFinalizado(Boolean.TRUE);
             tramite.setEstadoTramite(estadoTramite);
-            tramiteDAO.update(tramite);            
-          }
+            tramiteDAO.update(tramite);
+        }
     }
- 
-    
+
+    private void saveTramiteAlumnoRenunciante(Resolucion resolucion, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        if (resolucion.getTramiteRenunciaAlumno().isEmpty()) {
+            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
+        }
+
+        List<TramiteRenunciaAlumno> TramiteRenunciaAlumno = resolucion.getTramiteRenunciaAlumno().stream()
+                .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
+                .collect(Collectors.toList());
+
+        for (TramiteRenunciaAlumno renunciaAlumno : TramiteRenunciaAlumno) {
+            Alumno alumno = renunciaAlumno.getAlumno();
+//            Long alumnoId = alumno.getId();
+//             String codigoAlumno = alumno.getCodigo(); 
+            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
+
+            TramiteRenunciaAlumno renunciaTramite = tramiteRenunciaAlumnoDAO.findByAlumnoAct(renunciaAlumno.getAlumno());
+
+            Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
+            String codigoTipoTramite = "ALUMREN";
+            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(codigoTipoTramite);
+
+            Alumno alumnoDB = alumnoDAO.find(alumno);
+
+            if (renunciaTramite == null) {
+                throw new PhobosException("El alumno " + renunciaAlumno.getAlumno().getCodigo() + " no tiene un trámite titulo");
+            }
+            renunciaTramite.setResolucion(resolucion);
+            renunciaTramite.setEstado(TramiteEstadoEnum.ACEP.name());
+            renunciaTramite.setFechaRegistro(new Date());
+            renunciaTramite.setUsuario(ds.getUsuario());
+            tramiteRenunciaAlumnoDAO.save(renunciaTramite);
+
+            Tramite tramite = renunciaTramite.getTramite();
+            tramite.setFechaRespuesta(new Date());
+            tramite.setUserRespuesta(ds.getUsuario());
+            tramite.setFinalizado(Boolean.TRUE);
+            tramite.setEstado(TramiteEstadoEnum.ACEP.name());
+            tramiteDAO.update(tramite);
+
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("RA");
+            alumnoDB.setSituacionAcademica(situacion);
+            alumnoDAO.update(alumnoDB);
+        }
+    }
+
     private String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
@@ -2303,7 +2359,6 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
         cursoDirigidoDB.setUsuarioAnulaTramite(ds.getUsuario());
         cursoDirigidoDAO.update(cursoDirigidoDB);
 
-
         Curso curso = cursoDirigidoDB.getCurso();
         MatriculaResumen matriculaResumenDB = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, ds.getCicloAcademico());
         MatriculaCurso matriculaCursoDB = matriculaCursoDAO.findByMatriculaCurso(matriculaResumenDB, curso);
@@ -2311,9 +2366,9 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
         List<GrupoSeccion> grupoSeccionListDB = grupoSeccionDAO.allByCursoAndDirigido(curso, ds.getCicloAcademico());
         for (GrupoSeccion grupoSeccion : grupoSeccionListDB) {
             for (Seccion seccion : grupoSeccion.getSecciones()) {
-                Integer vacantes = seccion.getVacantes() == 0 ? 0: seccion.getVacantes() - 1;
+                Integer vacantes = seccion.getVacantes() == 0 ? 0 : seccion.getVacantes() - 1;
                 seccion.setVacantes(vacantes);
-                Integer matriculados = seccion.getMatriculados() == 0 ? 0: seccion.getMatriculados() - 1;
+                Integer matriculados = seccion.getMatriculados() == 0 ? 0 : seccion.getMatriculados() - 1;
                 seccion.setMatriculados(matriculados);
                 Integer retirados = seccion.getRetirados() + 1;
                 seccion.setRetirados(retirados);
@@ -2387,18 +2442,28 @@ private void saveTramiteTituloFacultad(Resolucion resolucion, DataSessionPivot d
 
     @Override
     public List<TramiteBachiller> allResulucionFacultad(Resolucion resolucion) {
-        return tramiteBachillerDAO .allBySolicitadosFacultad(resolucion);
-    }       
+        return tramiteBachillerDAO.allBySolicitadosFacultad(resolucion);
+    }
 
     @Override
     public List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion) {
-       return tramiteTituloDAO.allByTituloFacultad(resolucion);
+        return tramiteTituloDAO.allByTituloFacultad(resolucion);
     }
 
     @Override
     public List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion) {
-       return tramiteTituloDAO.allByTituloFacultadRes(resolucion);
+        return tramiteTituloDAO.allByTituloFacultadRes(resolucion);
     }
 
+    @Override
+    public List<TramiteRenunciaAlumno> allResolucionRenunciaAlumno(Resolucion resolucion) {
+        return tramiteRenunciaAlumnoDAO.allByRenunciaAlumnoEditar(resolucion);
+    }
+
+    @Override
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitados(DataSessionPivot ds) {
+       return tramiteRenunciaAlumnoDAO.allBySolicitados();
+    }
 
 }
+

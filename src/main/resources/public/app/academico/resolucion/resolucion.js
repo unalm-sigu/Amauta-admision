@@ -50,6 +50,7 @@ var app = new Vue({
         alumnoTramiteTraslado: {},
         alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
+        alumnoTramiteRenuncia:[],
         tipo: ""
     },
     mounted: function () {
@@ -305,6 +306,7 @@ var app = new Vue({
             let $vue = this;
             $vue.tipo = item.tipoResolucion.codigo;
             $vue.codigoOficina = item.oficina.codigo;
+            console.log(item.tipoResolucion.codigo);
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
@@ -312,7 +314,7 @@ var app = new Vue({
                             notify("No contiene información de alumnos", "error");
                             return;
                         }
-
+                  console.log(data)
                         if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = data;
                         } else if ($vue.tipo == "RCI") {
@@ -335,7 +337,9 @@ var app = new Vue({
                             $vue.alumnoTramitePracticas = data;
                         } else if ($vue.tipo == "TRAS_INT") {
                             $vue.alumnoTramiteTraslado = data;
-                        } else if ($vue.tipo == "READMISION") {
+                        } else if ($vue.tipo == "ALUMRENUNCIA"){
+                             $vue.alumnoTramiteRenuncia = data;
+                        }else if ($vue.tipo == "READMISION") {
                             $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
                             $vue.alumnoTramiteCambioPlanCurricular = data;
