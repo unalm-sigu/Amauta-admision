@@ -107,6 +107,8 @@ public class HorarioCachimboIngresanteController {
 
                 node.put("id", alumHorario.getId());
                 node.put("estudiante", alumno.getPersona().getApellidosNombres());
+                node.put("situacion", alumno.getSituacionAcademica().getCodigo());
+                node.put("situacionnombre", alumno.getSituacionAcademica().getNombre());                
                 node.put("carrera", alumno.getCarrera().getNombre());
                 node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 node.put("horario", hc != null ? hc.getCodigo() : "");
@@ -200,6 +202,23 @@ public class HorarioCachimboIngresanteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.asignarHorario(alumnoHorario, ds);
             response.setMessage("Horario asignado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarsituacion")
+    public JsonResponse cambiarsituacion(@RequestParam("codigo") String codigo, @RequestParam("situacion") String situacion,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        service.cambiarSituacion(codigo, situacion);
+        try {
+            response.setMessage("Situacion academia fue cambiada Ingresantes");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -331,7 +350,6 @@ public class HorarioCachimboIngresanteController {
     public JsonResponse ingresanteCantidad(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<IngresanteCantidad> cantidad = service.allIngresanteCantidad(cicloAcademico);

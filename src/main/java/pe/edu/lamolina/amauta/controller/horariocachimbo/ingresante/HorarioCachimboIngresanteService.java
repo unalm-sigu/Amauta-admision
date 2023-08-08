@@ -43,4 +43,5 @@ public interface HorarioCachimboIngresanteService {
 
     public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico);
 
+    void cambiarSituacion(String codigo, String situacion);
 }

@@ -164,4 +164,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allIngresantePregradoByCicloIngreso(ModalidadEstudio modalidad, CicloAcademico ciclo);
 
+    public Alumno findBySitCodigo(String findBySitCodigo);
+
 }

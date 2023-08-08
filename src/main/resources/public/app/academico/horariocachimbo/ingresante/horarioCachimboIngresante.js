@@ -251,6 +251,34 @@ new Vue({
                 }
             });
         },
+        cambiarSituacion(codigo, nombre, situacion) {
+            var $vue = this;
+            bootbox.confirm({
+                message: '¿Seguro que desea cambiar la situacion a Ingresante?<br><br><b>' + codigo + '-' + nombre + '</b>',
+                buttons: {
+                    confirm: {label: 'Si, Asignar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`${rutaModulo}/cambiarsituacion/`),
+                            data: {codigo: codigo,
+                                situacion: situacion},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                     $vue.$refs.alumnosRaptor.loadRemoteData();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        },
         retirarHorario(id) {
             var $vue = this;
             bootbox.confirm({
@@ -513,21 +541,34 @@ new Vue({
         },
         matricularIngresantes() {
             var $vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url(`${rutaModulo}/matricular`),
-                success: function (response) {
-                    $vue.verAvanceMatricula();
-                    if (response.success) {
-                        $vue.reloadDinatable();
-                        notify(response.message, 'info');
-                    } else {
-                        notify(response.message, 'error');
+
+            bootbox.confirm({
+                message: '<div style="font-size: 16px;">¿Seguro que desea continuar con el proceso de<br><strong>MATRICULA</strong> de ingresantes en el ciclo ?</div>',
+                buttons: {
+                    confirm: {label: 'Si, Matricular', className: "btn-primary btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`${rutaModulo}/matricular`),
+                            success: function (response) {
+                                $vue.verAvanceMatricula();
+                                if (response.success) {
+                                    $vue.reloadDinatable();
+                                    notify(response.message, 'info');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
                     }
-                }, error: function () {
-                    notify(Messages.errorComunicacion, "error");
                 }
             });
+
         },
         verAvanceMatricula() {
             var $vue = this;
