@@ -9,17 +9,16 @@
             <thead>
                 <tr>
                     <th class="col-sm-10 text-center">Persona</th>
-                    <th class="col-sm-1">Seleccionado</th>
+                    <th class="col-sm-1">Seleccionadox</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-if="filtroFacultadSeleccionado(filterFacultad, titulo)" v-for="(titulo , index) in resolucion.tramiteTitulos">
-                    {{resolucion.tramiteTitulos}}
+                <tr v-if="filtroFacultadSeleccionado(filterFacultad, renuncia)" v-for="(renuncia , index) in resolucion.tramiteRenunciaAlumno">
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
-                                <multiselect v-model="titulo.alumno" 
+                                <multiselect v-model="renuncia.alumno" 
                                              v-bind:options='alumnos'
                                              v-on:search-change="searchAlumno"
                                              track-by='id'
@@ -28,7 +27,7 @@
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
-                                             v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
+                                             v-bind:disabled="isEdicion &amp;&amp; renuncia.id != null">
                                     <template slot="singleLabel" slot-scope="props">
                                         <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
@@ -40,21 +39,21 @@
                                         </div>
                                     </template>
                                 </multiselect>
-                                <input v-model="titulo.alumno" required="true" type="text" class="hide"/>
+                                <input v-model="renuncia.alumno" required="true" type="text" class="hide"/>
                             </div>
                         </div>
                     </td>
                     <td class="v-middle">
                         <label class="switch">
                             <input type="checkbox" 
-                                   v-model="titulo.seleccionado"
+                                   v-model="renuncia.seleccionado"
                                    checked="1"
-                                   v-bind:disabled="isEdicion &amp;&amp; titulo.id != null"/>
+                                   v-bind:disabled="isEdicion &amp;&amp; renuncia.id != null"/>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td class="v-middle">
-                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
+                        <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; renuncia.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
@@ -94,60 +93,56 @@
         },
         mounted: function () {
             let $vue = this;
-          //  console.log($vue.resolucion.tipoResolucion.id)
+            console.log($vue.resolucion.tipoResolucion.id)
 
             if ($vue.isEdicion === false || $vue.isAnular === false) {
-                if ($vue.resolucion.tipoResolucion.id === 108) {
-                    $vue.allTitulosFacultad();
-                } else {
-                     $vue.allTitulos();
-                }
 
+                     $vue.allRenunciaAlumno();
             }
         },
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteTitulos.push({seleccionado: true});
+                $vue.resolucion.tramiteRenunciaAlumno.push({seleccionado: true});
                 $vue.$forceUpdate();
             },
-            del(index) {
-                let $vue = this;
-                if ($vue.isAnular) {
-                    bootbox.confirm({
-                        message: "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
-                                "<p>Ingrese motivo: </p>" +
-                                "<textarea id='motivo' cols='75' rows='3'></textarea>",
-                        //message: '¿Seguro que desea retirar al alumno de esta resolución? ',
-                        buttons: {
-                            confirm: {label: 'Sí, aceptar', className: "btn-warning"},
-                            cancel: {label: 'Cancelar', className: "btn-link"}
-                        },
-                        inputType: 'textarea',
-                        callback: function (result) {
-                            if (result) {
-                                $vue.showLoader("Espere un momento por favor");
-                                $vue.errores = [];
-                                $vue.resolucion.tramiteTitulos[index].motivo = $("#motivo").val();
-                                axios_.post(APP.url('academico/resolucion/existentes/anularTramiteTitulo'), {"tramiteTitulo": $vue.resolucion.tramiteTitulos[index], "resolucion": $vue.resolucion})
-                                        .then(({data}) => {
-                                            if (data.success) {
-                                                notify(data.message, 'info');
-                                                location.href = APP.url('academico/resolucion/existentes/' + $vue.resolucion.id + "/anularTramite");
-                                            } else {
-                                                notify("Se produjo un error al anular el Trámite Titulo de la Resolución", 'error');
-                                            }
-                                            $vue.hideLoader();
-                                            $vue.$forceUpdate();
-                                        }, () => $vue.hideLoader());
-                            }
-                        }
-                    });
-                } else {
-                    $vue.resolucion.tramiteTitulos.splice(index, 1);
-                    $vue.$forceUpdate();
-                }
-            },
+//            del(index) {
+//                let $vue = this;
+//                if ($vue.isAnular) {
+//                    bootbox.confirm({
+//                        message: "<h4 class='text-center bold'>¿Seguro que desea retirar al alumno de esta resolución?</h4><br/>" +
+//                                "<p>Ingrese motivo: </p>" +
+//                                "<textarea id='motivo' cols='75' rows='3'></textarea>",
+//                        //message: '¿Seguro que desea retirar al alumno de esta resolución? ',
+//                        buttons: {
+//                            confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+//                            cancel: {label: 'Cancelar', className: "btn-link"}
+//                        },
+//                        inputType: 'textarea',
+//                        callback: function (result) {
+//                            if (result) {
+//                                $vue.showLoader("Espere un momento por favor");
+//                                $vue.errores = [];
+//                                $vue.resolucion.tramiteRenunciaAlumno[index].motivo = $("#motivo").val();
+//                                axios_.post(APP.url('academico/resolucion/existentes/anularTramiteTitulo'), {"tramiteTitulo": $vue.resolucion.tramiteRenunciaAlumno[index], "resolucion": $vue.resolucion})
+//                                        .then(({data}) => {
+//                                            if (data.success) {
+//                                                notify(data.message, 'info');
+//                                                location.href = APP.url('academico/resolucion/existentes/' + $vue.resolucion.id + "/anularTramite");
+//                                            } else {
+//                                                notify("Se produjo un error al anular el Trámite Titulo de la Resolución", 'error');
+//                                            }
+//                                            $vue.hideLoader();
+//                                            $vue.$forceUpdate();
+//                                        }, () => $vue.hideLoader());
+//                            }
+//                        }
+//                    });
+//                } else {
+//                    $vue.resolucion.tramiteRenunciaAlumno.splice(index, 1);
+//                    $vue.$forceUpdate();
+//                }
+//            },
             searchAlumno(nombre) {
 
                 let $vue = this;
@@ -165,26 +160,12 @@
                         });
 
             },
-            allTitulos() {
+            allRenunciaAlumno() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allTitulo"))
+                axios_.get(APP.url("academico/resolucion/existentes/allRenunciaAlumno"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteTitulos = data;
-                            console.log("alltitulo js")
-                            console.log(data)
-                            $vue.hideLoader();
-                            $vue.$forceUpdate();
-                        }, () => {
-                            $vue.hideLoader();
-                        });
-            },
-            allTitulosFacultad() {
-                let $vue = this;
-                $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allTituloFacultad"))
-                        .then(({data}) => {
-                            $vue.resolucion.tramiteTitulos = data;
+                            $vue.resolucion.tramiteRenunciaAlumno = data;
                             $vue.hideLoader();
                             $vue.$forceUpdate();
                         }, () => {

@@ -9,7 +9,12 @@
                         <th v-if="tipo == 'BACHI' ||'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' ">
                             <span  v-if="codigoOficina=='UNA'">Grado/Título</span>
                             <span  v-if="codigoOficina!=='UNA'">Nombres</span>
-                        </th>                                                                        
+                        </th>
+
+                        <th v-if="tipo == 'ALUMRENUNCIA'">
+                            <span  v-if="codigoOficina=='UNA'">Código</span>
+                            <span  v-if="codigoOficina!=='UNA'">Apellidos y Nombres</span>                            
+                        </th>
                         <th v-if="tipo != 'CURDIR' &amp;&amp; tipo != 'TRAS_INT' " class="text-center">Ciclo Aplica</th>
                         <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
                         <th v-if="tipo == 'CAM_NOTA' ">Nota</th>
@@ -156,6 +161,20 @@
                             <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
+                    <tr v-if="tipo == 'ALUMRENUNCIA'"  v-for="item in alumnoTramiteRenuncia">
+                        <td>
+                            <span class="block">{{item.tramite.alumno.codigo}}</span>
+                       </td>
+                        <td>
+                            <span class="block" >{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }} </span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
+                        </td>
+<!--                        <td>
+                            <span class="block" v-text="item.carrera.nombre"></span>
+                        </td>-->
+                    </tr>                    
 
                 </tbody>
             </table>

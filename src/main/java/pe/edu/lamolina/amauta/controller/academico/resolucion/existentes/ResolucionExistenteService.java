@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 public interface ResolucionExistenteService {
@@ -109,4 +110,8 @@ public interface ResolucionExistenteService {
 
     List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion);
 
+    public List<TramiteRenunciaAlumno> allResolucionRenunciaAlumno(Resolucion resolucion);
+
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitados(DataSessionPivot ds);
+    
 }
