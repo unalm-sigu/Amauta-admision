@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,52 +34,34 @@ import pe.edu.lamolina.amauta.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
-import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.inscripcion.EventoCicloDAO;
 import pe.edu.lamolina.amauta.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaClinicaDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaEnfermedadDAO;
 import pe.edu.lamolina.amauta.dao.medico.PacienteDAO;
 import pe.edu.lamolina.amauta.dao.sip.TurnoEntrevistaObuaeDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.EventoEnum;
+import pe.edu.lamolina.model.inscripcion.EventoCiclo;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class MuestrasLabServiceImp implements MuestrasLabService {
 
-    @Autowired
-    HistoriaLaboratorioDAO historiaLaboratorioDAO;
-
-    @Autowired
-    RecorridoIngresanteDAO recorridoIngresanteDAO;
-
-    @Autowired
-    HistoriaClinicaDAO historiaClinicaDAO;
-
-    @Autowired
-    TurnoEntrevistaObuaeDAO turnoEntrevistaObuaeDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    HistoriaEnfermedadDAO historiaEnfermedadDAO;
-
-    @Autowired
-    VisorMuestrasLab visorMuestrasLab;
-
-    @Autowired
-    PacienteDAO pacienteDAO;
-
-    @Autowired
-    PersonaDAO personaDAO;
-
-    @Autowired
-    TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
-
-    @Autowired
-    ActividadIngresanteDAO actividadIngresanteDAO;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ActividadIngresanteDAO actividadIngresanteDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final EventoCicloDAO eventoCicloDAO;
+    private final HistoriaClinicaDAO historiaClinicaDAO;
+    private final HistoriaEnfermedadDAO historiaEnfermedadDAO;
+    private final HistoriaLaboratorioDAO historiaLaboratorioDAO;
+    private final PacienteDAO pacienteDAO;
+    private final RecorridoIngresanteDAO recorridoIngresanteDAO;
+    private final TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
+    private final TurnoEntrevistaObuaeDAO turnoEntrevistaObuaeDAO;
+    private final VisorMuestrasLab visorMuestrasLab;
 
     @Override
     public CicloAcademico findCicloActivoAdmision() {
@@ -254,19 +236,28 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         }
 
         List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(listaPersonas);
+        List<TurnoEntrevistaObuae> turnos = turnoEntrevistaObuaeDAO.allByCiclo(ciclo);
+        TurnoEntrevistaObuae primerTurno = null;
+        if (!turnos.isEmpty()) {
+            primerTurno = turnos.get(0);
+        }
 
         long numLab = 0;
-        for (HistoriaLaboratorio laboratorio : laboratorios) {
-            if (laboratorio.getNumeroMuestra() != null && laboratorio.getNumeroMuestra() > numLab) {
-                numLab = laboratorio.getNumeroMuestra();
+        if (primerTurno != null) {
+            for (HistoriaLaboratorio laboratorio : laboratorios) {
+                if (laboratorio.getFechaMuestra().compareTo(primerTurno.getFecha()) >= 0
+                        && laboratorio.getNumeroMuestra() != null
+                        && laboratorio.getNumeroMuestra() > numLab) {
+                    numLab = laboratorio.getNumeroMuestra();
+                }
             }
         }
         numLab++;
 
         visorMuestrasLab.setCicloAcademico(ciclo);
         visorMuestrasLab.setNumeroLab(numLab);
-        logger.debug("ciclo {} de arranque ", ciclo.getId());
-        logger.debug("numLab {} de arranque ", numLab);
+        log.info("[inicializarVisor] Ciclo {} de arranque ", ciclo.getId());
+        log.info("[inicializarVisor] Num-lab {} de arranque ", numLab);
 
     }
 
