@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -287,6 +288,50 @@ public class TramiteCondicionalController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allAlumnoByNombrePregrado")
+    public JsonResponse allAlumnoByNombrePregrado(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            List<Alumno> lista = service.allAlumnoByNombre(nombre, ds)
+                    .stream()
+                    .filter(x -> !x.getModalidadEstudio().getCodigo().equals("EPG"))
+                    .collect(Collectors.toList());
+            
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Alumno alum : lista) {
+                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
+                        new String[]{
+                            "id",
+                            "id",
+                            "codigo",
+                            "modalidadEstudio.nombre",
+                            "carrera.codigo",
+                            "carrera.nombre",
+                            "carrera.facultad.codigo",
+                            "carrera.facultad.nombre",
+                            "persona.numeroDocIdentidad",
+                            "persona.apellidosNombres",
+                            "persona.nombreCompleto",
+                            "persona.rutaFoto",
+                            "persona.tipoDocumento.*"}));
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
     @ResponseBody
     @RequestMapping("allCursosAlumnoByName")
     public JsonResponse allCursosAlumnoByName(

@@ -105,7 +105,7 @@ public interface ResolucionExistenteService {
     boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds);
 
     boolean anularAlumnoDeResolucionTramiteTraslado(Alumno alumno, Resolucion resolucion, TramiteTraslado tramiteTraslado, DataSessionPivot ds);
-    
+
     List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion);
 
     List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion);
@@ -113,5 +113,7 @@ public interface ResolucionExistenteService {
     public List<TramiteRenunciaAlumno> allResolucionRenunciaAlumno(Resolucion resolucion);
 
     public List<TramiteRenunciaAlumno> allRenunciaSolicitados(DataSessionPivot ds);
-    
+
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds);
+
 }

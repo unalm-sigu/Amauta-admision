@@ -82,10 +82,6 @@ public class TramiteRenunciaAlumnoServiceImp implements TramiteRenunciaAlumnoSer
         Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados() : 0;
         Integer totalCreditos = creditosAprobados + creditosConvalidados;
 
-//        if (totalCreditos.intValue() < 200) {
-//            throw new PhobosException(String.format("Alumno %s no es egresado, cuenta con %s créditos", alumnoDB.getCodigo(), totalCreditos.intValue()));
-//        }
-
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
@@ -114,12 +110,70 @@ public class TramiteRenunciaAlumnoServiceImp implements TramiteRenunciaAlumnoSer
         tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
 
-                TramiteRenunciaAlumno tramiteRenuncua = new TramiteRenunciaAlumno();
-                tramiteRenuncua.setTramite(tramite);
-                tramiteRenuncua.setEstado(TramiteEstadoEnum.SOL.name());
-                tramiteRenuncua.setFechaRegistro(new Date());
-                tramiteRenuncua.setUsuario(ds.getUsuario());
-                tramiteRenunciaAlumnoDAO.save(tramiteRenuncua);
+        TramiteRenunciaAlumno tramiteRenuncua = new TramiteRenunciaAlumno();
+        tramiteRenuncua.setTramite(tramite);
+        tramiteRenuncua.setEstado(TramiteEstadoEnum.SOL.name());
+        tramiteRenuncua.setFechaRegistro(new Date());
+        tramiteRenuncua.setUsuario(ds.getUsuario());
+        tramiteRenunciaAlumnoDAO.save(tramiteRenuncua);
+    }
+
+    @Override
+    public List<TipoTramite> allTipoTramite() {
+        return tipoTramiteDAO.all();
+    }
+
+    @Override
+    @Transactional
+    public void saveAlumnoRenunciaCarrera(TramiteRenunciaAlumno tramiteRenunciaAlumno, DataSessionPivot ds) {
+        LocalDate today = new LocalDate();
+
+        Alumno alumnoDB = alumnoDAO.find(tramiteRenunciaAlumno.getAlumno());
+        if (!alumnoDB.getModalidadEstudio().isOperativePRE()) {
+            throw new PhobosException("El trámite es solo para alumnos de pre grado");
+        }
+
+        Integer creditosAprobados = Objects.nonNull(alumnoDB.getCreditosAprobados()) ? alumnoDB.getCreditosAprobados() : 0;
+        Integer creditosConvalidados = Objects.nonNull(alumnoDB.getCreditosConvalidados()) ? alumnoDB.getCreditosConvalidados() : 0;
+        Integer totalCreditos = creditosAprobados + creditosConvalidados;
+
+//        if (totalCreditos.intValue() < 200) {
+//            throw new PhobosException(String.format("Alumno %s no es egresado, cuenta con %s créditos", alumnoDB.getCodigo(), totalCreditos.intValue()));
+//        }
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
+
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RENUNCIA_CAR.name());
+        Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
+
+        if (tramite != null) {
+            throw new PhobosException(String.format(" Alumno %s ya cuenta con tramite renuncia en el ciclo %s", alumnoDB.getCodigo(), tramite.getCicloAcademico().getDescripcion2()));
+        }
+
+        tramite = new Tramite();
+        tramite.setUserRegistro(ds.getUsuario());
+        tramite.setCompania(ds.getCompania());
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setTipoSolicitante(TipoSolicitanteEnum.ALU.name());
+        tramite.setPersona(alumnoDB.getPersona());
+        tramite.setAlumno(alumnoDB);
+        tramite.setTipoTramite(tipoTramite);
+        tramite.setCicloAcademico(ds.getCicloAcademico());
+        tramite.setOficina(oficina);
+        tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramite.setFechaRegistro(new Date());
+        tramite.setNumeroVisible(tramite.getDescripcion());
+        tramiteDAO.save(tramite);
+
+        TramiteRenunciaAlumno tramiteRenuncua = new TramiteRenunciaAlumno();
+        tramiteRenuncua.setTramite(tramite);
+        tramiteRenuncua.setEstado(TramiteEstadoEnum.SOL.name());
+        tramiteRenuncua.setFechaRegistro(new Date());
+        tramiteRenuncua.setUsuario(ds.getUsuario());
+        tramiteRenunciaAlumnoDAO.save(tramiteRenuncua);
     }
 
 }

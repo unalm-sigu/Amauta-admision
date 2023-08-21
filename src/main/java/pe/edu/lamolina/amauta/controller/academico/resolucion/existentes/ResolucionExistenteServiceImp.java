@@ -481,6 +481,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.requiereCicloAplica(resolucion.getCicloAplica());
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
+            case RENUNCIA_CAR:
+                this.requiereCicloAplica(resolucion.getCicloAplica());
+                resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
+                break;
+
             default:
                 break;
         }
@@ -529,6 +534,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramiteTituloFacultad(resolucion, ds);
                 break;
             case ALUMRENUNCIA:
+                this.saveTramiteAlumnoRenunciante(resolucion, ds);
+                break;
+            case RENUNCIA_CAR:
                 this.saveTramiteAlumnoRenunciante(resolucion, ds);
                 break;
             case CAMBIO_PLAN_CURRICULAR:
@@ -2302,7 +2310,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     @Transactional
     public boolean anularAlumnoDeResolucionTramiteTraslado(Alumno alumno, Resolucion resolucion, TramiteTraslado tramiteTraslado, DataSessionPivot ds) {
-        
+
         boolean tramiteTrasladoInternoAnulado = false;
 
         Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
@@ -2332,7 +2340,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         if (alumnoDB == null) {
             throw new PhobosException("No se encontró el alumno en esta Resolución de Traslado Interno");
         }
-        
+
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
 
         tramiteDB.setAlumno(alumnoDB);
@@ -2346,7 +2354,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramiteDB.setFechaModificacion(new Date());
         tramiteDB.setUserModificacion(ds.getUsuario());
         tramiteDAO.update(tramiteDB);
-       
+
         tramiteTrasladoDB.setResolucion(null);
         tramiteTrasladoDB.setEstadoEnum(TramiteEstadoEnum.SOL);
         tramiteTrasladoDB.setUsuarioAnulaTramite(ds.getUsuario());
@@ -2356,9 +2364,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramiteTrasladoDAO.update(tramiteTrasladoDB);
 
         return !tramiteTrasladoInternoAnulado;
-        
+
     }
-    
+
     @Override
     @Transactional
     public boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds) {
@@ -2522,8 +2530,12 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     @Override
     public List<TramiteRenunciaAlumno> allRenunciaSolicitados(DataSessionPivot ds) {
-       return tramiteRenunciaAlumnoDAO.allBySolicitados();
+        return tramiteRenunciaAlumnoDAO.allBySolicitados();
+    }
+
+    @Override
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds) {
+        return tramiteRenunciaAlumnoDAO.allBySolicitadosCarrera();
     }
 
 }
-

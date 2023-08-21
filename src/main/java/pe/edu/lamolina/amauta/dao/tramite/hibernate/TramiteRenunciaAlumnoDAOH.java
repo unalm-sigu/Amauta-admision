@@ -55,12 +55,12 @@ public class TramiteRenunciaAlumnoDAOH extends AbstractEasyDAO<TramiteRenunciaAl
                 .from(TramiteRenunciaAlumno.class, "tb")
                 .join("tramite tr", "tr.cicloAcademico ca")
                 .join("tr.alumno al", "al.persona per", "tr.tipoTramite tt")
-                .left("al.carrera car", "car.facultad ", "al.planCurricular", "al.situacionAcademica","usuarioAnulaTramite uat","uat.persona")
+                .left("al.carrera car", "car.facultad ", "al.planCurricular", "al.situacionAcademica", "usuarioAnulaTramite uat", "uat.persona")
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("tb.id desc");
-              return all(sql);
+        return all(sql);
     }
 
     @Override
@@ -70,14 +70,23 @@ public class TramiteRenunciaAlumnoDAOH extends AbstractEasyDAO<TramiteRenunciaAl
                 .join("tramite tr", "tr.alumno al", "al.persona per")
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
                 .filter("tt.estado", TramiteEstadoEnum.SOL)
+                .filter("tr.tipoTramite", "42")
                 .orderBy("per.paterno");
 
         return all(sql);
     }
 
-      
-    
+    @Override
+    public List<TramiteRenunciaAlumno> allBySolicitadosCarrera() {
+        Octavia sql = new Octavia();
+        sql.from(TramiteRenunciaAlumno.class, "tt")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .filter("tt.estado", TramiteEstadoEnum.SOL)
+                .filter("tr.tipoTramite", "43")
+                .orderBy("per.paterno");
+
+        return all(sql);
+    }
+
 }
-
-
-

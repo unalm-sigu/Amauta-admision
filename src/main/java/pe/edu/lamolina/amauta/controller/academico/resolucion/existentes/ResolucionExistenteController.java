@@ -91,7 +91,8 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.ING_HIS,
             TipoResolucionEnum.BACHIFAC,
             TipoResolucionEnum.TITULBAC,
-            TipoResolucionEnum.ALUMRENUNCIA
+            TipoResolucionEnum.ALUMRENUNCIA,
+            TipoResolucionEnum.RENUNCIA_CAR
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -294,6 +295,8 @@ public class ResolucionExistenteController {
                 break;
             case ALUMRENUNCIA:
                 break;
+            case RENUNCIA_CAR:
+                break;
             default:
                 throw new PhobosException("Tipo de trámite no soportado");
         }
@@ -427,7 +430,7 @@ public class ResolucionExistenteController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "anularTramiteTrasladoInterno")
     public JsonResponse anularTramiteTrasladoInterno(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
@@ -853,7 +856,27 @@ public class ResolucionExistenteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<TramiteRenunciaAlumno> tramiteRenunciaAlumno = service.allRenunciaSolicitados(ds);
-        
+
+        for (TramiteRenunciaAlumno renunciaAlumno : tramiteRenunciaAlumno) {
+            renunciaAlumno.setAlumno(renunciaAlumno.getTramite().getAlumno());
+            renunciaAlumno.setSeleccionado(Boolean.FALSE);
+        }
+        return JaneHelper.from(tramiteRenunciaAlumno)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allRenunciaAlumnoCarrera")
+    public ArrayNode allRenunciaAlumnoCarrera(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteRenunciaAlumno> tramiteRenunciaAlumno = service.allRenunciaSolicitadosCarrera(ds);
+
         for (TramiteRenunciaAlumno renunciaAlumno : tramiteRenunciaAlumno) {
             renunciaAlumno.setAlumno(renunciaAlumno.getTramite().getAlumno());
             renunciaAlumno.setSeleccionado(Boolean.FALSE);

@@ -76,9 +76,15 @@
                         <div v-if="resolucion.tipoResolucion.isIngresoFisicoHistorial">
                             <resolucion-form-details-traslado v-model="resolucion"></resolucion-form-details-traslado>
                         </div>
+
                         <div v-if="resolucion.tipoResolucion.isAlumRenunciante">
                             <resolucion-form-details-renuncia v-model="resolucion"></resolucion-form-details-renuncia>
-                        </div>                                                
+                        </div> 
+
+                        <div v-if="resolucion.tipoResolucion.isAlumRenuncianteCarrera">
+                            <resolucion-form-details-renuncia-carrera v-model="resolucion"></resolucion-form-details-renuncia-carrera>
+                        </div> 
+                        
                     </div>
                     <button v-if="resolucion.id && visible == false" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
                         <span><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
@@ -133,6 +139,7 @@
     const ResolucionFormDetailsTraslado = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTraslado.vue');
     const ResolucionFormDetailsTrasladoInterno = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTrasladoInterno.vue');
     const ResolucionFormDetailsRenuncia = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenuncia.vue');    
+    const ResolucionFormDetailsRenunciaCarrera = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenunciaCarrera.vue');    
                                                                                                      
     const ModalSimple = use("/_vue/modules/ModalSimple.vue");
     module.exports = {
@@ -151,6 +158,7 @@
             resolucionFormDetailsTraslado: ResolucionFormDetailsTraslado,
             resolucionFormDetailsTrasladoInterno: ResolucionFormDetailsTrasladoInterno,
             resolucionFormDetailsRenuncia: ResolucionFormDetailsRenuncia,
+            resolucionFormDetailsRenunciaCarrera: ResolucionFormDetailsRenunciaCarrera,
             modalSimple: ModalSimple,
         },
         mixins: [VueLoader],
@@ -172,6 +180,7 @@
                     readmisiones: [],
                     cambioPlanCurriculares: [],
                     tramiteRenunciaAlumno: [],
+                    tramiteRenunciaAlumnoCarrera: [],
                 }
             };
         },

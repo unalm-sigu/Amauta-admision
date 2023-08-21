@@ -38,6 +38,7 @@
                                                     <small class="block text-muted">Serie: <b>{{item.tramite.serie}}</b></small>
                                                     <small class="block text-muted">Número: <b>{{item.tramite.numero}}</b></small>
                                                     <small class="block text-muted">Documento N° <b>{{item.tramite.descripcion}}</b></small>
+                                                     <p><b> {{item.tramite.tipoTramite.nombre}}</b></p>
                                                 </td>
                                                 <td class="v-middle text-left">
                                                     <div class="bock ">
@@ -50,12 +51,10 @@
                                                     <div class="bock " v-if="item.tramite.alumno.carrera != null">
                                                         <span class="bold">Facultad</span>
                                                         {{ item.tramite.alumno.carrera.facultad.nombre}}
-
-                                                    </div>
-
+                                                    </div>                                                  
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <p v-if="item.resolucion" class="text-primary h5">{{item.resolucion.descripcion}}</p>
+                                                    <p v-if="item.resolucion" class="text-primary h5">{{item.resolucion.descripcion}}</p>                                                   
                                                 </td>
 
                                                 <td class="v-middle text-left">
@@ -89,7 +88,7 @@
                                                         <ul class="dropdown-menu pull-right" > 
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li v-if="item.tramite.tipoTramite.codigo == 'BACHI'"><a href="#" v-on:click.prevent="urlReporteBachiller(item)">Reporte</a></li>
-<!--                                                            <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>-->
+                                                            <!--                                                            <li v-if="item.estado == 'SOL'" class="pointer"><a v-on:click="anular(item)">Anular</a></li>-->
                                                         </ul>
 
                                                     </div>
@@ -108,7 +107,11 @@
         </div>
 
         <div layout:fragment="js">
-
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var tipoTramiteJson = /*[[${tipoTramite.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteAlumnoRenucia/tramitesAlumnoRenuncia.js}" charset="utf-8"></script>
 
         </div>

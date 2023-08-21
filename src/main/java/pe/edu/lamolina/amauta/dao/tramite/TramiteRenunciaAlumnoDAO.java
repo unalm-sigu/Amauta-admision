@@ -19,4 +19,6 @@ public interface TramiteRenunciaAlumnoDAO extends EasyDAO<TramiteRenunciaAlumno>
 
     public List<TramiteRenunciaAlumno> allBySolicitados();
 
+    public List<TramiteRenunciaAlumno> allBySolicitadosCarrera();
+
 }

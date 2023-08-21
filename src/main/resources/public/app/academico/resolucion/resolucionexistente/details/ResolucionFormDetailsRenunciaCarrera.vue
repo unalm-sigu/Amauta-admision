@@ -9,12 +9,12 @@
             <thead>
                 <tr>
                     <th class="col-sm-10 text-center">Persona</th>
-                    <th class="col-sm-1">Seleccionadox</th>
+                    <th class="col-sm-1">Seleccionado</th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-if="filtroFacultadSeleccionado(filterFacultad, renuncia)" v-for="(renuncia , index) in resolucion.tramiteRenunciaAlumno">
+                <tr v-if="filtroFacultadSeleccionado(filterFacultad, renuncia)" v-for="(renuncia , index) in resolucion.tramiteRenunciaAlumnoCarrera">
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
@@ -93,17 +93,15 @@
         },
         mounted: function () {
             let $vue = this;
-            console.log($vue.resolucion.tipoResolucion.id)
-
+//            console.log($vue.resolucion.tipoResolucion.id)
             if ($vue.isEdicion === false || $vue.isAnular === false) {
-
                      $vue.allRenunciaAlumno();
             }
         },
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteRenunciaAlumno.push({seleccionado: true});
+                $vue.resolucion.tramiteRenunciaAlumnoCarrera.push({seleccionado: true});
                 $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
@@ -126,15 +124,15 @@
             allRenunciaAlumno() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allRenunciaAlumno"))
+                axios_.get(APP.url("academico/resolucion/existentes/allRenunciaAlumnoCarrera"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteRenunciaAlumno = data;
+                            $vue.resolucion.tramiteRenunciaAlumnoCarrera = data;
                             $vue.hideLoader();
                             $vue.$forceUpdate();
                         }, () => {
                             $vue.hideLoader();
                         });
-            },
+            }
         }
     };
 </script>

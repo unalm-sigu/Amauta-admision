@@ -4,10 +4,10 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.model.posgrado.TarifaConcepto;
 import pe.edu.lamolina.amauta.dao.posgrado.TarifaConceptoDAO;
+import pe.edu.lamolina.model.posgrado.concepto.ConceptoPosgrado;
 
 @Repository
 public class TarifaConceptoDAOH extends AbstractEasyDAO<TarifaConcepto> implements TarifaConceptoDAO {
