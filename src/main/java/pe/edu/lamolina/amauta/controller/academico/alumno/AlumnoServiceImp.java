@@ -831,7 +831,11 @@ public class AlumnoServiceImp implements AlumnoService {
             AlumnoCiclo alumnoCiclo = null;
             if (alumnoCicloDB != null) {
                 if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.RCI)) {
-                    alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);
+                    //alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);
+                    alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+                    if(alumnoCiclo == null) {
+                        alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);   
+                    }
                 } else if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
                     alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
                 }
