@@ -44,4 +44,8 @@ public interface HorarioCachimboIngresanteService {
     public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico);
 
     void cambiarSituacion(String codigo, String situacion);
+
+    void cambiarSituacionNormal(String codigo, String situacion);
+    
+     public boolean isRolRacd(DataSessionPivot ds);
 }

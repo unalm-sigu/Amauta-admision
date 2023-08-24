@@ -56,6 +56,7 @@ import pe.edu.lamolina.amauta.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.horariocachimbo.generar.HorarioCachimboGenerarService;
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfigRecorridoIngresanteDAO;
@@ -139,6 +140,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     ResponseRestService responseRestService;
     @Autowired
     VisorMatricula visorMatricula;
+    @Autowired
+    VerificadorService verificadorService;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -684,5 +687,19 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         Alumno alumno1 = alumnoDAO.findBySitCodigo(codigo);
         alumno1.setSituacionAcademica(situacion);
         alumnoDAO.update(alumno1);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarSituacionNormal(String codigo, String situacionAlumno) {
+        SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
+        Alumno alumno1 = alumnoDAO.findBySitCodigo(codigo);
+        alumno1.setSituacionAcademica(situacion);
+        alumnoDAO.update(alumno1);
+    }
+
+    @Override
+    public boolean isRolRacd(DataSessionPivot ds) {
+        return verificadorService.isRolRacd(ds);
     }
 }

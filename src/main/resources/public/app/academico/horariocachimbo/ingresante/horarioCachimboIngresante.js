@@ -269,7 +269,35 @@ new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                     $vue.$refs.alumnosRaptor.loadRemoteData();
+                                    $vue.$refs.alumnosRaptor.loadRemoteData();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        cambiarSituacionNormal(codigo, nombre, situacion) {
+            var $vue = this;
+            bootbox.confirm({
+                message: '¿Seguro que desea cambiar la situacion a Normal?<br><br><b>' + codigo + '-' + nombre + '</b>',
+                buttons: {
+                    confirm: {label: 'Si, Asignar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`${rutaModulo}/cambiarsituacionNormal/`),
+                            data: {codigo: codigo,
+                                situacion: situacion},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    $vue.$refs.alumnosRaptor.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }

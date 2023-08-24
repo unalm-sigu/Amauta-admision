@@ -108,7 +108,7 @@ public class HorarioCachimboIngresanteController {
                 node.put("id", alumHorario.getId());
                 node.put("estudiante", alumno.getPersona().getApellidosNombres());
                 node.put("situacion", alumno.getSituacionAcademica().getCodigo());
-                node.put("situacionnombre", alumno.getSituacionAcademica().getNombre());                
+                node.put("situacionnombre", alumno.getSituacionAcademica().getNombre());
                 node.put("carrera", alumno.getCarrera().getNombre());
                 node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 node.put("horario", hc != null ? hc.getCodigo() : "");
@@ -219,6 +219,27 @@ public class HorarioCachimboIngresanteController {
         service.cambiarSituacion(codigo, situacion);
         try {
             response.setMessage("Situacion academia fue cambiada Ingresantes");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarsituacionNormal")
+    public JsonResponse cambiarsituacionNormal(@RequestParam("codigo") String codigo, @RequestParam("situacion") String situacion,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        String tipo = ds.getRolActivo().getCodigo();
+        service.cambiarSituacionNormal(codigo, situacion);
+        try {
+            response.setMessage("Situacion academia fue cambiada a ");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
