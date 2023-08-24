@@ -88,6 +88,15 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     }
 
     @Override
+    public List<Consejero> allConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico) {
+        List<Consejero> consejeros = consejeroDAO.allByPersonaCiclo(persona, cicloAcademico);
+        if (consejeros.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return consejeros;
+    }
+
+    @Override
     public InformeFinalTutoria findInforme(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds) {
         if (consejero == null) {
             return new InformeFinalTutoria();

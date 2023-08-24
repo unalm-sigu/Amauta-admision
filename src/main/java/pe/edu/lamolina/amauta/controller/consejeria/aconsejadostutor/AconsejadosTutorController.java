@@ -70,10 +70,11 @@ public class AconsejadosTutorController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
-        InformeFinalTutoria informe = service.findInforme(consejero, ds.getCicloAcademico(), ds);
+//        Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
+        List<Consejero> consejeros = service.allConsejeroCarrera(ds.getPersona(), ds.getCicloAcademico());
+        InformeFinalTutoria informe = service.findInforme(consejeros.get(0), ds.getCicloAcademico(), ds);
 
-        model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
+        model.addAttribute("consejeroJson", this.createConsejeroJson(consejeros.get(0)));
         model.addAttribute("personaJson", this.createPersonaJson(ds.getPersona()));
         model.addAttribute("departamentoJson", this.createDepartamentoJson(ds.getDepartamentoAcademico()));
         model.addAttribute("cicloJson", this.createCicloJson(ds.getCicloAcademico()));
@@ -490,6 +491,19 @@ public class AconsejadosTutorController {
         return JaneHelper
                 .from(informe)
                 .only("id,estado,comentarioInforme")
+                .json();
+    }
+
+    private ArrayNode createCarrerasJson(List<Carrera> carreras) {
+        return JaneHelper
+                .from(carreras)
+                .only("id,codigo,nombre")
+                .array();
+    }
+    private ObjectNode createCarrerasJson(Carrera carrera) {
+        return JaneHelper
+                .from(carrera)
+                .only("id,codigo,nombre")
                 .json();
     }
 

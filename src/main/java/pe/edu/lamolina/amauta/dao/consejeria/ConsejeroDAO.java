@@ -47,4 +47,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Consejero> allByNombre(String nombre);
 
+    List<Consejero> allByPersonaCiclo(Persona persona, CicloAcademico ciclo);
+
 }

@@ -219,6 +219,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         ObjectNode json = createFormJson(ds, token);
         json.put("idAlumno", alumno.getId());
         json.put("idCicloAcademico", ciclo.getId());
+        json.put("idUsuario", ds.getUsuario().getId());
         if (matriculaResumen != null) {
             json.put("idMatricula", matriculaResumen.getId());
         }

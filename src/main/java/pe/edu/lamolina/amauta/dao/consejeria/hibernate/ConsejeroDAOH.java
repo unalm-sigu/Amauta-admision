@@ -291,6 +291,24 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
+    public List<Consejero> allByPersonaCiclo(Persona persona, CicloAcademico ciclo) {
+        Octavia subqQuery = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("cicloAcademico ci", "consejero cona")
+                .filter("ci.id", ciclo);
+
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera car")
+                .leftJoin("per.tipoDocumento")
+                .filter("per.id", persona)
+                .exists(subqQuery)
+                .linkedBy("con.id", "cona.id");
+
+        return all(sql);
+    }
+
+    @Override
     public List<Consejero> allByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Consejero.class, "con")
