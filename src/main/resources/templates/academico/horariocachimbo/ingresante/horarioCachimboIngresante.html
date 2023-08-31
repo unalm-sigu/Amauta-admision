@@ -69,6 +69,7 @@
                             <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
                             <li class="divider"></li>
                             <li><a th:href="@{/reporte/programacionHorarioAlumno}" >Imprimir Horarios</a></li>
+                            <li><a href="#" v-on:click="horarioFacultad" >Imprimir Horario/Facultad</a></li>
                         </ul>
                     </div>
 
@@ -199,30 +200,30 @@
                                                         <span v-if="horario.estado=='SUSP'" class="label label-danger" >{{horario.estadoName}}</span>
                                                     </td>
 
-                                            <td class="v-middle">
-                                                <div class="dropdown actions">
-                                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="fa fa-cog"></i>
-                                                    </a>
-                                                    <ul class="dropdown-menu pull-right">
-                                                        <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verHorario(horario.horarioCachimbo)"  href="#">Ver horario</a></li>
-                                                        <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verCurso(horario.horarioCachimbo)"  href="#">Ver cursos</a></li>
-                                                        <li class="divider"></li>
-                                                        <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
-                                                        <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
-                                                        <li v-if="horario.situacion=='N'" class="divider" ></li>
-                                                        <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'I')"  href="#">Cambiar Situacion a Ingresante</a></li>
-                                                        <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Ingresante no matriculado</a></li>
-                                                        <li><a class="" v-if="horario.situacion=='8' " v-on:click.prevent="cambiarSituacionNormal(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Normal</a></li>
-                                                        <li class="divider"></li> 
-                                                        <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
-                                                        <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
-                                                        <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="deleteAlumno(horario.id)"  href="#">Eliminar</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
+                                                    <td class="v-middle">
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="fa fa-cog"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verHorario(horario.horarioCachimbo)"  href="#">Ver horario</a></li>
+                                                                <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verCurso(horario.horarioCachimbo)"  href="#">Ver cursos</a></li>
+                                                                <li class="divider"></li>
+                                                                <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
+                                                                <li v-if="horario.situacion=='N'" class="divider" ></li>
+                                                                <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'I')"  href="#">Cambiar Situacion a Ingresante</a></li>
+                                                                <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Ingresante no matriculado</a></li>
+                                                                <li><a class="" v-if="horario.situacion=='8' " v-on:click.prevent="cambiarSituacionNormal(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Normal</a></li>
+                                                                <li class="divider"></li> 
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="deleteAlumno(horario.id)"  href="#">Eliminar</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
 
-                                            </tr>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </template>
@@ -237,6 +238,7 @@
 
                 <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
                 <div th:substituteby="academico/horariocachimbo/ingresante/erroresIngresanteModal"/>
+                <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboReporte"></div>
 
             </div>
 
@@ -245,8 +247,9 @@
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
-                var rutaModulo = 'academico/horariocachimbo/ingresante';               
+                var rutaModulo = 'academico/horariocachimbo/ingresante';
                 /*]]>*/
+                  var carrerasJson = /*[[${carreras.toString()}]]*/ '';
             </script>
 
 

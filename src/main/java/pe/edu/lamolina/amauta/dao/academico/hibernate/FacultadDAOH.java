@@ -122,4 +122,16 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
         return all(sql);
     }
 
+    @Override
+    public List<Facultad> allFacultad(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania cia")
+                .filter("fa.estado", EnteAcademicoEstadoEnum.ACT)
+                .beginBlock()
+                .__().like("fa.nombre", nombre)
+                .endBlock()
+                .orderBy("fa.nombre");
+        return all(sql);
+    }
 }

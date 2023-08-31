@@ -1,0 +1,48 @@
+<modal-vik ref="modalReporteAlumno"
+           v-bind="ReporteAlumno"
+           v-bind:okaction="() => reporteHorarioAlumno(facultad.codigo)"
+           v-bind:showaccept="true">
+
+<!--                      v-bind:okaction="reporteHorarioAlumno"-->
+    <div slot="body">
+        <div class="form-group">
+            <label>Facultad</label>
+            <multiselect v-model="facultad" id="ajax" 
+                         label="nombre"
+                         track-by="id" 
+                         placeholder="Ingrese un " 
+                         :options="facultades" 
+                         :searchable="true" 
+                         :loading="isLoading" 
+                         :internal-search="false"
+                         :options-limit="15" 
+                         :limit="3" 
+                         :max-height="600"
+                         :hide-selected="true" 
+                         :show-labels="false"
+                         v-on:search-change="asyncFindFacultad">
+                <template slot="tag" slot-scope="{ option, remove }">
+                    <!--<span class="custom__tag"><span>{{ option.codigoMatricula }} - {{option.nombre}}</span></span>-->
+                    <template slot="singleLabel" slot-scope="props">
+                        <span class="option__desc">
+                            <span class="option__title">{{ props.option.codigo }}</span>
+                            <span class="option__title">{{ props.option.nombre }}</span>
+
+                        </span>
+                    </template>
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc"><span class="option__title">{{ props.option.codigo}}</span><span class="option__small">{{ props.option.nombre }}</span></div>
+                    </template>
+
+                </template>
+            </multiselect>
+            <input class="hidden" v-model="facultad" required=""/>
+        </div>
+        <div v-if="facultad">
+            <span class="block">
+                <b>facultad </b>:{{facultad.nombre}}
+                <b>facultad </b>:{{facultad.codigo}}
+            </span>
+        </div>
+    </div>
+</modal-vik>

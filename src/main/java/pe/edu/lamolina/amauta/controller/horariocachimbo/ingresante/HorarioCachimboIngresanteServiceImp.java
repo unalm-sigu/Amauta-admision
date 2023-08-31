@@ -59,7 +59,9 @@ import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfigRecorridoIngresanteDAO;
+import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
@@ -69,6 +71,7 @@ import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.CAREO;
@@ -142,6 +145,10 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     VisorMatricula visorMatricula;
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    FacultadDAO facultadDAO;
+
+    private final CarreraDAO carreraDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -701,5 +708,15 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public boolean isRolRacd(DataSessionPivot ds) {
         return verificadorService.isRolRacd(ds);
+    }
+
+    @Override
+    public List<Carrera> allCarrera() {
+        return carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+    }
+
+    @Override
+    public List<Facultad> allFacultad(String nombre) {
+        return facultadDAO.allFacultad(nombre);
     }
 }

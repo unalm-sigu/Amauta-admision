@@ -7,9 +7,11 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -80,6 +83,11 @@ public class HorarioCachimboIngresanteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        ArrayNode carrerasJson = JaneHelper
+                .from(service.allCarrera())
+                .only("id,nombre,codigo")
+                .array();
+        model.addAttribute("carreras", carrerasJson);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("estados", EstadoAlumnoHorarioEnum.values());
         return "academico/horariocachimbo/ingresante/horarioCachimboIngresante";
@@ -321,6 +329,42 @@ public class HorarioCachimboIngresanteController {
         return response;
     }
 
+     @ResponseBody
+    @RequestMapping("searchFacultad")
+    public JsonResponse searchFacultad(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+//            List<Facultad> facultades = service.allFacultad(nombre,compania);
+            List<String> allowedCodigos = Arrays.asList("010", "020", "030", "040", "050", "060", "070", "080");
+            List<Facultad> facultades = service.allFacultad(nombre)
+                    .stream()
+                    .filter(facultad -> allowedCodigos.contains(facultad.getCodigo()))
+                    .collect(Collectors.toList());
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Facultad facultad : facultades) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", facultad.getId());
+                json.put("codigo", facultad.getCodigo());
+                json.put("nombre", facultad.getNombre());
+                json.put("estado", facultad.getEstado());
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
     @ResponseBody
     @RequestMapping("cargaringresantes")
     public JsonResponse cargarIngresantes(HttpSession session) {

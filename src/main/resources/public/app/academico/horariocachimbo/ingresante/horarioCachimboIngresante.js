@@ -12,14 +12,22 @@ new Vue({
         },
         horario: {},
         alumno: null,
+        facultad: null,
         cursos: [],
         alumnos: [],
+        facultades: [],
         horarios: [],
         addAlumnoModal: {
             id: 'modalAddAlumno',
             header: true,
             title: 'Agregar Alumno',
             okbtn: 'Agregar Alumno'
+        },
+        ReporteAlumno: {
+            id: 'modalReporteAlumno',
+            header: true,
+            title: 'Reporte de Horario por Facultad',
+            okbtn: 'Descargue Reporte'
         },
         ingCantidad: [
             {idgen: 1, estado: 'PEND', nombre: 'Pendiente', cantidad: 0},
@@ -148,6 +156,11 @@ new Vue({
             this.$refs.modalAddAlumno.open();
             vue.alumno = [];
         },
+        horarioFacultad() {
+            var vue = this;
+            this.$refs.modalReporteAlumno.open();
+            vue.facultad = [];
+        },
         customLabel( { codigoMatricula, nombre }) {
             return `${codigoMatricula} – ${nombre}`
         },
@@ -168,6 +181,23 @@ new Vue({
                 }
             });
         },
+        asyncFindFacultad(item) {
+            var vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/searchFacultad`),
+                data: {nombre: item},
+                success: function (response) {
+                    if (response.success) {
+                        vue.facultades = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
+        },        
         clearAlumno(e) {
             var vue = this;
             vue.alumno = [];
@@ -192,6 +222,25 @@ new Vue({
                 }
             });
         },
+        reporteHorarioAlumno(item) {
+            var vue = this;
+            //vue.isLoading = true;
+             var downloadWindow = window.open("", "_blank");
+            $.fileDownload("/reporte/programacionHorarioAlumnoReporte", {
+                httpMethod: "POST",
+                data: {condicion: item},
+                successCallback: function (responseHtml, url) {
+                     downloadWindow.close(); 
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(Messages.errorComunicacion, 'error')
+                }
+            });
+
+        },        
         reloadDinatable() {
             var vue = this;
             //dynatable.process();

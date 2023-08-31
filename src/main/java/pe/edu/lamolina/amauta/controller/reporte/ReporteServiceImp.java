@@ -188,6 +188,11 @@ public class ReporteServiceImp implements ReporteService {
         return alumnoHorarioDAO.allByCicloAcademicoOrder(ciclo);
     }
 
+    @Override
+    public List<AlumnoHorario> allAlumnoHorario(CicloAcademico ciclo, String condicion) {
+        return alumnoHorarioDAO.allByCicloAcademicoOrder(ciclo, condicion);
+    }
+
     private Map<String, HorarioSeccion> allHorarioSeccionBySecciones(List<SeccionHorarioCachimbos> seccionesCachimbo) {
 
         List<Seccion> secciones = seccionesCachimbo.stream()

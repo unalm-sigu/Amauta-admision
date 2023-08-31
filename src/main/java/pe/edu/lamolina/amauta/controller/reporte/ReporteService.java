@@ -15,4 +15,6 @@ public interface ReporteService {
 
     Map<Long, Oficina> allOficinaByConsejero();
 
+    List<AlumnoHorario> allAlumnoHorario(CicloAcademico ciclo, String condicion);
+
 }
