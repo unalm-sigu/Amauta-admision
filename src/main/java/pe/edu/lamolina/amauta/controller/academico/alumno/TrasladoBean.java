@@ -11,7 +11,8 @@ public class TrasladoBean {
     Integer total;
     Alumno alumno;
     TramiteTraslado tramiteTraslado;
-
+    CicloAcademico cicloAcademico;
+    
     public TrasladoBean() {
     }
 
@@ -46,4 +47,13 @@ public class TrasladoBean {
     public void setTramiteTraslado(TramiteTraslado tramiteTraslado) {
         this.tramiteTraslado = tramiteTraslado;
     }
+    
+    public CicloAcademico getCicloAcademico() {
+        return cicloAcademico;
+    }
+
+    public void setCicloAcademico(CicloAcademico cicloAcademico) {
+        this.cicloAcademico = cicloAcademico;
+    }
+    
 }
