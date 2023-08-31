@@ -805,69 +805,95 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     @Transactional
     public List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean, CicloAcademico cicloAcademicoSesion, DataSessionPivot ds) {
+        
         Alumno alumno = trasladoBean.getAlumno();
+        
         Integer total = trasladoBean.getTotal();
-        TramiteTraslado tramiteTraslado = trasladoBean.getTramiteTraslado(); // obtengo ciclo
+        
+        TramiteTraslado tramiteTraslado = trasladoBean.getTramiteTraslado();
+        
         List<CursoConvalidado> listCursoConvalidadoNew = trasladoBean.getListCursoConvalidado().stream().filter(x -> x.getTramiteTraslado().getId() == null).collect(Collectors.toList());
-        List<CursoConvalidado> listCursoConvalidadoOld = trasladoBean.getListCursoConvalidado().stream().filter(x -> x.getTramiteTraslado().getId() != null).collect(Collectors.toList());
+        
+        List<CursoConvalidado> listCursoConvalidadoOld = trasladoBean.getListCursoConvalidado().stream().filter(x -> x.getTramiteTraslado().getId() != null).collect(Collectors.toList());      
 
-        AlumnoCiclo alumnoCicloDB = alumnoCicloDAO.findByAlumnoCiclo(alumno, trasladoBean.getTramiteTraslado().getCicloAcademico());
-        List<CursoConvalidado> cursoConvalidadosOldCicloDistinto = listCursoConvalidadoOld.stream()
-                .filter(x -> !Objects.equals(x.getTramiteTraslado().getCicloAcademico().getId(), tramiteTraslado.getCicloAcademico().getId()))
-                .collect(Collectors.toList());
-
-        if (cursoConvalidadosOldCicloDistinto != null && cursoConvalidadosOldCicloDistinto.size() > 0) {
-            CursoConvalidado findCursoConvalidado = cursoConvalidadosOldCicloDistinto
-                    .stream()
-                    .filter((x) -> x.getTramiteTraslado().getCicloAcademico().getId() != null)
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException());
-            CicloAcademico cicloAcademico = cicloAcademicoDAO.find(findCursoConvalidado.getTramiteTraslado().getCicloAcademico().getId());
-            List<CursoConvalidado> cursoConvalidados = cursoConvalidadoDAO.allByTramiteTraslado(tramiteTraslado);
-            Map<Long, CursoConvalidado> mapCursoConvalidados = TypesUtil.convertListToMap("id", cursoConvalidados);
-            tramiteTraslado.setCicloAcademico(cicloAcademico);
-            tramiteTraslado.setAlumno(alumno);
-            tramiteTrasladoDAO.update(tramiteTraslado);
-            AlumnoCiclo alumnoCiclo = null;
-            if (alumnoCicloDB != null) {
-                if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.RCI)) {
-                    //alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);
-                    alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-                    if(alumnoCiclo == null) {
-                        alumnoCiclo = this.saveAlumnoCiclo(alumno, cicloAcademico, total, ds);   
-                    }
-                } else if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
-                    alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-                }
-                if (alumnoCiclo != null) {
-                    for (CursoConvalidado cursoConvalidado : cursoConvalidadosOldCicloDistinto) {
-                        cursoConvalidado.setUserModifica(ds.getUsuario());
-                        cursoConvalidado.setFechaModificacion(new Date());
-                        cursoConvalidado.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
-                        cursoConvalidado.setTramiteTraslado(tramiteTraslado);
-                        AlumnoCicloCurso alumnoCicloCurso = mapCursoConvalidados.get(cursoConvalidado.getId()).getAlumnoCicloCurso();
-                        if (alumnoCicloCurso != null) {
-                            this.updateAlumnoCicloCurso(cursoConvalidado, alumnoCiclo, alumnoCicloCurso, ds);
-                        }
-                        cursoConvalidadoDAO.update(cursoConvalidado);
-                    }
-                    if (alumnoCicloDB.getEstadoEnum().equals(EstadoMatriculaEnum.MAT)) {
-                        alumnoCicloDAO.delete(alumnoCicloDB);
-                    }
-                }
-            }
-        } else {
-            for (CursoConvalidado cursoConvalidado : listCursoConvalidadoNew) {
-                tramiteTras(alumno, tramiteTraslado, trasladoBean, total, cursoConvalidado, listCursoConvalidadoNew, ds);
-            }
-            for (CursoConvalidado cursoConvalidado : listCursoConvalidadoOld) {
-                tramiteTras(alumno, cursoConvalidado.getTramiteTraslado(), trasladoBean, total, cursoConvalidado, listCursoConvalidadoOld, ds);
-            }
+        TramiteTraslado tramiteTrasladoDB = tramiteTrasladoDAO.find(tramiteTraslado.getId());              
+        
+        List<CursoConvalidado> cursoConvalidadosDB = cursoConvalidadoDAO.allByTramiteTraslado(tramiteTrasladoDB);        
+        
+        if(trasladoBean.getCicloAcademico() == null) {
+            trasladoBean.setCicloAcademico(tramiteTrasladoDB.getCicloAcademico());            
         }
+        
+        tramiteTrasladoDB.setCicloAcademico(trasladoBean.getCicloAcademico());
+        tramiteTrasladoDAO.update(tramiteTrasladoDB);
+        
+        for (CursoConvalidado cursoConvalidado : listCursoConvalidadoNew) {
+            tramiteTrasladoSave(alumno, tramiteTrasladoDB, trasladoBean, total, cursoConvalidado, cursoConvalidadosDB, ds);
+        }
+        
+        for (CursoConvalidado cursoConvalidado : listCursoConvalidadoOld) {
+            tramiteTrasladoUpdate(alumno, tramiteTrasladoDB, trasladoBean, total, cursoConvalidado, cursoConvalidadosDB, ds);
+        }
+        
         List<TramiteTraslado> listTramiteTraslado = this.allTramiteTrasladoByAlumno(alumno);
+        
         return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
+        
     }
 
+    private void tramiteTrasladoSave(Alumno alumno, TramiteTraslado tramiteTraslado, TrasladoBean trasladoBean, Integer total, CursoConvalidado cursoConvalidado, List<CursoConvalidado> listCursoConvalidadoDB, DataSessionPivot ds) {
+
+        Map<Long, CursoConvalidado> mapCursosConvalidados = listCursoConvalidadoDB.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+        
+        if(Objects.nonNull(mapCursosConvalidados.get(cursoConvalidado.getId()))) {
+            logger.debug(String.format("*********** curso convalidado %s ya registrado", cursoConvalidado.getCurso().getCodigo()));
+            return;
+        }
+        
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, trasladoBean.getCicloAcademico());
+        
+        if (alumnoCiclo == null) {            
+            alumnoCiclo = this.saveAlumnoCiclo(alumno, tramiteTraslado.getCicloAcademico(), total, ds);
+        }
+        
+        saveAlumnoCicloCurso(cursoConvalidado, alumnoCiclo, ds);        
+        cursoConvalidado.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
+        cursoConvalidado.setUserRegistro(ds.getUsuario());
+        cursoConvalidado.setFechaRegistro(new Date());
+        cursoConvalidado.setTramiteTraslado(tramiteTraslado);        
+        cursoConvalidadoDAO.save(cursoConvalidado);
+        
+    }
+    
+    
+    private void tramiteTrasladoUpdate(Alumno alumno, TramiteTraslado tramiteTraslado, TrasladoBean trasladoBean, Integer total, CursoConvalidado cursoConvalidado, List<CursoConvalidado> listCursoConvalidadoDB, DataSessionPivot ds) {
+
+        Map<Long, CursoConvalidado> mapCursosConvalidados = listCursoConvalidadoDB.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+        if(Objects.isNull(mapCursosConvalidados.get(cursoConvalidado.getId()))) {
+            logger.debug(String.format("*********** curso convalidado %s sin registrar", cursoConvalidado.getCurso().getCodigo()));
+            return;
+        }
+        
+        AlumnoCicloCurso alumnoCicloCurso = mapCursosConvalidados.get(cursoConvalidado.getId()).getAlumnoCicloCurso();
+        
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, trasladoBean.getCicloAcademico());
+        
+        if (alumnoCiclo == null) {            
+            alumnoCiclo = this.saveAlumnoCiclo(alumno, tramiteTraslado.getCicloAcademico(), total, ds);
+        }
+        
+        if(alumnoCicloCurso != null) {            
+            updateAlumnoCicloCurso(cursoConvalidado, alumnoCiclo, alumnoCicloCurso, ds);            
+        }
+        
+        cursoConvalidado.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
+        cursoConvalidado.setUserModifica(ds.getUsuario());
+        cursoConvalidado.setFechaModificacion(new Date());
+        cursoConvalidado.setTramiteTraslado(tramiteTraslado);
+        cursoConvalidadoDAO.update(cursoConvalidado);
+        
+    }
+    
     private void tramiteTras(Alumno alumno, TramiteTraslado tramiteTraslado, TrasladoBean trasladoBean, Integer total, CursoConvalidado cursoConvalidado, List<CursoConvalidado> listCursoConvalidadoNew, DataSessionPivot ds) {
 
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, tramiteTraslado.getCicloAcademico());

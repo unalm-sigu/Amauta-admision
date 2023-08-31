@@ -17,7 +17,7 @@ new Vue({
         tramiteTrasladoActivo: {},
         total: 0,
         editarResolucion: false,
-        cicloAcademico: null,
+        cicloAcademico: null
     },
     created: function () {
         let $vue = this;
@@ -34,7 +34,7 @@ new Vue({
         },
         customLabelRes( { resolucion}) {
             if (resolucion == null) {
-                return ""
+                return "";
             }
             return `${resolucion.numero} – ${resolucion.serie}`;
         },
@@ -50,7 +50,6 @@ new Vue({
             }
         },
         returnTipoCurso(tipo) {
-
             if (tipo === 'TEO') {
                 return "Teoría";
             }
@@ -201,7 +200,13 @@ new Vue({
                     return;
                 }
             }
-            let trasladoBean = {listCursoConvalidado: list, total: totalNuevos, alumno: $vue.alumno, tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo)};
+            let trasladoBean = {
+                listCursoConvalidado: list, 
+                total: totalNuevos, 
+                alumno: $vue.alumno, 
+                tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo),
+                cicloAcademico: $vue.cicloAcademico
+            };
             let texto = (list.length > 1 ? 'los ' + list.length + ' cursos seleccionados?' : 'el curso seleccionado?');
             let txtAdvertencia = " <b>Sí acepta, ya no podrá convalidar otros cursos hasta una nueva resolución.</b>";
             bootbox.confirm({
