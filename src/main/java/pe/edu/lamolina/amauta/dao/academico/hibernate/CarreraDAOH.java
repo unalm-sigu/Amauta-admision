@@ -249,6 +249,20 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .limit(15);
         return all(sql);
     }
+    
+    @Override
+    public List<Carrera> allCarreras(String nombre, Compania compania) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa", "me.compania co")
+                .leftJoin("areaPosgrado ap")
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
+                .filter("car.nombre", "like", nombre)
+                .filter("co.id", compania)
+                .limit(15);
+        return all(sql);
+    }
 
     @Override
     public List<Carrera> allActivas() {

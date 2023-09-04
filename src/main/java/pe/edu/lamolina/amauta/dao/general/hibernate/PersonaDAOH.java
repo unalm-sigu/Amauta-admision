@@ -176,6 +176,20 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
 
         return all(sql);
     }
+    
+    @Override
+    public List<Persona> allByApellidos(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td");
+        if (!StringUtils.isEmpty(persona.getPaterno())) {
+            sql.filter("per.paterno", "like", persona.getPaterno());
+        }
+        if (!StringUtils.isEmpty(persona.getMaterno())) {
+            sql.filter("per.materno", "like", persona.getMaterno());
+        }
+        return all(sql);
+    }
 
     @Override
     public List<Persona> allByEmailCompania(String email) {

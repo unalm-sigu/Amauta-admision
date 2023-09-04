@@ -25,6 +25,8 @@ public interface PersonaDAO extends EasyDAO<Persona> {
     List<Persona> allByEmailWithoutPersona(Persona persona);
 
     List<Persona> allByApellidosNombres(Persona persona);
+    
+    List<Persona> allByApellidos(Persona persona);
 
     List<Persona> allByEmailCompania(String email);
 
