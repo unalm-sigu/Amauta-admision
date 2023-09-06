@@ -1,0 +1,426 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Historial Alumno Form </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+
+            <header class="header b-b padder-lg">
+                <a th:href="@{/academico/tramiteacademico/historialalumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
+
+                <h2  id="nombreAlumno" th:text="${ alumno.persona.id!=null ? alumno.persona.apellidosNombres : 'Nuevo Alumno' }" >Nuevo Alumno</h2>
+            </header>
+
+            <div id="main">
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <form data-parsley-validate="true" method="POST" id="formAlumno" >
+
+                                <div class="col-md-2 text-center" >
+
+                                    <div class="col-xs-12 m-t-lg">
+                                        <img id="imagenProfile"
+                                             class="img-thumbnail"/>
+
+                                        <input type="hidden" id="avatar" name="persona.foto" th:value="${alumno.persona.foto}"/>
+
+                                    </div>
+
+                                    <div class="col-xs-12 text-center">
+
+                                        <input class="hidden" id="fileupload" type="file" name="file"/>
+
+                                        <button type="button" id="fileuploadtrigger" v-on:click="fileuploadtrigger" class="btn btn-link btn-sm" >Elegir Foto</button>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-md-10">
+
+
+                                    <input type="hidden"  name="id" th:value="${alumno.id}"/>
+                                    <input type="hidden"  name="persona.id" th:value="${alumno.persona.id}"/>
+
+                                    <div class="panel-body">
+                                        <div class="col-xs-12">
+                                            <h4 class="m-b-md m-t-md">Datos Generales</h4>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Tipo de documento de identidad</label>
+                                                <select name="persona.tipoDocumento.id"
+                                                        class="form-control" required="true" >
+                                                    <option></option>
+                                                    <option th:each="tipo : ${documentos}"
+                                                            th:value="${tipo.id}"
+                                                            th:selected="${alumno.persona.tipoDocumento!=null?alumno.persona.tipoDocumento.id==tipo.id:0}"
+                                                            th:text="${tipo.nombre}" >
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Número de documento de identidad</label>
+
+                                                <input type="text"
+                                                       name="persona.numeroDocIdentidad"
+                                                       th:value="${alumno.persona.numeroDocIdentidad}"
+                                                       class="form-control" v-on:change="buscarPersona"  required="true"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Apellido Paterno</label>
+
+                                                <input type="text"
+                                                       name="persona.paterno"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.paterno}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Apellido Materno</label>
+
+                                                <input type="text"
+                                                       name="persona.materno"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.materno}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Nombres</label>
+
+                                                <input type="text"
+                                                       name="persona.nombres"
+                                                       required="true"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.nombres}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="emailEmpresa" >Correo  Institucional</label>
+                                                <input  class="inline form-control validar-email-empresa"
+                                                        data-trigger="change" required="true" type="email"
+                                                        data-trim-value="true"
+                                                        name="persona.emailCompania" id="emailCompania"
+                                                        th:value=" ${alumno.persona.emailCompania}"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Sexo</label>
+
+                                                <div class="form-group">
+                                                    <div class="col-sm-10">
+                                                        <div class="col-sm-5">
+
+                                                            <label class="radio inline">
+
+                                                                <input  type="radio"
+                                                                        required="true"
+                                                                        name="persona.sexo"
+                                                                        id="inlineCheckbox1"
+                                                                        value="M"
+                                                                        v-model="sexoM"
+                                                                        th:checked="${alumno.persona.sexo=='M'}" /> Masculino
+                                                            </label>
+
+                                                        </div>
+                                                        <div class="col-sm-5">
+
+                                                            <label class="radio inline">
+                                                                <input  type="radio"
+                                                                        required="true"
+                                                                        name="persona.sexo"
+                                                                        id="inlineCheckbox2"
+                                                                        value="F"
+                                                                        v-model="sexoF"
+                                                                        th:checked="${alumno.persona.sexo=='F'}" /> Femenino
+                                                            </label>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-xs-12">
+                                            <h4  class="m-b-md m-t-md"> Lugar y fecha de nacimiento </h4>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>País</label>
+                                                <input id="paisNacimiento" type="text"
+                                                       class="form-control input-s-full buscar-pais"
+                                                       name="persona.paisNacer.id"
+                                                       data-trigger="change"
+                                                       th:attr="codigo=${helper.showCodigoPais(alumno.persona.paisNacer)}"
+                                                       th:rel="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.nombre}"
+                                                       th:value="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.id}"
+                                                       required="true"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            
+                                            <div  v-if="showLugarNacimiento" id="lugarNacimiento" class="form-group" >
+                                                <label>Distrito de nacimiento (en Perú)</label>
+
+                                                <input type="text"
+                                                       id="distNacimiento"
+                                                       class="form-control input-s-full buscar-distrito"
+                                                       name="persona.ubicacionNacer.id"
+                                                       data-trigger="change"
+                                                       th:rel="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.distrito}"
+                                                       th:value="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.id}"/>
+                                                <span id="mensaje"></span>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Fecha ( día / mes / año )</label>
+                                                <div class="input-group date">
+
+                                                    <input type="text"
+                                                           data-parsley-errors-container="#errorfechaNacer"
+                                                           th:value="${alumno.persona.fechaNacer}? ${#dates.format(alumno.persona.fechaNacer,'dd/MM/yyyy')}"
+                                                           class="form-control"
+                                                           name="persona.fechaNacer" required="true" />
+
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                    </span>
+
+                                                </div>
+                                                <span id="errorfechaNacer"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Nacionalidad (Ingresa el país de tu nacionalidad)</label>
+
+                                                <input type="text"
+                                                       class="form-control input-s-full buscar-pais"
+                                                       name="persona.nacionalidad.id"
+                                                       id="nacionalidad"
+                                                       data-trigger="change"
+                                                       th:rel="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.nacionalidad}"
+                                                       th:value="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.id}"
+                                                       required="true"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12">
+                                            <h4  class="m-b-md m-t-md">Contacto</h4>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+
+                                                <label>Teléfono</label>
+
+                                                <input type="text"
+                                                       name="persona.telefono"
+                                                       th:value="${alumno.persona.telefono}"
+                                                       class="form-control sin-espacios numerico"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+
+                                                <label>Celular</label>
+
+                                                <input type="text"
+                                                       name="persona.celular"
+                                                       th:value="${alumno.persona.celular}"
+                                                       class="form-control sin-espacios numerico"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+
+                                                <label>Correo Electrónico(personal)</label>
+
+                                                <input type="text"
+                                                       name="persona.email"
+                                                       th:value="${alumno.persona.email}"
+                                                       class="form-control verificar-email"/>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <h4  class="m-b-md m-t-md">Domicilio</h4>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>País Domicilio</label>
+
+                                                <input type="text"
+                                                       id="paisDomicilio"
+                                                       class="form-control"
+                                                       name="persona.paisDomicilio.id"
+                                                       data-trigger="change"
+                                                       th:rel="${helper.getParentTree(alumno,'persona.paisDomicilio.nombre')}"
+                                                       th:value="${helper.getParentTree(alumno,'persona.paisDomicilio.id')}"
+                                                       required="true"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div v-if="showUbicacionDomicilio"   class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label>Ubicación Domicilio</label>
+
+                                                <input type="text"
+                                                       id="ubicacionDomicilio"
+                                                       class="form-control buscar-distrito"
+                                                       name="persona.ubicacionDomicilio.id"
+                                                       data-trigger="change"
+                                                       th:rel="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.nombre')}"
+                                                       th:value="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.id')}"
+                                                       required="true"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label class="bold">Dirección</label>
+
+                                                <input type="text"
+                                                       class="form-control"
+                                                       name="persona.direccion"
+                                                       th:value="${alumno.persona.direccion}"
+                                                       data-trigger="change" required="true" />
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12">
+                                            <h4>Datos Académicos</h4>
+                                        </div>
+
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label  for="carrera.id">Carrera</label>
+                                                <input  type="text"
+                                                        name="carrera.id"
+                                                        th:value="${alumno.carrera!=null?alumno.carrera.id:''}"
+                                                        th:rel="${alumno.carrera!=null?alumno.carrera.nombre:''}"
+                                                        th:rev="${alumno.carrera!=null?alumno.carrera.codigo:''}"
+                                                        required='true'
+                                                        data-trigger="change"
+                                                        class="form-control"/>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+
+                                                <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
+
+                                                <select name="modalidadEstudio.id"
+                                                        required="true"
+                                                        class="form-control" >
+                                                    <option></option>
+                                                    <option th:each="item : ${modalidades}"
+                                                            th:text="${item.nombre}"
+                                                            th:selected="${alumno.modalidadEstudio!=null} ? ${alumno.modalidadEstudio.id==item.id}"
+                                                            th:value="${item.id}" ></option>
+                                                </select>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <hr/>
+
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
+                                </div>
+
+                                <input type="hidden" id="mensajeError" th:value='${mensaje}'/>
+
+                            </form>
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+            <script id="divBuscarDistrito" type="text/x-template" class="hide" >
+                <span class="block h5 bold">{{:distrito}}</span>
+                <span class=""><strong>Provincia:</strong>{{:provincia}}
+                <strong>Departamento:</strong> {{:departamento}}</span>
+            </script>
+
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var showLugarNacimiento = /*[[${alumno.persona.ubicacionNacer != null}]]*/'';
+                var codigoPaisDomicilio = /*[[${alumno.persona.paisDomicilio!=null?alumno.persona.paisDomicilio.codigo:''}]]*/ '';
+                /*]]>*/
+            </script>
+
+
+        </section>
+
+        <div layout:fragment="js">
+            <script charset="utf-8">
+                var datepicker = $.fn.datepicker.noConflict();
+                $.fn.datepickerBoot = datepicker;
+            </script>
+            <div th:substituteby="_layout/includes :: javascript-upload"> </div>
+            <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/alumnoForm.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
