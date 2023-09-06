@@ -55,4 +55,6 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     Long countConsejeria(CicloAcademico cicloAcademico, Carrera carrera, String estado);
 
+    public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona);
+
 }

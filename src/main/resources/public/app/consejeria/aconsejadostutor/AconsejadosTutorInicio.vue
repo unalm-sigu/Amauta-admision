@@ -18,6 +18,23 @@
         </header>
 
         <section class="wrapper-lg">
+            <section class="panel m-b-md" >
+                <section class="panel-body">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div v-for='data in situaciones'>
+                                <div  class="col-md-3 text-center" v-bind:class="bgColorClass[data.codigo]">
+                                    <a  v-on:click="findAconsejadoSituacion(data.codigo)" class=" pointer" v-bind:class="data.color">
+                                        <span v-for='item in countSituaciones' class="h2 bold" v-if="item.codigo == data.codigo" v-text="item.count"></span>
+                                        <small class="block m-b-xs" v-text='data.nombre'></small>
+                                    </a>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </section>
+            </section>
+
             <section class="panel m-b-md">
                 <section class="panel-body">
 
@@ -165,7 +182,7 @@
                                                     </div>
                                                 </div>
                                             </template>
-                                            
+
                                             <template v-else="">
                                                 <div v-on:click="verMalaAsignacion(item)" class="block pointer">
                                                     <i class="fa fa-exclamation-circle fa-3x text-warning" aria-hidden="true"></i>
@@ -243,7 +260,11 @@
                     format: 'DD/MM/YYYY',
                     locale: 'es',
                     useCurrent: false
-                }
+                },
+                isLoading: false,
+                situaciones: [],
+                countSituaciones: [],
+                colors: ['text-success', 'text-black', 'text-primary', 'text-warning', 'text-info']
             };
         },
         mounted() {
@@ -276,14 +297,14 @@
                 }
                 this.$refs.raptorTuto.loadRemoteData();
             },
-            countData() {
-                myUtils.axios(VUE_AXIOS.structGetData({
-                    url: `/${rutaModulo}/countData`,
-                    body: {idCarrera: this.carreraSelect.id}
-                })).then(response => {
-                    this.count = response.data.data;
-                });
-            },
+//            countData() {
+//                myUtils.axios(VUE_AXIOS.structGetData({
+//                    url: `/${rutaModulo}/countData`,
+//                    body: {idCarrera: this.carreraSelect.id}
+//                })).then(response => {
+//                    this.count = response.data.data;
+//                });
+//            },
             solicitudBeneficio(item) {
                 let $vue = this;
 
@@ -438,6 +459,66 @@
                     return "Ver informe";
                 }
                 return "Crear informe final";
+            },
+            loadDataSituaciones(alumnosAconsejados) {
+                let $vue = this;
+                if ($vue.situaciones.length > 0) {
+                    return;
+                }
+                miMapa = new Map();
+                for (var i = 0; i < alumnosAconsejados.length; i++) {
+                    var codigo = alumnosAconsejados[i].alumno.situacionAcademica.codigo;
+                    var nombre = alumnosAconsejados[i].alumno.situacionAcademica.nombre;
+                    if (miMapa.get(codigo) == undefined) {
+                        var color = $vue.colors[i];
+                        var data = {codigo: codigo, nombre: nombre, color: color == null ? 'text-primary' : color};
+                        $vue.situaciones.push(data);
+                        miMapa.set(codigo, 1);
+                    } else {
+                        var cantidad = miMapa.get(codigo);
+                        cantidad += 1;
+                        miMapa.set(codigo, cantidad);
+                    }
+                }
+                for (var [clave, valor] of  miMapa.entries()) {
+                    var dataCount = {codigo: clave, count: valor};
+                    $vue.countSituaciones.push(dataCount);
+                }
+
+            },
+            countData() {
+                let $vue = this;
+                
+                $vue.isLoading = true;
+                $.ajax({
+                    url: `/${rutaModulo}/countData/${$vue.persona.id}/${$vue.consejero.carrera.id}`,
+                    data: {idCarrera: BigInt($vue.consejero.carrera.id)},
+                    dataType: 'json',
+                    type: 'post',
+                }).then(response => {
+                    $vue.count = response.data;
+                    this.loadDataSituaciones(response.data.alumnosConsejeros);
+                });
+            },
+            findAconsejadoSituacion(tipo) {
+                let $vue = this;
+                $vue.$refs.raptorTuto.querie = [];
+                if ($vue.seleccionado === '') {
+                    $vue.bgColorClass[tipo] = 'bg-light';
+                    $vue.seleccionado = tipo;
+                    $vue.$refs.raptorTuto.querie.push({name: 'situacion', value: tipo});
+                } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                    $vue.bgColorClass[$vue.seleccionado] = '';
+                    $vue.bgColorClass[tipo] = 'bg-light';
+                    $vue.seleccionado = tipo;
+                    $vue.$refs.raptorTuto.querie.push({name: 'situacion', value: tipo});
+                } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                    $vue.bgColorClass[$vue.seleccionado] = '';
+                    $vue.seleccionado = '';
+                    $vue.$refs.raptorTuto.changeUrl('queries[situacion]', null);
+                }
+                $vue.$refs.raptorTuto.loadRemoteData();
+
             },
 
             // metodos genericos

@@ -339,6 +339,30 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     }
 
     @Override
+    public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona) {
+         Octavia subquery = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr", "cicloAcademico ciac")
+                .filter("ciac.id", cicloAcademico);
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("al.persona per", "al.carrera car", "car.facultad")
+                .join("al.situacionAcademica sa", "cicloAcademico ca")
+                .leftJoin("per.tipoDocumento", "al.cicloIngreso", "perc.tipoDocumento")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("perc.id", persona)
+                .filter("ca.id", cicloAcademico)
+                .exists(subquery)
+                .linkedBy("al.id", "almr.id")
+                .linkedBy("ca.id", "ciac.id")
+                .orderBy("ac.id desc");
+        return all(sql);
+    }
+
+    
+    @Override
     public List<AlumnoConsejero> allByDynatablePersonaTutor(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
 
         Octavia subquery = Octavia.query()

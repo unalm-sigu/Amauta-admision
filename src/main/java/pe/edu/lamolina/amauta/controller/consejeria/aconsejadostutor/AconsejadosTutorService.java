@@ -55,4 +55,6 @@ public interface AconsejadosTutorService {
 
     List<Consejero> allConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico);
 
+    List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona);
+
 }

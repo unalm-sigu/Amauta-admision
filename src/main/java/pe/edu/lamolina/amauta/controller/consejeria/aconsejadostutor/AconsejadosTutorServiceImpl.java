@@ -135,14 +135,21 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     }
 
     @Override
+    public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona) {
+        return alumnoConsejeroDAO.allByCicloPersona(cicloAcademico, persona);
+    }
+
+    
+    @Override
     public List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico ciclo, Persona tutor, Carrera carrera, DataSessionPivot ds) {
 
-        List<AlumnoConsejero> alumnoConsejeros = null;
-        if (verificadorService.isDeveloperOERA(ds)) {
-            alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, tutor, carrera);
-        } else {
-            alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, ciclo, tutor, carrera);
-        }
+//        List<AlumnoConsejero> alumnoConsejeros = null;
+//        if (verificadorService.isDeveloperOERA(ds)) {
+//            alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, tutor, carrera);
+//        } else {
+//         alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, ciclo, tutor, carrera);
+//        }
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, tutor, carrera);
 
         List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ciclo);
@@ -229,12 +236,13 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejeroCarrera(persona, ciclo, carrera);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejeroCarrera(persona, ciclo, carrera);
 
-        List<AlumnoConsejero> alumnosTutor = null;
-        if (verificadorService.isDeveloperOERA(ds)) {
-            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, persona, carrera);
-        } else {
-            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, ciclo, persona, carrera);
-        }
+//        List<AlumnoConsejero> alumnosTutor = null;
+//        if (verificadorService.isDeveloperOERA(ds)) {
+//            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, persona, carrera);
+//        } else {
+//            alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarrera(filter, ciclo, persona, carrera);
+//        }
+        List<AlumnoConsejero> alumnosTutor = alumnoConsejeroDAO.allByDynatablePersonaTutorCarreraOERA(filter, ciclo, persona, carrera);
 
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
         aconsejadoEstadoBean.setMatriculados(countMatriculable);

@@ -160,8 +160,11 @@ public class AconsejadosTutorController {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        List<AlumnoConsejero> alumnosTutor = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+          
+        List<AlumnoConsejero> alumnosConsejeros = service.allByCicloPersona(ds.getCicloAcademico(),ds.getPersona());
+        
+        List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), ds.getPersona(),alumnosConsejeros.get(0).getConsejero().getCarrera(),ds);
+        
         List<Alumno> alumnos = alumnosTutor.stream().map(tutor -> tutor.getAlumno()).collect(Collectors.toList());
         Map<Long, List<PlanTutorial>> mapPlanes = service.allPlanes(alumnos, ds.getCicloAcademico());
         Map<Long, List<AlumnoCualidad>> mapCualidades = service.allCualidades(alumnos, ds.getCicloAcademico());
@@ -459,7 +462,7 @@ public class AconsejadosTutorController {
         return JaneHelper
                 .from(consejero)
                 .only("id,estado,fechaInicio,fechaFin")
-                .join("carrera", "codigo,nombre")
+                .join("carrera", "id,codigo,nombre")
                 .join("colaborador", "id")
                 .join("colaborador.persona", "apellidosNombres,numeroDocIdentidad")
                 .join("colaborador.persona.tipoDocumento", "simbolo")
