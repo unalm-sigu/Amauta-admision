@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +20,10 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.general.PaisDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
@@ -30,8 +34,10 @@ import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -47,43 +53,39 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+        
+    private final PersonaDAO personaDAO;
+        
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;    
+        
+    private final PaisDAO paisDAO;
     
-    @Autowired
-    private PersonaDAO personaDAO;
+    private final UbicacionDAO ubicacionDAO;
+       
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+       
+    private final FacultadDAO facultadDAO;
+        
+    private final CarreraDAO carreraDAO;
+        
+    private final AlumnoDAO alumnoDAO;
     
-    @Autowired
-    private TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+        
+    private final UsuarioDAO usuarioDAO;
     
-    @Autowired
-    private PaisDAO paisDAO;
-    
-    @Autowired
-    private UbicacionDAO ubicacionDAO;
-    
-    @Autowired
-    private ModalidadEstudioDAO modalidadEstudioDAO;
-    
-    @Autowired
-    private FacultadDAO facultadDAO;
-    
-    @Autowired
-    private CarreraDAO carreraDAO;
-    
-    @Autowired
-    private AlumnoDAO alumnoDAO;
-    
-    @Autowired
-    private UsuarioDAO usuarioDAO;
-    
-    @Autowired
-    private RolDAO rolDAO;
-    
-    @Autowired
-    private UsuarioRolDAO usuarioRolDAO;
+    private final RolDAO rolDAO;
+        
+    private final UsuarioRolDAO usuarioRolDAO;
+        
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
     
     @Override
     public DynatableResponse listAlumnos(DynatableFilter filter, HttpSession httpSession) {
@@ -221,6 +223,16 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
     public List<Carrera> allCarrera(String nombre, Compania compania) {
         return carreraDAO.allByNombre(nombre, compania);
     }
+            
+    @Override
+    public List<CicloAcademico> allCicloAcademico() {
+        return cicloAcademicoDAO.allCiclos();
+    }
+
+    @Override
+    public List<CicloAcademico> allCiclo(String nombre) {
+        return cicloAcademicoDAO.allCicloByName(nombre);
+    }
 
     @Override
     public Persona update(Alumno alumno, DataSessionPivot ds) {
@@ -253,6 +265,9 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         alumno.setCodigo(this.getCodigo());
         alumno.setFechaRegistro(today.toDate());
         alumno.setUserRegistro(user);
+        
+        SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
+        alumno.setSituacionAcademica(situacion);
         alumnoDAO.save(alumno);
         LOGGER.debug("alumno  guardado  {}", alumno.getId());
 

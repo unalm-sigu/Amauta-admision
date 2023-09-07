@@ -5,10 +5,8 @@
     <body>
         <section layout:fragment="main">
 
-
             <header class="header b-b padder-lg">
                 <a th:href="@{/academico/tramiteacademico/historialalumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
-
                 <h2  id="nombreAlumno" th:text="${ alumno.persona.id!=null ? alumno.persona.apellidosNombres : 'Nuevo Alumno' }" >Nuevo Alumno</h2>
             </header>
 
@@ -20,7 +18,7 @@
 
                             <form data-parsley-validate="true" method="POST" id="formAlumno" >
 
-                                <div class="col-md-2 text-center" >
+                                <!--<div class="col-md-2 text-center" >
 
                                     <div class="col-xs-12 m-t-lg">
                                         <img id="imagenProfile"
@@ -38,9 +36,10 @@
 
                                     </div>
 
-                                </div>
-                                <div class="col-md-10">
-
+                                </div>-->
+                                
+                                <div class="col-md-12">
+                                <!--<div class="col-md-10">-->
 
                                     <input type="hidden"  name="id" th:value="${alumno.id}"/>
                                     <input type="hidden"  name="persona.id" th:value="${alumno.persona.id}"/>
@@ -170,7 +169,7 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="col-xs-12">
+                                        <!--div class="col-xs-12">
                                             <h4  class="m-b-md m-t-md"> Lugar y fecha de nacimiento </h4>
                                         </div>
                                         <div class="col-sm-6">
@@ -284,6 +283,7 @@
 
                                             </div>
                                         </div>
+                                        
                                         <div class="col-xs-12">
                                             <h4  class="m-b-md m-t-md">Domicilio</h4>
                                         </div>
@@ -334,7 +334,7 @@
                                                        data-trigger="change" required="true" />
 
                                             </div>
-                                        </div>
+                                        </div>-->
 
                                         <div class="col-xs-12">
                                             <h4>Datos Académicos</h4>
@@ -347,7 +347,7 @@
                                                 <input  type="text"
                                                         name="carrera.id"
                                                         th:value="${alumno.carrera!=null?alumno.carrera.id:''}"
-                                                        th:rel="${alumno.carrera!=null?alumno.carrera.nombre:''}"
+                                                        th:rel="${alumno.carrera!=null?alumno.carrera.descripcion:''}"
                                                         th:rev="${alumno.carrera!=null?alumno.carrera.codigo:''}"
                                                         required='true'
                                                         data-trigger="change"
@@ -355,12 +355,9 @@
                                             </div>
                                         </div>
 
-
                                         <div class="col-sm-6">
                                             <div class="form-group">
-
                                                 <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
-
                                                 <select name="modalidadEstudio.id"
                                                         required="true"
                                                         class="form-control" >
@@ -371,7 +368,37 @@
                                                             th:value="${item.id}" ></option>
                                                 </select>
                                             </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="cicloEstudia.id">Ciclo Académico</label>
+                                                <input type="text" 
+                                                       name="cicloEstudia.id"
+                                                       th:value="${alumno.cicloIngreso!=null? alumno.cicloIngreso.id:''}"
+                                                       th:rel="${alumno.cicloIngreso!=null? alumno.cicloIngreso.descripcion:''}"
+                                                       th:rev="${alumno.cicloIngreso!=null? alumno.cicloIngreso.codigo:''}"
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
+                                                <!--<select name="cicloEstudia.id" required="true" class="form-control" >
+                                                    <option></option>
+                                                    <option th:each="item : ${ciclos}"
+                                                            th:text="${item.descripcion}"
+                                                            th:selected="${alumno.cicloIngreso!=null} ? ${alumno.cicloIngreso.id==item.id}"
+                                                            th:value="${item.id}" ></option>
+                                                </select>-->
+                                                <!--<vueselect name="cicloEstudia.id"
+                                                           v-bind:valor="alumnoVisitante.cicloEstudia"
+                                                           class="form-control" 
+                                                           required="true">
+                                                    <option></option>
+                                                    <option th:each="ciclo : ${ciclos}"
+                                                            th:value="${ciclo.id}"
+                                                            th:text="${ciclo.descripcion}"></option>
+                                                </vueselect>-->
 
+                                            </div>
                                         </div>
 
                                     </div>

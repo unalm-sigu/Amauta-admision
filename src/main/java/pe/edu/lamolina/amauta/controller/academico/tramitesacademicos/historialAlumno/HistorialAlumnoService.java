@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -36,5 +37,9 @@ public interface HistorialAlumnoService {
     Persona findPersonaByDocIdentidad(Persona persona);
 
     Persona findPersona(Persona persona);
+
+    List<CicloAcademico> allCicloAcademico();
+
+    List<CicloAcademico> allCiclo(String nombre);
 
 }
