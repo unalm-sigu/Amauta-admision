@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -30,6 +29,7 @@ import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -58,12 +58,13 @@ public class HistorialAlumnoController {
         
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
-
+        
         Alumno alumno = new Alumno();
         alumno.setPersona(new Persona());
         model.addAttribute("documentos", historialAlumnoService.allDocumentos());
         model.addAttribute("modalidades", historialAlumnoService.allModalidadEstudioByCodes(Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG), compania));
         model.addAttribute("alumno", alumno);
+        model.addAttribute("ciclos", historialAlumnoService.allCicloAcademico());
         model.addAttribute("helper", new AlumnoHelper());
         
         return "academico/tramitescademicos/historialAlumno/alumnoForm";
@@ -138,6 +139,35 @@ public class HistorialAlumnoController {
     }
     
     @ResponseBody
+    @RequestMapping("allCiclo")
+    public JsonResponse allCiclo(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<CicloAcademico> ciclos = historialAlumnoService.allCiclo(nombre);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (CicloAcademico ciclo : ciclos) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", ciclo.getId());
+                a.put("codigo", ciclo.getCodigo());
+                a.put("desripcion", ciclo.getDescripcion());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(Alumno alumno, HttpSession session, RedirectAttributes redirectAttr) {
 
@@ -148,7 +178,7 @@ public class HistorialAlumnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Boolean success = true;
             historialAlumnoService.save(alumno, ds);
-            if (alumno.getId() == null) {
+            /*if (alumno.getId() == null) {
                 historialAlumnoService.save(alumno, ds);
                 response.setMessage("Alumno creado satisfactoriamente");
 
@@ -165,7 +195,7 @@ public class HistorialAlumnoController {
                     response.setMessage("DNI duplicado");
                     success = false;
                 }
-            }
+            }*/
 
             response.setSuccess(success);
             response.setData(node);

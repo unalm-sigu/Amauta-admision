@@ -2,7 +2,7 @@ new Vue({
     el: '#main',
     data: {
         showLugarNacimiento: showLugarNacimiento,
-        showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
+        showUbicacionDomicilio: codigoPaisDomicilio === 'PE',
         sexoM: null,
         sexoF: null
     },
@@ -14,7 +14,7 @@ new Vue({
         sexoF: function () {
             $("#inlineCheckbox2").removeProp('required');
             $("#inlineCheckbox1").removeProp('required');
-        },
+        }
     },
     computed: {
     },
@@ -37,6 +37,8 @@ new Vue({
         });
         $("[name='carrera.id']").select2(vue.carrera());
         $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
+        //$("[name='cicloEstudia.id']").select2({minimumResultsForSearch: -1});
+        $("[name='cicloEstudia.id']").select2(vue.ciclo());
         vue.initFileupload();
         vue.avatarInit();
     },
@@ -86,7 +88,7 @@ new Vue({
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (element.val() != "") {
+                    if (element.val() !== "") {
                         callback({id: element.val(), nacionalidad: element.attr("rel"), codigo: element.attr("codigo")});
                     }
                 },
@@ -118,7 +120,7 @@ new Vue({
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (element.val() != "") {
+                    if (element.val() !== "") {
                         callback({id: element.val(), nombre: element.attr("rel")});
                     }
                 },
@@ -194,6 +196,41 @@ new Vue({
                 },
                 formatSelection: function (info) {
                     return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            };
+        },
+        ciclo: function () {
+            console.log("Hola");
+            return {
+                allowClear: true,
+                minimumInputLength: 2,
+                placeholder: " ",
+                ajax: {
+                    url: APP.url("academico/tramiteacademico/historialalumno/allCiclo"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function (response, page) {
+                        console.log(response);
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    console.log("element", element);
+                    if (element.val() !== "") {
+                        callback({id: element.val(), descripcion: element.attr("rel"), codigo: element.attr("rev")});
+                    }
+                },
+                formatResult: function (info) {
+                    return '<p>' + info.descripcion + '</p>  ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
+                },
+                formatSelection: function (info) {
+                    return '<p>' + info.descripcion + '</p>   ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
                 },
                 escapeMarkup: function (m) {
                     return m;
