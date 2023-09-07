@@ -236,8 +236,7 @@ public class ResolucionExistenteController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        List<String> msg = new ArrayList();
-
+//        List<String> msg = new ArrayList();
         TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
         List<String> respuesta = service.saveResolucion(resolucion, ds);
 
@@ -253,8 +252,20 @@ public class ResolucionExistenteController {
 
         switch (tipo) {
             case REIC:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case RCI:
             case ANCI:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
@@ -266,11 +277,12 @@ public class ResolucionExistenteController {
                 }
                 break;
             case TRAS_INT:
-                msg = respuesta;
-                if (!msg.isEmpty()) {
+//                msg = respuesta;
+                if (!respuesta.isEmpty()) {
                     response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
                 }
-                response.setData(msg);
 //                service.generarNuevoPlan(resolucion, ds);
                 break;
             case TRAS:
@@ -278,24 +290,52 @@ public class ResolucionExistenteController {
             case ING_HIS:
             case BACHI:
             case BACHIFAC:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+
             case TITUL:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case TITULBAC:
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
-                msg = respuesta;
-                if (!msg.isEmpty()) {
+                if (!respuesta.isEmpty()) {
                     response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
                 }
-                response.setData(msg);
                 break;
             case PRACTICAS:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+
                 matriculableService.calcularPromedios(respuesta.get(0), ds);
                 matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                 break;
             case ALUMRENUNCIA:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
                 break;
             case RENUNCIA_CAR:
+                if (!respuesta.isEmpty()) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
                 break;
             default:
                 throw new PhobosException("Tipo de trámite no soportado");
