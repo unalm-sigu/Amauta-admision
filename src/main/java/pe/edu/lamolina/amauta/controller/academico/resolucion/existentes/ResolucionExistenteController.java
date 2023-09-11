@@ -255,7 +255,7 @@ public class ResolucionExistenteController {
 
         switch (tipo) {
             case REIC:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
@@ -263,7 +263,7 @@ public class ResolucionExistenteController {
                 break;
             case RCI:
             case ANCI:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
@@ -272,7 +272,7 @@ public class ResolucionExistenteController {
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     matriculableService.calcularPromedios(respuesta.get(0), ds);
                     matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                     matriculableService.revisarMatriculables(ds, respuesta.get(0));
@@ -281,7 +281,7 @@ public class ResolucionExistenteController {
                 break;
             case TRAS_INT:
 //                msg = respuesta;
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
@@ -293,31 +293,37 @@ public class ResolucionExistenteController {
             case ING_HIS:
             case BACHI:
             case BACHIFAC:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
                 }
 
             case TITUL:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
                 }
                 break;
             case TITULBAC:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
                 }
                 break;
             case PRACTICAS:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
@@ -327,14 +333,14 @@ public class ResolucionExistenteController {
                 matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                 break;
             case ALUMRENUNCIA:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
                 }
                 break;
             case RENUNCIA_CAR:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
                     return response;
@@ -345,6 +351,15 @@ public class ResolucionExistenteController {
         }
 
         return response;
+    }
+    
+    public boolean contieneMensaje(List<String> respuesta) {
+        for (String rpta : respuesta) {
+            if (!rpta.isEmpty() && rpta.length() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @ResponseBody

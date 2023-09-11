@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.util.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -443,20 +444,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         switch (tipoResolucionEnum) {
             case TRAS_INT:
                 this.validarTrasladoInterno(resolucion, respuesta, ds);// aca pendtien
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 break;
             case REIC:
                 respuesta = Arrays.asList(this.validarReincorporacion(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 break;
             case RCI:
             case ANCI:
                 respuesta = Arrays.asList(this.validarRetirosCiclos(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 break;
@@ -467,12 +468,12 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
                 respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
                 respuesta = Arrays.asList(this.validarCursoDirigido(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
@@ -483,7 +484,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case BACHI:
                 respuesta = Arrays.asList(this.validarTramiteBachiller(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
@@ -491,21 +492,23 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case BACHIFAC:
                 respuesta = Arrays.asList(this.validarTramiteBachillerFacultad(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 resolucion.setNumeroVisible(resolucion.getDescripcionFacultad());
                 break;
             case TITUL:
                 respuesta = Arrays.asList(this.validarTramiteTitulo(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
             case TITULBAC:
                 respuesta = Arrays.asList(this.validarTramiteTituloFacultad(resolucion, ds));
-                if (!respuesta.isEmpty()) {
+                log.debug("SERVICE_RESPUESTA EXISTE{} {}", respuesta.get(0), this.contieneMensaje(respuesta));
+
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
@@ -513,7 +516,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case PRACTICAS:
                 respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
@@ -521,14 +524,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case ALUMRENUNCIA:
                 respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
             case RENUNCIA_CAR:
                 respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
 
@@ -1078,7 +1081,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
         }
 //        PONER SU ULTIMA SITUACION ACADEMICA AL ALUMNO
-        
+
         String token = "";
 
         if (!alumnos.isEmpty()) {
@@ -1634,7 +1637,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 return "El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller";
             }
             Alumno alumno = alumnoDAO.find(bachiller.getAlumno());
-            
+
             EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
             if (eventoCicloAcademico == null) {
                 return "No se ha configurado las fechas de inicio y fin del ciclo " + alumno.getCicloActivo().getDescripcion() + " de la matrícula " + alumno.getCodigo();
@@ -2801,6 +2804,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds) {
         return tramiteRenunciaAlumnoDAO.allBySolicitadosCarrera();
+    }
+
+    public boolean contieneMensaje(List<String> respuesta) {
+        for (String rpta : respuesta) {
+            if (!rpta.isEmpty() && rpta.length() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
