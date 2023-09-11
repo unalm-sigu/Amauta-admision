@@ -14,9 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.util.StringUtil;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,7 +114,6 @@ import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
-import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.general.TipoOficina;
@@ -430,11 +427,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                     resolucion.getSerie(),
                     resolucion.getNumero(),
                     resolucion.getOficina().getNombre()));
-//            throw new PhobosException(
-//                    String.format(" Ya fue registrado una resolución con la serie %s y número %s en la oficina de %s",
-//                            resolucion.getSerie(),
-//                            resolucion.getNumero(),
-//                            resolucion.getOficina().getNombre()));
             return respuesta;
         }
         ObjectUtil.eliminarAttrSinId(resolucion, "cicloAplica");
@@ -443,7 +435,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         switch (tipoResolucionEnum) {
             case TRAS_INT:
-                this.validarTrasladoInterno(resolucion, respuesta, ds);// aca pendtien
+                this.validarTrasladoInterno(resolucion, respuesta, ds);
                 if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
@@ -467,11 +459,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case INTES:
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
-                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (this.contieneMensaje(respuesta)) {
-                    return respuesta;
-                }
-
                 respuesta = Arrays.asList(this.validarCursoDirigido(resolucion, ds));
                 if (this.contieneMensaje(respuesta)) {
                     return respuesta;
@@ -480,7 +467,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TRAS:
             case ING_HIS:
-                resolucion.setCicloAplica(ds.getCicloAcademico());
                 break;
             case BACHI:
                 respuesta = Arrays.asList(this.validarTramiteBachiller(resolucion, ds));
@@ -506,7 +492,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TITULBAC:
                 respuesta = Arrays.asList(this.validarTramiteTituloFacultad(resolucion, ds));
-                log.debug("SERVICE_RESPUESTA EXISTE{} {}", respuesta.get(0), this.contieneMensaje(respuesta));
 
                 if (this.contieneMensaje(respuesta)) {
                     return respuesta;
@@ -515,25 +500,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
                 break;
             case PRACTICAS:
-                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (this.contieneMensaje(respuesta)) {
-                    return respuesta;
-                }
-
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
             case ALUMRENUNCIA:
-                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (this.contieneMensaje(respuesta)) {
-                    return respuesta;
-                }
+//                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));//SIIII VALIDA ciclo aplica
+//                if (this.contieneMensaje(respuesta)) {
+//                    return respuesta;
+//                }
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
             case RENUNCIA_CAR:
-                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));
-                if (this.contieneMensaje(respuesta)) {
-                    return respuesta;
-                }
+//                respuesta = Arrays.asList(this.requiereCicloAplica(resolucion.getCicloAplica()));//SIIII VALIDA ciclo aplica
+//                if (this.contieneMensaje(respuesta)) {
+//                    return respuesta;
+//                }
 
 //                this.requiereCicloAplica(resolucion.getCicloAplica());
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
@@ -597,9 +577,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case CURDIR:
                 this.saveCursoDirigido(resolucion, ds);
-//                if (!respuesta.isEmpty()) {
-//                    resolucionDAO.delete(resolucion);
-//                }
                 break;
             case PRACTICAS:
                 respuesta = Arrays.asList(this.saveTramitePracticas(resolucion, ds));
@@ -719,7 +696,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //            }
 //
 //        }
-
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
         Map<Long, CursoDirigido> map = TypesUtil.convertListToMap("tramite.alumno.id", cursoDirigidos);
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RES_FAC);
@@ -773,6 +750,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //            if (anexoBoletin == null) {
 //                throw new PhobosException("No existe el anexo boletín para el departamento " + cursoDirigidoTram.getCurso().getDepartamentoAcademico().getNombre());
 //            }
+            resolucion.setCicloAplica(tramite.getCicloAcademico());
+            resolucionDAO.update(resolucion);
 
             List<GrupoSeccion> grupoSeccions = null;
             GrupoSeccion grupoSeccion = gpoSeccionService.findByCursoAndDocenteDirigido(cursoDirigidoTram.getCurso(), cursoDirigidoTram.getDocenteAsignado(), ds.getCicloAcademico());
@@ -901,7 +880,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case TRAS:
             case ING_HIS:
-                resolucionForm.setCicloAplica(ds.getCicloAcademico());
+//                resolucionForm.setCicloAplica(ds.getCicloAcademico());
                 break;
             case BACHI:
 //                this.saveTramiteBachiller(resolucionForm, ds);
@@ -1080,7 +1059,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnos.add(reincorporacion.getAlumno());
             }
         }
-//        PONER SU ULTIMA SITUACION ACADEMICA AL ALUMNO
+//        PONER SU ULTIMA SITUACION ACADEMICA AL ALUMNO y en alumno ciclo
 
         String token = "";
 
@@ -1998,11 +1977,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
 
-        List<TramiteRenunciaAlumno> TramiteRenunciaAlumno = resolucion.getTramiteRenunciaAlumno().stream()
+        List<TramiteRenunciaAlumno> tramitesRenunciaAlumno = resolucion.getTramiteRenunciaAlumno().stream()
                 .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
                 .collect(Collectors.toList());
+        
+//        TipoResolucion tipoResolucion = tipoResolucionDAO.find(resolucion.getTipoResolucion().getId()); //ESTO DEBERIA USAR  REVISAR COMO CUAL SERIA LA SITUACION FINAL 
+//POR QUE LAS 2 RENUNCIAS APUNTAN A UN SOLO SITIO
 
-        for (TramiteRenunciaAlumno renunciaAlumno : TramiteRenunciaAlumno) {
+        for (TramiteRenunciaAlumno renunciaAlumno : tramitesRenunciaAlumno) {
             Alumno alumno = renunciaAlumno.getAlumno();
 //            Long alumnoId = alumno.getId();
 //             String codigoAlumno = alumno.getCodigo(); 
@@ -2011,8 +1993,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             TramiteRenunciaAlumno renunciaTramite = tramiteRenunciaAlumnoDAO.findByAlumnoAct(renunciaAlumno.getAlumno());
 
             Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-            String codigoTipoTramite = "ALUMREN";
-            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(codigoTipoTramite);
+//            String codigoTipoTramite = "ALUMREN";
+            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ALUMREN.name());
 
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
@@ -2032,7 +2014,23 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteDAO.update(tramite);
 
-            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("RA");
+            MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, new CicloAcademico(tramite.getCicloAcademico().getId()));
+            if (matResumen != null) {
+                matResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
+                matriculaResumenDAO.update(matResumen);
+            }
+
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+            if (alumnoCiclo != null) {
+                alumnoCiclo.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_RA));
+            }
+
+//            */*/*/validaciones
+//         * aca_alumno_ciclo su situacion_final RA
+//        * si existe en matriculables sacando ciclo activo
+//                ponerlo como inhabilitado.
+//                        jalar el ciclo aplica
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.name());
             alumnoDB.setSituacionAcademica(situacion);
             alumnoDAO.update(alumnoDB);
         }
@@ -2040,6 +2038,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
 
         List<Alumno> alumnos = new ArrayList<>();
         for (PracticasPreProfesional practicasForm : resolucion.getTramitePracticasPreProfesionales()) {
@@ -2093,6 +2092,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
+
             if (alumnoCicloCurso == null) {
 
                 alumnoCicloCurso = new AlumnoCicloCurso();
@@ -2128,6 +2128,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "creditos", "userModificacion", "fechaModificacion");
             }
+
+            resolucionBD.setCicloAplica(alumnoCiclo.getCicloAcademico());
+            resolucionDAO.update(resolucionBD);
 
             alumnos.add(alumno);
         }

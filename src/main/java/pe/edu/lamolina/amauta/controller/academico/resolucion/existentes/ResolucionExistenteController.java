@@ -236,7 +236,6 @@ public class ResolucionExistenteController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-//        List<String> msg = new ArrayList();
         TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
         List<String> respuesta = service.saveResolucion(resolucion, ds);
 
