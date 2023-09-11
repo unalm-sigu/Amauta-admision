@@ -15,7 +15,6 @@
             </thead>
             <tbody>
                 <tr v-if="filtroFacultadSeleccionado(filterFacultad, titulo)" v-for="(titulo , index) in resolucion.tramiteTitulos">
-                    {{resolucion.tramiteTitulos}}
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
