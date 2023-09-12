@@ -343,15 +343,33 @@
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label  for="carrera.id">Carrera</label>
-                                                <input  type="text"
+                                                <label for="carrera.id">Especialidad</label>
+                                                <input type="text"
+                                                       name="carrera.id"
+                                                       th:value="${alumno.carrera != null? alumno.carrera.id: ''}"
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
+                                                <!--<input  type="text"
                                                         name="carrera.id"
                                                         th:value="${alumno.carrera!=null?alumno.carrera.id:''}"
                                                         th:rel="${alumno.carrera!=null?alumno.carrera.descripcion:''}"
                                                         th:rev="${alumno.carrera!=null?alumno.carrera.codigo:''}"
                                                         required='true'
                                                         data-trigger="change"
-                                                        class="form-control"/>
+                                                        class="form-control"/>-->
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="facultad.id">Facultad</label>
+                                                <input type="text"
+                                                       name="facultad.id"
+                                                       th:value="${alumno.carrera.facultad != null? alumno.carrera.facultad.id: ''}"
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
                                             </div>
                                         </div>
 
@@ -372,8 +390,14 @@
                                         
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="cicloEstudia.id">Ciclo Académico</label>
+                                                <label for="cicloIngreso.id">Ciclo Académico</label>
                                                 <input type="text" 
+                                                       name="cicloIngreso.id"
+                                                       th:value="${alumno.cicloIngreso!=null? alumno.cicloIngreso.id:''}"                                                       
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
+                                                <!--<input type="text" 
                                                        name="cicloEstudia.id"
                                                        th:value="${alumno.cicloIngreso!=null? alumno.cicloIngreso.id:''}"
                                                        th:rel="${alumno.cicloIngreso!=null? alumno.cicloIngreso.descripcion:''}"
@@ -381,7 +405,7 @@
                                                        required='true'
                                                        data-trigger="change"
                                                        class="form-control"/>
-                                                <!--<select name="cicloEstudia.id" required="true" class="form-control" >
+                                                <select name="cicloEstudia.id" required="true" class="form-control" >
                                                     <option></option>
                                                     <option th:each="item : ${ciclos}"
                                                             th:text="${item.descripcion}"
@@ -446,7 +470,7 @@
                 $.fn.datepickerBoot = datepicker;
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"> </div>
-            <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/alumnoForm.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/historialAlumnoForm.js}" charset="utf-8"></script>
         </div>
 
     </body>

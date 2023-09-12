@@ -59,15 +59,20 @@ public class HistorialAlumnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
         
+        Carrera carrera = new Carrera();
+        carrera.setFacultad(new Facultad());
+        
         Alumno alumno = new Alumno();
         alumno.setPersona(new Persona());
+        alumno.setCarrera(carrera);                
+        
         model.addAttribute("documentos", historialAlumnoService.allDocumentos());
         model.addAttribute("modalidades", historialAlumnoService.allModalidadEstudioByCodes(Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG), compania));
         model.addAttribute("alumno", alumno);
         model.addAttribute("ciclos", historialAlumnoService.allCicloAcademico());
         model.addAttribute("helper", new AlumnoHelper());
         
-        return "academico/tramitescademicos/historialAlumno/alumnoForm";
+        return "academico/tramitescademicos/historialAlumno/historialAlumnoForm";
     }
     
     @ResponseBody
@@ -151,7 +156,7 @@ public class HistorialAlumnoController {
                 ObjectNode a = new ObjectNode(jsonFactory);
                 a.put("id", ciclo.getId());
                 a.put("codigo", ciclo.getCodigo());
-                a.put("desripcion", ciclo.getDescripcion());
+                a.put("descripcion", ciclo.getDescripcion());
                 array.add(a);
             }
 

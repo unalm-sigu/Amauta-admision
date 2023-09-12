@@ -21,9 +21,8 @@ new Vue({
     created() {
         let vue = this;
     },
-    mounted: function () {
+    mounted: function () {        
         let vue = this;
-
         $(".numerico").numeric({negative: false});
         $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1});
         $(".buscar-distrito").select2(vue.buscarDistrito());
@@ -36,9 +35,10 @@ new Vue({
             vue.mostrarUbicacionDomicilio();
         });
         $("[name='carrera.id']").select2(vue.carrera());
+        $("[name='facultad.id']").select2(vue.facultad());
         $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
-        //$("[name='cicloEstudia.id']").select2({minimumResultsForSearch: -1});
-        $("[name='cicloEstudia.id']").select2(vue.ciclo());
+        //$("[name='cicloIngreso.id']").select2({minimumResultsForSearch: -1});
+        $("[name='cicloIngreso.id']").select2(vue.ciclo());
         vue.initFileupload();
         vue.avatarInit();
     },
@@ -144,30 +144,40 @@ new Vue({
                     url: APP.url("academico/tramiteacademico/historialalumno/allFacultad"),
                     dataType: 'json',
                     type: 'post',
-                    data: function (term, page) {
+                    /*data: function (term, page) {
                         return {nombre: term, page: page};
                     },
                     results: function (response, page) {
                         return {results: response.data};
+                    }*/
+                    data: function (term) {
+                        return {
+                            nombre: term
+                        };
+                    },
+                    results: function (response) {
+                        return {
+                            results: response.data
+                        };
                     }
                 },
-                initSelection: function (element, callback) {
+                /*initSelection: function (element, callback) {
                     if (element.val() !== "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
                     }
-                },
+                },*/
                 formatResult: function (info) {
                     //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>' + '<p>' + info + '</p>';
-                    return info;
+                    return '<p class="bold">' + info.nombre + '</p>';
                 },
                 formatSelection: function (info) {
                     //return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
                     //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>' + '<p>' + info + '</p>';
-                    return info;
-                },
+                    return '<p class="bold">' + info.nombre + '</p>';
+                }/*,
                 escapeMarkup: function (m) {
                     return m;
-                }
+                }*/
             };
         },
         carrera: function () {
@@ -179,62 +189,78 @@ new Vue({
                     url: APP.url("academico/tramiteacademico/historialalumno/allCarrera"),
                     dataType: 'json',
                     type: 'post',
-                    data: function (term, page) {
+                    data: function (term) {                        
+                        return {
+                            nombre: term
+                        };
+                    },
+                    results: function (response) {
+                        return {
+                            results: response.data
+                        };
+                    }
+                    /*data: function (term, page) {                        
                         return {nombre: term, page: page};
                     },
                     results: function (response, page) {
                         return {results: response.data};
-                    }
+                    }*/
                 },
-                initSelection: function (element, callback) {
+                /*initSelection: function (element, callback) {
                     if (element.val() !== "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
                     }
-                },
+                },*/
                 formatResult: function (info) {
-                    return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
+                    //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.id + '</p>';
+                    return '<p class="bold">' + info.nombre + '</p>';
                 },
-                formatSelection: function (info) {
-                    return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
-                },
+                formatSelection: function (info) {                    
+                    //return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
+                    return '<p class="bold">' + info.nombre + '</p>';
+                }/*,
                 escapeMarkup: function (m) {
                     return m;
-                }
+                }*/
             };
         },
         ciclo: function () {
-            console.log("Hola");
             return {
                 allowClear: true,
                 minimumInputLength: 2,
                 placeholder: " ",
                 ajax: {
                     url: APP.url("academico/tramiteacademico/historialalumno/allCiclo"),
+                    type: 'POST',
                     dataType: 'json',
-                    type: 'post',
                     data: function (term, page) {
-                        return {nombre: term, page: page};
+                        return {
+                            nombre: term
+                        };
                     },
-                    results: function (response, page) {
-                        console.log(response);
-                        return {results: response.data};
+                    results: function (response) {
+                        return {
+                            results: response.data
+                        };
                     }
                 },
-                initSelection: function (element, callback) {
-                    console.log("element", element);
+                /*initSelection: function (element, callback) {
                     if (element.val() !== "") {
                         callback({id: element.val(), descripcion: element.attr("rel"), codigo: element.attr("rev")});
                     }
-                },
+                },*/
                 formatResult: function (info) {
-                    return '<p>' + info.descripcion + '</p>  ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
+                    //return '<p>' + info.descripcion + '</p>  ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
+                    //console.log("carlos buitron");
+                    return '<p class="bold">' + info.descripcion + '</p>';
                 },
                 formatSelection: function (info) {
-                    return '<p>' + info.descripcion + '</p>   ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
-                },
+                    //return '<p>' + info.descripcion + '</p>   ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';                  
+                    return '<p class="bold">' + info.descripcion + '</p>';
+                }/*,
                 escapeMarkup: function (m) {
                     return m;
-                }
+                }*/
             };
         },
         mostrarDirNacimiento: function () {
@@ -277,6 +303,8 @@ new Vue({
                 self.btnEnable();
                 return;
             }
+            console.log("GUARDAR :::::");
+            console.log($("#formAlumno").serialize());
             $.ajax({
                 url: APP.url("academico/tramiteacademico/historialalumno/save"),
                 type: 'POST',
