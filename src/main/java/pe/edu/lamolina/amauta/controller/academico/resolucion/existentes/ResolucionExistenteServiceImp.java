@@ -696,7 +696,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //            }
 //
 //        }
-        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
         Map<Long, CursoDirigido> map = TypesUtil.convertListToMap("tramite.alumno.id", cursoDirigidos);
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RES_FAC);
@@ -750,8 +749,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //            if (anexoBoletin == null) {
 //                throw new PhobosException("No existe el anexo boletín para el departamento " + cursoDirigidoTram.getCurso().getDepartamentoAcademico().getNombre());
 //            }
-            resolucion.setCicloAplica(tramite.getCicloAcademico());
-            resolucionDAO.update(resolucion);
 
             List<GrupoSeccion> grupoSeccions = null;
             GrupoSeccion grupoSeccion = gpoSeccionService.findByCursoAndDocenteDirigido(cursoDirigidoTram.getCurso(), cursoDirigidoTram.getDocenteAsignado(), ds.getCicloAcademico());
@@ -1794,7 +1791,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
                 .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
                 .collect(Collectors.toList());
-
+        
         for (TramiteBachiller bachiller : tramiteBachillers) {
 
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
@@ -1821,6 +1818,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setFinalizado(Boolean.TRUE);
 //            tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
+             
         }
     }
 
@@ -2038,7 +2036,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
 
         List<Alumno> alumnos = new ArrayList<>();
         for (PracticasPreProfesional practicasForm : resolucion.getTramitePracticasPreProfesionales()) {
@@ -2128,9 +2125,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "creditos", "userModificacion", "fechaModificacion");
             }
-
-            resolucionBD.setCicloAplica(alumnoCiclo.getCicloAcademico());
-            resolucionDAO.update(resolucionBD);
 
             alumnos.add(alumno);
         }
