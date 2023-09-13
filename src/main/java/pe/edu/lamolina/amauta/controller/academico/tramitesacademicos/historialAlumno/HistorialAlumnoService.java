@@ -26,7 +26,7 @@ public interface HistorialAlumnoService {
     
     List<Facultad> allFacultad(String nombre, Compania compania);
     
-    List<Carrera> allCarrera(String nombre, Compania compania);
+    List<Carrera> allCarrera(String nombre);
 
     boolean registrarAlumno(PersonaDto personDto, HttpSession httpSession);      
 

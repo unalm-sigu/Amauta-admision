@@ -235,8 +235,8 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
     }
     
     @Override
-    public List<Carrera> allCarrera(String nombre, Compania compania) {
-        return carreraDAO.allByNombre(nombre, compania);
+    public List<Carrera> allCarrera(String nombre) {
+        return carreraDAO.allCarreras(nombre);        
     }
             
     @Override
@@ -260,6 +260,12 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         
         Persona personaForm = alumno.getPersona();
         
+        Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
+        
+        if(personaDB != null) {
+            throw new PhobosException(String.format("Existe una persona con %s %s", personaDB.getTipoDocumento().getNombre(), personaDB.getNumeroDocIdentidad()));
+        }
+                
         this.clearAlumnoPersonaForm(alumno, personaForm);
 
         Assert.isNotNull(alumno.getModalidadEstudio(), "Debe especificar la modalidad de estudio");
@@ -268,15 +274,41 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         
         Assert.isNotNull(alumno.getCicloIngreso(), "Debe especificar el ciclo de ingreso");
 
-        this.validarPersona(personaForm);
+        //this.validarPersona(personaForm);
+        
+        if (Objects.isNull(personaForm) || Objects.isNull(personaForm.getTipoDocumento()) ) {
+            throw new PhobosException("Registrar el tipo de documento");
+        }
+        if (Objects.isNull(personaForm.getNumeroDocIdentidad())) {
+            throw new PhobosException("Registrar el número del documento de identidad");
+        }
+        
+        if (personaForm.getNumeroDocIdentidad().equals(AcademicoConstantine.CODE_POSTULANTE_DUMMY)) {
+            throw new PhobosException("Este número de documento de identidad no está permitido");
+        }
+        
+        personaForm.setNumeroDocIdentidad(limpiarValor(personaForm.getNumeroDocIdentidad()));        
+        
+        TipoDocIdentidad tipoDoc = tipoDocIdentidadDAO.find(personaForm.getTipoDocumento().getId());
 
-        Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
+        if (tipoDoc.getLongitudExacta() == 1) {
+            if (personaForm.getNumeroDocIdentidad().length() != tipoDoc.getLongitud()) {
+                throw new PhobosException("El número de documento debe tener " + tipoDoc.getLongitud() + " caracteres");
+            }
+        } else if (tipoDoc.getLongitudExacta() == 0) {
+            if (personaForm.getNumeroDocIdentidad().length() < 4) {
+                throw new PhobosException("El número de documento debe tener como mínimo 4 caracteres");
+            }
+            if (personaForm.getNumeroDocIdentidad().length() > tipoDoc.getLongitud()) {
+                throw new PhobosException("El número de documento debe tener como máximo " + tipoDoc.getLongitud() + " caracteres");
+            }
+        }
         
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumno.getCicloIngreso().getId());
 
         String codigoMatricula = StringUtils.isBlank(alumno.getCodigo()) ? 
                 this.generateCodigo(ciclo) : 
-                alumno.getCodigo();
+                alumno.getCodigo();       
         
         String emailCompania = StringUtils.isBlank(alumno.getPersona().getEmailCompania()) ? 
                 this.generateEmailCompania(codigoMatricula) : 

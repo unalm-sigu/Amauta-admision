@@ -119,9 +119,9 @@ public class HistorialAlumnoController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            Compania compania = ds.getCompania();
+            //Compania compania = ds.getCompania();
 
-            List<Carrera> carreras = historialAlumnoService.allCarrera(nombre, compania);
+            List<Carrera> carreras = historialAlumnoService.allCarrera(nombre);
             ArrayNode array = new ArrayNode(jsonFactory);
             for (Carrera carrera : carreras) {
                 ObjectNode a = new ObjectNode(jsonFactory);

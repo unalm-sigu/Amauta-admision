@@ -123,10 +123,15 @@
                                             <div class="form-group">
                                                 <label for="emailEmpresa" >Correo  Institucional</label>
                                                 <input  class="inline form-control validar-email-empresa"
-                                                        data-trigger="change" required="true" type="email"
+                                                        data-trigger="change" type="email"
                                                         data-trim-value="true"
                                                         name="persona.emailCompania" id="emailCompania"
                                                         th:value=" ${alumno.persona.emailCompania}"/>
+                                                <!--<input  class="inline form-control validar-email-empresa"
+                                                        data-trigger="change" required="true" type="email"
+                                                        data-trim-value="true"
+                                                        name="persona.emailCompania" id="emailCompania"
+                                                        th:value=" ${alumno.persona.emailCompania}"/>-->
                                             </div>
                                         </div>
 
@@ -390,7 +395,7 @@
                                         
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="cicloIngreso.id">Ciclo Académico</label>
+                                                <label for="cicloIngreso.id">Ciclo Ingreso</label>
                                                 <input type="text" 
                                                        name="cicloIngreso.id"
                                                        th:value="${alumno.cicloIngreso!=null? alumno.cicloIngreso.id:''}"                                                       

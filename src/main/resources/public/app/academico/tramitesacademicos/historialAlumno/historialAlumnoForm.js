@@ -402,8 +402,41 @@ new Vue({
             var form = $("#formAlumno");
 
             if ($('[name="persona.numeroDocIdentidad"]').val() !== '' && $('[name="persona.tipoDocumento.id"]').val() === '') {
-                notify("Seleccione primero el tipo documento", 'error');
+                notify("Seleccione primero el tipo documento", 'warning');
                 $('[name="persona.numeroDocIdentidad"]').val('');
+                return;
+            }
+            
+            if ($('[name="persona.numeroDocIdentidad"]').val() === '') {
+                //notify("Seleccione primero el tipo documento", 'warning');
+                $('[name="persona.id"]').val('');
+                $('[name="persona.numeroDocIdentidad"]').val('');                
+                $('[name="persona.foto"]').val('');
+                $('[name="persona.paterno"]').val('');
+                $('[name="persona.materno"]').val('');
+                $('[name="persona.nombres"]').val('');
+                $('[name="persona.emailCompania"]').val('');
+                $('[name="persona.sexo"]').removeProp('checked');
+                $('[name="persona.paisNacer.id"]').select2('val', '');
+                $('[name="persona.ubicacionNacer.id"]').select2('val', '');
+                $('[name="persona.fechaNacer"]').val('');
+                $('[name="persona.nacionalidad.id"]').select2('val', '');
+                $('[name="persona.telefono"]').val('');
+                $('[name="persona.celular"]').val('');
+                $('[name="persona.email"]').val('');
+                $('[name="persona.paisDomicilio.id"]').select2('val', '');
+                $('[name="persona.direccion"]').val('');
+                $('[name="persona.conDiscapacidad"]').val('');
+                return;
+            }
+
+            if (isNaN($('[name="persona.numeroDocIdentidad"]').val())) {
+                notify("Documento no cuenta con digitos correctos", 'warning');
+                return;
+            }
+            
+            if ($('[name="persona.numeroDocIdentidad"]').val().length !== 8) {
+                notify("Documento no cuenta con 8 digitos", 'warning');
                 return;
             }
 
@@ -420,7 +453,7 @@ new Vue({
                         form.find('[name="persona.id"]').val(data.idPersona);
                         form.find('[name="persona.tipoDocumento.id"] option[value=' + data.tipoDocumentoId + ']').attr("selected", true);
                         form.find('[name="persona.numeroDocIdentidad"]').val(data.numeroDoc);
-                        form.find('[name="persona.numeroDocIdentidad"]').attr("readonly", true);
+                        //form.find('[name="persona.numeroDocIdentidad"]').attr("readonly", true);
                         form.find('[name="persona.paterno"]').val(data.paterno);
                         form.find('[name="persona.materno"]').val(data.materno);
                         form.find('[name="persona.nombres"]').val(data.nombres);
@@ -465,8 +498,8 @@ new Vue({
                         form.find('[name="persona.direccion"]').val(data.direccion);
                         form.find('[name="persona.foto"]').val(data.foto);
                         vue.avatarInit();
-
-                    } else {
+                        notify("Ya existe persoa con el numero de documento " + data.numeroDoc, "warning");
+                    } else {                        
                         $("#nombreAlumno").text("");
                         form.find('[name="persona.foto"]').val('');
                         form.find('[name="persona.id"]').val('');
