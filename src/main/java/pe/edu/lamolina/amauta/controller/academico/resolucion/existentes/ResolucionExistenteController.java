@@ -243,8 +243,8 @@ public class ResolucionExistenteController {
         response.setSuccess(Boolean.TRUE);
         response.setMessage(GlobalMessages.CREATED);
 
-        log.debug("respuesta.get(0) {} ", respuesta.get(0).length());
-        log.debug("respuesta.mensaje {} ", respuesta.get(0));
+    //    log.debug("respuesta.get(0) {} ", respuesta.get(0).length());
+    //    log.debug("respuesta.mensaje {} ", respuesta.get(0));
 
         if (!respuesta.isEmpty() && respuesta.get(0).length() == 32 && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
             response.setSuccess(Boolean.FALSE);

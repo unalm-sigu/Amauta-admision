@@ -567,7 +567,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramiteTituloFacultad(resolucion, ds);
                 break;
             case ALUMRENUNCIA:
-                this.saveTramiteAlumnoRenunciante(resolucion, ds);
+                this.saveTramiteAlumnoRenunciante(resolucion, ds);    
                 break;
             case RENUNCIA_CAR:
                 this.saveTramiteAlumnoRenunciante(resolucion, ds);
@@ -1986,13 +1986,13 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             Alumno alumno = renunciaAlumno.getAlumno();
 //            Long alumnoId = alumno.getId();
 //             String codigoAlumno = alumno.getCodigo(); 
-            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
+//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
 
             TramiteRenunciaAlumno renunciaTramite = tramiteRenunciaAlumnoDAO.findByAlumnoAct(renunciaAlumno.getAlumno());
 
-            Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
+//            Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
 //            String codigoTipoTramite = "ALUMREN";
-            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ALUMREN.name());
+//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ALUMREN.name());
 
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
@@ -2011,16 +2011,20 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setFinalizado(Boolean.TRUE);
             tramite.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteDAO.update(tramite);
-
-            MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, new CicloAcademico(tramite.getCicloAcademico().getId()));
+            
+//            System.out.println("ddd:"+tramite.getCicloAcademico().getCodigo());
+            
+            MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, tramite.getCicloAcademico());
             if (matResumen != null) {
                 matResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
                 matriculaResumenDAO.update(matResumen);
             }
 
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, tramite.getCicloAcademico());
             if (alumnoCiclo != null) {
                 alumnoCiclo.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_RA));
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.INH);
+                alumnoCicloDAO.update(alumnoCiclo);
             }
 
 //            */*/*/validaciones
@@ -2028,7 +2032,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //        * si existe en matriculables sacando ciclo activo
 //                ponerlo como inhabilitado.
 //                        jalar el ciclo aplica
-            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.name());
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.getValue()) ;
             alumnoDB.setSituacionAcademica(situacion);
             alumnoDAO.update(alumnoDB);
         }
