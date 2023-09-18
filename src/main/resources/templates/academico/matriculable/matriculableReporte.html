@@ -1,0 +1,62 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Matriculables</title>
+        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="tipoGrupoVUE" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <h2>Alumnos Matriculables <span v-text="ciclo.descripcion">2016-II</span></h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="tipoGrupoURL" ref="raptorTipoGpos">
+                                <template scope="props" >
+                                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12" style="height: 160px;"
+                                         v-for="item in props.data">
+                                        <div class="list-group">
+                                            <div  class="list-group-item item" style="min-height: 120px; border: 2px solid #3498db; display: flex; align-items: center; background-color: #2E86C1;">
+                                                <div  href="#" class="m-t-sm pointer opengroup" v-on:click="reporteMatriculaAlumno(item)" style="display: flex; align-items: center;">
+                                                    <span class="fa-stack fa-lg text-success">
+                                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                                        <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                                    </span>
+
+                                                    <h4 class="list-group-item-heading" style="margin-left: 10px; border-bottom: 2px solid white; color: white;">Facultad : {{item.nombre}}</h4>
+                                                    <!-- <label class="label" v-bind:class="getLabelEstado(item)">{{item.estadoEnum.value}}</label> -->
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/matriculable/matriculableReporte.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

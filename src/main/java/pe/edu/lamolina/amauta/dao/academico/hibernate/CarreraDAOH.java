@@ -248,7 +248,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .limit(15);
         return all(sql);
     }
-    
+
     @Override
     public List<Carrera> allCarreras(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
@@ -262,7 +262,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .limit(15);
         return all(sql);
     }
-    
+
     @Override
     public List<Carrera> allCarreras(String nombre, Compania compania) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
@@ -485,6 +485,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .endBlock()
                 .limit(20);
         return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allCarrera() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
+                .filter("me.codigo", PRE);
+        return all(sql);
+
     }
 
 }

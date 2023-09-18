@@ -134,4 +134,12 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .orderBy("fa.nombre");
         return all(sql);
     }
+
+    @Override
+    public List<Facultad> allFacultades() {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa");
+        return all(sql);
+    }
+
 }

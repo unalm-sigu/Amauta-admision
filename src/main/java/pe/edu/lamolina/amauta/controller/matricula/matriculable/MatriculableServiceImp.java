@@ -136,6 +136,8 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
+import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
+import pe.edu.lamolina.model.academico.Facultad;
 
 @Slf4j
 @Service
@@ -173,6 +175,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
     private final CarreraDAO carreraDAO;
+    private final FacultadDAO facultadDAO;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -1690,6 +1693,15 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    public List<MatriculaPreBean> allMatriculaPregrado(CicloAcademico cicloAcademico, String facultad) {
+        List<MatriculaPreBean> matriculaPreBean = new ArrayList<>();
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        matriculaPreBean = alumnoCicloDAO.allmatriculadosPregrado(cicloAcademico, modalidadEstudio, facultad);
+
+        return matriculaPreBean;
+    }
+
+    @Override
     public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
         aporteAlumnoService.generarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
@@ -1763,6 +1775,16 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);
+    }
+
+    @Override
+    public List<Carrera> allCarrera() {
+        return carreraDAO.allCarrera();
+    }
+
+    @Override
+    public List<Facultad> allFacultades() {
+        return facultadDAO.allFacultades();
     }
 
 }

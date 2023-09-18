@@ -14,6 +14,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,6 +64,7 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 @Slf4j
@@ -84,6 +86,9 @@ public class MatriculableController {
 
     @Autowired
     AptosPregradoView aptosPregradoView;
+
+    @Autowired
+    MatriculaPregradoView matriculaPregradoView;
 
     @Autowired
     MatriculableLoteService matriculableLoteService;
@@ -161,8 +166,7 @@ public class MatriculableController {
                     || value == EstadoMatriculaEnum.ANCI
                     || value == EstadoMatriculaEnum.NMAT
                     || value == EstadoMatriculaEnum.PMAT
-                    || value == EstadoMatriculaEnum.INH
-                ) {
+                    || value == EstadoMatriculaEnum.INH) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("name", value.name());
@@ -239,6 +243,43 @@ public class MatriculableController {
                 array.add(node);
             }
 
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("reporte")
+    public String reporte(Model model, HttpSession session, HttpServletRequest request) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
+
+        model.addAttribute("ciclo", JaneHelper.from(cicloAcademico).json().toString());
+        return "academico/matriculable/matriculableReporte";
+    }
+
+    @ResponseBody
+    @RequestMapping("lisReporte")
+    public DynatableResponse reporte(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<String> codigosFiltrados = Arrays.asList("010", "020", "030", "040", "050", "060", "070", "080");
+            List<Facultad> facultades = service.allFacultades()
+                    .stream()
+                    .filter(facultad -> codigosFiltrados.contains(facultad.getCodigo()))
+                    .collect(Collectors.toList());
+            for (Facultad facu : facultades) {
+                ObjectNode node = JsonHelper.createJson(facu, JsonNodeFactory.instance, true, new String[]{"*"});
+                array.add(node);
+            }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -766,7 +807,7 @@ public class MatriculableController {
         return response;
 
     }
-    
+
     @ResponseBody
     @RequestMapping("agregarAporteSegundaCarreraDeuda")
     public JsonResponse agregarAporteSegundaCarreraDeuda(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
@@ -932,12 +973,25 @@ public class MatriculableController {
 
     @RequestMapping("aptosPregrado")
     public ModelAndView aptosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
         model.addAttribute("listAptoPreBean", listAptoPreBean);
         model.addAttribute("tipoReporte", tipoReporte);
         return new ModelAndView(aptosPregradoView);
+    }
+
+    @RequestMapping("MatriculadosReporte")
+    public ModelAndView MatriculadosReporte(@RequestParam("facultad") String facultad, Model model, HttpSession session) {
+
+        System.out.println("facultad" + facultad);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<MatriculaPreBean> listMatriculaPreBean = service.allMatriculaPregrado(ds.getCicloAcademico(), facultad);
+        model.addAttribute("listMatriculaPreBean", listMatriculaPreBean);
+        model.addAttribute("tipoReporte", facultad);
+        return new ModelAndView(matriculaPregradoView);
     }
 
     @ResponseBody
