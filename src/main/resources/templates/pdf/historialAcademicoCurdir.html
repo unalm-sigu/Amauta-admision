@@ -159,19 +159,19 @@
             <tr>
                 <td class="text-center"><b>Ciclo</b></td>
                 <td class="text-center"><b>Carrera</b></td>
-                <td class="text-left"><b>Resolución</b></td>
+                <td class="text-left"><b>Resolución Rechazada</b></td>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="trasladoInterno : ${trasladosInternos}">
+            <tr th:each="trasladoRechazado : ${trasladosRechazados}">
                 <td class="text-center" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.cicloAcademico.descripcion}]] </span>
+                    <span th:inline="text"> [[${trasladoRechazado.cicloAcademico.descripcion}]] </span>
                 </td>
                 <td class="text-center" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.carrera.nombre}]] </span>
+                    <span th:inline="text"> [[${trasladoRechazado.carrera.nombre}]] </span>
                 </td>
                 <td class="text-left" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.tramite.numeroVisible}]] </span>
+                    <span th:inline="text"> [[${trasladoRechazado.tramite.numeroVisible}]] </span>
                 </td>
             </tr>
         </tbody>

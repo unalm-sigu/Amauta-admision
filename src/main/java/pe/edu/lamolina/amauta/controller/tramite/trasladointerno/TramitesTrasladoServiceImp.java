@@ -123,7 +123,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
     @Override
     public List<TramiteTraslado> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
+        List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.trasladosInternosByDynatableCiclo(filter, ds.getCicloAcademico());
         return tramitesTraslado;
     }
 
@@ -189,7 +189,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
         List<TramiteTraslado> trasladosInternos = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(alumno);
 
-        trasladosInternos.stream().filter(x -> x.getEstadoEnum().equals(TramiteEstadoEnum.RCHD)).collect(Collectors.toList());
+        List<TramiteTraslado> trasladosRechazados = trasladosInternos.stream().filter(x -> x.getEstadoEnum().equals(TramiteEstadoEnum.RCHZ)).collect(Collectors.toList());
 
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
 
@@ -266,7 +266,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("trasladosInternos", trasladosInternos);
+        ctx.setVariable("trasladosRechazados", trasladosRechazados);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));

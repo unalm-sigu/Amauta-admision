@@ -73,6 +73,24 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
     }
 
     @Override
+    public List<TramiteTraslado> trasladosInternosByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(TramiteTraslado.class, "tras")
+                .join("tramite tra", "cicloAcademico cic")
+                .left("carrera ", "carreraOrigen", "resolucion res")
+                .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
+                .searchFields("al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("cic.id", cicloAcademico)
+                .filter("tras.tipoTraslado", TRAS_INT.name())
+                .orderBy("tras.id desc");
+
+        return all(sql);
+    }
+
+    
+    @Override
     public TramiteTraslado findByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
