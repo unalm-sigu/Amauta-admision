@@ -16,7 +16,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 
 public interface MatriculableService {
@@ -111,14 +110,10 @@ public interface MatriculableService {
 
     public List<SituacionAcademica> allSituacionAcademica();
 
-    public List<Carrera> searchAllCarrera(String nombre);
+//    public List<Carrera> searchAllCarrera(String nombre);
 
     void agregarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    List<MatriculaPreBean> allMatriculaPregrado(CicloAcademico cicloAcademico, String facultad);
 
-    public List<Carrera> allCarrera();
-
-    public List<Facultad> allFacultades();
 
 }

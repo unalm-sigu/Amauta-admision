@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.matricula.matriculable;
+package pe.edu.lamolina.amauta.controller.programacionhorarios.reporte;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 
 @Component
-public class MatriculaPregradoView extends AbstractView {
+public class ReporteHorarioView extends AbstractView {
 
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -39,7 +39,7 @@ public class MatriculaPregradoView extends AbstractView {
 
         String header = "";
 
-        header = "Mtricula_Pregrado_";
+        header = "Programacion_Harario_";
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xls\"");
         response.setContentType(getContentType());
@@ -86,7 +86,7 @@ public class MatriculaPregradoView extends AbstractView {
         excelUtil.replaceStyle(0, 9, estiloCabecera);
         excelUtil.replaceStyle(0, 10, estiloCabecera);
         excelUtil.replaceStyle(0, 11, estiloCabecera);
-        
+
         excelUtil.replaceVal(0, 0, "Facultad");
         excelUtil.replaceVal(0, 1, "Programa");
         excelUtil.replaceVal(0, 2, "Apellidos y Nombres");

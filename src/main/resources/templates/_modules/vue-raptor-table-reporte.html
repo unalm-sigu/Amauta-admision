@@ -1,0 +1,44 @@
+<div>
+    <template id="raptor-table-base">
+        <div class="row m-t-md m-b-md" style="position: relative;">
+
+            <div v-if="processing" 
+                 class="raptor-table-process-main">
+                <span class="raptor-table-process-box">
+                    <span v-html="processtext" 
+                          class="raptor-table-process-text">
+                    </span>
+                </span>
+            </div>
+
+            <div v-if="searcher">
+                <div class="col-md-10">
+                    <slot name="header"> </slot>
+                </div>
+
+            </div>
+            <div v-else="">
+                <div class="col-md-12">
+                    <slot name="header"> </slot>
+                </div>
+            </div>
+
+            <div class="col-md-1 hidden">
+                <select class="form-control input-sm">
+                    <option> 10 </option>
+                    <option> 20 </option>
+                    <option> 50 </option>
+                    <option> 100 </option>
+                </select>
+            </div>
+
+
+            <div class="col-md-12 m-t-sm">
+                <slot v-bind:data="data"></slot>
+            </div>
+
+        </div>
+
+    </template>
+</div> 
+<script type="text/javascript" th:src="@{/vue/vue-raptor-table.js}"></script>

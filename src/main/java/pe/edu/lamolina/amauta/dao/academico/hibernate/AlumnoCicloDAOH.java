@@ -35,7 +35,7 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
-import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculaPreBean;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;

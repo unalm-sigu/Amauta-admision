@@ -1,18 +1,18 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 
 new Vue({
-    el: '#tipoGrupoVUE',
+    el: '#ReporteHorarioVUE',
     data: {
-        tipoGrupoURL: APP.url('academico/matriculable/lisReporte'),
+        ReporteHorarioProgramacionURL: APP.url('reporte/programacion/lisReporte'),
         ciclo: JSON.parse(cicloJson),
         colorEstado: {ACT: 'success', INA: 'danger', CRE: "default"},
         colorEstadoGpos: {COMP: 'success', INCOMP: 'danger'}
     },
     methods: {
-        reporteMatriculaAlumno(item) {
+        reporteProgramacionHoario(item) {
             var vue = this;
 //            var downloadWindow = window.open("", "_blank");
-            $.fileDownload("/academico/matriculable/MatriculadosReporte", {
+           $.fileDownload("/reporte/programacion/ReporteHorario", {          
                 httpMethod: "POST",
                 data: {facultad: item.codigo},
                 successCallback: function (responseHtml, url) {

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.matricula.matriculable;
+package pe.edu.lamolina.amauta.controller.programacionhorarios.reporte;
 
 public class MatriculaPreBean {
 

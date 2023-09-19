@@ -15,7 +15,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
-import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculaPreBean;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 
 public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 

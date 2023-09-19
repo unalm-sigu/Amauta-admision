@@ -64,7 +64,6 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.controller.visores.RespositorVisor;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 @Slf4j
@@ -86,9 +85,6 @@ public class MatriculableController {
 
     @Autowired
     AptosPregradoView aptosPregradoView;
-
-    @Autowired
-    MatriculaPregradoView matriculaPregradoView;
 
     @Autowired
     MatriculableLoteService matriculableLoteService;
@@ -243,43 +239,6 @@ public class MatriculableController {
                 array.add(node);
             }
 
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
-
-    @RequestMapping("reporte")
-    public String reporte(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
-
-        model.addAttribute("ciclo", JaneHelper.from(cicloAcademico).json().toString());
-        return "academico/matriculable/matriculableReporte";
-    }
-
-    @ResponseBody
-    @RequestMapping("lisReporte")
-    public DynatableResponse reporte(DynatableFilter filter, HttpSession session) {
-
-        DynatableResponse json = new DynatableResponse();
-
-        try {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<String> codigosFiltrados = Arrays.asList("010", "020", "030", "040", "050", "060", "070", "080");
-            List<Facultad> facultades = service.allFacultades()
-                    .stream()
-                    .filter(facultad -> codigosFiltrados.contains(facultad.getCodigo()))
-                    .collect(Collectors.toList());
-            for (Facultad facu : facultades) {
-                ObjectNode node = JsonHelper.createJson(facu, JsonNodeFactory.instance, true, new String[]{"*"});
-                array.add(node);
-            }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -981,19 +940,6 @@ public class MatriculableController {
         return new ModelAndView(aptosPregradoView);
     }
 
-    @RequestMapping("MatriculadosReporte")
-    public ModelAndView MatriculadosReporte(@RequestParam("facultad") String facultad, Model model, HttpSession session) {
-
-        System.out.println("facultad" + facultad);
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        List<MatriculaPreBean> listMatriculaPreBean = service.allMatriculaPregrado(ds.getCicloAcademico(), facultad);
-        model.addAttribute("listMatriculaPreBean", listMatriculaPreBean);
-        model.addAttribute("tipoReporte", facultad);
-        return new ModelAndView(matriculaPregradoView);
-    }
-
     @ResponseBody
     @RequestMapping("revisarPrioridad")
     public JsonResponse revisarPrioridad(HttpSession session) {
@@ -1105,18 +1051,6 @@ public class MatriculableController {
             carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
         }
         return service.allResumen(cicloAcademico, cantidadEnum, carreras);
-
-    }
-
-    @ResponseBody
-    @RequestMapping("allCarrera")
-    public ArrayNode allCarrera(@RequestParam("nombre") String nombre) {
-        log.debug("nombre:{}", nombre);
-        List<Carrera> carreras = service.searchAllCarrera(nombre);
-        return JaneHelper.from(carreras)
-                .only("id,codigo,nombre")
-                .join("modalidadEstudio", "nombre")
-                .array();
 
     }
 
