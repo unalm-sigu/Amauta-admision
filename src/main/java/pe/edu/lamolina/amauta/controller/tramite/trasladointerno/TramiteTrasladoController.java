@@ -1,6 +1,8 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,9 +23,11 @@ import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -46,8 +50,15 @@ public class TramiteTrasladoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Carrera> carreras = service.getCarreras(ds);
+        
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
+        
         ArrayNode carrerasJson = JaneHelper.from(carreras).array();
+        ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion2").array();
+        
         model.addAttribute("carreras", carrerasJson);
+        model.addAttribute("ciclos", jCicloAcademicos);
+        
 
         return "academico/tramitescademicos/tramiteTraslado/tramiteTraslado";
     }
@@ -62,8 +73,15 @@ public class TramiteTrasladoController {
         try {
             
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<CicloAcademico> ciclos = new ArrayList();
             
-            List<TramiteTraslado> tramitesTraslado = service.allTramitesByFilter(filter, ds);
+            if (filter.getQueries() != null && filter.getQueries().get("ciclo") != null) {
+                String ciclo = (String) filter.getQueries().get("ciclo");
+                Long cicloId = TypesUtil.getLong(ciclo);
+                ciclos = Arrays.asList(new CicloAcademico(cicloId));
+            }
+            
+            List<TramiteTraslado> tramitesTraslado = service.allTramitesByFilter(filter, ciclos);
 
             ArrayNode array = JaneHelper.from(tramitesTraslado)
                     .join("resolucion", "descripcion")

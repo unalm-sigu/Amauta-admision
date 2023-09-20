@@ -10,6 +10,8 @@ var app = new Vue({
         carreras: JSON.parse(carrerasJson),
         traslado: {},
         alumnos: [],
+        ciclos: JSON.parse(ciclosJson),
+        ciclo: null
     },
     methods: {
         urlAcademico(item) {
@@ -18,9 +20,9 @@ var app = new Vue({
         urlReporte(item) {
 
             /*AXIOS.get(APP.url('academico/tramiteacademico/tramiteTraslado/' + item.tramite.id + '/reporte'))
-                .then(({data}) => {
-                    location.href = APP.url('academico/tramiteacademico/tramiteTraslado')
-                });*/
+             .then(({data}) => {
+             location.href = APP.url('academico/tramiteacademico/tramiteTraslado')
+             });*/
             return APP.url('academico/tramiteacademico/tramiteTraslado/' + item.tramite.id + '/reporte');
         },
         nuevo() {
@@ -73,6 +75,16 @@ var app = new Vue({
                             });
                 }
             });
-        }
+        },
+        cambioFiltro($event) {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'ciclo', value: $event.id});
+            $vue.$refs.load.loadRemoteData();
+        },
+        removeFiltro() {
+            let $vue = this;
+            $vue.$refs.load.querie.push({name: 'ciclo', value: null});
+            $vue.$refs.load.loadRemoteData();
+        },
     }
 })

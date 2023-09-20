@@ -73,7 +73,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
     }
 
     @Override
-    public List<TramiteTraslado> trasladosInternosByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<TramiteTraslado> trasladosInternosByDynatableCiclo(DynatableFilter filter, List<CicloAcademico> ciclos) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "cicloAcademico cic")
@@ -81,15 +81,16 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
                 .searchFields("al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("cic.id", cicloAcademico)
-                .filter("tras.tipoTraslado", TRAS_INT.name())
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+        if (!ciclos.isEmpty()) {
+            sql.in("cic.id", ciclos);
+        }
+            sql.filter("tras.tipoTraslado", TRAS_INT.name())
                 .orderBy("tras.id desc");
 
         return all(sql);
     }
 
-    
     @Override
     public TramiteTraslado findByAlumnoCiclo(Alumno alumnoDB, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
@@ -195,7 +196,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
 
     @Override
     public List<TramiteTraslado> allTramiteTrasladoByResolucion(Resolucion resolucion) {
-          Octavia sql = new Octavia()
+        Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "cicloAcademico cic", "tra.alumno al")
                 .left("carrera ", "carreraOrigen", "resolucion res")

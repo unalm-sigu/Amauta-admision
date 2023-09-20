@@ -7,18 +7,37 @@
         <div layout:fragment="main">
             <div id="tramiteTraslado" v-cloak="">
                 <header class="header b-b padder-lg">
-                    
+
                     <h2 th:inline="text">Tramite Traslado Interno  [[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion:''} ]]</h2>
-                    
+
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 
-                    
+
                 </header>
                 <section  class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
                             <raptor-table ref="load" v-bind:url="URL_TRAMITES" >
+                                <div slot="header">
+
+                                    <div class="col-lg-4">
+
+                                        <multiselect v-model='ciclo'
+                                                     label='descripcion2'
+                                                     placeholder="Todos los ciclos académicos"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     track-by='id'
+                                                     v-on:select="cambioFiltro($event)"
+                                                     v-on:remove="removeFiltro($event)"
+                                                     v-bind:allow-empty="true"
+                                                     v-bind:options='ciclos'>
+                                        </multiselect>
+
+                                    </div>
+
+                                </div>
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
@@ -68,7 +87,7 @@
 
                                                 <td class="v-middle">
                                                     <div class="dropdown actions" >
-                                                        
+
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="fa fa-cog"></i>
                                                         </a>
@@ -94,7 +113,7 @@
                 </section>
 
                 <div th:substituteby="academico/tramitescademicos/tramiteTraslado/tramiteTrasladoModal"/>
-                
+
             </div>
 
         </div>
@@ -102,6 +121,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 var carrerasJson = /*[[${carreras.toString()}]]*/ 'json';
+                var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
             </script>
             <script th:src="@{/app/academico/tramitesacademicos/tramiteTraslado/tramiteTraslado.js}" charset="utf-8"></script>
 
