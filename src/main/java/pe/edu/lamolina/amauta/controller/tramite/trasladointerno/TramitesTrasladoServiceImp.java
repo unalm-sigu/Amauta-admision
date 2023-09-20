@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -189,7 +190,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
         List<TramiteTraslado> trasladosInternos = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(alumno);
 
-        List<TramiteTraslado> trasladosRechazados = trasladosInternos.stream().filter(x -> x.getEstadoEnum().equals(TramiteEstadoEnum.RCHZ)).collect(Collectors.toList());
+        List<TramiteTraslado> trasladosAcepRchaz = trasladosInternos.stream().filter(x -> Arrays.asList(TramiteEstadoEnum.RCHZ,TramiteEstadoEnum.ACEP).contains(x.getEstadoEnum())).collect(Collectors.toList());
 
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
 
@@ -266,7 +267,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("trasladosRechazados", trasladosRechazados);
+        ctx.setVariable("trasladosAcepRchaz", trasladosAcepRchaz);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
