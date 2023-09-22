@@ -152,26 +152,30 @@
     <table class="table table-plan" style="margin-bottom: 30px">
         <thead>
             <tr>
-                <td style="background-color: black; color: white" class="text-center" colspan="3">
+                <td style="background-color: black; color: white" class="text-center" colspan="4">
                     <b> Antecedentes De Traslado </b>
                 </td>
             </tr>
             <tr>
                 <td class="text-center"><b>Ciclo</b></td>
-                <td class="text-center"><b>Carrera</b></td>
+                <td class="text-center"><b>Traslado de Carrera</b></td>
                 <td class="text-left"><b>Resolución</b></td>
+                <td class="text-left"><b>Estado</b></td>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="trasladoInterno : ${trasladosInternos}">
-                <td class="text-center" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.cicloAcademico.descripcion}]] </span>
+            <tr th:each="trasladosAcepRcha : ${trasladosAcepRchaz}">
+                <td class="text-center">
+                    <span th:inline="text"> [[${trasladosAcepRcha.cicloAcademico.descripcion}]] </span>
                 </td>
-                <td class="text-center" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.carrera.nombre}]] </span>
+                <td class="text-center">
+                    <span th:inline="text"> [[${trasladosAcepRcha.carrera.nombre}]] </span>
                 </td>
-                <td class="text-left" colspan="1">
-                    <span th:inline="text"> [[${trasladoInterno.tramite.numeroVisible}]] </span>
+                <td class="text-left" th:if="${trasladosAcepRcha.resolucion != null}">
+                    <span th:inline="text"> [[${trasladosAcepRcha.resolucion.descripcion}]] </span>
+                </td>
+                <td class="text-left">
+                    <span th:inline="text"> [[${trasladosAcepRcha.tramite.estadoEnum.value}]] </span>
                 </td>
             </tr>
         </tbody>

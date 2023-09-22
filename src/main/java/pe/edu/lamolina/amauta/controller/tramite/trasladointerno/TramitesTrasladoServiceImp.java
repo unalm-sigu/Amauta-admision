@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -121,9 +123,9 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
     CursoCurriculaDAO cursoCurriculaDAO;
 
     @Override
-    public List<TramiteTraslado> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    public List<TramiteTraslado> allTramitesByFilter(DynatableFilter filter, List<CicloAcademico> ciclos) {
 
-        List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.allByDynatableCiclo(filter, ds.getCicloAcademico());
+        List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.trasladosInternosByDynatableCiclo(filter, ciclos);
         return tramitesTraslado;
     }
 
@@ -189,7 +191,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
         List<TramiteTraslado> trasladosInternos = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(alumno);
 
-        trasladosInternos.stream().filter(x -> x.getEstadoEnum().equals(TramiteEstadoEnum.RCHD)).collect(Collectors.toList());
+        List<TramiteTraslado> trasladosAcepRchaz = trasladosInternos.stream().filter(x -> Arrays.asList(TramiteEstadoEnum.RCHZ, TramiteEstadoEnum.ACEP).contains(x.getEstadoEnum())).collect(Collectors.toList());
 
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
 
@@ -242,7 +244,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
 
-        if(Objects.isNull(traslado.getCarrera()) && Objects.isNull(traslado.getCarreraOrigen())) {
+        if (Objects.isNull(traslado.getCarrera()) && Objects.isNull(traslado.getCarreraOrigen())) {
             throw new PhobosException(String.format("Alumno con cógido %s aún no cuenta con carrera de Origen ni Destino", alumno.getCodigo()));
         }
 
@@ -266,7 +268,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("trasladosInternos", trasladosInternos);
+        ctx.setVariable("trasladosAcepRchaz", trasladosAcepRchaz);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
@@ -293,7 +295,7 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
     @Override
     @Transactional
-    public void anular(Long idTramiteTraslado, Usuario  usuario) {
+    public void anular(Long idTramiteTraslado, Usuario usuario) {
 
         TramiteTraslado tramiteTraslado = tramiteTrasladoDAO.findAll(idTramiteTraslado);
 
@@ -320,6 +322,11 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
         tramiteTraslado.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteTrasladoDAO.updateColumns(tramiteTraslado, "estado");
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademico() {
+        return cicloAcademicoDAO.all().stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.PRE).collect(Collectors.toList());
     }
 
 }
