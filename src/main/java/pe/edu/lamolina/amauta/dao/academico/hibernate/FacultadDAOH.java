@@ -145,14 +145,17 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
     }
 
     @Override
-    public List<Facultad> allFacultadesPre() {
+    public List<Facultad> allFacultadesPre(List<Facultad> facultades) {
         Octavia sql = Octavia.query()
                 .selectDistinct("fa")
                 .from(Carrera.class, "ca")
-                .join("facultad fa","ca.modalidadEstudio me")
-                .filter("ca.estado",EstadoEnum.ACT.name())
-                .filter("fa.estado",EstadoEnum.ACT.name())
-                .filter("me.codigo",ModalidadEstudioEnum.PRE.name());
+                .join("facultad fa", "ca.modalidadEstudio me")
+                .filter("ca.estado", EstadoEnum.ACT.name())
+                .filter("fa.estado", EstadoEnum.ACT.name())
+                .filter("me.codigo", ModalidadEstudioEnum.PRE.name());
+        if (!facultades.isEmpty()) {
+            sql.in("fa.id", facultades);
+        }
         return all(sql);
     }
 
