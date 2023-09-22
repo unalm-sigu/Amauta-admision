@@ -50,7 +50,7 @@ var app = new Vue({
         alumnoTramiteTraslado: {},
         alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
-        alumnoTramiteRenuncia:[],
+        alumnoTramiteRenuncia: [],
         tipo: ""
     },
     mounted: function () {
@@ -314,7 +314,7 @@ var app = new Vue({
                             notify("No contiene información de alumnos", "error");
                             return;
                         }
-                  console.log(data)
+                        console.log(data)
                         if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = data;
                         } else if ($vue.tipo == "RCI") {
@@ -332,14 +332,16 @@ var app = new Vue({
                         } else if ($vue.tipo == "TITUL") {
                             $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "TITULBAC") {
-                            $vue.alumnoTramiteBachiller = data;                            
+                            $vue.alumnoTramiteBachiller = data;
                         } else if ($vue.tipo == "PRACTICAS") {
                             $vue.alumnoTramitePracticas = data;
                         } else if ($vue.tipo == "TRAS_INT") {
                             $vue.alumnoTramiteTraslado = data;
-                        } else if ($vue.tipo == "ALUMRENUNCIA"){
-                             $vue.alumnoTramiteRenuncia = data;
-                        }else if ($vue.tipo == "READMISION") {
+                        } else if ($vue.tipo == "ALUMRENUNCIA") {
+                            $vue.alumnoTramiteRenuncia = data;
+                        } else if ($vue.tipo == "RENUNCIA_CAR") {
+                            $vue.alumnoTramiteRenuncia = data;
+                        } else if ($vue.tipo == "READMISION") {
                             $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
                             $vue.alumnoTramiteCambioPlanCurricular = data;
