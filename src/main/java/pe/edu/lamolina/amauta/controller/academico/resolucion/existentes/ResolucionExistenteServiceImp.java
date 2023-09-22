@@ -1979,7 +1979,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         if (resolucion.getTramiteRenunciaAlumno().isEmpty()) {
             throw new PhobosException("Debe seleccionar como mínimo un alumno.");
         }
-
         List<TramiteRenunciaAlumno> tramitesRenunciaAlumno = resolucion.getTramiteRenunciaAlumno().stream()
                 .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
                 .collect(Collectors.toList());
@@ -1988,15 +1987,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //POR QUE LAS 2 RENUNCIAS APUNTAN A UN SOLO SITIO
         for (TramiteRenunciaAlumno renunciaAlumno : tramitesRenunciaAlumno) {
             Alumno alumno = renunciaAlumno.getAlumno();
-//            Long alumnoId = alumno.getId();
-//             String codigoAlumno = alumno.getCodigo(); 
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RENUN_ALUMNO);
-
             TramiteRenunciaAlumno renunciaTramite = tramiteRenunciaAlumnoDAO.findByAlumnoAct(renunciaAlumno.getAlumno());
-
-//            Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-//            String codigoTipoTramite = "ALUMREN";
-//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ALUMREN.name());
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
             if (renunciaTramite == null) {
@@ -2015,7 +2006,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteDAO.update(tramite);
 
-//            System.out.println("ddd:"+tramite.getCicloAcademico().getCodigo());
             MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, tramite.getCicloAcademico());
             if (matResumen != null) {
                 matResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -2029,11 +2019,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 alumnoCicloDAO.update(alumnoCiclo);
             }
 
-//            */*/*/validaciones
-//         * aca_alumno_ciclo su situacion_final RA
-//        * si existe en matriculables sacando ciclo activo
-//                ponerlo como inhabilitado.
-//                        jalar el ciclo aplica
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.getValue());
             alumnoDB.setSituacionAcademica(situacion);
             alumnoDAO.update(alumnoDB);

@@ -51,6 +51,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RENUNCIA_CAR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITULBAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
@@ -243,9 +244,8 @@ public class ResolucionExistenteController {
         response.setSuccess(Boolean.TRUE);
         response.setMessage(GlobalMessages.CREATED);
 
-    //    log.debug("respuesta.get(0) {} ", respuesta.get(0).length());
-    //    log.debug("respuesta.mensaje {} ", respuesta.get(0));
-
+        //    log.debug("respuesta.get(0) {} ", respuesta.get(0).length());
+        //    log.debug("respuesta.mensaje {} ", respuesta.get(0));
         if (!respuesta.isEmpty() && respuesta.get(0).length() == 32 && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(respuesta.get(0));
@@ -351,7 +351,7 @@ public class ResolucionExistenteController {
 
         return response;
     }
-    
+
     public boolean contieneMensaje(List<String> respuesta) {
         for (String rpta : respuesta) {
             if (!rpta.isEmpty() && rpta.length() > 0) {
@@ -613,6 +613,15 @@ public class ResolucionExistenteController {
                     //                        .join("cicloAcademico", "id,descripcion,nombre")
                     .array();
         } else if (tipoResolucionEnum == ALUMRENUNCIA) {
+            /* aqi buscamos mostrar no editar*/
+            List<TramiteRenunciaAlumno> tramiteRenuncia = service.allResolucionRenunciaAlumno(resolucion);
+            return JaneHelper.from(tramiteRenuncia)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.persona", "paterno,materno,nombres,numeroDocIdentidad")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    .array();
+        } else if (tipoResolucionEnum == RENUNCIA_CAR) {
             /* aqi buscamos mostrar no editar*/
             List<TramiteRenunciaAlumno> tramiteRenuncia = service.allResolucionRenunciaAlumno(resolucion);
             return JaneHelper.from(tramiteRenuncia)

@@ -5,7 +5,7 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
-                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' ">
+                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th v-if="tipo != 'TITULBAC'">Resolución</th>
@@ -23,6 +23,7 @@
                 <th v-if="tipo == 'TRAS'"></th>                
 
                 <!--                        <th v-if="tipo != 'CURDIR' &amp;&amp; tipo != 'TRAS_INT' " class="text-center">Ciclo Aplica</th>-->
+                <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Apellidos y Nombres</th>
                 <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
                 <th v-if="tipo == 'CAM_NOTA'">Nota</th>
 
@@ -205,11 +206,20 @@
                         <td>
                             <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
                         </td>
-                        <!--                        <td>
-                                                    <span class="block" v-text="item.carrera.nombre"></span>
-                                                </td>-->
-                    </tr>                    
-
+                    </tr>         
+                    
+                    <tr v-if="tipo == 'RENUNCIA_CAR'"  v-for="item in alumnoTramiteRenuncia">
+                        <td>
+                            <span class="block">{{item.tramite.alumno.codigo}}</span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }} </span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
+                        </td>
+                    </tr> 
+                    
                 </tbody>
             </table>
         </div>
