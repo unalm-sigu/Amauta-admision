@@ -42,6 +42,8 @@ public interface ResolucionExistenteService {
 
     List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
 
+    List<CursoDirigido> allCursodirigidoPregrado(Resolucion resolucionDB);
+
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
     List<Carrera> allCarrera();

@@ -46,8 +46,8 @@ public class ReporteProgramacionServiceImp implements ReporteProgramacionService
     }
 
     @Override
-    public List<Facultad> allFacultades() {
-        return facultadDAO.allFacultades();
+    public List<Facultad> allFacultadesPre() {
+        return facultadDAO.allFacultadesPre();
     }
 
     @Override

@@ -85,7 +85,6 @@ public class TramiteRenunciaAlumnoDAOH extends AbstractEasyDAO<TramiteRenunciaAl
                 .filter("tt.estado", TramiteEstadoEnum.SOL)
                 .filter("tr.tipoTramite", "43")
                 .orderBy("per.paterno");
-
         return all(sql);
     }
 

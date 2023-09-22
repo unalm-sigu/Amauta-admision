@@ -129,6 +129,7 @@
                 axios_.get(APP.url("academico/resolucion/existentes/allRenunciaAlumno"))
                         .then(({data}) => {
                             $vue.resolucion.tramiteRenunciaAlumno = data;
+                    console.log("dataddd::"+data)
                             $vue.hideLoader();
                             $vue.$forceUpdate();
                         }, () => {

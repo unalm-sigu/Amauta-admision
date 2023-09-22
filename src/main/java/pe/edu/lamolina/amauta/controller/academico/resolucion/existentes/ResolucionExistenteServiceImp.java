@@ -297,6 +297,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<CursoDirigido> allCursodirigidoPregrado(Resolucion resolucionDB) {
+        return cursoDirigidoDAO.allByResolucionPregado(resolucionDB);
+    }
+
+    @Override
     public List<ObtencionGrado> allObtencionGrado(Resolucion resolucion) {
         return obtencionGradoDAO.allByResolucion(resolucion);
     }
@@ -567,7 +572,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramiteTituloFacultad(resolucion, ds);
                 break;
             case ALUMRENUNCIA:
-                this.saveTramiteAlumnoRenunciante(resolucion, ds);    
+                this.saveTramiteAlumnoRenunciante(resolucion, ds);
                 break;
             case RENUNCIA_CAR:
                 this.saveTramiteAlumnoRenunciante(resolucion, ds);
@@ -1791,7 +1796,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
                 .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
                 .collect(Collectors.toList());
-        
+
         for (TramiteBachiller bachiller : tramiteBachillers) {
 
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
@@ -1818,7 +1823,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setFinalizado(Boolean.TRUE);
 //            tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
-             
+
         }
     }
 
@@ -1978,10 +1983,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         List<TramiteRenunciaAlumno> tramitesRenunciaAlumno = resolucion.getTramiteRenunciaAlumno().stream()
                 .filter(x -> x.getSeleccionado() != null && x.getSeleccionado())
                 .collect(Collectors.toList());
-        
+
 //        TipoResolucion tipoResolucion = tipoResolucionDAO.find(resolucion.getTipoResolucion().getId()); //ESTO DEBERIA USAR  REVISAR COMO CUAL SERIA LA SITUACION FINAL 
 //POR QUE LAS 2 RENUNCIAS APUNTAN A UN SOLO SITIO
-
         for (TramiteRenunciaAlumno renunciaAlumno : tramitesRenunciaAlumno) {
             Alumno alumno = renunciaAlumno.getAlumno();
 //            Long alumnoId = alumno.getId();
@@ -1993,7 +1997,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //            Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
 //            String codigoTipoTramite = "ALUMREN";
 //            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ALUMREN.name());
-
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
             if (renunciaTramite == null) {
@@ -2011,9 +2014,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramite.setFinalizado(Boolean.TRUE);
             tramite.setEstado(TramiteEstadoEnum.ACEP.name());
             tramiteDAO.update(tramite);
-            
+
 //            System.out.println("ddd:"+tramite.getCicloAcademico().getCodigo());
-            
             MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, tramite.getCicloAcademico());
             if (matResumen != null) {
                 matResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -2032,7 +2034,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //        * si existe en matriculables sacando ciclo activo
 //                ponerlo como inhabilitado.
 //                        jalar el ciclo aplica
-            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.getValue()) ;
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_RA.getValue());
             alumnoDB.setSituacionAcademica(situacion);
             alumnoDAO.update(alumnoDB);
         }

@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-if="filtroFacultadSeleccionado(filterFacultad, renuncia)" v-for="(renuncia , index) in resolucion.tramiteRenunciaAlumnoCarrera">
+                <tr v-if="filtroFacultadSeleccionado(filterFacultad, renuncia)" v-for="(renuncia , index) in resolucion.tramiteRenunciaAlumno">
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
@@ -101,7 +101,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramiteRenunciaAlumnoCarrera.push({seleccionado: true});
+                $vue.resolucion.tramiteRenunciaAlumno.push({seleccionado: true});
                 $vue.$forceUpdate();
             },
             searchAlumno(nombre) {
@@ -126,7 +126,7 @@
                 $vue.showLoader("Espere un momento por favor");
                 axios_.get(APP.url("academico/resolucion/existentes/allRenunciaAlumnoCarrera"))
                         .then(({data}) => {
-                            $vue.resolucion.tramiteRenunciaAlumnoCarrera = data;
+                            $vue.resolucion.tramiteRenunciaAlumno = data;
                             $vue.hideLoader();
                             $vue.$forceUpdate();
                         }, () => {

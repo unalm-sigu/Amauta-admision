@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import static java.lang.Math.log;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -50,20 +54,16 @@ public class ReporteProgramacionController {
     @ResponseBody
     @RequestMapping("lisReporte")
     public DynatableResponse reporte(DynatableFilter filter, HttpSession session) {
-
         DynatableResponse json = new DynatableResponse();
-
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<String> codigosFiltrados = Arrays.asList("010", "020", "030", "040", "050", "060", "070", "080");
-            List<Facultad> facultades = service.allFacultades()
-                    .stream()
-                    .filter(facultad -> codigosFiltrados.contains(facultad.getCodigo()))
-                    .collect(Collectors.toList());
-            for (Facultad facu : facultades) {
+
+            List<Facultad> facultades = service.allFacultadesPre();
+            facultades.forEach(facu -> {
                 ObjectNode node = JsonHelper.createJson(facu, JsonNodeFactory.instance, true, new String[]{"*"});
                 array.add(node);
-            }
+            });
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -78,12 +78,12 @@ public class ReporteProgramacionController {
     @RequestMapping("ReporteHorario")
     public ModelAndView ReporteHorario(@RequestParam("facultad") String facultad, Model model, HttpSession session) {
 
-         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<MatriculaPreBean> listMatriculaPreBean = service.allMatriculaPregrado(ds.getCicloAcademico(), facultad);
         model.addAttribute("listMatriculaPreBean", listMatriculaPreBean);
         model.addAttribute("tipoReporte", facultad);
-        return new ModelAndView(reporteHorarioView);                                
+        return new ModelAndView(reporteHorarioView);
     }
 
     @ResponseBody
@@ -96,5 +96,5 @@ public class ReporteProgramacionController {
                 .join("modalidadEstudio", "nombre")
                 .array();
 
-    }    
+    }
 }

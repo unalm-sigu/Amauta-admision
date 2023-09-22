@@ -544,7 +544,7 @@ public class ResolucionExistenteController {
                     .array();
 
         } else if (tipoResolucionEnum == CURDIR) {
-            List<CursoDirigido> cursosDirigidos = service.allCursodirigido(resolucion);
+            List<CursoDirigido> cursosDirigidos = service.allCursodirigidoPregrado(resolucion);
             return JaneHelper.from(cursosDirigidos)
                     .join("curso")
                     .join("tramite.alumno")

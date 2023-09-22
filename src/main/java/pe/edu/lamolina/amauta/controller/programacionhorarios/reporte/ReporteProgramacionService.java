@@ -11,9 +11,10 @@ public interface ReporteProgramacionService {
 
     public List<Carrera> allCarrera();
 
-    public List<Facultad> allFacultades();
+    public List<Facultad> allFacultadesPre();
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
     public List<Carrera> searchAllCarrera(String nombre);
+    
 }
