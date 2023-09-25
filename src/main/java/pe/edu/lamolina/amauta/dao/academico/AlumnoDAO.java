@@ -166,4 +166,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public Alumno findBySitCodigo(String findBySitCodigo);
 
+    List<Alumno> allAlumnoByYear(Integer year);
+
 }

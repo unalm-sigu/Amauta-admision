@@ -183,25 +183,6 @@ public class HistorialAlumnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Boolean success = true;
             historialAlumnoService.save(alumno, ds);
-            /*if (alumno.getId() == null) {
-                historialAlumnoService.save(alumno, ds);
-                response.setMessage("Alumno creado satisfactoriamente");
-
-            } else {
-                Persona personaDuplicada = historialAlumnoService.update(alumno, ds);
-                if (personaDuplicada == null) {
-                    response.setMessage("Alumno modificado satisfactoriamente");
-                } else {
-                    ObjectNode objectNode = JsonHelper.createJson(personaDuplicada, JsonNodeFactory.instance, new String[]{
-                        "*",
-                        "tipoDocumento.*"
-                    });
-                    node.put("personaDuplicado", objectNode);
-                    response.setMessage("DNI duplicado");
-                    success = false;
-                }
-            }*/
-
             response.setSuccess(success);
             response.setData(node);
 
@@ -274,16 +255,6 @@ public class HistorialAlumnoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
-    }
-    
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Void> save(@RequestBody PersonaDto personaDto, HttpSession session) {        
-        boolean registrado = historialAlumnoService.registrarAlumno(personaDto, session);
-        if (registrado) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
     
 }

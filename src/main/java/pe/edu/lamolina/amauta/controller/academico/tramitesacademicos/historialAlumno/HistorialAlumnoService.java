@@ -15,23 +15,18 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
-
 public interface HistorialAlumnoService {
-    
-    DynatableResponse listAlumnos(DynatableFilter filter, HttpSession httpSession);
-    
+
     List<TipoDocIdentidad> allDocumentos();
-    
+
     List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania);
-    
+
     List<Facultad> allFacultad(String nombre, Compania compania);
-    
+
     List<Carrera> allCarrera(String nombre);
 
-    boolean registrarAlumno(PersonaDto personDto, HttpSession httpSession);      
-
     Persona update(Alumno alumno, DataSessionPivot ds);
-    
+
     void save(Alumno alumno, DataSessionPivot ds);
 
     Persona findPersonaByDocIdentidad(Persona persona);
