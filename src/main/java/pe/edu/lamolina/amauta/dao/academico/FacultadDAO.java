@@ -29,6 +29,6 @@ public interface FacultadDAO extends EasyDAO<Facultad> {
 
     List<Facultad> allFacultades();
     
-    List<Facultad> allFacultadesPre();
+    List<Facultad> allFacultadesPre(List<Facultad> facultades);
     
 }

@@ -1,7 +1,11 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.reporte;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +16,14 @@ import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.seguridad.Rol;
 
 @Slf4j
 @Service
@@ -46,15 +53,28 @@ public class ReporteProgramacionServiceImp implements ReporteProgramacionService
     }
 
     @Override
-    public List<Facultad> allFacultadesPre() {
-        return facultadDAO.allFacultadesPre();
+    public List<Facultad> allFacultadesPre(DataSessionPivot ds) {
+
+        List<Facultad> facultades = new ArrayList<>();
+        List<RolEnum> rolesEnum = ds.getRoles().stream().map(x -> x.getCodigoEnum()).collect(Collectors.toList());
+        List<String> rolesCodigo = ds.getRoles().stream().map(x -> x.getCodigo()).collect(Collectors.toList());
+
+        if (rolesEnum.contains(RolEnum.IOREA)) {
+            return facultadDAO.allNormal();
+        }
+
+        if (rolesCodigo.contains("REPORT_PROGRAM_FACU")) {//TMP, ponerlo en ENUM 
+            return facultadDAO.allFacultadesPre(ds.getFacultades());
+        }
+
+        return facultades;
     }
 
     @Override
     public CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
     }
-    
+
     @Override
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);

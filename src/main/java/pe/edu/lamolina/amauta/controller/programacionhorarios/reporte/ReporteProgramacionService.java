@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.reporte;
 
 import java.util.List;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -11,7 +12,7 @@ public interface ReporteProgramacionService {
 
     public List<Carrera> allCarrera();
 
-    public List<Facultad> allFacultadesPre();
+    public List<Facultad> allFacultadesPre(DataSessionPivot ds);
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 

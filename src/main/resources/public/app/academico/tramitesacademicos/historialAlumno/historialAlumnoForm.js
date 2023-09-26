@@ -36,8 +36,7 @@ new Vue({
         });
         $("[name='carrera.id']").select2(vue.carrera());
         $("[name='facultad.id']").select2(vue.facultad());
-        $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
-        //$("[name='cicloIngreso.id']").select2({minimumResultsForSearch: -1});
+        $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});        
         $("[name='cicloIngreso.id']").select2(vue.ciclo());
         vue.initFileupload();
         vue.avatarInit();
@@ -58,7 +57,7 @@ new Vue({
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (element.val() != "") {
+                    if (element.val() !== "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("codigo")});
                     }
                 },
@@ -143,13 +142,7 @@ new Vue({
                 ajax: {
                     url: APP.url("academico/tramiteacademico/historialalumno/allFacultad"),
                     dataType: 'json',
-                    type: 'post',
-                    /*data: function (term, page) {
-                        return {nombre: term, page: page};
-                    },
-                    results: function (response, page) {
-                        return {results: response.data};
-                    }*/
+                    type: 'post',                    
                     data: function (term) {
                         return {
                             nombre: term
@@ -160,24 +153,13 @@ new Vue({
                             results: response.data
                         };
                     }
-                },
-                /*initSelection: function (element, callback) {
-                    if (element.val() !== "") {
-                        callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
-                    }
-                },*/
-                formatResult: function (info) {
-                    //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>' + '<p>' + info + '</p>';
+                },                
+                formatResult: function (info) {                    
                     return '<p class="bold">' + info.nombre + '</p>';
                 },
-                formatSelection: function (info) {
-                    //return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
-                    //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>' + '<p>' + info + '</p>';
+                formatSelection: function (info) {                    
                     return '<p class="bold">' + info.nombre + '</p>';
-                }/*,
-                escapeMarkup: function (m) {
-                    return m;
-                }*/
+                }
             };
         },
         carrera: function () {
@@ -198,30 +180,14 @@ new Vue({
                         return {
                             results: response.data
                         };
-                    }
-                    /*data: function (term, page) {                        
-                        return {nombre: term, page: page};
-                    },
-                    results: function (response, page) {
-                        return {results: response.data};
-                    }*/
-                },
-                /*initSelection: function (element, callback) {
-                    if (element.val() !== "") {
-                        callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
-                    }
-                },*/
-                formatResult: function (info) {
-                    //return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.id + '</p>';
+                    }                    
+                },                
+                formatResult: function (info) {                    
                     return '<p class="bold">' + info.nombre + '</p>';
                 },
-                formatSelection: function (info) {                    
-                    //return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
+                formatSelection: function (info) {                                        
                     return '<p class="bold">' + info.nombre + '</p>';
-                }/*,
-                escapeMarkup: function (m) {
-                    return m;
-                }*/
+                }
             };
         },
         ciclo: function () {
@@ -243,24 +209,13 @@ new Vue({
                             results: response.data
                         };
                     }
-                },
-                /*initSelection: function (element, callback) {
-                    if (element.val() !== "") {
-                        callback({id: element.val(), descripcion: element.attr("rel"), codigo: element.attr("rev")});
-                    }
-                },*/
-                formatResult: function (info) {
-                    //return '<p>' + info.descripcion + '</p>  ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';
-                    //console.log("carlos buitron");
+                },                
+                formatResult: function (info) {                    
                     return '<p class="bold">' + info.descripcion + '</p>';
                 },
-                formatSelection: function (info) {
-                    //return '<p>' + info.descripcion + '</p>   ' + '<p class="bold text-xs"> ' + info.descripcion + '</p>';                  
+                formatSelection: function (info) {                                    
                     return '<p class="bold">' + info.descripcion + '</p>';
-                }/*,
-                escapeMarkup: function (m) {
-                    return m;
-                }*/
+                }
             };
         },
         mostrarDirNacimiento: function () {
@@ -303,8 +258,6 @@ new Vue({
                 self.btnEnable();
                 return;
             }
-            console.log("GUARDAR :::::");
-            console.log($("#formAlumno").serialize());
             $.ajax({
                 url: APP.url("academico/tramiteacademico/historialalumno/save"),
                 type: 'POST',
@@ -328,7 +281,7 @@ new Vue({
         sinEspacios: function (e) {
             APP.eliminarEspacios($(e.currentTarget));
         },
-        nombrePersona: function (e) {
+        nombrePersona: function (e) {               
             APP.revisarNombre($(e.currentTarget));
         },
         initFileupload: function () {
@@ -407,8 +360,7 @@ new Vue({
                 return;
             }
             
-            if ($('[name="persona.numeroDocIdentidad"]').val() === '') {
-                //notify("Seleccione primero el tipo documento", 'warning');
+            if ($('[name="persona.numeroDocIdentidad"]').val() === '') {                
                 $('[name="persona.id"]').val('');
                 $('[name="persona.numeroDocIdentidad"]').val('');                
                 $('[name="persona.foto"]').val('');
@@ -515,8 +467,7 @@ new Vue({
                         form.find('[name="persona.telefono"]').val('');
                         form.find('[name="persona.celular"]').val('');
                         form.find('[name="persona.email"]').val('');
-                        form.find('[name="persona.paisDomicilio.id"]').select2('val', '');
-                        //form.find('[name="persona.ubicacionDomicilio.id""]').select2('val', '');
+                        form.find('[name="persona.paisDomicilio.id"]').select2('val', '');                        
                         form.find('[name="persona.direccion"]').val('');
                         form.find('[name="persona.conDiscapacidad"]').val('');
                         vue.avatarInit();

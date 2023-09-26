@@ -25,11 +25,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.seguridad.Rol;
 
 @Slf4j
 @Controller
@@ -57,8 +59,9 @@ public class ReporteProgramacionController {
         DynatableResponse json = new DynatableResponse();
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            List<Facultad> facultades = service.allFacultadesPre();
+            List<Facultad> facultades = service.allFacultadesPre(ds);
             facultades.forEach(facu -> {
                 ObjectNode node = JsonHelper.createJson(facu, JsonNodeFactory.instance, true, new String[]{"*"});
                 array.add(node);
