@@ -174,7 +174,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final ResponseRestService responseRestService;
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
-//    private final CarreraDAO carreraDAO;
+    private final CarreraDAO carreraDAO;
 //    private final FacultadDAO facultadDAO;
 
     @Override
@@ -1764,10 +1764,10 @@ public class MatriculableServiceImp implements MatriculableService {
         return situacionAcademicaDAO.all();
     }
 
-//    @Override
-//    public List<Carrera> searchAllCarrera(String nombre) {
-//        return carreraDAO.searchByNombre(nombre);
-//    }
+    @Override
+    public List<Carrera> searchAllCarrera(String nombre) {
+        return carreraDAO.searchByNombre(nombre);
+    }
 
 
 }

@@ -1054,4 +1054,15 @@ public class MatriculableController {
 
     }
 
+    @ResponseBody
+    @RequestMapping("allCarrera")
+    public ArrayNode allCarrera(@RequestParam("nombre") String nombre) {
+        log.debug("nombre:{}", nombre);
+        List<Carrera> carreras = service.searchAllCarrera(nombre);
+        return JaneHelper.from(carreras)
+                .only("id,codigo,nombre")
+                .join("modalidadEstudio", "nombre")
+                .array();
+
+    }
 }

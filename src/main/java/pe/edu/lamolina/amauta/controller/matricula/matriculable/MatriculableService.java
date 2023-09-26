@@ -110,7 +110,7 @@ public interface MatriculableService {
 
     public List<SituacionAcademica> allSituacionAcademica();
 
-//    public List<Carrera> searchAllCarrera(String nombre);
+    public List<Carrera> searchAllCarrera(String nombre);
 
     void agregarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
