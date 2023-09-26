@@ -186,13 +186,8 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         personaForm.setUserRegistro(ds.getUsuario());
         personaForm.setFechaRegistro(new Date());
         personaDAO.save(personaForm);
-
         
         saveAlumno(personaForm, ciclo, alumno);
-        
-        ciclo.setMatriculaSiguiente(ciclo.getMatriculaSiguiente() + 1);
-        
-        cicloAcademicoDAO.update(ciclo);
 
         String personaInicio = JaneHelper
                 .from(personaForm)
@@ -268,7 +263,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
 
         ValidacionPersona validacion = new ValidacionPersona();
         validacion.setPersona(persona);
-        validacion.setOrigenEnum(OrigenValidacionEnum.ALUMNO_AMAUTA);
+        validacion.setOrigenEnum(OrigenValidacionEnum.ALUMNO_ANTIGUO);
         validacion.setInstanciaOrigen(alumno.getId());
         validacion.setDataInicio(jsonInicio);
         validacion.setDataFinal(jsonFinal);
