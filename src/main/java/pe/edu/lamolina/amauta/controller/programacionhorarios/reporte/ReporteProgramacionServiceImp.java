@@ -23,7 +23,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
-import pe.edu.lamolina.model.seguridad.Rol;
 
 @Slf4j
 @Service

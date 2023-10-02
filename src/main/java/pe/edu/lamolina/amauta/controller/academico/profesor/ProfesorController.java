@@ -62,6 +62,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCicloView;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
@@ -87,6 +88,7 @@ public class ProfesorController {
     private final DespliegueConfig despliegueConfig;
     private final ProfesoresPDF profesoresPDF;
     private final ReporteCargaAcademicaPDF reporte;
+    private final ReporteDocenteCicloView reporteDocenteCicloView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -638,6 +640,16 @@ public class ProfesorController {
         model.addAttribute("horarioSecciones", horarioSecciones);
 
         return new ModelAndView(reporte);
+    }
+
+    @RequestMapping("reporteDocenteCicloAcademico")
+    public ModelAndView reporteDocenteCicloAcademico(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
+        List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
+
+        model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);
+        model.addAttribute("listaDocente", "ListaDocente");
+        return new ModelAndView(reporteDocenteCicloView);
     }
 
     @ResponseBody

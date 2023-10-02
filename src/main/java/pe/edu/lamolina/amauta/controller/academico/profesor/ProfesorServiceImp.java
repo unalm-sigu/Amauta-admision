@@ -702,4 +702,11 @@ public class ProfesorServiceImp implements ProfesorService {
         return Boolean.TRUE;
     }
 
+    @Override
+    public List<DocenteCicloBean> allDocentecicloAcademico(List<CicloAcademico> cicloAcademicos) {
+        List<DocenteCicloBean> docenteCicloBean = new ArrayList<>();
+        docenteCicloBean = docenteDAO.AllDocentecicloAcademico(cicloAcademicos);
+        return docenteCicloBean;
+    }
+
 }

@@ -1,13 +1,21 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloBean;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -275,6 +283,46 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         }
 
         return all(sql);
+    }
+
+    @Override
+    public List<DocenteCicloBean> AllDocentecicloAcademico(List<CicloAcademico> cicloAcademicos) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select caa.descripcion ,caa.codigo_anterior , dc.codigo cod_docente2,cad2.codigo pro_cad2,  ");
+        sql.append(" CONCAT(IFNULL(gp.paterno, ''), ' ', IFNULL(gp.materno, ''), ', ', IFNULL(gp.nombres, '')) AS nombreDocente,  ");        
+        sql.append(" cad2.nombre categ_nombre2,sid2.codigo pro_situac2,sid2.nombre situac_nombre2,  ");
+        sql.append(" ded2.codigo cod_dedica2,ded2.nombre,ada.nombre_largo   ");
+        sql.append("             from rrhh_contrato_docente a  ");
+        sql.append("             join aca_ciclo_academico caa on a.id_ciclo_inicio_contrato = caa.id and a.id_ciclo_inicio_contrato  = caa.id  ");
+        sql.append("             join aca_docente dc on a.id_docente = dc.id  ");
+        sql.append("             join rrhh_categoria_docente cad2 on a.id_categoria = cad2.id  ");
+        sql.append("             join gen_persona gp on gp.id=dc.id_persona  ");
+        sql.append("             join rrhh_situacion_docente sid2 on a.id_situacion = sid2.id  ");
+        sql.append("             join rrhh_dedicacion_docente ded2 on a.id_dedicacion = ded2.id  ");
+        sql.append("             join aca_docente ad on ad.id =a.id_docente   ");
+        sql.append("             join aca_departamento_academico ada on ada.id =ad.id_departamento_academico   ");
+        sql.append(" where caa.id = :CICLO order by  nombreDocente" );
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("descripcion", StringType.INSTANCE)
+                .addScalar("codigo_anterior", StringType.INSTANCE)
+                .addScalar("cod_docente2", StringType.INSTANCE)
+                .addScalar("nombreDocente", StringType.INSTANCE)
+                .addScalar("pro_cad2", StringType.INSTANCE)              
+                .addScalar("categ_nombre2", StringType.INSTANCE)
+                .addScalar("pro_situac2", StringType.INSTANCE)
+                .addScalar("situac_nombre2", StringType.INSTANCE)
+                .addScalar("cod_dedica2", StringType.INSTANCE)
+                .addScalar("nombre", StringType.INSTANCE)
+                .addScalar("nombre_largo", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(DocenteCicloBean.class));
+        List<Long> cicloIds = new ArrayList<>();
+        for (CicloAcademico cicloAcademico : cicloAcademicos) {
+            cicloIds.add(cicloAcademico.getId() );
+        }
+        query.setParameterList("CICLO", cicloIds);
+        return (List<DocenteCicloBean>) query.list();
+
     }
 
 }
