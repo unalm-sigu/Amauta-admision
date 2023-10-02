@@ -152,7 +152,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
 
         if (Objects.isNull(personaForm.getTipoDocumento()) || Objects.isNull(personaForm.getNumeroDocIdentidad()) || personaForm.getNumeroDocIdentidad().isEmpty()) {
 
-            String paterno = Normalizer.normalize(personaForm.getPaterno().trim(), Normalizer.Form.NFD);
+            /*String paterno = Normalizer.normalize(personaForm.getPaterno().trim(), Normalizer.Form.NFD);
             String paternoFilter = paterno.replaceAll("[^\\p{ASCII}]", "");
 
             String materno = Normalizer.normalize(personaForm.getMaterno().trim(), Normalizer.Form.NFD);
@@ -163,11 +163,11 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
 
             personaForm.setPaterno(paternoFilter);
             personaForm.setMaterno(maternoFilter);
-            personaForm.setNombres(nombresFilter);
+            personaForm.setNombres(nombresFilter);*/
 
             List<Persona> personas = personaDAO.allByApellidosNombres(personaForm);
             if (!personas.isEmpty()) {
-                establecerMatriculaCorreoEmpresa(personaForm, ciclo, alumno);
+                establecerMatriculaAndCorreoEmpresa(personaForm, ciclo, alumno);
             }
             personaForm.setTipoDocumento(tipoDocIdentidadDAO.findBySimbolo("DNI"));
         } else {
@@ -179,7 +179,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         }
 
         if (Objects.isNull(personaForm.getEmailCompania()) || personaForm.getEmailCompania().isEmpty()) {
-            establecerMatriculaCorreoEmpresa(personaForm, ciclo, alumno);
+            establecerMatriculaAndCorreoEmpresa(personaForm, ciclo, alumno);
         }
         
         personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
@@ -187,13 +187,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         personaForm.setFechaRegistro(new Date());
         personaDAO.save(personaForm);
         
-        saveAlumno(personaForm, ciclo, alumno);
-
-        String personaInicio = JaneHelper
-                .from(personaForm)
-                .only("id,paterno,materno,nombres,sexo,fechaNacer,numeroDocIdentidad")
-                .join("tipoDocumento", "id,simbolo")
-                .json().toString();
+        registrarAlumno(personaForm, ciclo, alumno);
         
         String personaFinal = JaneHelper
                     .from(personaForm)
@@ -201,24 +195,60 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
                     .join("tipoDocumento", "id,simbolo")
                     .json().toString();
         
-        registrarValidacion(personaForm, alumno, personaInicio, personaFinal, ds);
+        registrarValidacion(personaForm, alumno, null, personaFinal, ds);
 
     }
 
-    private void establecerMatriculaCorreoEmpresa(Persona personaForm, CicloAcademico ciclo, Alumno alumno) {
+    private void establecerMatriculaAndCorreoEmpresa(Persona personaForm, CicloAcademico ciclo, Alumno alumno) {
+        
         List<String> codigos = alumnoDAO.allAlumnoByYear(ciclo.getYear()).stream().map(x -> x.getCodigo()).collect(Collectors.toList());
-        Integer codigo = Integer.parseInt(Collections.max(codigos)) + 1; 
-        alumno.setCodigo(String.valueOf(codigo));
-        personaForm.setEmailCompania(String.valueOf(codigo).concat("@lamolina.edu.pe"));
+        
+        Integer codigo = Integer.valueOf(Collections.max(codigos));
+        
+        boolean buscarMatricula = true;
+        
+        do {            
+            codigo ++;
+            Alumno alumnoDB = alumnoDAO.findByCodigo(String.valueOf(codigo));
+            if(alumnoDB == null) {
+                alumno.setCodigo(String.valueOf(codigo));
+                buscarMatricula = false;
+            }
+        } while (buscarMatricula);
+               
+        String emailCompania = String.valueOf(codigo).concat("@lamolina.edu.pe");
+        
+        personaForm.setEmailCompania(emailCompania);
+        
+        Persona personaDB = personaDAO.findByEmailCompania(personaForm);        
+                
+        if(personaDB != null) {
+            boolean buscarEmailCompania = true;
+            String usuario = "usuariogenerico";
+            int cont = 0;
+            do {
+                cont ++;
+                String emailGenerico = usuario.concat(String.valueOf(cont)).concat("@lamolina.edu.pe");
+                personaForm.setEmailCompania(emailGenerico);
+                personaDB = personaDAO.findByEmailCompania(personaForm);
+                if(personaDB == null) {
+                    buscarEmailCompania = false;
+                }
+            } while (buscarEmailCompania);
+        }
+        
     }
     
-    private void saveAlumno(Persona persona, CicloAcademico ciclo, Alumno alumno) {
+    private void registrarAlumno(Persona persona, CicloAcademico ciclo, Alumno alumno) {
         
         SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");                
 
+        Carrera carrera = carreraDAO.find(alumno.getCarrera().getId());        
+        
         validarCodigoMatricula(alumno);
         
         alumno.setPersona(persona);
+        alumno.setCarrera(carrera);
         alumno.setCicloActivo(ciclo);
         alumno.setCicloIngreso(ciclo);
         alumno.setSituacionAcademica(situacion);
@@ -238,6 +268,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         alumno.setCursosCarreraAprobados(0);
         alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
         alumno.setCiclosEstudiados(BigDecimal.ZERO.intValue());
+        
         alumnoDAO.save(alumno);
         
     }
@@ -262,7 +293,7 @@ public class HistorialAlumnoServiceImp implements HistorialAlumnoService {
         personaDAO.update(persona);
 
         ValidacionPersona validacion = new ValidacionPersona();
-        validacion.setPersona(persona);
+        validacion.setPersona(persona);        
         validacion.setOrigenEnum(OrigenValidacionEnum.ALUMNO_ANTIGUO);
         validacion.setInstanciaOrigen(alumno.getId());
         validacion.setDataInicio(jsonInicio);
