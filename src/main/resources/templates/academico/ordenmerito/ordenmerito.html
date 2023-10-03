@@ -13,8 +13,12 @@
                         <span v-if="processreporte"> <i class="fa fa-spinner fa-spin" style="font-size:14px"></i></span> &nbsp; Acciones 
                     </button>
                     <ul class="dropdown-menu pointer">
-                        <li><a v-on:click="generarDatos"> Generar Datos </a></li>
-                        <li><a v-on:click="calcularMeritos"> Calcular Méritos </a></li>
+                        <li class="text-center bold">Pasos </li>
+                        <li class="divider"></li>
+                        <li><a v-on:click="generarDatos"> 1. Generar Datos </a></li>
+                        <li><a v-on:click="calcularMeritos"> 2. Calcular Méritos </a></li>
+                        <li class="divider"></li>
+                        <li class="text-center bold">Reportes</li>
                         <li class="divider"></li>
                         <li><a class="dropdown-item" v-on:click.prevent="generarReporte('ciclo')"> Reporte General </a></li>
                         <li><a class="dropdown-item" v-on:click.prevent="generarReporte('facultad')"> Reporte Facultad </a></li>

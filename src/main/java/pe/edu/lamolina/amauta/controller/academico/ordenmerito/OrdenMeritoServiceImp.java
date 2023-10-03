@@ -65,6 +65,13 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         controlOrdenMeritoDAO.deleteByCicloAcademico(ciclo);
 
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByCicloAcademicoModalidadEstudio(ciclo, ModalidadEstudioEnum.PRE);
+        List<AlumnoCiclo> alumnosErradosNivel = this.alumnosCiclosErradosNivel(alumnoCiclos);
+
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            if (alumnosErradosNivel.contains(alumnoCiclo)) {
+                alumnoCiclo.setNivel(null);
+            }
+        }
 
         Date now = new Date();
 
@@ -702,5 +709,30 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         }
 
         alumnoCicloDAO.update(alumnoCiclo);
+    }
+
+    private List<AlumnoCiclo> alumnosCiclosErradosNivel(List<AlumnoCiclo> alumnoCiclos) {
+        List<AlumnoCiclo> erradosNivel = new ArrayList();
+        for (AlumnoCiclo aluCiclo : alumnoCiclos) {
+            int creditos = aluCiclo.getCreditosAprobadosConvalidadosAcumulados();
+
+            if (aluCiclo.getNivel() != null) {
+                if (aluCiclo.getNivel() == 1 && creditos > 40) {
+                    erradosNivel.add(aluCiclo);
+                } else if (aluCiclo.getNivel() == 2 && creditos > 80) {
+                    erradosNivel.add(aluCiclo);
+                } else if (aluCiclo.getNivel() == 3 && creditos > 120) {
+                    erradosNivel.add(aluCiclo);
+                } else if (aluCiclo.getNivel() == 4 && creditos > 160) {
+                    erradosNivel.add(aluCiclo);
+                } else if (aluCiclo.getNivel() == 5 && creditos < 161) {
+                    erradosNivel.add(aluCiclo);
+                }
+
+            }
+
+        }
+        return erradosNivel;
+
     }
 }
