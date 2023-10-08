@@ -438,6 +438,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         TipoResolucionEnum tipoResolucionEnum = resolucion.getTipoResolucion().getTipoEnum();
 
+        // Valida Tipo Trámite y en caso encontrar un error devuelve mensaje(s)
         switch (tipoResolucionEnum) {
             case TRAS_INT:
                 this.validarTrasladoInterno(resolucion, respuesta, ds);
@@ -540,7 +541,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case RCI:
             case ANCI:
-                respuesta = Arrays.asList(this.saveRetirosCiclos(resolucion, ds));
+                this.saveRetirosCiclos(resolucion, ds);
+                //respuesta = Arrays.asList(this.saveRetirosCiclos(resolucion, ds));
                 break;
             case CAM_NOTA:
                 respuesta = Arrays.asList(this.saveCambioNotas(resolucion, ds));
@@ -928,7 +930,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case RCI:
             case ANCI:
-                respuesta = Arrays.asList(this.saveRetirosCiclos(resolucionForm, ds));
+                //respuesta = Arrays.asList(this.saveRetirosCiclos(resolucionForm, ds));
+                this.saveRetirosCiclos(resolucionForm, ds);
                 break;
             case CAM_NOTA:
                 break;
@@ -1114,7 +1117,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         return "";
     }
 
-    private String saveRetirosCiclos(Resolucion resolucion, DataSessionPivot ds) {
+    private void saveRetirosCiclos(Resolucion resolucion, DataSessionPivot ds) {
 
 //        if (resolucion.getRetiroCiclo().isEmpty()) {
 //            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
@@ -1306,14 +1309,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
             alumnos.add(alumnoDB);
         }
-        String token = RandomStringUtils.randomAlphanumeric(43);
+        
+        /*String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenProm = token + TOKEN_PROMEDIOS;
         String tokenCurri = token + TOKEN_CURRICULA;
 
         visorCalculoNotas.createToken(tokenProm, alumnos);
         visorCalculoNotas.createToken(tokenCurri, alumnos);
 
-        return token;
+        return token;*/
+        
     }
 
     private String saveCambioNotas(Resolucion resolucion, DataSessionPivot ds) {
