@@ -1123,7 +1123,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
             RetiroCiclo retiroCicloDB = null;
             MatriculaResumen matriculaResumen = null;
+            
             if (resolucion.isTipoRetiroCiclo()) {
+                cicloAplica = resolucion.getCicloAplica();
                 retiroCicloDB = retiroCicloDAO.findByExcepcional(alumnoDB);
                 if (retiroCicloDB == null) {
                     return "El alumno " + retiroCicloForm.getAlumno().getCodigo() + " no cuenta con un trámite de retiro ciclo.";
