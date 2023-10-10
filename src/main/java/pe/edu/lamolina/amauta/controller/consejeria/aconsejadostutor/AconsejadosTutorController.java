@@ -477,6 +477,9 @@ public class AconsejadosTutorController {
     }
 
     private ObjectNode createDepartamentoJson(DepartamentoAcademico departamento) {
+        if (departamento == null) {
+            departamento = new DepartamentoAcademico();
+        }
         return JaneHelper
                 .from(departamento)
                 .only("id,codigo,nombre")
