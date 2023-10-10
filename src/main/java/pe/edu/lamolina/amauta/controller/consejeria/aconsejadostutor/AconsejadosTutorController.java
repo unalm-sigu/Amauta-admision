@@ -74,7 +74,7 @@ public class AconsejadosTutorController {
         Consejero consejero = consejeros.isEmpty() ? null : consejeros.get(0);
         InformeFinalTutoria informe = service.findInforme(consejero, ds.getCicloAcademico(), ds);
 
-        model.addAttribute("consejeroJson", this.createConsejeroJson(consejeros.get(0)));
+        model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
         model.addAttribute("personaJson", this.createPersonaJson(ds.getPersona()));
         model.addAttribute("departamentoJson", this.createDepartamentoJson(ds.getDepartamentoAcademico()));
         model.addAttribute("cicloJson", this.createCicloJson(ds.getCicloAcademico()));
