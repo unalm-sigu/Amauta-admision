@@ -71,7 +71,7 @@ public class AconsejadosTutorController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Consejero> consejeros = service.allConsejeroCarrera(ds.getPersona(), ds.getCicloAcademico());
-        Consejero consejero = consejeros.isEmpty() ? null : consejeros.get(0);
+        Consejero consejero = consejeros.isEmpty() ? new Consejero() : consejeros.get(0);
         InformeFinalTutoria informe = service.findInforme(consejero, ds.getCicloAcademico(), ds);
 
         model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
