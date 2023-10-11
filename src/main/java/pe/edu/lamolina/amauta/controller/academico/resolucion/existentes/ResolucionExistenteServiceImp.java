@@ -74,6 +74,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
@@ -177,6 +178,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final GpoSeccionService gpoSeccionService;
     private final OficinaService oficinaService;
     private final SerieDocumentoService serieDocumentoService;
+    private final MatriculableService matriculableService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -438,6 +440,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         TipoResolucionEnum tipoResolucionEnum = resolucion.getTipoResolucion().getTipoEnum();
 
+        // Valida Tipo Trámite y en caso encontrar un error devuelve mensaje(s)
         switch (tipoResolucionEnum) {
             case TRAS_INT:
                 this.validarTrasladoInterno(resolucion, respuesta, ds);
@@ -540,7 +543,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case RCI:
             case ANCI:
-                respuesta = Arrays.asList(this.saveRetirosCiclos(resolucion, ds));
+                this.saveRetirosCiclos(resolucion, ds);
+                //respuesta = Arrays.asList(this.saveRetirosCiclos(resolucion, ds));
                 break;
             case CAM_NOTA:
                 respuesta = Arrays.asList(this.saveCambioNotas(resolucion, ds));
@@ -928,7 +932,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case RCI:
             case ANCI:
-                respuesta = Arrays.asList(this.saveRetirosCiclos(resolucionForm, ds));
+                //respuesta = Arrays.asList(this.saveRetirosCiclos(resolucionForm, ds));
+                this.saveRetirosCiclos(resolucionForm, ds);
                 break;
             case CAM_NOTA:
                 break;
@@ -1111,10 +1116,41 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
 
         }
+
+        for (RetiroCiclo retiroCicloForm : tramiteRetiroCicloAceptadoOrRechazado) {
+            CicloAcademico cicloAplica = null;
+
+            Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
+            RetiroCiclo retiroCicloDB = null;
+            MatriculaResumen matriculaResumen = null;
+            
+            if (resolucion.isTipoRetiroCiclo()) {
+                cicloAplica = resolucion.getCicloAplica();
+                retiroCicloDB = retiroCicloDAO.findByExcepcional(alumnoDB);
+                if (retiroCicloDB == null) {
+                    return "El alumno " + retiroCicloForm.getAlumno().getCodigo() + " no cuenta con un trámite de retiro ciclo.";
+                }
+
+            } else {
+                cicloAplica = resolucion.getCicloAplica();
+                retiroCicloDB = retiroCicloDAO.findByAlumnoCicloRetiro(alumnoDB, cicloAplica);
+                if (retiroCicloDB != null) {
+                    return "El alumno " + retiroCicloForm.getAlumno().getCodigo() + "ya no cuenta con un trámite de anulación de ciclo.";
+                }
+            }
+
+            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
+            List<CicloAcademico> ciclos = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
+
+            if (!ciclos.contains(cicloAplica)) {
+                return "El alumno " + alumnoDB.getCodigo() + " no tiene actividad en el ciclo " + cicloAplica.getDescripcion();
+            }
+        }
+
         return "";
     }
 
-    private String saveRetirosCiclos(Resolucion resolucion, DataSessionPivot ds) {
+    private void saveRetirosCiclos(Resolucion resolucion, DataSessionPivot ds) {
 
 //        if (resolucion.getRetiroCiclo().isEmpty()) {
 //            throw new PhobosException("Debe seleccionar como mínimo un alumno.");
@@ -1159,9 +1195,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             MatriculaResumen matriculaResumen = null;
             if (resolucion.isTipoRetiroCiclo()) {
                 retiroCicloDB = retiroCicloDAO.findByExcepcional(alumnoDB);
-                if (retiroCicloDB == null) {
-                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + " no cuenta con un trámite de retiro ciclo.");
-                }
+//                if (retiroCicloDB == null) {
+//                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + " no cuenta con un trámite de retiro ciclo.");
+//                }
                 cicloAplica = retiroCicloDB.getCicloAcademico();
                 matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
                 if (retiroCicloForm.isSeleccionado()) {
@@ -1207,9 +1243,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             } else {
                 cicloAplica = resolucion.getCicloAplica();
                 retiroCicloDB = retiroCicloDAO.findByAlumnoCicloRetiro(alumnoDB, cicloAplica);
-                if (retiroCicloDB != null) {
-                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + "ya no cuenta con un trámite de anulación de ciclo.");
-                }
+//                if (retiroCicloDB != null) {
+//                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + "ya no cuenta con un trámite de anulación de ciclo.");
+//                }
                 matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.ANCI);
                 matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
@@ -1266,20 +1302,19 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 retiroCicloDAO.save(retiroCicloDB);
             }
 
-            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
-            List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
-            Boolean exist = false;
-            for (CicloAcademico cicloAcademico : ciclo) {
-                if (Objects.equals(cicloAcademico.getId(), cicloAplica.getId())) {
-                    exist = true;
-                    break;
-                }
-            }
-
-            if (!exist) {
-                throw new PhobosException("El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + cicloAplica.getDescripcion());
-            }
-
+//            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
+//            List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
+//            Boolean exist = false;
+//            for (CicloAcademico cicloAcademico : ciclo) {
+//                if (Objects.equals(cicloAcademico.getId(), cicloAplica.getId())) {
+//                    exist = true;
+//                    break;
+//                }
+//            }
+//
+//            if (!exist) {
+//                throw new PhobosException("El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + cicloAplica.getDescripcion());
+//            }
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
             if (resolucion.isTipoRetiroCiclo()) {
                 alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
@@ -1292,6 +1327,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
+                alumnoCicloCurso.setRegistroActivo(0);
+                alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.RES);
                 if (cicloAplica.isTipoRegular()) {
                     Integer countRegu = alumnoCicloCurso.getVecesCursadoRegular() - 1;
                     alumnoCicloCurso.setVecesCursadoRegular(countRegu);
@@ -1306,6 +1343,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
             alumnos.add(alumnoDB);
         }
+
         String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenProm = token + TOKEN_PROMEDIOS;
         String tokenCurri = token + TOKEN_CURRICULA;
@@ -1313,7 +1351,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         visorCalculoNotas.createToken(tokenProm, alumnos);
         visorCalculoNotas.createToken(tokenCurri, alumnos);
 
-        return token;
+        matriculableService.calcularPromedios(token, ds);
+        matriculableService.revisarCurriculaAlumnos(ds, token);
+
     }
 
     private String saveCambioNotas(Resolucion resolucion, DataSessionPivot ds) {

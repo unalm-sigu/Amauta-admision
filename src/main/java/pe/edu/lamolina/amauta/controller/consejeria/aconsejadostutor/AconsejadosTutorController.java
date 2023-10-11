@@ -70,11 +70,11 @@ public class AconsejadosTutorController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-//        Consejero consejero = service.findConsejero(ds.getPersona(), ds.getCicloAcademico());
         List<Consejero> consejeros = service.allConsejeroCarrera(ds.getPersona(), ds.getCicloAcademico());
-        InformeFinalTutoria informe = service.findInforme(consejeros.get(0), ds.getCicloAcademico(), ds);
+        Consejero consejero = consejeros.isEmpty() ? new Consejero() : consejeros.get(0);
+        InformeFinalTutoria informe = service.findInforme(consejero, ds.getCicloAcademico(), ds);
 
-        model.addAttribute("consejeroJson", this.createConsejeroJson(consejeros.get(0)));
+        model.addAttribute("consejeroJson", this.createConsejeroJson(consejero));
         model.addAttribute("personaJson", this.createPersonaJson(ds.getPersona()));
         model.addAttribute("departamentoJson", this.createDepartamentoJson(ds.getDepartamentoAcademico()));
         model.addAttribute("cicloJson", this.createCicloJson(ds.getCicloAcademico()));
@@ -160,11 +160,11 @@ public class AconsejadosTutorController {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-          
-        List<AlumnoConsejero> alumnosConsejeros = service.allByCicloPersona(ds.getCicloAcademico(),ds.getPersona());
-        
-        List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), ds.getPersona(),alumnosConsejeros.get(0).getConsejero().getCarrera(),ds);
-        
+
+        List<AlumnoConsejero> alumnosConsejeros = service.allByCicloPersona(ds.getCicloAcademico(), ds.getPersona());
+
+        List<AlumnoConsejero> alumnosTutor = service.allByDynatableByCarrera(filter, ds.getCicloAcademico(), ds.getPersona(), alumnosConsejeros.get(0).getConsejero().getCarrera(), ds);
+
         List<Alumno> alumnos = alumnosTutor.stream().map(tutor -> tutor.getAlumno()).collect(Collectors.toList());
         Map<Long, List<PlanTutorial>> mapPlanes = service.allPlanes(alumnos, ds.getCicloAcademico());
         Map<Long, List<AlumnoCualidad>> mapCualidades = service.allCualidades(alumnos, ds.getCicloAcademico());
@@ -477,6 +477,9 @@ public class AconsejadosTutorController {
     }
 
     private ObjectNode createDepartamentoJson(DepartamentoAcademico departamento) {
+        if (departamento == null) {
+            departamento = new DepartamentoAcademico();
+        }
         return JaneHelper
                 .from(departamento)
                 .only("id,codigo,nombre")
@@ -503,6 +506,7 @@ public class AconsejadosTutorController {
                 .only("id,codigo,nombre")
                 .array();
     }
+
     private ObjectNode createCarrerasJson(Carrera carrera) {
         return JaneHelper
                 .from(carrera)
