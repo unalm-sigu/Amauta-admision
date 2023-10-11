@@ -2390,8 +2390,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<CicloAcademico> allCicloAplica(DataSessionPivot ds) {
         CicloAcademico ca = ds.getCicloAcademico();
-        int rango = 20;
-        return cicloAcademicoDAO.allPregradoFuturosByRange(ca.getYear() - rango, ca.getYear() + 3);
+        Integer yearInicial = 1959;
+        return cicloAcademicoDAO.allPregradoFuturosByRange(yearInicial, ca.getYear() + 3);
     }
 
     @Override
