@@ -2744,6 +2744,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 matriculaSeccionDB.setSeccion(seccion);
                 matriculaSeccionDB.setFechaMatricula(null);
                 matriculaSeccionDB.setUserMatricula(null);
+                matriculaSeccionDB.setUserAnula(ds.getUsuario());
                 matriculaSeccionDAO.update(matriculaSeccionDB);
             }
         }

@@ -4,33 +4,38 @@
         <div id="divDynatable">
             <table class="table table-condensed">
                 <thead>
-                    <tr>
                     <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th v-if="tipo != 'TITULBAC'">Resolución</th>
                     </tr>
-                <th v-if="tipo == 'BACHI'">Apellidos y Nombres</th>
-                <th v-if="tipo == 'BACHI'">Grado Academico</th>
-                <th v-if="tipo == 'BACHI'">Ciclo</th>
-
-                <th v-if="tipo == 'PRACTICAS'">Apellidos y Nombres</th>
-                <th v-if="tipo == 'PRACTICAS'">Tipo</th>
-                <th v-if="tipo == 'PRACTICAS'"></th>
-
-                <th v-if="tipo == 'TRAS'">Apellidos y Nombres</th>
-                <th v-if="tipo == 'TRAS'">Ciclo Aplica</th>
-                <th v-if="tipo == 'TRAS'"></th>                
-
-                <!--                        <th v-if="tipo != 'CURDIR' &amp;&amp; tipo != 'TRAS_INT' " class="text-center">Ciclo Aplica</th>-->
-                <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Apellidos y Nombres</th>
-                <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
-                <th v-if="tipo == 'CAM_NOTA'">Nota</th>
-
-                <th v-if="tipo == 'TRAS_INT'">Apellidos y Nombres</th>
-                <th v-if="tipo == 'TRAS_INT'">Carrera Origen </th>
-                <th v-if="tipo == 'TRAS_INT'">Carrera Destino</th>
-                </tr>
+                    <tr v-else-if="tipo == 'BACHI'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Grado Académico</th>
+                        <th>Ciclo</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'PRACTICAS'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Tipo</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'TRAS'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Ciclo Aplica</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">
+                        <th>Apellidos y Nombres</th>
+                        <th>Curso</th>
+                        <th v-if="tipo == 'CAM_NOTA'">Nota</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'TRAS_INT'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Carrera Origen</th>
+                        <th>Carrera Destino</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'RCI' || tipo =='INTES'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Ciclo Académico</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-for="item in alumnosReincorporacion" v-if="tipo == 'REIC'"
@@ -207,7 +212,7 @@
                             <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
                         </td>
                     </tr>         
-                    
+
                     <tr v-if="tipo == 'RENUNCIA_CAR'"  v-for="item in alumnoTramiteRenuncia">
                         <td>
                             <span class="block">{{item.tramite.alumno.codigo}}</span>
@@ -219,7 +224,7 @@
                             <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
                         </td>
                     </tr> 
-                    
+
                 </tbody>
             </table>
         </div>
