@@ -17,8 +17,8 @@
                                     v-text="plan.cicloInicioVigencia.descripcion"></option>
                         </select>
                     </div>
-                    <div class="col-sm-2">
-                        <a th:if="${puedeCalcular}" v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </a> 
+                    <div class="col-sm-2" v-if="puedeCalcular">
+                        <a v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </a> 
                     </div>
 
                 </div>
@@ -170,6 +170,7 @@
 
         data() {
             return {
+                puedeCalcular : JSON.parse(puedeCalcularJSON),
                 planes: [],
                 ident: true,
                 ciclosCurricula: [],
