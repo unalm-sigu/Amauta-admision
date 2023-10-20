@@ -505,7 +505,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                     return respuesta;
                 }
 
-                resolucion.setNumeroVisible(resolucion.getCodigoTituloBachiller());
+                resolucion.setNumeroVisible(resolucion.getDescripcion());
                 break;
             case PRACTICAS:
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
