@@ -328,8 +328,8 @@ public class ResolucionExistenteController {
                     return response;
                 }
 
-                matriculableService.calcularPromedios(respuesta.get(0), ds);
-                matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                //matriculableService.calcularPromedios(respuesta.get(0), ds);
+                //matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                 break;
             case ALUMRENUNCIA:
                 if (this.contieneMensaje(respuesta)) {
@@ -421,9 +421,9 @@ public class ResolucionExistenteController {
                 response.setData(msg);
                 break;
             case PRACTICAS:
-                String token1 = respuestas.get(0);
-                matriculableService.calcularPromedios(token1, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token1);
+                //String token1 = respuestas.get(0);
+                //matriculableService.calcularPromedios(token1, ds);
+                //matriculableService.revisarCurriculaAlumnos(ds, token1);
                 break;
             default:
                 throw new PhobosException("Tipo de trámite no soportado");

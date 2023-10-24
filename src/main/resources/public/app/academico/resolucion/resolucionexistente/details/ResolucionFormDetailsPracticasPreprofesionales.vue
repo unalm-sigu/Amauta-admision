@@ -1,23 +1,24 @@
 <template>
     <div>
-
-        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
-
+        <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>       
+        <p class="pull-left" v-if="resolucion.tramitePracticasPreProfesionales.length">Alumno por registrar: <span class="bold">{{resolucion.tramitePracticasPreProfesionales.length}}</span></p>        
+        <button type="button" v-on:click="add" class="btn btn-success pull-right" style="margin-bottom: 10px;">Agregar Alumno</button>
         <table class="table table-striped">
-
             <thead>
                 <tr>
-                    <th class="col-sm-9 text-center">Persona</th>
+                    <th class="col-sm-1 text-center">N°</th>
+                    <th class="col-sm-8 text-center">Persona</th>
                     <th class="col-sm-2 text-center" >
                         <span v-if="validColumCreditos(resolucion)">Créditos</span>
                     </th>
                     <th class="col-sm-1 text-center"></th>
                 </tr>
             </thead>
-
-            <tbody>
-
+            <tbody>            
                 <tr v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
+                    <td class="v-middle text-center" >                        
+                        {{index + 1}}
+                    </td>
                     <td class="v-middle text-center">
                         <div class="form-group">
                             <div class="col-md-12">
@@ -46,23 +47,19 @@
                             </div>
                         </div>
                     </td>
-
                     <td class="v-middle text-center" >
                         <input class="form-control" required="true" v-model="practicas.creditos"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null"/>
                     </td>
-
                     <td class="v-middle">
                         <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; practicas.id != null">
                             <i class="fa fa-trash-o " aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
-
-
             </tbody>
         </table>
 
-        <button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>
+        <!--<button type="button" v-on:click="add" class="btn btn-default pull-right m-t-md">Agregar Alumno</button>-->
 
 
     </div>
@@ -93,7 +90,7 @@
         methods: {
             add() {
                 let $vue = this;
-                $vue.resolucion.tramitePracticasPreProfesionales.push({seleccionado: true});
+                $vue.resolucion.tramitePracticasPreProfesionales.unshift({seleccionado: true});
                 $vue.$forceUpdate();
             },
             del(index) {
