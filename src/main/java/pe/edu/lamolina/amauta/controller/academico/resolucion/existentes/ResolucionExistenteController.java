@@ -26,8 +26,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.TramitesAcademicos;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -57,6 +55,8 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITULBAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.ING_HIS;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;

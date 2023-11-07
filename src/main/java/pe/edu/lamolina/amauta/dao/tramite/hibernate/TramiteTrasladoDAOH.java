@@ -13,10 +13,9 @@ import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.TRAS_INT;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository

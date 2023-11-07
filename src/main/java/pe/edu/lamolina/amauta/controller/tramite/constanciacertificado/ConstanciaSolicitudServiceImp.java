@@ -40,7 +40,6 @@ import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
@@ -161,6 +160,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 
 @Service
 @Transactional(readOnly = true)

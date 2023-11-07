@@ -6,12 +6,12 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.SUBV;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteSubvencionDAO;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.SUBV;
 
 @Repository
 public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> implements TramiteSubvencionDAO {

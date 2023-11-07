@@ -22,8 +22,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ALUMREN;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RENUNCIA_CAR;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.ALUMREN;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.RENUNCIA_CAR;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 
