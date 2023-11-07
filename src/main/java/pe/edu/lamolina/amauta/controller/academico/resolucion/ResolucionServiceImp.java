@@ -35,7 +35,6 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -79,6 +78,7 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j

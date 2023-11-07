@@ -48,7 +48,6 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
@@ -61,6 +60,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 
 @Service
 @Transactional(readOnly = true)

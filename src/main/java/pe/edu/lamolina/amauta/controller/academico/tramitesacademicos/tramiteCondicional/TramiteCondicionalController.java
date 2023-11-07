@@ -35,10 +35,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RCI;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -47,6 +43,10 @@ import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.RCI;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.REI;
 
 @Slf4j
 @Controller
