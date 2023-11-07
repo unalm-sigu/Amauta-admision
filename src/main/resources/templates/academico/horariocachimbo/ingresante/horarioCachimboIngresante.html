@@ -69,6 +69,7 @@
                             <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
                             <li class="divider"></li>
                             <li><a th:href="@{/reporte/programacionHorarioAlumno}" >Imprimir Horarios</a></li>
+                            <li><a href="#" v-on:click="horarioFacultad" >Imprimir Horario/Facultad</a></li>
                         </ul>
                     </div>
 
@@ -129,7 +130,6 @@
                                     </tbody>
                                 </table>
                             </div>
-
                             <div v-else="">
                                 <raptor-table v-bind:url="alumnosURL" ref="alumnosRaptor">
                                     <div slot="header"></div>
@@ -155,7 +155,9 @@
                                                             {{horario.estudiante}}
                                                         </p>
                                                         <span class="text-sm text-muted block">{{horario.codigoMatricula}}</span>
-                                                        <span class="text-sm text-muted block"> {{horario.tipo}}  {{horario.numero}}</span>
+                                                        <span class="text-sm text-muted block"> {{horario.tipo}}  {{horario.numero}}</span>                                                        
+                                                        <b v-if="horario.situacion=='N'" class="label label-warning">({{horario.situacionnombre}})</b>
+                                                        <span v-if="horario.situacion !=='N'" class="label label-success"> {{horario.situacionnombre}}</span>
                                                     </td>
 
                                                     <td class="v-middle">
@@ -198,8 +200,6 @@
                                                         <span v-if="horario.estado=='SUSP'" class="label label-danger" >{{horario.estadoName}}</span>
                                                     </td>
 
-
-
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
@@ -211,7 +211,11 @@
                                                                 <li class="divider"></li>
                                                                 <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
                                                                 <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
-                                                                <li class="divider"></li>
+                                                                <li v-if="horario.situacion=='N'" class="divider" ></li>
+                                                                <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'I')"  href="#">Cambiar Situacion a Ingresante</a></li>
+                                                                <li><a class=""  v-if="horario.situacion=='N'" v-on:click.prevent="cambiarSituacion(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Ingresante no matriculado</a></li>
+                                                                <li><a class="" v-if="horario.situacion=='8' " v-on:click.prevent="cambiarSituacionNormal(horario.codigoMatricula,horario.estudiante,'IN')"  href="#">Cambiar Situacion a Normal</a></li>
+                                                                <li class="divider"></li> 
                                                                 <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
                                                                 <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
                                                                 <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="deleteAlumno(horario.id)"  href="#">Eliminar</a></li>
@@ -234,6 +238,7 @@
 
                 <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
                 <div th:substituteby="academico/horariocachimbo/ingresante/erroresIngresanteModal"/>
+                <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboReporte"></div>
 
             </div>
 
@@ -244,9 +249,10 @@
                 /*<![CDATA[*/
                 var rutaModulo = 'academico/horariocachimbo/ingresante';
                 /*]]>*/
+                  var carrerasJson = /*[[${carreras.toString()}]]*/ '';
             </script>
-            
-            
+
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
         </div>

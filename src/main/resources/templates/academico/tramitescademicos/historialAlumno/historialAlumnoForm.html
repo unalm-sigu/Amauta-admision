@@ -1,0 +1,243 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Historial Alumno Form </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+            <header class="header b-b padder-lg">
+                <a th:href="@{/academico/tramiteacademico/historialalumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <h2  id="nombreAlumno" th:text="${ alumno.persona.id!=null ? alumno.persona.apellidosNombres : 'Nuevo Alumno' }" >Nuevo Alumno</h2>
+            </header>
+
+            <div id="main">
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <form data-parsley-validate="true" method="POST" id="formAlumno" >
+                                
+                                <div class="col-md-12">
+
+                                    <input type="hidden"  name="id" th:value="${alumno.id}"/>
+                                    <input type="hidden"  name="persona.id" th:value="${alumno.persona.id}"/>
+
+                                    <div class="panel-body">
+                                        <div class="col-xs-12">
+                                            <h4 class="m-b-md m-t-md">Datos Generales</h4>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Tipo de documento de identidad</label>
+                                                <select name="persona.tipoDocumento.id" 
+                                                        class="form-control">
+                                                    <option></option>
+                                                    <option th:each="tipo : ${documentos}"
+                                                            th:value="${tipo.id}"
+                                                            th:selected="${alumno.persona.tipoDocumento!=null?alumno.persona.tipoDocumento.id==tipo.id:0}"
+                                                            th:text="${tipo.nombre}" >
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Número de documento de identidad</label>
+                                                <input type="text"
+                                                       name="persona.numeroDocIdentidad"
+                                                       th:value="${alumno.persona.numeroDocIdentidad}"
+                                                       class="form-control" v-on:change="buscarPersona" />
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Apellido Paterno</label>
+                                                <input type="text"
+                                                       name="persona.paterno"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.paterno}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Apellido Materno</label>
+                                                <input type="text"
+                                                       name="persona.materno"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.materno}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Nombres</label>
+                                                <input type="text"
+                                                       name="persona.nombres"
+                                                       required="true"
+                                                       v-on:change="nombrePersona"
+                                                       th:value="${alumno.persona.nombres}"
+                                                       class="form-control"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="emailEmpresa" >Correo  Institucional</label>
+                                                <input  class="inline form-control validar-email-empresa"
+                                                        data-trigger="change" type="email"
+                                                        data-trim-value="true"
+                                                        name="persona.emailCompania" id="emailCompania"
+                                                        th:value=" ${alumno.persona.emailCompania}"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Sexo</label>
+                                                <div class="form-group">
+                                                    <div class="col-sm-10">
+                                                        <div class="col-sm-5">
+                                                            <label class="radio inline">
+                                                                <input  type="radio"
+                                                                        required="true"
+                                                                        name="persona.sexo"
+                                                                        id="inlineCheckbox1"
+                                                                        value="M"
+                                                                        v-model="sexoM"
+                                                                        th:checked="${alumno.persona.sexo=='M'}" /> Masculino
+                                                            </label>
+
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <label class="radio inline">
+                                                                <input  type="radio"
+                                                                        required="true"
+                                                                        name="persona.sexo"
+                                                                        id="inlineCheckbox2"
+                                                                        value="F"
+                                                                        v-model="sexoF"
+                                                                        th:checked="${alumno.persona.sexo=='F'}" /> Femenino
+                                                            </label>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>                                                                              
+
+                                        <div class="col-xs-12">
+                                            <h4>Datos Académicos</h4>
+                                        </div>
+
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="carrera.id">Especialidad</label>
+                                                <input type="text"
+                                                       name="carrera.id"
+                                                       th:value="${alumno.carrera != null? alumno.carrera.id: ''}"
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="facultad.id">Facultad</label>
+                                                <input type="text"
+                                                       name="facultad.id"
+                                                       th:value="${alumno.carrera.facultad != null? alumno.carrera.facultad.id: ''}"
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
+                                                <select name="modalidadEstudio.id"
+                                                        required="true"
+                                                        class="form-control" >
+                                                    <option></option>
+                                                    <option th:each="item : ${modalidades}"
+                                                            th:text="${item.nombre}"
+                                                            th:selected="${alumno.modalidadEstudio!=null} ? ${alumno.modalidadEstudio.id==item.id}"
+                                                            th:value="${item.id}" ></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="cicloIngreso.id">Ciclo Ingreso</label>
+                                                <input type="text" 
+                                                       name="cicloIngreso.id"
+                                                       th:value="${alumno.cicloIngreso!=null? alumno.cicloIngreso.id:''}"                                                       
+                                                       required='true'
+                                                       data-trigger="change"
+                                                       class="form-control"/>                                               
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                <hr/>
+
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
+                                </div>
+
+                                <input type="hidden" id="mensajeError" th:value='${mensaje}'/>
+
+                            </form>
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+            <script id="divBuscarDistrito" type="text/x-template" class="hide" >
+                <span class="block h5 bold">{{:distrito}}</span>
+                <span class=""><strong>Provincia:</strong>{{:provincia}}
+                <strong>Departamento:</strong> {{:departamento}}</span>
+            </script>
+
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var showLugarNacimiento = /*[[${alumno.persona.ubicacionNacer != null}]]*/'';
+                var codigoPaisDomicilio = /*[[${alumno.persona.paisDomicilio!=null?alumno.persona.paisDomicilio.codigo:''}]]*/ '';
+                /*]]>*/
+            </script>
+
+
+        </section>
+
+        <div layout:fragment="js">
+            <script charset="utf-8">
+                var datepicker = $.fn.datepicker.noConflict();
+                $.fn.datepickerBoot = datepicker;
+            </script>
+            <div th:substituteby="_layout/includes :: javascript-upload"> </div>
+            <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/historialAlumnoForm.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

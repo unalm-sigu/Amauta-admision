@@ -25,7 +25,6 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraResumen;
-import pe.edu.lamolina.model.general.Pais;
 
 @Repository
 public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO {
@@ -251,6 +250,34 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
+    public List<Carrera> allCarreras(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa", "me.compania co")
+                .leftJoin("areaPosgrado ap")
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .filter("car.nombre", "like", nombre)
+                .filter("co.id", 1)
+                .limit(15);
+        return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allCarreras(String nombre, Compania compania) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa", "me.compania co")
+                .leftJoin("areaPosgrado ap")
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
+                .filter("car.nombre", "like", nombre)
+                .filter("co.id", compania)
+                .limit(15);
+        return all(sql);
+    }
+
+    @Override
     public List<Carrera> allActivas() {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
@@ -458,6 +485,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .endBlock()
                 .limit(20);
         return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allCarrera() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
+                .filter("me.codigo", PRE);
+        return all(sql);
+
     }
 
 }

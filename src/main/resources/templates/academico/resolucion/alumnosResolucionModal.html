@@ -4,17 +4,37 @@
         <div id="divDynatable">
             <table class="table table-condensed">
                 <thead>
-                    <tr>
-                        <th>Alumnos</th>
-                        <th v-if="tipo == 'BACHI' ||'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' ">
-                            <span  v-if="codigoOficina=='UNA'">Grado/Título</span>
-                            <span  v-if="codigoOficina!=='UNA'">Nombres</span>
-                        </th>                                                                        
-                        <th v-if="tipo != 'CURDIR' &amp;&amp; tipo != 'TRAS_INT' " class="text-center">Ciclo Aplica</th>
-                        <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
-                        <th v-if="tipo == 'CAM_NOTA' ">Nota</th>
-                        <th v-if="tipo == 'TRAS_INT' ">Carrera Origen</th>
-                        <th v-if="tipo == 'TRAS_INT' ">Carrera Destino </th>
+                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
+                        <th>Código</th>
+                        <th>Apellidos y Nombres</th>
+                        <th v-if="tipo != 'TITULBAC'">Resolución</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'BACHI'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Grado Académico</th>
+                        <th>Ciclo</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'PRACTICAS'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Tipo</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'TRAS'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Ciclo Aplica</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">
+                        <th>Apellidos y Nombres</th>
+                        <th>Curso</th>
+                        <th v-if="tipo == 'CAM_NOTA'">Nota</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'TRAS_INT'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Carrera Origen</th>
+                        <th>Carrera Destino</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'RCI' || tipo =='INTES'">
+                        <th>Apellidos y Nombres</th>
+                        <th>Ciclo Académico</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -130,8 +150,7 @@
                             <span class="block" v-text="item.carrera.nombre"></span>
                         </td>
                     </tr>
-
-                    <tr v-for="item in alumnoTramiteBachiller" v-if="(tipo == 'BACHI' || tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC') ">
+                    <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="item in alumnoTramiteBachiller" >
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
                             <span class="block">
@@ -156,6 +175,55 @@
                             <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
+
+                    <tr v-if="tipo === 'BACHIFAC'" v-for="item in alumnoTramiteBachiller" >
+                        <td>   
+                            <strong>{{item.tramite.alumno.codigo }}</strong> 
+                        </td>                        
+                        <td>
+                            <strong>{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }}</strong> 
+                        </td>
+                        <td>   
+                            <strong></strong> 
+                        </td>                        
+                    </tr>
+
+
+                    <tr v-if="tipo === 'TITUL'" v-for="item in alumnoTramiteBachiller" >
+                        <td>   
+                            <strong>{{item.tramite.alumno.codigo }}</strong> 
+                        </td>                        
+                        <td>
+                            <strong>{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }}</strong> 
+                        </td>
+                        <td>   
+                            <strong>{{item.resolucion.descripcionFacultad }}</strong> 
+                        </td>                        
+                    </tr>
+
+                    <tr v-if="tipo == 'ALUMRENUNCIA'"  v-for="item in alumnoTramiteRenuncia">
+                        <td>
+                            <span class="block">{{item.tramite.alumno.codigo}}</span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }} </span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
+                        </td>
+                    </tr>         
+
+                    <tr v-if="tipo == 'RENUNCIA_CAR'"  v-for="item in alumnoTramiteRenuncia">
+                        <td>
+                            <span class="block">{{item.tramite.alumno.codigo}}</span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }} </span>
+                        </td>
+                        <td>
+                            <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
+                        </td>
+                    </tr> 
 
                 </tbody>
             </table>

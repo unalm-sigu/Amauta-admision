@@ -129,7 +129,7 @@
                                         </td>
                                         <td class="text-right v-middle text-primary">
                                             <!--<span v-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>-->
-                                            <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc) }} </span>
+                                            <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
                                             <span v-else-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>
                                         </td>
                                         <td class="v-middle text-center">
@@ -190,8 +190,13 @@
                                         <span v-if="profeSecc.porcentajeCarga != '' "> {{profeSecc.porcentajeCarga.toFixed(2)}} </span>
                                     </td>
                                     <td class="text-right v-middle text-primary">
-                                        <span v-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
+                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
+                                        <span v-else-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
                                     </td>
+                                    <!--<td class="text-right v-middle text-primary">                                        
+                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
+                                        <span v-else-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>
+                                    </td>-->
                                     <td class="v-middle text-center">
                                         <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                         <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>

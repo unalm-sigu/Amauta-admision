@@ -124,8 +124,8 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
             this.addHeaderRight("CONSEJERO: " + consejero, table);
         }
         {
-            String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
-            this.addHeaderFull("CORREO INSTITUCIONAL: " + credencial, table);
+          //  String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
+          //  this.addHeaderFull("CORREO INSTITUCIONAL: " + credencial, table);
         }
     }
 

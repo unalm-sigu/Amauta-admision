@@ -82,8 +82,10 @@
                                                         <li role="presentation" v-if='item.autorizado'>
                                                             <a class="aceptar-expandir-sistema"  
                                                                v-on:click="editarResolucionOther(item,$event)" href="#"
-                                                               v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad || item.isTipoTramiteTitulo || 
-                                                               item.isTipoTramitePracticas || item.isTipoCursoDirigido || item.isTipoTramiteTituloFacultad"
+                                                               v-if="item.isTipoTrasladoInterno ||item.isTipoTramiteBachiller ||item.isTipoTramiteBachillerFacultad 
+                                                               || item.isTipoTramiteTitulo || 
+                                                               item.isTipoTramitePracticas || item.isTipoCursoDirigido || item.isTipoTramiteTituloFacultad 
+                                                               || item.isAlumRenunciante || item.isAlumRenuncianteCarrera"
                                                                >
                                                                 Editar
                                                             </a>

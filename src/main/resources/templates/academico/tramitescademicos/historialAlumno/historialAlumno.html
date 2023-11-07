@@ -1,0 +1,118 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Asignación Turno Matricula</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="asignacionTurnoVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2>Historial de Alumno <span th:text="${cicloAcademico.descripcion}">2023-I</span></h2>
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" th:href="@{/academico/tramiteacademico/historialalumno/nuevo}">Nuevo</a></li>
+                        </ul>
+                    </div>
+                </header>
+                <section class="wrapper-lg">               
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="raptorurl" ref="raptorAsignacionTurno">
+                                <div slot="header"></div>                                
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-md-4 text-center" colspan="2">Alumno</th>
+                                                <th class="col-md-7 text-center">Estado</th>                                                                                         
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <div class="pull-left">
+                                                        <div v-if="item.alumno.persona.tipoFoto == 'POSTUL'"
+                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                            <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                        </div>
+                                                        <img v-else-if="item.alumno.persona.tipoFoto == 'COMUN'"
+                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                             v-bind:src="item.alumno.persona.rutaFoto" />
+                                                        <img v-else=""
+                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                             v-bind:src="item.alumno.persona.rutaFoto" />
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <div class="v-middle clear">
+                                                        <a href="#"><span class="block text-primary bold" v-text="item.alumno.persona.apellidosNombres"></span></a>
+                                                        <span class="block">
+                                                            <span class="bold">Matrícula:</span> {{item.alumno.codigo}}
+                                                            <template v-if="item.alumno.persona.numeroDocIdentidad != '' ">
+                                                                &nbsp;|&nbsp; 
+                                                                <smal v-if="item.alumno.persona.tipoDocumento.simbolo != '' " class="bold">
+                                                                    {{item.alumno.persona.tipoDocumento.simbolo}}: 
+                                                                </smal> 
+                                                                {{item.alumno.persona.numeroDocIdentidad}}
+                                                            </template>
+                                                        </span>
+                                                        <span class="block text-primary bold h5 m-b-xs m-t-xs">
+                                                            {{item.alumno.persona.nombreCompleto}}
+                                                        </span>
+                                                        <span class="block text-primary" 
+                                                              v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre">
+                                                            {{item.alumno.carrera.nombre}}
+                                                        </span>
+                                                        <span class="block bold" 
+                                                              v-if="item.alumno.carrera.tipo == 'MAE' || item.alumno.carrera.tipo == 'DOC'">
+                                                            {{item.alumno.carrera.tipoEnum.value}}
+                                                        </span>
+                                                        <template v-if="item.alumno.pregrado">
+                                                            <span class="block" 
+                                                                  v-if="item.alumno.carrera.nombre == item.alumno.carrera.facultad.nombre ">
+                                                                {{item.alumno.carrera.facultad.nombre}}
+                                                            </span>
+                                                        </template>
+                                                        <span class="block bold text-primary">
+                                                            {{item.alumno.modalidadEstudio.nombre}}
+                                                        </span>
+                                                        <span class="clear">
+                                                            <span class="label label-success">{{item.estadoEnum.value}} </span>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <div class="v-middle clear">
+                                                        <span class="block">
+                                                            <template>
+                                                                <div>
+                                                                    <span class="bold">Activo</span>                                                       
+                                                                </div>                                                                
+                                                            </template>
+                                                        </span>                                                      
+                                                    </div>                                                   
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>                
+                <div th:substituteby="academico/tramitescademicos/historialAlumno/historialAlumnoModal"></div>                
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                    var rutaModulo = 'academico/matricula/asignacionturno';
+                /*]]>*/
+            </script>            
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/historialAlumno.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

@@ -29,7 +29,6 @@ import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
-import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
@@ -66,6 +65,7 @@ import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ReservaAulaEstadoEnum;
 import static pe.edu.lamolina.model.enums.SexoEnum.F;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 
 @Service
 @Transactional(readOnly = true)

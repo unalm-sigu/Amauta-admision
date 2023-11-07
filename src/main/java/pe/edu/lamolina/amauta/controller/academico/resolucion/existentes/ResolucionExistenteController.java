@@ -26,8 +26,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.TramitesAcademicos;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -40,6 +38,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ALUMRENUNCIA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHIFAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR;
@@ -50,16 +49,20 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RENUNCIA_CAR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITULBAC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.ING_HIS;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Slf4j
@@ -88,7 +91,9 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.PRACTICAS,
             TipoResolucionEnum.ING_HIS,
             TipoResolucionEnum.BACHIFAC,
-            TipoResolucionEnum.TITULBAC
+            TipoResolucionEnum.TITULBAC,
+            TipoResolucionEnum.ALUMRENUNCIA,
+            TipoResolucionEnum.RENUNCIA_CAR
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -232,8 +237,6 @@ public class ResolucionExistenteController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        List<String> msg = new ArrayList();
-
         TipoResolucionEnum tipo = resolucion.getTipoResolucion().getTipoEnum();
         List<String> respuesta = service.saveResolucion(resolucion, ds);
 
@@ -241,7 +244,9 @@ public class ResolucionExistenteController {
         response.setSuccess(Boolean.TRUE);
         response.setMessage(GlobalMessages.CREATED);
 
-        if (!respuesta.isEmpty() && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
+        //    log.debug("respuesta.get(0) {} ", respuesta.get(0).length());
+        //    log.debug("respuesta.mensaje {} ", respuesta.get(0));
+        if (!respuesta.isEmpty() && respuesta.get(0).length() == 32 && respuesta.get(0).substring(0, 32).equalsIgnoreCase("Ya fue registrado una resolución")) {
             response.setSuccess(Boolean.FALSE);
             response.setMessage(respuesta.get(0));
             return response;
@@ -249,12 +254,24 @@ public class ResolucionExistenteController {
 
         switch (tipo) {
             case REIC:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case RCI:
             case ANCI:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
-                if (!respuesta.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     matriculableService.calcularPromedios(respuesta.get(0), ds);
                     matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
                     matriculableService.revisarMatriculables(ds, respuesta.get(0));
@@ -262,11 +279,12 @@ public class ResolucionExistenteController {
                 }
                 break;
             case TRAS_INT:
-                msg = respuesta;
-                if (!msg.isEmpty()) {
+//                msg = respuesta;
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
                 }
-                response.setData(msg);
 //                service.generarNuevoPlan(resolucion, ds);
                 break;
             case TRAS:
@@ -274,26 +292,73 @@ public class ResolucionExistenteController {
             case ING_HIS:
             case BACHI:
             case BACHIFAC:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+
             case TITUL:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case TITULBAC:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
             case CAMBIO_PLAN_CURRICULAR:
                 break;
             case CURDIR:
-                msg = respuesta;
-                if (!msg.isEmpty()) {
+                if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
                 }
-                response.setData(msg);
                 break;
             case PRACTICAS:
-                matriculableService.calcularPromedios(respuesta.get(0), ds);
-                matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+
+                //matriculableService.calcularPromedios(respuesta.get(0), ds);
+                //matriculableService.revisarCurriculaAlumnos(ds, respuesta.get(0));
+                break;
+            case ALUMRENUNCIA:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
+            case RENUNCIA_CAR:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
                 break;
             default:
                 throw new PhobosException("Tipo de trámite no soportado");
         }
 
         return response;
+    }
+
+    public boolean contieneMensaje(List<String> respuesta) {
+        for (String rpta : respuesta) {
+            if (!rpta.isEmpty() && rpta.length() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @ResponseBody
@@ -356,9 +421,9 @@ public class ResolucionExistenteController {
                 response.setData(msg);
                 break;
             case PRACTICAS:
-                String token1 = respuestas.get(0);
-                matriculableService.calcularPromedios(token1, ds);
-                matriculableService.revisarCurriculaAlumnos(ds, token1);
+                //String token1 = respuestas.get(0);
+                //matriculableService.calcularPromedios(token1, ds);
+                //matriculableService.revisarCurriculaAlumnos(ds, token1);
                 break;
             default:
                 throw new PhobosException("Tipo de trámite no soportado");
@@ -422,7 +487,7 @@ public class ResolucionExistenteController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "anularTramiteTrasladoInterno")
     public JsonResponse anularTramiteTrasladoInterno(@RequestBody ResolucionesExistentesDTO resolucionesExistentesDTO, HttpSession session) {
@@ -479,7 +544,7 @@ public class ResolucionExistenteController {
                     .array();
 
         } else if (tipoResolucionEnum == CURDIR) {
-            List<CursoDirigido> cursosDirigidos = service.allCursodirigido(resolucion);
+            List<CursoDirigido> cursosDirigidos = service.allCursodirigidoPregrado(resolucion);
             return JaneHelper.from(cursosDirigidos)
                     .join("curso")
                     .join("tramite.alumno")
@@ -517,37 +582,54 @@ public class ResolucionExistenteController {
                         .join("resolucion.oficina", "codigo,id")
                         .join("resolucion")
                         .array();
-            }        
-        } else if (tipoResolucionEnum == BACHIFAC){
-                        List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
-                return JaneHelper.from(tramiteBachiller)
-                        .join("tramite.alumno", "codigo")
-                        .join("tramite.cicloAcademico", "descripcion")
-                        .join("tramite.persona", "paterno,materno,nombres")
-                        .join("resolucion.oficina", "codigo,id")
-                        .join("resolucion")
-                        .array();
-        }
-        else if (tipoResolucionEnum == TITUL){
-                List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultadRes(resolucion);
-                return JaneHelper.from(tramiteTitulo)
-                        .join("tramite.alumno", "codigo")
-                        .join("tramite.cicloAcademico", "descripcion")
-                        .join("tramite.persona", "paterno,materno,nombres")
-                        .join("resolucion.oficina", "codigo,id")
-                        .join("resolucion")
-                        //                        .join("cicloAcademico", "id,descripcion,nombre")
-                        .array();        
-        }else if (tipoResolucionEnum == TITULBAC) {
-                List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultad(resolucion);
-                return JaneHelper.from(tramiteTitulo)
-                        .join("tramite.alumno", "codigo")
-                        .join("tramite.cicloAcademico", "descripcion")
-                        .join("tramite.persona", "paterno,materno,nombres")
-                        .join("resolucion.oficina", "codigo,id")
-                        .join("resolucion")
-                        //                        .join("cicloAcademico", "id,descripcion,nombre")
-                        .array();                
+            }
+        } else if (tipoResolucionEnum == BACHIFAC) {
+            List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
+            return JaneHelper.from(tramiteBachiller)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.cicloAcademico", "descripcion")
+                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    .array();
+        } else if (tipoResolucionEnum == TITUL) {
+            List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultadRes(resolucion);
+            return JaneHelper.from(tramiteTitulo)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.cicloAcademico", "descripcion")
+                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    //                        .join("cicloAcademico", "id,descripcion,nombre")
+                    .array();
+        } else if (tipoResolucionEnum == TITULBAC) {
+            List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultad(resolucion);
+            return JaneHelper.from(tramiteTitulo)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.cicloAcademico", "descripcion")
+                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    //                        .join("cicloAcademico", "id,descripcion,nombre")
+                    .array();
+        } else if (tipoResolucionEnum == ALUMRENUNCIA) {
+            /* aqi buscamos mostrar no editar*/
+            List<TramiteRenunciaAlumno> tramiteRenuncia = service.allResolucionRenunciaAlumno(resolucion);
+            return JaneHelper.from(tramiteRenuncia)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.persona", "paterno,materno,nombres,numeroDocIdentidad")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    .array();
+        } else if (tipoResolucionEnum == RENUNCIA_CAR) {
+            /* aqi buscamos mostrar no editar*/
+            List<TramiteRenunciaAlumno> tramiteRenuncia = service.allResolucionRenunciaAlumno(resolucion);
+            return JaneHelper.from(tramiteRenuncia)
+                    .join("tramite.alumno", "codigo")
+                    .join("tramite.persona", "paterno,materno,nombres,numeroDocIdentidad")
+                    .join("resolucion.oficina", "codigo,id")
+                    .join("resolucion")
+                    .array();
         } else if (tipoResolucionEnum == PRACTICAS) {
             List<PracticasPreProfesional> practicasPre = service.allPracticasPreProfesionales(resolucion);
             return JaneHelper.from(practicasPre)
@@ -612,7 +694,6 @@ public class ResolucionExistenteController {
             for (TramiteBachiller bachiller : bachillers) {
                 bachiller.setAlumno(bachiller.getTramite().getAlumno());
             }
-
             ArrayNode array = JaneHelper.from(bachillers).only("id")
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")
@@ -623,13 +704,28 @@ public class ResolucionExistenteController {
 
             objectNode.set("tramiteBachiller", array);
 
-        }else if (resolucion.getTipoResolucion().getCodigo().equals(TITULBAC.name())){
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(ALUMRENUNCIA.name())) {
+            /* para editar la renuncia*/
+            List<TramiteRenunciaAlumno> renunciaAlumno = service.allResolucionRenunciaAlumno(resolucion);
+
+            for (TramiteRenunciaAlumno renuncia : renunciaAlumno) {
+                renuncia.setAlumno(renuncia.getTramite().getAlumno());
+            }
+            ArrayNode array = JaneHelper.from(renunciaAlumno).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+            objectNode.set("tramiteRenunciaAlumno", array);
+
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(TITULBAC.name())) {
             List<TramiteTitulo> tramiteTitulos = service.allTramiteTituloFacultad(resolucion);
 
             for (TramiteTitulo tit : tramiteTitulos) {
                 tit.setAlumno(tit.getTramite().getAlumno());
             }
-
             ArrayNode array = JaneHelper.from(tramiteTitulos).only("id")
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")
@@ -639,10 +735,7 @@ public class ResolucionExistenteController {
                     .array();
 
             objectNode.set("tramiteTitulos", array);
-        
-        
-        }
-        else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(TITUL.name())) {
 
             List<TramiteTitulo> tramiteTitulos = service.allTramiteTitulo(resolucion);
 
@@ -815,6 +908,46 @@ public class ResolucionExistenteController {
         }
 
         return JaneHelper.from(tramiteTitulos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allRenunciaAlumno")
+    public ArrayNode allRenunciaAlumno(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteRenunciaAlumno> tramiteRenunciaAlumno = service.allRenunciaSolicitados(ds);
+
+        for (TramiteRenunciaAlumno renunciaAlumno : tramiteRenunciaAlumno) {
+            renunciaAlumno.setAlumno(renunciaAlumno.getTramite().getAlumno());
+            renunciaAlumno.setSeleccionado(Boolean.FALSE);
+        }
+        return JaneHelper.from(tramiteRenunciaAlumno)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allRenunciaAlumnoCarrera")
+    public ArrayNode allRenunciaAlumnoCarrera(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<TramiteRenunciaAlumno> tramiteRenunciaAlumno = service.allRenunciaSolicitadosCarrera(ds);
+
+        for (TramiteRenunciaAlumno renunciaAlumno : tramiteRenunciaAlumno) {
+            renunciaAlumno.setAlumno(renunciaAlumno.getTramite().getAlumno());
+            renunciaAlumno.setSeleccionado(Boolean.FALSE);
+        }
+        return JaneHelper.from(tramiteRenunciaAlumno)
                 .join("alumno")
                 .join("alumno.carrera")
                 .join("alumno.carrera.facultad")

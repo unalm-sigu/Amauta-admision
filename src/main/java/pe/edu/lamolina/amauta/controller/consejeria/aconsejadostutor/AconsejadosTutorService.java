@@ -53,4 +53,8 @@ public interface AconsejadosTutorService {
 
     List<ResumenEncuestaTutoria> allDataEncuesta(Consejero consejero, List<PreguntaExamen> preguntas, CicloAcademico ciclo, DataSessionPivot ds);
 
+    List<Consejero> allConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico);
+
+    List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona);
+
 }

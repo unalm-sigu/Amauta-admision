@@ -40,6 +40,10 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allByNombre(String nombre, Compania cia);
 
+    List<Carrera> allCarreras(String nombre, Compania compania);
+
+    List<Carrera> allCarreras(String nombre);
+
     List<Carrera> allActivas();
 
     List<Carrera> allActivasByModalidades(List<String> modalidadesCodes);
@@ -73,5 +77,7 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     public List<Carrera> allCarrerasPregradoActivaByNombre(String nombre);
 
     public List<Carrera> searchByNombre(String nombre);
+
+    public List<Carrera> allCarrera();
 
 }

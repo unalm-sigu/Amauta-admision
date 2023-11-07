@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.amauta.dao.posgrado.ConceptoPosgradoDAO;
+import pe.edu.lamolina.model.posgrado.concepto.ConceptoPosgrado;
 
 @Repository
 public class ConceptoPosgradoDAOH extends AbstractEasyDAO<ConceptoPosgrado> implements ConceptoPosgradoDAO {

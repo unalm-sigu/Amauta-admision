@@ -136,6 +136,8 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
+//import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
+//import pe.edu.lamolina.model.academico.Facultad;
 
 @Slf4j
 @Service
@@ -173,6 +175,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
     private final CarreraDAO carreraDAO;
+//    private final FacultadDAO facultadDAO;
 
     @Override
     public AlumnoResumen allResumen(CicloAcademico cicloAcademico, VerificadorServiceImp.CantidadItemsEnum cantidadEnum, List<Carrera> carreras) {
@@ -1689,6 +1692,7 @@ public class MatriculableServiceImp implements MatriculableService {
         return listAptoPreBean;
     }
 
+
     @Override
     public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
@@ -1764,5 +1768,6 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);
     }
+
 
 }

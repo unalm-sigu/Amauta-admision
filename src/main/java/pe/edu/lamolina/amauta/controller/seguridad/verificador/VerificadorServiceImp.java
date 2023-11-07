@@ -1044,7 +1044,17 @@ public class VerificadorServiceImp implements VerificadorService {
         }
         return false;
     }
-
+    
+    @Override
+    public boolean isRolRacd(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.RACD) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Override
     public boolean isDeveloperOERA(DataSessionPivot ds) {
         boolean esInformaticoOera = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);

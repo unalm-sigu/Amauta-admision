@@ -121,8 +121,23 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
     }
 
     @Override
+    public List<CursoDirigido> allByResolucionPregado(Resolucion resolucion) {
+        Octavia sql = new Octavia()
+                .from(CursoDirigido.class, "cd")
+                .join("tramite tra", "facultad fac", "curso ", "estado")
+                .join("tra.tipoTramite")
+                .left("tra.alumno al", "al.persona per", "userRegistro ur", "ur.persona")
+                .join("al.carrera car", "car.facultad fa", "resolucion res")
+                .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
+                .leftJoin("per.paisNacer", "al.orientacionCarrera")
+                .filter("res.id", resolucion);
+
+        return all(sql);
+    }
+
+    @Override
     public List<CursoDirigido> allByCicloAcademicoAlumno(MatriculaResumen matriculaResumen) {
-       Octavia sql = new Octavia()
+        Octavia sql = new Octavia()
                 .from(CursoDirigido.class, "cd")
                 .join("tramite tra", "facultad fac", "curso ", "estado es")
                 .join("tra.tipoTramite")
@@ -133,7 +148,7 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
 
         return all(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()

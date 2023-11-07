@@ -7,6 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -119,6 +120,42 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .filter("estado", EstadoEnum.ACT)
                 .orderBy("fac.nombre");
 
+        return all(sql);
+    }
+
+    @Override
+    public List<Facultad> allFacultad(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania cia")
+                .filter("fa.estado", EnteAcademicoEstadoEnum.ACT)
+                .beginBlock()
+                .__().like("fa.nombre", nombre)
+                .endBlock()
+                .orderBy("fa.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<Facultad> allFacultades() {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa");
+        //.join("fa.carrera ca");
+        return all(sql);
+    }
+
+    @Override
+    public List<Facultad> allFacultadesPre(List<Facultad> facultades) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("fa")
+                .from(Carrera.class, "ca")
+                .join("facultad fa", "ca.modalidadEstudio me")
+                .filter("ca.estado", EstadoEnum.ACT.name())
+                .filter("fa.estado", EstadoEnum.ACT.name())
+                .filter("me.codigo", ModalidadEstudioEnum.PRE.name());
+        if (!facultades.isEmpty()) {
+            sql.in("fa.id", facultades);
+        }
         return all(sql);
     }
 

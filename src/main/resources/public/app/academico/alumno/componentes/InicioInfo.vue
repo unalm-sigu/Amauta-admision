@@ -49,7 +49,7 @@
 
                             </div>
                         </td>
-                        
+
                         <td class="col-lg-4">
                             <div v-if="alumno.persona.emailCompania" class="block m-b-xs">
                                 <i class="fa fa-envelope" aria-hidden="true"></i>
@@ -207,7 +207,6 @@
                                     <span v-text="alumno.fechaEgreso"></span>
                                 </td>
                             </tr>
-
                             <tr v-if="alumno.resolucionTitulo">
                                 <td>
                                     <strong> Título </strong>
@@ -225,7 +224,22 @@
                                     <span v-text="alumno.fechaTitulo"></span>
                                 </td>
                             </tr>
-
+                            <tr v-if="alumno.resolucionTituloFacultad">
+                                <td>
+                                    <strong> Res. Facultad Título </strong>
+                                </td>
+                                <td>
+                                    <span v-text="alumno.resolucionTituloFacultad"></span>
+                                </td>
+                            </tr>
+                            <tr v-if="alumno.fechaTituloFacultad">
+                                <td>
+                                    <strong>Fecha Res.Fac.Título </strong>
+                                </td>
+                                <td>
+                                    <span v-text="alumno.fechaTituloFacultad"></span>
+                                </td>
+                            </tr>
                             <tr v-if="alumno.resolucionBachiller">
                                 <td>
                                     <strong> Resolucion UNALM Bachiller  </strong>

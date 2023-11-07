@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.Facultad;
 
 public interface HorarioCachimboIngresanteService {
 
@@ -42,5 +44,15 @@ public interface HorarioCachimboIngresanteService {
     public void revisarActividad(DataSessionPivot ds);
 
     public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico);
+
+    void cambiarSituacion(String codigo, String situacion);
+
+    void cambiarSituacionNormal(String codigo, String situacion);
+
+    public boolean isRolRacd(DataSessionPivot ds);
+
+    List<Carrera> allCarrera();
+
+    public List<Facultad> allFacultad(String nombre);
 
 }

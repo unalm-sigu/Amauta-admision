@@ -14,7 +14,6 @@
                 </tr>
             </thead>
             <tbody>
-
                 <tr v-if="filtroFacultadSeleccionado(filterFacultad, titulo)" v-for="(titulo , index) in resolucion.tramiteTitulos">
                     <td class="v-middle text-center">
                         <div class="form-group">
@@ -94,7 +93,7 @@
         },
         mounted: function () {
             let $vue = this;
-            console.log($vue.resolucion.tipoResolucion.id)
+          //  console.log($vue.resolucion.tipoResolucion.id)
 
             if ($vue.isEdicion === false || $vue.isAnular === false) {
                 if ($vue.resolucion.tipoResolucion.id === 108) {
@@ -171,6 +170,8 @@
                 axios_.get(APP.url("academico/resolucion/existentes/allTitulo"))
                         .then(({data}) => {
                             $vue.resolucion.tramiteTitulos = data;
+                            console.log("alltitulo js")
+                            console.log(data)
                             $vue.hideLoader();
                             $vue.$forceUpdate();
                         }, () => {

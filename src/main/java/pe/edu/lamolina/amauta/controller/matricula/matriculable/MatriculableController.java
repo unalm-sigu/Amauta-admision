@@ -14,6 +14,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -161,8 +162,7 @@ public class MatriculableController {
                     || value == EstadoMatriculaEnum.ANCI
                     || value == EstadoMatriculaEnum.NMAT
                     || value == EstadoMatriculaEnum.PMAT
-                    || value == EstadoMatriculaEnum.INH
-                ) {
+                    || value == EstadoMatriculaEnum.INH) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("name", value.name());
@@ -766,7 +766,7 @@ public class MatriculableController {
         return response;
 
     }
-    
+
     @ResponseBody
     @RequestMapping("agregarAporteSegundaCarreraDeuda")
     public JsonResponse agregarAporteSegundaCarreraDeuda(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
@@ -932,7 +932,7 @@ public class MatriculableController {
 
     @RequestMapping("aptosPregrado")
     public ModelAndView aptosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
         model.addAttribute("listAptoPreBean", listAptoPreBean);
@@ -1065,5 +1065,4 @@ public class MatriculableController {
                 .array();
 
     }
-
 }

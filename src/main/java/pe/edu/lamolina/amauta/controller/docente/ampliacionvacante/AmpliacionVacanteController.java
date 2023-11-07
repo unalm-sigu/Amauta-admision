@@ -3,8 +3,10 @@ package pe.edu.lamolina.amauta.controller.docente.ampliacionvacante;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,8 +163,11 @@ public class AmpliacionVacanteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico, seccion);
-
+            List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico, seccion)
+                    .stream()
+                    .filter(x -> !Arrays.asList("R", "RA","7").contains(x.getSituacionAcademica().getCodigo()))
+                    .collect(Collectors.toList());
+                    
             for (Alumno alumno : alumnos) {
                 ObjectNode json = JsonHelper.createJson(alumno, jFactory, true,
                         new String[]{

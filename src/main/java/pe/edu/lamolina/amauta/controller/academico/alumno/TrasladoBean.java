@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.alumno;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
@@ -11,7 +12,8 @@ public class TrasladoBean {
     Integer total;
     Alumno alumno;
     TramiteTraslado tramiteTraslado;
-
+    CicloAcademico cicloAcademico;
+    
     public TrasladoBean() {
     }
 
@@ -46,4 +48,13 @@ public class TrasladoBean {
     public void setTramiteTraslado(TramiteTraslado tramiteTraslado) {
         this.tramiteTraslado = tramiteTraslado;
     }
+    
+    public CicloAcademico getCicloAcademico() {
+        return cicloAcademico;
+    }
+
+    public void setCicloAcademico(CicloAcademico cicloAcademico) {
+        this.cicloAcademico = cicloAcademico;
+    }
+    
 }

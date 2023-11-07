@@ -6,6 +6,7 @@ import pe.edu.lamolina.amauta.zelper.bean.FormDataBean;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,6 +101,10 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
+import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
 
@@ -141,6 +147,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     private final OficinaService oficinaService;
     private final PromedioService promedioService;
     private final ReunionConsejoService reunionConsejoService;
+    private final VisorCalculoNotas visorCalculoNotas;
+    private final MatriculableService matriculableService;
 
     private final String CODIGO_REGISTRO = "UR";
 
@@ -330,7 +338,16 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             if (accionTramiteAcademico != null ? accionTramiteAcademico.getEsSatisfactorio() : accionTramiteDocumento.getEsSatisfactorio()) {
 
                 this.aprobadoUR(tramite, accionTramiteAcademico, autorizacionRegistro, ds.getUsuario(), today);
-                infoAcademicoService.calcularPromedio(tramite.getAlumno(), ds);
+//                infoAcademicoService.calcularPromedio(tramite.getAlumno(), ds);
+                String token = RandomStringUtils.randomAlphanumeric(43);
+                String tokenProm = token + TOKEN_PROMEDIOS;
+                String tokenCurri = token + TOKEN_CURRICULA;
+
+                visorCalculoNotas.createToken(tokenProm, Arrays.asList(tramite.getAlumno()));
+                visorCalculoNotas.createToken(tokenCurri, Arrays.asList(tramite.getAlumno()));
+
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
             }
         }
         if (accionTramiteAcademico != null ? accionTramiteAcademico.getEstadoTramiteFinal().getEsControlCalidad() : accionTramiteDocumento.getEstadoTramiteFinal().getEsControlCalidad()) {

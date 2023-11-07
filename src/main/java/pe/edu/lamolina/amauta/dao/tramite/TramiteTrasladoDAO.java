@@ -35,4 +35,6 @@ public interface TramiteTrasladoDAO extends EasyDAO<TramiteTraslado> {
 
     public List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno);
 
+    List<TramiteTraslado> trasladosInternosByDynatableCiclo(DynatableFilter filter, List<CicloAcademico> ciclos);
+
 }

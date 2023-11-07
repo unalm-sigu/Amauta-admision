@@ -103,7 +103,14 @@
                      v-if="!(resolucion.tipoResolucion.isTrasladoExterno||
                      resolucion.tipoResolucion.isIngresoFisicoHistorial||
                      resolucion.tipoResolucion.isTramiteBachiller||
-                     resolucion.tipoResolucion.isTramiteTitulo)">
+                     resolucion.tipoResolucion.isTramiteTitulo||
+                     resolucion.tipoResolucion.isCursoDirigido||
+                     resolucion.tipoResolucion.isIngresoFisicoHistorial||
+                     resolucion.tipoResolucion.isTramitePracticas||
+                     resolucion.tipoResolucion.isAlumRenunciante||
+                     resolucion.tipoResolucion.isAlumRenuncianteCarrera||
+                     resolucion.tipoResolucion.isTramiteBachillerFacultad||
+                     resolucion.tipoResolucion.isTramiteTituloFacultad)">
                     <label>
                         Ciclo Aplica
                     </label>

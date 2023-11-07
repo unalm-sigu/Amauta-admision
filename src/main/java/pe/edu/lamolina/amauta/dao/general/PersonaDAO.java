@@ -25,6 +25,8 @@ public interface PersonaDAO extends EasyDAO<Persona> {
     List<Persona> allByEmailWithoutPersona(Persona persona);
 
     List<Persona> allByApellidosNombres(Persona persona);
+    
+    List<Persona> allByApellidos(Persona persona);
 
     List<Persona> allByEmailCompania(String email);
 
@@ -43,5 +45,7 @@ public interface PersonaDAO extends EasyDAO<Persona> {
     void updateColumns(Persona persona, String... columns);
 
     public Persona findByDocIdentidad(String nroDocumento);
+    
+    List<Persona> allByEmailGeneric(String usuario);
 
 }

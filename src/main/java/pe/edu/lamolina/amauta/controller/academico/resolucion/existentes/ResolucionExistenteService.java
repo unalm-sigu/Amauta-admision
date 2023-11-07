@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Readmision;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 public interface ResolucionExistenteService {
@@ -40,6 +41,8 @@ public interface ResolucionExistenteService {
     List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
     List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
+
+    List<CursoDirigido> allCursodirigidoPregrado(Resolucion resolucionDB);
 
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
@@ -104,9 +107,15 @@ public interface ResolucionExistenteService {
     boolean anularAlumnoDeResolucionCursoDirigido(Alumno alumno, Resolucion resolucion, CursoDirigido cursoDirigido, DataSessionPivot ds);
 
     boolean anularAlumnoDeResolucionTramiteTraslado(Alumno alumno, Resolucion resolucion, TramiteTraslado tramiteTraslado, DataSessionPivot ds);
-    
+
     List<TramiteTitulo> allResulucionTituloFacultad(Resolucion resolucion);
 
     List<TramiteTitulo> allResulucionTituloFacultadRes(Resolucion resolucion);
+
+    public List<TramiteRenunciaAlumno> allResolucionRenunciaAlumno(Resolucion resolucion);
+
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitados(DataSessionPivot ds);
+
+    public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds);
 
 }

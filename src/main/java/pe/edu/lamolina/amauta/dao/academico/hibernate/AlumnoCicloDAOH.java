@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
@@ -999,6 +1000,82 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public List<MatriculaPreBean> allmatriculadosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, String facultad) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select distinct fa.nombre facultad,ab.nombre programa,per.paterno,per.materno,per.nombres,per.email_compania correo, ");
+        sql.append("cu.codigo, cu.nombre curso,s.codigo2 clave, ");
+        sql.append("ghh.codigo cod_grupo,di.nombre dia, ");
+        sql.append("concat((select  ");
+        sql.append("            ho1.descripcion2 hora1 ");
+        sql.append("            from  aca_seccion s1  ");
+        sql.append("            left join hor_horario_seccion hs1 on hs1.id_seccion = s1.id ");
+        sql.append("            left join gen_dia di1 on hs1.id_dia = di1.id ");
+        sql.append("            left join hor_hora ho1 on hs1.id_hora = ho1.id ");
+        sql.append("            where s1.id = s.id ");
+        sql.append("            order by  ho1.id asc limit 1) ");
+        sql.append("            ,' a ', ");
+        sql.append("            (select  ");
+        sql.append("            ho2.descripcion_fin hora2 ");
+        sql.append("            from  aca_seccion s2  ");
+        sql.append("            left join hor_horario_seccion hs2 on hs2.id_seccion = s2.id ");
+        sql.append("            left join gen_dia di2 on hs2.id_dia = di2.id ");
+        sql.append("            left join hor_hora ho2 on hs2.id_hora = ho2.id ");
+        sql.append("            where s2.id = s.id ");
+        sql.append("            order by ho2.id desc limit 1)) hora_dictado, ");
+        sql.append("s.vacantes, ");
+        sql.append("sum(s.matriculados) matriculados, ");
+        sql.append("case s.modo_dictado ");
+        sql.append("when 'PRES' then 'Presencial' ");
+        sql.append("when 'VIRTUAL' then 'Virtual' ");
+        sql.append("when 'SEMI' then 'Semi Presencial' ");
+        sql.append("else 'No definido' end 'modo_dictado' ");
+        sql.append("from  aca_seccion s  ");
+        sql.append("join aca_grupo_seccion gs on s.id_grupo_seccion = gs.id  ");
+        sql.append("join aca_ciclo_academico ca on gs.id_ciclo = ca.id ");
+        sql.append("join aca_curso cu on gs.id_curso = cu.id ");
+        sql.append("join aca_modalidad_estudio mec on cu.id_modalidad_estudio = mec.id ");
+        sql.append("join aca_anexo_boletin ab on gs.id_anexo_boletin = ab.id ");
+        sql.append("join aca_anexo_boletin abb on ab.id_anexo_superior = abb.id ");
+        sql.append("join aca_departamento_academico da on ab.id_departamento_academico = da.id ");
+        sql.append("join aca_facultad fa on da.id_facultad = fa.id ");
+        sql.append("left join aca_docente_seccion ds on ds.id_seccion = s.id ");
+        sql.append("left join aca_docente d on ds.id_docente = d.id ");
+        sql.append("left join gen_persona per on d.id_persona = per.id ");
+        sql.append("left join hor_horario_seccion hs on hs.id_seccion = s.id ");
+        sql.append("left join gen_dia di on hs.id_dia = di.id ");
+        sql.append("left join hor_hora ho on hs.id_hora = ho.id ");
+        sql.append("left join hor_grupo_horas ghh on s.id_grupo_horas = ghh.id ");
+        sql.append("where ca.codigo = :CICLO  ");
+        sql.append("and fa.codigo = :FACULTAD ");
+        sql.append("and s.estado = 'ACT' ");
+        sql.append("and gs.estado = 'ACT' ");
+        sql.append("and mec.codigo = 'PRE' ");
+        sql.append("group by per.paterno,per.materno,per.nombres,per.email_compania,ab.nombre,fa.nombre,da.nombre,s.vacantes,s.modo_dictado, ");
+        sql.append("cu.codigo, cu.nombre,s.codigo2,ghh.codigo,di.nombre,ho.descripcion,ho.descripcion_fin,di.numero_dia,ho.numero,hora_dictado ");
+        sql.append("order by 1,2,8,9,3,4,5 ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("programa", StringType.INSTANCE)
+                .addScalar("paterno", StringType.INSTANCE)
+                .addScalar("materno", StringType.INSTANCE)
+                .addScalar("nombres", StringType.INSTANCE)
+                .addScalar("correo", StringType.INSTANCE)
+                .addScalar("codigo", StringType.INSTANCE)
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("clave", StringType.INSTANCE)
+                .addScalar("dia", StringType.INSTANCE)
+                .addScalar("hora_dictado", StringType.INSTANCE)
+                .addScalar("vacantes", LongType.INSTANCE)
+                .addScalar("matriculados", LongType.INSTANCE)
+                .addScalar("modo_dictado", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(MatriculaPreBean.class));
+        query.setParameter("CICLO", cicloAcademico.getCodigo());
+        query.setParameter("FACULTAD", facultad);
+        return (List<MatriculaPreBean>) query.list();
+    }
+
+    @Override
     public List<AptoPreBean> allVotantesAptosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
         StringBuilder sql = new StringBuilder();
         sql.append(" select alm.codigo matricula, concat(per.paterno, ' ', per.materno, ', ',per.nombres) apellidos_nombres, carr.nombre As especialidad, fac.nombre As facultad, ");
@@ -1169,12 +1246,12 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
                 .join("alu.modalidadEstudio me")
                 .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
-                .in("sf.codigo", 
+                .in("sf.codigo",
                         asList(S_6U.getValue(),
-                        S_U.getValue(),
-                        S_T.getValue(),
-                        S_6B.getValue(),
-                        S_6.getValue()))
+                                S_U.getValue(),
+                                S_T.getValue(),
+                                S_6B.getValue(),
+                                S_6.getValue()))
                 .filter("me.codigo", PRE)
                 .filter("ca.id", cicloAcademico);
         return all(sql);

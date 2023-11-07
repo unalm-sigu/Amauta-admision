@@ -1,0 +1,105 @@
+package pe.edu.lamolina.amauta.controller.tramite.alumnorenunciante;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import java.util.Arrays;
+import java.util.List;
+import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.ALUMREN;
+import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.RENUNCIA_CAR;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
+
+@Controller
+@RequestMapping("academico/tramiteacademico/tramitealumnorenuncia")
+public class TramiteRenunciaAlumnoController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    TramiteRenunciaAlumnoService tramiteRenunciaService;
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String index(Model model, HttpSession session) {
+        ArrayNode tipoTramiteJson = new ArrayNode(JsonNodeFactory.instance);
+
+        List<TipoTramite> tipoTramite = tramiteRenunciaService.allTipoTramite();
+        for (TipoTramite tipo : tipoTramite) {
+            if (Arrays.asList(ALUMREN.name(), RENUNCIA_CAR.name()).contains(tipo.getCodigo())) {
+                tipoTramiteJson.add(JsonHelper.createJson(tipo, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+        }
+        model.addAttribute("tipoTramite", tipoTramiteJson);
+        return "academico/tramitescademicos/alumnorenunciante/tramitesAlumnoRenunciante";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse listTramites(DynatableFilter filter,
+            HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        json.setTotal(0);
+        List<TramiteRenunciaAlumno> tramitesRenuncia = tramiteRenunciaService.allTramitesRenuciaByFilter(filter);
+
+        ArrayNode array = JaneHelper.from(tramitesRenuncia)
+                .join("resolucion")
+                .join("usuarioAnulaTramite.persona", "apellidosNombres")
+                .join("tramite")
+                .join("tramite.alumno")
+                .join("tramite.alumno.persona")
+                .join("tramite.alumno.planCurricular")
+                .join("tramite.alumno.carrera")
+                .join("tramite.alumno.carrera.facultad")
+                .join("tramite.cicloAcademico")
+                .join("tramite.tipoTramite")
+                .join("tramite.tipoTramite.oficina")
+                .join("tramite.userRegistro")
+                .join("tramite.userRegistro.persona")
+                .join("tramite.userRespuesta")
+                .join("tramite.formularioEstadoTramite")
+                .join("tramite.estadoTramite", "id,nombre")
+                .array();
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public String Renuncia(@RequestBody TramiteRenunciaAlumno tramiteRenunciaAlumno,
+            @RequestParam String tipoTramite,
+            HttpSession session) {
+
+        //System.out.println("Tipo de Trámite: " + tramiteRenunciaAlumno.get .getTipoTramite()); // Asumiendo que el método para obtener tipoTramite se llama getTipoTramite()
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+       
+        if ("ALUMREN".equals(tipoTramite)) {
+            tramiteRenunciaService.saveAlumnoRenuncia(tramiteRenunciaAlumno, ds);
+        } else {
+            tramiteRenunciaService.saveAlumnoRenunciaCarrera(tramiteRenunciaAlumno, ds);
+        }
+
+        return GlobalMessages.CREATED;
+    }
+
+}

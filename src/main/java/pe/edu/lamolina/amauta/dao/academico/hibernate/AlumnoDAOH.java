@@ -1391,4 +1391,28 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return all(sql);
     }
 
+    @Override
+    public Alumno findBySitCodigo(String codigoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("situacionAcademica")
+                .filter("alu.codigo", codigoAlumno);
+
+        return find(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByYear(Integer year) {
+    
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "persona per", "cicloIngreso ci")
+                .filter("ci.year", year);
+
+        return all(sql);
+    
+    }
+    
+    
+
 }

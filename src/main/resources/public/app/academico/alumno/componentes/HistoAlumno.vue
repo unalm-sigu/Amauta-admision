@@ -530,7 +530,7 @@
                 cicloSelect: {},
                 general: true,
                 isVisibleMerito: false,
-                puedeCalcular: puedeCalcular,
+                puedeCalcular: JSON.parse(puedeCalcularJSON),
                 idModalConfirm: "id-modal-confirm-histo-alumno"
             };
         },

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
@@ -75,7 +76,6 @@ public class ReporteController {
 //            }
 //        }
 //    }
-
     @RequestMapping("programacionHorarios")
     public ModelAndView generatorpdf(Model model, HttpSession session, HttpServletResponse response) throws Exception {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -98,4 +98,19 @@ public class ReporteController {
         return new ModelAndView(horarioAlumnoCicloPDF);
     }
 
+    @RequestMapping("programacionHorarioAlumnoReporte")
+    public ModelAndView programacionHorarioAlumnoReporte(
+            @RequestParam("condicion") String condicion,
+            Model model, HttpSession session, HttpServletResponse response) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        //List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo, condicion);
+        model.addAttribute("cicloAcademico", ciclo);
+        model.addAttribute("alumnosHorario", service.allAlumnoHorario(ciclo, condicion));
+        model.addAttribute("horariosCachimbo", service.allHorariosCachimbo(ciclo));
+        model.addAttribute("consejeros", service.allOficinaByConsejero());
+        return new ModelAndView(horarioAlumnoCicloPDF);
+    }
 }
