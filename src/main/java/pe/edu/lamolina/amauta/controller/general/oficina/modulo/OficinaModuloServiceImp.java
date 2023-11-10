@@ -161,12 +161,11 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
     @Override
     @Transactional
     public void update(Oficina oficina, DataSessionPivot ds) {
-
         Assert.isTrue(verificadorService.puedeVerOficina(oficina, ds), "No tiene permiso para modificar la información de esta oficina");
-
         ObjectUtil.eliminarAttrSinId(oficina);
-
+        
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
+
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
         oficinaBD.setNombre(oficina.getNombre());
         oficinaBD.setCodigo(oficina.getCodigo());
@@ -179,6 +178,8 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
         oficinaBD.setTipoOficina(oficina.getTipoOficina());
         oficinaBD.setWebSite(oficina.getWebSite());
+        oficinaBD.setUserModificacion(ds.getUsuario());
+        oficinaBD.setFechaModificacion(new Date());
         oficinaDAO.update(oficinaBD);
     }
 

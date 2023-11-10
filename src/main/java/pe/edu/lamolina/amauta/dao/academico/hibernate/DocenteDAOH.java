@@ -288,27 +288,49 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     @Override
     public List<DocenteCicloBean> AllDocentecicloAcademico(List<CicloAcademico> cicloAcademicos) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" select caa.descripcion ,caa.codigo_anterior , dc.codigo cod_docente2,cad2.codigo pro_cad2,  ");
-        sql.append(" CONCAT(IFNULL(gp.paterno, ''), ' ', IFNULL(gp.materno, ''), ', ', IFNULL(gp.nombres, '')) AS nombreDocente,  ");        
-        sql.append(" cad2.nombre categ_nombre2,sid2.codigo pro_situac2,sid2.nombre situac_nombre2,  ");
-        sql.append(" ded2.codigo cod_dedica2,ded2.nombre,ada.nombre_largo   ");
-        sql.append("             from rrhh_contrato_docente a  ");
-        sql.append("             join aca_ciclo_academico caa on a.id_ciclo_inicio_contrato = caa.id and a.id_ciclo_inicio_contrato  = caa.id  ");
-        sql.append("             join aca_docente dc on a.id_docente = dc.id  ");
-        sql.append("             join rrhh_categoria_docente cad2 on a.id_categoria = cad2.id  ");
-        sql.append("             join gen_persona gp on gp.id=dc.id_persona  ");
-        sql.append("             join rrhh_situacion_docente sid2 on a.id_situacion = sid2.id  ");
-        sql.append("             join rrhh_dedicacion_docente ded2 on a.id_dedicacion = ded2.id  ");
-        sql.append("             join aca_docente ad on ad.id =a.id_docente   ");
-        sql.append("             join aca_departamento_academico ada on ada.id =ad.id_departamento_academico   ");
-        sql.append(" where caa.id = :CICLO order by  nombreDocente" );
+//        sql.append(" select caa.descripcion ,caa.codigo_anterior , dc.codigo cod_docente2,cad2.codigo pro_cad2,  ");
+//        sql.append(" CONCAT(IFNULL(gp.paterno, ''), ' ', IFNULL(gp.materno, ''), ', ', IFNULL(gp.nombres, '')) AS nombreDocente,  ");        
+//        sql.append(" cad2.nombre categ_nombre2,sid2.codigo pro_situac2,sid2.nombre situac_nombre2,  ");
+//        sql.append(" ded2.codigo cod_dedica2,ded2.nombre,ada.nombre_largo   ");
+//        sql.append("             from rrhh_contrato_docente a  ");
+//        sql.append("             join aca_ciclo_academico caa on a.id_ciclo_inicio_contrato = caa.id and a.id_ciclo_inicio_contrato  = caa.id  ");
+//        sql.append("             join aca_docente dc on a.id_docente = dc.id  ");
+//        sql.append("             join rrhh_categoria_docente cad2 on a.id_categoria = cad2.id  ");
+//        sql.append("             join gen_persona gp on gp.id=dc.id_persona  ");
+//        sql.append("             join rrhh_situacion_docente sid2 on a.id_situacion = sid2.id  ");
+//        sql.append("             join rrhh_dedicacion_docente ded2 on a.id_dedicacion = ded2.id  ");
+//        sql.append("             join aca_docente ad on ad.id =a.id_docente   ");
+//        sql.append("             join aca_departamento_academico ada on ada.id =ad.id_departamento_academico   ");
+//        sql.append(" where caa.id = :CICLO order by  nombreDocente" );
+
+        sql.append("  select distinct d.codigo as cod_docente2,ca.descripcion,ca.codigo_anterior ,CONCAT(IFNULL(p.paterno,''),' ',IFNULL(p.materno,''),' ',IFNULL(p.nombres,'')) as nombreDocente, ");
+        sql.append("  cad.codigo pro_cad2, ");
+        sql.append("  cad.nombre categ_nombre2,sid.codigo pro_situac2,sid.nombre situac_nombre2, ");
+        sql.append("  ded.codigo cod_dedica2,ded.nombre nombre,cad2.descripcion2,ada.nombre_largo  ");
+        sql.append("  from aca_grupo_seccion gs  ");
+        sql.append("  join aca_seccion s on s.id_grupo_seccion = gs.id ");
+        sql.append("  join aca_ciclo_academico ca on gs.id_ciclo = ca.id ");
+        sql.append("  join aca_docente_seccion ds on ds.id_seccion = s.id ");
+        sql.append("  join aca_docente d on ds.id_docente = d.id ");
+        sql.append("  join gen_persona p on d.id_persona = p.id ");
+        sql.append("  join rrhh_contrato_docente cd on cd.id_docente = d.id ");
+        sql.append("  join rrhh_categoria_docente cad on cd.id_categoria = cad.id ");
+        sql.append("  join rrhh_situacion_docente sid on cd.id_situacion = sid.id ");
+        sql.append("  join rrhh_dedicacion_docente ded on cd.id_dedicacion = ded.id ");
+        sql.append("  join aca_ciclo_academico cad2 on cd.id_ciclo_inicio_contrato = cad2.id and ca.id = cad2.id ");
+        sql.append("  join aca_departamento_academico ada on ada.id =d.id_departamento_academico  ");
+        sql.append("  where ca.id  = :CICLO ");
+        sql.append("  and gs.estado = 'ACT' ");
+        sql.append("  and s.estado = 'ACT' ");
+        sql.append("  and s.matriculados > 0 ");
+        sql.append("  order by 3 ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("descripcion", StringType.INSTANCE)
                 .addScalar("codigo_anterior", StringType.INSTANCE)
                 .addScalar("cod_docente2", StringType.INSTANCE)
                 .addScalar("nombreDocente", StringType.INSTANCE)
-                .addScalar("pro_cad2", StringType.INSTANCE)              
+                .addScalar("pro_cad2", StringType.INSTANCE)
                 .addScalar("categ_nombre2", StringType.INSTANCE)
                 .addScalar("pro_situac2", StringType.INSTANCE)
                 .addScalar("situac_nombre2", StringType.INSTANCE)
@@ -318,7 +340,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .setResultTransformer(Transformers.aliasToBean(DocenteCicloBean.class));
         List<Long> cicloIds = new ArrayList<>();
         for (CicloAcademico cicloAcademico : cicloAcademicos) {
-            cicloIds.add(cicloAcademico.getId() );
+            cicloIds.add(cicloAcademico.getId());
         }
         query.setParameterList("CICLO", cicloIds);
         return (List<DocenteCicloBean>) query.list();
