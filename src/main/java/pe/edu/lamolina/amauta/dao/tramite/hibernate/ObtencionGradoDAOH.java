@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -193,7 +194,7 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .join("estadoTramite et", "alumno al")
                 .left("al.carrera car", "al.persona per", "per.tipoDocumento td", "resolucion re")
                 .left("tramite tr", "gradoAcademico ga")
-                .filter("ga.tipo", BACH)
+                .in("ga.tipo", Arrays.asList(BACH, MAE, DOC))
                 .filter("al.id", alumno);
 
         return find(sql);
@@ -206,12 +207,11 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .join("estadoTramite et", "alumno al")
                 .left("al.carrera car", "al.persona per", "per.tipoDocumento td", "resolucion re")
                 .left("tramite tr", "gradoAcademico ga")
-                .filter("ga.tipo", BACH)
+                .in("ga.tipo", Arrays.asList(BACH, MAE, DOC))
                 .filter("al.id", alumno)
                 .filter("et.codigo", TramiteEstadoEnum.ACEP);
 
         return find(sql);
     }
 
-    
 }
