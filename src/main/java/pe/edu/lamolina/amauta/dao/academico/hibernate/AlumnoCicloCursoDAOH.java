@@ -40,6 +40,16 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public AlumnoCicloCurso find(long id) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ci", "acc.curso cur")
+                .filter("acc.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public AlumnoCicloCurso findByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -707,16 +717,6 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
-    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params) {
-        Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
-        for (String column : params) {
-            octavia.set(alumnoCicloCursoFound, column);
-        }
-        System.out.println("UPDATE " + octavia.toString());
-        this.update(octavia);
-    }
-
-    @Override
     public List<AlumnoCicloCurso> allByAlumnoCursosApr(Alumno alumno, List<Curso> cursos) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -772,7 +772,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
-    public List<AlumnoCicloCurso> allAprobadoByAlumnoCurso(Alumno alumno, Curso curso) {
+    public List<AlumnoCicloCurso> allMatriculadoByAlumnoCurso(Alumno alumno, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")

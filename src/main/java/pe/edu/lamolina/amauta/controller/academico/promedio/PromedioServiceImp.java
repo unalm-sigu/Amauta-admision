@@ -338,6 +338,7 @@ public class PromedioServiceImp implements PromedioService {
                         alumnoCiclo.setRegistroValido(false);
                     }
                 }
+
                 if (!alumnoCiclo.isRegistroValido()) {
                     CicloAcademico ciclo = alumnoCiclo.getCicloAcademico();
                     this.printSystem("ciclo=" + ciclo.getDescripcion() + " / estado=" + alumnoCiclo.getEstado() + " / registro.valido=" + alumnoCiclo.isRegistroValido(), showError);
@@ -352,7 +353,7 @@ public class PromedioServiceImp implements PromedioService {
                         List<AlumnoCicloCurso> alumnoCicloCursos = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
                         if (alumnoCicloCursos.isEmpty()) {
                             System.out.println("delete id=" + alumnoCiclo.getId() + " ciclo=" + alumnoCiclo.getCicloAcademico().getDescripcion());
-                            alumnoCicloDAO.delete(alumnoCiclo);
+                            alumnoCicloDAO.deleteById(alumnoCiclo);
                         }
                     }
                 }
@@ -707,6 +708,10 @@ public class PromedioServiceImp implements PromedioService {
                     }
                     if (alumnoCiclo.getEstadoEnum() == RCI || alumnoCiclo.getEstadoEnum() == ANCI) {
                         alumnoCiclo.setRegistroValido(true);
+                        return alumnoCiclo;
+                    }
+                    if (alumnoCiclo.getEstadoEnum() == NMAT) {
+                        alumnoCiclo.setRegistroValido(false);
                         return alumnoCiclo;
                     }
 
@@ -1211,23 +1216,19 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(S_4);
                     this.printLogger("Caso 34", showLog);
 
-                } 
-                else if ((!alumnoCiclo.getSituacionInicio().isEnPrueba() && !alumnoCiclo.getSituacionInicio().isSuspendido()) 
+                } else if ((!alumnoCiclo.getSituacionInicio().isEnPrueba() && !alumnoCiclo.getSituacionInicio().isSuspendido())
                         && alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
-                    
-                        situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
-                        alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
-                        this.printLogger("Caso 36", showLog);
 
-                } 
+                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
+                    this.printLogger("Caso 36", showLog);
 
-//                else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
-//                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
-//                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
-//                    this.printLogger("Caso 36", showLog);
-//
-//                }
-                
+                } //                else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
+                //                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+                //                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
+                //                    this.printLogger("Caso 36", showLog);
+                //
+                //                }
                 else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
                     this.printLogger("Caso 37", showLog);

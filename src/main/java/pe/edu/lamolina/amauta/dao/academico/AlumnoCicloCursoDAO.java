@@ -112,8 +112,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     int updateList(List<AlumnoCicloCurso> alumnoCiclosCursosUpd, String... columns);
 
-    void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... columns);
-
     List<AlumnoCicloCurso> allByAlumnoCursosApr(Alumno alumno, List<Curso> cursos);
 
     AlumnoCicloCurso findByAlumnoCurso(Alumno alumno, Curso curso);
@@ -122,6 +120,5 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> cantidadCursoConvalidado(AlumnoCiclo alumnoCiclo);
 
-    List<AlumnoCicloCurso> allAprobadoByAlumnoCurso(Alumno alumno, Curso curso);
-
+    List<AlumnoCicloCurso> allMatriculadoByAlumnoCurso(Alumno alumno, Curso curso);
 }
