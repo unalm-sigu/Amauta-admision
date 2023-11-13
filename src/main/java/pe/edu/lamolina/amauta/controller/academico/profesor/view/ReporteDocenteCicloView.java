@@ -72,6 +72,8 @@ public class ReporteDocenteCicloView extends AbstractView {
         this.setWidthColumn(excelUtil.getSheet(), 6, 3500);
         this.setWidthColumn(excelUtil.getSheet(), 7, 6500);
         this.setWidthColumn(excelUtil.getSheet(), 8, 8500);
+        this.setWidthColumn(excelUtil.getSheet(), 9, 5500);
+        this.setWidthColumn(excelUtil.getSheet(), 10, 5500);
 
         excelUtil.replaceStyle(0, 0, estiloCabecera);
         excelUtil.replaceStyle(0, 1, estiloCabecera);
@@ -82,6 +84,8 @@ public class ReporteDocenteCicloView extends AbstractView {
         excelUtil.replaceStyle(0, 6, estiloCabecera);
         excelUtil.replaceStyle(0, 7, estiloCabecera);
         excelUtil.replaceStyle(0, 8, estiloCabeceraLeft);
+        excelUtil.replaceStyle(0, 9, estiloCabecera);
+        excelUtil.replaceStyle(0, 10, estiloCabecera);
 
         excelUtil.replaceVal(0, 0, "Ciclo");
         excelUtil.replaceVal(0, 1, "Código");
@@ -92,6 +96,8 @@ public class ReporteDocenteCicloView extends AbstractView {
         excelUtil.replaceVal(0, 6, "Dedicación");
         excelUtil.replaceVal(0, 7, "Detalle DE");
         excelUtil.replaceVal(0, 8, "Departamento");
+        excelUtil.replaceVal(0, 9, "Pre");
+        excelUtil.replaceVal(0, 10, "Post");
 
     }
 
@@ -99,7 +105,7 @@ public class ReporteDocenteCicloView extends AbstractView {
         Font font = workbook.createFont();
         font.setFontName("Arial");
         font.setBold(true);
-        
+
         CellStyle cell = workbook.createCellStyle();
         cell.setAlignment(posicion);
         cell.setFont(font);
@@ -127,7 +133,8 @@ public class ReporteDocenteCicloView extends AbstractView {
             excelUtil.replaceStyle(irow - 1, 6, estiloGeneral);
             excelUtil.replaceStyle(irow - 1, 7, estiloGeneral);
             excelUtil.replaceStyle(irow - 1, 8, estiloLeft);
-
+            excelUtil.replaceStyle(irow - 1, 9, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 10, estiloGeneral);
 
             excelUtil.replaceVal(irow - 1, 0, item.getDescripcion());
             excelUtil.replaceVal(irow - 1, 1, item.getCod_docente2());
@@ -138,6 +145,8 @@ public class ReporteDocenteCicloView extends AbstractView {
             excelUtil.replaceVal(irow - 1, 6, item.getCod_dedica2());
             excelUtil.replaceVal(irow - 1, 7, item.getNombre());
             excelUtil.replaceVal(irow - 1, 8, item.getNombre_largo());
+            excelUtil.replaceVal(irow - 1, 9, item.getCargaPregrado());
+            excelUtil.replaceVal(irow - 1, 10, item.getCargaPost());
             irow++;
         }
     }

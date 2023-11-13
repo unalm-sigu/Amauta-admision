@@ -288,43 +288,88 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     @Override
     public List<DocenteCicloBean> AllDocentecicloAcademico(List<CicloAcademico> cicloAcademicos) {
         StringBuilder sql = new StringBuilder();
-//        sql.append(" select caa.descripcion ,caa.codigo_anterior , dc.codigo cod_docente2,cad2.codigo pro_cad2,  ");
-//        sql.append(" CONCAT(IFNULL(gp.paterno, ''), ' ', IFNULL(gp.materno, ''), ', ', IFNULL(gp.nombres, '')) AS nombreDocente,  ");        
-//        sql.append(" cad2.nombre categ_nombre2,sid2.codigo pro_situac2,sid2.nombre situac_nombre2,  ");
-//        sql.append(" ded2.codigo cod_dedica2,ded2.nombre,ada.nombre_largo   ");
-//        sql.append("             from rrhh_contrato_docente a  ");
-//        sql.append("             join aca_ciclo_academico caa on a.id_ciclo_inicio_contrato = caa.id and a.id_ciclo_inicio_contrato  = caa.id  ");
-//        sql.append("             join aca_docente dc on a.id_docente = dc.id  ");
-//        sql.append("             join rrhh_categoria_docente cad2 on a.id_categoria = cad2.id  ");
-//        sql.append("             join gen_persona gp on gp.id=dc.id_persona  ");
-//        sql.append("             join rrhh_situacion_docente sid2 on a.id_situacion = sid2.id  ");
-//        sql.append("             join rrhh_dedicacion_docente ded2 on a.id_dedicacion = ded2.id  ");
-//        sql.append("             join aca_docente ad on ad.id =a.id_docente   ");
-//        sql.append("             join aca_departamento_academico ada on ada.id =ad.id_departamento_academico   ");
-//        sql.append(" where caa.id = :CICLO order by  nombreDocente" );
 
-        sql.append("  select distinct d.codigo as cod_docente2,ca.descripcion,ca.codigo_anterior ,CONCAT(IFNULL(p.paterno,''),' ',IFNULL(p.materno,''),' ',IFNULL(p.nombres,'')) as nombreDocente, ");
-        sql.append("  cad.codigo pro_cad2, ");
-        sql.append("  cad.nombre categ_nombre2,sid.codigo pro_situac2,sid.nombre situac_nombre2, ");
-        sql.append("  ded.codigo cod_dedica2,ded.nombre nombre,cad2.descripcion2,ada.nombre_largo  ");
-        sql.append("  from aca_grupo_seccion gs  ");
-        sql.append("  join aca_seccion s on s.id_grupo_seccion = gs.id ");
-        sql.append("  join aca_ciclo_academico ca on gs.id_ciclo = ca.id ");
-        sql.append("  join aca_docente_seccion ds on ds.id_seccion = s.id ");
-        sql.append("  join aca_docente d on ds.id_docente = d.id ");
-        sql.append("  join gen_persona p on d.id_persona = p.id ");
-        sql.append("  join rrhh_contrato_docente cd on cd.id_docente = d.id ");
-        sql.append("  join rrhh_categoria_docente cad on cd.id_categoria = cad.id ");
-        sql.append("  join rrhh_situacion_docente sid on cd.id_situacion = sid.id ");
-        sql.append("  join rrhh_dedicacion_docente ded on cd.id_dedicacion = ded.id ");
-        sql.append("  join aca_ciclo_academico cad2 on cd.id_ciclo_inicio_contrato = cad2.id and ca.id = cad2.id ");
-        sql.append("  join aca_departamento_academico ada on ada.id =d.id_departamento_academico  ");
-        sql.append("  where ca.id  = :CICLO ");
-        sql.append("  and gs.estado = 'ACT' ");
-        sql.append("  and s.estado = 'ACT' ");
-        sql.append("  and s.matriculados > 0 ");
-        sql.append("  order by 3 ");
+        sql.append("    SELECT d.codigo AS cod_docente2,  ");
+        sql.append("     ca.descripcion,  ");
+        sql.append("     ca.codigo_anterior,  ");
+        sql.append("     CONCAT(IFNULL(p.paterno, ''), ' ', IFNULL(p.materno, ''), ' ', IFNULL(p.nombres, '')) AS nombreDocente,  ");
+        sql.append("     (SELECT count(a.id) ");
+        sql.append("         FROM aca_anexo_boletin a  ");
+        sql.append("         JOIN aca_grupo_seccion ags ON ags.id_anexo_boletin = a.id  ");
+        sql.append("         join aca_ciclo_academico caaa on ags.id_ciclo = caaa.id  ");
+        sql.append("         JOIN aca_seccion as2 ON as2.id_grupo_seccion = ags.id  ");
+        sql.append("         JOIN aca_docente_seccion ads ON ads.id_seccion = as2.id  ");
+        sql.append("         WHERE a.estado = 'ACT'   ");
+        sql.append("         AND a.id_anexo_superior <> 4  ");
+        sql.append("         AND caaa.id = ca.id  ");
+        sql.append("         AND ads.id_docente = d.id  ");
+        sql.append("     ) AS CargaPregrado, ");
+        sql.append("     (SELECT count(a.id) ");
+        sql.append("         FROM aca_anexo_boletin a  ");
+        sql.append("         JOIN aca_grupo_seccion ags ON ags.id_anexo_boletin = a.id  ");
+        sql.append("         join aca_ciclo_academico caaa on ags.id_ciclo = caaa.id  ");
+        sql.append("         JOIN aca_seccion as2 ON as2.id_grupo_seccion = ags.id  ");
+        sql.append("         JOIN aca_docente_seccion ads ON ads.id_seccion = as2.id  ");
+        sql.append("         WHERE a.estado = 'ACT'   ");
+        sql.append("         AND a.id_anexo_superior = 4  ");
+        sql.append("         AND caaa.id = ca.id  ");
+        sql.append("         AND ads.id_docente = d.id  ");
+        sql.append("     ) AS CargaPost,  ");
+        sql.append("     max(cod_dedica2) as cod_dedica2,  max(zz.nombre) nombre,max(pro_cad2) as pro_cad2,max(categ_nombre2) as categ_nombre2,  ");
+        sql.append("     max(pro_situac2) as pro_situac2, max(situacionDocentez) as situac_nombre2,  ");
+        sql.append("     ada.nombre_largo  ");
+        sql.append(" FROM aca_grupo_seccion gs  ");
+        sql.append(" JOIN aca_seccion s ON s.id_grupo_seccion = gs.id  ");
+        sql.append(" JOIN aca_anexo_boletin aab ON aab.id = gs.id_anexo_boletin   ");
+        sql.append(" JOIN aca_ciclo_academico ca ON gs.id_ciclo = ca.id  ");
+        sql.append(" JOIN aca_docente_seccion ds ON ds.id_seccion = s.id  ");
+        sql.append(" JOIN aca_docente d ON ds.id_docente = d.id  ");
+        sql.append(" JOIN gen_persona p ON d.id_persona = p.id  ");
+        sql.append(" join aca_departamento_academico ada ON ada.id = d.id_departamento_academico  ");
+        sql.append(" left join (SELECT fz.id ,  ");
+        sql.append("             dz.codigo cod_dedica2,  ");
+        sql.append("             dz.nombre AS nombre,  ");
+        sql.append("             cz.codigo pro_situac2,  ");
+        sql.append("             cz.nombre AS situacionDocentez,  ");
+        sql.append("             bz.nombre AS categ_nombre2,  ");
+        sql.append("             bz.codigo pro_cad2,  ");
+        sql.append("             ez.id AS id_ciclo_contrato  ");
+        sql.append("         FROM rrhh_contrato_docente a   ");
+        sql.append("         JOIN rrhh_categoria_docente bz ON a.id_categoria = bz.id  ");
+        sql.append("         JOIN rrhh_situacion_docente cz ON a.id_situacion = cz.id  ");
+        sql.append("         JOIN rrhh_dedicacion_docente dz ON a.id_dedicacion = dz.id  ");
+        sql.append("         JOIN aca_ciclo_academico ez ON  ez.id = a.id_ciclo_inicio_contrato   ");
+        sql.append("         JOIN aca_docente fz ON fz.id = a.id_docente   ");
+        sql.append(" )  zz on zz.id=ds.id_docente and zz.id_ciclo_contrato = ca.id  ");
+        sql.append(" WHERE ca.id = :CICLO   ");
+        sql.append(" AND gs.estado = 'ACT'  ");
+        sql.append(" AND ds.estado = 'ACT'  ");
+        sql.append(" AND s.estado = 'ACT'  ");
+        sql.append(" AND s.matriculados > 0  ");
+        sql.append(" GROUP BY d.id, d.codigo, ca.id, ca.descripcion, ca.codigo_anterior, CONCAT(IFNULL(p.paterno, ''), ' ', IFNULL(p.materno, ''), ' ', IFNULL(p.nombres, ''))  ");
+        sql.append(" ORDER BY 4 ");
 
+//        sql.append("  select distinct d.codigo as cod_docente2,ca.descripcion,ca.codigo_anterior ,CONCAT(IFNULL(p.paterno,''),' ',IFNULL(p.materno,''),' ',IFNULL(p.nombres,'')) as nombreDocente, ");
+//        sql.append("  cad.codigo pro_cad2, ");
+//        sql.append("  cad.nombre categ_nombre2,sid.codigo pro_situac2,sid.nombre situac_nombre2, ");
+//        sql.append("  ded.codigo cod_dedica2,ded.nombre nombre,cad2.descripcion2,ada.nombre_largo  ");
+//        sql.append("  from aca_grupo_seccion gs  ");
+//        sql.append("  join aca_seccion s on s.id_grupo_seccion = gs.id ");
+//        sql.append("  join aca_ciclo_academico ca on gs.id_ciclo = ca.id ");
+//        sql.append("  join aca_docente_seccion ds on ds.id_seccion = s.id ");
+//        sql.append("  join aca_docente d on ds.id_docente = d.id ");
+//        sql.append("  join gen_persona p on d.id_persona = p.id ");
+//        sql.append("  join rrhh_contrato_docente cd on cd.id_docente = d.id ");
+//        sql.append("  join rrhh_categoria_docente cad on cd.id_categoria = cad.id ");
+//        sql.append("  join rrhh_situacion_docente sid on cd.id_situacion = sid.id ");
+//        sql.append("  join rrhh_dedicacion_docente ded on cd.id_dedicacion = ded.id ");
+//        sql.append("  join aca_ciclo_academico cad2 on cd.id_ciclo_inicio_contrato = cad2.id and ca.id = cad2.id ");
+//        sql.append("  join aca_departamento_academico ada on ada.id =d.id_departamento_academico  ");
+//        sql.append("  where ca.id  = :CICLO ");
+//        sql.append("  and gs.estado = 'ACT' ");
+//        sql.append("  and s.estado = 'ACT' ");
+//        sql.append("  and s.matriculados > 0 ");
+//        sql.append("  order by 3 ");
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("descripcion", StringType.INSTANCE)
                 .addScalar("codigo_anterior", StringType.INSTANCE)
@@ -337,6 +382,8 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .addScalar("cod_dedica2", StringType.INSTANCE)
                 .addScalar("nombre", StringType.INSTANCE)
                 .addScalar("nombre_largo", StringType.INSTANCE)
+                .addScalar("CargaPregrado", StringType.INSTANCE)
+                .addScalar("CargaPost", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(DocenteCicloBean.class));
         List<Long> cicloIds = new ArrayList<>();
         for (CicloAcademico cicloAcademico : cicloAcademicos) {
