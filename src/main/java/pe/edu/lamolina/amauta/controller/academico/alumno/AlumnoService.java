@@ -68,7 +68,7 @@ public interface AlumnoService {
 
     List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
 
-    void verificarTramiteTraslado(Alumno alumno);
+    Boolean verificarTramiteTraslado(Alumno alumno);
 
     List<Curso> allCurso(String nombre);
 

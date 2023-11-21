@@ -89,7 +89,7 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.BACHI,
             TipoResolucionEnum.TITUL,
             TipoResolucionEnum.PRACTICAS,
-            TipoResolucionEnum.ING_HIS,
+//            TipoResolucionEnum.ING_HIS,
             TipoResolucionEnum.BACHIFAC,
             TipoResolucionEnum.TITULBAC,
             TipoResolucionEnum.ALUMRENUNCIA,

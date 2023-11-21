@@ -113,7 +113,10 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.NOTA_BAJA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
@@ -461,10 +464,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                     return respuesta;
                 }
                 break;
+            case INTES:
+                 respuesta = Arrays.asList(this.validarIntercambioEstudiantil(resolucion, ds));
+                if (this.contieneMensaje(respuesta)) {
+                    return respuesta;
+                }
+
+                break;
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
-            case INTES:
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
                 respuesta = Arrays.asList(this.validarCursoDirigido(resolucion, ds));
@@ -601,15 +610,51 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private List<String> validarTrasladoInterno(Resolucion resolucion, List<String> respuesta, DataSessionPivot ds) {
         for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
 
-            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+            List<TramiteTraslado> traslados = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(tramiteTrasladoForm.getAlumno());
+            
+            List<TramiteTraslado> trasladosSolicitados = traslados.stream().filter(x->x.getEstadoEnum() == TramiteEstadoEnum.SOL).collect(Collectors.toList());
 
-            if (traslado == null) {
+            if(trasladosSolicitados.isEmpty()){
                 respuesta.add(String.format("El alumno con codigo %s no cuenta con una solicitud de traslado interno pendiente.",
+                        tramiteTrasladoForm.getAlumno().getCodigo()));
+            }
+            
+            if (trasladosSolicitados.size() > 1) {
+                respuesta.add(String.format("El alumno con codigo %s solo debe tener una solicitud de traslado interno, anular uno de ellos.",
                         tramiteTrasladoForm.getAlumno().getCodigo()));
             }
         }
         return respuesta;
 
+    }
+    
+    private String validarIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds) {
+        if(resolucion.getTramiteTraslado().isEmpty()){
+             return "Debe seleccionar como mínimo un alumno.";
+        }
+        
+        Map<Long, Long> couterMap = resolucion.getTramiteTraslado().stream()
+                .collect(Collectors.groupingBy(e->e.getAlumno().getId(), Collectors.counting()));
+        
+        for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
+
+            Long count = entry.getValue();
+
+            if (count > 1) {
+
+                TramiteTraslado tramiteTraslado = resolucion.getTramiteTraslado()
+                        .stream()
+                        .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
+                        .findFirst().orElse(null);
+
+                return String.format("Está repitiendo al alumno %s en la lista", tramiteTraslado.getAlumno().getCodigo());
+
+            }
+
+        }
+        
+        
+        return "";
     }
 
     private String validarCursoDirigido(Resolucion resolucion, DataSessionPivot ds) {
@@ -2300,11 +2345,12 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         log.debug("solicitantes {}", resolucion.getTramiteTraslado().size());
         for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
 
-            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
-
-            if (traslado == null) {
-                throw new PhobosException("El alumno" + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");
-            }
+//            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+            
+            List<TramiteTraslado> traslados = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(tramiteTrasladoForm.getAlumno());
+            
+            List<TramiteTraslado> trasladosSolicitados = traslados.stream().filter(x->x.getEstadoEnum() == TramiteEstadoEnum.SOL).collect(Collectors.toList());
+            TramiteTraslado traslado = trasladosSolicitados.get(0);
 
             TramiteEstadoEnum estado = tramiteTrasladoForm.getEstadoEnum();
 
@@ -2966,5 +3012,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         }
         return false;
     }
+
+    
 
 }

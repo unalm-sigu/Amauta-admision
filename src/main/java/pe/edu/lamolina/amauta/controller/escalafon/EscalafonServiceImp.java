@@ -89,7 +89,7 @@ public class EscalafonServiceImp implements EscalafonService {
         if (escalafonBD != null) {
             return escalafonBD;
         } else {
-            escalafon.setUsuarioRegistro(usuario.getId());
+            escalafon.setUsuarioRegistro(usuario);
             escalafon.setFechaCreacion(new Date());
             escalafonDAO.save(escalafon);
             return null;
@@ -200,7 +200,7 @@ public class EscalafonServiceImp implements EscalafonService {
         escalafonBD.setCodigoScopus(escalafonForm.getCodigoScopus());
         escalafonBD.setWebsite(escalafonForm.getWebsite());
         escalafonBD.setResumen(escalafonForm.getResumen());
-        escalafonBD.setUsuarioActualizacion(usuario.getId());
+        escalafonBD.setUsuarioActualizacion(usuario);
         escalafonBD.setFechaActualizacion(new Date());
         escalafonDAO.update(escalafonBD);
 
@@ -273,7 +273,7 @@ public class EscalafonServiceImp implements EscalafonService {
             escalafon = this.loadEscalafon(escalafon.getId());
         } else {
             escalafon = new Escalafon();
-            escalafon.setUsuarioRegistro(usuario.getId());
+            escalafon.setUsuarioRegistro(usuario);
             escalafon.setFechaCreacion(new Date());
             escalafon.setPersona(persona);
             escalafonDAO.save(escalafon);

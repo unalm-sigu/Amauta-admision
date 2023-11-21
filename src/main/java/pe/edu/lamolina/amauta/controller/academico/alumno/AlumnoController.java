@@ -35,6 +35,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -746,8 +747,9 @@ public class AlumnoController {
     public JsonResponse verificarTramiteTraslado(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.verificarTramiteTraslado(alumno);
-            response.setSuccess(Boolean.TRUE);
+
+            Boolean validar = service.verificarTramiteTraslado(alumno);
+            response.setSuccess(validar);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
