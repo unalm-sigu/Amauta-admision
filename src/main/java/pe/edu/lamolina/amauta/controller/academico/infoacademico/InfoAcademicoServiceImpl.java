@@ -462,7 +462,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.debug("PROMEDIO GRADUADO");
             Egresado egresado = egresadoDAO.findByAlumno(alumno);
             DecimalFormat df = new DecimalFormat("#.00");
-            alumno.setPromedioPonderadoGraduacion(egresado.getPromedioGraduacion() != null ? df.format(egresado.getPromedioGraduacion()) : "0.00");
+
+            if (egresado != null && egresado.getPromedioGraduacion() != null) {
+                alumno.setPromedioPonderadoGraduacion(df.format(egresado.getPromedioGraduacion()));
+            } else {
+                alumno.setPromedioPonderadoGraduacion("0.00");
+            }
 
         }
 
