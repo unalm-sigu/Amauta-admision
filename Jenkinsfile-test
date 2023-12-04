@@ -80,7 +80,7 @@ pipeline{
                                         fuser -n tcp -k ${PORT}
                                         
                                         export USERDB=${DELFIN_TEST_USR}
-                                        export PASSWORD=${DELFIN_TEST_PSW}
+                                        export PASSWORD='${DELFIN_TEST_PSW}'
 
                                         nohup java -jar /lost+found/amauta.jar --spring.profiles.active=${PROFILE} > /dev/null 2>&1 &
                                         wait-for-it -h localhost -p ${PORT} -t 60
