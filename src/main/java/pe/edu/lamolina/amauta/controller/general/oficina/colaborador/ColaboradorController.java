@@ -173,34 +173,30 @@ public class ColaboradorController {
     @ResponseBody
     @RequestMapping("saveColaborador")
     public JsonResponse saveColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            ArrayList<FuncionColaborador> funciones = new ArrayList();
-            Colaborador colaborador = colaboradorBean.getColaborador();
-            if (colaboradorBean.getPerfilCompanias() != null) {
-                for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
-                    FuncionColaborador funcionColaborador = new FuncionColaborador();
-                    funcionColaborador.setFuncion(perfilCompania);
-                    funciones.add(funcionColaborador);
-                }
+
+        ArrayList<FuncionColaborador> funciones = new ArrayList();
+        Colaborador colaborador = colaboradorBean.getColaborador();
+        if (colaboradorBean.getPerfilCompanias() != null) {
+            for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
+                FuncionColaborador funcionColaborador = new FuncionColaborador();
+                funcionColaborador.setFuncion(perfilCompania);
+                funciones.add(funcionColaborador);
             }
-            colaborador.setFuncionColaborador(funciones);
-            if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
-                response.setSuccess(true);
-            } else {
-                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
-                response.setSuccess(true);
-                response.setSuccess(success);
-            }
-            response.setMessage("Se agregó el colaborador satisfactoriamente");
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
         }
+
+        colaborador.setFuncionColaborador(funciones);
+        Boolean success = true;
+        if (colaborador.getPersona().getId() == null) {
+            service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
+        } else {
+            success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
+        }
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(success);
+        response.setMessage("Se agregó el colaborador satisfactoriamente");
+
         return response;
     }
 
@@ -567,17 +563,17 @@ public class ColaboradorController {
 
     @ResponseBody
     @RequestMapping("colaborador/{idPersona}/usuario")
-    public String passwordUsuario(@RequestBody Usuario usuario,@PathVariable("idPersona") Long idPersona, HttpSession session) {
+    public String passwordUsuario(@RequestBody Usuario usuario, @PathVariable("idPersona") Long idPersona, HttpSession session) {
 
-        service.passwordUsuario(idPersona,usuario);
+        service.passwordUsuario(idPersona, usuario);
         return GlobalMessages.UPDATED;
     }
 
     @ResponseBody
     @RequestMapping("colaborador/{idPersona}/usuario/email")
-    public String passwordUsuarioEmail(@RequestBody Usuario usuario,@PathVariable("idPersona") Long idPersona, HttpSession session) {
+    public String passwordUsuarioEmail(@RequestBody Usuario usuario, @PathVariable("idPersona") Long idPersona, HttpSession session) {
 
-        service.passwordUsuarioEmail(idPersona,usuario);
+        service.passwordUsuarioEmail(idPersona, usuario);
         return GlobalMessages.UPDATED;
     }
 
