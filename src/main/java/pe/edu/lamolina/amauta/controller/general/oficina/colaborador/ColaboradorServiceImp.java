@@ -358,6 +358,10 @@ public class ColaboradorServiceImp implements ColaboradorService {
         personaHistorial.setTipoDocumentoTo(personaForm.getTipoDocumento());
         personaHistorialDAO.save(personaHistorial);
 
+        if (StringUtils.isBlank(personaForm.getEmailCompania())) {
+            personaForm.setEmailCompania(null);
+        }
+
         personaBD.setPaterno(personaForm.getPaterno());
         personaBD.setMaterno(personaForm.getMaterno());
         personaBD.setNombres(personaForm.getNombres());
