@@ -615,7 +615,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         generarAvanceCurricular(alumnoCursosElectivosNew, alumnoCursosCurriculaNew, mapResumenPlanCurricular, mapTipoCursoCurricula, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado, showLogger);
 
         for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : cursosSimultaneosAlu) {
-            alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
+            if (alumnoCursoSimultaneo.getAlumnoCursoCurricula() != null
+                    && alumnoCursoSimultaneo.getAlumnoCursoCurricula().getId() != null) {
+                alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
+            }
         }
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
