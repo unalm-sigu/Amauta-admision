@@ -157,7 +157,7 @@ import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
+import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAMITE_DOCUMENTO_ACADEMICO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
@@ -1042,7 +1042,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public Archivo findBoletas(Long idTramiteDocumento) {
 
-        return archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_DOCUMENTO);
+        return archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAMITE_DOCUMENTO_ACADEMICO);
     }
 
     private String addIncrustaciones(String htmlContent, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
@@ -1060,7 +1060,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         TramiteDocumentoAcademico tramite = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
 
-        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(tramite.getId(), TRAM_DOCUMENTO);
+        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(tramite.getId(), TRAMITE_DOCUMENTO_ACADEMICO);
         if (!Objects.equal(archivoDB, null)) {
             archivoDAO.delete(archivoDB);
         }
@@ -1070,7 +1070,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         Archivo newarchivo = new Archivo();
         newarchivo.setFechaRegistro(new Date());
-        newarchivo.setInstancia(TRAM_DOCUMENTO.name());
+        newarchivo.setInstancia(TRAMITE_DOCUMENTO_ACADEMICO.name());
         newarchivo.setIdInstancia(tramite.getId());
         newarchivo.setTipo(archivo.getTipo());
         newarchivo.setUsuarioRegistro(ds.getUsuario());

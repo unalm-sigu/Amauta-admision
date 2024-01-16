@@ -324,7 +324,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         tramiteUpd.setFechaModificacion(today.toDate());
         tramiteDAO.updateEstado(tramiteUpd);
 
-        if (accionTramiteAcademico != null ? accionTramiteAcademico.getEsSolicitarMotivo() : accionTramiteDocumento.getSolicitaMotivo() == 1) {
+        if (accionTramiteAcademico != null ? accionTramiteAcademico.getEsSolicitarMotivo() : accionTramiteDocumento.getSolicitaMotivo()) {
             tramiteUpd.setObservacion(tramiteForm.getObservacion());
             tramiteDAO.updateObservacion(tramite);
         }
@@ -413,7 +413,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             oficinas = oficinaDAO.findOficinaOrigenDestinoByEstadoTramiteDoc(accionTramiteDocumento, alumnoTramite);
             flujoTramiteDocumento.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
             flujoTramiteDocumento.setOrden(accionTramiteDocumento.getOrden());
-            if (accionTramiteDocumento.getSolicitaMotivo() == 1) {
+            if (accionTramiteDocumento.getSolicitaMotivo()) {
                 flujoTramiteDocumento.setMotivo(tramite.getObservacion());
             }
             flujoTramiteDocumento.setOficinaOrigen((Oficina) oficinas.get("oficinaOrigen"));
