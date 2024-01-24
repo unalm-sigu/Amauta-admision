@@ -311,7 +311,7 @@
                         <th>Ciclo </th>
                         <th>Retiro / Modo </th>
                         <th>Estado</th>
-                        <th>Fecha de Resolución </th>
+                        <th>N° Resolución </th>
                     </tr>
                 </thead>
                 <tbody th:if="${retiroCiclos.size()>0}">
@@ -326,7 +326,7 @@
                             <span th:text=" ${item.estadoEnum.value}"></span> 
                         </td>
                         <td class="text-center">
-                            <span th:if="${item.resolucion}" th:text="${#dates.format(item.resolucion.fecha, 'dd-MM-yyyy')}">
+                            <span th:if="${item.resolucion}" th:text="${item.resolucion.descripcion}">
                                                                 
                             </span> 
                         </td>
