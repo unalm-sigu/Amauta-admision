@@ -156,6 +156,8 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), this.tamagno(35));
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamagno(20));
+        excelUtil.replaceVal(irow - 1, column++, "MODO DICTADO", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamagno(20));
 
         for (CantidadMatriculadosDTO matriculado : matriculados) {
             column = 0;
@@ -171,6 +173,7 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, matriculado.getCodigoDocente(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getNombreDocente(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getCantidad(), estiloNumero);
+            excelUtil.replaceVal(irow, column++, matriculado.getModoDictado(), estiloNumero);
             irow++;
         }
 

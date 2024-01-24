@@ -543,7 +543,8 @@ public class GpoReporteServiceImp implements GpoReporteService {
                     seccion.getCodigo2(),
                     seccion.getMatriculados().longValue(),
                     seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "",
-                    seccion.getHorarioTexto());
+                    seccion.getHorarioTexto(),
+                    seccion.getModoDictadoEnum().getValue());
 
             cantidades.add(cantidad);
         }
