@@ -521,6 +521,8 @@ public class GpoReporteServiceImp implements GpoReporteService {
         List<Seccion> secciones = seccionDAO.allActivosBySeccionDTO(seccionDTO);
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
         Map<Long, DocenteSeccion> mapDocenteSeccion = TypesUtil.convertListToMap("seccion.id", docenteSecciones);
+        List<HorarioSeccion> horarioSecciones = horarioSeccionDAO.allByCiclo(seccionDTO.getCicloAcademico());
+        Map<Long, List<HorarioSeccion>> mapHorarioSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSecciones);
 
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
@@ -532,13 +534,16 @@ public class GpoReporteServiceImp implements GpoReporteService {
             DocenteSeccion profeSeccion = mapDocenteSeccion.get(seccion.getId());
             Docente docente = profeSeccion.getDocente();
             Persona persona = docente.getPersona();
+            seccion.setHorarioSeccion(mapHorarioSecciones.get(seccion.getId()));
 
             CantidadMatriculadosDTO cantidad = new CantidadMatriculadosDTO(ciclo.getDescripcion(),
                     anexoSup.getNombre(), anexo.getNombre(),
                     departamento.getNombre(), curso.getCodigo(), curso.getNombre(),
                     docente.getCodigo(), persona == null ? "Desconocido" : persona.getApellidosNombres(),
                     seccion.getCodigo2(),
-                    seccion.getMatriculados().longValue());
+                    seccion.getMatriculados().longValue(),
+                    seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "",
+                    seccion.getHorarioTexto());
 
             cantidades.add(cantidad);
         }
