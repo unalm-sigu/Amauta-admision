@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.retirocicloexcepcional;
 
+import groovyjarjarcommonscli.HelpFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -194,7 +195,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         Context ctx = new Context();
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoContable(alumno);
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoRechazado(alumno);
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
         String tutor = "NN";
         String coordinador = "NN";

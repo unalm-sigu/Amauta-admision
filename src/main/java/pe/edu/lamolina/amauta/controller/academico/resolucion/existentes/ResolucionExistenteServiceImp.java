@@ -1278,6 +1278,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 } else {
                     retiroCicloDB.setEstadoEnum(TramiteEstadoEnum.RCHR);
                     retiroCicloDB.setEstadoTramite(estadoTramiteRechz);
+                    retiroCicloDB.setResolucion(resolucion);
+                    retiroCicloDAO.updateColumns(retiroCicloDB, "estado", "estadoTramite", "resolucion");
 
                     Tramite tramite = retiroCicloDB.getTramite();
                     tramite.setEstadoEnum(TramiteEstadoEnum.RCHR);

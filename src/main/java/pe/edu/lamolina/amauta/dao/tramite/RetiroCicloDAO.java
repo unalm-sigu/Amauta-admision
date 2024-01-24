@@ -53,4 +53,6 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     RetiroCiclo allByAlumnoCicloRegistroNoAnuladoNiPendiente(Alumno alumnoDB, CicloAcademico cicloAcademico);
 
+    List<RetiroCiclo> allByRetiroCicloAceptadoRechazado(Alumno alumno);
+
 }
