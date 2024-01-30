@@ -443,7 +443,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         if (alumno.getCicloActivo() != null) {
             if (alumno.getSituacionAcademica() != null) {
-                if (alumno.getSituacionAcademica().isEgresado()) {
+                if (alumno.getSituacionAcademica().isEgresado() || alumno.getSituacionAcademica().isGraduado()) {
                     EventoCicloAcademico eventoEgreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
                     alumno.setFechaEgreso(eventoEgreso != null ? eventoEgreso.getFechaFin() : null);
                 }
