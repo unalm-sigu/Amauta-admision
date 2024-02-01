@@ -544,7 +544,8 @@ public class GpoReporteServiceImp implements GpoReporteService {
                     seccion.getMatriculados().longValue(),
                     seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "",
                     seccion.getHorarioTexto(),
-                    seccion.getModoDictadoEnum().getValue());
+                    seccion.getModoDictadoEnum().getValue(),
+                    seccion.getAula() != null ? seccion.getAula().getCodigo() : "");
 
             cantidades.add(cantidad);
         }

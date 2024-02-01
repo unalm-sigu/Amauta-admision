@@ -148,6 +148,8 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), this.tamagno(10));
         excelUtil.replaceVal(irow - 1, column++, "SECCIÓN", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamagno(20));
+        excelUtil.replaceVal(irow - 1, column++, "AULA", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamagno(10));
         excelUtil.replaceVal(irow - 1, column++, "HORARIO", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamagno(18));
         excelUtil.replaceVal(irow - 1, column++, "CÓDIGO DOCENTE", estiloCabecera);
@@ -169,6 +171,7 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, matriculado.getNombreCurso(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getGrupo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getNombreSeccion(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, matriculado.getAula(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getHorario(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getCodigoDocente(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getNombreDocente(), estiloGeneral);
