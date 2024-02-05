@@ -1123,12 +1123,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void anularTramite(Long idTramiteDocumentoAcademico) {
 
         TramiteDocumentoAcademico tramiteDocumentoAcademico
-                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));       
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
-        
-        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
 
@@ -1137,6 +1137,28 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDB.setEstadoEnum(TramiteEstadoEnum.ANU);
         tramiteDAO.update(tramiteDB);
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setTramite(tramite);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void reactivarTramite(Long idTramiteDocumentoAcademico) {
+        TramiteDocumentoAcademico tramiteDocumentoAcademico
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
+        if (tramiteDocumentoAcademico == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Tramite tramiteDB = tramiteDAO.find(tramite.getId());
+        tramiteDB.setEstadoEnum(TramiteEstadoEnum.CRE);
+        tramiteDAO.update(tramiteDB);
+       
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setTramite(tramite);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
@@ -1254,7 +1276,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         if (tramiteDocumentoAcademicoDB == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
-        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
         Tramite tramite = tramiteDocumentoAcademico.getTramite();

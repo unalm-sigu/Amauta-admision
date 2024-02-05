@@ -73,7 +73,10 @@ public class ConstanciaSolicitudController {
     GeneradorWordSolicitudService generadorWordSolicitudService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index() {
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        model.addAttribute("usuario", ds.getUsuario());
+        model.addAttribute("rol", ds.getRoles());
         return "tramite/tramiteConstancia/solicitudConstancia";
     }
 
@@ -314,6 +317,7 @@ public class ConstanciaSolicitudController {
         return "tramite/tramiteConstancia/editarSolicitud";
 
     }
+
     @RequestMapping("solicitud/{idSolicitud}")
     public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
@@ -663,12 +667,28 @@ public class ConstanciaSolicitudController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "reactivarTramite/{idTramiteDocumentoAcademico}", method = RequestMethod.GET)
+    public JsonResponse reactivarTramite(@PathVariable Long idTramiteDocumentoAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.reactivarTramite(idTramiteDocumentoAcademico);
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Registro eliminado satisfactoriamente.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping(value = "anulartramite", method = RequestMethod.POST)
     public ResponseEntity<String> anularTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession) {
         service.anularTramiteDocumentoAcademico(tramiteDocumentoAcademico, httpSession);
         return ResponseEntity.ok("Registro eliminado satisfactoriamente");
     }
-    
+
 //    @ResponseBody
 //    @RequestMapping(value = "anulartramite", method = RequestMethod.POST)
 //    public JsonResponse anularTramite(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession) {
@@ -684,7 +704,6 @@ public class ConstanciaSolicitudController {
 //        }
 //        return response;
 //    }
-
     @ResponseBody
     @RequestMapping(value = "calcularPrecio", method = RequestMethod.POST)
     public JsonResponse calcularPrecio(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico) {
