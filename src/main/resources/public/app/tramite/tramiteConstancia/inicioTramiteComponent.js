@@ -52,7 +52,7 @@ Vue.component("inicio-tram-component", {
         },
         clearOption(data) {
             let $vue = this;
-            $vue.solicitudUpd = { ... $vue.solicitud};
+            $vue.solicitudUpd = {... $vue.solicitud};
             $vue.solicitud = {};
             $vue.ciclo = {};
             $vue.costoDocumento = "";
@@ -136,15 +136,14 @@ Vue.component("inicio-tram-component", {
                 }
             });
         },
-        updateForm() {
+        updateFormDocumento() {
             let $vue = this;
-
 
             var valid = $('#formSolicitudConstancia').parsley().validate();
             if (valid != true) {
                 return;
             }
-            /*$.ajax({
+            $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/update'),
                 contentType: "application/json",
@@ -158,8 +157,33 @@ Vue.component("inicio-tram-component", {
                 }, error: function () {
                     notify(Messages.errorComunicacion, "error");
                 }
-            });*/
+            });
         },
+
+        updateForm() {
+            let $vue = this;
+
+            var valid = $('#formSolicitudConstancia').parsley().validate();
+            if (valid != true) {
+                return;
+            }
+            /*$.ajax({
+             method: 'POST',
+             url: APP.url('tramite/solicitudconstancia/update'),
+             contentType: "application/json",
+             data: JSON.stringify($vue.solicitud),
+             success: function (response) {
+             if (response.success) {
+             location.href = APP.url("tramite/solicitudconstancia");
+             } else {
+             notify(response.message, 'error');
+             }
+             }, error: function () {
+             notify(Messages.errorComunicacion, "error");
+             }
+             });*/
+        },
+
         subirFoto() {
             let $vue = this;
             $vue.$parent.persona = $vue.tramite.alumno.persona;

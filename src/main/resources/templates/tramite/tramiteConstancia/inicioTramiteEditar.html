@@ -8,7 +8,7 @@
                     <label>Alumno</label>
                     <multiselect                                                   
                         v-model='tramite.alumno'
-                        v-bind:internal-search='false'
+                       :searchable="false"
                         v-bind:limit='15'
                         v-on:search-change="searchAlumnos"
                         v-bind:options='alumnos'

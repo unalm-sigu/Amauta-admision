@@ -217,11 +217,11 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
                 document.add(tableBody);
 
-                document.newPage();
+              //  document.newPage();
 
             }
 
-            document.newPage();
+           // document.newPage();
 
         }
 

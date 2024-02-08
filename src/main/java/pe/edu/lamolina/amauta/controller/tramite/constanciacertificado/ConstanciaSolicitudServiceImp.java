@@ -324,7 +324,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
         tda.setTelefono(tramiteDocumentoAcademico.getTelefono());
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
-        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular");
+        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico() );       
+        tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
+        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular","tipoDocumentoAcademico","idioma");
 
     }
 
