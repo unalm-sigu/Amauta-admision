@@ -14,6 +14,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloBean;
+import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloCargaBean;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -391,6 +392,83 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         }
         query.setParameterList("CICLO", cicloIds);
         return (List<DocenteCicloBean>) query.list();
+
+    }
+
+    @Override
+    public List<DocenteCicloCargaBean> AllDocentecicloCargaAcademico(Long docente) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append(" SELECT ca.descripcion,abss.nombre anexo, cu.codigo as codigoCurso,cu.nombre curso,cu.horas_teoria as horasTeoria,cu.horas_practica as horasPractica,cu.creditos, s.codigo2 seccion, ");
+        sql.append(" case s.tipo_seccion ");
+        sql.append(" when 'TCUR' then 'Teoria' ");
+        sql.append(" when 'PCUR' then 'Práctica' ");
+        sql.append(" when 'PRA' then 'Práctica' ");
+        sql.append(" when 'TEO' then 'Teoria' ");
+        sql.append(" else 'NO DEFINIDO' ");
+        sql.append(" end as 'tiposeccion', ");
+        sql.append(" ds.porcentaje_carga as porcentajeCarga,  ");
+        sql.append(" ds.fecha_inicio as fechaInicio, ds.fecha_fin fechaFin, ");
+        sql.append(" di.nombre dia, ");
+        sql.append(" case ");
+        sql.append(" when (s.tipo_seccion = 'TCUR' or s.tipo_seccion = 'TEO') ");
+        sql.append(" then ROUND((cu.creditos_teoria * ds.porcentaje_carga) / 100) ");
+        sql.append(" when s.tipo_seccion = 'PCUR' or s.tipo_seccion = 'PRA' ");
+        sql.append(" then ROUND((cu.creditos_practica * ds.porcentaje_carga) / 100) end credProfe,s.matriculados, ");
+        sql.append(" group_concat(ho.descripcion,' - ',ho.descripcion_fin) as Horario,d.codigo as codDocente ");
+        sql.append(" FROM aca_grupo_seccion gs  ");
+        sql.append(" JOIN aca_seccion s ON s.id_grupo_seccion = gs.id ");
+        sql.append(" join aca_curso cu on gs.id_curso = cu.id ");
+        sql.append(" JOIN aca_anexo_boletin aab ON aab.id = gs.id_anexo_boletin   ");
+        sql.append(" left join aca_anexo_boletin abss on aab.id_anexo_superior = abss.id ");
+        sql.append(" JOIN aca_ciclo_academico ca ON gs.id_ciclo = ca.id  ");
+        sql.append(" JOIN aca_docente_seccion ds ON ds.id_seccion = s.id  ");
+        sql.append(" JOIN aca_docente d ON ds.id_docente = d.id  ");
+        sql.append(" JOIN gen_persona p ON d.id_persona = p.id  ");
+        sql.append(" join aca_departamento_academico ada ON ada.id = d.id_departamento_academico  ");
+        sql.append(" left join hor_horario_seccion hs on hs.id_seccion = s.id ");
+        sql.append(" left join gen_dia di on hs.id_dia = di.id ");
+        sql.append(" left join hor_hora ho on hs.id_hora = ho.id ");
+        sql.append(" left join hor_grupo_horas ghh on s.id_grupo_horas = ghh.id  ");
+        sql.append(" where gs.estado = 'ACT'  ");
+        sql.append(" AND ds.estado = 'ACT'  ");
+        sql.append(" AND s.estado = 'ACT'  ");
+        sql.append(" AND s.matriculados > 0  ");
+        sql.append(" and d.id = :CODIGO ");
+        sql.append(" group by ");
+        sql.append(" ca.descripcion,abss.nombre, ");
+        sql.append(" cu.codigo,cu.nombre,  ");
+        sql.append(" cu.horas_teoria,cu.horas_practica,cu.creditos,s.codigo2, ");
+        sql.append(" s.tipo_seccion, ");
+        sql.append(" ds.porcentaje_carga,  ");
+        sql.append(" ds.fecha_inicio, ds.fecha_fin, ");
+        sql.append(" di.nombre, ");
+        sql.append(" s.matriculados, ");
+        sql.append(" cu.creditos_teoria, ");
+        sql.append(" cu.creditos_practica order by 1");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("descripcion", StringType.INSTANCE)
+                .addScalar("anexo", StringType.INSTANCE)
+                .addScalar("codigoCurso", StringType.INSTANCE)
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("horasTeoria", StringType.INSTANCE)
+                .addScalar("horasPractica", StringType.INSTANCE)
+                .addScalar("creditos", StringType.INSTANCE)
+                .addScalar("seccion", StringType.INSTANCE)
+                .addScalar("tiposeccion", StringType.INSTANCE)
+                .addScalar("porcentajeCarga", StringType.INSTANCE)
+                .addScalar("fechaInicio", StringType.INSTANCE)
+                .addScalar("fechaFin", StringType.INSTANCE)
+                .addScalar("dia", StringType.INSTANCE)
+                .addScalar("credProfe", StringType.INSTANCE)
+                .addScalar("credProfe", StringType.INSTANCE)
+                .addScalar("matriculados", StringType.INSTANCE)
+                .addScalar("horario", StringType.INSTANCE)
+                .addScalar("codDocente", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(DocenteCicloCargaBean.class));
+        
+        query.setParameter("CODIGO", docente);
+        return (List<DocenteCicloCargaBean>) query.list();
 
     }
 

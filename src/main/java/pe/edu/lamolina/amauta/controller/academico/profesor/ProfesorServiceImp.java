@@ -709,4 +709,15 @@ public class ProfesorServiceImp implements ProfesorService {
         return docenteCicloBean;
     }
 
+    @Override
+    public List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente) {
+        List<DocenteCicloCargaBean> docenteCicloCargaBean = new ArrayList<>();
+        docenteCicloCargaBean= docenteDAO.AllDocentecicloCargaAcademico(docente);
+        return docenteCicloCargaBean;
+    }
+
+
+
+
+
     }
