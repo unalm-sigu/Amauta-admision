@@ -76,5 +76,7 @@ public interface ProfesorService {
     public List<CicloAcademico> allCicloAcademicoNivel();
 
     public List<DocenteCicloBean> allDocentecicloAcademico(List<CicloAcademico> cicloAcademicos);
-    
+
+    public List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente);
+     
 }

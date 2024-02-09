@@ -62,6 +62,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCargaCicloView;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCicloView;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
@@ -89,6 +90,7 @@ public class ProfesorController {
     private final ProfesoresPDF profesoresPDF;
     private final ReporteCargaAcademicaPDF reporte;
     private final ReporteDocenteCicloView reporteDocenteCicloView;
+    private final ReporteDocenteCargaCicloView reportedocentecargacicloView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -645,11 +647,20 @@ public class ProfesorController {
     @RequestMapping("reporteDocenteCicloAcademico")
     public ModelAndView reporteDocenteCicloAcademico(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
-        List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
+        System.out.println("codigo::" + filtro.getDocente());
+        
+        if (filtro.getCicloAcademicos() != null) {
+            List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
+            model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);
+            model.addAttribute("listaDocente", "ListaDocente");
+            return new ModelAndView(reporteDocenteCicloView);
+        } else {
+            List<DocenteCicloCargaBean> listdocenteCicloCargaBean = service.allDocenteCargacicloAcademico(filtro.getDocente());
+            model.addAttribute("listdocenteCicloCargaBean", listdocenteCicloCargaBean);
+            model.addAttribute("listaDocente", "ListaDocente");
+            return new ModelAndView(reportedocentecargacicloView);
+        }
 
-        model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);
-        model.addAttribute("listaDocente", "ListaDocente");
-        return new ModelAndView(reporteDocenteCicloView);
     }
 
     @ResponseBody

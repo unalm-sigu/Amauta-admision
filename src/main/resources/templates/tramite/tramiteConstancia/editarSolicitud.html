@@ -10,7 +10,7 @@
                        th:href="@{/tramite/solicitudconstancia}" >
                         Regresar
                     </a>
-                    <h1 >Tramite de Constancias y Certificados</h1>
+                    <h1 >Tramite de Constancias y Certificados (Editar)</h1>
                     <p class="block text-primary h4" v-if="solicitud.id">
                         <span v-if="solicitud.tipoDocumentoAcademico">{{solicitud.tipoDocumentoAcademico.nombre}}</span>
                     </p>
@@ -31,7 +31,7 @@
                     </section>
                 </section>
             </div>
-            <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
+            <div th:substituteby="tramite/tramiteConstancia/inicioTramiteEditar"/>
         </div>
 
         <div layout:fragment="js">
