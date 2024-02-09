@@ -1080,6 +1080,28 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public Long countNoMatriculableByConsejeroCarrera(Persona persona, CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sqlSub = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .filter("ca.id", cicloAcademico);
+
+        Octavia sql = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .join("con.colaborador col", "col.persona per")
+                .join("cicloAcademico ca1", "con.carrera carrcon")
+                .filter("carrcon.id", carrera)
+                .notExists(sqlSub)
+                .linkedBy("al1.id", "al.id")
+                .filter("ca1.id", cicloAcademico)
+                .filter("per.id", persona);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
     public List<MatriculaResumen> allMatriculadosByCicloAndCarreraForFoto(CicloAcademico cicloAcademico, String carrera) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
