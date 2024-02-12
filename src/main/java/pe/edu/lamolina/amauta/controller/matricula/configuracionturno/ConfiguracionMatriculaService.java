@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.matricula.configuracionturno;
 
 import java.text.ParseException;
 import java.util.List;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -20,5 +21,7 @@ public interface ConfiguracionMatriculaService {
     ConfiguracionTurnosAtencion updateTurnos(Long id, String pk);
 
     void deleteConfiguracion(ConfiguracionTurnosAtencion config);
+
+    void deleteTurno(TurnoAtencion atencion, DataSessionPivot ds);
 
 }

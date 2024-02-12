@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.matricula.configuracionturno;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
@@ -10,6 +11,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -17,7 +19,10 @@ import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 import pe.edu.lamolina.amauta.dao.academico.ConfiguracionMatriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.TurnoAtencionDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,6 +36,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcatemicoDAO;
+
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
 
     @Override
     @Transactional
@@ -132,6 +140,20 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
         }
         configuracionMatriculaDAO.delete(config);
 
+    }
+
+    @Override
+    @Transactional
+    public void deleteTurno(TurnoAtencion turno, DataSessionPivot ds) {
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ds.getCicloAcademico());
+
+        List<MatriculaResumen> matriculablesConTurnoDelete = matriculables.stream().filter(x -> x.getTurnoAtencion() != null).collect(Collectors.toList());
+      
+        if (matriculablesConTurnoDelete.isEmpty()) {
+            turnoAtencionDAO.delete(turno);
+        } else {
+            throw new PhobosException("¡No se puede eliminar por que se encuentra relacionado con los matriculables.");
+        }
     }
 
 }

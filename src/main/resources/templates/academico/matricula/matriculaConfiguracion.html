@@ -2,6 +2,12 @@
     <head>
         <title>Configuración</title>
     <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
+<style>
+    .dellTurno {
+        display: flex;
+        margin-top: 10px;
+    }
+</style>
 </head>
 <body >
     <div layout:fragment="main" id="configuracion">
@@ -18,8 +24,8 @@
             <div  class="tabbable-line">
                 <ul class="nav nav-tabs special-tabs" >
                     <li v-for="(tab, index) in lstTabs" v-on:click="carga(tab)" v-bind:class="active(index)">
-                        <a href="#" data-toggle="tab"  v-text="tab.nombre != '' ? tab.nombre + ' - ' +tab.tipo : tab.eventoCicloAcademico.eventoAcademico.nombre + ' - ' +tab.tipo"  >
-                        
+                        <a data-toggle="tab"  v-text="tab.nombre != '' ? tab.nombre + ' - ' +tab.tipo : tab.eventoCicloAcademico.eventoAcademico.nombre + ' - ' +tab.tipo"  >
+
                         </a>
                         <span class="fa fa-times padder-right" v-on:click="eliminar"></span>
                     </li>
@@ -51,6 +57,7 @@
                                         </a>
                                         <h3 v-else="" v-text="turno.alumnos" class="text-primary"></h3>
                                         <i class="fa fa-industry circular editer-icon pull-right" v-on:click="matricular(turno)"  ></i>
+                                        <i class="fa fa-trash fa-2x pointer text-danger dellTurno" v-on:click="eliminarTurno(turno)"></i>
                                     </span>
                                 </div>
                             </td>
@@ -179,8 +186,8 @@
         var tiposJson = /*[[${tipoMatricula}]]*/ {};
     </script>
 
-    
-    
+
+
     <script th:src="@{/app/academico/matricula/matriculaConfiguracion.js}" charset="utf-8"></script>
 </div>
 
