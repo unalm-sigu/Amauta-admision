@@ -201,32 +201,75 @@
                     return;
                 }
 
-                $vue.showLoader("Espere un momento por favor");
-//                $vue.errores = [];
+                if ($vue.resolucion.tipoResolucion.codigo === 'TRAS') {
 
-                axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
-                        .then(({data}) => {
+                    bootbox.confirm({
+                        message: "¿Está seguro que desea guardar?, verique si es acepto o rechazado.",
+                        buttons: {
+                            confirm: {label: 'Si', className: "btn-warning"},
+                            cancel: {label: 'Cancelar', className: "btn-link"}
+                        },
+                        callback: function (result) {
 
-                            if (data.success) {
+                            if (result) {
+                                $vue.showLoader("Espere un momento por favor");
 
-                                $vue.resolucion = {... $vue.resolucionNew};
-                                notify(data.message, 'info');
+                                axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                                        .then(({data}) => {
 
-                            } else {
+                                            if (data.success) {
 
-                                if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
-                                    notify(data.message, 'error');
-                                } else {
-//                                    $vue.errores = data.message;
-//                                    $vue.$refs.modalError.open();
-                                    notify(data.message, 'error');
-                                }
+                                                $vue.resolucion = {... $vue.resolucionNew};
+                                                notify(data.message, 'info');
+
+                                            } else {
+
+                                                if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                                    notify(data.message, 'error');
+                                                } else {
+                                                    notify(data.message, 'error');
+                                                }
+
+                                            }
+
+                                            $vue.hideLoader();
+
+                                        }, () => $vue.hideLoader());
 
                             }
+                        }
+                    });
+                } else {
 
-                            $vue.hideLoader();
+                    $vue.showLoader("Espere un momento por favor");
+//                $vue.errores = [];
 
-                        }, () => $vue.hideLoader());
+                    axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                            .then(({data}) => {
+
+                                if (data.success) {
+
+                                    $vue.resolucion = {... $vue.resolucionNew};
+                                    notify(data.message, 'info');
+
+                                } else {
+
+                                    if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                        notify(data.message, 'error');
+                                    } else {
+//                                    $vue.errores = data.message;
+//                                    $vue.$refs.modalError.open();
+                                        notify(data.message, 'error');
+                                    }
+
+                                }
+
+                                $vue.hideLoader();
+
+                            }, () => $vue.hideLoader());
+                }
+
+
 
             },
             update() {

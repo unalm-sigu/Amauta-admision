@@ -340,7 +340,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
     @Override
     public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona) {
-         Octavia subquery = Octavia.query()
+        Octavia subquery = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno almr", "cicloAcademico ciac")
                 .filter("ciac.id", cicloAcademico);
@@ -361,7 +361,6 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         return all(sql);
     }
 
-    
     @Override
     public List<AlumnoConsejero> allByDynatablePersonaTutor(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
 
@@ -413,6 +412,10 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .join("alumno almr", "cicloAcademico ciac")
                 .filter("ciac.id", ciclo)
                 .filter("mr.estado", RCI);
+        Octavia subqueryINH = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr", "cicloAcademico ciac")
+                .filter("ciac.id", ciclo);
 
         for (String key : queries.keySet()) {
             if (key.equals("search")) {
@@ -435,6 +438,11 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
                     case "retirado":
                         sql.exists(subqueryRCI);
+                        sql.linkedBy("al.id", "almr.id");
+                        sql.linkedBy("ca.id", "ciac.id");
+                        break;
+                    case "noMatriculable":
+                        sql.notExists(subqueryINH);
                         sql.linkedBy("al.id", "almr.id");
                         sql.linkedBy("ca.id", "ciac.id");
                         break;

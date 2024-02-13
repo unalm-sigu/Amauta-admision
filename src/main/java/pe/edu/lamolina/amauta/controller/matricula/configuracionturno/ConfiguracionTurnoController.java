@@ -237,5 +237,24 @@ public class ConfiguracionTurnoController {
         }
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "deleteTurno", method = RequestMethod.POST)
+    public JsonResponse deleteTurno(@RequestBody TurnoAtencion turnoAtencion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        
+        try {
+            service.deleteTurno(turnoAtencion,ds);
+            response.setSuccess(true);
+            response.setMessage("Se eliminó el turno con satisfacción");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
 }

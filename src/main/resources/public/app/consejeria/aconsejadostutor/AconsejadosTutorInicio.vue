@@ -22,9 +22,9 @@
                 <section class="panel-body">
                     <div class="col-md-12">
                         <div class="row">
-                            <div v-for='data in situaciones'>
+                            <div v-for='(data, index) in situaciones'>
                                 <div  class="col-md-3 text-center" v-bind:class="bgColorClass[data.codigo]">
-                                    <a  v-on:click="findAconsejadoSituacion(data.codigo)" class=" pointer" v-bind:class="data.color">
+                                    <a  v-on:click="findAconsejadoSituacion(data.codigo)" class=" pointer" v-bind:class="colors[index]">
                                         <span v-for='item in countSituaciones' class="h2 bold" v-if="item.codigo == data.codigo" v-text="item.count"></span>
                                         <small class="block m-b-xs" v-text='data.nombre'></small>
                                     </a>
@@ -41,7 +41,8 @@
                     <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="true" ref="raptorTuto">
                         <div slot="header">
                             <div class="col-md-8 preguntas-col">
-                                <div >
+                                <div>
+
                                     <div  class="col-md-2 text-center" v-bind:class="bgColorClass['matriculado']">
                                         <a  v-on:click="findAconsejado('matriculado')" class="text-success pointer" >
                                             <span class="h2 bold" v-text="count.matriculados"></span>
@@ -60,8 +61,52 @@
                                             <small class="block m-b-xs">Retirado Ciclo</small>
                                         </a>
                                     </div>
+                                    <div  class="col-md-2 text-center"  v-bind:class="bgColorClass['noMatriculable']" >
+                                        <a  v-on:click="findAconsejado('noMatriculable')" class="text-warning pointer" >
+                                            <span class="h2 bold" v-text="count.noMatriculables"></span>
+                                            <small class="block m-b-xs">No matriculables</small>
+                                        </a>
+                                    </div>
                                 </div> 
+
                             </div>
+
+
+                            <!--                            <div class="row">
+                                                            <div class="col-md-12 panel qard qard-success">
+                                                                <div class="card">
+                                                                    <div class="card-body">
+                                                                        <div class="m-t-lg">
+                                                                            <div class="col-md-3 text-center" class="bgColorClass['matriculado']">
+                                                                                <a  v-on:click="findAconsejado('matriculado')" class="text-success pointer" >
+                                                                                    <span class="h2 bold" v-text="count.matriculados"></span>
+                                                                                    <small class="block m-b-xs">Matriculados</small>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div  class="col-md-3 text-center" v-bind:class="bgColorClass['noMatriculado']">
+                                                                                <a v-on:click="findAconsejado('noMatriculado')" class="text-black pointer" >
+                                                                                    <span class="h2 bold" v-text="count.noMatriculados"></span>
+                                                                                    <small class="block m-b-xs">No Matriculados</small>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div  class="col-md-3 text-center"  v-bind:class="bgColorClass['retirado']" >
+                                                                                <a  v-on:click="findAconsejado('retirado')" class="text-danger pointer" >
+                                                                                    <span class="h2 bold" v-text="count.retiroCiclo"></span>
+                                                                                    <small class="block m-b-xs">Retirado Ciclo</small>
+                                                                                </a>
+                                                                            </div>
+                                                                            <div  class="col-md-3 text-center"  v-bind:class="bgColorClass['noMatriculable']" >
+                                                                                <a  v-on:click="findAconsejado('noMatriculable')" class="text-warning pointer" >
+                                                                                    <span class="h2 bold" v-text="count.noMatriculables"></span>
+                                                                                    <small class="block m-b-xs">No matriculables</small>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div> 
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>-->
+
 
                             <div class="col-md-4">
                                 <div class="pull-right" v-if="informe.id">
@@ -264,7 +309,7 @@
                 isLoading: false,
                 situaciones: [],
                 countSituaciones: [],
-                colors: ['text-success', 'text-black', 'text-primary', 'text-warning', 'text-info']
+                colors: ['text-success', 'text-black', 'text-primary', 'text-warning', 'text-info', 'text-danger']
             };
         },
         mounted() {
@@ -488,7 +533,7 @@
             },
             countData() {
                 let $vue = this;
-                
+
                 $vue.isLoading = true;
                 $.ajax({
                     url: `/${rutaModulo}/countData/${$vue.persona.id}/${$vue.consejero.carrera.id}`,
