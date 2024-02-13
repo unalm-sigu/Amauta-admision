@@ -647,8 +647,7 @@ public class ProfesorController {
     @RequestMapping("reporteDocenteCicloAcademico")
     public ModelAndView reporteDocenteCicloAcademico(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
-        System.out.println("codigo::" + filtro.getDocente());
-        
+
         if (filtro.getCicloAcademicos() != null) {
             List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
             model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);

@@ -8,7 +8,7 @@
                     <label>Alumno</label>
                     <multiselect                                                   
                         v-model='tramite.alumno'
-                       :searchable="false"
+                        :searchable="false"
                         v-bind:limit='15'
                         v-on:search-change="searchAlumnos"
                         v-bind:options='alumnos'
@@ -163,23 +163,14 @@
                                v-model="solicitud.email" />
                     </div>
                 </div>
-
                 <div class="panel-footer col-xs-12 text-center">
-                    <!--                    <button  type="button"
-                                                 class="btn btn-success"
-                                                 v-if="!isEdit"
-                                                 v-on:click.prevent="submitForm"
-                                                 >v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 
-                                            Guardar
-                                            <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar
-                                        </button>-->
-                    <button
-                        type="button"
-                        class="btn btn-success"
-                        v-on:click.prevent="isEdit ? updateFormDocumento() : submitForm()"
-                        >
-                        {{ isEdit ? 'Actualizar' : 'Guardar' }}
-                        <!--<i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>-->
+                    <button  type="button"
+                             class="btn btn-success"
+                             v-if="isEdit"
+                             v-on:click.prevent="updateFormDocumento"
+                             > <!--v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 -->
+                        Actualizar
+<!--                        <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar-->
                     </button>
                     <!--                    <button  type="button"-->
                     <!--                             class="btn btn-success"-->
