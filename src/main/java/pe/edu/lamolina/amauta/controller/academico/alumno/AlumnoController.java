@@ -835,7 +835,7 @@ public class AlumnoController {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "id", "nota", "creditos", "fechaRegistro",
                 "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso",
-                "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.cicloAplica.*"
+                "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.estadoEnum", "tramiteTraslado.resolucion.cicloAplica.*"
             });
             array.add(node);
         }

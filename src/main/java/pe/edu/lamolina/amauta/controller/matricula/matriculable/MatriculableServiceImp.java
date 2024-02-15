@@ -1532,17 +1532,21 @@ public class MatriculableServiceImp implements MatriculableService {
             for (;;) {
                 if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
                     System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
-//                    respositorVisor.incrementar();
+                    respositorVisor.incrementar();
                     log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
                 } else {
+                    log.info("CONTADOR");
                     break;
                 }
+
             }
+
             if (visorCalculoNotas.estaCompletoToken(token)) {
+                log.info("TOKEN COMPLETO");
                 break;
             }
         }
-
+        
         promedioService.verificarAlumnosNmat(ciclo);
 
     }
@@ -1692,7 +1696,6 @@ public class MatriculableServiceImp implements MatriculableService {
         return listAptoPreBean;
     }
 
-
     @Override
     public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
@@ -1768,6 +1771,5 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);
     }
-
 
 }
