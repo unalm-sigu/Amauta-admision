@@ -87,7 +87,17 @@
                             </label>
                         </div>
                     </div>
-
+                    
+                    <div class='form-group' >
+                        <label class="col-sm-3 control-label">Solo Especial</label>
+                        <div class="col-sm-9">
+                            <label class="switch">
+                                <input type="checkbox" name="requiereEspecial" value="1" true-value="1" false-value="0"  v-model="tipoConstancia.requiereEspecial" ></input>
+                                <span></span>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <div class='form-group' >
                         <label class="col-sm-3 control-label">Configurado</label>
                         <div class="col-sm-9">

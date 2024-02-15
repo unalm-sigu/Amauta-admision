@@ -310,10 +310,13 @@ public class ConstanciaSolicitudController {
 
             arrayNode.add(objectNode);
         }
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
+        boolean tieneRolReactivarDocumento = ds != null && ds.getRoles() != null
+                && ds.getRoles().stream().anyMatch(rol -> "REACTIVAR_DOCUMENTO".equals(rol.getCodigo()));
         model.addAttribute("tiposDocumentoAcademico", arrayNode);
         model.addAttribute("solicitud", node);
-        model.addAttribute("IS_EDICION", TRUE);
+        model.addAttribute("IS_EDICION", tieneRolReactivarDocumento);
         return "tramite/tramiteConstancia/editarSolicitud";
 
     }

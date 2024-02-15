@@ -1159,7 +1159,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Tramite tramiteDB = tramiteDAO.find(tramite.getId());
         tramiteDB.setEstadoEnum(TramiteEstadoEnum.CRE);
         tramiteDAO.update(tramiteDB);
-       
+
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setTramite(tramite);

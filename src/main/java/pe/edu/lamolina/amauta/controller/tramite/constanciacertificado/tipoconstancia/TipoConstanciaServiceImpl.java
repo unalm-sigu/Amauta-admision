@@ -70,11 +70,20 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademico.getRequierePosgrado() == null) {
             tramiteDocumentoAcademico.setRequierePosgrado(0);
         }
+        if (tramiteDocumentoAcademico.getRequiereEspecial() == null) {
+            tramiteDocumentoAcademico.setRequiereEspecial(0);
+        }
+
         if (tramiteDocumentoAcademico.getRequierePregrado() == null) {
             tramiteDocumentoAcademico.setRequierePregrado(0);
         }
-        if (tramiteDocumentoAcademico.getConfigurado()== null) {
+
+        if (tramiteDocumentoAcademico.getConfigurado() == null) {
             tramiteDocumentoAcademico.setConfigurado(0L);
+        }
+
+        if (tramiteDocumentoAcademico.getDescargable() == null) {
+            tramiteDocumentoAcademico.setDescargable(false);
         }
 
         tramiteDocumentoAcademico.setOficinaEmisora(oficina);
@@ -103,7 +112,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademicoForm.getRequierePregrado() == null) {
             tramiteDocumentoAcademicoForm.setRequierePregrado(0);
         }
-        if (tramiteDocumentoAcademicoForm.getConfigurado()== null) {
+        if (tramiteDocumentoAcademicoForm.getConfigurado() == null) {
             tramiteDocumentoAcademicoForm.setConfigurado(0L);
         }
 
