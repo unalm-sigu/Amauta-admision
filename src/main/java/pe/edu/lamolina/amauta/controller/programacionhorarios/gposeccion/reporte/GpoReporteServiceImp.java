@@ -157,10 +157,13 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
             departamento.setCurso(null);
             List<Curso> miscursos = departamentoXcursos.get(departamento.getId());
-            this.fillMontoCurso(miscursos, docenteSeccionXcurso);
-            List<Curso> miscursosfinal = this.simplificarCurso(miscursos);
-            departamento.setCurso(miscursosfinal);
-            departamento.setMatriculados(this.calcMatriculados(miscursosfinal));
+//            logger.debug("miscursos {}", miscursos.size());
+            if (miscursos != null) {
+                this.fillMontoCurso(miscursos, docenteSeccionXcurso);
+                List<Curso> miscursosfinal = this.simplificarCurso(miscursos);
+                departamento.setCurso(miscursosfinal);
+                departamento.setMatriculados(this.calcMatriculados(miscursosfinal));
+            }
         }
 
         return departamentosMap.values().stream().collect(Collectors.toList());
@@ -300,10 +303,12 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
             departamento.setCurso(null);
             List<Curso> miscursos = departamentoXcursos.get(departamento.getId());
-            this.fillMontoCurso(miscursos, docenteSeccionXcurso);
-            List<Curso> miscursosfinal = this.simplificarCurso(miscursos);
-            departamento.setCurso(miscursosfinal);
-            departamento.setMatriculados(this.calcMatriculados(miscursosfinal));
+            if (miscursos != null) {
+                this.fillMontoCurso(miscursos, docenteSeccionXcurso);
+                List<Curso> miscursosfinal = this.simplificarCurso(miscursos);
+                departamento.setCurso(miscursosfinal);
+                departamento.setMatriculados(this.calcMatriculados(miscursosfinal));
+            }
         }
 
         List<DepartamentoAcademico> departamentoss = departamentosMap.values().stream().collect(Collectors.toList());

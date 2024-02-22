@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +217,7 @@ public class PrecioSeccionController {
             List<PagoHoraDocente> pagosDocenteByHora = service.allPagosDocenteByCiclo(ds.getCicloAcademico());
             DocenteSeccion docenteSeccionBD = service.findDocenteSeccion(docenteSeccionForm);
             CursoCicloAcademico cursoCiclo = service.findCursoCiclo(docenteSeccionBD.getSeccion().getGrupoSeccion().getCurso(), ds.getCicloAcademico());
-            String msg = service.generarPagoDocente(docenteSeccionBD, cursoCiclo, pagosDocenteByHora, ds.getCicloAcademico(), ds);
+            String msg = service.generarPagoDocente(docenteSeccionBD, cursoCiclo, pagosDocenteByHora, ds.getCicloAcademico(), ds, null);
             response.setMessage(msg);
             response.setSuccess(true);
 

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.precioseccion;
 
 import java.util.List;
+import java.util.Map;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
@@ -29,7 +30,7 @@ public interface PrecioSeccionService {
 
     void asignarGrupoSeccionModular(GrupoSeccion grupoSeccion, DataSessionPivot ds);
 
-    String generarPagoDocente(DocenteSeccion docenteSeccion, CursoCicloAcademico cursoCiclo, List<PagoHoraDocente> pagosDocenteByHora, CicloAcademico ciclo, DataSessionPivot ds);
+    String generarPagoDocente(DocenteSeccion docenteSeccion, CursoCicloAcademico cursoCiclo, List<PagoHoraDocente> pagosDocenteByHora, CicloAcademico ciclo, DataSessionPivot ds, Map<Long, Integer> retiradoXciclo);
 
     List<PagoHoraDocente> allPagosDocenteByCiclo(CicloAcademico cicloAcademico);
 

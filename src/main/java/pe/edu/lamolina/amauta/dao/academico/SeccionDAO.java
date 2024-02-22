@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.academico;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -152,5 +153,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     int saveList(List<Seccion> secciones);
 
     public List<Seccion> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
+
+    Map<Long, Integer> countRetiradosBySeccion(CicloAcademico cicloAcademico);
 
 }
