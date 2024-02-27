@@ -404,13 +404,17 @@ public class ProfesorServiceImp implements ProfesorService {
 
         } else {
             log.debug("actualizando usuario");
-            if (!usuario.getGoogle().equals(persona.getEmailCompania())) {
+            if (!usuario.getGoogle().equalsIgnoreCase(persona.getEmailCompania())) {
+                String emailCompaniaBaja = usuario.getGoogle();
+                usuario.setGoogle(persona.getEmailCompania());
+                usuarioDAO.updateColumns(usuario, "google");
+
                 Usuario usuarioNew = new Usuario();
                 usuarioNew.setEstadoEnum(UserEstadoEnum.INA);
                 usuarioNew.setFechaRegistro(new Date());
                 usuarioNew.setUserRegistro(ds.getUsuario());
                 usuarioNew.setPersona(persona);
-                usuarioNew.setGoogle(persona.getEmailCompania());
+                usuarioNew.setGoogle(emailCompaniaBaja);
                 usuarioNew.setUserActivo(usuario);
                 usuarioDAO.save(usuarioNew);
             }
@@ -712,12 +716,8 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente) {
         List<DocenteCicloCargaBean> docenteCicloCargaBean = new ArrayList<>();
-        docenteCicloCargaBean= docenteDAO.AllDocentecicloCargaAcademico(docente);
+        docenteCicloCargaBean = docenteDAO.AllDocentecicloCargaAcademico(docente);
         return docenteCicloCargaBean;
     }
 
-
-
-
-
-    }
+}

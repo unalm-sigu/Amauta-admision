@@ -117,7 +117,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
 
-        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroNoAnuladoNiPendiente(alumnoDB, retiroForm.getCicloAcademico());
+        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroNoAnuladoNiPendienteNiRechazados(alumnoDB, retiroForm.getCicloAcademico());
 
         if (retiroCicloDB != null) {
             return "Ya tiene un trámite en el ciclo " + retiroCicloDB.getCicloAcademico().getDescripcion();
