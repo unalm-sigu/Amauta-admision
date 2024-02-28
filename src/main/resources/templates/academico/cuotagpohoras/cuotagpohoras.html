@@ -9,7 +9,7 @@
                 height: 50px;
                 overflow: hidden;
                 margin: 0 auto;
-                line-height: 50px;  
+                line-height: 50px;
                 /*                text-align: center;*/
                 font-size: 16px;
                 /*                margin-left: 49px;*/
@@ -43,6 +43,7 @@
                 background-color: #EBEDEF;
                 color: #000;
             }
+            
         </style>
     </head>
 
@@ -95,6 +96,7 @@
                                                 <th class="col-md-1 text-center v-middle" rowspan="2">Letra</th>
                                                 <th class="col-md-1 text-center v-middle" colspan="2">Cuota</th>
                                                 <th class="col-md-1 text-center v-middle" colspan="2">Utilizados</th>
+                                                <th class="col-md-1 text-center v-middle" style="background-color: rgba(247, 0, 0, 0.74); color: #F9F9F9;" colspan="2">Excedidas</th>
                                                 <th class="col-md-1 text-center v-middle" colspan="2">Horas Utilizadas</th>
                                                 <th class="col-md-4 v-middle" rowspan="2">Cantidad Grupos</th>
                                             </tr>
@@ -103,6 +105,8 @@
                                                 <th class="text-center v-middle">Práctica</th>
                                                 <th class="text-center v-middle">Teoría</th>
                                                 <th class="text-center v-middle">Práctica</th>
+                                                <th class="text-center v-middle" style="background-color: rgba(244, 1, 1, 0.56); color: #F9F9F9;">Teoría</th>
+                                                <th class="text-center v-middle" style="background-color: rgba(244, 1, 1, 0.56); color: #F9F9F9;">Práctica</th>
                                                 <th class="text-center v-middle">Teoría</th>
                                                 <th class="text-center v-middle">Práctica</th>
                                             </tr>
@@ -149,12 +153,28 @@
                                                          class="circle-recorrido bgr-success">{{item.gruposUtilizadosPractica}}</div>
                                                     <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosPractica}}</div>
                                                 </td>-->
+                                                
+                                                <td class="v-middle text-center" style="background-color: #ff01011c;"> 
+                                                    <div class="circle-recorrido" v-bind:class="validarColorTeoria(item.cuotasTeoria,item.gruposUtilizadosTeoria)">
+                                                        {{item.gruposUtilizadosTeoria != 0 ? (item.cuotasTeoria - item.gruposUtilizadosTeoria) : 0 }}</div>
+                                                </td>
+
+                                                <td class="v-middle text-center" style="background-color: #ff01011c;"> 
+                                                    <div class="circle-recorrido" v-bind:class="validarColorPractica(item.cuotasPractica,item.gruposUtilizadosPractica)">
+                                                        {{item.gruposUtilizadosPractica != 0 ? (item.cuotasPractica - item.gruposUtilizadosPractica) : 0 }}</div>
+                                                </td> 
+                                                
                                                 <td class="v-middle text-center"> 
                                                     <div class="circle-recorrido bgr-default">{{item.horasUtilizadasTeoria}}</div>
                                                 </td>   
                                                 <td class="v-middle text-center"> 
                                                     <div class="circle-recorrido bgr-default">{{item.horasUtilizadasPractica}}</div>
-                                                </td>   
+                                                </td>
+
+                                                
+                                                 
+                                                
+                                                
                                                 <td class="v-middle"> 
                                                     <span v-if="item.detalleGruposTeoria != '' " class="block"><strong>Teoría:</strong> {{item.detalleGruposTeoria}}</span>
                                                     <span v-if="item.detalleGruposPractica != '' " class="block"><strong>Práctica:</strong> {{item.detalleGruposPractica}}</span>
@@ -238,7 +258,7 @@
                 var rutaModulo = 'academico/cuotagpohoras';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>
         </div>
