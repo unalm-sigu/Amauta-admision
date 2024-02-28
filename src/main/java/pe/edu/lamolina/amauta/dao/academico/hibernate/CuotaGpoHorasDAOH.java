@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -17,6 +18,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.amauta.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
 import pe.edu.lamolina.amauta.controller.academico.cuotagpohoras.LetraCuotaUtilizadaBean;
 import pe.edu.lamolina.amauta.dao.academico.CuotaGpoHorasDAO;
+import pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Repository
@@ -75,10 +77,12 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
         DynatableSql sql = new DynatableSql(filter)
                 .from(CuotasGrupoHoras.class, "cgpo")
                 .join("anexoBoletin ab", "grupoHoras gh", "cicloAcademico ca")
+                .leftJoin("ab.anexoSuperior abs", "ab.departamentoAcademico da")
                 .filter("ca.id", cicloAcademico)
+                .in("abs.codigo", Arrays.asList(CodigoAnexoBoletinEnum.G01, CodigoAnexoBoletinEnum.G02, CodigoAnexoBoletinEnum.G03))
                 .searchFields("ab.nombre", "gh.codigo", "ca.descripcion")
                 .filter("gh.id", grupoHoras)
-                .orderBy("ab.nombre");
+                .orderBy("da.nombre", "ab.nombre");
 
         return all(sql);
     }

@@ -128,12 +128,12 @@
                                                     <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosPractica}}</div>
                                                 </td>
 
-                                                <td class="v-middle text-center pointer" style="background-color: #ff01011c;"> 
+                                                <td class="v-middle text-center" style="background-color: #ff01011c;"> 
                                                     <div class="circle-recorrido"  v-bind:class="validarColorTeoria(item.cuotasTeoria,item.gruposUtilizadosTeoria)">
                                                         {{item.gruposUtilizadosTeoria != 0 ? (item.cuotasTeoria - item.gruposUtilizadosTeoria) : 0 }}
                                                     </div>
                                                 </td>
-                                                <td class="v-middle text-center pointer" style="background-color: #ff01011c;"> 
+                                                <td class="v-middle text-center" style="background-color: #ff01011c;"> 
                                                     <div class="circle-recorrido"  v-bind:class="validarColorPractica(item.cuotasPractica,item.gruposUtilizadosPractica)">
                                                         {{item.gruposUtilizadosPractica != 0 ? (item.cuotasPractica - item.gruposUtilizadosPractica) : 0 }}
                                                     </div>
