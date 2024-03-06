@@ -93,4 +93,17 @@ public class TurnoAtencionDAOH extends AbstractEasyDAO<TurnoAtencion> implements
         return all(sql);
     }
 
+    @Override
+    public List<TurnoAtencion> allByCicloAcademico(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(TurnoAtencion.class, "ta")
+                .join("configuracionTurnosAtencion cta")
+                .join("cta.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("eca.eventoAcademico eva")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("cta.nombre");
+
+        return all(sql);
+    }
+
 }

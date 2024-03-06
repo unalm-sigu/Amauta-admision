@@ -1546,7 +1546,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 break;
             }
         }
-        
+
         promedioService.verificarAlumnosNmat(ciclo);
 
     }
@@ -1770,6 +1770,23 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public List<Carrera> searchAllCarrera(String nombre) {
         return carreraDAO.searchByNombre(nombre);
+    }
+
+    @Override
+    public List<TurnoAtencion> allTurnosAtencionByCicloAcademico(CicloAcademico cicloAcademico) {
+        return turnoAtencionDAO.allByCicloAcademico(cicloAcademico);
+
+    }
+
+    @Override
+    @Transactional
+    public void asignarTurno(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumenBD = matriculaResumenDAO.find(matriculaResumenForm.getId());
+        matriculaResumenBD.setTurnoAtencion(matriculaResumenForm.getTurnoAtencion());
+        matriculaResumenBD.setMotivoTurnoAtencion(matriculaResumenForm.getMotivoTurnoAtencion());
+        matriculaResumenBD.setUserRegistro(ds.getUsuario());
+        matriculaResumenBD.setFechaRegistro(new Date());
+        matriculaResumenDAO.update(matriculaResumenBD);
     }
 
 }

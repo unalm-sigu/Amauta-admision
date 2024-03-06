@@ -17,6 +17,7 @@ import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.academico.TurnoAtencion;
 
 public interface MatriculableService {
 
@@ -114,6 +115,8 @@ public interface MatriculableService {
 
     void agregarAporteSegundaCarreraDeuda(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    List<TurnoAtencion> allTurnosAtencionByCicloAcademico(CicloAcademico cicloAcademico);
 
+    void asignarTurno(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
 }

@@ -24,5 +24,7 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
     List<TurnoAtencion> allByCicloEventoEnum(CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);    
 
     List<TurnoAtencion> findAllTurnoAtencionByFecha(Date hoy);
+
+    List<TurnoAtencion> allByCicloAcademico(CicloAcademico cicloAcademico);
     
 }
