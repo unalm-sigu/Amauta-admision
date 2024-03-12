@@ -1076,6 +1076,10 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     private TurnoAtencion findTurnoByPrioridad(BigDecimal prioridad, List<TurnoAtencion> turnos) {
+        if (prioridad.compareTo(new BigDecimal(BigInteger.ONE)) == -1) {
+            prioridad = new BigDecimal(BigInteger.ONE);
+        }
+        
         for (TurnoAtencion turno : turnos) {
             if (turno.getPrioridadInicio().compareTo(prioridad) <= 0
                     && turno.getPrioridadFin().compareTo(prioridad) >= 0) {
