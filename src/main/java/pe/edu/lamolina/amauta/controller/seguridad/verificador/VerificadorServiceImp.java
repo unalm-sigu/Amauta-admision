@@ -458,10 +458,11 @@ public class VerificadorServiceImp implements VerificadorService {
                 log.info("-Usuario {} no tiene el rol {} en OERA", ds.getUsuario().getId(), RolEnum.IOREA.name());
             }
         }
+
         {
             boolean esGestorOBU = this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds);
             if (esGestorOBU) {
-                log.info("-Usuario {} tiene el rol {} en la EPG", ds.getUsuario().getId(), RolEnum.GESTOR_OFICINA_EPG.name());
+                log.info("-Usuario {} tiene el rol {} en la OBUAE", ds.getUsuario().getId(), RolEnum.INF_OBUAE.name());
                 Oficina depFis = new Oficina(DEPFIS);
                 Oficina depAct = new Oficina(DEPACT);
 
@@ -470,7 +471,7 @@ public class VerificadorServiceImp implements VerificadorService {
                 oficinas.add(depAct);
 
             } else {
-                log.info("-Usuario {} no tiene el rol {} en OBUAE", ds.getUsuario().getId(), RolEnum.GESTOR_OFICINA_EPG.name());
+                log.info("-Usuario {} no tiene el rol {} en OBUAE", ds.getUsuario().getId(), RolEnum.INF_OBUAE.name());
             }
         }
 
