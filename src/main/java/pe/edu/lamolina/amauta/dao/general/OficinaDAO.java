@@ -70,6 +70,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allByTiposOficinas(List<TipoOficinaEnum> tiposEnum);
 
-    public List<Oficina> allOficinaEmisora();
+    List<Oficina> allOficinaEmisora();
 
 }
