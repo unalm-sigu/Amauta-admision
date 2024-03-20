@@ -252,7 +252,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String PATH_TO_DELETE_MEETING_API_ZOOM = "https://api.zoom.us/v2/meetings/";
     public static String PATH_TO_CREATE_MEETING_API_ZOOM = "https://api.zoom.us/v2/users/";
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
-    
+
     public static String tokenZoom = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2OTM1NDQzNDAsImlhdCI6MTY4OTYxMjMyNH0.UUXu0L2xHeVHJl7fav_Jni20ZrQ-h0qrCTZhw825lng";
 
     @Override
@@ -1125,7 +1125,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         ObjectUtil.printAttr(seccionBD);
         List<SeccionCursoCachimbos> cursoCachimbos = seccionCursoCachimbosDAO.allBySeccion(seccionBD);
 
-        if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty() && cursoCachimbos.isEmpty()) {
+        if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty() && cursoCachimbos.isEmpty() && encuestasProfesorSeccionAnulado.isEmpty()) {
             log.debug("seccionBD {} revisar en saco de anular on encuestas", seccionBD.getId());
             log.debug("seccionBD {}", seccionBD.getId());
 
@@ -1173,6 +1173,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
 
                 this.actualizarBoletin();
+
                 return grupoSeccion;
             }
 
@@ -2727,8 +2728,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (eventoAcademico != null) {
 //                eventoAcademico.setFechaFin(this.addOneDay(eventoAcademico.getFechaFin()));
 //                horariosAula = horarioAulaDAO.allByPabellonCicloDiasHoras(pabellon, eventoAcademico, diaHoras);
-                horariosAula = horarioAulaDAO.allRangoDiaAndPabellonByDiasHoras(diasHorasSeccion, pabellon,eventoAcademico.getFechaInicio(), eventoAcademico. getFechaFin());
-                
+                horariosAula = horarioAulaDAO.allRangoDiaAndPabellonByDiasHoras(diasHorasSeccion, pabellon, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
+
             }
         }
         log.debug("***horariosAula existe *** {}", horariosAula.isEmpty());
