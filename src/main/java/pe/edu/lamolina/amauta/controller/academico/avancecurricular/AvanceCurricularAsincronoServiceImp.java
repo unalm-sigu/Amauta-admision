@@ -754,11 +754,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                         equivalenciaEncontrada = false;
                         break;
                     }
-                    if (mapCursosEquivalenteAct.containsKey(cursoCurricula.getCurso().getId())
-                            && mapCursosEquivalenteAct.get(cursoEq.getCursoEquivalente().getId()) != null) {
-                        aluCursoCurricula.setEstadoRegistroEnum(INA);
-                        equivalenciaEncontrada = false;
-                    }
+//                    if (mapCursosEquivalenteAct.containsKey(cursoCurricula.getCurso().getId())
+//                            && mapCursosEquivalenteAct.get(cursoEq.getCursoEquivalente().getId()) != null) {
+//                        aluCursoCurricula.setEstadoRegistroEnum(INA);
+//                        equivalenciaEncontrada = false;
+//                    }
                     AlumnoCicloCurso alumnoCicloCurso = mapCursosAprobados.get(cursoEq.getCursoEquivalente().getId());
                     alumnoCicloCurso.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
                 }
