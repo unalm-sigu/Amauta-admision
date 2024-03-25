@@ -205,7 +205,7 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <template v-if="item.alumno.carrera.codigo == consejero.carrera.codigo">
+<!--                                            <template v-if="item.alumno.carrera.codigo == consejero.carrera.codigo">
                                                 <div class="block">
                                                     <div v-bind:class="classTener(item.tienePlanes)" class="label">
                                                         <span v-if="item.tienePlanes">PLAN</span>
@@ -226,7 +226,7 @@
                                                         <span v-else="">S/Mapa</span>
                                                     </div>
                                                 </div>
-                                            </template>
+                                            </template>-->
 
                                             <template v-else="">
                                                 <div v-on:click="verMalaAsignacion(item)" class="block pointer">
