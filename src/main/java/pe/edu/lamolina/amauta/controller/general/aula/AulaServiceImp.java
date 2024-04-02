@@ -109,8 +109,8 @@ public class AulaServiceImp implements AulaService {
     @Autowired
     ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
 
-    private final String SOPORTE_TECNICO_DERA="SOPORTE_TECNICO_DERA";
-    private final String PERSONAL_AULA="PAULA";
+    private final String SOPORTE_TECNICO_DERA = "SOPORTE_TECNICO_DERA";
+    private final String PERSONAL_AULA = "PAULA";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,22 +121,21 @@ public class AulaServiceImp implements AulaService {
 
         Boolean filterObu = this.filterByRol(ds);
 
-        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
-        List<Aula> aulas= new ArrayList<>();
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
+        List<Aula> aulas;
 
         Long idPersona = ds.getUsuario().getPersona().getId();
         List<ResponsableAulaAsignacion> responsableAulas = responsableAulaAsignacionDAO.allByAulas(idPersona);
-        List<Long> aulaSuperior =responsableAulas.stream().map(a->a.getAula().getId()).collect(Collectors.toList());
+        List<Long> aulaSuperior = responsableAulas.stream().map(a -> a.getAula().getId()).collect(Collectors.toList());
 
-
-        if(roles.contains(SOPORTE_TECNICO_DERA)){
-            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        if (roles.contains(SOPORTE_TECNICO_DERA)) {
+            Oficina oficinaDera = oficinaDAO.findByCode(OficinaEnum.OERA.name());
             aulas = aulaDAO.allByDynatable(filter, oficinaDera);
         } else if (roles.contains(PERSONAL_AULA)) {
-            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+            Oficina oficinaDera = oficinaDAO.findByCode(OficinaEnum.OERA.name());
             aulas = aulaDAO.allByDynatable(filter, oficinaDera, aulaSuperior);
         } else {
-            aulas = aulaDAO.allByDynatable(filter,filterObu,oficina);
+            aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
         }
 
 //        List<Aula> aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
@@ -170,10 +169,10 @@ public class AulaServiceImp implements AulaService {
     public List<TipoAula> allTiposAula(DataSessionPivot ds) {
         List<TipoAula> tipox = new ArrayList();
         List<TipoAula> tipos = new ArrayList<>();
-        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
-        if(roles.contains(SOPORTE_TECNICO_DERA)){
-            tipos = tipoAulaDAO.allByCodigos(Arrays.asList("AUL","AUD"));
-        }else{
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
+        if (roles.contains(SOPORTE_TECNICO_DERA)) {
+            tipos = tipoAulaDAO.allByCodigos(Arrays.asList("AUL", "AUD"));
+        } else {
             tipos = tipoAulaDAO.all();
         }
 
@@ -550,7 +549,7 @@ public class AulaServiceImp implements AulaService {
 
         List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, OficinaEnum.OERA, cicloAcademico);
 
-        if(horariosSecciones.size()==0){
+        if (horariosSecciones.size() == 0) {
             throw new PhobosException("No hay secciones programadas");
         }
 
@@ -621,7 +620,6 @@ public class AulaServiceImp implements AulaService {
         }
         return Boolean.FALSE;
     }
-
 
     public Oficina findOficina(OficinaEnum oficinaEnum, Rol role, Usuario usuario) {
         UsuarioRol rol = usuarioRolDAO.findByOficinaRolUser(oficinaEnum, role, usuario);

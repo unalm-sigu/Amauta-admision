@@ -56,7 +56,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     public List<Aula> allByDynatable(DynatableFilter filter, boolean filterObu, Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
-                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
+                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta")
+                .leftJoin("oficinaSupervisora os", "os.oficinaPrincipal ofp")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .orderBy("au.id desc");
         if (filter.getQueries() != null && filter.getQueries().get("tipo-aula") != null) {
@@ -64,10 +65,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
             sql.filter("ta.codigo", tipoAula);
         }
         if (filterObu) {
-            sql.beginBlock()
-                    .isNull("aulaSuperior")
-                    .filter("os.id", oficina)
-                    .endBlock();
+            sql.filter("ofp.id", oficina);
         }
         return all(sql);
     }
@@ -78,22 +76,23 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
-                .in("ta.codigo",Arrays.asList( TipoAulaEnum.AUL.name(),"AUD"))
+                .in("ta.codigo", Arrays.asList(TipoAulaEnum.AUL.name(), "AUD"))
                 .filter("os.id", oficina)
-//                .in("aus.id",Arrays.asList(108L))
+                //                .in("aus.id",Arrays.asList(108L))
                 .orderBy("au.id desc");
 
         return all(sql);
     }
+
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter, Oficina oficina, List<Long> id) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
-                .in("ta.codigo",Arrays.asList( TipoAulaEnum.AUL.name(),"AUD"))
+                .in("ta.codigo", Arrays.asList(TipoAulaEnum.AUL.name(), "AUD"))
                 .filter("os.id", oficina)
-                .in("aus.id",id)
+                .in("aus.id", id)
                 .orderBy("au.id desc");
 
         return all(sql);
@@ -103,10 +102,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     public List<Aula> allAulas() {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
-                .join( "tipoAula ta", "oficinaSupervisora os")
-                .in("ta.codigo",Arrays.asList( TipoAulaEnum.AUL.name(),"AUD"))
+                .join("tipoAula ta", "oficinaSupervisora os")
+                .in("ta.codigo", Arrays.asList(TipoAulaEnum.AUL.name(), "AUD"))
                 .filter("os.codigo", "OERA")
-//                .in("aus.id",Arrays.asList(108L))
+                //                .in("aus.id",Arrays.asList(108L))
                 .orderBy("au.id desc");
 
         return all(sql);
@@ -166,7 +165,6 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
 
         return all(sql);
     }
-
 
     @Override
     public Aula find(Long id) {
