@@ -146,27 +146,21 @@ public class ColaboradorController {
     public JsonResponse saveUpdateColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
 
-            Colaborador colaborador = colaboradorBean.getColaborador();
-            List<PerfilCompania> perfilCompanias = TypesUtil.getListNotNull(colaboradorBean.getPerfilCompanias());
-            List<FuncionColaborador> funciones = new ArrayList();
-            for (PerfilCompania perfilCompania : perfilCompanias) {
-                FuncionColaborador funcionColaborador = new FuncionColaborador();
-                funcionColaborador.setFuncion(perfilCompania);
-                funciones.add(funcionColaborador);
-            }
-            colaborador.setFuncionColaborador(funciones);
-            service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
-
-            response.setMessage("Se actualizó el colaborador satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+        Colaborador colaborador = colaboradorBean.getColaborador();
+        List<PerfilCompania> perfilCompanias = TypesUtil.getListNotNull(colaboradorBean.getPerfilCompanias());
+        List<FuncionColaborador> funciones = new ArrayList();
+        for (PerfilCompania perfilCompania : perfilCompanias) {
+            FuncionColaborador funcionColaborador = new FuncionColaborador();
+            funcionColaborador.setFuncion(perfilCompania);
+            funciones.add(funcionColaborador);
         }
+        colaborador.setFuncionColaborador(funciones);
+        service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
+
+        response.setMessage("Se actualizó el colaborador satisfactoriamente");
+        response.setSuccess(Boolean.TRUE);
+
         return response;
     }
 
