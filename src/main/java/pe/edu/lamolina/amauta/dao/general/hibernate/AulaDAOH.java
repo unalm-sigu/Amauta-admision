@@ -53,20 +53,23 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatable(DynatableFilter filter, boolean filterObu, Oficina oficina) {
+    public List<Aula> allByDynatable(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta")
                 .leftJoin("oficinaSupervisora os", "os.oficinaPrincipal ofp")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
+                .beginBlock()
+                .__().isNull("aulaSuperior")
+                .__().in("ofp.id", oficinas)
+                .endBlock()
                 .orderBy("au.id desc");
+
         if (filter.getQueries() != null && filter.getQueries().get("tipo-aula") != null) {
             String tipoAula = (String) filter.getQueries().get("tipo-aula");
             sql.filter("ta.codigo", tipoAula);
         }
-        if (filterObu) {
-            sql.filter("ofp.id", oficina);
-        }
+
         return all(sql);
     }
 
