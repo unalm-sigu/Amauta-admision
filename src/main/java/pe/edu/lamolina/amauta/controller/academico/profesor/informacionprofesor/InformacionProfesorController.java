@@ -85,7 +85,8 @@ public class InformacionProfesorController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
-
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> "JEFE_DPTO_ACA".equals(rol.getCodigo()));
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ObjectNode cicloJson = JaneHelper.from(cicloAcademico).json();
 
@@ -113,6 +114,7 @@ public class InformacionProfesorController {
         model.addAttribute("ciclo", cicloJson.toString());
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("esOperadorGastoEPG", verificadorService.isOperadorGastoPosgrado(ds));
+        model.addAttribute("isRevisorDocente", isRevisorDocente);
 
         return "academico/profesor/informacion/informacion";
     }

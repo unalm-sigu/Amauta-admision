@@ -73,6 +73,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Slf4j
@@ -128,6 +129,8 @@ public class ProfesorController {
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         List<CicloAcademico> ciclosNivelacion = service.allCicloAcademicoNivel();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
@@ -138,6 +141,7 @@ public class ProfesorController {
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
         model.addAttribute("loginDocente", !despliegueConfig.isProduccion());
+         model.addAttribute("isRevisorDocente", isRevisorDocente);
 
         ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
