@@ -274,7 +274,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     OficinaDAO oficinaDAO;
 
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
 
     @Autowired
     ArchivoDAO archivoDAO;
@@ -420,7 +420,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         logger.debug("upload to s3    {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+            minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 

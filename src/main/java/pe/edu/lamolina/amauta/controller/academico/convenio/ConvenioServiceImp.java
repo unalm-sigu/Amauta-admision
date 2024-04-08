@@ -55,7 +55,7 @@ public class ConvenioServiceImp implements ConvenioService {
     CarreraConvenioDAO carreraConvenioDAO;
 
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
 
     @Override
     @Transactional
@@ -157,7 +157,7 @@ public class ConvenioServiceImp implements ConvenioService {
         File file = new File(GlobalConstantine.TMP_DIR + rutaDocumento);
         logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + rutaDocumento), (file.exists()));
         if (file.exists()) {
-            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
+            minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
         }
     }
 

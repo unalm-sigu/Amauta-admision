@@ -39,7 +39,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     SistemaDAO sistemaDAO;
 
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -136,7 +136,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     }
 
     private void uploadS3(String remoteDirectory, String localDirectory, String fileName, Boolean publico) {
-        swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, remoteDirectory, localDirectory, fileName, publico);
+        minioService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, remoteDirectory, localDirectory, fileName, publico);
     }
 
     @Override

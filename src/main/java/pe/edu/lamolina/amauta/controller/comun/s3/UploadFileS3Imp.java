@@ -19,35 +19,35 @@ public class UploadFileS3Imp implements UploadFileS3 {
     @Autowired
     DespliegueConfig despliegueConfig;
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void uploadSync(String remoteDirectory, String localDirectory, String fileName, Boolean publico) {
         if (despliegueConfig.getStorage()) {
-            swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, remoteDirectory, localDirectory, fileName, publico);
+            minioService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, remoteDirectory, localDirectory, fileName, publico);
         } else {
-            swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, localDirectory, fileName, publico);
+            minioService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, localDirectory, fileName, publico);
         }
     }
 
     @Override
     public void deleteFile(String dirName, String fileName) {
 //        if (despliegueConfig.getStorage()) {
-//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
+//            minioService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
 //        } else {
-//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
+//            minioService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
 //        }
     }
 
     @Override
     public void deleteFile(String fileName) {
 //        if (despliegueConfig.getStorage()) {
-//            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
+//            minioService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
 //        } else {
 //            if (fileName.startsWith("trash")) {
-//                swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
+//                minioService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
 //            }
 //        }
     }
@@ -55,45 +55,45 @@ public class UploadFileS3Imp implements UploadFileS3 {
     @Override
     public InputStream getFile(String dirName, String fileName) {
         if (despliegueConfig.getStorage()) {
-            return swiftService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
+            return minioService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
         } else {
-            return swiftService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
+            return minioService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
         }
     }
 
     @Override
     public InputStream getFile(String fileName) {
         if (despliegueConfig.getStorage()) {
-            return swiftService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
+            return minioService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, fileName);
         } else {
-            return swiftService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
+            return minioService.getFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
         }
     }
 
     @Override
     public boolean doesExist(String dirName, String fileName) {
         if (despliegueConfig.getStorage()) {
-            return swiftService.doesExist(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
+            return minioService.doesExist(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, fileName);
         } else {
-            return swiftService.doesExist(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
+            return minioService.doesExist(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, fileName);
         }
     }
 
     @Override
     public Inode allFile(String dirName, Boolean publico) {
         if (despliegueConfig.getStorage()) {
-            return swiftService.allFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, publico);
+            return minioService.allFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, dirName, publico);
         } else {
-            return swiftService.allFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, publico);
+            return minioService.allFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH, publico);
         }
     }
 
     @Override
     public void createDirectory(String folderName) {
         if (despliegueConfig.getStorage()) {
-            swiftService.createDirectory(AcademicoConstantine.S3_BUCKET_ACADEMICO, folderName);
+            minioService.createDirectory(AcademicoConstantine.S3_BUCKET_ACADEMICO, folderName);
         } else {
-            swiftService.createDirectory(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH + folderName);
+            minioService.createDirectory(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.S3_TRASH + folderName);
         }
 
     }

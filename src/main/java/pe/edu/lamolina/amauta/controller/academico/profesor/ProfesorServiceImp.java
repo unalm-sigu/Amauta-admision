@@ -91,7 +91,7 @@ public class ProfesorServiceImp implements ProfesorService {
     private final UsuarioDAO usuarioDAO;
     private final UsuarioRolDAO usuarioRolDAO;
 
-    private final StorageService swiftService;
+    private final StorageService minioService;
     private final PersonaService personaService;
 
     @Override
@@ -581,7 +581,7 @@ public class ProfesorServiceImp implements ProfesorService {
         log.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOTO_DOCENTE, GlobalConstantine.TMP_DIR, fileName, true);
+            minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOTO_DOCENTE, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 
