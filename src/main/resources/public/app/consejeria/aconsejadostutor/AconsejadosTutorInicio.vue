@@ -153,32 +153,47 @@
                                             <span v-if="item.beneficioUtlimoCiclo == 1" class="label label-success">Solicitó Beneficio de Útimo Ciclo</span>
                                         </td>
 
-                                        <td class="v-middle">
-                                            <span class="block" v-if="item.consejero">                                                            
-                                                <span class=" bold"> Consejero: </span>
-                                                {{item.consejero.colaborador.codigo}}
-                                            </span>
-                                            <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
-                                                <span class=" bold"> Ciclo Ingreso: </span>
-                                                {{item.alumno.cicloIngreso.descripcion}}
-                                            </span>
-                                            <span class="block">                                                            
-                                                <span class=" bold"> Situación Academica: </span>
-                                                {{item.alumno.situacionAcademica.nombre}}
-                                            </span>
-                                            <span class="block">                                                            
-                                                <span class=" bold"> CCA: </span>
-                                                {{item.alumno.creditosCursados}}
-                                            </span>
-                                            <span class="block">                                                            
-                                                <span class=" bold"> CAPA: </span>
-                                                {{item.alumno.creditosAprobados}}
-                                            </span>
-                                            <span class="block">                                                            
-                                                <span class=" bold"> PPA: </span>
-                                                {{item.alumno.promedioAcumulado}}
-                                            </span>
-                                        </td>
+                              <td class="v-middle">
+                                    <span class="block" v-if="item.consejero">                                                            
+                                        <span class=" bold"> Consejero: </span>
+                                        {{item.consejero.colaborador.codigo}}
+                                    </span>
+                                    <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
+                                        <span class=" bold"> Ciclo Ingreso: </span>
+                                        {{item.alumno.cicloIngreso.descripcion}}
+                                    </span>
+
+                                    <span class="block" v-b-tooltip.hover :title="item.alumno.situacionAcademica.descripcion">                                                              
+                                        <span class=" bold"> Situación Academica: </span>
+                                        <span v-if="item.alumno.situacionAcademica.codigo === 'N' 
+                                              || item.alumno.situacionAcademica.codigo === '5'" class="label label-success">
+                                            {{item.alumno.situacionAcademica.nombre}}
+                                        </span>
+                                        <span v-else-if="item.alumno.situacionAcademica.codigo === '4T'
+                                              || item.alumno.situacionAcademica.codigo === 'D'" class="label label-danger">
+                                            {{item.alumno.situacionAcademica.nombre}}
+                                        </span>
+                                        <span v-else-if="item.alumno.situacionAcademica.codigo === '6'" class="label label-warning">
+                                            {{item.alumno.situacionAcademica.nombre}}
+                                        </span>                                                
+                                        <span v-else >
+                                            {{item.alumno.situacionAcademica.nombre}}
+                                        </span>
+                                    </span>
+
+                                    <span class="inline-block">
+                                        <span class="bold"> CCA: </span>
+                                        {{item.alumno.creditosCursados}}
+                                    </span>
+                                    <span class="inline-block">
+                                        <span class="bold"> CAPA: </span>
+                                        {{item.alumno.creditosAprobados}}
+                                    </span>
+                                    <span class="block">                                                            
+                                        <span class=" bold"> PPA: </span>
+                                        {{item.alumno.promedioAcumulado}}
+                                    </span>
+                                </td>
 
                                         <td class="v-middle text-center">
                                             <span v-if="item.estadoMatriculableEnum.name == 'MAT'">
