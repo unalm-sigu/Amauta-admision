@@ -70,44 +70,6 @@
                                 </div> 
 
                             </div>
-
-
-                            <!--                            <div class="row">
-                                                            <div class="col-md-12 panel qard qard-success">
-                                                                <div class="card">
-                                                                    <div class="card-body">
-                                                                        <div class="m-t-lg">
-                                                                            <div class="col-md-3 text-center" class="bgColorClass['matriculado']">
-                                                                                <a  v-on:click="findAconsejado('matriculado')" class="text-success pointer" >
-                                                                                    <span class="h2 bold" v-text="count.matriculados"></span>
-                                                                                    <small class="block m-b-xs">Matriculados</small>
-                                                                                </a>
-                                                                            </div>
-                                                                            <div  class="col-md-3 text-center" v-bind:class="bgColorClass['noMatriculado']">
-                                                                                <a v-on:click="findAconsejado('noMatriculado')" class="text-black pointer" >
-                                                                                    <span class="h2 bold" v-text="count.noMatriculados"></span>
-                                                                                    <small class="block m-b-xs">No Matriculados</small>
-                                                                                </a>
-                                                                            </div>
-                                                                            <div  class="col-md-3 text-center"  v-bind:class="bgColorClass['retirado']" >
-                                                                                <a  v-on:click="findAconsejado('retirado')" class="text-danger pointer" >
-                                                                                    <span class="h2 bold" v-text="count.retiroCiclo"></span>
-                                                                                    <small class="block m-b-xs">Retirado Ciclo</small>
-                                                                                </a>
-                                                                            </div>
-                                                                            <div  class="col-md-3 text-center"  v-bind:class="bgColorClass['noMatriculable']" >
-                                                                                <a  v-on:click="findAconsejado('noMatriculable')" class="text-warning pointer" >
-                                                                                    <span class="h2 bold" v-text="count.noMatriculables"></span>
-                                                                                    <small class="block m-b-xs">No matriculables</small>
-                                                                                </a>
-                                                                            </div>
-                                                                        </div> 
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>-->
-
-
                             <div class="col-md-4">
                                 <div class="pull-right" v-if="informe.id">
                                     <div class="block v-middle text-center">
@@ -153,47 +115,48 @@
                                             <span v-if="item.beneficioUtlimoCiclo == 1" class="label label-success">Solicitó Beneficio de Útimo Ciclo</span>
                                         </td>
 
-                              <td class="v-middle">
-                                    <span class="block" v-if="item.consejero">                                                            
-                                        <span class=" bold"> Consejero: </span>
-                                        {{item.consejero.colaborador.codigo}}
-                                    </span>
-                                    <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
-                                        <span class=" bold"> Ciclo Ingreso: </span>
-                                        {{item.alumno.cicloIngreso.descripcion}}
-                                    </span>
+                                        <td class="v-middle">
+                                            <span class="block" v-if="item.consejero">                                                            
+                                                <span class=" bold"> Consejero: </span>
+                                                {{item.consejero.colaborador.codigo}}
+                                            </span>
+                                            <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
+                                                <span class=" bold"> Ciclo Ingreso: </span>
+                                                {{item.alumno.cicloIngreso.descripcion}}
+                                            </span>
 
-                                    <span class="block" v-b-tooltip.hover :title="item.alumno.situacionAcademica.descripcion">                                                              
-                                        <span class=" bold"> Situación Academica: </span>
-                                        <span v-if="item.alumno.situacionAcademica.codigo === 'N' 
-                                              || item.alumno.situacionAcademica.codigo === '5'" class="label label-success">
-                                            {{item.alumno.situacionAcademica.nombre}}
-                                        </span>
-                                        <span v-else-if="item.alumno.situacionAcademica.codigo === '4T'
-                                              || item.alumno.situacionAcademica.codigo === 'D'" class="label label-danger">
-                                            {{item.alumno.situacionAcademica.nombre}}
-                                        </span>
-                                        <span v-else-if="item.alumno.situacionAcademica.codigo === '6'" class="label label-warning">
-                                            {{item.alumno.situacionAcademica.nombre}}
-                                        </span>                                                
-                                        <span v-else >
-                                            {{item.alumno.situacionAcademica.nombre}}
-                                        </span>
-                                    </span>
+                                            <span class="block" v-b-tooltip.hover :title="item.alumno.situacionAcademica.descripcion">                                                              
+                                                <span class=" bold"> Situación Academica: </span>
+                                                <span v-if="item.alumno.situacionAcademica.nivelRiesgo === 'BAJO'" class="label label-success">
+                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                </span>
+                                                <span v-else-if="item.alumno.situacionAcademica.nivelRiesgo === 'MEDIO'" class="label label-warning">
+                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                </span>
+                                                <span v-else-if="item.alumno.situacionAcademica.nivelRiesgo === 'ALTO'" class="label label-warning">
+                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                </span>   
+                                                <span v-else-if="item.alumno.situacionAcademica.nivelRiesgo === 'NO APLICA'" class="label label-default">
+                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                </span>                                                   
+                                                <span v-else >
+                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                </span>
+                                            </span>
 
-                                    <span class="inline-block">
-                                        <span class="bold"> CCA: </span>
-                                        {{item.alumno.creditosCursados}}
-                                    </span>
-                                    <span class="inline-block">
-                                        <span class="bold"> CAPA: </span>
-                                        {{item.alumno.creditosAprobados}}
-                                    </span>
-                                    <span class="block">                                                            
-                                        <span class=" bold"> PPA: </span>
-                                        {{item.alumno.promedioAcumulado}}
-                                    </span>
-                                </td>
+                                            <span class="inline-block">
+                                                <span class="bold"> CCA: </span>
+                                                {{item.alumno.creditosCursados}}
+                                            </span>
+                                            <span class="inline-block">
+                                                <span class="bold"> CAPA: </span>
+                                                {{item.alumno.creditosAprobados}}
+                                            </span>
+                                            <span class="block">                                                            
+                                                <span class=" bold"> PPA: </span>
+                                                {{item.alumno.promedioAcumulado}}
+                                            </span>
+                                        </td>
 
                                         <td class="v-middle text-center">
                                             <span v-if="item.estadoMatriculableEnum.name == 'MAT'">
@@ -220,28 +183,28 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-<!--                                            <template v-if="item.alumno.carrera.codigo == consejero.carrera.codigo">
-                                                <div class="block">
-                                                    <div v-bind:class="classTener(item.tienePlanes)" class="label">
-                                                        <span v-if="item.tienePlanes">PLAN</span>
-                                                        <span v-else="">S/Plan</span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="block">
-                                                    <div v-bind:class="classTener(item.tieneCaracterizacion)" class="label">
-                                                        <span v-if="item.tieneCaracterizacion">CARAC</span>
-                                                        <span v-else="">S/Carac.</span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="block">
-                                                    <div v-bind:class="classTener(item.tieneMapaEmpatia)" class="label">
-                                                        <span v-if="item.tieneMapaEmpatia">MAPA</span>
-                                                        <span v-else="">S/Mapa</span>
-                                                    </div>
-                                                </div>
-                                            </template>-->
+                                            <!--                                            <template v-if="item.alumno.carrera.codigo == consejero.carrera.codigo">
+                                                                                            <div class="block">
+                                                                                                <div v-bind:class="classTener(item.tienePlanes)" class="label">
+                                                                                                    <span v-if="item.tienePlanes">PLAN</span>
+                                                                                                    <span v-else="">S/Plan</span>
+                                                                                                </div>
+                                                                                            </div>
+                                            
+                                                                                            <div class="block">
+                                                                                                <div v-bind:class="classTener(item.tieneCaracterizacion)" class="label">
+                                                                                                    <span v-if="item.tieneCaracterizacion">CARAC</span>
+                                                                                                    <span v-else="">S/Carac.</span>
+                                                                                                </div>
+                                                                                            </div>
+                                            
+                                                                                            <div class="block">
+                                                                                                <div v-bind:class="classTener(item.tieneMapaEmpatia)" class="label">
+                                                                                                    <span v-if="item.tieneMapaEmpatia">MAPA</span>
+                                                                                                    <span v-else="">S/Mapa</span>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </template>-->
 
                                             <template v-else="">
                                                 <div v-on:click="verMalaAsignacion(item)" class="block pointer">
