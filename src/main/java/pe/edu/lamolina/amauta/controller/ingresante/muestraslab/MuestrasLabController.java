@@ -18,10 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
@@ -69,90 +67,70 @@ public class MuestrasLabController {
     @ResponseBody
     @RequestMapping("list/todos")
     public DynatableResponse listTodos(DynatableFilter filter, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+
+        List<RecorridoIngresante> recorridos = service.allRecorridosByDynatable(filter, ciclo, ds);
+        ArrayNode array = createRecorridoJson(recorridos);
+
         DynatableResponse json = new DynatableResponse();
-        try {
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico ciclo = service.findCicloActivoAdmision();
-
-            List<RecorridoIngresante> recorridos = service.allRecorridosByDynatable(filter, ciclo, ds);
-            ArrayNode array = createRecorridoJson(recorridos);
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
         return json;
     }
 
     @ResponseBody
     @RequestMapping("list/turno/{idTurno}")
     public DynatableResponse listTurno(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TurnoEntrevistaObuae turno = new TurnoEntrevistaObuae(idTurno);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+
+        List<RecorridoIngresante> recorridos = service.allRecorridosByDynatableTurno(filter, turno, ciclo, ds);
+        ArrayNode array = createRecorridoJson(recorridos);
+
         DynatableResponse json = new DynatableResponse();
-        try {
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            TurnoEntrevistaObuae turno = new TurnoEntrevistaObuae(idTurno);
-            CicloAcademico ciclo = service.findCicloActivoAdmision();
-
-            List<RecorridoIngresante> recorridos = service.allRecorridosByDynatableTurno(filter, turno, ciclo, ds);
-            ArrayNode array = createRecorridoJson(recorridos);
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
         return json;
     }
 
     @ResponseBody
     @RequestMapping("list/atendidos/{idTurno}")
     public DynatableResponse listAtendidos(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        TurnoEntrevistaObuae turno = service.findTurno(idTurno);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+
+        List<RecorridoIngresante> recorridos = service.allAtendidosByDynatableTurno(filter, turno, ciclo, ds);
+        ArrayNode array = createRecorridoJson(recorridos);
+
         DynatableResponse json = new DynatableResponse();
-        try {
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            TurnoEntrevistaObuae turno = service.findTurno(idTurno);
-            CicloAcademico ciclo = service.findCicloActivoAdmision();
-
-            List<RecorridoIngresante> recorridos = service.allAtendidosByDynatableTurno(filter, turno, ciclo, ds);
-            ArrayNode array = createRecorridoJson(recorridos);
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
         return json;
     }
 
     @ResponseBody
     @RequestMapping("turnos")
     public JsonResponse turnos(HttpSession session) {
+
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+        List<TurnoEntrevistaObuae> turnos = service.allTurnos(ciclo);
+        ArrayNode array = createTurnosJson(turnos);
+
         JsonResponse json = new JsonResponse();
-        try {
-            CicloAcademico ciclo = service.findCicloActivoAdmision();
-            List<TurnoEntrevistaObuae> turnos = service.allTurnos(ciclo);
-            ArrayNode array = createTurnosJson(turnos);
+        json.setData(array);
+        json.setSuccess(Boolean.TRUE);
 
-            json.setData(array);
-            json.setSuccess(Boolean.TRUE);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
         return json;
     }
 
@@ -160,42 +138,30 @@ public class MuestrasLabController {
     @RequestMapping("saveLaboratorio")
     public JsonResponse saveLaboratorio(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
 
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveLaboratorio(laboratorio, ds);
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.saveLaboratorio(laboratorio, ds);
+        ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
 
-            response.setData(json);
-            response.setMessage(GlobalMessages.CREATED);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        JsonResponse response = new JsonResponse();
+        response.setData(json);
+        response.setMessage(GlobalMessages.CREATED);
+        response.setSuccess(true);
+
         return response;
     }
 
     @ResponseBody
     @RequestMapping("borrarLaboratorio")
     public JsonResponse borrarLaboratorio(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.deleteLaboratorio(laboratorio);
+        ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
+        response.setData(json);
+        response.setMessage(GlobalMessages.DELETED);
+        response.setSuccess(true);
 
-            service.deleteLaboratorio(laboratorio);
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
-
-            response.setData(json);
-            response.setMessage(GlobalMessages.DELETED);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 
