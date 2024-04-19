@@ -159,7 +159,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .orderBy("ri.numeroAtencion asc");
 
         return all(sql);
