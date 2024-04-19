@@ -105,7 +105,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
                 .isNotNull("ri.numeroMuestraSangre")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
                 .orderBy("ri.numeroMuestraSangre");
@@ -197,7 +197,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
@@ -214,7 +214,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .isNotNull("turnoEntrevistaObuae")
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
@@ -227,7 +227,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .filter("tu.id", turno)
                 .isNotNull("turnoEntrevistaObuae")
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
@@ -249,7 +249,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id");
 
@@ -257,50 +257,52 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
     }
 
     @Override
-    public RecorridoIngresante findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+    public RecorridoIngresante findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
-                .filter("ci.id", cicloAcademico)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .filter("a.id", alumno);
 
         return find(sql);
     }
 
     @Override
-    public void updateActividadesEjecutadas(CicloAcademico cicloAcademico) {
+    public void updateActividadesEjecutadas(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" UPDATE aca_recorrido_ingresante as table1 ");
-        sql.append(" inner join ");
-        sql.append(" (SELECT ari.id_alumno,ari.id ariId,  COUNT(ai.id) cant");
-        sql.append(" from aca_recorrido_ingresante ari ");
-        sql.append(" inner join aca_actividad_ingresante ai ");
-        sql.append(" on ai.id_recorrido_ingresante = ari.id ");
-        sql.append(" where  ari.id_ciclo_academico = :CICLO ");
-        sql.append(" and ai.estado = 'ACT' ");
-        sql.append(" GROUP by ari.id_alumno, ari.actividades_ejecutadas) as table2 ");
-        sql.append(" on table1.id = table2.ariId ");
-        sql.append(" set table1.actividades_ejecutadas = table2.cant ");
+        sql.append(" UPDATE aca_recorrido_ingresante as reco ");
+        sql.append(" INNER JOIN ( ");
+        sql.append("     SELECT ri.id_alumno, ri.id, COUNT(ai.id) cant ");
+        sql.append("       FROM aca_recorrido_ingresante ri ");
+        sql.append("      INNER JOIN aca_actividad_ingresante ai ON ai.id_recorrido_ingresante = ri.id ");
+        sql.append("      INNER JOIN aca_ciclo_academico ci ON ci.id = ri.id_ciclo_academico ");
+        sql.append("      WHERE ci.codigo = :CICLO ");
+        sql.append("        AND ai.estado = 'ACT' ");
+        sql.append("      GROUP BY ri.id_alumno, ri.id) as tmp ");
+        sql.append("   ON reco.id = tmp.id ");
+        sql.append(" SET reco.actividades_ejecutadas = tmp.cant ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());
-        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("CICLO", ciclo.getCodigo());
         query.executeUpdate();
 
     }
 
     @Override
-    public void updateTotalActividades(CicloAcademico cicloAcademico) {
+    public void updateTotalActividades(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" UPDATE aca_recorrido_ingresante as table1  ");
-        sql.append(" inner join (SELECT COUNT(id) cant, cri.id_ciclo_academico ciclo ");
-        sql.append(" from aca_config_recorrido_ingresante  cri ");
-        sql.append(" where cri.id_ciclo_academico = :CICLO ");
-        sql.append(" GROUP by cri.id_ciclo_academico) as table2 ");
-        sql.append(" on table1.id_ciclo_academico = table2.ciclo ");
-        sql.append(" set table1.total_actividades = table2.cant ");
+        sql.append(" UPDATE aca_recorrido_ingresante as reco ");
+        sql.append(" INNER JOIN ( ");
+        sql.append("     SELECT ci.id, COUNT(cri.id) cant ");
+        sql.append("       FROM aca_config_recorrido_ingresante cri ");
+        sql.append("      INNER JOIN aca_ciclo_academico ci ON ci.id = cri.id_ciclo_academico ");
+        sql.append("      WHERE ci.codigo = :CICLO ");
+        sql.append("      GROUP BY ci.id) as tmp ");
+        sql.append("   ON reco.id_ciclo_academico = tmp.id ");
+        sql.append(" SET reco.total_actividades = tmp.cant ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());
-        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("CICLO", ciclo.getCodigo());
         query.executeUpdate();
     }
 
