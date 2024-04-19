@@ -78,7 +78,6 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     public void save(AgendaConsejero agendaConsejeroForm, DataSessionPivot ds) {
 
         //this.verificarInfo(agendaConsejeroForm);
-
         AgendaConsejero agendaConsejero = new AgendaConsejero();
         agendaConsejero.setConsejero(agendaConsejeroForm.getConsejero());
         agendaConsejero.setEstadoEnum(AGEN);
@@ -305,6 +304,11 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
     @Override
     public List<AlumnoConsejero> list(Consejero consejero, DataSessionPivot ds) {
         return alumnoConsejeroDAO.allActivosByConsejeroCarreraCiclo(consejero, consejero.getCarrera(), ds.getCicloAcademico());
+    }
+
+    @Override
+    public List<AlumnoConsejero> listBusca(Consejero consejero, DataSessionPivot ds, String nombre) {
+        return alumnoConsejeroDAO.allActivosByConsejeroCarreraCicloBusca(consejero, consejero.getCarrera(), ds.getCicloAcademico(), nombre);
     }
 
     @Override

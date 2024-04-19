@@ -57,4 +57,5 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona);
 
+         List<AlumnoConsejero> allActivosByConsejeroCarreraCicloBusca(Consejero consejero, Carrera carrera, CicloAcademico ciclo,String nombre);
 }

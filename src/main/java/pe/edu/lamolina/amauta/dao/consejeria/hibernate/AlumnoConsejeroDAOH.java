@@ -208,6 +208,26 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     }
 
     @Override
+    public List<AlumnoConsejero> allActivosByConsejeroCarreraCicloBusca(Consejero consejero, Carrera carrera, CicloAcademico ciclo, String nombre) {
+        //  String xnombre="Alarcón Peña";                  	         
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
+                .left("alu.persona per", "alu.situacionAcademica sa")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("ca.id", ciclo)
+                .filter("car.id", carrera)
+                .filter("co.id", consejero)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .endBlock()
+                .orderBy("per.paterno", "alu.codigo");
+
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoConsejero> allActivosByCarreraCiclo(Carrera carrera, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(AlumnoConsejero.class, "ac")
