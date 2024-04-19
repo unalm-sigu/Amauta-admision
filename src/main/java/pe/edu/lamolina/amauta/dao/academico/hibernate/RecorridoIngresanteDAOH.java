@@ -129,7 +129,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
                 .isNotNull("ri.numeroMuestraSangre")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")

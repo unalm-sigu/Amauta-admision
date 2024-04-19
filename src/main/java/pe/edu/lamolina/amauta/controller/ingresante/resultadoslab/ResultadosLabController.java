@@ -65,7 +65,7 @@ public class ResultadosLabController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
 
-        List<RecorridoIngresante> recorridos = null;
+        List<RecorridoIngresante> recorridos;
         if (idTurno == 0) {
             recorridos = service.allConMuestraByDynatableCiclo(filter, ciclo);
         } else {
