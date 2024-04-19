@@ -66,7 +66,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
                 .isNotNull("ri.numeroMuestraSangre")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -83,7 +83,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
                 .isNotNull("ri.numeroMuestraSangre")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .orderBy("ri.numeroMuestraSangre");
 
         return all(sql);
