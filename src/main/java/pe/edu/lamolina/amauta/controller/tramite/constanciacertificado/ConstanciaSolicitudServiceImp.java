@@ -158,6 +158,7 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAMITE_DOCUMENTO_ACADEMICO;
+import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_PLANTILLA_DOCUMENTO_ACADEMICO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
@@ -324,9 +325,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
         tda.setTelefono(tramiteDocumentoAcademico.getTelefono());
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
-        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico() );       
+        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
-        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular","tipoDocumentoAcademico","idioma");
+        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular", "tipoDocumentoAcademico", "idioma");
 
     }
 
@@ -1044,7 +1045,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public Archivo findBoletas(Long idTramiteDocumento) {
 
-        return archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAMITE_DOCUMENTO_ACADEMICO);
+        return archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_PLANTILLA_DOCUMENTO_ACADEMICO);
     }
 
     private String addIncrustaciones(String htmlContent, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
@@ -1062,7 +1063,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         TramiteDocumentoAcademico tramite = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
 
-        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(tramite.getId(), TRAMITE_DOCUMENTO_ACADEMICO);
+        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(tramite.getId(), TRAM_PLANTILLA_DOCUMENTO_ACADEMICO);
         if (!Objects.equal(archivoDB, null)) {
             archivoDAO.delete(archivoDB);
         }
@@ -1072,7 +1073,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         Archivo newarchivo = new Archivo();
         newarchivo.setFechaRegistro(new Date());
-        newarchivo.setInstancia(TRAMITE_DOCUMENTO_ACADEMICO.name());
+        newarchivo.setInstancia(TRAM_PLANTILLA_DOCUMENTO_ACADEMICO.name());
         newarchivo.setIdInstancia(tramite.getId());
         newarchivo.setTipo(archivo.getTipo());
         newarchivo.setUsuarioRegistro(ds.getUsuario());

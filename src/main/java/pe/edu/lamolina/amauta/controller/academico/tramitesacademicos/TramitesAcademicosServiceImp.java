@@ -324,7 +324,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         tramiteUpd.setFechaModificacion(today.toDate());
         tramiteDAO.updateEstado(tramiteUpd);
 
-        if (accionTramiteAcademico != null ? accionTramiteAcademico.getEsSolicitarMotivo() : accionTramiteDocumento.getSolicitaMotivo()) {
+        if (accionTramiteAcademico != null && accionTramiteAcademico.getEsSolicitarMotivo()) {
             tramiteUpd.setObservacion(tramiteForm.getObservacion());
             tramiteDAO.updateObservacion(tramite);
         }
