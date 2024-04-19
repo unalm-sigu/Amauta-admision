@@ -172,7 +172,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ci.id", ciclo)
+                .filter("ci.codigo", ciclo.getCodigo())
                 .filter("tu.id", turno)
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
