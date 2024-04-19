@@ -87,6 +87,8 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
         eventoCicloAcademicoDB.setEventoAcademico(eventoCicloAcademico.getEventoAcademico());
         eventoCicloAcademicoDB.setFechaFin(eventoCicloAcademico.getFechaFin());
         eventoCicloAcademicoDB.setFechaInicio(eventoCicloAcademico.getFechaInicio());
+        eventoCicloAcademicoDB.setUserModificacion(usuario);
+        eventoCicloAcademicoDB.setFechaModificacion(new Date());
         eventoCicloAcademicoDAO.update(eventoCicloAcademicoDB);
     }
 
