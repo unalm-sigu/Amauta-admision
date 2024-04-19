@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.amauta.controller.reporte.view.AtendidosMuestraLabView;
 import pe.edu.lamolina.amauta.controller.reporte.view.IngresanteMuestraLabView;
 import pe.edu.lamolina.amauta.controller.reporte.view.IngresanteTurnoMuestraLabView;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

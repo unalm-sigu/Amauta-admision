@@ -34,15 +34,12 @@ import pe.edu.lamolina.amauta.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
-import pe.edu.lamolina.amauta.dao.inscripcion.EventoCicloDAO;
 import pe.edu.lamolina.amauta.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaClinicaDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaEnfermedadDAO;
 import pe.edu.lamolina.amauta.dao.medico.PacienteDAO;
 import pe.edu.lamolina.amauta.dao.sip.TurnoEntrevistaObuaeDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.enums.EventoEnum;
-import pe.edu.lamolina.model.inscripcion.EventoCiclo;
 
 @Slf4j
 @Service
@@ -53,7 +50,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     private final ActividadIngresanteDAO actividadIngresanteDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
-    private final EventoCicloDAO eventoCicloDAO;
     private final HistoriaClinicaDAO historiaClinicaDAO;
     private final HistoriaEnfermedadDAO historiaEnfermedadDAO;
     private final HistoriaLaboratorioDAO historiaLaboratorioDAO;

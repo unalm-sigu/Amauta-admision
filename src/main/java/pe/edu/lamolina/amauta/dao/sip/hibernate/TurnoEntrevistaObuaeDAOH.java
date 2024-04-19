@@ -21,7 +21,7 @@ public class TurnoEntrevistaObuaeDAOH extends AbstractEasyDAO<TurnoEntrevistaObu
         Octavia sql = Octavia.query()
                 .from(TurnoEntrevistaObuae.class, "teo")
                 .join("eventoCiclo ec", "ec.cicloPostula cp", "cp.cicloAcademico ca")
-                .filter("ca.id", ciclo)
+                .filter("ca.codigo", ciclo.getCodigo())
                 .orderBy("teo.fecha");
 
         return all(sql);
