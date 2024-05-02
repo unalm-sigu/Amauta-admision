@@ -1229,13 +1229,18 @@ public class PromedioServiceImp implements PromedioService {
                 //                    this.printLogger("Caso 36", showLog);
                 //
                 //                }
+                else if(alumnoCiclo.isAprobado() && alumnoCiclo.isGenerarTrika() && !alumnoCiclo.isTrikaSeparado() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA){
+                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
+                    alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
+                    this.printLogger("Caso 37", showLog);
+                }
                 else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
-                    this.printLogger("Caso 37", showLog);
+                    this.printLogger("Caso 38", showLog);
 
                 } else if (cicloIngreso != null && ciclosEstudiados <= 2 && cicloIngreso.getCodigoInt() >= 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
-                    this.printLogger("Caso 38", showLog);
+                    this.printLogger("Caso 39", showLog);
 
 //                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > 200) {
 //                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
@@ -1247,19 +1252,19 @@ public class PromedioServiceImp implements PromedioService {
             } else if (alumnoCiclo.getEstadoEnum() == MAT && cicloAcademico.isTipoNivelacion()) {
                 if (alumnoCiclo.isTrikaSeparado()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4T);
-                    this.printLogger("Caso 39", showLog);
+                    this.printLogger("Caso 40", showLog);
 
                 } else {
                     situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                    this.printLogger("Caso 40", showLog);
+                    this.printLogger("Caso 41", showLog);
                 }
 
             } else if (alumnoCiclo.isCicloRetirado() && cicloAcademico.isTipoNivelacion()) {
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                this.printLogger("Caso 41", showLog);
+                this.printLogger("Caso 42", showLog);
 
             } else {
-                this.printLogger("Caso 42", showLog);
+                this.printLogger("Caso 43", showLog);
                 situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(
                         alumnoCiclo,
                         alumnoCiclo.getSituacionInicio(),
@@ -1272,49 +1277,49 @@ public class PromedioServiceImp implements PromedioService {
             if (alumnoCiclo.getEstadoEnum() == NMAT && cicloAcademico.isTipoRegular()) {
                 if (alumnoCiclo.getCiclosConsecutivosSinEstudiar() == MAX_CONSECUTIVOS_NMAT) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_D);
-                    this.printLogger("Caso 43", showLog);
+                    this.printLogger("Caso 44", showLog);
 
                 } else if (alumnoCiclo.getCiclosConsecutivosSinEstudiar() > MAX_CONSECUTIVOS_NMAT) {
                     alumnoCiclo.setEstadoEnum(INH);
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_D);
-                    this.printLogger("Caso 44", showLog);
+                    this.printLogger("Caso 45", showLog);
 
                 } else if (alumnoCiclo.getSituacionInicio().isSeparado()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_X);
-                    this.printLogger("Caso 44.b", showLog);
+                    this.printLogger("Caso 45.b", showLog);
 
                 } else if (alumnoCiclo.getSituacionInicio().isSuspendido()) {
                     alumnoCiclo.setEstadoEnum(INH);
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_3);
-                    this.printLogger("Caso 44.c", showLog);
+                    this.printLogger("Caso 45.c", showLog);
 
                 } else {
                     situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                    this.printLogger("Caso 45", showLog);
+                    this.printLogger("Caso 46", showLog);
                 }
 
             } else if (alumnoCiclo.isCicloRetirado() && cicloAcademico.isTipoRegular()) {
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                this.printLogger("Caso 46", showLog);
+                this.printLogger("Caso 47", showLog);
 
             } else if (alumnoCiclo.getEstadoEnum() == INH && cicloAcademico.isTipoRegular()) {
                 if (alumnoCiclo.getCiclosConsecutivosSinEstudiar() > MAX_CONSECUTIVOS_NMAT) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_D);
-                    this.printLogger("Caso 47", showLog);
+                    this.printLogger("Caso 48", showLog);
 
                 } else if (alumnoCiclo.getSituacionInicio().isSuspendido()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_3);
-                    this.printLogger("Caso 48", showLog);
+                    this.printLogger("Caso 49", showLog);
 
                 } else {
                     situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                    this.printLogger("Caso 49", showLog);
+                    this.printLogger("Caso 50", showLog);
                 }
 
             } else if (alumnoCiclo.getEstadoEnum() == MAT && cicloAcademico.isTipoRegular()) {
                 if (alumnoCiclo.isTrikaSeparado()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4T);
-                    this.printLogger("Caso 50", showLog);
+                    this.printLogger("Caso 51", showLog);
 
 //                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > CREDITOS_MINIMO_APR) {
 //                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
