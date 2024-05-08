@@ -551,4 +551,26 @@ public class CursoController {
         return new ModelAndView(alumnoCursoExcelView);
     }
 
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestParam("id") Long id, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {
+            
+            service.delete(new Curso(id), ds);
+            response.setMessage(GlobalMessages.DELETED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

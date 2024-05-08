@@ -104,6 +104,38 @@ new Vue({
                     notify(Messages.errorComunicacion, 'error')
                 }
             });
+        },
+        eliminar(item) {
+            var $vue = this;
+
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar el curso?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/curso/delete'),
+                            data: {id: item.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    $vue.$refs.raptorCursos.loadRemoteData();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+
         }
     }
 })

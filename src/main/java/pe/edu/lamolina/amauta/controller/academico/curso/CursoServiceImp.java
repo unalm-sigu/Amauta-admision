@@ -15,6 +15,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -55,6 +56,7 @@ import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.general.IdiomaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.DIPLO;
 
 @Service
@@ -441,6 +443,18 @@ public class CursoServiceImp implements CursoService {
     @Override
     public List<Seccion> findByNombreCiclo(String nombre, String ciclo) {
         return seccionDAO.findByNombreCiclo(nombre, ciclo);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Curso curso, DataSessionPivot ds) {
+        
+        Curso cursoBD = cursoDAO.findCurso(curso);
+
+        if (!cursoBD.getEstadoEnum().equals(EstadoEnum.CRE)) {
+            throw new PhobosException("El curso no se puede eliminar.");
+        }
+        cursoDAO.delete(cursoBD);
     }
 
 }

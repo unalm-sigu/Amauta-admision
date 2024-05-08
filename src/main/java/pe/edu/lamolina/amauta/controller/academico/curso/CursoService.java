@@ -54,4 +54,6 @@ public interface CursoService {
 
     List<DocenteSeccion> allDocenteSeccionPrincipalesBySecciones(List<Seccion> secciones);
 
+    void delete(Curso curso, DataSessionPivot ds);
+
 }
