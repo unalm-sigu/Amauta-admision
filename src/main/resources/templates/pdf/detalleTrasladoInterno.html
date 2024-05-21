@@ -106,7 +106,7 @@
                             <span >Al </span>
                         </td>
                         <td>
-                            <span th:text="'Decano de la facultad de '+${traslado.carrera.facultad.nombre}"></span>
+                            <span th:text="'Decano de la Facultad de '+${traslado.carrera.facultad.nombre}"></span>
                         </td>
                     </tr>
                     <tr >
@@ -114,7 +114,7 @@
                             <span >Asunto: </span>
                         </td>
                         <td>
-                            <span th:text=" 'Traslado de facultad'"></span>
+                            <span th:text=" 'Traslado de Facultad'"></span>
                         </td>
 
                     </tr>
@@ -135,7 +135,7 @@
         <br/>
         <div>
             <span >Comunico a usted de que <span th:if="${alumno.persona.sexo == 'F'}">la alumna </span><span th:if="${alumno.persona.sexo == 'M'}">el alumno </span> <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> de la 
-                facultad de <b th:text='${traslado.carreraOrigen.facultad.nombre.toUpperCase()}'></b><span th:if="${especificarCarreraOrigen}"> - <b th:text="${traslado.carreraOrigen.nombre.toUpperCase()}"></b></span> y con matricula <b th:text='${alumno.codigo}'></b> solicita traslado a la <span th:if="${especificarCarrera}">Carrera de <b th:text="${traslado.carrera.nombre.toUpperCase()}"></b> de la </span>Facultad que usted dirige.
+                Facultad de <b th:text='${traslado.carreraOrigen.facultad.nombre.toUpperCase()}'></b><span th:if="${especificarCarreraOrigen}"> - <b th:text="${traslado.carreraOrigen.nombre.toUpperCase()}"></b></span> y con matricula <b th:text='${alumno.codigo}'></b> solicita traslado a la <span th:if="${especificarCarrera}">Carrera de <b th:text="${traslado.carrera.nombre.toUpperCase()}"></b> de la </span>Facultad que usted dirige.
             </span>
         </div>
 
