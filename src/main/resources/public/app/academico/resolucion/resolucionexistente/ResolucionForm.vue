@@ -240,37 +240,35 @@
                         }
                     });
                 } else {
+                    if ($vue.resolucion.oficina.codigo === "UNA" &&
+                            ($vue.resolucion.tipoResolucion.isTramiteBachillerFacultad || $vue.resolucion.tipoResolucion.isTramiteTituloFacultad)) {
+                        $vue.showLoader("Espere un momento por favor");
+                        $vue.hideLoader();
+                    } else {
+                        $vue.showLoader("Espere un momento por favor");
+                        axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                                .then(({data}) => {
 
-                    $vue.showLoader("Espere un momento por favor");
-//                $vue.errores = [];
+                                    if (data.success) {
 
-                    axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
-                            .then(({data}) => {
+                                        $vue.resolucion = {... $vue.resolucionNew};
+                                        notify(data.message, 'info');
 
-                                if (data.success) {
-
-                                    $vue.resolucion = {... $vue.resolucionNew};
-                                    notify(data.message, 'info');
-
-                                } else {
-
-                                    if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
-                                        notify(data.message, 'error');
                                     } else {
+
+                                        if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                            notify(data.message, 'error');
+                                        } else {
 //                                    $vue.errores = data.message;
 //                                    $vue.$refs.modalError.open();
-                                        notify(data.message, 'error');
+                                            notify(data.message, 'error');
+                                        }
+
                                     }
-
-                                }
-
-                                $vue.hideLoader();
-
-                            }, () => $vue.hideLoader());
+                                    $vue.hideLoader();
+                                }, () => $vue.hideLoader());
+                    }
                 }
-
-
-
             },
             update() {
 
