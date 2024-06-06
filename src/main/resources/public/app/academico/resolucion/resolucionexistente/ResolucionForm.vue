@@ -11,7 +11,8 @@
 
             <section class="panel m-b-xs">
                 <section  class="panel-body">
-
+                    {{resolucion.tipoResolucion}}
+                    {{resolucion.oficina}}
                     <div v-if="resolucion.tipoResolucion">
 
                         <div v-if="resolucion.tipoResolucion.isTramiteBachiller || resolucion.tipoResolucion.isTramiteBachillerFacultad">
@@ -241,9 +242,11 @@
                     });
                 } else {
                     if ($vue.resolucion.oficina.codigo === "UNA" &&
-                            ($vue.resolucion.tipoResolucion.isTramiteBachillerFacultad || $vue.resolucion.tipoResolucion.isTramiteTituloFacultad)) {
-                        $vue.showLoader("Espere un momento por favor");
-                        $vue.hideLoader();
+                            ($vue.resolucion.tipoResolucion.isTramiteBachillerFacultad || $vue.resolucion.tipoResolucion.isTramiteTituloFacultad))
+                    {
+                        notify('Error,Res.Consejo Universitario', 'error');
+                    } else if (($vue.resolucion.tipoResolucion.isTramiteBachiller || $vue.resolucion.tipoResolucion.isTramiteTitulo) && $vue.resolucion.oficina.codigo !== "UNA") {
+                        notify('Error, Res.Facultad', 'error');
                     } else {
                         $vue.showLoader("Espere un momento por favor");
                         axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
