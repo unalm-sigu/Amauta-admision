@@ -11,8 +11,6 @@
 
             <section class="panel m-b-xs">
                 <section  class="panel-body">
-                    {{resolucion.tipoResolucion}}
-                    {{resolucion.oficina}}
                     <div v-if="resolucion.tipoResolucion">
 
                         <div v-if="resolucion.tipoResolucion.isTramiteBachiller || resolucion.tipoResolucion.isTramiteBachillerFacultad">
