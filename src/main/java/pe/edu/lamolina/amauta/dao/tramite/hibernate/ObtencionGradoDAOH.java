@@ -46,8 +46,8 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .join("cicloAcademico", "gradoAcademico", "tramite tr")
                 .filter("tr.estado", ACEP)
                 .leftJoin("per.tipoDocumento")
-                .filter("re.id", resolucion);
-
+                .filter("re.id", resolucion)
+                .orderBy("per.paterno");
         return all(sql);
     }
 

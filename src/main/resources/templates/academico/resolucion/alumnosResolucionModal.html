@@ -10,6 +10,7 @@
                         <th v-if="tipo != 'TITULBAC'">Resolución</th>
                     </tr>
                     <tr v-else-if="tipo == 'BACHI'">
+                        <th></th>
                         <th>Apellidos y Nombres</th>
                         <th>Grado Académico</th>
                         <th>Ciclo</th>
@@ -150,7 +151,8 @@
                             <span class="block" v-text="item.carrera.nombre"></span>
                         </td>
                     </tr>
-                    <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="(item, index) in alumnoTramiteBachiller" >
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
                             <span class="block">
@@ -171,7 +173,7 @@
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block" v-text="item.gradoAcademico.nombre"></span>
                         </td>
-                        <td v-if="codigoOficina=='UNA'" class="v-middle text-center">
+                        <td v-if="codigoOficina=='UNA'" class="v-middle text-center" style="width: 100px;">
                             <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
