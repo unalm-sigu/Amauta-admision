@@ -588,7 +588,7 @@ public class ResolucionExistenteController {
             return JaneHelper.from(tramiteBachiller)
                     .join("tramite.alumno", "codigo")
                     .join("tramite.cicloAcademico", "descripcion")
-                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("resolucion.oficina", "codigo,id")
                     .join("resolucion")
                     .array();
@@ -597,7 +597,7 @@ public class ResolucionExistenteController {
             return JaneHelper.from(tramiteTitulo)
                     .join("tramite.alumno", "codigo")
                     .join("tramite.cicloAcademico", "descripcion")
-                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("resolucion.oficina", "codigo,id")
                     .join("resolucion")
                     //                        .join("cicloAcademico", "id,descripcion,nombre")

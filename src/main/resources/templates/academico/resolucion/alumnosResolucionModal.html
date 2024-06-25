@@ -5,6 +5,7 @@
             <table class="table table-condensed">
                 <thead>
                     <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
+                        <th></th>
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th v-if="tipo != 'TITULBAC'">Resolución</th>
@@ -178,7 +179,8 @@
                         </td>
                     </tr>
 
-                    <tr v-if="tipo === 'BACHIFAC'" v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="tipo === 'BACHIFAC'" v-for="(item, index)  in alumnoTramiteBachiller" >
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>   
                             <strong>{{item.tramite.alumno.codigo }}</strong> 
                         </td>                        
@@ -191,7 +193,9 @@
                     </tr>
 
 
-                    <tr v-if="tipo === 'TITUL'" v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="tipo === 'TITUL'" v-for="(item, index) in alumnoTramiteBachiller" >
+                       
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>   
                             <strong>{{item.tramite.alumno.codigo }}</strong> 
                         </td>                        
