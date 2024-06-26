@@ -636,6 +636,7 @@ public class ResolucionExistenteController {
                     .join("curso")
                     .join("tramite.alumno")
                     .join("tramite.alumno.persona")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
 
