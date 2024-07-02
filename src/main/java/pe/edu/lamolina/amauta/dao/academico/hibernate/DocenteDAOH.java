@@ -16,6 +16,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloBean;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloCargaBean;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -466,10 +467,108 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .addScalar("horario", StringType.INSTANCE)
                 .addScalar("codDocente", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(DocenteCicloCargaBean.class));
-        
+
         query.setParameter("CODIGO", docente);
         return (List<DocenteCicloCargaBean>) query.list();
 
     }
 
+ @Override
+    public List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico,String id) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  SELECT     ");
+        sql.append("  max(ciclo ) as ciclo,    ");
+        sql.append("       max(nombres) as nombres,    ");
+        sql.append("       max(codigoDocente) as codigoDocente,    ");
+        sql.append("      max(nombreDepartamento) as nombreDepartamento,    ");
+        sql.append("      hora,max(hora2) as hora2,numero,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Lunes' THEN curso end),'') AS curso_lunes,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Martes' THEN curso END),'') AS curso_martes,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Miércoles' THEN curso END),'') AS curso_miercoles,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Jueves' THEN curso END),'') AS curso_jueves,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Viernes' THEN curso END),'') AS curso_viernes,    ");
+        sql.append("      COALESCE(MAX(CASE WHEN dia = 'Sabado' THEN curso END),'') AS curso_sabado,    ");
+        sql.append("          COALESCE(MAX(CASE WHEN dia = 'Lunes' THEN CONCAT('Grupo : ',letra ) END), '') AS grupo_lunes,    ");
+        sql.append("        COALESCE(MAX(CASE WHEN dia = 'Martes' THEN CONCAT(' Grupo : ',letra ) END), '') AS grupo_martes,    ");
+        sql.append("        COALESCE(MAX(CASE WHEN dia = 'Miércoles' THEN CONCAT(' Grupo : ',letra ) END), '') AS grupo_miercoles,    ");
+        sql.append("        COALESCE(MAX(CASE WHEN dia = 'Jueves' THEN CONCAT(' Grupo : ',letra ) END), '') AS grupo_jueves,    ");
+        sql.append("        COALESCE(MAX(CASE WHEN dia = 'Viernes' THEN CONCAT(' Grupo : ',letra ) END), '') AS grupo_viernes,    ");
+        sql.append("          COALESCE(MAX(CASE WHEN dia = 'Sabado' THEN CONCAT(' Grupo : ',letra ) END), '') AS grupo_sabado,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Lunes' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_lunes,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Martes' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_martes,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Miércoles' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_miercoles,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Jueves' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_jueves,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Viernes' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_viernes,    ");
+        sql.append("     COALESCE(MAX(CASE WHEN dia = 'Sabado' THEN CONCAT('Aula : ',codigo ) END), '') AS aula_sabado          ");
+        sql.append("  FROM (    ");
+        sql.append("      SELECT     ");
+        sql.append("        ghh.letra as letra ,    ");
+        sql.append("        aca.descripcion as ciclo,    ");
+        sql.append("        Concat(gp.paterno,' ',gp.materno,' ',gp.nombres) as nombres,    ");
+        sql.append("         ad2.codigo as codigoDocente,    ");
+        sql.append("         ada.nombre  as nombreDepartamento,    ");
+        sql.append("          hh2.descripcion AS hora,    ");
+        sql.append("          hh2.descripcion AS hora2,    ");
+        sql.append("          gd2.nombre AS dia,    ");
+        sql.append("          ac2.nombre AS curso,    ");
+        sql.append("          hh2.numero AS numero,    ");
+        sql.append("          ga.codigo  as codigo    ");
+        sql.append("      FROM     ");
+        sql.append("          aca_seccion as3     ");
+        sql.append("          JOIN aca_docente_seccion ads2 ON as3.id = ads2.id_seccion             ");
+        sql.append("          JOIN aca_docente ad2 ON ad2.id = ads2.id_docente     ");
+        sql.append("          join aca_departamento_academico ada on ada.id =ad2.id_departamento_academico     ");
+        sql.append("          join gen_persona gp on gp.id =ad2.id_persona    ");
+        sql.append("          JOIN aca_grupo_seccion ags2 ON ags2.id = as3.id_grupo_seccion     ");
+        sql.append("          join aca_ciclo_academico aca on aca.id =ags2.id_ciclo    ");
+        sql.append("          JOIN aca_curso ac2 ON ac2.id = ags2.id_curso     ");
+        sql.append("          JOIN hor_horario_seccion hhs ON hhs.id_seccion = as3.id      ");
+        sql.append("          JOIN gen_dia gd2 ON gd2.id = hhs.id_dia     ");
+        sql.append("          JOIN hor_hora hh2 ON hh2.id = hhs.id_hora     ");
+        sql.append("          left join gen_aula ga on ga.id =as3.id_aula    ");
+        sql.append("          left join hor_grupo_horas ghh on as3.id_grupo_horas = ghh.id     ");
+        sql.append("      WHERE     ");
+        sql.append("          ad2.codigo  = :CODIGO AND ags2.id_ciclo = :IDCICLO    ");
+        sql.append("          AND ac2.estado = 'ACT' AND ad2.estado = 'ACT' AND as3.estado = 'ACT'    ");
+        sql.append("      ORDER BY     ");
+        sql.append("          numero    ");
+        sql.append("  ) AS subconsulta    ");
+        sql.append("  GROUP BY     ");
+        sql.append("      numero,hora    ");
+        sql.append("  ORDER BY     ");
+        sql.append("  numero,hora;   ");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("ciclo", StringType.INSTANCE)
+                .addScalar("nombres", StringType.INSTANCE)
+                .addScalar("codigoDocente", StringType.INSTANCE)
+                .addScalar("nombreDepartamento", StringType.INSTANCE)
+                .addScalar("hora", StringType.INSTANCE)
+                .addScalar("hora2", StringType.INSTANCE)
+                .addScalar("numero", StringType.INSTANCE)
+                .addScalar("curso_lunes", StringType.INSTANCE)
+                .addScalar("curso_martes", StringType.INSTANCE)
+                .addScalar("curso_miercoles", StringType.INSTANCE)
+                .addScalar("curso_jueves", StringType.INSTANCE)
+                .addScalar("curso_viernes", StringType.INSTANCE)
+                .addScalar("curso_sabado", StringType.INSTANCE)
+                .addScalar("grupo_lunes", StringType.INSTANCE)
+                .addScalar("grupo_martes", StringType.INSTANCE)
+                .addScalar("grupo_miercoles", StringType.INSTANCE)
+                .addScalar("grupo_jueves", StringType.INSTANCE)
+                .addScalar("grupo_viernes", StringType.INSTANCE)
+                .addScalar("grupo_sabado", StringType.INSTANCE)
+                .addScalar("aula_lunes", StringType.INSTANCE)
+                .addScalar("aula_martes", StringType.INSTANCE)
+                .addScalar("aula_miercoles", StringType.INSTANCE)
+                .addScalar("aula_jueves", StringType.INSTANCE)
+                .addScalar("aula_viernes", StringType.INSTANCE)
+                .addScalar("aula_sabado", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(HorarioDocenteDTO.class));
+          query.setParameter("CODIGO", id);
+          query.setParameter("IDCICLO", cicloAcademico.getId());
+        return (List<HorarioDocenteDTO>) query.list();
+//        return query.list();
+    }
+
+   
 }

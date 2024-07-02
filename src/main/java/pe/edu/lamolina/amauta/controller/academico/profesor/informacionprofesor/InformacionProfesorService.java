@@ -1,7 +1,9 @@
 package pe.edu.lamolina.amauta.controller.academico.profesor.informacionprofesor;
 
 import java.util.List;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
@@ -48,4 +50,5 @@ public interface InformacionProfesorService {
 
     void updateDocentePersona(Persona persona, Long idDocente, DataSessionPivot ds);
 
+    List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico, String id);
 }

@@ -116,10 +116,15 @@
                                 <th:block th:replace="academico/profesor/informacion/informacioncarga"/>
                             </div>
 
-                            
                             <div v-show="stepactivo==5"  >
+                                <!--                                <a th:href="@{/academico/profesor}" class="btn btn-success btn-sm pull-right">Imprimir</a>                               -->
+                                <a v-on:click="reporteHorarioDocente(docente.codigo)" class=" btn btn-success btn-sm pull-right">Imprimir </a>                                
                                 <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
                             </div>
+
+<!--                            <div v-show="stepactivo==5"  >
+                                <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
+                            </div>-->
 
                             <div v-show="stepactivo==6"  >
                                 <th:block th:replace="academico/profesor/informacion/informacionCtaBanco"/>

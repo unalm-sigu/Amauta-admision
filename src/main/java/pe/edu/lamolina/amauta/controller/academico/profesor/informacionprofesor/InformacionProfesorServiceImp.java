@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
@@ -35,6 +36,7 @@ import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -323,6 +325,11 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
             colaboradorDAO.updateColumns(colaborador, "persona", "userModificacion", "fechaModificacion");
         }
 
+    }
+
+    @Override
+    public List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico, String id) {
+        return docenteDAO.horarioDocente(cicloAcademico, id);
     }
 
 }

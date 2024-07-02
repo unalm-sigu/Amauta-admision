@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloBean;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloCargaBean;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -48,4 +49,5 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     public List<DocenteCicloCargaBean> AllDocentecicloCargaAcademico(Long docente);
 
+    public List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico, String id);
 }
