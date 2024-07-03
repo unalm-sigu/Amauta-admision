@@ -53,17 +53,19 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<HorarioDocenteDTO> horarioDocente = (List<HorarioDocenteDTO>) model.get("horarioDocente");
 
-        for (HorarioDocenteDTO horario : horarioDocente) {
+        if (horarioDocente != null && !horarioDocente.isEmpty()) {
+            // Crear y añadir la tabla de cabecera una vez
             PdfPTable headerTable = createHeaderTable();
-            documentHeader(headerTable, horario);
+            documentHeader(headerTable, horarioDocente.get(0)); // Usar el primer elemento para la cabecera
             document.add(headerTable);
 
+            // Crear y añadir la cabecera de la tabla principal una vez
             PdfPTable table = createTable();
             addTableHeader(table);
+
+            // Añadir las filas a la tabla principal para cada registro
             addRows(table, horarioDocente);
             document.add(table);
-            
-            document.newPage();
         }
 
         response.setHeader("Content-Disposition", "attachment; filename=\"horario-docente.pdf\"");
@@ -96,12 +98,11 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
 
     private void documentHeader(PdfPTable table, HorarioDocenteDTO horarioDocente) {
         String titulo = title + " " + horarioDocente.getCiclo().toUpperCase();
-         this.generateTitulo(titulo, table);
+        this.generateTitulo(titulo, table);
         addHeaderCell(table, "Ciclo Académico:", horarioDocente.getCiclo().toUpperCase());
         addHeaderCell(table, "Apellidos y Nombres:", horarioDocente.getNombres().toUpperCase());
         addHeaderCell(table, "Código Docente:", horarioDocente.getCodigoDocente().toUpperCase());
         addHeaderCell(table, "Departamento:", horarioDocente.getNombreDepartamento().toUpperCase());
-       
     }
 
     private void addHeaderCell(PdfPTable table, String header, String value) {
@@ -130,17 +131,41 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
 
     private void addRows(PdfPTable table, List<HorarioDocenteDTO> horarioDocente) {
         for (HorarioDocenteDTO dto : horarioDocente) {
-            table.addCell(new Phrase(dto.getHora2(), bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_lunes() + "\n" +dto.getAula_lunes()+ "\n" + dto.getGrupo_lunes() , bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_martes()+ "\n" +dto.getAula_martes()+ "\n" +dto.getGrupo_martes() , bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_miercoles()+ "\n" +dto.getAula_miercoles()+"\n"+ dto.getGrupo_miercoles() , bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_jueves()+ "\n" + dto.getAula_jueves()+"\n"+ dto.getGrupo_jueves() , bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_viernes()+ "\n" + dto.getAula_viernes()+"\n"+ dto.getGrupo_viernes() , bodyTableFont));
-            table.addCell(new Phrase(dto.getCurso_sabado()+"\n" + dto.getAula_sabado()+"\n"+dto.getGrupo_sabado() , bodyTableFont));
+            table.addCell(new Phrase(dto.getHora2() == null ? "" : dto.getHora2(), bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_lunes() == null ? "" : dto.getCurso_lunes()) + "\n" +
+                (dto.getAula_lunes() == null ? "" : dto.getAula_lunes()) + "\n" +
+                (dto.getGrupo_lunes() == null ? "" : dto.getGrupo_lunes()), 
+                bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_martes() == null ? "" : dto.getCurso_martes()) + "\n" +
+                (dto.getAula_martes() == null ? "" : dto.getAula_martes()) + "\n" +
+                (dto.getGrupo_martes() == null ? "" : dto.getGrupo_martes()), 
+                bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_miercoles() == null ? "" : dto.getCurso_miercoles()) + "\n" +
+                (dto.getAula_miercoles() == null ? "" : dto.getAula_miercoles()) + "\n" +
+                (dto.getGrupo_miercoles() == null ? "" : dto.getGrupo_miercoles()), 
+                bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_jueves() == null ? "" : dto.getCurso_jueves()) + "\n" +
+                (dto.getAula_jueves() == null ? "" : dto.getAula_jueves()) + "\n" +
+                (dto.getGrupo_jueves() == null ? "" : dto.getGrupo_jueves()), 
+                bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_viernes() == null ? "" : dto.getCurso_viernes()) + "\n" +
+                (dto.getAula_viernes() == null ? "" : dto.getAula_viernes()) + "\n" +
+                (dto.getGrupo_viernes() == null ? "" : dto.getGrupo_viernes()), 
+                bodyTableFont));
+            table.addCell(new Phrase(
+                (dto.getCurso_sabado() == null ? "" : dto.getCurso_sabado()) + "\n" +
+                (dto.getAula_sabado() == null ? "" : dto.getAula_sabado()) + "\n" +
+                (dto.getGrupo_sabado() == null ? "" : dto.getGrupo_sabado()), 
+                bodyTableFont));
         }
     }
     
-        private void generateTitulo(String titulo, PdfPTable table) {
+    private void generateTitulo(String titulo, PdfPTable table) {
         Phrase phr = new Phrase(titulo, tituloFont);
 
         PdfPCell cell = new PdfPCell(phr);
