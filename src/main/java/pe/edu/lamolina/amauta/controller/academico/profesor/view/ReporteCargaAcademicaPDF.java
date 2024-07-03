@@ -49,17 +49,18 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
     private final String title = "Carga Académica";
     private final String autor = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String creator = "Universidad Nacional Agraria La Molina";
-    private final String oficina = "Oficina de Estudios y Registros Académicos";
+    private final String oficina = "Dirección de Estudios y Registros Académicos";
     private final BaseColor GRAY_LIGHT = new BaseColor(219, 219, 219);
 
     private final List<String> tituloItems = Arrays.asList(
             "Curso",
             "Sección",
             "Horario",
+            "Aula",
             "% Carga",
             "Créditos",
             "Periodo clases",
-            "Matriculados"
+            "Mat."
     );
 
     @Override
@@ -128,7 +129,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
             for (Docente docente : docentes) {
 
-                float[] columnWidths = new float[]{45f, 15f, 20f, 10f, 10f, 17f, 13f};
+                float[] columnWidths = new float[]{40f, 15f, 20f, 10f, 10f, 10f, 17f, 6f};
                 tableBody = new PdfPTable(columnWidths);
                 tableBody.setWidths(columnWidths);
                 tableBody.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
@@ -253,7 +254,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD);
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
-        cell.setColspan(7);
+        cell.setColspan(8);
         cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
@@ -265,7 +266,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
         cell.setPaddingBottom(10f);
         cell.setPaddingTop(10f);
-        cell.setColspan(7);
+        cell.setColspan(8);
         cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
@@ -286,7 +287,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         PdfPCell cell = new PdfPCell(new Phrase(".", new Font(Font.FontFamily.TIMES_ROMAN, 1, Font.NORMAL, BaseColor.WHITE)));
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-        cell.setColspan(7);
+        cell.setColspan(8);
         cell.setPaddingBottom(10f);
         cell.setPaddingTop(10f);
         cell.setBorder(PdfPCell.NO_BORDER);
@@ -318,6 +319,8 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             this.textCellCenter(tableBody, sj.toString());
 
             this.textCell(tableBody, seccion.getHorarioTexto(), false);
+            this.textCellCenter(tableBody, (seccion.getAula() != null ? seccion.getAula().getCodigo() : ""));
+            
 
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
 
@@ -357,7 +360,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
             }
 
-            this.textCell(tableBody, seccion.getMatriculados().toString(), true);
+            this.textCellCenter(tableBody, seccion.getMatriculados().toString());
 
         }
     }
