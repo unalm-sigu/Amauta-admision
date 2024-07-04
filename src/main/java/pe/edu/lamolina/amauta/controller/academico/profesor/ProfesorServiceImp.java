@@ -100,8 +100,8 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos) {
-        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos, String activo) {
+        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament,activo);
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByDocente(docentes, cicloAcademicos);
         Map<Long, List<DocenteSeccion>> mapDocentesSeccion = TypesUtil.convertListToMapList("docente.id", docentesSeccion);
         for (Docente docente : docentes) {

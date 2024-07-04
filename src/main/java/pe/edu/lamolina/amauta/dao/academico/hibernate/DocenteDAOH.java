@@ -41,7 +41,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<DepartamentoAcademico> departamento) {
+    public List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<DepartamentoAcademico> departamento, String activo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da", "da.facultad fa")
@@ -52,7 +52,9 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("doc.id desc");
-
+        if ("activos".equals(activo)) {
+            sql.filter("doc.estado", "ACT");
+        }
         return all(sql);
     }
 
@@ -473,8 +475,8 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 
     }
 
- @Override
-    public List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico,String id) {
+    @Override
+    public List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico, String id) {
         StringBuilder sql = new StringBuilder();
         sql.append("  SELECT     ");
         sql.append("  max(ciclo ) as ciclo,    ");
@@ -564,11 +566,10 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .addScalar("aula_viernes", StringType.INSTANCE)
                 .addScalar("aula_sabado", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(HorarioDocenteDTO.class));
-          query.setParameter("CODIGO", id);
-          query.setParameter("IDCICLO", cicloAcademico.getId());
+        query.setParameter("CODIGO", id);
+        query.setParameter("IDCICLO", cicloAcademico.getId());
         return (List<HorarioDocenteDTO>) query.list();
 //        return query.list();
     }
 
-   
 }
