@@ -502,7 +502,7 @@ public class MatriculableController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            List<Alumno> lista = service.allAlumnoByNombre(nombre, ds);
+            List<Alumno> lista = service.allAlumnoByNombrePRE_VIS(nombre, ds);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Alumno alum : lista) {

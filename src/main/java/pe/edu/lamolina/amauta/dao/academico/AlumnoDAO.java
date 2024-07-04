@@ -94,6 +94,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
 
+    List<Alumno> allByNameSinMatriculaResumenPRE_VIS(String nombre, CicloAcademico cicloAcademico);
+
     List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
 
     List<Alumno> allMatriculadosByGpoSeccion(GrupoSeccion gpoSecc);

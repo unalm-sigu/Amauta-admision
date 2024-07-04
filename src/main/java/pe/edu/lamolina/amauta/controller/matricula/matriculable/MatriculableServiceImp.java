@@ -842,6 +842,11 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumen(nombre, ds.getCicloAcademico());
     }
+    
+    @Override
+    public List<Alumno> allAlumnoByNombrePRE_VIS(String nombre, DataSessionPivot ds) {
+        return alumnoDAO.allByNameSinMatriculaResumenPRE_VIS(nombre, ds.getCicloAcademico());
+    }
 
     @Override
     @Transactional

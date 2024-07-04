@@ -59,6 +59,8 @@ public interface MatriculableService {
 
     List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
+    List<Alumno> allAlumnoByNombrePRE_VIS(String nombre, DataSessionPivot ds);
+
     String saveMatriculable(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds);
 
     void generarAportes(DataSessionPivot ds, String token22);
