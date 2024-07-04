@@ -56,9 +56,10 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             "Curso",
             "Sección",
             "Horario",
+            "Gpo",
             "Aula",
             "% Carga",
-            "Créditos",
+            "Créd.",
             "Periodo clases",
             "Mat."
     );
@@ -129,7 +130,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
             for (Docente docente : docentes) {
 
-                float[] columnWidths = new float[]{40f, 15f, 20f, 10f, 10f, 10f, 17f, 6f};
+                float[] columnWidths = new float[]{40f, 15f, 20f, 10f, 10f, 10f, 6f, 17f, 6f};
                 tableBody = new PdfPTable(columnWidths);
                 tableBody.setWidths(columnWidths);
                 tableBody.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
@@ -254,7 +255,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
         Font font = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD);
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
-        cell.setColspan(8);
+        cell.setColspan(9);
         cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
@@ -266,7 +267,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
         cell.setPaddingBottom(10f);
         cell.setPaddingTop(10f);
-        cell.setColspan(8);
+        cell.setColspan(9);
         cell.setBorder(PdfPCell.NO_BORDER);
         tableBody.addCell(cell);
 
@@ -305,7 +306,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             sj.add(grupoSeccion.getCurso().getCodigo());
             sj.add(" ");
             sj.add(grupoSeccion.getCurso().getTpc());
-            if(grupoSeccion.getCursoDirigido()) {
+            if (grupoSeccion.getCursoDirigido()) {
                 sj.add(" ");
                 sj.add("Curso Dirigido");
             }
@@ -319,8 +320,8 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
             this.textCellCenter(tableBody, sj.toString());
 
             this.textCell(tableBody, seccion.getHorarioTexto(), false);
+            this.textCellCenter(tableBody, (seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : ""));
             this.textCellCenter(tableBody, (seccion.getAula() != null ? seccion.getAula().getCodigo() : ""));
-            
 
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
 
@@ -328,8 +329,8 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 BigDecimal creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN) : ZERO;
                 //String creditosCarga = docenteSeccion.getCreditosCarga() != null ? docenteSeccion.getCreditosCarga().setScale(2, BigDecimal.ROUND_HALF_EVEN).toString() : "";
                 String credito;
-                if(grupoSeccion.getCursoDirigido()) {
-                    if(creditosCarga.compareTo(ZERO) == 0) {
+                if (grupoSeccion.getCursoDirigido()) {
+                    if (creditosCarga.compareTo(ZERO) == 0) {
                         credito = "";
                     } else {
                         credito = creditosCarga.multiply(new BigDecimal(0.33)).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
@@ -341,7 +342,6 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 this.textCell(tableBody, porcentajeCarga, true);
                 this.textCell(tableBody, credito, true);
                 //this.textCell(tableBody, creditosCarga, true);
-
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 
@@ -457,7 +457,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                 List<DocenteSeccion> profesSeccion = seccion.getDocenteSeccion();
                 for (DocenteSeccion profeSecc : profesSeccion) {
                     BigDecimal creditos;
-                    if(grupoSeccion.getCursoDirigido()) {
+                    if (grupoSeccion.getCursoDirigido()) {
                         creditos = profeSecc.getCreditosCarga().multiply(new BigDecimal(0.33));
                     } else {
                         creditos = profeSecc.getCreditosCarga();
