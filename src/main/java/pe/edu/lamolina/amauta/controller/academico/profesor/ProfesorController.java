@@ -141,7 +141,7 @@ public class ProfesorController {
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
         model.addAttribute("loginDocente", !despliegueConfig.isProduccion());
-         model.addAttribute("isRevisorDocente", isRevisorDocente);
+        model.addAttribute("isRevisorDocente", isRevisorDocente);
 
         ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
@@ -154,6 +154,9 @@ public class ProfesorController {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
+        String activo = isRevisorDocente ? "activos" : "";
         String codeRequest = verificadorService.generateCodeRequest();
 
         try {
@@ -167,7 +170,7 @@ public class ProfesorController {
                 Long departamentoId = TypesUtil.getLong(dep);
                 departamentos = Arrays.asList(new DepartamentoAcademico(departamentoId));
             }
-            docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico());
+            docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico(), activo);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

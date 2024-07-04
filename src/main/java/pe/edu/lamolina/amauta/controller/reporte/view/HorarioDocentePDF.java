@@ -118,7 +118,7 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
     }
 
     private void addTableHeader(PdfPTable table) {
-        Stream.of("Hora2", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado")
+        Stream.of("Horario", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado")
               .forEach(columnTitle -> {
                   PdfPCell header = new PdfPCell();
                   header.setBackgroundColor(BaseColor.BLACK);

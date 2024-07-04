@@ -336,7 +336,6 @@ public class InformacionProfesorController {
     @RequestMapping("reporteHorarioDocente")
     public ModelAndView reporteProgramacion(@RequestParam("id") String id, Model model, HttpSession session) {
 
-        System.out.println("llega controller::" + id);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<HorarioDocenteDTO> horarioDocenteDTO = service.horarioDocente(ds.getCicloAcademico(), id);

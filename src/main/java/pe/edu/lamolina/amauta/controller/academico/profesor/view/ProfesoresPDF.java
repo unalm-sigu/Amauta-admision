@@ -107,7 +107,8 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             filter.setPage(1);
             filter.setOffset(0);
             filter.setPerPage(10000);
-            List<Docente> docentes = service.allByDepartamentoDynatable(filter, departamentosByFacu, ciclo);
+                String activo =  "";
+            List<Docente> docentes = service.allByDepartamentoDynatable(filter, departamentosByFacu, ciclo,activo);
             docentes = docentes.stream().filter(x -> x.getCantSeccionesPre().intValue() > 0)
                     .collect(Collectors.toList());
 //            Collections.sort(docentes, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
