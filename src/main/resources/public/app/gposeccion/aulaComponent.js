@@ -128,7 +128,7 @@ Vue.component("aula-component", {
                 notify("Seleccione un aula", "error");
                 return;
             }
-            console.log(aulaSeleccionada.codigo);
+
             if (!aulaSeleccionada.id) {
                 bootbox.confirm({
                     message: "¿Está seguro que desea eliminar el aula?",
@@ -165,7 +165,7 @@ Vue.component("aula-component", {
                 });
                 return;
             }
-            if (!aulaSeleccionada.isDisponible) {
+            if (!aulaSeleccionada.isDisponible && aulaSeleccionada.permiteCruce === 0) {
                 notify("El aula no esta disponible", "error");
                 return;
             }
@@ -363,9 +363,9 @@ Vue.component("aula-component", {
                     }
                 }
             } else {
-                
-                this.tabAulas.aulaSel = {tabAula:this.tabAulas.aulaSel.tabAula};
-                
+
+                this.tabAulas.aulaSel = {tabAula: this.tabAulas.aulaSel.tabAula};
+
                 if (this.tabAulas['oficinas'].tblAulas != null) {
                     for (let key in this.tabAulas['oficinas'].tblAulas) {
                         this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
