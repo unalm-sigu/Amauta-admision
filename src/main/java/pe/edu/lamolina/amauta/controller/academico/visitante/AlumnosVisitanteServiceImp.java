@@ -9,19 +9,21 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -41,7 +43,6 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoVisitanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
@@ -61,44 +62,29 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AlumnoDAO alumnoDAO;
+    private final AlumnoVisitanteDAO alumnoVisitanteDAO;
+    private final CarreraDAO carreraDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ContenidoCartaDAO contenidoCartaDAO;
+    private final MatriculaResumenDAO matriculaResumenDAO;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final PersonaDAO personaDAO;
+    private final PersonaHistorialDAO personaHistorialDAO;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    private final UniversidadDAO universidadDAO;
+    private final UsuarioDAO usuarioDAO;
 
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
-    @Autowired
-    PersonaDAO personaDAO;
-    @Autowired
-    AlumnoVisitanteDAO alumnoVisitanteDAO;
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    UsuarioDAO usuarioDAO;
-    @Autowired
-    PersonaService personaService;
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-    @Autowired
-    CarreraDAO carreraDAO;
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-    @Autowired
-    SituacionAcademicaDAO situacionAcademicaDAO;
-    @Autowired
-    ContenidoCartaDAO contenidoCartaDAO;
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-    @Autowired
-    UniversidadDAO universidadDAO;
-
-    @Autowired
-    MailerService mailerService;
-
-    @Autowired
-    PersonaHistorialDAO personaHistorialDAO;
+    private final MailerService mailerService;
+    private final PersonaService personaService;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -114,22 +100,22 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot ds) {
         Usuario usuario = ds.getUsuario();
-        logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
+        log.info("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
         Persona personaForm = alumnoVisitante.getPersona();
-        this.verificarPersona(personaForm);
-        logger.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
-        Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
 
+        this.verificarPersona(personaForm);
+        log.info("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+
+        Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
 
         if (personaDB == null) {
-            personaDB = this.savePersona(personaForm, usuario, ciclo);
+            personaDB = this.savePersona(personaForm, ciclo, ds);
+
         } else {
-            logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
+            log.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
             AlumnoVisitante alumnoVisitanteDB = alumnoVisitanteDAO.findByPersona(personaDB);
-            if (alumnoVisitanteDB != null) {
-                throw new PhobosException("El documento ya pertenece a otro alumno visitante");
-            }
+            Assert.isNull(alumnoVisitante, "El documento ya pertenece a otro alumno visitante");
 
             PersonaHistorial personaHistorial = new PersonaHistorial();
             personaHistorial.setUsuario(ds.getUsuario());
@@ -142,7 +128,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             personaHistorialDAO.save(personaHistorial);
 
             personaDB = this.updatePersona(personaDB, personaForm, ds);
-            this.updateUsuarioAlumno(personaDB, usuario, ciclo);
+            this.updateUsuarioAlumno(personaDB, ciclo, ds);
 
             Alumno alumno = alumnoDAO.findByPersona(personaDB, ciclo);
             MatriculaResumen mr = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -173,69 +159,86 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     }
 
-    @Transactional
-    private void updateUsuarioAlumno(Persona personaDB, Usuario usuarioRegistra, CicloAcademico ciclo) {
-
-        Usuario usuario = usuarioDAO.findActivoByPersona(personaDB);
+    private void updateUsuarioAlumno(Persona personaDB, CicloAcademico ciclo, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.findByPersona(personaDB, ciclo);
+        Assert.isNull(alumno, "Esta persona ya está registrada como Alumno Visitante");
 
         String codigoMatricula = this.generateCodigo(ciclo);
         String emailCompania = this.generateEmailCompania(codigoMatricula);
 
-        if (usuario == null) {
+        Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_VISITANTE);
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
+        SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
-            Usuario usuarioVisitante = new Usuario();
-            usuarioVisitante.setGoogle(emailCompania);
-            usuarioVisitante.setEstadoEnum(UserEstadoEnum.ACT);
-            usuarioVisitante.setFechaRegistro(new Date());
-            usuarioVisitante.setPersona(personaDB);
-            usuarioVisitante.setUserRegistro(usuarioRegistra);
-            usuarioDAO.save(usuarioVisitante);
+        alumno = new Alumno();
+        alumno.setPersona(personaDB);
+        alumno.setCarrera(carrera);
+        alumno.setModalidadEstudio(modalidadEstudio);
+        alumno.setCicloActivo(ciclo);
+        alumno.setCicloIngreso(ciclo);
+        alumno.setSituacionAcademica(situacion);
+        alumno.setCodigo(codigoMatricula);
 
-        }
+        alumno.setRetirosCursos(0);
+        alumno.setRetirosCiclos(0);
+        alumno.setRetirosExtemporaneos(0);
+        alumno.setCreditosCursados(0);
+        alumno.setCreditosAprobados(0);
+        alumno.setCursosInscritos(0);
+        alumno.setCursosAprobados(0);
+        alumno.setPromedioAcumulado(BigDecimal.ZERO);
+        alumno.setCreditosCarreraCursados(0);
+        alumno.setCreditosCarreraAprobados(0);
+        alumno.setCursosCarreraInscritos(0);
+        alumno.setCursosCarreraAprobados(0);
+        alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+        alumno.setCiclosEstudiados(0);
+        alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
 
-        Alumno alumno = alumnoDAO.findByPersona(personaDB, ciclo);
+        alumnoDAO.save(alumno);
 
-        if (alumno == null) {
-
-            Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_VISITANTE);
-            ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
-            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
-
-            alumno = new Alumno();
-            alumno.setPersona(personaDB);
-            alumno.setCarrera(carrera);
-            alumno.setModalidadEstudio(modalidadEstudio);
-            alumno.setCicloActivo(ciclo);
-            alumno.setCicloIngreso(ciclo);
-            alumno.setSituacionAcademica(situacion);
-            alumno.setCodigo(codigoMatricula);
-
-            alumno.setRetirosCursos(0);
-            alumno.setRetirosCiclos(0);
-            alumno.setRetirosExtemporaneos(0);
-            alumno.setCreditosCursados(0);
-            alumno.setCreditosAprobados(0);
-            alumno.setCursosInscritos(0);
-            alumno.setCursosAprobados(0);
-            alumno.setPromedioAcumulado(BigDecimal.ZERO);
-            alumno.setCreditosCarreraCursados(0);
-            alumno.setCreditosCarreraAprobados(0);
-            alumno.setCursosCarreraInscritos(0);
-            alumno.setCursosCarreraAprobados(0);
-            alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
-            alumno.setCiclosEstudiados(0);
-            alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
-
-            alumnoDAO.save(alumno);
-
-            this.enviarNotificacionUsuarioCreacion(personaDB);
-            this.updateCicloSgteMatricula(ciclo);
-
-        }
+        this.enviarNotificacionUsuarioCreacion(personaDB);
+        this.updateCicloSgteMatricula(ciclo);
+        this.crearUser(personaDB, emailCompania, ds);
     }
 
-    @Transactional
-    private Persona savePersona(Persona persona, Usuario usuario, CicloAcademico ciclo) {
+    private void crearUser(Persona persona, String email, DataSessionPivot ds) {
+        List<Usuario> users = usuarioDAO.allByPersona(persona);
+
+        Usuario activo = users.stream()
+                .filter(usr -> usr.getEstadoEnum() == UserEstadoEnum.ACT)
+                .findFirst()
+                .orElse(null);
+
+        if (activo != null) {
+            activo.setGoogle(email);
+            usuarioDAO.update(activo);
+            return;
+        }
+
+        Usuario otro = users.stream()
+                .filter(usr -> usr.getEstadoEnum() != UserEstadoEnum.ACT)
+                .findFirst()
+                .orElse(null);
+
+        if (otro != null) {
+            otro.setGoogle(email);
+            otro.setEstadoEnum(UserEstadoEnum.ACT);
+            usuarioDAO.update(otro);
+            return;
+        }
+
+        Usuario usuarioVisitante = new Usuario();
+        usuarioVisitante.setGoogle(email);
+        usuarioVisitante.setEstadoEnum(UserEstadoEnum.ACT);
+        usuarioVisitante.setFechaRegistro(new Date());
+        usuarioVisitante.setPersona(persona);
+        usuarioVisitante.setUserRegistro(ds.getUsuario());
+        usuarioDAO.save(usuarioVisitante);
+
+    }
+
+    private Persona savePersona(Persona persona, CicloAcademico ciclo, DataSessionPivot ds) {
 
         String codigoMatricula = this.generateCodigo(ciclo);
         String emailCompania = this.generateEmailCompania(codigoMatricula);
@@ -246,8 +249,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         }
         this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
 
+        persona.setPaterno(personaService.corregirNombre(persona.getPaterno(), "Paterno"));
+        persona.setMaterno(personaService.corregirNombre(persona.getMaterno(), "Materno"));
+        persona.setNombres(personaService.corregirNombre(persona.getNombres(), "Nombres"));
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);
-        persona.setUserRegistro(usuario);
+        persona.setUserRegistro(ds.getUsuario());
         persona.setFechaRegistro(new Date());
 
         personaDAO.save(persona);
@@ -257,7 +263,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         usuarioVisitante.setEstadoEnum(UserEstadoEnum.ACT);
         usuarioVisitante.setFechaRegistro(new Date());
         usuarioVisitante.setPersona(persona);
-        usuarioVisitante.setUserRegistro(usuario);
+        usuarioVisitante.setUserRegistro(ds.getUsuario());
         usuarioDAO.save(usuarioVisitante);
 
         Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_VISITANTE);
@@ -305,36 +311,52 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         matriculaResumenDAO.save(mr);
 
         this.enviarNotificacionUsuarioCreacion(persona);
-
         this.updateCicloSgteMatricula(ciclo);
 
         return persona;
     }
 
     private String generateCodigo(CicloAcademico ciclo) {
-
         StringBuilder ssb = new StringBuilder();
         ssb.append("Configuración del ciclo académico UNALM ");
         ssb.append(ciclo.getDescripcion());
         ssb.append(" no esta completa");
-        if (ciclo.getMatriculaSiguiente() == null || ciclo.getMatriculaInicio() == null) {
-            throw new PhobosException(ssb.toString());
+
+        boolean existeConfig = ciclo.getMatriculaSiguiente() != null && ciclo.getMatriculaInicio() != null;
+        if (!existeConfig) {
+            Integer inicio = null;
+            if (ciclo.getNumeroCiclo().equals("1")) {
+                inicio = 1;
+            } else if (ciclo.getNumeroCiclo().equals("2")) {
+                CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorRegular(ciclo).get(0);
+                if (cicloAntes.getYear() == ciclo.getYear().intValue()) {
+                    inicio = this.incrementToNextHundred(cicloAntes.getMatriculaSiguiente());
+                } else {
+                    inicio = 1;
+                }
+            }
+
+            Assert.isNotNull(inicio, "No se pudo determinar el inicio de los códigos de matrícula");
+            ciclo.setMatriculaInicio(inicio);
+            ciclo.setMatriculaSiguiente(inicio);
         }
+
         int sgt = ciclo.getMatriculaSiguiente();
         String year = ciclo.getYear().toString();
-        String cod;
-        if (ciclo.getMatriculaInicio() > sgt) {
-            sgt = ciclo.getMatriculaInicio();
-        }
-        cod = NumberFormat.codigo((sgt + 1), 4);
+        String cod = NumberFormat.codigo(sgt, 4);
+
         return (year + cod);
+    }
+
+    private int incrementToNextHundred(int ultimo) {
+        int target = ultimo + 300;
+        return ((target + 99) / 100) * 100;
     }
 
     private String generateEmailCompania(String codigoMatricula) {
         return codigoMatricula + "@lamolina.edu.pe";
     }
 
-    @Transactional
     private void updateCicloSgteMatricula(CicloAcademico ciclo) {
         int sgt = ciclo.getMatriculaSiguiente();
         ciclo.setMatriculaSiguiente(sgt + 1);
@@ -472,11 +494,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     public void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds) {
         Usuario usuario = ds.getUsuario();
-        logger.debug("**actualizando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
+        log.debug("**actualizando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
         Persona personaForm = alumnoVisitante.getPersona();
         this.verificarPersona(personaForm);
         this.validarDNI(personaForm);
-        logger.debug("buscar persona  by id  {} ", personaForm.getId());
+        log.debug("buscar persona  by id  {} ", personaForm.getId());
         Persona personaBD = personaDAO.find(personaForm.getId());
         if (personaBD == null) {
             throw new PhobosException("Alumno visitante sin persona registrada.");
@@ -492,7 +514,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         personaHistorialDAO.save(personaHistorial);
 
         this.updatePersona(personaBD, personaForm, ds);
-        logger.debug("persona  doc {} num  {} found  \n update datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+        log.debug("persona  doc {} num  {} found  \n update datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
         this.updateAlumnoVisitante(alumnoVisitante);
     }
 
@@ -523,13 +545,13 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
                 Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono", "numeroDocIdentidad"));
 
         if (sinCambios) {
-            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
+            log.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
         }
 
-        personaBD.setNombres(personaForm.getNombres());
-        personaBD.setPaterno(personaForm.getPaterno());
-        personaBD.setMaterno(personaForm.getMaterno());
+        personaBD.setNombres(personaService.corregirNombre(personaForm.getNombres(), "Nombres"));
+        personaBD.setPaterno(personaService.corregirNombre(personaForm.getPaterno(), "Paterno"));
+        personaBD.setMaterno(personaService.corregirNombre(personaForm.getMaterno(), "Materno"));
         personaBD.setSexo(personaForm.getSexo());
         personaBD.setFechaNacer(personaForm.getFechaNacer());
         personaBD.setDireccion(personaForm.getDireccion());
@@ -549,13 +571,13 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     private void updateAlumnoVisitante(AlumnoVisitante alumnoVisitante) {
 
-        logger.debug("***update Alumno Visitante***");
+        log.debug("***update Alumno Visitante***");
         AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findAlumnoVisitante(alumnoVisitante);
         if (alumnoVisitanteDb == null) {
             throw new PhobosException("El registro de alumno visitante no fue creado");
         }
         alumnoVisitanteDb.setUniversidadExtranjera(alumnoVisitante.getUniversidadExtranjera());
-        logger.debug("****alumno Visitante setUniversidadExtranjera {} ****", alumnoVisitante.getUniversidadExtranjera());
+        log.debug("****alumno Visitante setUniversidadExtranjera {} ****", alumnoVisitante.getUniversidadExtranjera());
         alumnoVisitanteDb.setUniversidad(alumnoVisitante.getUniversidad());
         alumnoVisitanteDb.setCicloEstudia(alumnoVisitante.getCicloEstudia());
         alumnoVisitanteDb.setPaisUniversidad(alumnoVisitante.getPaisUniversidad());
@@ -587,7 +609,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             }
         }
 
-        logger.debug("persona {}", persona.getId());
+        log.debug("persona {}", persona.getId());
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         ObjectNode node = JsonHelper.createJson(persona, jsonFactory, true, new String[]{
