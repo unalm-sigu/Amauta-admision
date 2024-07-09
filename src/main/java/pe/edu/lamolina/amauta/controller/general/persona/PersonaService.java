@@ -52,4 +52,6 @@ public interface PersonaService {
 
     void registrarValidacionDocente2(Persona persona, Docente docente, String personJsonInicial, DataSessionPivot ds);
 
+    String corregirNombre(String nombre, String tipo);
+
 }
