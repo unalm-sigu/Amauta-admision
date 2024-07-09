@@ -9,6 +9,8 @@ new Vue({
         aulaDataZoom: {},
         seccionMain: {},
         isCongCicloPre: false,
+        iddocente: iddocente,
+        codigoDocente: codigoDocente,
     },
     mounted: function () {
         let $vue = this;
@@ -52,6 +54,25 @@ new Vue({
         downloadOfFoto(seccion) {
             location.href = APP.url('reporte/cursos/matriculados/' + seccion.codigo2)
         },
+        downloadHorario(item) {
+            console.log("item:::" + item)
+            $.fileDownload("/academico/profesor/reporteHorarioDocente", {
+                httpMethod: "POST",
+                data: {
+                    id: item
+                },
+                successCallback: function (responseHtml, url) {
+
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(Messages.errorComunicacion, 'error')
+                }
+            });
+//            location.href = APP.url('academico/profesor/reporteHorarioDocente/' + item)
+        },
         dataZoomModal(item) {
             let $vue = this;
             $vue.aulaDataZoom = item.aula;
@@ -66,55 +87,50 @@ new Vue({
             let $vue = this;
             navigator.clipboard.writeText($vue.seccionMain.linkZoom);
         },
-        calcularCreditoCarga(profeSecc, item) {            
-            if(item.length > 1) {
+        calcularCreditoCarga(profeSecc, item) {
+            if (item.length > 1) {
                 console.log("calcularCreditoCarga secciones", item.length);
-                if(profeSecc.porcentajeCarga === 100) {
+                if (profeSecc.porcentajeCarga === 100) {
                     console.log("profeSecc.creditosCarga", profeSecc.creditosCarga);
-                    if(profeSecc.creditosCarga === 3) {
+                    if (profeSecc.creditosCarga === 3) {
                         return profeSecc.creditosCarga * 0.22;
-                    }
-                    else if(profeSecc.creditosCarga === 2) {
+                    } else if (profeSecc.creditosCarga === 2) {
                         return profeSecc.creditosCarga * 0.33;
-                    }
-                    else if(profeSecc.creditosCarga === 1) {
+                    } else if (profeSecc.creditosCarga === 1) {
                         return profeSecc.creditosCarga * 0.33;
                     }
                 }
             } else {
                 console.log("calcularCreditoCarga secciones", item.length);
-                if(profeSecc.porcentajeCarga === 100) {
+                if (profeSecc.porcentajeCarga === 100) {
                     console.log("profeSecc.creditosCarga", profeSecc.creditosCarga);
-                    if(profeSecc.creditosCarga === 3 || profeSecc.creditosCarga === 2 || profeSecc.creditosCarga === 1) {
+                    if (profeSecc.creditosCarga === 3 || profeSecc.creditosCarga === 2 || profeSecc.creditosCarga === 1) {
                         return profeSecc.creditosCarga * 0.33;
-                    }
-                    else if(profeSecc.creditosCarga === 4) {
+                    } else if (profeSecc.creditosCarga === 4) {
                         return profeSecc.creditosCarga * 0.25;
                     }
                 }
             }
             /*if (item.porcentajeCarga > 0) {
-                if (item.porcentajeCarga == 100) {
-                    return item.creditosCarga * 0.33;
-                }
-            }*/
+             if (item.porcentajeCarga == 100) {
+             return item.creditosCarga * 0.33;
+             }
+             }*/
         },
         totalCreditos(item) {
             let sumCreditosPRE = 0;
             for (let el of item) {
-                if(el.secciones.length > 1) {
+                if (el.secciones.length > 1) {
                     console.log("totalCreditos secciones", item.length);
                     for (let seccion of el.secciones) {
                         for (let docenteSeccion of seccion.docenteSeccion) {
                             if (el.cursoDirigido) {
                                 console.log("docenteSeccion.creditosCarga", docenteSeccion.creditosCarga);
-                                if(docenteSeccion.creditosCarga === 3) {
+                                if (docenteSeccion.creditosCarga === 3) {
                                     sumCreditosPRE += docenteSeccion.creditosCarga * 0.22;
-                                }
-                                else if(docenteSeccion.creditosCarga === 1 || docenteSeccion.creditosCarga === 2) {
+                                } else if (docenteSeccion.creditosCarga === 1 || docenteSeccion.creditosCarga === 2) {
                                     sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;
-                                }
-                                else if(docenteSeccion.creditosCarga === 4) {
+                                } else if (docenteSeccion.creditosCarga === 4) {
                                     sumCreditosPRE += docenteSeccion.creditosCarga * 0.25;
                                 }
                                 /*sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;*/
@@ -129,18 +145,18 @@ new Vue({
                         for (let docenteSeccion of seccion.docenteSeccion) {
                             if (el.cursoDirigido) {
                                 console.log("docenteSeccion.creditosCarga", docenteSeccion.creditosCarga);
-                                if(docenteSeccion.creditosCarga === 4) {
+                                if (docenteSeccion.creditosCarga === 4) {
                                     sumCreditosPRE += docenteSeccion.creditosCarga * 0.25;
                                 } else {
                                     sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;
-                                }                                                                
+                                }
                             } else {
                                 sumCreditosPRE += docenteSeccion.creditosCarga;
                             }
                         }
                     }
                 }
-                
+
             }
             return sumCreditosPRE;
         }
