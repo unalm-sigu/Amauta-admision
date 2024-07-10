@@ -3,22 +3,15 @@ package pe.edu.lamolina.amauta.controller.academico.visitante;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,38 +37,14 @@ import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
+@Slf4j
 @Controller
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @RequestMapping("academico/visitante/alumno")
 public class AlumnosVisitanteController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    AlumnosVisitanteService service;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
+    private final AlumnosVisitanteService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -86,63 +55,56 @@ public class AlumnosVisitanteController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
-        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        log.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
 
-        try {
+        List<AlumnoVisitante> visitantes = service.allAlumnoVisitante(filter);
+        Map<Long, Alumno> alumnoBecadoMap = service.allAlumnoByVisitante(visitantes);
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jsonFactory);
 
-            List<AlumnoVisitante> visitantes = service.allAlumnoVisitante(filter);
-            Map<Long, Alumno> alumnoBecadoMap = service.allAlumnoByVisitante(visitantes);
+        for (AlumnoVisitante visitante : visitantes) {
 
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(jsonFactory);
+            ObjectNode node = new ObjectNode(jsonFactory);
+            Alumno alumno = alumnoBecadoMap.get(visitante.getPersona().getId());
 
-            for (AlumnoVisitante visitante : visitantes) {
+            Persona persona = visitante.getPersona();
+            Carrera carrera = alumno.getCarrera();
+            Facultad facultad = carrera.getFacultad();
+            CicloAcademico ciclo = visitante.getCicloEstudia();
+            Universidad universidad = visitante.getUniversidad();
 
-                ObjectNode node = new ObjectNode(jsonFactory);
-                Alumno alumno = alumnoBecadoMap.get(visitante.getPersona().getId());
-
-                Persona persona = visitante.getPersona();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
-                CicloAcademico ciclo = visitante.getCicloEstudia();
-                Universidad universidad = visitante.getUniversidad();
-
-                String nombreUni = "Universidad desconocida";
-                if (!StringUtils.isEmpty(visitante.getUniversidadExtranjera())) {
-                    nombreUni = visitante.getUniversidadExtranjera();
-                }
-                if (universidad != null) {
-                    nombreUni = universidad.getNombre();
-                }
-
-                Pais paisUniversidad = visitante.getPaisUniversidad();
-
-                node.put("id", visitante.getId());
-                node.put("nombre", persona.getNombreCompleto());
-                node.put("codigo", alumno.getCodigo());
-                node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
-                node.put("nroDocumento", persona.getNumeroDocIdentidad());
-                node.put("carrera", carrera.getNombre());
-                node.put("facultad", facultad.getNombre());
-                node.put("universidad", nombreUni);
-                node.put("ciclo", ciclo.getDescripcion());
-                node.put("paisUniversidad", paisUniversidad.getNombre());
-
-                array.add(node);
+            String nombreUni = "Universidad desconocida";
+            if (!StringUtils.isEmpty(visitante.getUniversidadExtranjera())) {
+                nombreUni = visitante.getUniversidadExtranjera();
+            }
+            if (universidad != null) {
+                nombreUni = universidad.getNombre();
             }
 
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
+            Pais paisUniversidad = visitante.getPaisUniversidad();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            node.put("id", visitante.getId());
+            node.put("nombre", persona.getNombreCompleto());
+            node.put("codigo", alumno.getCodigo());
+            node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+            node.put("nroDocumento", persona.getNumeroDocIdentidad());
+            node.put("carrera", carrera.getNombre());
+            node.put("facultad", facultad.getNombre());
+            node.put("universidad", nombreUni);
+            node.put("ciclo", ciclo.getDescripcion());
+            node.put("paisUniversidad", paisUniversidad.getNombre());
+
+            array.add(node);
         }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 
@@ -177,63 +139,54 @@ public class AlumnosVisitanteController {
     @ResponseBody
     @RequestMapping("find")
     public JsonResponse find(AlumnoVisitante idAlumnoVisitante) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ObjectNode data = new ObjectNode(jsonFactory);
+
+        AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante.getId());
+        ObjectNode jAlumnoVisitante = JsonHelper.createJson(alumnoVisitante, jsonFactory, true, new String[]{
+            "*",
+            "universidad.*",
+            "paisUniversidad.*",
+            "cicloEstudia.*"
+        });
+        data.put("alumnoVisitante", jAlumnoVisitante);
+
+        Persona persona = alumnoVisitante.getPersona();
+        ObjectNode jPersona = JsonHelper.createJson(persona, jsonFactory, true, new String[]{
+            "*",
+            "tipoDocumento.*",
+            "ubicacionNacer.*",
+            "paisNacer.*",
+            "nacionalidad.*",
+            "paisDomicilio.*",
+            "ubicacionDomicilio.*"
+        });
+        data.put("persona", jPersona);
+
         JsonResponse response = new JsonResponse();
-        try {
+        response.setData(data);
+        response.setSuccess(Boolean.TRUE);
 
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            ObjectNode data = new ObjectNode(jsonFactory);
-
-            AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante.getId());
-            ObjectNode jAlumnoVisitante = JsonHelper.createJson(alumnoVisitante, jsonFactory, true, new String[]{
-                "*",
-                "universidad.*",
-                "paisUniversidad.*",
-                "cicloEstudia.*"
-            });
-            data.put("alumnoVisitante", jAlumnoVisitante);
-            Persona persona = alumnoVisitante.getPersona();
-            ObjectNode jPersona = JsonHelper.createJson(persona, jsonFactory, true, new String[]{
-                "*",
-                "tipoDocumento.*",
-                "ubicacionNacer.*",
-                "paisNacer.*",
-                "nacionalidad.*",
-                "paisDomicilio.*",
-                "ubicacionDomicilio.*"
-            });
-            data.put("persona", jPersona);
-            response.setData(data);
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@ModelAttribute("alumnoVisitante") AlumnoVisitante alumnoVisitante, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        String msg = "Alumno Visitante guardado satisfactoriamente";
+        if (alumnoVisitante.getId() == null) {
+            service.save(alumnoVisitante, ds);
+
+        } else {
+            service.update(alumnoVisitante, ds);
+            msg = "Alumno Visitante actualizado satisfactoriamente";
+        }
 
         JsonResponse response = new JsonResponse();
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            if (alumnoVisitante.getId() == null) {
-                service.save(alumnoVisitante, ds);
-                response.setMessage("Alumno Visitante guardado satisfactoriamente");
-            } else {
-                service.update(alumnoVisitante, ds);
-                response.setMessage("Alumno Visitante actualizado satisfactoriamente");
-            }
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        response.setSuccess(Boolean.TRUE);
+        response.setMessage(msg);
 
         return response;
     }

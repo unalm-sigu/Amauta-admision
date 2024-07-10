@@ -544,4 +544,54 @@ public class PersonaServiceImp implements PersonaService {
         validacionPersonaDAO.save(validacion);
     }
 
+    @Override
+    public String corregirNombre(String nombre, String tipo) {
+        if (StringUtils.isBlank(nombre)) {
+            return null;
+        }
+
+        nombre = nombre.replaceAll("\\s+", " ").trim();
+        Assert.isTrue(nombre.length() > 1, "El " + tipo + " debe contener al menos 2 letras");
+
+        String[] palabras = nombre.split(" ");
+        for (int i = 0; i < palabras.length; i++) {
+            String palabra = palabras[i].toLowerCase();
+            if (i > 0 && Arrays.asList("de", "del", "la", "y").contains(palabra)) {
+                palabras[i] = palabra;
+            } else {
+                palabras[i] = capitalizarPalabra(palabra);
+            }
+        }
+
+        return String.join(" ", palabras);
+    }
+
+    private String capitalizarPalabra(String palabra) {
+        if (palabra.contains("'")) {
+            String[] partes = palabra.split("'");
+            StringBuilder palabraCorregida = new StringBuilder();
+            for (int i = 0; i < partes.length; i++) {
+                palabraCorregida.append(capitalizarPalabra(partes[i]));
+                if (i < partes.length - 1) {
+                    palabraCorregida.append("'");
+                }
+            }
+            palabra = palabraCorregida.toString();
+        }
+
+        if (palabra.contains("-")) {
+            String[] partes = palabra.split("-");
+            StringBuilder palabraCorregida = new StringBuilder();
+            for (int i = 0; i < partes.length; i++) {
+                palabraCorregida.append(capitalizarPalabra(partes[i]));
+                if (i < partes.length - 1) {
+                    palabraCorregida.append("-");
+                }
+            }
+            palabra = palabraCorregida.toString();
+        }
+
+        return palabra.substring(0, 1).toUpperCase() + palabra.substring(1);
+    }
+
 }
