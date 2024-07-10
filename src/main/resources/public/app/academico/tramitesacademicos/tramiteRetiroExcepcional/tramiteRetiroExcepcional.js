@@ -79,6 +79,9 @@ var app = new Vue({
                 case  "ANU":
                     return "label label-danger"
                     break;
+                case  "RCHR":
+                    return "label label-warning"
+                    break;
                 default :
                     return "label label-primary"
                     break;

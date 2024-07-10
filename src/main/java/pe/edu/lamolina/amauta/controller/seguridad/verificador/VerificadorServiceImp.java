@@ -48,6 +48,8 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.ASOERA;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.BAN;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPACT;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPFIS;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.EPG;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OBUAE;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
@@ -457,12 +459,31 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
 
+        {
+            boolean esGestorOBU = this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds);
+            if (esGestorOBU) {
+                log.info("-Usuario {} tiene el rol {} en la OBUAE", ds.getUsuario().getId(), RolEnum.INF_OBUAE.name());
+                Oficina depFis = new Oficina(DEPFIS);
+                Oficina depAct = new Oficina(DEPACT);
+
+                oficinas.add(new Oficina(OBUAE));
+                oficinas.add(depFis);
+                oficinas.add(depAct);
+
+            } else {
+                log.info("-Usuario {} no tiene el rol {} en OBUAE", ds.getUsuario().getId(), RolEnum.INF_OBUAE.name());
+            }
+        }
+
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
         for (Oficina oficina : oficinasMain) {
             if (oficina.getCodigoEnum() == EPG) {
                 continue;
             }
             if (oficina.getCodigoEnum() == OERA) {
+                continue;
+            }
+            if (oficina.getCodigoEnum() == OBUAE) {
                 continue;
             }
             boolean esGestorOficina = this.esTrabajadorOficinaConRol(oficina, RolEnum.GESTOR_OFICINA, ds);
@@ -1044,7 +1065,7 @@ public class VerificadorServiceImp implements VerificadorService {
         }
         return false;
     }
-    
+
     @Override
     public boolean isRolRacd(DataSessionPivot ds) {
         for (Rol rol : ds.getRoles()) {
@@ -1054,7 +1075,7 @@ public class VerificadorServiceImp implements VerificadorService {
         }
         return false;
     }
-    
+
     @Override
     public boolean isDeveloperOERA(DataSessionPivot ds) {
         boolean esInformaticoOera = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);

@@ -113,7 +113,10 @@ import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.NOTA_BAJA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
@@ -461,10 +464,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                     return respuesta;
                 }
                 break;
+            case INTES:
+                respuesta = Arrays.asList(this.validarIntercambioEstudiantil(resolucion, ds));
+                if (this.contieneMensaje(respuesta)) {
+                    return respuesta;
+                }
+
+                break;
             case CAM_NOTA:
             case NOTA_BAJA:
             case READMISION:
-            case INTES:
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
                 respuesta = Arrays.asList(this.validarCursoDirigido(resolucion, ds));
@@ -474,10 +483,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
                 break;
             case TRAS:
+                respuesta = Arrays.asList(this.validarTramiteTraslado(resolucion, ds));
+                if (this.contieneMensaje(respuesta)) {
+                    return respuesta;
+                }
+                break;
             case ING_HIS:
                 break;
             case BACHI:
-                respuesta = Arrays.asList(this.validarTramiteBachiller(resolucion, ds));
+                respuesta = Arrays.asList(this.validarTramiteBachiller(resolucion));
+
                 if (this.contieneMensaje(respuesta)) {
                     return respuesta;
                 }
@@ -601,15 +616,50 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private List<String> validarTrasladoInterno(Resolucion resolucion, List<String> respuesta, DataSessionPivot ds) {
         for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
 
-            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+            List<TramiteTraslado> traslados = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(tramiteTrasladoForm.getAlumno());
 
-            if (traslado == null) {
+            List<TramiteTraslado> trasladosSolicitados = traslados.stream().filter(x -> x.getEstadoEnum() == TramiteEstadoEnum.SOL).collect(Collectors.toList());
+
+            if (trasladosSolicitados.isEmpty()) {
                 respuesta.add(String.format("El alumno con codigo %s no cuenta con una solicitud de traslado interno pendiente.",
+                        tramiteTrasladoForm.getAlumno().getCodigo()));
+            }
+
+            if (trasladosSolicitados.size() > 1) {
+                respuesta.add(String.format("El alumno con codigo %s solo debe tener una solicitud de traslado interno, anular uno de ellos.",
                         tramiteTrasladoForm.getAlumno().getCodigo()));
             }
         }
         return respuesta;
 
+    }
+
+    private String validarIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds) {
+        if (resolucion.getTramiteTraslado().isEmpty()) {
+            return "Debe seleccionar como mínimo un alumno.";
+        }
+
+        Map<Long, Long> couterMap = resolucion.getTramiteTraslado().stream()
+                .collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+
+        for (Map.Entry<Long, Long> entry : couterMap.entrySet()) {
+
+            Long count = entry.getValue();
+
+            if (count > 1) {
+
+                TramiteTraslado tramiteTraslado = resolucion.getTramiteTraslado()
+                        .stream()
+                        .filter(x -> x.getAlumno().getId().longValue() == entry.getKey())
+                        .findFirst().orElse(null);
+
+                return String.format("Está repitiendo al alumno %s en la lista", tramiteTraslado.getAlumno().getCodigo());
+
+            }
+
+        }
+
+        return "";
     }
 
     private String validarCursoDirigido(Resolucion resolucion, DataSessionPivot ds) {
@@ -1126,7 +1176,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
             RetiroCiclo retiroCicloDB = null;
             MatriculaResumen matriculaResumen = null;
-            
+
             if (resolucion.isTipoRetiroCiclo()) {
                 cicloAplica = resolucion.getCicloAplica();
                 retiroCicloDB = retiroCicloDAO.findByExcepcional(alumnoDB);
@@ -1233,6 +1283,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 } else {
                     retiroCicloDB.setEstadoEnum(TramiteEstadoEnum.RCHR);
                     retiroCicloDB.setEstadoTramite(estadoTramiteRechz);
+                    retiroCicloDB.setResolucion(resolucion);
+                    retiroCicloDAO.updateColumns(retiroCicloDB, "estado", "estadoTramite", "resolucion");
 
                     Tramite tramite = retiroCicloDB.getTramite();
                     tramite.setEstadoEnum(TramiteEstadoEnum.RCHR);
@@ -1640,7 +1692,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         return token;
     }
 
-    private String validarTramiteBachiller(Resolucion resolucion, DataSessionPivot ds) {
+    private String validarTramiteBachiller(Resolucion resolucion) {
         if (resolucion.getTramiteBachiller().isEmpty()) {
             return "Debe seleccionar como mínimo un alumno.";
         }
@@ -1665,6 +1717,22 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
             if (eventoCicloAcademico == null) {
                 return "No se ha configurado las fechas de inicio y fin del ciclo " + alumno.getCicloActivo().getDescripcion() + " de la matrícula " + alumno.getCodigo();
+            }
+
+        }
+
+        return "";
+    }
+
+    private String validarTramiteTraslado(Resolucion resolucion, DataSessionPivot ds) {
+        if (resolucion.getTramiteTraslado().isEmpty()) {
+            return "Debe seleccionar como mínimo un alumno.";
+        }
+
+        for (TramiteTraslado tramiteTraslado : resolucion.getTramiteTraslado()) {
+            Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
+            if (tramiteTraslado.getCicloAcademico().getCodigoInt() < alumno.getCicloIngreso().getCodigoInt()) {
+                return "El ciclo que selecciono del alumno " + alumno.getCodigo() + " debe ser mayor o igual a su ciclo de ingreso.";
             }
 
         }
@@ -2067,34 +2135,34 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             alumnoDAO.update(alumnoDB);
         }
     }
-    
-    private String validarTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {       
+
+    private String validarTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
 
         for (PracticasPreProfesional practicasForm : resolucion.getTramitePracticasPreProfesionales()) {
 
             Alumno alumno = alumnoDAO.find(practicasForm.getAlumno());
-            
-            if (practicasForm.getId() != null) {                
-                continue;                
+
+            if (practicasForm.getId() != null) {
+                continue;
             }
-            
+
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
 
             if (alumnoCursoCurricula == null) {
-                return "El alumno " + alumno.getCodigo() + " no tiene Practicas habilitadas";                
+                return "El alumno " + alumno.getCodigo() + " no tiene Practicas habilitadas";
             }
 
             log.debug("alumnoCursoCurricula {}", alumnoCursoCurricula.getId());
 
             if (resolucion.getOficina().getCodigo().equalsIgnoreCase("F040")) {
                 if (practicasForm.getCreditos() == null) {
-                    return "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.";                    
+                    return "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.";
                 }
             }
 
         }
-        
-        return "";        
+
+        return "";
     }
 
     private void saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
@@ -2187,7 +2255,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         matriculableService.calcularPromedios(token, ds);
         matriculableService.revisarCurriculaAlumnos(ds, token);
     }
-    
+
     /*private String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
@@ -2291,7 +2359,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         return token;
     }*/
-
     private void saveTramitesTrasladoInterno(Resolucion resolucion, DataSessionPivot ds) {
 
         if (resolucion.getTramiteTraslado().isEmpty()) {
@@ -2300,11 +2367,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         log.debug("solicitantes {}", resolucion.getTramiteTraslado().size());
         for (TramiteTraslado tramiteTrasladoForm : resolucion.getTramiteTraslado()) {
 
-            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+//            TramiteTraslado traslado = tramiteTrasladoDAO.findSolicitadoByAlumnoCiclo(tramiteTrasladoForm.getAlumno(), ds.getCicloAcademico());
+            List<TramiteTraslado> traslados = tramiteTrasladoDAO.allTramiteTrasladoByAlumno(tramiteTrasladoForm.getAlumno());
 
-            if (traslado == null) {
-                throw new PhobosException("El alumno" + tramiteTrasladoForm.getAlumno().getCodigo() + " no cuenta con una solicitud pendiente.");
-            }
+            List<TramiteTraslado> trasladosSolicitados = traslados.stream().filter(x -> x.getEstadoEnum() == TramiteEstadoEnum.SOL).collect(Collectors.toList());
+            TramiteTraslado traslado = trasladosSolicitados.get(0);
 
             TramiteEstadoEnum estado = tramiteTrasladoForm.getEstadoEnum();
 

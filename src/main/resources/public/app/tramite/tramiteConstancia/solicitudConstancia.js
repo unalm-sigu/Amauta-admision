@@ -279,19 +279,42 @@ new Vue({
                     });
         },
         /*anularTramite(tramite) {
+         let $vue = this;
+         bootbox.confirm({
+         message: `¿Seguro que desea anular el tramite?`,
+         buttons: {
+         confirm: {label: 'Sí, anular', className: "btn-danger"},
+         cancel: {label: 'Cancelar', className: "btn-default"}
+         },
+         callback: (result) => {
+         if (result) {
+         
+         $vue.showLoader();
+         
+         axios.get('/tramite/solicitudconstancia/anulartramite/' + tramite.id)
+         .then(response => {
+         $vue.hideLoader();
+         $vue.$refs.load.loadRemoteData();
+         notify(response.data.message, response.data.success ? 'info' : 'error');
+         }, () => {
+         $vue.hideLoader();
+         });
+         }
+         }
+         });
+         },*/
+        reactivarTramite(tramite) {
             let $vue = this;
             bootbox.confirm({
-                message: `¿Seguro que desea anular el tramite?`,
+                message: `¿Seguro que desea REACTIVAR el tramite?` + tramite.id,
                 buttons: {
-                    confirm: {label: 'Sí, anular', className: "btn-danger"},
+                    confirm: {label: 'Sí, Reactivar', className: "btn-danger"},
                     cancel: {label: 'Cancelar', className: "btn-default"}
                 },
                 callback: (result) => {
                     if (result) {
-
                         $vue.showLoader();
-
-                        axios.get('/tramite/solicitudconstancia/anulartramite/' + tramite.id)
+                        axios.get('/tramite/solicitudconstancia/reactivarTramite/' + tramite.id)
                                 .then(response => {
                                     $vue.hideLoader();
                                     $vue.$refs.load.loadRemoteData();
@@ -302,7 +325,7 @@ new Vue({
                     }
                 }
             });
-        },*/
+        },
         anularTramite(tramite) {
             let $vue = this;
             console.log(tramite.estadoTramite.codigo); // ACEP
@@ -329,11 +352,11 @@ new Vue({
                                     .then(response => {
                                         $vue.hideLoader();
                                         $vue.$refs.load.loadRemoteData();
-                                        if(response.status === 200) {
+                                        if (response.status === 200) {
                                             notify(response.data, 'success');
                                         } else {
                                             notify(response.status, 'info');
-                                        }                                        
+                                        }
                                     }, () => {
                                         $vue.hideLoader();
                                     })
@@ -369,18 +392,18 @@ new Vue({
             }
         },
         /*editarTramite(tramite) {
-            let $vue = this;
-            console.log(tramite.estadoTramite.codigo); // ACEP
-            if (tramite.estadoTramite.codigo !== 'COMP') {
-                axios.get('/tramite/solicitudconstancia/solicitud/' + tramite.id + '/editar')
-                    .then(response => {
-                        console.log(response);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-            }
-        },*/
+         let $vue = this;
+         console.log(tramite.estadoTramite.codigo); // ACEP
+         if (tramite.estadoTramite.codigo !== 'COMP') {
+         axios.get('/tramite/solicitudconstancia/solicitud/' + tramite.id + '/editar')
+         .then(response => {
+         console.log(response);
+         })
+         .catch(error => {
+         console.log(error);
+         });
+         }
+         },*/
         entregarTramite(tramite) {
             let $vue = this;
             $vue.$refs.modalEntregarTramite.open();

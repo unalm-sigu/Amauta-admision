@@ -62,6 +62,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCargaCicloView;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCicloView;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
@@ -72,6 +73,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Slf4j
@@ -89,6 +91,7 @@ public class ProfesorController {
     private final ProfesoresPDF profesoresPDF;
     private final ReporteCargaAcademicaPDF reporte;
     private final ReporteDocenteCicloView reporteDocenteCicloView;
+    private final ReporteDocenteCargaCicloView reportedocentecargacicloView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -126,6 +129,8 @@ public class ProfesorController {
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         List<CicloAcademico> ciclosNivelacion = service.allCicloAcademicoNivel();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
@@ -136,6 +141,7 @@ public class ProfesorController {
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
         model.addAttribute("loginDocente", !despliegueConfig.isProduccion());
+        model.addAttribute("isRevisorDocente", isRevisorDocente);
 
         ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
@@ -148,6 +154,9 @@ public class ProfesorController {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
+        String activo = isRevisorDocente ? "activos" : "";
         String codeRequest = verificadorService.generateCodeRequest();
 
         try {
@@ -161,7 +170,7 @@ public class ProfesorController {
                 Long departamentoId = TypesUtil.getLong(dep);
                 departamentos = Arrays.asList(new DepartamentoAcademico(departamentoId));
             }
-            docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico());
+            docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico(), activo);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -645,11 +654,19 @@ public class ProfesorController {
     @RequestMapping("reporteDocenteCicloAcademico")
     public ModelAndView reporteDocenteCicloAcademico(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
-        List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
 
-        model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);
-        model.addAttribute("listaDocente", "ListaDocente");
-        return new ModelAndView(reporteDocenteCicloView);
+        if (filtro.getCicloAcademicos() != null) {
+            List<DocenteCicloBean> listdocenteCicloBean = service.allDocentecicloAcademico(filtro.getCicloAcademicos());
+            model.addAttribute("listdocenteCicloBean", listdocenteCicloBean);
+            model.addAttribute("listaDocente", "ListaDocente");
+            return new ModelAndView(reporteDocenteCicloView);
+        } else {
+            List<DocenteCicloCargaBean> listdocenteCicloCargaBean = service.allDocenteCargacicloAcademico(filtro.getDocente());
+            model.addAttribute("listdocenteCicloCargaBean", listdocenteCicloCargaBean);
+            model.addAttribute("listaDocente", "ListaDocente");
+            return new ModelAndView(reportedocentecargacicloView);
+        }
+
     }
 
     @ResponseBody

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -126,6 +127,37 @@ public class ReunionConsejeroController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("search")
+    public JsonResponse search(@RequestParam String searchTerm, DynatableFilter filter, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+            List<Consejero> consejeros = service.allConsejeros(ds.getPersona());
+            Consejero consejero = service.findConsejeroCarrera(consejeros.get(0).getCarrera().getId(), ds.getPersona());
+            List<AlumnoConsejero> alumnoConsejeros = service.listBusca(consejero, ds,searchTerm);
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            for (AlumnoConsejero alumnoConsejero : alumnoConsejeros) {
+                arrayNode.add(JsonHelper.createJson(alumnoConsejero, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.id",
+                    "alumno.codigo",
+                    "alumno.persona.*",
+                    "alumno.persona.apellidosNombres",
+                    "alumno.carrera.nombre",
+                    "alumno.carrera.facultad.nombre",
+                    "alumno.situacionAcademica.nombre"
+                }));
+            }
+            response.setData(arrayNode);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setTotal(0);
+        }
+        return response;
+    }
+    
     @ResponseBody
     @RequestMapping("listAlumnos/{carrera}")
     public JsonResponse listAlumnos(@PathVariable Long carrera, HttpSession session) {

@@ -365,7 +365,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
             DocenteSeccion docenteSeccionBD,
             CursoCicloAcademico cursoCiclo,
             List<PagoHoraDocente> pagosDocenteByHora,
-            CicloAcademico ciclo, DataSessionPivot ds) {
+            CicloAcademico ciclo, DataSessionPivot ds, Map<Long, Integer> retiradoXciclo) {
 
         logger.debug(" **** update docenteSeccion {} ", docenteSeccionBD.getId());
         //DocenteSeccion docenteSeccionBD = docenteSeccionDAO.find(docenteSeccionForm.getId());
@@ -387,49 +387,59 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         String porcentajeCargaFraccion = docenteSeccionBD.getPorcentajeCargaFraccion();
         Assert.isNotNull(porcentajeCargaFraccion, "Error en la configuración del porcentaje de carga del docente " + docente.getCodigo() + " en la sección " + seccion.getCodigo2() + ".");
 
+        retiradoXciclo = seccionDAO.countRetiradosBySeccion(cicloAcademico);
+
         Integer matriculados = 0;
         if (seccion.getTipoSeccionEnum() == TCUR) {
             List<Seccion> seccionesPCUR = seccion.getSeccion();
             for (Seccion secc : seccionesPCUR) {
-                Integer matriculadosSecc = secc.getMatriculados();
-                if (secc.getAbonoVerano().compareTo(secc.getPrecioBase()) < 0) {
-                    docenteSeccionBD.setPagoVerano(null);
-                    docenteSeccionDAO.update(docenteSeccionBD);
-                    return "Los matriculados no lograron abonar el precio base de la sección " + secc.getCodigo2() + ".";
-                }
-                matriculadosSecc = (matriculadosSecc < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculadosSecc;
+//            logger.debug("**************************PASSSOOOO 11111*****************");
+//                ObjectUtil.printAttr(secc);
+                Integer matriculadosSecc = secc.getMatriculados() + (retiradoXciclo.get(secc.getId()) == null ? 0 : retiradoXciclo.get(secc.getId()));
+//                if (secc.getAbonoVerano().compareTo(secc.getPrecioBase()) < 0) {
+//                    docenteSeccionBD.setPagoVerano(null);
+//                    docenteSeccionDAO.update(docenteSeccionBD);
+//                    return "Los matriculados no lograron abonar el precio base de la sección " + secc.getCodigo2() + ".";
+//                }
+//                matriculadosSecc = (matriculadosSecc < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculadosSecc;
                 matriculados += matriculadosSecc;
             }
 
         } else {
-            matriculados = seccion.getMatriculados();
-            if (seccion.getAbonoVerano().compareTo(seccion.getPrecioBase()) < 0) {
-                docenteSeccionBD.setPagoVerano(null);
-                docenteSeccionDAO.update(docenteSeccionBD);
-                return "Los matriculados no lograron abonar el precio base de la sección.";
-            }
-            matriculados = (matriculados < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculados;
+//            logger.debug("**************************PASSSOOOO 2222*****************");
+//            ObjectUtil.printAttr(seccion);
+            matriculados = seccion.getMatriculados() + (retiradoXciclo.get(seccion.getId()) == null ? 0 : retiradoXciclo.get(seccion.getId()));
+//            if (seccion.getAbonoVerano().compareTo(seccion.getPrecioBase()) < 0) {
+//                docenteSeccionBD.setPagoVerano(null);
+//                docenteSeccionDAO.update(docenteSeccionBD);
+//                return "Los matriculados no lograron abonar el precio base de la sección.";
+//            }
+//            matriculados = (matriculados < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculados;
         }
 
         PagoHoraDocente pagoHoraDocente = findPagoDocenteByMatriculados(matriculados, pagosDocenteByHora);
-        Assert.isNotNull(pagoHoraDocente, "No se encuentra configurado el pago de horas por docente para este ciclo.");
+//        Assert.isNotNull(pagoHoraDocente, "No se encuentra configurado el pago de horas por docente para este ciclo.");
 
-        Fraxtion porcentajeFraxtion = new Fraxtion(porcentajeCargaFraccion);
-        BigDecimal precioHora = pagoHoraDocente.getMontoHora();
-        BigDecimal horasSemanalesDecimal = new BigDecimal(horasSemanales);
-        BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
+        if (pagoHoraDocente != null) {
+            Fraxtion porcentajeFraxtion = new Fraxtion(porcentajeCargaFraccion);
+            BigDecimal precioHora = pagoHoraDocente.getMontoHora();
+            BigDecimal horasSemanalesDecimal = new BigDecimal(horasSemanales);
+            BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
 
-        BigDecimal montoPagarSeccion = precioHora
-                .multiply(horasSemanalesDecimal)
-                .multiply(semanasClasesDecimal);
-        logger.info("precio-seccion => {}={}*{}*{}", montoPagarSeccion, precioHora, horasSemanales, semanasClasesDecimal);
+            BigDecimal montoPagarSeccion = precioHora
+                    .multiply(horasSemanalesDecimal)
+                    .multiply(semanasClasesDecimal);
+            logger.info("precio-seccion => {}={}*{}*{}", montoPagarSeccion, precioHora, horasSemanales, semanasClasesDecimal);
 
-        BigDecimal factor = new BigDecimal("0.01");
-        BigDecimal montoPagarDocente = porcentajeFraxtion.multiply(montoPagarSeccion).multiply(factor).getValue(2, RoundingMode.HALF_DOWN);
+            BigDecimal factor = new BigDecimal("0.01");
+            BigDecimal montoPagarDocente = porcentajeFraxtion.multiply(montoPagarSeccion).multiply(factor).getValue(2, RoundingMode.HALF_DOWN);
 
-        logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccionBD.getId(), montoPagarSeccion);
-        docenteSeccionBD.setPagoVerano(montoPagarDocente);
-        docenteSeccionDAO.update(docenteSeccionBD);
+            logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccionBD.getId(), montoPagarSeccion);
+
+            docenteSeccionBD.setPagoVerano(montoPagarDocente);
+            docenteSeccionDAO.update(docenteSeccionBD);
+        }
+
         return "Importe calculado satisfactoriamente";
     }
 
@@ -459,6 +469,8 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         List<Seccion> secciones = docentesSecciones.stream().map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
         Map<Long, Seccion> mapSeccion = TypesUtil.convertListToMap("id", secciones);
         Map<Long, List<Seccion>> mapSeccionByGpoSecc = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        Map<Long, Integer> retiradoXciclo = seccionDAO.countRetiradosBySeccion(cicloAcademico);
+
         for (Seccion seccion : secciones) {
             seccion.setSeccion(new ArrayList());
             if (seccion.getTipoSeccionEnum() == TCUR) {
@@ -481,7 +493,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
 
         for (DocenteSeccion docSeccion : docentesSecciones) {
             Curso curso = docSeccion.getSeccion().getGrupoSeccion().getCurso();
-            this.generarPagoDocente(docSeccion, mapCursoCiclo.get(curso.getId()), pagosDocenteByHora, cicloAcademico, ds);
+            this.generarPagoDocente(docSeccion, mapCursoCiclo.get(curso.getId()), pagosDocenteByHora, cicloAcademico, ds, retiradoXciclo);
         }
 
     }

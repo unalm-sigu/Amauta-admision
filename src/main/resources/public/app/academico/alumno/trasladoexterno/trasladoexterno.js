@@ -17,7 +17,8 @@ new Vue({
         tramiteTrasladoActivo: {},
         total: 0,
         editarResolucion: false,
-        cicloAcademico: null
+        cicloAcademico: null,
+        cambioCiclo:false
     },
     created: function () {
         let $vue = this;
@@ -36,7 +37,7 @@ new Vue({
             if (resolucion == null) {
                 return "";
             }
-            return `${resolucion.numero} – ${resolucion.serie}`;
+            return `Serie: ${resolucion.serie} - Número: ${resolucion.numero}`;
         },
         returnEstado(estado)
         {
@@ -205,7 +206,8 @@ new Vue({
                 total: totalNuevos, 
                 alumno: $vue.alumno, 
                 tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo),
-                cicloAcademico: $vue.cicloAcademico
+                cicloAcademico: $vue.cicloAcademico,
+                cambioCiclo : $vue.cambioCiclo
             };
             let texto = (list.length > 1 ? 'los ' + list.length + ' cursos seleccionados?' : 'el curso seleccionado?');
             let txtAdvertencia = " <b>Sí acepta, ya no podrá convalidar otros cursos hasta una nueva resolución.</b>";
@@ -216,7 +218,8 @@ new Vue({
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
-                    if (result) {
+                    if (result) {                       
+                        
                         MODAL.showWait("Espere un momento por favor");
                         axios.post("/" + rutaModulo + "/saveListCursoConvalidado", trasladoBean)
                             .then(response => {
@@ -254,6 +257,7 @@ new Vue({
                     value.tramiteTraslado.cicloAcademico = vue.cicloAcademico;
                 }
             });
+            vue.cambioCiclo = true;
             vue.$refs.modalCambiarCicloTrasladoExterno.close();
         }
     }

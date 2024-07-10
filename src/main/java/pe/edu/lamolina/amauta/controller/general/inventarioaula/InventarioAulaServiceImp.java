@@ -68,7 +68,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     ArchivoDAO archivoDAO;
 
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -410,7 +410,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         if (!file.exists()) {
             throw new PhobosException("No existe el archivo en el servidor");
         }
-        swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
+        minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
     }
 
     @Override

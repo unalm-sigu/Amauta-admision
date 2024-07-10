@@ -48,6 +48,8 @@ import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.TutoradosCon
 import pe.edu.lamolina.amauta.controller.consejeria.consejeros.view.TutoradosPorCondicionExcelView;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.seguridad.Rol;
 
 @Controller
 @RequestMapping("consejeria/consejeros")
@@ -90,6 +92,11 @@ public class ConsejerosController {
         logger.debug("ciclo academico {}", ds.getCicloAcademico());
         logger.debug("persona id {}", ds.getPersona().getId());
 
+        for (Rol role : ds.getRoles()) {
+            logger.debug("ROL {} {}", role.getCodigo(), role.getNombre());
+        }
+        List<RolEnum> roles = ds.getRoles().stream().map(x->x.getCodigoEnum()).collect(Collectors.toList());
+
         List<Carrera> carreras = service.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
         logger.debug("carrera cantiad {}", carreras.size());
 
@@ -97,6 +104,7 @@ public class ConsejerosController {
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("rutaModuloTutor", aconsejadosTutorController.rutaModulo);
+        model.addAttribute("addEstudiante", roles.contains(RolEnum.RACD));
 
         return "consejeria/consejeros/consejeros";
     }

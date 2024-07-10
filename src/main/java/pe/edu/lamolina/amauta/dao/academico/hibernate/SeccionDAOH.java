@@ -3,7 +3,9 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -41,6 +44,7 @@ import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Repository
@@ -670,7 +674,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("tgh.tipo", tipoGrupoHorasEnum)
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
-                .orderBy("gh.tipoSeccion desc","gh.letra asc","sec.horasSemanales desc");
+                .orderBy("gh.tipoSeccion desc", "gh.letra asc", "sec.horasSemanales desc");
         return all(sql);
     }
 
@@ -1092,16 +1096,37 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return all(sql);
     }
 
-        @Override
+    @Override
     public List<Seccion> findByNombreCiclo(String nombre, String ciclo) {
         Octavia sql = Octavia.query()
                 .selectDistinct("ca.descripcion")
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .filter("ca.modalidadEstudio","1")
-                .filter("ca.codigo",">=", ciclo)
+                .filter("ca.modalidadEstudio", "1")
+                .filter("ca.codigo", ">=", ciclo)
                 .filter("cur.codigo", nombre);
         return all(sql);
     }
-    
+
+    @Override
+    public Map<Long, Integer> countRetiradosBySeccion(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("sec.id", "count(alu)")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu")
+                .join("mr.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+//                .filter("mr.estado", EstadoMatriculaEnum.MAT)
+                .filter("sec.estado", SeccionEstadoEnum.ACT.name())              
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.RCU, EstadoMatriculaEnum.RCI))
+                .groupBy("sec.id");
+
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap<>();
+        for (Object[] objects : resultado) {
+            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+        }
+        return result;
+    }
+
 }

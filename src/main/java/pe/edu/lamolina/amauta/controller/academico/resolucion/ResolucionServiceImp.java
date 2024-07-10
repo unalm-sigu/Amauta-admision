@@ -102,7 +102,7 @@ public class ResolucionServiceImp implements ResolucionService {
     private final ResolucionDAO resolucionDAO;
     private final ReunionConsejoDAO reunionConsejoDAO;
     private final SeccionDAO seccionDAO;
-    private final StorageService swiftService;
+    private final StorageService minioService;
     private final TipoResolucionDAO tipoResolucionDAO;
     private final TipoTramiteDAO tipoTramiteDAO;
     private final TramiteDAO tramiteDAO;
@@ -306,7 +306,7 @@ public class ResolucionServiceImp implements ResolucionService {
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
 
         resolucionUpd.setRutaUrl(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_RESOLUCIONES_DIR + name);
-        swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
+        minioService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
 
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());

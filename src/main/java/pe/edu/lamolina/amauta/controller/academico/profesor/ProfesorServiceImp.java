@@ -91,7 +91,7 @@ public class ProfesorServiceImp implements ProfesorService {
     private final UsuarioDAO usuarioDAO;
     private final UsuarioRolDAO usuarioRolDAO;
 
-    private final StorageService swiftService;
+    private final StorageService minioService;
     private final PersonaService personaService;
 
     @Override
@@ -100,8 +100,8 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos) {
-        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos, String activo) {
+        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament,activo);
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByDocente(docentes, cicloAcademicos);
         Map<Long, List<DocenteSeccion>> mapDocentesSeccion = TypesUtil.convertListToMapList("docente.id", docentesSeccion);
         for (Docente docente : docentes) {
@@ -404,13 +404,17 @@ public class ProfesorServiceImp implements ProfesorService {
 
         } else {
             log.debug("actualizando usuario");
-            if (!usuario.getGoogle().equals(persona.getEmailCompania())) {
+            if (!usuario.getGoogle().equalsIgnoreCase(persona.getEmailCompania())) {
+                String emailCompaniaBaja = usuario.getGoogle();
+                usuario.setGoogle(persona.getEmailCompania());
+                usuarioDAO.updateColumns(usuario, "google");
+
                 Usuario usuarioNew = new Usuario();
                 usuarioNew.setEstadoEnum(UserEstadoEnum.INA);
                 usuarioNew.setFechaRegistro(new Date());
                 usuarioNew.setUserRegistro(ds.getUsuario());
                 usuarioNew.setPersona(persona);
-                usuarioNew.setGoogle(persona.getEmailCompania());
+                usuarioNew.setGoogle(emailCompaniaBaja);
                 usuarioNew.setUserActivo(usuario);
                 usuarioDAO.save(usuarioNew);
             }
@@ -577,7 +581,7 @@ public class ProfesorServiceImp implements ProfesorService {
         log.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOTO_DOCENTE, GlobalConstantine.TMP_DIR, fileName, true);
+            minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOTO_DOCENTE, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 
@@ -709,4 +713,11 @@ public class ProfesorServiceImp implements ProfesorService {
         return docenteCicloBean;
     }
 
+    @Override
+    public List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente) {
+        List<DocenteCicloCargaBean> docenteCicloCargaBean = new ArrayList<>();
+        docenteCicloCargaBean = docenteDAO.AllDocentecicloCargaAcademico(docente);
+        return docenteCicloCargaBean;
     }
+
+}

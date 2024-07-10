@@ -5,16 +5,19 @@
             <table class="table table-condensed">
                 <thead>
                     <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
+                        <th></th>
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th v-if="tipo != 'TITULBAC'">Resolución</th>
                     </tr>
                     <tr v-else-if="tipo == 'BACHI'">
+                        <th></th>
                         <th>Apellidos y Nombres</th>
                         <th>Grado Académico</th>
                         <th>Ciclo</th>
                     </tr>
                     <tr v-else-if="tipo == 'PRACTICAS'">
+                        <th></th>
                         <th>Apellidos y Nombres</th>
                         <th>Tipo</th>
                     </tr>
@@ -114,12 +117,12 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                     </tr>
-                    <tr v-for="item in alumnoTramitePracticas" v-if="tipo == 'PRACTICAS'"
-                        >
+                    <tr v-for="(item, index) in alumnoTramitePracticas" v-if="tipo == 'PRACTICAS'">
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>
-                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
-                            <span class="block" v-text="item.tramite.alumno.codigo"></span>
-                            <span > {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                            <a class="block" v-text="item.tramite.alumno.persona.apellidosNombres"></a>
+<!--                            <span class="block" v-text="item.tramite.alumno.codigo"></span>-->
+                            <span >{{item.tramite.alumno.codigo}} | {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
                         </td>
                         <td>
                             <span v-text="item.curso.nombre"></span>
@@ -150,7 +153,8 @@
                             <span class="block" v-text="item.carrera.nombre"></span>
                         </td>
                     </tr>
-                    <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="(item, index) in alumnoTramiteBachiller" >
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
                             <span class="block">
@@ -171,12 +175,13 @@
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
                             <span class="block" v-text="item.gradoAcademico.nombre"></span>
                         </td>
-                        <td v-if="codigoOficina=='UNA'" class="v-middle text-center">
+                        <td v-if="codigoOficina=='UNA'" class="v-middle text-center" style="width: 100px;">
                             <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
 
-                    <tr v-if="tipo === 'BACHIFAC'" v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="tipo === 'BACHIFAC'" v-for="(item, index)  in alumnoTramiteBachiller" >
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>   
                             <strong>{{item.tramite.alumno.codigo }}</strong> 
                         </td>                        
@@ -189,7 +194,9 @@
                     </tr>
 
 
-                    <tr v-if="tipo === 'TITUL'" v-for="item in alumnoTramiteBachiller" >
+                    <tr v-if="tipo === 'TITUL'" v-for="(item, index) in alumnoTramiteBachiller" >
+
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>   
                             <strong>{{item.tramite.alumno.codigo }}</strong> 
                         </td>                        

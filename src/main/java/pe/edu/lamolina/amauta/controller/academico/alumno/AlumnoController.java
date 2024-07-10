@@ -35,6 +35,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -746,8 +747,9 @@ public class AlumnoController {
     public JsonResponse verificarTramiteTraslado(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.verificarTramiteTraslado(alumno);
-            response.setSuccess(Boolean.TRUE);
+
+            Boolean validar = service.verificarTramiteTraslado(alumno);
+            response.setSuccess(validar);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         }
@@ -833,7 +835,7 @@ public class AlumnoController {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "id", "nota", "creditos", "fechaRegistro",
                 "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso",
-                "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.cicloAplica.*"
+                "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*", "tramiteTraslado.resolucion.*", "tramiteTraslado.resolucion.estadoEnum", "tramiteTraslado.resolucion.cicloAplica.*"
             });
             array.add(node);
         }

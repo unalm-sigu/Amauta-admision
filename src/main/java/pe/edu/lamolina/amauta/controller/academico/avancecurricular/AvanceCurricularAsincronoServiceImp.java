@@ -615,7 +615,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         generarAvanceCurricular(alumnoCursosElectivosNew, alumnoCursosCurriculaNew, mapResumenPlanCurricular, mapTipoCursoCurricula, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado, showLogger);
 
         for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : cursosSimultaneosAlu) {
-            alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
+            if (alumnoCursoSimultaneo.getAlumnoCursoCurricula() != null
+                    && alumnoCursoSimultaneo.getAlumnoCursoCurricula().getId() != null) {
+                alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
+            }
         }
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
@@ -754,11 +757,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                         equivalenciaEncontrada = false;
                         break;
                     }
-//                    if (mapCursosEquivalenteAct.containsKey(cursoCurricula.getCurso().getId())
-//                            && mapCursosEquivalenteAct.get(cursoEq.getCursoEquivalente().getId()) != null) {
-//                        aluCursoCurricula.setEstadoRegistroEnum(INA);
-//                        equivalenciaEncontrada = false;
-//                    }
+                    if (mapCursosEquivalenteAct.containsKey(cursoCurricula.getCurso().getId())
+                            && mapCursosEquivalenteAct.get(cursoEq.getCursoEquivalente().getId()) != null) {
+                        aluCursoCurricula.setEstadoRegistroEnum(INA);
+                        equivalenciaEncontrada = false;
+                    }
                     AlumnoCicloCurso alumnoCicloCurso = mapCursosAprobados.get(cursoEq.getCursoEquivalente().getId());
                     alumnoCicloCurso.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
                 }

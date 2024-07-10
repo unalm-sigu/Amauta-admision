@@ -1,0 +1,69 @@
+<modal-simple ref="modalAsignarTurnoAtencion"
+              v-bind:okaction="asignarTurnoSave">
+    <div slot="header">
+
+        <label>Asignación de Turno de Atención {{ciclo.descripcion}}</label>
+
+    </div>
+    <div slot="body">
+        <form data-parsley-validate="true">
+
+            <div class="form-group">
+                <!--<label>Turno de Atención {{ciclo.descripcion}}</label>-->
+                <label> Turnos: </label>
+                <multiselect
+                    v-model="turnoAtencion"
+                    label='descripcion'
+                    placeholder='Seleccione el turno'
+                    deselect-label=""
+                    select-label=""
+                    track-by="id"
+                    v-bind:internal-search="false"
+                    v-bind:hide-selected="true"
+                    v-bind:showNoOptions="true"
+                    v-bind:show-labels="true"
+                    v-bind:allow-empty="true"
+                    v-bind:clearOnSelect="true"
+                    v-bind:options="turnosAtencion">
+
+                    <template slot="singleLabel" slot-scope="props">
+                        <span class="option__title" v-if='props.option.id'>
+                            <strong>{{ props.option.configuracionTurnosAtencion.nombre }} : </strong>
+                            <strong class="text-primary badge btn-success"><i class="fa fa-calendar"></i> {{props.option.fecha}}</strong>
+                            <span class="badge btn-primary "><i class="fa fa-clock-o"></i> {{props.option.horaInicio}} - {{props.option.horaFinal}}</span>
+                            <span class="badge btn-default "> <i class="fa fa-share"></i> {{props.option.prioridadInicio}} - {{props.option.prioridadFin}} </span>
+                        </span>
+                        <span v-else=''>
+                            Seleccione un Turno
+                        </span>
+                    </template> 
+                    <template slot="option" slot-scope="props">
+                        <span class="option_title" v-if='props.option.id'>
+                            <strong class="text-primary badge btn-success"><i class="fa fa-calendar"></i> {{props.option.fecha}}</strong>
+                            <span class="badge btn-primary "><i class="fa fa-clock-o"></i> {{props.option.horaInicio}} - {{props.option.horaFinal}}</span>
+                            <span class="badge btn-default "> <i class="fa fa-share"></i> {{props.option.prioridadInicio}} - {{props.option.prioridadFin}} </span>
+                        </span>
+                        <span v-else=''>
+                            Seleccione un Turno
+                        </span>
+                    </template>
+
+                    <template slot="noOptions">&nbsp;</template>
+                    <template slot="noResult">&nbsp;</template>
+
+                </multiselect>
+
+            </div>
+            <div class="form-group">
+                <label> Motivo: </label>
+                <textarea class="form-control" v-model="motivoTurnoAtencion" placeholder="Ingrese el motivo de la asignación o cambio de turno de atención.">
+                </textarea>
+            </div>
+
+        </form>
+
+    </div>
+</modal-simple>
+
+
+

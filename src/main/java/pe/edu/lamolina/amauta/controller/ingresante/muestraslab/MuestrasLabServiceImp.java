@@ -34,15 +34,13 @@ import pe.edu.lamolina.amauta.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
-import pe.edu.lamolina.amauta.dao.inscripcion.EventoCicloDAO;
 import pe.edu.lamolina.amauta.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaClinicaDAO;
 import pe.edu.lamolina.amauta.dao.medico.HistoriaEnfermedadDAO;
 import pe.edu.lamolina.amauta.dao.medico.PacienteDAO;
 import pe.edu.lamolina.amauta.dao.sip.TurnoEntrevistaObuaeDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.enums.EventoEnum;
-import pe.edu.lamolina.model.inscripcion.EventoCiclo;
+import pe.edu.lamolina.model.enums.medico.TipoPacienteEnum;
 
 @Slf4j
 @Service
@@ -53,7 +51,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     private final ActividadIngresanteDAO actividadIngresanteDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
-    private final EventoCicloDAO eventoCicloDAO;
     private final HistoriaClinicaDAO historiaClinicaDAO;
     private final HistoriaEnfermedadDAO historiaEnfermedadDAO;
     private final HistoriaLaboratorioDAO historiaLaboratorioDAO;
@@ -114,7 +111,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         for (RecorridoIngresante reco : recorridos) {
             Persona persona = reco.getAlumno().getPersona();
             HistoriaClinica historiaClinica = mapHistoriaClinica.get(persona.getId());
-            historiaClinica = (historiaClinica == null) ? crearHistoriaClinica(persona, ds) : historiaClinica;
+            historiaClinica = (historiaClinica == null) ? crearHistoriaClinica(persona, reco.getAlumno(), ds) : historiaClinica;
 
             HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
             laboratorio = (laboratorio == null) ? new HistoriaLaboratorio() : laboratorio;
@@ -130,12 +127,14 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         }
     }
 
-    private HistoriaClinica crearHistoriaClinica(Persona persona, DataSessionPivot ds) {
+    private HistoriaClinica crearHistoriaClinica(Persona persona, Alumno alumno, DataSessionPivot ds) {
         Paciente pacienteDB = pacienteDAO.findByPersona(persona);
 
         Paciente paciente = new Paciente();
         if (pacienteDB == null) {
             paciente.setPersona(persona);
+            paciente.setTipoPacienteEnum(TipoPacienteEnum.ALU);
+            paciente.setAlumno(alumno);
             paciente.setUserRegistro(ds.getUsuario());
             paciente.setFechaRegistro(new Date());
             pacienteDAO.save(paciente);

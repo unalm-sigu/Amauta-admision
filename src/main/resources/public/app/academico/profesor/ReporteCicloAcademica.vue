@@ -10,7 +10,7 @@
             <div slot="body">
 
                 <div class="form-group m-b-xs">
-                    <label class="bold">Ciclo Académico</label>
+                    <label class="bold">Por Ciclo Académico</label>
 
                     <multiselect v-model='ciclo'
                                  label='descripcion'
@@ -65,14 +65,14 @@
                     </multiselect>
                 </div>-->
 
-<!--                <div class="form-group m-b-xs">
-                    <label class="bold">Docente</label>
+               <div class="form-group m-b-xs">
+                    <label class="bold">Por Docente</label>
 
                     <multiselect 
                         v-model="docente" 
                         v-bind:options="docentes"
                         v-on:search-change="searchDocente"
-                        placeholder=" "
+                        placeholder="Ingrese el Docente"
                         label="nombre"
                         internal
                         v-bind:allow-empty="true"
@@ -95,7 +95,7 @@
 
                     </multiselect>
 
-                </div>-->
+                </div>
 
             </div>
         </modal-simple>

@@ -138,10 +138,10 @@
                                         <table id="dynaTable" class="table table-striped">
                                             <thead class="panel panel-heading">
                                                 <tr>
-                                                    <th class="col-md-7 v-middle">Tutor</th>
-                                                    <th class="col-md-3 text-center v-middle" colspan="2">Estudiantes</th>
-                                                    <th class="col-md-1 v-middle text-center">Informe</th>
-                                                    <th class="col-md-1 v-middle text-center">Estado</th>
+                                                    <th class="col-md-4 v-middle">Tutor</th>
+                                                    <th class="col-md- v-middle text-center">Estado</th>
+                                                    <th class="col-md-4 text-center v-middle" colspan="2">Estudiantes</th>
+                                                    <!--                                                    <th class="col-md-1 v-middle text-center">Informe</th>-->                                                  
                                                     <th class=""></th>
                                                 </tr>
                                             </thead>
@@ -167,13 +167,17 @@
                                                             {{ item.docente.departamentoAcademico.nombre }}
                                                         </small> 
                                                     </td>
-
+                                                    <td class="v-middle text-center">
+                                                        <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
+                                                        <span v-else="" class="label label-default">Inactivo</span>
+                                                    </td>
                                                     <td class="v-middle text-center b-r">
                                                         <label>Matriculados</label>
-                                                        <div class="v-middle text-center">
-                                                            <div v-if="item.aconsejadosMat > 0" class=" circle-recorrido bgr-success text-center" v-text="item.aconsejadosMat"></div>
-                                                            <div v-else="" class=" circle-recorrido bgr-danger text-center" v-text="item.aconsejadosMat"></div>
-                                                        </div> 
+                                                        <div class="v-middle text-center"  >
+                                                            <div v-if="item.aconsejadosMat &gt; 0" class="circle-recorrido bgr-success text-center" v-text="item.aconsejadosMat" style="cursor: pointer;" v-on:click.prevent="nuevoAconsejado(item)"></div>
+                                                            <div v-else="" class="circle-recorrido bgr-danger text-center" v-text="item.aconsejadosMat"></div>
+
+                                                        </div>
                                                     </td>
 
                                                     <td class="v-middle text-center">
@@ -182,18 +186,15 @@
                                                         <div v-else="" class="circle-recorrido bgr-default text-center" v-text="item.aconsejadosNmat"></div>
                                                     </td>
 
-                                                    <td class="v-middle text-center">
-                                                        <a v-if="item.informe.id" v-bind:href="rutaInforme(item)">
-                                                            <i v-bind:class="classInforme(item.informe)" 
-                                                               class="fa fa-file-text fa-3x pointer" aria-hidden="true"></i>
-                                                        </a>
-                                                        <i v-else="" class="fa fa-file-text fa-3x" aria-hidden="true"></i>
-                                                    </td>
+                                                    <!--                                                    <td class="v-middle text-center">
+                                                                                                            <a v-if="item.informe.id" v-bind:href="rutaInforme(item)">
+                                                                                                                <i v-bind:class="classInforme(item.informe)" 
+                                                                                                                   class="fa fa-file-text fa-3x pointer" aria-hidden="true"></i>
+                                                                                                            </a>
+                                                                                                            <i v-else="" class="fa fa-file-text fa-3x" aria-hidden="true"></i>
+                                                                                                        </td>-->
 
-                                                    <td class="v-middle text-center">
-                                                        <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
-                                                        <span v-else="" class="label label-default">Inactivo</span>
-                                                    </td>
+
 
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
@@ -232,6 +233,7 @@
                 var carrerasJson = /*[[${carreras}]]*/ 'json';
                 var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
                 var rutaModuloTutor = /*[[${rutaModuloTutor}]]*/ 'json';
+                var addEstudianteJson = /*[[${addEstudiante}]]*/ 'json';
                 /*]]>*/
             </script>
 

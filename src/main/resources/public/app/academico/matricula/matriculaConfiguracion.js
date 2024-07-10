@@ -208,6 +208,41 @@ new Vue({
         matricular: function (turno) {
             var url = APP.url('academico/matricular/' + turno.id);
             window.open(url, '_blank');
+        },
+        eliminarTurno(turno) {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar el turno?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/configuracionturno/deleteTurno'),
+                            contentType: "application/json",
+                            data: JSON.stringify(turno),
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 4000);
+
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+
+
         }
     }
 

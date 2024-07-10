@@ -139,7 +139,6 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         return alumnoConsejeroDAO.allByCicloPersona(cicloAcademico, persona);
     }
 
-    
     @Override
     public List<AlumnoConsejero> allByDynatableByCarrera(DynatableFilter filter, CicloAcademico ciclo, Persona tutor, Carrera carrera, DataSessionPivot ds) {
 
@@ -235,6 +234,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejeroCarrera(persona, ciclo, carrera);
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejeroCarrera(persona, ciclo, carrera);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejeroCarrera(persona, ciclo, carrera);
+        Long countNoMatriculable = matriculaResumenDAO.countNoMatriculableByConsejeroCarrera(persona, ciclo, carrera);
 
 //        List<AlumnoConsejero> alumnosTutor = null;
 //        if (verificadorService.isDeveloperOERA(ds)) {
@@ -249,6 +249,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
         aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
         aconsejadoEstadoBean.setAlumnosConsejeros(alumnosTutor);
+        aconsejadoEstadoBean.setNoMatriculables(countNoMatriculable);
         return aconsejadoEstadoBean;
     }
 

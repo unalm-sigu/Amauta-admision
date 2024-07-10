@@ -67,9 +67,9 @@ new Vue({
             axios.post("/academico/alumno/verificarTramiteTraslado", item)
                     .then(response => {
                         if (response.data.success) {
-                            location.href = '/academico/alumno/' + item.id + '/trasladoexterno' + $vue.getOrigenURL();
+                            location.href = APP.url('academico/alumno/' + item.id + '/trasladoexterno') + $vue.getOrigenURL();
                         } else {
-                            notify("El alumno " + item.persona.apellidosNombres + " no tiene resolución de traslado externo", "warning");
+                            notify("El alumno " + item.persona.apellidosNombres + " no tiene resolución de traslado.", "warning");
                         }
                     }).catch(e => {
                 notify(Messages.errorComunicacion, "error");

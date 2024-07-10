@@ -17,6 +17,7 @@
                                     <th class="text-center  col-xs-1 v-middle">egresado</th>
                                     <th class="text-center  col-xs-1 v-middle">Solo pregrado</th>
                                     <th class="text-center  col-xs-1 v-middle">Solo posgrado</th>
+                                    <th class="text-center  col-xs-1 v-middle">Solo Especial</th>
                                     <th class="v-middle col-xs-1">Tipo</th>
                                     <th class="v-middle"></th>
                                 </tr>
@@ -53,7 +54,10 @@
                                         <i v-if="item.requierePosgrado=='1'" class="fa fa-2x fa-check text-success"></i>
                                         <i v-else="" class="fa fa-2x fa-times text-danger"></i>
                                     </td>
-
+                                    <td class="v-middle text-center">
+                                        <i v-if="item.requiereEspecial=='1'" class="fa fa-2x fa-check text-success"></i>
+                                        <i v-else="" class="fa fa-2x fa-times text-danger"></i>
+                                    </td>
 
                                     <td class="v-middle">
                                         <p class="bold text-warning" v-if="item.tipo=='CONS'">CONSTANCIA</p>

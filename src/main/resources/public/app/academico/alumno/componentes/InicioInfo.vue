@@ -349,7 +349,7 @@
                                     <span>{{alumno.ciclosVeranosTransient}}</span>
                                 </td>
                             </tr>
-                            <tr v-if="validarPromedioGraduado(alumno.situacionAcademica)">
+                            <tr v-if="alumno.modalidadEstudio.codigo == 'PRE' && validarPromedioGraduado(alumno.situacionAcademica)">
                                 <td>
                                     <strong> Promedio ponderado egresado  </strong>
                                 </td>

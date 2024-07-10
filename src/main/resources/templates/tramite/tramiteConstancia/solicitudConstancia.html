@@ -66,7 +66,7 @@
                                                         <p v-if='item.celular'> Celular: <b>{{item.celular}}</b>  </p>
                                                         <p v-if='item.email'> Email: <b>{{item.email}}</b>  </p>
                                                     </td>
-                                                    
+
                                                     <td class="v-middle">
                                                         <p  class="" > Serie:  <b>{{item.tramite.serie}}</b> </p>
                                                         <p  class="" > Número:<b> {{item.tramite.numero}}</b> </p>
@@ -102,7 +102,7 @@
                                                                 </li>
 
                                                                 <li class="divider"></li>
-                                                                
+
                                                                 <li> 
                                                                     <a v-if="item.estadoTramite.codigo=='CRE'" v-on:click.prevent="verificarPago(item)"  href="#">Verificar Pago</a>
                                                                 </li>
@@ -114,7 +114,7 @@
                                                                 <li> 
                                                                     <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a>
                                                                 </li>
-                                                                
+
                                                                 <li> 
                                                                     <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent="entregarTramite(item)"  href="#">Entregar</a>
                                                                 </li>
@@ -139,6 +139,22 @@
                                                                 </li>
                                                             </ul>
                                                         </div>
+                                                        <!-- <div v-if="item.estadoTramite.codigo === 'ANU'">-->
+                                                        <div v-show="item.estadoTramite.codigo === 'ANU'">
+
+                                                            <!--                                                            <div th:if="${usuario.google == 'jandrade@lamolina.edu.pe'}">-->
+                                                            <div th:each="r : ${rol}" th:if="${r.codigo == 'REACTIVAR_DOCUMENTO'}">
+                                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                    <i class="fa fa-cog"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu pull-right">
+                                                                    <li>
+                                                                        <a v-on:click.prevent="reactivarTramite(item)"  href="#">Reacctivar</a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+
+                                                        </div>                                                        
                                                     </td>
                                                 </tr>
                                             </tbody>

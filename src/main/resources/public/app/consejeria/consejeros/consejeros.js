@@ -32,6 +32,7 @@ new Vue({
         seleccionado: '',
         ciclo: [],
         carreras: [],
+        addEstudiante: '',
         btndissabled: '',
         docentes: [],
         listadoCarreras: [],
@@ -58,6 +59,7 @@ new Vue({
         let $vue = this;
         $vue.ciclo = JSON.parse(cicloJson);
         $vue.carreras = JSON.parse(carrerasJson);
+        $vue.addEstudiante = JSON.parse(addEstudianteJson);
 
         let carrera = $vue.$refs.raptorConsejero.getParameterByName('queries[carrera]');
         carrera = (carrera == null) ? '' : carrera;

@@ -14,7 +14,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import java.util.stream.Collectors;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -155,6 +155,11 @@ public class MatriculableController {
         model.addAttribute("situaciones", JaneHelper.from(service.allSituacionAcademica())
                 .array().toString());
 
+        model.addAttribute("turnosAtencion", JaneHelper.from(service.allTurnosAtencionByCicloAcademico(cicloAcademico))
+                .only("id,fecha,horaInicio,horaFinal,fechaHoraInicio,fechaHoraFin, prioridadInicio, prioridadFin")
+                .join("configuracionTurnosAtencion", "nombre")
+                .array().toString());
+
         ArrayNode estadosMatricula = new ArrayNode(JsonNodeFactory.instance);
         for (EstadoMatriculaEnum value : EstadoMatriculaEnum.values()) {
             if (value == EstadoMatriculaEnum.MAT
@@ -205,7 +210,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "motivoTurnoAtencion",
                             "aporteCarnet", "boletaPendiente", "aporteDuplicadoCarnet",
                             "prioridadAnterior",
                             "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
@@ -497,7 +502,7 @@ public class MatriculableController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            List<Alumno> lista = service.allAlumnoByNombre(nombre, ds);
+            List<Alumno> lista = service.allAlumnoByNombrePRE_VIS(nombre, ds);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Alumno alum : lista) {
@@ -1063,6 +1068,28 @@ public class MatriculableController {
                 .only("id,codigo,nombre")
                 .join("modalidadEstudio", "nombre")
                 .array();
+
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarTurno")
+    public JsonResponse asignarTurno(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.asignarTurno(matriculaResumen, ds);
+
+            response.setMessage("Turno asignado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
 
     }
 }

@@ -11,7 +11,6 @@
 
             <section class="panel m-b-xs">
                 <section  class="panel-body">
-
                     <div v-if="resolucion.tipoResolucion">
 
                         <div v-if="resolucion.tipoResolucion.isTramiteBachiller || resolucion.tipoResolucion.isTramiteBachillerFacultad">
@@ -201,33 +200,76 @@
                     return;
                 }
 
-                $vue.showLoader("Espere un momento por favor");
-//                $vue.errores = [];
+                if ($vue.resolucion.tipoResolucion.codigo === 'TRAS') {
 
-                axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
-                        .then(({data}) => {
+                    bootbox.confirm({
+                        message: "¿Está seguro que desea guardar?, verique si es acepto o rechazado.",
+                        buttons: {
+                            confirm: {label: 'Si', className: "btn-warning"},
+                            cancel: {label: 'Cancelar', className: "btn-link"}
+                        },
+                        callback: function (result) {
 
-                            if (data.success) {
+                            if (result) {
+                                $vue.showLoader("Espere un momento por favor");
 
-                                $vue.resolucion = {... $vue.resolucionNew};
-                                notify(data.message, 'info');
+                                axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                                        .then(({data}) => {
 
-                            } else {
+                                            if (data.success) {
 
-                                if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
-                                    notify(data.message, 'error');
-                                } else {
-//                                    $vue.errores = data.message;
-//                                    $vue.$refs.modalError.open();
-                                    notify(data.message, 'error');
-                                }
+                                                $vue.resolucion = {... $vue.resolucionNew};
+                                                notify(data.message, 'info');
+
+                                            } else {
+
+                                                if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                                    notify(data.message, 'error');
+                                                } else {
+                                                    notify(data.message, 'error');
+                                                }
+
+                                            }
+
+                                            $vue.hideLoader();
+
+                                        }, () => $vue.hideLoader());
 
                             }
+                        }
+                    });
+                } else {
+                    if ($vue.resolucion.oficina.codigo === "UNA" &&
+                            ($vue.resolucion.tipoResolucion.isTramiteBachillerFacultad || $vue.resolucion.tipoResolucion.isTramiteTituloFacultad))
+                    {
+                        notify('Error,Res.Consejo Universitario', 'error');
+                    } else if (($vue.resolucion.tipoResolucion.isTramiteBachiller || $vue.resolucion.tipoResolucion.isTramiteTitulo) && $vue.resolucion.oficina.codigo !== "UNA") {
+                        notify('Error, Res.Facultad', 'error');
+                    } else {
+                        $vue.showLoader("Espere un momento por favor");
+                        axios_.post(APP.url("academico/resolucion/existentes/save"), $vue.resolucion)
+                                .then(({data}) => {
 
-                            $vue.hideLoader();
+                                    if (data.success) {
 
-                        }, () => $vue.hideLoader());
+                                        $vue.resolucion = {... $vue.resolucionNew};
+                                        notify(data.message, 'info');
 
+                                    } else {
+
+                                        if (data.message.substring(0, 32) === 'Ya fue registrado una resolución') {
+                                            notify(data.message, 'error');
+                                        } else {
+//                                    $vue.errores = data.message;
+//                                    $vue.$refs.modalError.open();
+                                            notify(data.message, 'error');
+                                        }
+
+                                    }
+                                    $vue.hideLoader();
+                                }, () => $vue.hideLoader());
+                    }
+                }
             },
             update() {
 

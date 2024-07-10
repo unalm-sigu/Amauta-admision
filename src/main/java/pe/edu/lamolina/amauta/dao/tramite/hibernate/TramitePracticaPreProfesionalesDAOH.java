@@ -21,8 +21,10 @@ public class TramitePracticaPreProfesionalesDAOH extends AbstractEasyDAO<Practic
     public List<PracticasPreProfesional> allByResolucion(Resolucion resolucionDB) {
         Octavia sql = new Octavia()
                 .from(PracticasPreProfesional.class, "ppf")
+                .join("alumno al", "al.persona per", "al.carrera car")
                 .join("resolucion re", "alumno", "curso")
-                .filter("re.id", resolucionDB);
+                .filter("re.id", resolucionDB)
+                .orderBy("per.paterno");
 
         return all(sql);
     }

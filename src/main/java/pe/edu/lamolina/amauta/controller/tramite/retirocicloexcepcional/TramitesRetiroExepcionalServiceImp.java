@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.retirocicloexcepcional;
 
+import groovyjarjarcommonscli.HelpFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -116,7 +117,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
 
-        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroNoAnuladoNiPendiente(alumnoDB, retiroForm.getCicloAcademico());
+        RetiroCiclo retiroCicloDB = retiroCicloDAO.allByAlumnoCicloRegistroNoAnuladoNiPendienteNiRechazados(alumnoDB, retiroForm.getCicloAcademico());
 
         if (retiroCicloDB != null) {
             return "Ya tiene un trámite en el ciclo " + retiroCicloDB.getCicloAcademico().getDescripcion();
@@ -194,7 +195,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         Context ctx = new Context();
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoContable(alumno);
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoRechazado(alumno);
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
         String tutor = "NN";
         String coordinador = "NN";

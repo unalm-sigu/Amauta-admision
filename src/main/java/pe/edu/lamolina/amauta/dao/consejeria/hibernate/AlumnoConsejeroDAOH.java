@@ -208,6 +208,26 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     }
 
     @Override
+    public List<AlumnoConsejero> allActivosByConsejeroCarreraCicloBusca(Consejero consejero, Carrera carrera, CicloAcademico ciclo, String nombre) {
+        //  String xnombre="Alarcón Peña";                  	         
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("consejero co", "cicloAcademico ca", "alumno alu", "alu.carrera car")
+                .left("alu.persona per", "alu.situacionAcademica sa")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("ca.id", ciclo)
+                .filter("car.id", carrera)
+                .filter("co.id", consejero)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .endBlock()
+                .orderBy("per.paterno", "alu.codigo");
+
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoConsejero> allActivosByCarreraCiclo(Carrera carrera, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(AlumnoConsejero.class, "ac")
@@ -340,7 +360,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
     @Override
     public List<AlumnoConsejero> allByCicloPersona(CicloAcademico cicloAcademico, Persona persona) {
-         Octavia subquery = Octavia.query()
+        Octavia subquery = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno almr", "cicloAcademico ciac")
                 .filter("ciac.id", cicloAcademico);
@@ -361,7 +381,6 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         return all(sql);
     }
 
-    
     @Override
     public List<AlumnoConsejero> allByDynatablePersonaTutor(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
 
@@ -413,6 +432,10 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .join("alumno almr", "cicloAcademico ciac")
                 .filter("ciac.id", ciclo)
                 .filter("mr.estado", RCI);
+        Octavia subqueryINH = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr", "cicloAcademico ciac")
+                .filter("ciac.id", ciclo);
 
         for (String key : queries.keySet()) {
             if (key.equals("search")) {
@@ -435,6 +458,11 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
                     case "retirado":
                         sql.exists(subqueryRCI);
+                        sql.linkedBy("al.id", "almr.id");
+                        sql.linkedBy("ca.id", "ciac.id");
+                        break;
+                    case "noMatriculable":
+                        sql.notExists(subqueryINH);
                         sql.linkedBy("al.id", "almr.id");
                         sql.linkedBy("ca.id", "ciac.id");
                         break;

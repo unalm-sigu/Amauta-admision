@@ -13,6 +13,10 @@ public class CantidadMatriculadosDTO {
     private String codigoDocente;
     private String nombreDocente;
     private Long cantidad;
+    private String grupo;
+    private String horario;
+    private String modoDictado;
+    private String aula;
 
     public CantidadMatriculadosDTO() {
     }
@@ -27,7 +31,7 @@ public class CantidadMatriculadosDTO {
             String anexoSuperior, String anexo,
             String departamentoCurso, String codigoCurso, String nombreCurso,
             String codigoDocente, String nombreDocente,
-            String seccion, Long cantidad) {
+            String seccion, Long cantidad, String grupo, String horario, String modoDictado, String aula) {
 
         this.ciclo = ciclo;
         this.codigoCurso = codigoCurso;
@@ -39,6 +43,10 @@ public class CantidadMatriculadosDTO {
         this.departamentoCurso = departamentoCurso;
         this.codigoDocente = codigoDocente;
         this.nombreDocente = nombreDocente;
+        this.grupo = grupo;
+        this.horario = horario;
+        this.modoDictado = modoDictado;
+        this.aula = aula;
     }
 
     public String getCiclo() {
@@ -127,6 +135,38 @@ public class CantidadMatriculadosDTO {
 
     public void setNombreDocente(String nombreDocente) {
         this.nombreDocente = nombreDocente;
+    }
+
+    public String getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(String grupo) {
+        this.grupo = grupo;
+    }
+
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setHorario(String horario) {
+        this.horario = horario;
+    }
+
+    public String getModoDictado() {
+        return modoDictado;
+    }
+
+    public void setModoDictado(String modoDictado) {
+        this.modoDictado = modoDictado;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
     }
 
 }

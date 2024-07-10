@@ -62,53 +62,47 @@ public class ResultadosLabController {
     @RequestMapping("list/turno/{idTurno}")
     public DynatableResponse listIngresantes(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
 
-        DynatableResponse json = new DynatableResponse();
-        try {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico ciclo = service.findCicloActivoAdmision();
-
-            List<RecorridoIngresante> recorridos = null;
-            if (idTurno == 0) {
-                recorridos = service.allConMuestraByDynatableCiclo(filter, ciclo);
-            } else {
-                TurnoEntrevistaObuae turno = service.findTurno(idTurno);
-                recorridos = service.allConMuestraByDynatableTurnoCiclo(filter, turno, ciclo);
-            }
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (RecorridoIngresante reco : recorridos) {
-                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "alumno.*",
-                            "alumno.carrera.nombre",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.simbolo",
-                            "turnoEntrevistaObuae.*",
-                            "laboratorio.id",
-                            "laboratorio.numeroMuestra",
-                            "laboratorio.valorMuestra",
-                            "laboratorio.tipoSangre",
-                            "laboratorio.tipoSangreEnum",
-                            "laboratorio.factorRH",
-                            "laboratorio.factorRHEnum",
-                            "laboratorio.estandar",
-                            "laboratorio.hemoglobina",
-                            "laboratorio.observaciones",
-                            "laboratorio.historiaClinica.id"
-                        });
-                array.add(node);
-            }
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+        List<RecorridoIngresante> recorridos;
+        if (idTurno == 0) {
+            recorridos = service.allConMuestraByDynatableCiclo(filter, ciclo);
+        } else {
+            TurnoEntrevistaObuae turno = service.findTurno(idTurno);
+            recorridos = service.allConMuestraByDynatableTurnoCiclo(filter, turno, ciclo);
         }
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (RecorridoIngresante reco : recorridos) {
+            ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "alumno.*",
+                        "alumno.carrera.nombre",
+                        "alumno.persona.*",
+                        "alumno.persona.tipoDocumento.simbolo",
+                        "turnoEntrevistaObuae.*",
+                        "laboratorio.id",
+                        "laboratorio.numeroMuestra",
+                        "laboratorio.valorMuestra",
+                        "laboratorio.tipoSangre",
+                        "laboratorio.tipoSangreEnum",
+                        "laboratorio.factorRH",
+                        "laboratorio.factorRHEnum",
+                        "laboratorio.estandar",
+                        "laboratorio.hemoglobina",
+                        "laboratorio.observaciones",
+                        "laboratorio.historiaClinica.id"
+                    });
+            array.add(node);
+        }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 
@@ -116,24 +110,19 @@ public class ResultadosLabController {
     @RequestMapping("saveLaboratorio")
     public JsonResponse saveLaboratorio(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        HistoriaLaboratorio laboratorioBD = service.saveSangre(laboratorio, ds);
+
+        ObjectNode json = JaneHelper
+                .from(laboratorioBD)
+                .join("historiaClinica", "id")
+                .json();
+
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            HistoriaLaboratorio laboratorioBD = service.saveSangre(laboratorio, ds);
+        response.setData(json);
+        response.setMessage(GlobalMessages.CREATED);
+        response.setSuccess(true);
 
-            ObjectNode json = JaneHelper
-                    .from(laboratorioBD)
-                    .join("historiaClinica", "id")
-                    .json();
-
-            response.setData(json);
-            response.setMessage(GlobalMessages.CREATED);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 
@@ -141,42 +130,31 @@ public class ResultadosLabController {
     @RequestMapping("saveOtherColumns")
     public JsonResponse saveOtherColumns(@RequestBody HistoriaLaboratorio laboratorioForm, HttpSession session) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        HistoriaLaboratorio laboratorioBD = service.saveOtherColumns(laboratorioForm, ds);
+
+        ObjectNode json = JaneHelper
+                .from(laboratorioBD)
+                .join("historiaClinica", "id")
+                .json();
+
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            HistoriaLaboratorio laboratorioBD = service.saveOtherColumns(laboratorioForm, ds);
+        response.setData(json);
+        response.setMessage(GlobalMessages.UPDATED);
+        response.setSuccess(true);
 
-            ObjectNode json = JaneHelper
-                    .from(laboratorioBD)
-                    .join("historiaClinica", "id")
-                    .json();
-
-            response.setData(json);
-            response.setMessage(GlobalMessages.UPDATED);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 
     @ResponseBody
     @RequestMapping("tipoSangreList")
     public JsonResponse tipoAtencionExternaList(HttpSession session) {
+        ArrayNode json = JsonHelper.enumToJson(TipoSangreEnum.values());
+
         JsonResponse response = new JsonResponse();
-
-        try {
-            ArrayNode json = JsonHelper.enumToJson(TipoSangreEnum.values());
-            response.setData(json);
-            response.setTotal(json.size());
-            response.setSuccess(true);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        response.setData(json);
+        response.setTotal(json.size());
+        response.setSuccess(true);
 
         return response;
     }
@@ -184,17 +162,12 @@ public class ResultadosLabController {
     @ResponseBody
     @RequestMapping("factorRhList")
     public JsonResponse factorRhList(HttpSession session) {
+        ArrayNode json = JsonHelper.enumToJson(FactorRhEnum.values());
+
         JsonResponse response = new JsonResponse();
-
-        try {
-            ArrayNode json = JsonHelper.enumToJson(FactorRhEnum.values());
-            response.setData(json);
-            response.setTotal(json.size());
-            response.setSuccess(true);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
+        response.setData(json);
+        response.setTotal(json.size());
+        response.setSuccess(true);
 
         return response;
     }
@@ -205,37 +178,7 @@ public class ResultadosLabController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> lista = service.ingresantesCiclo(ds.getCicloAcademico());
-//
-//        List<Alumno> alumnos = lista.stream()
-//                .map(RecorridoIngresante::getAlumno)
-//                .collect(Collectors.toList());
-//
-//        List<Persona> personas = alumnos.stream()
-//                .map(Alumno::getPersona)
-//                .collect(Collectors.toList());
-//
-//        List<HistoriaLaboratorio> laboratorios = service.allLabByPersonas(personas);
-//
-//        List<Persona> personasFiltro = new ArrayList();
-//        for (RecorridoIngresante reco : lista) {
-//            List<HistoriaLaboratorio> resultLab = laboratorios.stream()
-//                    .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-//                    .collect(Collectors.toList());
-//            if (resultLab.size() > 0) {
-//                personasFiltro.add(reco.getAlumno().getPersona());
-//            }
-//        }
-//
-//        List<RecorridoIngresante> listaFiltrada = service.allIngresantesByPersona(personasFiltro);
 
-//        for (RecorridoIngresante reco : listaFiltrada) {
-//            List<HistoriaLaboratorio> resultLab = laboratorios.stream()
-//                    .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-//                    .collect(Collectors.toList());
-//            if (resultLab.size() > 0) {
-//                reco.setLaboratorio(resultLab.get(0));
-//            }
-//        }
         model.addAttribute("ingresantes", lista);
         model.addAttribute("ciclo", ciclo);
 

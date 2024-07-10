@@ -67,7 +67,8 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     public List<Colaborador> allActivosByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
-                .join("persona per")
+                .join("persona per", "oficina ofi")
+                .leftJoin("ofi.oficinaPrincipal")
                 .filter("per.id", persona)
                 .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
 

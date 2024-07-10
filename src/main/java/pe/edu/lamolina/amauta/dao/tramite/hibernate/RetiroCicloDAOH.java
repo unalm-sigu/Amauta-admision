@@ -270,6 +270,19 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
 
     @Override
+    public List<RetiroCiclo> allByRetiroCicloAceptadoRechazado(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno al", "cicloAcademico ca")
+                .left("cicloRegistro cr")
+                .in("estado", Arrays.asList(TramiteEstadoEnum.ACEP, TramiteEstadoEnum.RCHR))
+                .filter("esContable", 1)
+                .filter("al.id", alumno);
+
+        return all(sql);
+    }
+
+    @Override
     public RetiroCiclo allByAlumnoCicloRegistroUniqueNoAnulado(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
@@ -283,12 +296,12 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
 
     @Override
-    public RetiroCiclo allByAlumnoCicloRegistroNoAnuladoNiPendiente(Alumno alumno, CicloAcademico ciclo) {
+    public RetiroCiclo allByAlumnoCicloRegistroNoAnuladoNiPendienteNiRechazados(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .left("alumno al", "cicloRegistro cr", "cicloAcademico ca")
                 .filter("al.id", alumno)
-                .notIn("rc.estado", Arrays.asList(TramiteEstadoEnum.ANU.name(), TramiteEstadoEnum.PEND.name()))
+                .notIn("rc.estado", Arrays.asList(TramiteEstadoEnum.ANU.name(), TramiteEstadoEnum.PEND.name(),TramiteEstadoEnum.RCHR.name()))
                 .filter("ca.codigo", ciclo.getCodigo())
                 .limit(1);
 

@@ -89,7 +89,7 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.BACHI,
             TipoResolucionEnum.TITUL,
             TipoResolucionEnum.PRACTICAS,
-            TipoResolucionEnum.ING_HIS,
+//            TipoResolucionEnum.ING_HIS,
             TipoResolucionEnum.BACHIFAC,
             TipoResolucionEnum.TITULBAC,
             TipoResolucionEnum.ALUMRENUNCIA,
@@ -569,7 +569,7 @@ public class ResolucionExistenteController {
                         .join("cicloAcademico", "id,descripcion,nombre")
                         .join("gradoAcademico", "nombre")
                         .join("alumno", "codigo")
-                        .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto")
+                        .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto,apellidosNombres")
                         .join("alumno.persona.tipoDocumento", "id,simbolo")
                         .array();
 
@@ -588,7 +588,7 @@ public class ResolucionExistenteController {
             return JaneHelper.from(tramiteBachiller)
                     .join("tramite.alumno", "codigo")
                     .join("tramite.cicloAcademico", "descripcion")
-                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("resolucion.oficina", "codigo,id")
                     .join("resolucion")
                     .array();
@@ -597,7 +597,7 @@ public class ResolucionExistenteController {
             return JaneHelper.from(tramiteTitulo)
                     .join("tramite.alumno", "codigo")
                     .join("tramite.cicloAcademico", "descripcion")
-                    .join("tramite.persona", "paterno,materno,nombres")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("resolucion.oficina", "codigo,id")
                     .join("resolucion")
                     //                        .join("cicloAcademico", "id,descripcion,nombre")
@@ -636,6 +636,7 @@ public class ResolucionExistenteController {
                     .join("curso")
                     .join("tramite.alumno")
                     .join("tramite.alumno.persona")
+                    .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("tramite.alumno.persona.tipoDocumento")
                     .array();
 

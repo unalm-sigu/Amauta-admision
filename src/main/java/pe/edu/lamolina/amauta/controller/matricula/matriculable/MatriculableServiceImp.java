@@ -842,6 +842,11 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumen(nombre, ds.getCicloAcademico());
     }
+    
+    @Override
+    public List<Alumno> allAlumnoByNombrePRE_VIS(String nombre, DataSessionPivot ds) {
+        return alumnoDAO.allByNameSinMatriculaResumenPRE_VIS(nombre, ds.getCicloAcademico());
+    }
 
     @Override
     @Transactional
@@ -1076,6 +1081,10 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     private TurnoAtencion findTurnoByPrioridad(BigDecimal prioridad, List<TurnoAtencion> turnos) {
+        if (prioridad.compareTo(new BigDecimal(BigInteger.ONE)) == -1) {
+            prioridad = new BigDecimal(BigInteger.ONE);
+        }
+        
         for (TurnoAtencion turno : turnos) {
             if (turno.getPrioridadInicio().compareTo(prioridad) <= 0
                     && turno.getPrioridadFin().compareTo(prioridad) >= 0) {
@@ -1532,13 +1541,17 @@ public class MatriculableServiceImp implements MatriculableService {
             for (;;) {
                 if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
                     System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
-//                    respositorVisor.incrementar();
+                    respositorVisor.incrementar();
                     log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
                 } else {
+                    log.info("CONTADOR");
                     break;
                 }
+
             }
+
             if (visorCalculoNotas.estaCompletoToken(token)) {
+                log.info("TOKEN COMPLETO");
                 break;
             }
         }
@@ -1692,7 +1705,6 @@ public class MatriculableServiceImp implements MatriculableService {
         return listAptoPreBean;
     }
 
-
     @Override
     public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
@@ -1769,5 +1781,21 @@ public class MatriculableServiceImp implements MatriculableService {
         return carreraDAO.searchByNombre(nombre);
     }
 
+    @Override
+    public List<TurnoAtencion> allTurnosAtencionByCicloAcademico(CicloAcademico cicloAcademico) {
+        return turnoAtencionDAO.allByCicloAcademico(cicloAcademico);
+
+    }
+
+    @Override
+    @Transactional
+    public void asignarTurno(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumenBD = matriculaResumenDAO.find(matriculaResumenForm.getId());
+        matriculaResumenBD.setTurnoAtencion(matriculaResumenForm.getTurnoAtencion());
+        matriculaResumenBD.setMotivoTurnoAtencion(matriculaResumenForm.getMotivoTurnoAtencion());
+        matriculaResumenBD.setUserRegistro(ds.getUsuario());
+        matriculaResumenBD.setFechaRegistro(new Date());
+        matriculaResumenDAO.update(matriculaResumenBD);
+    }
 
 }

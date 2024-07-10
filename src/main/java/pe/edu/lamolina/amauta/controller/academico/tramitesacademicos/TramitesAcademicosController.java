@@ -758,23 +758,13 @@ public class TramitesAcademicosController {
             @RequestBody AlumnoCicloCurso alumnoCicloCurso,
             HttpSession session) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
+
         JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            String message = "Se actualizó el historial.";
+        response.setSuccess(true);
+        response.setMessage("Se actualizó el historial");
 
-            service.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
-
-            response.setSuccess(true);
-            response.setMessage(message);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
         return response;
     }
 

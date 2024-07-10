@@ -249,6 +249,7 @@
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
                                                         <a v-if="item.esCondicional " class="text-danger"> Es Condicional </a>
+                                                                                                                
                                                     </div>
                                                 </td>
 
@@ -264,6 +265,9 @@
                                                     <span class="badge">{{item.prioridad}}</span>
                                                     <span class="block" v-if="item.prioridadAnterior != ''">Antes: {{item.prioridadAnterior}}</span>
                                                     <span class="block" v-if="item.turnoAtencion.fecha != ''">Turno: {{item.turnoAtencion.fechaHoraInicio}}</span>
+                                                     <a v-if="item.motivoTurnoAtencion != '' "  href="#" class="text-danger toogle" data-toggle="tooltip" v-bind:title="item.motivoTurnoAtencion">
+                                                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                                     </a>
                                                 </td>
 
                                                 <td class='v-middle '>
@@ -310,7 +314,7 @@
                                                             <li th:if="${puedeMatricular}" v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a class="modificar-datos" href="#">Modificar datos</a></li>
+                                                            <!--<li th:if="${puedeMatricular OR puedeEditarAlumno}"><a class="modificar-datos" href="#">Modificar datos</a></li>-->
                                                             <li th:if="${puedeMatricular OR puedeMatricularPosgrado}"><a v-if='isPosgrado(item.alumno.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item.alumno)">Habilitar Curso</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
@@ -319,7 +323,8 @@
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="!item.aporteDuplicadoCarnet" ><a v-on:click="asignarAporteDuplicado(item)" href="#">Asignar Aporte Duplicado Carnet</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="item.aporteDuplicadoCarnet"  ><a v-on:click="quitarAporteDuplicado(item)" href="#">Quitar Aporte Duplicado Carnet</a></li>
                                                             <li th:if="${puedeMatricular}" ><a v-on:click="asignarSegundaCarrera(item)" href="#">Asignar Aporte Segunda Carrera</a></li>
-                                                            <li th:if="${puedeMatricular}" ><a v-on:click="asignarSegundaCarreraDeuda(item)" href="#">Asignar Aporte Segunda Carrera DEUDA</a></li>
+                                                            <li th:if="${puedeMatricular}" ><a v-on:click="asignarTurno(item)" href="#">Asignar de turno personalizado</a></li>
+                                                            <!--<li th:if="${puedeMatricular}" ><a v-on:click="asignarSegundaCarreraDeuda(item)" href="#">Asignar Aporte Segunda Carrera DEUDA</a></li>-->
 
                                                         </ul>
                                                     </div>
@@ -343,6 +348,7 @@
                 <div th:substituteby="academico/matriculable/boletaAlumnoModal"></div>
 
                 <clonar-matriculable-modal ref="clonarMatriculableModal"></clonar-matriculable-modal>
+                 <div th:substituteby="academico/matriculable/asignarTurnoMatriculable"></div>
 
             </div>
         </div>
@@ -355,6 +361,7 @@
                 var ciclos = /*[[${ciclos}]]*/ 'json';
                 var situacionesJson = /*[[${situaciones}]]*/ 'json';
                 var estadosMatriculaJson = /*[[${estadosMatricula}]]*/ 'json';
+                var turnosAtencionJson = /*[[${turnosAtencion}]]*/ 'json';
                 var rutaModulo = 'academico/matriculable';
                 /*]]>*/
                </script>

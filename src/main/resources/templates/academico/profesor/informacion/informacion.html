@@ -48,26 +48,29 @@
 
                     <div class="tabbable-line">
                         <ul class="nav nav-tabs" >
-
                             <!--tab 1-->
-                            <li  v-bind:class="{ 'active': stepactivo==1 }">
-                                <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=1" >Datos Personales</a>
+                            <li  th:if="${!isRevisorDocente}" v-bind:class="{ 'active': stepactivo==1 }">
+                                <a href="#"     data-toggle="tab" v-on:click.prevent="stepactivo=1" >Datos Personales</a>
                             </li>
 
                             <!--tab 2-->
-                            <li  v-bind:class="{ 'active': stepactivo==2 }">
+                            <li th:if="${!isRevisorDocente}" v-bind:class="{ 'active': stepactivo==2 }">
                                 <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=2" >Datos Académicos</a>
                             </li>
 
                             <!--tab 3-->
-                            <li  v-bind:class="{ 'active': stepactivo==3 }">
+                            <li th:if="${!isRevisorDocente}" v-bind:class="{ 'active': stepactivo==3 }">
                                 <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=3" >Datos Laborales</a>
                             </li>
 
                             <!--tab 4-->
-                            <li  v-bind:class="{ 'active': stepactivo==4 }">
+                            <li  th:if="${!isRevisorDocente}" v-bind:class="{ 'active': stepactivo==4 }">
                                 <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=4" >Carga Académica</a>
                             </li>
+                            <li  th:if="${isRevisorDocente}" v-bind:class="{ 'active': stepactivo==1 }">
+                                <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=1" >Carga Académica</a>
+                            </li>                            
+
                             <li  v-bind:class="{ 'active': stepactivo==5 }">
                                 <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=5"  >Horario</a>
                             </li>
@@ -92,27 +95,36 @@
                                 <input type="hidden"  name="persona.id" v-bind:value="docente.persona.id"/>
 
 
-                                <div v-show="stepactivo==1"  >
+                                <div th:if="${!isRevisorDocente}" v-show="stepactivo==1"  >
                                     <th:block th:replace="academico/profesor/informacion/informacionpersonal"/>
                                 </div>
 
-                                <div v-show="stepactivo==2"  >
+                                <div th:if="${!isRevisorDocente}" v-show="stepactivo==2"  >
                                     <th:block th:replace="academico/profesor/informacion/informacionacademica"/>
                                 </div>
 
                             </form>
 
-                            <div v-show="stepactivo==3"  >
+                            <div th:if="${!isRevisorDocente}" v-show="stepactivo==3"  >
                                 <th:block th:replace="academico/profesor/informacion/informacionlaboral"/>
                             </div>
 
-                            <div v-show="stepactivo==4"  >
+                            <div th:if="${!isRevisorDocente}" v-show="stepactivo==4"  >
+                                <th:block th:replace="academico/profesor/informacion/informacioncarga"/>
+                            </div>
+                            <div th:if="${isRevisorDocente}" v-show="stepactivo==1"  >
                                 <th:block th:replace="academico/profesor/informacion/informacioncarga"/>
                             </div>
 
                             <div v-show="stepactivo==5"  >
+                                <!--                                <a th:href="@{/academico/profesor}" class="btn btn-success btn-sm pull-right">Imprimir</a>                               -->
+                                <a v-on:click="reporteHorarioDocente(docente.codigo)" class=" btn btn-success btn-sm pull-right">Imprimir </a>                                
                                 <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
                             </div>
+
+<!--                            <div v-show="stepactivo==5"  >
+                                <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
+                            </div>-->
 
                             <div v-show="stepactivo==6"  >
                                 <th:block th:replace="academico/profesor/informacion/informacionCtaBanco"/>

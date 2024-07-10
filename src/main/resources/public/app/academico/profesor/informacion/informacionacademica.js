@@ -212,6 +212,24 @@ new Vue({
             }
             return seccion.tipoSeccionEnum.value.split(" ")[0];
         },
+        reporteHorarioDocente(item) {
+            console.log("codigo::" + item);
+            $.fileDownload("/academico/profesor/reporteHorarioDocente", {
+                httpMethod: "POST",
+                data: {
+                    id: item
+                },
+                successCallback: function (responseHtml, url) {
+
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(Messages.errorComunicacion, 'error')
+                }
+            });
+        },
         submitForm: function (e) {
             let $vue = this;
             var self = $(e.currentTarget);
@@ -219,7 +237,7 @@ new Vue({
 
             $("[name='persona.paisDomicilio.id']").removeAttr('required');
             $("[name='persona.direccion']").removeAttr('required');
-            
+
             if (!$("#formDocente").parsley().validate() == true) {
                 self.btnEnable();
                 notify("Falta llenar campos en el formulario, verifique.", "error");

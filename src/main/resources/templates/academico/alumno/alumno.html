@@ -145,7 +145,7 @@
                                                             <li th:if="${puedeEditarAlumno}"><a v-bind:href="urlHistorialOracle(item)">Historial Oracle</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li th:if="${puedeMatricular}"><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item)">Habilitar Curso</a></li>
-                                                            <li th:if="${puedeMatricular}"><a v-on:click="urlConvalidarTraslado(item)" href="">Convalidar Cursos</a></li>
+                                                            <li th:if="${puedeMatricular}"><a v-on:click="urlConvalidarTraslado(item)">Convalidar Cursos</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-on:click="asignarAccesoEspecial(item)">Asignar contraseña DNI</a></li>
                                                             <li th:if="${puedeMatricular}"><a v-bind:href="modalAsignarAvance(item)" target="_blank">Habilitar Cursos (forzado)</a></li>
                                                         </ul>

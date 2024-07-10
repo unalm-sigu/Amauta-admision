@@ -1,0 +1,190 @@
+<template id="inicioTramComponent">
+    <section class="panel-body">
+
+        <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Alumno</label>
+                    <multiselect                                                   
+                        v-model='tramite.alumno'
+                        :searchable="false"
+                        v-bind:limit='15'
+                        v-on:search-change="searchAlumnos"
+                        v-bind:options='alumnos'
+                        placeholder=" "
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="false"
+                        track-by="id"
+                        v-on:input="clearOption"
+                        > <!--v-bind:disabled='isUpdate'-->
+
+                        <template slot="singleLabel" slot-scope="props">
+                            <div class="option__small">
+                                <span class="option__title">
+                                    {{ props.option.codigo }} - {{ props.option.persona.apellidosNombres }} / Convalidados: {{props.option.creditosConvalidados}} 
+                                </span>
+                            </div>
+                        </template>
+
+                        <template slot="option" slot-scope="props">
+                            <div class="option__desc"><span class="option__title bold">{{ props.option.persona.apellidosNombres }}</span></div>
+                            <div class="option__small"><span class="option__title">{{ props.option.codigo }}</span></div>
+                            <div class="option__small"><span class="option__title">Carrera: {{ props.option.carrera.nombre }}</span></div>
+                            <div class="option__small"><span class="option__title">Creditos Convalidados: {{ props.option.creditosConvalidados }}</span></div>
+                        </template>
+                    </multiselect>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>¿Que documento necesita?</label>
+                    <multiselect                                                   
+                        v-model='solicitud.tipoDocumentoAcademico'
+                        v-bind:internal-search='false'
+                        v-bind:limit='15'
+                        v-bind:options='tiposDocumentoAcademico'
+                        placeholder=" "
+                        label="nombre"
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="false"
+                        track-by="id"
+                        v-on:select="idiomaDocumento"
+                        > <!--v-bind:disabled='isUpdate'-->
+                    </multiselect>
+
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xs-12">
+                <div class="form-group">
+                    <label>Idioma</label>
+                    <multiselect                                                   
+                        v-model='solicitud.idioma'
+                        v-bind:internal-search='false'
+                        v-bind:limit='15'
+                        v-bind:options='idiomas'
+                        placeholder=" "
+                        label="nombre"
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="true"
+                        track-by="id"
+                        v-on:select="costoDocumentoEvent"
+                        > <!--v-bind:disabled='isUpdate'-->
+                    </multiselect>
+                </div>
+            </div>
+
+            <div  class="col-xs-12">
+                <p class="text-white">.</p>
+            </div>
+
+            <div  class="col-xs-12">
+
+                <label>Costo documento</label>
+
+                <div class="form-group">
+
+                    <div  class="col-xs-6">
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Importe documento (S./)</th>
+                                    <th>Cantidad de ciclos regulares</th>
+                                    <th>Importe total a pagar (S./)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-right">
+                                        <p v-text="solicitud.costoUnitario"></p>
+                                        <p v-text="costoDocumento"></p>
+                                    </td>
+
+                                    <td class="text-right">
+                                        <p v-text="solicitud.cantidadCiclos"></p>
+                                        <p v-text="cantidadCiclos"></p>
+                                    </td>
+
+                                    <td class="text-right">
+                                        <p v-text="costoTotal"></p>
+                                        <p v-text="solicitud.costoTotal"></p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+            <div >
+                <div class="col-xs-12">
+                    <h4  class="m-b-md m-t-md">Información de Contacto</h4>
+                </div>
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label>Nombre del contacto</label>
+                        <input type="text"
+                               class="form-control"
+                               name="personaContacto"
+                               v-model="solicitud.personaContacto"
+                               required="true"/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="text"
+                               class="form-control"
+                               name="celular"
+                               v-model="solicitud.celular" />
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text"
+                               class="form-control"
+                               name="telefono"
+                               v-model="solicitud.telefono" />
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email"
+                               class="form-control"
+                               name="email"
+                               v-model="solicitud.email" />
+                    </div>
+                </div>
+                <div class="panel-footer col-xs-12 text-center">
+                    <button  type="button"
+                             class="btn btn-success"
+                             v-if="isEdit"
+                             v-on:click.prevent="updateFormDocumento"
+                             > <!--v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 -->
+                        Actualizar
+<!--                        <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar-->
+                    </button>
+                    <!--                    <button  type="button"-->
+                    <!--                             class="btn btn-success"-->
+                    <!--                             v-else-if="isEdit"-->
+                    <!--                             v-on:click.prevent="updateForm"-->
+                    <!--                             >&lt;!&ndash;v-bind:disabled="guardando"&ndash;&gt;-->
+                    <!--                        Actualizar-->
+                    <!--                        &lt;!&ndash;<i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Actualizar&ndash;&gt;-->
+                    <!--                    </button>-->
+
+                </div>
+            </div>
+
+        </form>
+
+    </section>
+</template>

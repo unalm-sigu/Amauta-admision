@@ -907,27 +907,34 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds) {
+    @Transactional
+    public void deleteCicloCurso(AlumnoCicloCurso alumnoCurso, Long idTramite, DataSessionPivot ds) {
         Tramite tramite = tramiteDAO.find(idTramite);
         AutorizacionRegistro autorizacionRegistro = crearAutorizacionRegistro(tramite.getAlumno(), tramite, ds);
 
-        alumnoCicloCurso.setAutorizacionRegistro(autorizacionRegistro);
-        alumnoCicloCurso.setRegistroActivo(0);
-        alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.NELI);
-        alumnoCicloCurso.setFechaModificacion(new Date());
-        alumnoCicloCurso.setUserModificacion(ds.getUsuario());
-        alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "registroActivo", "estado", "fechaModificacion", "userModificacion", "autorizacionRegistro");
+        alumnoCurso.setAutorizacionRegistro(autorizacionRegistro);
+        alumnoCurso.setRegistroActivo(0);
+        alumnoCurso.setEstadoEnum(EstadoMatriculaEnum.NELI);
+        alumnoCurso.setFechaModificacion(new Date());
+        alumnoCurso.setUserModificacion(ds.getUsuario());
+        alumnoCicloCursoDAO.updateColumns(alumnoCurso, "registroActivo", "estado", "fechaModificacion", "userModificacion", "autorizacionRegistro");
 
+        AlumnoCicloCurso alumnoCursoBD = alumnoCicloCursoDAO.find(alumnoCurso);
+        AlumnoCiclo alumnoCiclo = alumnoCursoBD.getAlumnoCiclo();
+
+        List<AlumnoCicloCurso> alumnoCursosAll = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
+        if (alumnoCursosAll.isEmpty()) {
+            if (alumnoCursoBD.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                alumnoCursoBD.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+                alumnoCursoBD.setUserModificacion(ds.getUsuario());
+                alumnoCursoBD.setFechaModificacion(new Date());
+                alumnoCicloDAO.update(alumnoCiclo);
+            }
+        }
     }
 
     @Override
     public TipoTramite findTipoTramite(Long id) {
         return tramiteDAO.find(id).getTipoTramite();
     }
-
-//    @Override
-//    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
-//        return oficinaService.allOficinasMainByPersona(ds.getPersona());
-//        //return resolucionService.allOFicinasByUser(ds);
-//    }
 }

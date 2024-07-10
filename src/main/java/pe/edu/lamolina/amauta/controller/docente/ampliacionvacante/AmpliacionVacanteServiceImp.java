@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.jboss.resteasy.client.jaxrs.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -513,7 +512,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         if (Arrays.asList(SIM, SUL).contains(alumnoCursoCurricula.getEstadoEnum()) || alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() == ELC) {
             List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumno(matriculaResumen.getAlumno().getId());
 
-
             List<AlumnoCursoSimultaneo> acss = alumnoCursoSimultaneoDAO.allByAlumnoCursoCurricula(alumnoCursoCurricula);
             List<String> cursosSimultaneoRequeridos = new ArrayList<>();
             for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : acss) {
@@ -552,9 +550,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         RestriccionRepitencia hasRestriccionRepitente = restriccionRepitenciasMap.get(TipoRepitenciaEnum.REP.name());
         RestriccionRepitencia hasRestriccionRetirado = restriccionRepitenciasMap.get(TipoRepitenciaEnum.RET.name());
 
-        List<AlumnoCicloCurso> cursoAprobado = alumnoCicloCursoDAO.allAprobadoByAlumnoCurso(alumno, curso);
+        List<AlumnoCicloCurso> cursosMatriculados = alumnoCicloCursoDAO.allMatriculadoByAlumnoCurso(alumno, curso);
         boolean ingresante = Arrays.asList(AcademicoConstantine.CODIGO_INGRESANTE).contains(alumno.getSituacionAcademica().getCodigo());
-        boolean repitente = (!cursoAprobado.isEmpty());
+        boolean repitente = (!cursosMatriculados.isEmpty());
         boolean retirado = false;
 
         if (hasRestriccionIngresante != null && !ingresante) {

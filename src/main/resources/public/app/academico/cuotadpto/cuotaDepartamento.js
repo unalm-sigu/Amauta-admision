@@ -70,6 +70,29 @@ new Vue({
             var url = window.location.href;
             console.log(url)
             return "?origen=" + Base64.encode(url);
+        },
+         validarColorTeoria(cuotasTeoria, gruposUtilizadosTeoria) {
+            if (cuotasTeoria === gruposUtilizadosTeoria) {
+                return " bgr-success";
+            } else if ((cuotasTeoria - gruposUtilizadosTeoria) < 0) {
+                return " bgr-danger";
+            } else if (cuotasTeoria > gruposUtilizadosTeoria){
+                return " bgr-warning";
+            } 
+            else {
+                return " bgr-default";
+            }
+        }, validarColorPractica(cuotasPractica, gruposUtilizadosPractica) {
+            if (cuotasPractica === gruposUtilizadosPractica) {
+                return " bgr-success";
+            } else if ((cuotasPractica - gruposUtilizadosPractica) < 0) {
+                return " bgr-danger";
+            } else if (cuotasPractica > gruposUtilizadosPractica){
+                return " bgr-warning";
+            }
+            else {
+                return " bgr-default";
+            }
         }
     }
 

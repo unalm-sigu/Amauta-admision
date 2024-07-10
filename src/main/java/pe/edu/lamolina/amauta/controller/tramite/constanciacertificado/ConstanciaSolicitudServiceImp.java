@@ -157,6 +157,7 @@ import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAMITE_DOCUMENTO_ACADEMICO;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_PLANTILLA_DOCUMENTO_ACADEMICO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
@@ -274,7 +275,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     OficinaDAO oficinaDAO;
 
     @Autowired
-    StorageService swiftService;
+    StorageService minioService;
 
     @Autowired
     ArchivoDAO archivoDAO;
@@ -324,7 +325,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
         tda.setTelefono(tramiteDocumentoAcademico.getTelefono());
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
-        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular");
+        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+        tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
+        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular", "tipoDocumentoAcademico", "idioma");
 
     }
 
@@ -418,7 +421,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         logger.debug("upload to s3    {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+            minioService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 
@@ -1123,12 +1126,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void anularTramite(Long idTramiteDocumentoAcademico) {
 
         TramiteDocumentoAcademico tramiteDocumentoAcademico
-                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));       
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
         if (tramiteDocumentoAcademico == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
-        
-        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
 
@@ -1137,6 +1140,28 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDB.setEstadoEnum(TramiteEstadoEnum.ANU);
         tramiteDAO.update(tramiteDB);
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
+        tramiteDocumentoAcademico.setTramite(tramite);
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void reactivarTramite(Long idTramiteDocumentoAcademico) {
+        TramiteDocumentoAcademico tramiteDocumentoAcademico
+                = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(idTramiteDocumentoAcademico));
+        if (tramiteDocumentoAcademico == null) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+            throw new PhobosException("No se ha encontrado el trámite");
+        }
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Tramite tramiteDB = tramiteDAO.find(tramite.getId());
+        tramiteDB.setEstadoEnum(TramiteEstadoEnum.CRE);
+        tramiteDAO.update(tramiteDB);
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         tramiteDocumentoAcademico.setEstadoTramite(estadoTramite);
         tramiteDocumentoAcademico.setTramite(tramite);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
@@ -1254,7 +1279,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         if (tramiteDocumentoAcademicoDB == null) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
-        if(Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
+        if (Objects.equal(tramiteDocumentoAcademico.getTramite(), null)) {
             throw new PhobosException("No se ha encontrado el trámite");
         }
         Tramite tramite = tramiteDocumentoAcademico.getTramite();

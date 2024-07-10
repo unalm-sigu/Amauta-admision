@@ -499,6 +499,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         EncuestaEstudiantil encuestaDocente = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_DOC);
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaDocente);
+        Assert.isTrue(!periodosEncuesta.isEmpty(), "Debe configurar el periodo de la encuesta");
+        
         List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(encuestaDocente.getEncuesta());
         encuestaDocente.getEncuesta().setTemas(temas);
 

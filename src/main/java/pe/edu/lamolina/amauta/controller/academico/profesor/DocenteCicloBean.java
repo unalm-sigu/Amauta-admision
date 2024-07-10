@@ -13,6 +13,8 @@ public class DocenteCicloBean {
     private String cod_dedica2;
     private String nombre;
     private String nombre_largo ;
+    private String CargaPregrado ;
+    private String CargaPost ;
 
     public DocenteCicloBean() {
     }
@@ -104,6 +106,24 @@ public class DocenteCicloBean {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
+    public String getCargaPregrado() {
+        return CargaPregrado;
+    }
+
+    public void setCargaPregrado(String CargaPregrado) {
+        this.CargaPregrado = CargaPregrado;
+    }
+
+    public String getCargaPost() {
+        return CargaPost;
+    }
+
+    public void setCargaPost(String CargaPost) {
+        this.CargaPost = CargaPost;
+    }
+
+
 
 			
 }

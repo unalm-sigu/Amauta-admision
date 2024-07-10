@@ -15,7 +15,6 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 public interface AulaService {
@@ -23,6 +22,7 @@ public interface AulaService {
     List<Aula> allByDynatable(DynatableFilter filter, DataSessionPivot ds);
 
     List<TipoAula> allTiposAula(DataSessionPivot ds);
+
     List<TipoAula> allTiposAula();
 
     List<Aula> allAulasSuperioresByName(String nombre);
@@ -31,9 +31,9 @@ public interface AulaService {
 
     List<Sede> allSedes();
 
-    void save(Aula aula, Usuario usuario);
+    void save(Aula aula, DataSessionPivot ds);
 
-    void update(Aula aula, Usuario usuario);
+    void update(Aula aula, DataSessionPivot ds);
 
     Aula findAulaById(Long id);
 

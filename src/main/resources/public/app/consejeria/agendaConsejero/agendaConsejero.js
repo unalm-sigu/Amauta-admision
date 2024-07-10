@@ -68,6 +68,22 @@ new Vue({
         }
     },
     methods: {
+        buscar(event) {
+            let textoBusqueda = event.target.value; // Obtener el texto de búsqueda del evento
+            let vm = this;
+            console.log("Texto de búsqueda:", textoBusqueda);
+            axios.get('/consejeria/agendaconsejero/search', {
+                params: {
+                    searchTerm: textoBusqueda
+                }
+            })
+                    .then(function (response) {
+                         vm.alumnosConsejerosTemp = response.data.data;
+                    })
+                    .catch(function (error) {
+                    });
+
+        },        
         customLabel(item) {
             if (item.carrera.id == null) {
                 return;

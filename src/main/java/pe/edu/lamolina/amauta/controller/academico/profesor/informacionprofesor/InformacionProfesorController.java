@@ -23,12 +23,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.academico.profesor.ProfesorService;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
+import pe.edu.lamolina.amauta.controller.reporte.view.HorarioDocentePDF;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -50,6 +53,9 @@ public class InformacionProfesorController {
     VerificadorService verificadorService;
     @Autowired
     ProfesorService profesorService;
+
+    @Autowired
+    HorarioDocentePDF horarioDocentePDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
@@ -85,7 +91,8 @@ public class InformacionProfesorController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
-
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> "JEFE_DPTO_ACA".equals(rol.getCodigo()));
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ObjectNode cicloJson = JaneHelper.from(cicloAcademico).json();
 
@@ -113,6 +120,7 @@ public class InformacionProfesorController {
         model.addAttribute("ciclo", cicloJson.toString());
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("esOperadorGastoEPG", verificadorService.isOperadorGastoPosgrado(ds));
+        model.addAttribute("isRevisorDocente", isRevisorDocente);
 
         return "academico/profesor/informacion/informacion";
     }
@@ -323,6 +331,20 @@ public class InformacionProfesorController {
         }
 
         return response;
+    }
+
+    @RequestMapping("reporteHorarioDocente")
+    public ModelAndView reporteProgramacion(@RequestParam("id") String id, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<HorarioDocenteDTO> horarioDocenteDTO = service.horarioDocente(ds.getCicloAcademico(), id);
+
+        model.addAttribute("horarioDocente", horarioDocenteDTO);
+//          List<HorarioDocenteDTO> horarioDocenteDTO = service.horarioDocentes(ds.getCicloAcademico());
+//
+        model.addAttribute("horarioDocente", horarioDocenteDTO);
+        return new ModelAndView(horarioDocentePDF);
     }
 
 }

@@ -206,7 +206,14 @@ public class ReunionesConsejerosExcelView extends AbstractView {
             String strDate = dateFormat.format(agendaConsejero.getFecha());
             excelUtil.replaceVal(irow, column++, num, estiloNumero);
             excelUtil.replaceVal(irow, column++, agendaConsejero.getAsunto(), estiloNumero);
-            excelUtil.replaceVal(irow, column++, agendaConsejero.getHora() != null ? strDate.concat(" ").concat(agendaConsejero.getHora().getDescripcion()) : strDate.concat(" ").concat(reunionAlumnoConsejero.getHoraInicio()).concat(" - ").concat(dateFormat.format( reunionAlumnoConsejero.getFechaAsistencia())).concat(" ").concat(reunionAlumnoConsejero.getHoraFin()), estiloNumero);
+            excelUtil.replaceVal(irow, column++, agendaConsejero.getHora() != null ? strDate.concat(" ").concat(agendaConsejero.getHora().getDescripcion()) : 
+                    (reunionAlumnoConsejero.getHoraInicio() != null ? 
+                            strDate.concat(" ").
+                                    concat(reunionAlumnoConsejero.getHoraInicio() != null ? 
+                                            reunionAlumnoConsejero.getHoraInicio(): dateFormat.format(reunionAlumnoConsejero.getFechaAsistencia())).
+                                    concat(" - ").concat(dateFormat.format( reunionAlumnoConsejero.getFechaAsistencia())).
+                                    concat(" ").concat(reunionAlumnoConsejero.getHoraFin() != null ? reunionAlumnoConsejero.getHoraFin(): "")
+                                                                     : ""), estiloNumero);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo());
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres());
             excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);

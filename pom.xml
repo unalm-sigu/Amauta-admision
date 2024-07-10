@@ -283,9 +283,15 @@
         </dependency>
                 
         <dependency>
-            <groupId>pe.edu.lamolina</groupId>  
+            <groupId>pe.edu.lamolina</groupId>            
             <artifactId>model</artifactId>
             <version>1.2.17</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
         
     </dependencies>

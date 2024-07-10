@@ -8,14 +8,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.*;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -42,6 +44,7 @@ import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.amauta.dao.general.AulaDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.general.ResponsableAulaAsignacionDAO;
@@ -57,89 +60,62 @@ import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
+@Slf4j
 @Service
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 @Transactional(readOnly = true)
 public class AulaServiceImp implements AulaService {
 
-    @Autowired
-    AulaDAO aulaDAO;
+    private final AulaDAO aulaDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final DiaDAO diaDAO;
+    private final DiaHoraGrupoDAO diaHoraGrupoDAO;
+    private final DocenteSeccionDAO docenteSeccionDAO;
+    private final EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    private final HoraDAO horaDAO;
+    private final HorarioAulaDAO horarioAulaDAO;
+    private final HorarioSeccionDAO horarioSeccionDAO;
+    private final OficinaDAO oficinaDAO;
+    private final ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
+    private final ResponsableAulaDAO responsableAulaDAO;
+    private final ResumenInventarioDAO resumenInventarioDAO;
+    private final SedeDAO sedeDAO;
+    private final TipoAulaDAO tipoAulaDAO;
+    private final TipoCarpetaDAO tipoCarpetaDAO;
+    private final UsuarioRolDAO usuarioRolDAO;
 
-    @Autowired
-    TipoAulaDAO tipoAulaDAO;
+    private final VerificadorService verificadorService;
 
-    @Autowired
-    SedeDAO sedeDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    HorarioAulaDAO horarioAulaDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
-
-    @Autowired
-    DiaDAO diaDAO;
-
-    @Autowired
-    ResumenInventarioDAO resumenInventarioDAO;
-
-    @Autowired
-    DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    TipoCarpetaDAO tipoCarpetaDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    DiaHoraGrupoDAO diaHoraGrupoDAO;
-
-    @Autowired
-    HoraDAO horaDAO;
-
-    @Autowired
-    ResponsableAulaDAO responsableAulaDAO;
-
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-
-    @Autowired
-    ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
-
-    private final String SOPORTE_TECNICO_DERA="SOPORTE_TECNICO_DERA";
-    private final String PERSONAL_AULA="PAULA";
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String SOPORTE_TECNICO_DERA = "SOPORTE_TECNICO_DERA";
+    private final String PERSONAL_AULA = "PAULA";
 
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter, DataSessionPivot ds) {
 
-        Oficina oficina = getOficina(ds);
-
+        List<Oficina> oficinas = getOficinas(ds);
         Boolean filterObu = this.filterByRol(ds);
+        log.info("[allByDynatable] filterObu={} oficinas={} ", filterObu, toString(oficinas));
 
-        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
-        List<Aula> aulas= new ArrayList<>();
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
 
         Long idPersona = ds.getUsuario().getPersona().getId();
         List<ResponsableAulaAsignacion> responsableAulas = responsableAulaAsignacionDAO.allByAulas(idPersona);
-        List<Long> aulaSuperior =responsableAulas.stream().map(a->a.getAula().getId()).collect(Collectors.toList());
+        List<Long> aulaSuperior = responsableAulas.stream().map(a -> a.getAula().getId()).collect(Collectors.toList());
 
-
-        if(roles.contains(SOPORTE_TECNICO_DERA)){
-            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        List<Aula> aulas = new ArrayList();
+        if (roles.contains(SOPORTE_TECNICO_DERA)) {
+            Oficina oficinaDera = oficinaDAO.findByCode(OficinaEnum.OERA.name());
             aulas = aulaDAO.allByDynatable(filter, oficinaDera);
+
         } else if (roles.contains(PERSONAL_AULA)) {
-            Oficina oficinaDera=oficinaDAO.findByCode(OficinaEnum.OERA.name());
+            Oficina oficinaDera = oficinaDAO.findByCode(OficinaEnum.OERA.name());
             aulas = aulaDAO.allByDynatable(filter, oficinaDera, aulaSuperior);
-        } else {
-            aulas = aulaDAO.allByDynatable(filter,filterObu,oficina);
+
+        } else if (!oficinas.isEmpty()) {
+            aulas = aulaDAO.allByDynatable(filter, oficinas);
         }
 
-//        List<Aula> aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
         List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(ds.getCicloAcademico(), aulas, TipoHorarioAulaEnum.DICT);
@@ -170,10 +146,10 @@ public class AulaServiceImp implements AulaService {
     public List<TipoAula> allTiposAula(DataSessionPivot ds) {
         List<TipoAula> tipox = new ArrayList();
         List<TipoAula> tipos = new ArrayList<>();
-        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
-        if(roles.contains(SOPORTE_TECNICO_DERA)){
-            tipos = tipoAulaDAO.allByCodigos(Arrays.asList("AUL","AUD"));
-        }else{
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
+        if (roles.contains(SOPORTE_TECNICO_DERA)) {
+            tipos = tipoAulaDAO.allByCodigos(Arrays.asList("AUL", "AUD"));
+        } else {
             tipos = tipoAulaDAO.all();
         }
 
@@ -223,7 +199,8 @@ public class AulaServiceImp implements AulaService {
 
     @Override
     @Transactional
-    public void save(Aula aula, Usuario usuario) {
+    public void save(Aula aula, DataSessionPivot ds) {
+        boolean esInformativo = verificadorService.esInformaticoOERA(ds);
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaTmp = aulaDAO.findByCode(aula.getCodigo());
         Assert.isNull(aulaTmp, "Este código ya fue asignado a otro ambiente");
@@ -249,9 +226,22 @@ public class AulaServiceImp implements AulaService {
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
         }
 
+        if (aula.getOficinaSupervisora() != null && !esInformativo) {
+            Oficina supervisora = oficinaDAO.find(aula.getOficinaSupervisora());
+            Assert.isNotNull(supervisora, "No se pudo ubicar a la oficina supervisora");
+            Assert.isNotNull(supervisora.getOficinaPrincipal(), "No se pudo ubicar a la oficina principal");
+
+            Oficina oficinaMain = supervisora.getOficinaPrincipal();
+            List<Oficina> oficinas = getOficinas(ds);
+            Oficina existe = oficinas.stream()
+                    .filter(ofi -> ofi.equals(oficinaMain))
+                    .findAny().orElse(null);
+            Assert.isNotNull(existe, "No tiene permiso para registrar un ambiente para esta oficina supervisora");
+        }
+
         revisarNombre(aula);
         aula.setEstadoEnum(EstadoEnum.CRE);
-        aula.setUserRegistro(usuario);
+        aula.setUserRegistro(ds.getUsuario());
         aula.setTipoCarpeta(tipocarpeta);
         aula.setFechaRegistro(new Date());
         aulaDAO.save(aula);
@@ -259,7 +249,8 @@ public class AulaServiceImp implements AulaService {
 
     @Override
     @Transactional
-    public void update(Aula aula, Usuario usuario) {
+    public void update(Aula aula, DataSessionPivot ds) {
+        boolean esInformativo = verificadorService.esInformaticoOERA(ds);
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaBD = aulaDAO.findByCode(aula.getCodigo());
         if (aulaBD != null) {
@@ -292,6 +283,19 @@ public class AulaServiceImp implements AulaService {
         if (aulaSup != null) {
             aulaSup = aulaDAO.find(aulaSup.getId());
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
+        }
+
+        if (aula.getOficinaSupervisora() != null && !esInformativo) {
+            Oficina supervisora = oficinaDAO.find(aula.getOficinaSupervisora());
+            Assert.isNotNull(supervisora, "No se pudo ubicar a la oficina supervisora");
+            Assert.isNotNull(supervisora.getOficinaPrincipal(), "No se pudo ubicar a la oficina principal");
+
+            Oficina oficinaMain = supervisora.getOficinaPrincipal();
+            List<Oficina> oficinas = getOficinas(ds);
+            Oficina existe = oficinas.stream()
+                    .filter(ofi -> ofi.equals(oficinaMain))
+                    .findAny().orElse(null);
+            Assert.isNotNull(existe, "No tiene permiso para registrar un ambiente para esta oficina supervisora");
         }
 
         revisarNombre(aula);
@@ -380,6 +384,7 @@ public class AulaServiceImp implements AulaService {
         return aula;
     }
 
+    @Override
     public Aula findAulaHorarioProgramacion(Aula aula) {
         aula = aulaDAO.find(aula.getId());
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAulaFecha(aula);
@@ -550,7 +555,7 @@ public class AulaServiceImp implements AulaService {
 
         List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, OficinaEnum.OERA, cicloAcademico);
 
-        if(horariosSecciones.size()==0){
+        if (horariosSecciones.size() == 0) {
             throw new PhobosException("No hay secciones programadas");
         }
 
@@ -622,7 +627,6 @@ public class AulaServiceImp implements AulaService {
         return Boolean.FALSE;
     }
 
-
     public Oficina findOficina(OficinaEnum oficinaEnum, Rol role, Usuario usuario) {
         UsuarioRol rol = usuarioRolDAO.findByOficinaRolUser(oficinaEnum, role, usuario);
         if (rol == null) {
@@ -631,31 +635,27 @@ public class AulaServiceImp implements AulaService {
         return rol.getOficina();
     }
 
-    private Oficina getOficina(DataSessionPivot ds) {
-        logger.debug("usuario {}", ds.getUsuario().getId());
-        Oficina oficina = null;
-        for (Rol role : ds.getRoles()) {
-            System.out.println("codigo=" + role.getCodigo());
-            if (role.getCodigoEnum() == null) {
-                continue;
-            }
-
-            switch (role.getCodigoEnum()) {
-                case RESDEP:
-                    oficina = this.findOficina(DEPFIS, role, ds.getUsuario());
-                    break;
-                case RESCULT:
-                    oficina = this.findOficina(DEPACT, role, ds.getUsuario());
-                    break;
-            }
-        }
-        return oficina;
+    private List<Oficina> getOficinas(DataSessionPivot ds) {
+        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(ds.getPersona());
+        return colaboradores.stream()
+                .map(col -> col.getOficina().getOficinaPrincipal())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void agregarZoom(Aula aula, DataSessionPivot ds) {
         aulaDAO.updateColumns(aula, "usuarioZoom", "passZoom");
+    }
+
+    private String toString(List<Oficina> oficinas) {
+        if (oficinas == null) {
+            return null;
+        }
+        return JaneHelper.from(oficinas)
+                .only("id,codigo")
+                .array().toString();
     }
 
 }

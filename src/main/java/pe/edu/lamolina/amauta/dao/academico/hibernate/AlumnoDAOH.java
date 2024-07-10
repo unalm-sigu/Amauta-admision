@@ -261,7 +261,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("planCurricular pc","situacionAcademica sa")
+                .join("planCurricular pc", "situacionAcademica sa")
                 .filter("planCurricular", planCurricular);
 
         return all(sql);
@@ -565,6 +565,26 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .limit(30);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByNameSinMatriculaResumenPRE_VIS(String nombre, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.VIS.name()))
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -1201,6 +1221,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
                 .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
+                .notLike("alu.codigo", "Q")
+                .notLike("alu.codigo", "P")
                 .__().notExists(subQuery)
                 .__().linkedBy("alu.id", "alum.id")
                 .__().notExists(sqlSub)
@@ -1403,16 +1425,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> allAlumnoByYear(Integer year) {
-    
+
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "persona per", "cicloIngreso ci")
                 .filter("ci.year", year);
 
         return all(sql);
-    
+
     }
-    
-    
 
 }

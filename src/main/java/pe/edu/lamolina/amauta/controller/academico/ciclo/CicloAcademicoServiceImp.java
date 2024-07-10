@@ -303,8 +303,10 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Transactional
     public List<Alumno> ejecutarTramiteAcademicos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
-        CicloAcademico academico = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
-        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(academico);
+//        CicloAcademico academico = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
+//        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(academico);
+        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCicloAplica(cicloAcademico);
+        
         List<Alumno> alumnos = new ArrayList<>();
         for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
             Alumno alumno = tramiteTraslado.getTramite().getAlumno();

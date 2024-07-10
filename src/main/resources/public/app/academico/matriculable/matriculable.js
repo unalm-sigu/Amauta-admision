@@ -1,5 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 const ClonarMatriculableModal = httpVueLoader('/app/academico/matriculable/ClonarMatriculableModal.vue');
+
 new Vue({
     el: '#matriculableVUE',
     components: {ClonarMatriculableModal,
@@ -13,6 +14,9 @@ new Vue({
         tiposCondicionales: JSON.parse(tipoCondicionalJson),
         situaciones: JSON.parse(situacionesJson),
         estadosMatricula: JSON.parse(estadosMatriculaJson),
+        turnosAtencion: [],
+        turnoAtencion: {id: '', configuracionTurnosAtencion: {nombre: ''}},
+        matriculaResumen: '',
         situacionFilter: null,
         configTurno: [],
         alumno: {},
@@ -83,9 +87,11 @@ new Vue({
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
         carreras: [],
         carreraFilter: null,
-        estadoFilter: null
+        estadoFilter: null,
+        matriculableId: null
     },
     mounted: function () {
+
 
     },
     computed: {
@@ -316,7 +322,7 @@ new Vue({
                         setTimeout(function () {
                             location.reload();
                         }, 1000);
-                        
+
                     }
                 },
                 error: function () {
@@ -934,7 +940,54 @@ new Vue({
                     .then(res => {
                         $vue.carreras = res.data;
                     }, err => null);
+        },
+        asignarTurno(item) {
+            let $vue = this;
+            $vue.matriculableId = item.id;
+            $vue.$refs.modalAsignarTurnoAtencion.open();
+            $vue.motivoTurnoAtencion = null;
+            $vue.turnosAtencion = [];
+            $vue.turnoAtencion.id = '';
+            $vue.turnosAtencion = JSON.parse(turnosAtencionJson);
+        },
+        asignarTurnoSave() {
+            let $vue = this;
+
+            $vue.$refs.modalAsignarTurnoAtencion.open();
+
+            $vue.matriculaResumen = {id: '', motivoTurnoAtencion: '', turnoAtencion: {id: ''}};
+            $vue.matriculaResumen.id = $vue.matriculableId;
+            $vue.matriculaResumen.turnoAtencion.id = $vue.turnoAtencion.id;
+            $vue.matriculaResumen.motivoTurnoAtencion = $vue.motivoTurnoAtencion;
+
+
+            $vue.$refs.modalBoletaAlumno.showWait("Asignando turno..");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/asignarTurno`),
+                contentType: "application/json",
+                data: JSON.stringify($vue.matriculaResumen),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                        $vue.$refs.modalAsignarTurnoAtencion.close();
+
+                        $vue.matriculableId = null;
+                        $vue.matriculaResumen = null;
+
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                }
+            });
+
         }
     }
 });
-

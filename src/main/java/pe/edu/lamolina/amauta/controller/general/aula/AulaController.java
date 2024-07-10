@@ -68,8 +68,8 @@ public class AulaController {
     HorarioAulaCicloPDF horarioAulaCicloPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final String SOPORTE_TECNICO_DERA="SOPORTE_TECNICO_DERA";
-    private final String PERSONAL_AULA="PAULA";
+    private final String SOPORTE_TECNICO_DERA = "SOPORTE_TECNICO_DERA";
+    private final String PERSONAL_AULA = "PAULA";
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -102,11 +102,11 @@ public class AulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<String> roles=ds.getRoles().stream().map(b->b.getCodigo()).collect(Collectors.toList());
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
         boolean isSoporteDera = roles.contains(SOPORTE_TECNICO_DERA);
         boolean isPersonalDera = roles.contains(PERSONAL_AULA);
-        model.addAttribute("validarSoporteDera",isSoporteDera);
-        model.addAttribute("validarPersonalDera",isPersonalDera);
+        model.addAttribute("validarSoporteDera", isSoporteDera);
+        model.addAttribute("validarPersonalDera", isPersonalDera);
 
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
@@ -280,13 +280,11 @@ public class AulaController {
         try {
             String mensaje = aula.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
             if (aula.getId() == null) {
-//                logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
-                logger.debug(" tipo AMBIENTE  {}", aula.getTipoAmbiente());
-
-                service.save(aula, ds.getUsuario());
+                service.save(aula, ds);
             } else {
-                service.update(aula, ds.getUsuario());
+                service.update(aula, ds);
             }
+
             Notificaciones.crearMsg(mensaje, redirectAttr);
 
         } catch (PhobosException ex) {
