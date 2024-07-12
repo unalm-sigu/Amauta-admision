@@ -49,6 +49,8 @@ public interface ResolucionService {
 
     List<CursoDirigido> allCursoDirigido(DynatableFilter filter, Resolucion resolucion);
 
-    public List<Oficina> allOficinasMainByPersona(Persona persona);
+    List<Oficina> allOficinasMainByPersona(Persona persona);
+
+    void anularResolucionIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds);
 
 }

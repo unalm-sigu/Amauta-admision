@@ -524,4 +524,28 @@ public class ResolucionController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("anularResolucionIntercambioEstudiantil")
+    public JsonResponse anularResolucionIntercambioEstudiantil(
+            @RequestBody Resolucion resolucion,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            service.anularResolucionIntercambioEstudiantil(resolucion, ds);
+            
+            response.setMessage("Resolución anulada correctamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
