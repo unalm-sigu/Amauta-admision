@@ -116,7 +116,11 @@ var app = new Vue({
         },
         anularAlumnoEnResolucion: function (resolucion, e) {
             e.preventDefault();
-            location.href = APP.url("academico/resolucion/existentes/" + resolucion.id + "/anularTramite");
+            if (resolucion.isTipoIntercambioEstudiantil) {
+                this.anularResolucionIntercambioEstudiantil(resolucion);
+            } else {
+                location.href = APP.url("academico/resolucion/existentes/" + resolucion.id + "/anularTramite");
+            }
         },
         loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();
@@ -356,5 +360,30 @@ var app = new Vue({
         urlAcademico(item) {
             return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
+        anularResolucionIntercambioEstudiantil(resolucion) {
+
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea anular la resolución?",
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        AXIOS.post(`academico/resolucion/anularResolucionIntercambioEstudiantil` + resolucion)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        notify(response.message, "info");
+                                        $vue.$refs.tblResoluciones.loadRemoteData();
+                                    } else {
+                                        notify(response.message, "error");
+                                    }
+                                });
+                    }
+                }
+            });
+        }
     }
 })
