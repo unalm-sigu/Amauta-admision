@@ -96,12 +96,14 @@
                                                             <a class="aceptar-expandir-sistema"
                                                                v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
                                                                v-if="item.isTipoTramiteTitulo || 
-                                                                     item.isTipoTramiteBachiller || 
-                                                                     item.isTipoTramiteBachillerFacultad || 
-                                                                     item.isTipoCursoDirigido || 
-                                                                     item.isTipoTrasladoInterno ||
-                                                                     item.isTipoIntercambioEstudiantil"
-                                                            >Anular Alumno(s)</a>
+                                                               item.isTipoTramiteBachiller || 
+                                                               item.isTipoTramiteBachillerFacultad || 
+                                                               item.isTipoCursoDirigido || 
+                                                               item.isTipoTrasladoInterno"
+                                                               >Anular Alumno(s)</a>
+                                                            <a class="aceptar-expandir-sistema" 
+                                                               v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
+                                                               v-if="item.isTipoIntercambioEstudiantil">Anular</a>
                                                         </li>
                                                     </ul>
                                                 </td>

@@ -930,6 +930,7 @@ public class AlumnoServiceImp implements AlumnoService {
         cursoConvalidadoUPD.setUserModifica(ds.getUsuario());
         cursoConvalidadoUPD.setFechaModificacion(new Date());
         cursoConvalidadoUPD.setTramiteTraslado(tramiteTraslado);
+        cursoConvalidadoUPD.setCreditos(cursoConvalidado.getCreditos());
         cursoConvalidadoDAO.update(cursoConvalidadoUPD);
 
     }

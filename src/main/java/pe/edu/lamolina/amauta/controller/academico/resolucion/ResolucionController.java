@@ -534,7 +534,7 @@ public class ResolucionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.anularResolucionIntercambioEstudiantil(resolucion, ds);
-            
+
             response.setMessage("Resolución anulada correctamente.");
             response.setSuccess(true);
 
