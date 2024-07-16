@@ -21,6 +21,8 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.historico.AlumnoHistoricoService;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -78,8 +80,14 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.CursoConvalidadoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 @Slf4j
 @Service
@@ -107,6 +115,9 @@ public class ResolucionServiceImp implements ResolucionService {
     private final TipoTramiteDAO tipoTramiteDAO;
     private final TramiteDAO tramiteDAO;
     private final TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
+    private final TramiteTrasladoDAO tramiteTrasladoDAO;
+    private final CursoConvalidadoDAO cursoConvalidadoDAO;
+    private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     private final GpoSeccionService gpoSeccionService;
     private final MatriculableService matriculableService;
@@ -114,6 +125,8 @@ public class ResolucionServiceImp implements ResolucionService {
     private final TramitesAcademicosService tramitesAcademicosService;
     private final VerificadorService verificadorService;
     private final VisorCalculoNotas visorCalculoNotas;
+    private final AlumnoHistoricoService alumnoHistoricoService;
+    private final InfoAcademicoService infoAcademicoService;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -602,5 +615,68 @@ public class ResolucionServiceImp implements ResolucionService {
     public List<Oficina> allOficinasMainByPersona(Persona persona) {
         return oficinaService.allOficinasMainByPersona(persona);
     }
-    
+
+    @Override
+    @Transactional
+    public void anularResolucionIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds) {
+        Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
+        resolucionBD.setEstadoEnum(ResolucionEstadoEnum.ANU);
+        resolucionDAO.update(resolucionBD);
+
+        List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.allByResolucion(resolucionBD);
+
+        List<TramiteTraslado> tramitesAceptados = tramitesTraslado.stream()
+                .filter(x -> x.getEstadoEnum() == TramiteEstadoEnum.ACEP)
+                .collect(Collectors.toList());
+
+        for (TramiteTraslado tramitesAceptado : tramitesAceptados) {
+            tramitesAceptado.setEstadoEnum(TramiteEstadoEnum.ANU);
+            tramiteTrasladoDAO.update(tramitesAceptado);
+        }
+
+        List<Long> tramitesIds = new ArrayList();
+
+        for (TramiteTraslado tramitesAceptado : tramitesAceptados) {
+            tramitesIds.add(tramitesAceptado.getTramite().getId());
+        }
+
+        List<Tramite> tramites = tramiteDAO.all(tramitesIds);
+
+        for (Tramite tramite : tramites) {
+            tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+            tramiteDAO.update(tramite);
+        }
+
+        List<CursoConvalidado> cursoConvalidados = cursoConvalidadoDAO.allInTramiteTraslado(tramitesAceptados);
+
+        List<Long> idAlumnoCicloCursos = new ArrayList();
+
+        for (CursoConvalidado cursoConvalidado : cursoConvalidados) {
+            idAlumnoCicloCursos.add(cursoConvalidado.getAlumnoCicloCurso().getId());
+            cursoConvalidadoDAO.delete(cursoConvalidado);
+        }
+
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.all(idAlumnoCicloCursos);
+        AlumnoCiclo alumnoCiclo = alumnoCicloCursos.get(0).getAlumnoCiclo();
+
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            alumnoCicloCurso.setRegistroActivo(0);
+            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCursoDAO.update(alumnoCicloCurso);
+        }
+
+        List<AlumnoCicloCurso> alumnoCicloCursosFinal = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
+
+        if (alumnoCicloCursosFinal.isEmpty()) {
+            alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            alumnoCicloDAO.updateColumns(alumnoCiclo, "estado");
+        }
+
+        alumnoHistoricoService.calcularPromedio(alumnoCiclo.getAlumno(), ds);
+        infoAcademicoService.generarAvance(alumnoCiclo.getAlumno(), ds);
+
+    }
+
 }
