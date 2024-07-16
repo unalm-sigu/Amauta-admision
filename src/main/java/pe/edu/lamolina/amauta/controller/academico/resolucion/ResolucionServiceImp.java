@@ -21,6 +21,8 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.historico.AlumnoHistoricoService;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -123,6 +125,8 @@ public class ResolucionServiceImp implements ResolucionService {
     private final TramitesAcademicosService tramitesAcademicosService;
     private final VerificadorService verificadorService;
     private final VisorCalculoNotas visorCalculoNotas;
+    private final AlumnoHistoricoService alumnoHistoricoService;
+    private final InfoAcademicoService infoAcademicoService;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -617,7 +621,7 @@ public class ResolucionServiceImp implements ResolucionService {
     public void anularResolucionIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds) {
         Resolucion resolucionBD = resolucionDAO.findById(resolucion.getId());
         resolucionBD.setEstadoEnum(ResolucionEstadoEnum.ANU);
-        resolucionDAO.update(resolucion);
+        resolucionDAO.update(resolucionBD);
 
         List<TramiteTraslado> tramitesTraslado = tramiteTrasladoDAO.allByResolucion(resolucionBD);
 
@@ -656,21 +660,22 @@ public class ResolucionServiceImp implements ResolucionService {
         AlumnoCiclo alumnoCiclo = alumnoCicloCursos.get(0).getAlumnoCiclo();
 
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-            alumnoCicloCursoDAO.delete(alumnoCicloCurso);
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            alumnoCicloCurso.setRegistroActivo(0);
+            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCursoDAO.update(alumnoCicloCurso);
         }
 
         List<AlumnoCicloCurso> alumnoCicloCursosFinal = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
 
         if (alumnoCicloCursosFinal.isEmpty()) {
-            alumnoCicloDAO.delete(alumnoCiclo);
+            alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            alumnoCicloDAO.updateColumns(alumnoCiclo, "estado");
         }
-        
-        String token = RandomStringUtils.randomAlphanumeric(43);
-        String tokenProm = token + TOKEN_PROMEDIOS;
-        String tokenCurri = token + TOKEN_CURRICULA;
 
-        matriculableService.calcularPromedios(tokenProm, ds);
-        matriculableService.revisarCurriculaAlumnos(ds, tokenCurri);
+        alumnoHistoricoService.calcularPromedio(alumnoCiclo.getAlumno(), ds);
+        infoAcademicoService.generarAvance(alumnoCiclo.getAlumno(), ds);
 
     }
 

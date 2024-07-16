@@ -372,13 +372,15 @@ var app = new Vue({
                 },
                 callback: (result) => {
                     if (result) {
-                        AXIOS.post(`academico/resolucion/anularResolucionIntercambioEstudiantil` + resolucion)
+                        MODAL.showWait("Espere un momento por favor");
+                        axios_.post(APP.url('academico/resolucion/anularResolucionIntercambioEstudiantil/'), resolucion)
                                 .then(response => {
                                     if (response.data.success) {
-                                        notify(response.message, "info");
+                                        notify(response.data.message, "info");
                                         $vue.$refs.tblResoluciones.loadRemoteData();
+                                        MODAL.hideWait();
                                     } else {
-                                        notify(response.message, "error");
+                                        notify(response.data.message, "error");
                                     }
                                 });
                     }
