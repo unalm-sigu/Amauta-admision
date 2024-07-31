@@ -115,7 +115,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         } else {
             log.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
             AlumnoVisitante alumnoVisitanteDB = alumnoVisitanteDAO.findByPersona(personaDB);
-            Assert.isNull(alumnoVisitante, "El documento ya pertenece a otro alumno visitante");
+            Assert.isNull(alumnoVisitanteDB, "El documento ya pertenece a otro alumno visitante");
 
             PersonaHistorial personaHistorial = new PersonaHistorial();
             personaHistorial.setUsuario(ds.getUsuario());
