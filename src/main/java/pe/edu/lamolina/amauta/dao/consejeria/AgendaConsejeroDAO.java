@@ -12,4 +12,6 @@ public interface AgendaConsejeroDAO extends EasyDAO<AgendaConsejero> {
 
     public List<AgendaConsejero> allDynatableByCicloAcademico(DynatableFilter filter);
 
+    public List<AgendaConsejero> allDynatableByCicloAcademicoCarrera(DynatableFilter filter, Long idCarreraSupervisor);
+
 }

@@ -38,4 +38,6 @@ public interface AdministracionConsejeriaService {
 
     void actualizarEstudiantes(DataSessionPivot ds);
 
+    List<AgendaConsejero> agendaDynatableCarrera(DynatableFilter filter, Long idCarreraSupervisor);
+
 }

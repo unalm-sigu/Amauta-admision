@@ -297,6 +297,26 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
 
     }
 
+    @Override
+    public List<AgendaConsejero> agendaDynatableCarrera(DynatableFilter filter, Long idCarreraSupervisor) {
+
+        List<AgendaConsejero> agendaConsejeros = agendaConsejeroDAO.allDynatableByCicloAcademicoCarrera(filter, idCarreraSupervisor);
+
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejeros(agendaConsejeros);
+
+        Map<Long, List<ReunionAlumnoConsejero>> reunionAlumnoConsejerosMap = reunionAlumnoConsejeros.stream()
+                .collect(Collectors.groupingBy(x -> x.getAgendaConsejero().getId()));
+
+        for (AgendaConsejero agendaConsejero : agendaConsejeros) {
+            agendaConsejero.setReunionAlumnoConsejeros(reunionAlumnoConsejerosMap.getOrDefault(agendaConsejero.getId(), new ArrayList()));
+        }
+
+        this.verificarVencimiento(agendaConsejeros);
+
+        return agendaConsejeros;
+
+    }
+
     public void verificarVencimiento(List<AgendaConsejero> agendaConsejeros) {
 
         SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd HH:mm");

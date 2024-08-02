@@ -8,11 +8,19 @@ new Vue({
         alumnos: [],
         consejeros: [],
         origen: APP.url('consejeria/administracion'),
-        filtro: {}
+        filtro: {},
+        nombreCarreraSupervisor: nombreCarreraSupervisor // Asigna la variable aqu
     },
     mounted: function () {
         let $vue = this;
         $vue.setOrigin();
+        nombreCarreraSupervisor = this.nombreCarreraSupervisor;
+        axios_.get(APP.url("consejeria/administracion/allCarrera"), {params: {nombre: this.nombreCarreraSupervisor}})
+                .then(({data}) => {
+                    if (data.length > 0) {
+                        $vue.filtro.carrera = data[0]; // Asume que el primer resultado es el correcto
+                }
+                });
     },
     methods: {
         styleColor(item) {
