@@ -274,9 +274,9 @@ public class MatriculableServiceImp implements MatriculableService {
 //        generarPosgrado(ciclo);
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloFull(ciclo);
         List<MatriculaResumen> matriculablesNoAptosXAdmision = matriculaResumens.stream()
-                                                                .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R)
-                                                                .collect(Collectors.toList());
-        
+                                                            .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R && x.getAlumno().getCodigo().startsWith("T"))
+                                                            .collect(Collectors.toList());
+
         for (MatriculaResumen matriculaResumen : matriculablesNoAptosXAdmision) {
             matriculaResumenDAO.delete(matriculaResumen);
         }
