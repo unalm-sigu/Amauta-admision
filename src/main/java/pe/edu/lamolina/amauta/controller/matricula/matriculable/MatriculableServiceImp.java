@@ -272,6 +272,14 @@ public class MatriculableServiceImp implements MatriculableService {
 
         generarPregrado(ciclo, ds);
 //        generarPosgrado(ciclo);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloFull(ciclo);
+        List<MatriculaResumen> matriculablesNoAptosXAdmision = matriculaResumens.stream()
+                                                                .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R)
+                                                                .collect(Collectors.toList());
+        
+        for (MatriculaResumen matriculaResumen : matriculablesNoAptosXAdmision) {
+            matriculaResumenDAO.delete(matriculaResumen);
+        }
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
         cicloAcademicoUpd.setId(ciclo.getId());
@@ -842,7 +850,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumen(nombre, ds.getCicloAcademico());
     }
-    
+
     @Override
     public List<Alumno> allAlumnoByNombrePRE_VIS(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumenPRE_VIS(nombre, ds.getCicloAcademico());
@@ -1084,7 +1092,7 @@ public class MatriculableServiceImp implements MatriculableService {
         if (prioridad.compareTo(new BigDecimal(BigInteger.ONE)) == -1) {
             prioridad = new BigDecimal(BigInteger.ONE);
         }
-        
+
         for (TurnoAtencion turno : turnos) {
             if (turno.getPrioridadInicio().compareTo(prioridad) <= 0
                     && turno.getPrioridadFin().compareTo(prioridad) >= 0) {
