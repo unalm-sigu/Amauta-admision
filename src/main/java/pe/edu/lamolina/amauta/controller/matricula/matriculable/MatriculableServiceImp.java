@@ -272,14 +272,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
         generarPregrado(ciclo, ds);
 //        generarPosgrado(ciclo);
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloFull(ciclo);
-        List<MatriculaResumen> matriculablesNoAptosXAdmision = matriculaResumens.stream()
-                                                            .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R && x.getAlumno().getCodigo().startsWith("T"))
-                                                            .collect(Collectors.toList());
-
-        for (MatriculaResumen matriculaResumen : matriculablesNoAptosXAdmision) {
-            matriculaResumenDAO.delete(matriculaResumen);
-        }
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
         cicloAcademicoUpd.setId(ciclo.getId());
@@ -442,7 +434,19 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculableExist.put(alumnoCondicional.getId(), alumnoCondicional);
             matriculables.add(resumen);
         }
-        matriculaResumenDAO.saveList(matriculables);
+        int cantidadInsertados = matriculaResumenDAO.saveList(matriculables);
+
+        if (cantidadInsertados > 0) {
+            List<MatriculaResumen> matriculablesBD = matriculaResumenDAO.allByCicloFull(ciclo);
+
+            List<MatriculaResumen> matriculablesNoAptosXAdmision = matriculablesBD.stream()
+                    .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R && x.getAlumno().getCodigo().startsWith("T"))
+                    .collect(Collectors.toList());
+
+            for (MatriculaResumen matriculaResumen : matriculablesNoAptosXAdmision) {
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
+        }
 
     }
 

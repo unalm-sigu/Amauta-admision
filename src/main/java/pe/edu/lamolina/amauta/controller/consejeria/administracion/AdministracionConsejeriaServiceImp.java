@@ -55,6 +55,7 @@ import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
@@ -134,8 +135,18 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             List<AlumnoConsejero> alumnoConsejerosModelo = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getModelo());
             List<AlumnoConsejero> alumnoConsejerosDestino = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getDestino());
 
-            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()).
-                    collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream()
+                    .filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()
+                    || !x.getAlumno().getSituacionAcademica().isSeparado()
+                    || !x.getAlumno().getSituacionAcademica().isSeparadoDefinitivo()
+                    || !x.getAlumno().getSituacionAcademica().isSeparadoTrika()
+                    || !x.getAlumno().getSituacionAcademica().isSeparadoUltimoCiclo()
+                    || !x.getAlumno().getSituacionAcademica().isDesertor()
+                    || !x.getAlumno().getSituacionAcademica().isGraduado()
+                    || !x.getAlumno().getSituacionAcademica().isIngresanteSeparado()
+                    || !x.getAlumno().getSituacionAcademica().isIngresanteRenunciante()
+                    || x.getAlumno().getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
+                    .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
             Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream().
                     collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
