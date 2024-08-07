@@ -137,15 +137,15 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
 
             Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream()
                     .filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()
-                    || !x.getAlumno().getSituacionAcademica().isSeparado()
-                    || !x.getAlumno().getSituacionAcademica().isSeparadoDefinitivo()
-                    || !x.getAlumno().getSituacionAcademica().isSeparadoTrika()
-                    || !x.getAlumno().getSituacionAcademica().isSeparadoUltimoCiclo()
-                    || !x.getAlumno().getSituacionAcademica().isDesertor()
-                    || !x.getAlumno().getSituacionAcademica().isGraduado()
-                    || !x.getAlumno().getSituacionAcademica().isIngresanteSeparado()
-                    || !x.getAlumno().getSituacionAcademica().isIngresanteRenunciante()
-                    || x.getAlumno().getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
+                    && !x.getAlumno().getSituacionAcademica().isSeparado()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoDefinitivo()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoTrika()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoUltimoCiclo()
+                    && !x.getAlumno().getSituacionAcademica().isDesertor()
+                    && !x.getAlumno().getSituacionAcademica().isGraduado()
+                    && !x.getAlumno().getSituacionAcademica().isIngresanteSeparado()
+                    && !x.getAlumno().getSituacionAcademica().isIngresanteRenunciante()
+                    && x.getAlumno().getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
                     .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
             Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream().
