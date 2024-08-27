@@ -942,7 +942,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case BACHI:
 //                this.saveTramiteBachiller(resolucionForm, ds);
-                resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+                //resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
             case BACHIFAC:
 //                this.saveTramiteBachillerFacultad(resolucionForm, ds);
@@ -970,6 +971,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionBD.setTipoResolucion(resolucionForm.getTipoResolucion());
 //        resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
 
         resolucionBD.setUserActualizacion(usuario);

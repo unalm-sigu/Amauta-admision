@@ -91,9 +91,9 @@
                         deselect-label="No se puede eliminar este valor"
                         track-by="id" 
                         required="true"
-                        v-bind:disabled="isEdicion"
                         >
                     </multiselect>
+<!--                                            v-bind:disabled="isEdicion"-->
                     <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                 </div>
             </div> 
