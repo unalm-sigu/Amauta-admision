@@ -3,6 +3,7 @@
     <div slot="body">
         <div id="divDynatable">
             <table class="table table-condensed">
+                {{tipo}}
                 <thead>
                     <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th></th>
@@ -156,7 +157,7 @@
                     <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="(item, index) in alumnoTramiteBachiller" >
                         <td style="width: 10px;">{{ index + 1 }}</td>
                         <td v-if="codigoOficina=='UNA'" class="v-middle">
-                            <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
+                            <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.apellidosNombres"></span>
                             <span class="block">
                                 {{item.alumno.codigo}} |
                                 <span v-if="item.alumno.persona.numeroDocIdentidad != null"> 
