@@ -571,6 +571,26 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumenPlanCurricularDAO.update(resumen);
         }
 
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByCursoCurricula(cursoCurricula);
+        Assert.isTrue(cursoEquivalentes.isEmpty(), "El curso tiene relacionado " + (cursoEquivalentes.size() == 0 ? " un curso equivalente, " : "cursos equivalentes, ") + "desvinculelo.");
+
+        List<CursoEquivalente> cursoCaducos = cursoEquivalenteDAO.allActivoByCursoCaduco(cursoCurricula);
+        Assert.isTrue(cursoCaducos.isEmpty(), "El curso tiene relacionado " + (cursoCaducos.size() == 0 ? " un curso caduco, " : "cursos caducos, ") + "desvinculelo.");
+
+        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
+        Assert.isTrue(requisitoCursoCurriculas.isEmpty(), "El curso tiene relacionado cursos de la curricula, desvinculelo.");
+
+        List<RequisitoCursoCurricula> requisitoCursoRequisito = requisitoCursoCurriculaDAO.allByCursoRequisito(cursoCurricula);
+        Assert.isTrue(requisitoCursoRequisito.isEmpty(), "El curso tiene relacionado cursos requisitos, desvinculelo.");
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByCursoCurriculaInactivo(cursoCurriculaBD);
+
+        if (!alumnoCursoCurriculas.isEmpty()) {
+            alumnoCursoCurriculas.stream().forEach(x -> {
+                alumnoCursoCurriculaDAO.delete(x);
+            });
+        }
+
         cursoCurriculaDAO.delete(cursoCurriculaBD);
 
     }
