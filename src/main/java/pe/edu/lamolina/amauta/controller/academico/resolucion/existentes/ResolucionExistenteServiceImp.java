@@ -1918,7 +1918,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
             }
 
-            if (!tramiteBachiller.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
                 log.debug("Solo esta permitido agregar alumnos en modo edición");
                 continue;
             }
