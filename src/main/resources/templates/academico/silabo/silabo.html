@@ -115,8 +115,10 @@
 
 
                                                 <td class="v-middle text-center">
-                                                    <a href="#" v-on:click.prevent="openFile(item)" class="pointer btn btn-link"><i class="fa fa-file-o fa-lg"></i></a>
-                                                    <!--<a target="_blank" v-bind:href="item.rutaDocumento" class="pointer btn btn-link"><i class="fa fa-file-o fa-lg"></i></a>-->
+                                                    <a href="#" v-on:click.prevent="openFile(item)" class="pointer btn btn-link">
+                                                        <i :class="getFileIcon(item.rutaDocumento)" :style="{ color: getFileColor(item.rutaDocumento) }" class="fa-lg"></i>
+                                                    </a>
+
                                                 </td>
 
                                                 <td class="v-middle text-center">
