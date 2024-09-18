@@ -59,7 +59,7 @@
                                 <span v-if="item.celular" class="block"><i class="fa fa-mobile"></i> {{item.celular}}</span>
                                 <span v-if="item.telefono" class="block"><i class="fa fa-phone"></i> {{item.telefono}}</span>
 
-                                <a v-if="item.emailEmpresa && LOGIN_DOCENTE" class="btn btn-warning m-t-sm" v-on:click="loginAmauta(item)">
+                                <a v-if="item.emailEmpresa && LOGIN_DOCENTE" :class="['btn', 'm-t-sm', IS_PRODUCTION ? 'btn-success' : 'btn-warning']" v-on:click="loginAmauta(item)">
                                     Login amauta
                                 </a>
                             </td>
@@ -108,6 +108,7 @@
                 URL_LIST_PROFESOR: APP.url('academico/profesor/all'),
                 PUEDE_ACTIVAR: PUEDE_ACTIVAR,
                 LOGIN_DOCENTE: LOGIN_DOCENTE,
+                IS_PRODUCTION: IS_PRODUCTION,
                 departamentos: JSON.parse(jDepartamentos),
                 departamento: null
             };

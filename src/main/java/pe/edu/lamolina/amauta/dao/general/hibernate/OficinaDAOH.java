@@ -32,7 +32,6 @@ import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.oficina.OficinaNivel;
@@ -207,6 +206,16 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("ofi.codigo", codigo);
         return find(sql);
+    }
+
+    @Override
+    public List<Oficina> allCoordinacionTutoria(){
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("compania cia")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
+                .filter("ofi.codigo","like","CT%");
+        return all(sql);
     }
 
     @Override

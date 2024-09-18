@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -32,6 +33,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificarurl.VerificarUrlControServiceImp;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -53,11 +55,17 @@ import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
 @RequestMapping("general/oficina")
-public class OficinaModuloController {
+public class OficinaModuloController extends VerificarUrlControServiceImp {
+
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final OficinaModuloService service;
     private final OficinaService oficinaService;
     private final VerificadorService verificadorService;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
+
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -88,6 +96,10 @@ public class OficinaModuloController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        if (!this.accesoSessionUrl(ds, rutaModulo)) {
+            return "redirect:/logout";
+        }
+
         List<TipoOficina> tiposOficina = service.allTipoOficina();
 
         model.addAttribute("tiposOficinasJson", createAllTiposOficinaJson(tiposOficina).toString());

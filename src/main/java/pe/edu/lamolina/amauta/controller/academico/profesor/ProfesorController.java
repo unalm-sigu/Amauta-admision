@@ -132,6 +132,11 @@ public class ProfesorController {
         boolean isRevisorDocente = ds.getRoles().stream()
                 .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
 
+        boolean rolDocente = ds.getRoles().stream().anyMatch(rol -> RolEnum.LOGUEO_DOCENTE == rol.getCodigoEnum());
+
+        boolean isLoginDocente= !despliegueConfig.isProduccion() || rolDocente;
+        boolean isProduction=despliegueConfig.isProduccion();
+
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
         ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion").array();
@@ -140,8 +145,9 @@ public class ProfesorController {
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
-        model.addAttribute("loginDocente", !despliegueConfig.isProduccion());
+        model.addAttribute("loginDocente", isLoginDocente);
         model.addAttribute("isRevisorDocente", isRevisorDocente);
+        model.addAttribute("isProduction",isProduction);
 
         ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
