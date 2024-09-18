@@ -154,8 +154,21 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucion", resolucion)
+                .orderBy("per.paterno")
                 .orderBy("per.paterno");
         return all(sql);
+    }
+
+    @Override
+    public TramiteTitulo findByAlumnoActFacultad(Alumno alumno) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
+                .join("car.facultad")
+                //.filter("tb.estadoTitulo", SOL)
+                .filter("al.id", alumno);
+
+        return find(sql);
     }
 
 }

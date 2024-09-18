@@ -1918,10 +1918,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
             }
 
-            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                log.debug("Solo esta permitido agregar alumnos en modo edición");
-                continue;
-            }
+//            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+//                log.debug("Solo esta permitido agregar alumnos en modo edición");
+//                continue;
+//            }
 
             tramiteBachiller.setResolucionFacultad(resolucion);
             tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
@@ -2038,7 +2038,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 return "El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo";
             }
@@ -2062,15 +2062,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
             }
 
-            if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                log.debug("Solo esta permitido agregar alumnos en modo edición");
-                continue;
-            }
+//            if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+//                log.debug("Solo esta permitido agregar alumnos en modo edición");
+//                continue;
+//            }
             tramiteTitulo.setEstadoTitulo(TramiteEstadoEnum.ACEP.name());
             tramiteTitulo.setFechaResolucion(new Date());
             tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
