@@ -1,0 +1,44 @@
+<html layout:decorator="_layout/layout">
+<head>
+    <title> Becas Pronabec </title>
+
+</head>
+
+<body>
+<div id="omisioVUE" layout:fragment="main" v-cloak="">
+    <header class="header b-b padder-lg">
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                Acciones &nbsp; <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li> <a  type="button" v-bind:href="'omisoeleccion/load'">Cargar Datos</a></li>
+                <li> <a  type="button" v-on:click="openNuevo">Nuevo Becario</a></li>
+            </ul>
+        </div>
+        <h2> Becas Pronabec </h2>
+    </header>
+
+    <section class="wrapper-lg">
+        <section class="panel">
+
+            <section class="panel-body">
+
+                <profesor-list></profesor-list>
+
+            </section>
+        </section>
+
+    </section>
+
+</div>
+
+<div layout:fragment="js">
+    <script>
+        Vue.component("multiselect", window.VueMultiselect.default);
+        const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');
+    </script>
+</div>
+
+</body>
+</html>
