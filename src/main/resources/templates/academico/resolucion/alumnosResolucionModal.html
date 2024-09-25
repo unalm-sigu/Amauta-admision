@@ -142,7 +142,7 @@
                     </tr>
                     <tr v-if="tipo == 'TRAS_INT' "  v-for="item in alumnoTramiteTraslado">
                         <td>
-                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
+                            <a class="block" v-text="item.tramite.alumno.persona.apellidosNombres30"></a>
                             <span class="block">Código: {{item.tramite.alumno.codigo}}</span>
 
                             <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>

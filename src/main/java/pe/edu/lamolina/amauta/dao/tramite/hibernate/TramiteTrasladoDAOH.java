@@ -36,7 +36,8 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "per1.tipoDocumento ", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
-                .filter("res.id", resolucion);
+                .filter("res.id", resolucion)
+                .orderBy("per.paterno");
 
         return all(sql);
     }
@@ -84,7 +85,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         if (!ciclos.isEmpty()) {
             sql.in("cic.id", ciclos);
         }
-            sql.filter("tras.tipoTraslado", TRAS_INT.name())
+        sql.filter("tras.tipoTraslado", TRAS_INT.name())
                 .orderBy("tras.id desc");
 
         return all(sql);
@@ -137,7 +138,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "cicloAcademico cic")
-                .left("carrera car", "car.facultad", "carreraOrigen car2", "car2.facultad", "resolucion res","res.cicloAplica caa")
+                .left("carrera car", "car.facultad", "carreraOrigen car2", "car2.facultad", "resolucion res", "res.cicloAplica caa")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
                 .filter("caa.id", cicloAcademico)
                 .filter("tras.estado", ACEP)
@@ -147,7 +148,6 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         return all(sql);
     }
 
-    
     @Override
     public TramiteTraslado findAll(Long idTramiteTraslado) {
         Octavia sql = new Octavia()
