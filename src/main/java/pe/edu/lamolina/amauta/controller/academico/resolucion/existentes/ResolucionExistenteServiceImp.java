@@ -953,7 +953,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
             case TITULBAC:
-                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
+                resolucionBD.setNumeroVisible(resolucionForm.getDescripcion());
                 break;
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
