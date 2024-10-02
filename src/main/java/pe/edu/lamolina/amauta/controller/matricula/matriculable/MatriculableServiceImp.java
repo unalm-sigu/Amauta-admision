@@ -876,6 +876,7 @@ public class MatriculableServiceImp implements MatriculableService {
         resumen.setCreditosPagados(0);
         resumen.setCreditosConsumidos(0);
         resumen.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
+        resumen.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         resumen.setEstadoEnum(NMAT);
         matriculaResumenDAO.save(resumen);
 
