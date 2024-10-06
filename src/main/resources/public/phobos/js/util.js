@@ -816,6 +816,75 @@ VUE_AXIOS = {
     }
 };
 
+Vue.directive('uppercase-code', {
+    update: function (el) {
+        let value = el.value.toUpperCase();
+        value = value.replace(/\s+/g, '_');
+        value = value.replace(/[\n\f\b\r\t]/g, '');
+        el.value = value.trim();
+        el.dispatchEvent(new Event('input')); // Actualiza v-model
+    }
+});
+
+Vue.directive('uppercase-name', {
+    update: function (el) {
+        let value = el.value.toUpperCase();
+        value = value.replace(/\s+/g, ' ');
+        value = value.replace(/[\n\f\b\r\t]/g, '');
+        el.value = value;
+        el.dispatchEvent(new Event('input')); // Actualiza v-model
+    }
+});
+
+Vue.directive('first-last-name', {
+    bind(el, binding) {
+        let delay = binding.value || 1000;
+        let timeout;
+
+        el.addEventListener('input', function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                let value = el.value;
+                value = value.toLowerCase().trim().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
+                value = value.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+                value = APP.capitalize(value, " ");
+                value = APP.capitalize(value, "'");
+                value = APP.capitalize(value, "-");
+                el.value = value;
+                el.dispatchEvent(new Event('input'));
+            }, delay);
+        });
+    }
+});
+
+Vue.directive('numeric-only', {
+    bind(el, binding) {
+        el.addEventListener('input', function (e) {
+            let value = e.target.value;
+
+            // Eliminamos cualquier carácter que no sea un número o un punto decimal
+            value = value.replace(/[^0-9.]/g, '');
+
+            // Asegurarse de que solo haya un punto decimal
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = `${parts[0]}.${parts[1]}`; // Elimina puntos adicionales
+            }
+
+            // Limitar la cantidad de decimales permitidos
+            if (parts[1] && parts[1].length > binding.value) {
+                value = `${parts[0]}.${parts[1].slice(0, binding.value)}`;
+            }
+
+            e.target.value = value;
+
+            // Emitir el evento 'input' para notificar a Vue del cambio
+            const event = new Event('input', {bubbles: true});
+            el.dispatchEvent(event);
+        });
+    }
+});
+
 const Messages = {
     errorComunicacion: 'Error de conexión con el servidor.',
     confirmDelete: '¿Seguro que desea eliminar?',

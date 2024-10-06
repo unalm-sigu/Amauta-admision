@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.PostulanteEstadoEnum;
+import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.Prelamolina;
 
 @Repository
@@ -18,14 +19,25 @@ public class PrelamolindaDAOH extends AbstractEasyDAO<Prelamolina> implements Pr
     }
 
     @Override
-    public List<Prelamolina> allInscritosByCicloAcademico(CicloAcademico cicloAcademico) {
-
+    public List<Prelamolina> allInscritosByCicloAcademico(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Prelamolina.class, "pre")
-                .join("cicloPostula ci", "ci.cicloAcademico ca", "postulante po")
-                .filter("ca.id", cicloAcademico)
+                .join("cicloPostula cp", "cp.cicloAcademico ci", "postulante po")
+                .filter("ci.id", ciclo)
                 .filter("estado", PostulanteEstadoEnum.INS.name());
-        return sql.all(getCurrentSession());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Prelamolina> allIngresanteByCiclo(CicloPostula ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Prelamolina.class, "pre")
+                .join("cicloPostula cp", "cp.cicloAcademico ci")
+                .filter("cp.id", ciclo)
+                .filter("esIngresante", 1);
+
+        return all(sql);
     }
 
 }

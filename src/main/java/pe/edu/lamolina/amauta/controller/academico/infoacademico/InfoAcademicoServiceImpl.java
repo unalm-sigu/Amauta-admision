@@ -1313,7 +1313,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return new ArrayList();
         }
 
-        return temaCicloDAO.allByCiclo(postulante.getCicloPostula());
+        return temaCicloDAO.allByCiclo(postulante.getCicloPostula().getCicloAcademico());
 
     }
 
