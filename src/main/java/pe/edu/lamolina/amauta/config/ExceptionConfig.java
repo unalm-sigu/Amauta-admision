@@ -5,7 +5,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,9 +15,6 @@ import pe.edu.lamolina.model.constantines.GlobalMessages;
 @Slf4j
 @ControllerAdvice
 public class ExceptionConfig {
-
-    @Autowired
-    DespliegueConfig despliegueConfig;
 
     @ResponseBody
     @ExceptionHandler

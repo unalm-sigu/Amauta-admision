@@ -1,0 +1,48 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Alumnos para nivelación de admisión</title>
+        <style>
+            .nombre-tema {
+                background-color: #B0DFFF; /* Color de fondo azul claro */
+                color: #0066CC;            /* Color de texto azul oscuro */
+                padding: 3px;
+                padding-right: 10px;
+                padding-left: 10px;
+                border-radius: 3px;
+                border-color: #0066CC;      /* Color de borde azul oscuro */
+                border-style: solid;
+                border-width: 1px;
+            }
+            /* Enter and leave animations can use different */
+            /* durations and timing functions.              */
+            .slide-fade-enter-active {
+                transition: all .8s ease;
+            }
+            .slide-fade-leave-active {
+                transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+            }
+            .slide-fade-enter, .slide-fade-leave-to
+            /* .slide-fade-leave-active below version 2.1.8 */ {
+                transform: translateX(10px);
+                opacity: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="firstVue"  v-cloak=""></div>
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/nivelacioneegg/alumnosnivelacion/alumnosNivelacion.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

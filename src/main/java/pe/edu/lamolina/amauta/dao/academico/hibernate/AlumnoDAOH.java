@@ -4,11 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.LongType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
@@ -61,10 +60,9 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 
+@Slf4j
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AlumnoDAOH() {
         super();
@@ -73,13 +71,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public Alumno findLock(Long id) {
-        StringBuilder sql = new StringBuilder()
-                .append("select {a.*} from aca_alumno as a where a.id = :ID_ALUMNO for update ");
+        StringBuilder sql = new StringBuilder("select {a.*} from aca_alumno as a where a.id = :ID_ALUMNO for update ");
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addEntity("a", Alumno.class);
 
         query.setParameter("ID_ALUMNO", id);
-
         return (Alumno) query.uniqueResult();
     }
 
@@ -93,9 +89,12 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.ubicacionNacer ubn", "ubn.ubicacionSuperior ubnProv", "ubn.tipoUbicacion")
                 .leftJoin("ubnProv.ubicacionSuperior ubnDep", "ubnProv.tipoUbicacion", "ubnDep.tipoUbicacion")
                 .leftJoin("planCurricular plan", "plan.cicloInicioVigencia")
-                .left("consejero con", "con.colaborador col", "col.persona")
+                .leftJoin("cicloIngreso", "cicloActivo")
+                .leftJoin("postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico")
+                .leftJoin("consejero con", "con.colaborador col", "col.persona")
                 .filter("alu.id", alumno);
-        return (Alumno) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -1118,13 +1117,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public void updateColumns(Alumno alumno, String... columns) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, columns);
-        this.update(octavia);
-    }
-
-    @Override
     public int updateList(List<Alumno> alumnos, String... columnas) {
         if (alumnos.isEmpty()) {
             return 0;
@@ -1139,7 +1131,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         int rows = query.executeUpdate();
 
         long t2 = System.currentTimeMillis();
-        logger.info("{} Alumno's actualizados en {} mseg....", rows, (t2 - t1));
+        log.info("{} Alumno's actualizados en {} mseg....", rows, (t2 - t1));
         return rows;
     }
 
@@ -1434,6 +1426,19 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         return all(sql);
 
+    }
+
+    @Override
+    public List<Alumno> allIngresantePregradoByCicloIngreso(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per")
+                .join("situacionAcademica sa", "cicloIngreso ci")
+                .join("postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico")
+                .leftJoin("per.tipoDocumento")
+                .filter("ci.id", ciclo);
+
+        return all(sql);
     }
 
 }

@@ -105,22 +105,21 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         List<NotaAlumnoNivelacion> notasExamen = notaAlumnoNivelacionDAO.allByCiclo(ciclo);
         if (!notasExamen.isEmpty()) {
             for (TemaCiclo temaCiclo : temasCiclo) {
-                TemaExamen tema = temaCiclo.getTemaExamen();
                 Optional<NotaAlumnoNivelacion> puntajeMin = notasExamen.stream()
-                        .filter(ne -> ne.getTemaExamen().equals(tema))
+                        .filter(ne -> ne.getTemaCiclo().equals(temaCiclo))
                         .filter(ne -> ne.getPuntajeExamen() != null)
                         .min(Comparator.comparing(NotaAlumnoNivelacion::getPuntajeExamen));
                 Optional<NotaAlumnoNivelacion> puntajeMax = notasExamen.stream()
-                        .filter(ne -> ne.getTemaExamen().equals(tema))
+                        .filter(ne -> ne.getTemaCiclo().equals(temaCiclo))
                         .filter(ne -> ne.getPuntajeExamen() != null)
                         .max(Comparator.comparing(NotaAlumnoNivelacion::getPuntajeExamen));
 
                 Optional<NotaAlumnoNivelacion> notaMin = notasExamen.stream()
-                        .filter(ne -> ne.getTemaExamen().equals(tema))
+                        .filter(ne -> ne.getTemaCiclo().equals(temaCiclo))
                         .filter(ne -> ne.getNotaExamen() != null)
                         .min(Comparator.comparing(NotaAlumnoNivelacion::getNotaExamen));
                 Optional<NotaAlumnoNivelacion> notaMax = notasExamen.stream()
-                        .filter(ne -> ne.getTemaExamen().equals(tema))
+                        .filter(ne -> ne.getTemaCiclo().equals(temaCiclo))
                         .filter(ne -> ne.getNotaExamen() != null)
                         .max(Comparator.comparing(NotaAlumnoNivelacion::getNotaExamen));
 

@@ -38,8 +38,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allWithAllInfo(List<Alumno> alumnos);
 
     List<Alumno> allInfoByAlumnos(List<Alumno> alumnos);
-
-    //List<Alumno> allInfoByAlumno(List<Alumno> alumnos);
+    
     Alumno findSituacionAcademica(Alumno alumno);
 
     Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
@@ -140,8 +139,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allPregradoPendingPlanCurricula(CicloAcademico cicloIngreso);
 
-    void updateColumns(Alumno alumno, String... columns);
-
     int updateList(List<Alumno> alumnos, String... columns);
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
@@ -166,8 +163,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allIngresantePregradoByCicloIngreso(ModalidadEstudio modalidad, CicloAcademico ciclo);
 
-    public Alumno findBySitCodigo(String findBySitCodigo);
+    Alumno findBySitCodigo(String findBySitCodigo);
 
     List<Alumno> allAlumnoByYear(Integer year);
+
+    List<Alumno> allIngresantePregradoByCicloIngreso(CicloAcademico ciclo);
 
 }
