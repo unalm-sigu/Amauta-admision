@@ -53,7 +53,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
                 .join("temaCiclo tc", "tc.temaExamen")
                 .leftJoin("an.prelamolina", "an.evaluado")
-                .filter("ad.id", alumnoNiv);
+                .filter("an.id", alumnoNiv);
 
         return all(sql);
     }
@@ -79,9 +79,9 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         long t1 = System.currentTimeMillis();
         Insecto sql = Insecto.createInsert()
                 .into(NotaAlumnoNivelacion.class)
-                .columns("notaExamen", "puntajeExamen", "temaAprobado",
+                .columns("estado", "notaExamen", "puntajeExamen", "temaAprobado",
                         "notaCurso", "esMatriculable", "fechaRegistro",
-                        "alumnoNivelacion", "temaCiclo", "curso", "userRegistro")
+                        "alumnoNivelacion", "temaCiclo", "curso", "cursoNivelacion", "userRegistro")
                 .values(notasAlumnos);
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());

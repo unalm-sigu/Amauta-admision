@@ -54,7 +54,7 @@ public class AlumnoNivelacionDAOH extends AbstractEasyDAO<AlumnoNivelacion> impl
                 .join("cicloAcademico ci")
                 .leftJoin("prelamolina", "evaluado", "per.tipoDocumento")
                 .filter("ci.id", ciclo)
-                .searchFields("car.nombre", "fac.nombre")
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("aln.id DESC");

@@ -38,7 +38,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allWithAllInfo(List<Alumno> alumnos);
 
     List<Alumno> allInfoByAlumnos(List<Alumno> alumnos);
-    
+
     Alumno findSituacionAcademica(Alumno alumno);
 
     Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
@@ -66,6 +66,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allByNameFacultad(String nombre, Facultad facultad);
 
     List<Alumno> allByNamePosgrado(String nombre);
+
+    List<Alumno> allByNamePregrado(String nombre);
 
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 

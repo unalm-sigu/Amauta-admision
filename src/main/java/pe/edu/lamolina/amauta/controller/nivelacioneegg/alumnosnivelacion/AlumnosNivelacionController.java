@@ -14,11 +14,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnoNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -36,6 +39,7 @@ public class AlumnosNivelacionController {
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final AlumnosNivelacionService service;
+    private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -75,7 +79,15 @@ public class AlumnosNivelacionController {
                     .join("temaCiclo.temaExamen", "id,codigo,nombre")
                     .array();
 
+            List<AlumnoNivelacionDTO> cambios = changeAlumnoNivelacionService.recrearLista(alumnoNiv.getCambios());
+            ArrayNode cambiosJson = JaneHelper
+                    .from(cambios)
+                    .join("userRegistro", "id,google")
+                    .join("userRegistro.persona", "id,nombreCompleto")
+                    .array();
+
             node.set("notasNivelaciones", notasJson);
+            node.set("cambios", cambiosJson);
             node.put("ocultar", true);
             node.put("descripcion", "");
             array.add(node);
@@ -107,12 +119,16 @@ public class AlumnosNivelacionController {
     public JsonResponse revisarTodosAlumnos(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        service.revisarTodosAlumnos(ciclo, ds);
+        int cambios = service.revisarTodosAlumnos(ciclo, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se revisaron los alumnos satisfactoriamente");
-        json.setSuccess(Boolean.TRUE);
+        if (cambios > 0) {
+            json.setMessage("Se realizaron " + cambios + " modificaciones");
+        } else {
+            json.setMessage("No se encontraron cambios que realizar");
+        }
 
+        json.setSuccess(cambios > 0);
         return json;
     }
 
@@ -120,13 +136,45 @@ public class AlumnosNivelacionController {
     @RequestMapping("revisarAlumno")
     public JsonResponse revisarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.revisarAlumno(alumnoNiv, ds);
+        int cambios = service.revisarAlumno(alumnoNiv, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se revisó las notas del alumno satisfactoriamente");
-        json.setSuccess(Boolean.TRUE);
+        if (cambios > 0) {
+            json.setMessage("Se realizaron " + cambios + " modificaciones");
+        } else {
+            json.setMessage("No se encontraron cambios que realizar");
+        }
+
+        json.setSuccess(cambios > 0);
 
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchAlumno")
+    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Alumno> alumnos = service.searchAlumno(nombre, ds);
+
+        ArrayNode jsonList = JaneHelper.from(alumnos).only("id,codigo")
+                .join("persona", "numeroDocIdentidad,apellidosNombres,nombreCompleto,rutaFoto")
+                .join("persona.tipoDocumento", "simbolo,nombre")
+                .join("modalidadEstudio", "id,nombre")
+                .join("carrera", "codigo,nombre")
+                .join("carrera.facultad", "codigo,nombre")
+                .join("cicloIngreso", "id,descripcion")
+                .join("postulantePregrado", "id,codigo")
+                .join("postulantePregrado.modalidadIngreso", "id,codigo,nombre")
+                .join("postulantePregrado.cicloPostula.cicloAcademico", "id,descripcion")
+                .array();
+
+        JsonResponse response = new JsonResponse();
+        response.setData(jsonList);
+        response.setTotal(jsonList.size());
+        response.setSuccess(true);
+
+        return response;
     }
 
     @ResponseBody
@@ -138,6 +186,32 @@ public class AlumnosNivelacionController {
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se agregó al alumno satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("deshabilitarAlumno")
+    public JsonResponse deshabilitarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.deshabilitarAlumno(alumnoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se deshabilitó al alumno satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("habilitarAlumno")
+    public JsonResponse habilitarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.habilitarAlumno(alumnoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se rehabilitó al alumno satisfactoriamente");
         json.setSuccess(Boolean.TRUE);
 
         return json;

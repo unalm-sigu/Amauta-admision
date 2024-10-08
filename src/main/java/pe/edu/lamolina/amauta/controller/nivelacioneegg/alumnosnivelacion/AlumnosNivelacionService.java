@@ -13,10 +13,16 @@ public interface AlumnosNivelacionService {
 
     void createAlumnos(CicloAcademico ciclo, DataSessionPivot ds);
 
-    void revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds);
+    int revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds);
 
-    void revisarAlumno(AlumnoNivelacion alumnoNiv, DataSessionPivot ds);
+    int revisarAlumno(AlumnoNivelacion alumnoNiv, DataSessionPivot ds);
+
+    List<Alumno> searchAlumno(String nombre, DataSessionPivot ds);
 
     void addAlumno(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds);
+
+    void deshabilitarAlumno(AlumnoNivelacion alumnoNiv, DataSessionPivot ds);
+
+    void habilitarAlumno(AlumnoNivelacion alumnoNiv, DataSessionPivot ds);
 
 }

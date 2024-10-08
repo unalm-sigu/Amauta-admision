@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,13 +11,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
@@ -29,6 +34,10 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.calificacion.TemaCiclo;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.ModalidadIngresoEnum.CEPRE;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.inscripcion.Postulante;
@@ -36,6 +45,7 @@ import pe.edu.lamolina.model.inscripcion.Prelamolina;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.ModalidadTemaCiclo;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
 
 @Slf4j
 @Service
@@ -51,6 +61,9 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final PrelamolinaDAO prelamolinaDAO;
     private final TemaCicloDAO temaCicloDAO;
+
+    private final ChangeNotaAlumnoNivelacionService changeNotaAlumnoNivelacionService;
+    private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
 
     @Override
     public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
@@ -75,7 +88,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 .collect(Collectors.toMap(aln -> aln.getAlumno().getCodigo(), Function.identity()));
 
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
-        List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
+        List<ModalidadTemaCiclo> configuraciones = this.getConfiguraciones(ciclo);
+
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
                 .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
@@ -100,10 +114,10 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 Prelamolina cepre = prelamolinaDAO.findIngresanteByPostulante(postulante);
 
                 if (evaluado != null) {
-                    alumnoNiv.setPuntajeFinal(evaluado.getPuntajeFinal());
-                    alumnoNiv.setNotaFinal(evaluado.getNotaFinal());
+                    alumnoNiv.setPuntajeFinal(this.fixPuntaje(evaluado.getPuntajeFinal()));
+                    alumnoNiv.setNotaFinal(this.fixPuntaje(evaluado.getNotaFinal()));
                 } else if (cepre != null) {
-                    alumnoNiv.setPuntajeFinal(cepre.getPuntajeFinal());
+                    alumnoNiv.setPuntajeFinal(this.fixPuntaje(cepre.getPuntajeFinal()));
                 } else {
                     Assert.isTrue(false, "No se puede determinar la notas de su examen de admisión");
                 }
@@ -112,6 +126,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 alumnoNiv.setEvaluado(evaluado);
                 alumnoNiv.setPrelamolina(cepre);
                 alumnoNiv.setCicloAcademico(ciclo);
+                alumnoNiv.setEstadoEnum(NMAT);
                 alumnoNiv.setUserRegistro(ds.getUsuario());
                 alumnoNiv.setFechaRegistro(new Date());
                 alumnoNivelacionDAO.save(alumnoNiv);
@@ -125,6 +140,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                     this.crearNotaPrelamolina(alumnoNiv, mapNotasAlumnos, cepre, temasCiclo, mapConfigCepre, notasSave, notasUpdate, ds);
                 }
             }
+
             this.saveNotas(notasSave, true);
             this.updateNotas(notasUpdate, true);
         }
@@ -136,10 +152,17 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
     @Override
     @Transactional
-    public void revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
+    public int revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
         List<AlumnoNivelacion> nivelados = alumnoNivelacionDAO.allByCiclo(ciclo);
+        List<AlumnoNivelacion> habiles = nivelados.stream()
+                .filter(aluNiv -> aluNiv.getEstadoEnum() != INH)
+                .collect(Collectors.toList());
+        List<NotaAlumnoNivelacion> notasAlumnoAll = notaAlumnoNivelacionDAO.allByAlumnosNivelacion(habiles);
+        Map<Long, List<NotaAlumnoNivelacion>> mapNotaAlumnos = notasAlumnoAll.stream()
+                .collect(Collectors.groupingBy(nan -> nan.getAlumnoNivelacion().getId()));
+
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
-        List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
+        List<ModalidadTemaCiclo> configuraciones = this.getConfiguraciones(ciclo);
 
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
@@ -153,8 +176,9 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         List<NotaAlumnoNivelacion> notasSave = new ArrayList();
         List<NotaAlumnoNivelacion> notasUpdate = new ArrayList();
 
-        for (AlumnoNivelacion alumnoNiv : nivelados) {
-            List<NotaAlumnoNivelacion> notasAlumno = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(alumnoNiv);
+        int revisiones = 0;
+        for (AlumnoNivelacion alumnoNiv : habiles) {
+            List<NotaAlumnoNivelacion> notasAlumno = TypesUtil.getListNotNull(mapNotaAlumnos.get(alumnoNiv.getId()));
             Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos = notasAlumno.stream()
                     .collect(Collectors.toMap(nan -> nan.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
 
@@ -166,22 +190,26 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             } else if (cepre != null) {
                 this.crearNotaPrelamolina(alumnoNiv, mapNotasAlumnos, cepre, temasCiclo, mapConfigCepre, notasSave, notasUpdate, ds);
             }
-            this.saveNotas(notasSave, true);
-            this.updateNotas(notasUpdate, true);
+
+            revisiones += this.saveNotas(notasSave, true);
+            revisiones += this.updateNotas(notasUpdate, true);
         }
-        this.saveNotas(notasSave, false);
-        this.updateNotas(notasUpdate, false);
+
+        revisiones += this.saveNotas(notasSave, false);
+        revisiones += this.updateNotas(notasUpdate, false);
+        return revisiones;
     }
 
     @Override
     @Transactional
-    public void revisarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+    public int revisarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar del alumno que desea revisar");
         CicloAcademico ciclo = alumnoNiv.getCicloAcademico();
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
 
-        List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
+        List<ModalidadTemaCiclo> configuraciones = this.getConfiguraciones(ciclo);
+
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
                 .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
@@ -206,8 +234,14 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             this.crearNotaPrelamolina(alumnoNiv, mapNotasAlumnos, cepre, temasCiclo, mapConfigCepre, notasSave, notasUpdate, ds);
         }
 
-        this.saveNotas(notasSave, false);
-        this.updateNotas(notasUpdate, false);
+        int cambios = this.saveNotas(notasSave, false);
+        cambios += this.updateNotas(notasUpdate, false);
+        return cambios;
+    }
+
+    @Override
+    public List<Alumno> searchAlumno(String nombre, DataSessionPivot ds) {
+        return alumnoDAO.allByNamePregrado(nombre);
     }
 
     @Override
@@ -227,7 +261,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         CicloAcademico cicloExamen = alumno.getPostulantePregrado().getCicloPostula().getCicloAcademico();
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(cicloExamen);
 
-        List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
+        List<ModalidadTemaCiclo> configuraciones = this.getConfiguraciones(ciclo);
+
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
                 .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
@@ -243,8 +278,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         Prelamolina cepre = prelamolinaDAO.findIngresanteByPostulante(postulante);
 
         if (evaluado != null) {
-            alumnoNiv.setPuntajeFinal(evaluado.getPuntajeFinal());
-            alumnoNiv.setNotaFinal(evaluado.getNotaFinal());
+            alumnoNiv.setPuntajeFinal(this.fixPuntaje(evaluado.getPuntajeFinal()));
+            alumnoNiv.setNotaFinal(this.fixPuntaje(evaluado.getNotaFinal()));
         } else if (cepre != null) {
             alumnoNiv.setPuntajeFinal(cepre.getPuntajeFinal());
         } else {
@@ -255,6 +290,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         alumnoNiv.setEvaluado(evaluado);
         alumnoNiv.setPrelamolina(cepre);
         alumnoNiv.setCicloAcademico(ciclo);
+        alumnoNiv.setEstadoEnum(NMAT);
         alumnoNiv.setUserRegistro(ds.getUsuario());
         alumnoNiv.setFechaRegistro(new Date());
         alumnoNivelacionDAO.save(alumnoNiv);
@@ -272,24 +308,97 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         this.updateNotas(notasUpdate, false);
     }
 
-    private void saveNotas(List<NotaAlumnoNivelacion> notasSave, boolean control) {
-        if (!control) {
-            notaAlumnoNivelacionDAO.saveList(notasSave);
-            notasSave.clear();
-        } else if (notasSave.size() > 800) {
-            notaAlumnoNivelacionDAO.saveList(notasSave);
-            notasSave.clear();
+    @Override
+    @Transactional
+    public void deshabilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+        AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
+        Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
+        Assert.isFalse(alumnoNiv.getEstadoEnum() == MAT, "El alumno no debe estar matriculado en ningún curso");
+        Assert.isTrue(alumnoNiv.getEstadoEnum() == NMAT, "El alumno debe tener el estado NO MATRICULADO");
+        Assert.isNotNull(alumnoNivForm.getMotivo(), "No ha indicado el motivo");
+
+        if (StringUtils.isBlank(alumnoNiv.getCambios())) {
+            String cambios = changeAlumnoNivelacionService.createCambiosJson(alumnoNiv, null, alumnoNiv.getCambios());
+            alumnoNiv.setCambios(cambios);
         }
+
+        alumnoNiv.setEstadoEnum(INH);
+        alumnoNiv.setUserModificacion(ds.getUsuario());
+        alumnoNiv.setFechaModificacion(new Date());
+
+        String cambiosTwo = changeAlumnoNivelacionService.createCambiosJson(alumnoNiv, alumnoNivForm.getMotivo(), alumnoNiv.getCambios());
+        alumnoNiv.setCambios(cambiosTwo);
+        alumnoNivelacionDAO.update(alumnoNiv);
     }
 
-    private void updateNotas(List<NotaAlumnoNivelacion> notasUpdate, boolean control) {
+    @Override
+    @Transactional
+    public void habilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+        AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
+        Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
+        Assert.isTrue(alumnoNiv.getEstadoEnum() == INH, "El alumno ya no se encuentra deshabilitado");
+
+        if (StringUtils.isBlank(alumnoNiv.getCambios())) {
+            String cambios = changeAlumnoNivelacionService.createCambiosJson(alumnoNiv, null, alumnoNiv.getCambios());
+            alumnoNiv.setCambios(cambios);
+        }
+
+        alumnoNiv.setEstadoEnum(NMAT);
+        alumnoNiv.setUserModificacion(ds.getUsuario());
+        alumnoNiv.setFechaModificacion(new Date());
+
+        String cambiosTwo = changeAlumnoNivelacionService.createCambiosJson(alumnoNiv, alumnoNivForm.getMotivo(), alumnoNiv.getCambios());
+        alumnoNiv.setCambios(cambiosTwo);
+        alumnoNivelacionDAO.update(alumnoNiv);
+    }
+
+    private BigDecimal fixPuntaje(BigDecimal puntaje) {
+        if (puntaje == null) {
+            return null;
+        }
+        return puntaje.setScale(4, RoundingMode.DOWN);
+    }
+
+    private List<ModalidadTemaCiclo> getConfiguraciones(CicloAcademico ciclo) {
+        List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
+        Assert.isFalse(configuraciones.isEmpty(), "No hay configuraciones de nota mínima de aprobación");
+
+        List<ModalidadTemaCiclo> inactivos = configuraciones.stream()
+                .filter(mtc -> mtc.getEstadoEnum() != ACT)
+                .collect(Collectors.toList());
+        Assert.isTrue(inactivos.isEmpty(), "Todas las configuraciones, de nota mínima de aprobación, deben estar activas");
+
+        return configuraciones;
+    }
+
+    private int saveNotas(List<NotaAlumnoNivelacion> notasSave, boolean control) {
+        int cambios = 0;
         if (!control) {
-            notaAlumnoNivelacionDAO.updateList(notasUpdate, "notaExamen", "puntajeExamen", "temaAprobado");
+            cambios = notasSave.size();
+            notaAlumnoNivelacionDAO.saveList(notasSave);
+            notasSave.clear();
+
+        } else if (notasSave.size() > 800) {
+            cambios = notasSave.size();
+            notaAlumnoNivelacionDAO.saveList(notasSave);
+            notasSave.clear();
+        }
+        return cambios;
+    }
+
+    private int updateNotas(List<NotaAlumnoNivelacion> notasUpdate, boolean control) {
+        int cambios = 0;
+        if (!control) {
+            cambios = notasUpdate.size();
+            notaAlumnoNivelacionDAO.updateList(notasUpdate, "notaExamen", "puntajeExamen", "temaAprobado", "cambios", "userModificacion", "fechaModificacion");
             notasUpdate.clear();
+
         } else if (notasUpdate.size() > 800) {
-            notaAlumnoNivelacionDAO.updateList(notasUpdate, "notaExamen", "puntajeExamen", "temaAprobado");
+            cambios = notasUpdate.size();
+            notaAlumnoNivelacionDAO.updateList(notasUpdate, "notaExamen", "puntajeExamen", "temaAprobado", "cambios", "userModificacion", "fechaModificacion");
             notasUpdate.clear();
         }
+        return cambios;
     }
 
     private void crearNotaPrelamolina(
@@ -308,53 +417,84 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             TemaExamen temaExamen = temaCiclo.getTemaExamen();
             ModalidadTemaCiclo config = mapConfig.get(temaExamen.getId());
 
-            NotaAlumnoNivelacion nota = mapNotasAlumnos.get(temaExamen.getId());
-            if (nota == null) {
-                nota = new NotaAlumnoNivelacion();
+            NotaAlumnoNivelacion notaBD = mapNotasAlumnos.get(temaExamen.getId());
+            String dataInicio = this.comparableNotaAlumnoJson(notaBD);
+            String cambios = null;
+
+            NotaAlumnoNivelacion nota = new NotaAlumnoNivelacion();
+            if (notaBD != null) {
+                BeanUtils.copyProperties(notaBD, nota);
+                if (StringUtils.isBlank(notaBD.getCambios())) {
+                    cambios = changeNotaAlumnoNivelacionService.createCambiosJson(nota, null, notaBD.getCambios());
+                }
+
+            } else {
+                nota.setAlumnoNivelacion(alumnoNiv);
+                nota.setTemaCiclo(temaCiclo);
+                nota.setEstadoEnum(NMAT);
+                nota.setEsMatriculable(false);
+                nota.setTemaAprobado(false);
+                nota.setUserRegistro(ds.getUsuario());
+                nota.setFechaRegistro(today.toDate());
             }
 
-            nota.setAlumnoNivelacion(alumnoNiv);
-            nota.setTemaCiclo(temaCiclo);
-            nota.setEsMatriculable(false);
-            nota.setTemaAprobado(false);
-            nota.setUserRegistro(ds.getUsuario());
-            nota.setFechaRegistro(today.toDate());
-
             if (temaExamen.getCodigo().equals("RV")) {
-                this.saveNotaNivelacion(cepre.getPuntajeRv(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeRv(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("RM")) {
-                this.saveNotaNivelacion(cepre.getPuntajeRm(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeRm(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("FIS")) {
-                this.saveNotaNivelacion(cepre.getPuntajeFisica(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeFisica(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("QUI")) {
-                this.saveNotaNivelacion(cepre.getPuntajeQuimica(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeQuimica(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("BIO")) {
-                this.saveNotaNivelacion(cepre.getPuntajeBiologia(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeBiologia(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ARI")) {
-                this.saveNotaNivelacion(cepre.getPuntajeAritmetica(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeAritmetica(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ALG")) {
-                this.saveNotaNivelacion(cepre.getPuntajeAlgebra(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeAlgebra(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("GEOM")) {
-                this.saveNotaNivelacion(cepre.getPuntajeGeometria(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeGeometria(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("TRI")) {
-                this.saveNotaNivelacion(cepre.getPuntajeTrigonometria(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeTrigonometria(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ECO")) {
-                this.saveNotaNivelacion(cepre.getPuntajeEconomia(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeEconomia(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("HIS")) {
-                this.saveNotaNivelacion(cepre.getPuntajeHistoria(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeHistoria(), null, config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("GEOG")) {
-                this.saveNotaNivelacion(cepre.getPuntajeGeografia(), null, config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(cepre.getPuntajeGeografia(), null, config.getPuntajeMinimo(), nota);
+            }
+
+            if (nota.getPuntajeExamen() == null) {
+                continue;
+            }
+
+            if (nota.getId() == null) {
+                notasSave.add(nota);
+
+            } else {
+                String dataFinal = this.comparableNotaAlumnoJson(nota);
+                if (!dataInicio.equals(dataFinal)) {
+                    if (StringUtils.isBlank(nota.getCambios())) {
+                        nota.setCambios(cambios);
+                    }
+
+                    nota.setUserModificacion(ds.getUsuario());
+                    nota.setFechaModificacion(today.toDate());
+                    String cambiosTwo = changeNotaAlumnoNivelacionService.createCambiosJson(nota, "Revisión de nota aprobatoria", nota.getCambios());
+                    nota.setCambios(cambiosTwo);
+                    notasUpdate.add(nota);
+                }
             }
         }
     }
@@ -369,56 +509,90 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             List<NotaAlumnoNivelacion> notasUpdate,
             DataSessionPivot ds) {
 
+        DateTime today = new DateTime();
+
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaExamen temaExamen = temaCiclo.getTemaExamen();
             ModalidadTemaCiclo config = mapConfig.get(temaExamen.getId());
 
-            NotaAlumnoNivelacion nota = mapNotasAlumnos.get(temaExamen.getId());
-            if (nota == null) {
-                nota = new NotaAlumnoNivelacion();
+            NotaAlumnoNivelacion notaBD = mapNotasAlumnos.get(temaExamen.getId());
+            String dataInicio = this.comparableNotaAlumnoJson(notaBD);
+            String cambios = null;
+
+            NotaAlumnoNivelacion nota = new NotaAlumnoNivelacion();
+            if (notaBD != null) {
+                BeanUtils.copyProperties(notaBD, nota);
+                if (StringUtils.isBlank(notaBD.getCambios())) {
+                    cambios = changeNotaAlumnoNivelacionService.createCambiosJson(nota, null, notaBD.getCambios());
+                }
+
+            } else {
+                nota.setAlumnoNivelacion(alumnoNiv);
+                nota.setTemaCiclo(temaCiclo);
+                nota.setEstadoEnum(NMAT);
+                nota.setEsMatriculable(false);
+                nota.setTemaAprobado(false);
+                nota.setUserRegistro(ds.getUsuario());
+                nota.setFechaRegistro(today.toDate());
             }
 
-            nota.setAlumnoNivelacion(alumnoNiv);
-            nota.setTemaCiclo(temaCiclo);
-            nota.setEsMatriculable(false);
-            nota.setUserRegistro(ds.getUsuario());
-            nota.setFechaRegistro(new Date());
-
             if (temaExamen.getCodigo().equals("RV")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeRv(), evaluado.getNotaRv(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeRv(), evaluado.getNotaRv(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("RM")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeRm(), evaluado.getNotaRm(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeRm(), evaluado.getNotaRm(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("FIS")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeFisica(), evaluado.getNotaFisica(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeFisica(), evaluado.getNotaFisica(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("QUI")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeQuimica(), evaluado.getNotaQuimica(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeQuimica(), evaluado.getNotaQuimica(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("BIO")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeBiologia(), evaluado.getNotaBiologia(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeBiologia(), evaluado.getNotaBiologia(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ARI")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeAritmetica(), evaluado.getNotaAritmetica(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeAritmetica(), evaluado.getNotaAritmetica(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ALG")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeAlgebra(), evaluado.getNotaAlgebra(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeAlgebra(), evaluado.getNotaAlgebra(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("GEOM")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeGeometria(), evaluado.getNotaGeometria(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeGeometria(), evaluado.getNotaGeometria(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("TRI")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeTrigonometria(), evaluado.getNotaTrigonometria(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeTrigonometria(), evaluado.getNotaTrigonometria(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("ECO")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeEconomia(), evaluado.getNotaEconomia(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeEconomia(), evaluado.getNotaEconomia(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("HIS")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeHistoria(), evaluado.getNotaHistoria(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeHistoria(), evaluado.getNotaHistoria(), config.getPuntajeMinimo(), nota);
 
             } else if (temaExamen.getCodigo().equals("GEOG")) {
-                this.saveNotaNivelacion(evaluado.getPuntajeGeografia(), evaluado.getNotaGeografia(), config.getPuntajeMinimo(), nota, notasSave, notasUpdate);
+                this.saveNotaNivelacion(evaluado.getPuntajeGeografia(), evaluado.getNotaGeografia(), config.getPuntajeMinimo(), nota);
+            }
+
+            if (nota.getPuntajeExamen() == null) {
+                continue;
+            }
+
+            if (nota.getId() == null) {
+                notasSave.add(nota);
+
+            } else {
+                String dataFinal = this.comparableNotaAlumnoJson(nota);
+                if (!dataInicio.equals(dataFinal)) {
+                    if (StringUtils.isBlank(nota.getCambios())) {
+                        nota.setCambios(cambios);
+                    }
+
+                    nota.setUserModificacion(ds.getUsuario());
+                    nota.setFechaModificacion(today.toDate());
+                    String cambiosTwo = changeNotaAlumnoNivelacionService.createCambiosJson(nota, "Revisión de nota aprobatoria", nota.getCambios());
+                    nota.setCambios(cambiosTwo);
+                    notasUpdate.add(nota);
+                }
             }
         }
     }
@@ -427,20 +601,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             BigDecimal puntaje,
             BigDecimal nota,
             BigDecimal puntajeBase,
-            NotaAlumnoNivelacion notaAlumno,
-            List<NotaAlumnoNivelacion> notasSave,
-            List<NotaAlumnoNivelacion> notasUpdate) {
+            NotaAlumnoNivelacion notaAlumno) {
 
         if (puntaje != null) {
-            notaAlumno.setPuntajeExamen(puntaje);
-            notaAlumno.setNotaExamen(nota);
+            notaAlumno.setPuntajeExamen(this.fixPuntaje(puntaje));
+            notaAlumno.setNotaExamen(this.fixPuntaje(nota));
             notaAlumno.setTemaAprobado(puntaje.compareTo(puntajeBase) >= 0);
-
-            if (notaAlumno.getId() == null) {
-                notasSave.add(notaAlumno);
-            } else {
-                notasUpdate.add(notaAlumno);
-            }
         }
     }
 
@@ -455,6 +621,15 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    private String comparableNotaAlumnoJson(NotaAlumnoNivelacion nota) {
+        if (nota == null) {
+            return "";
+        }
+        return JaneHelper.from(nota)
+                .only("notaExamen,puntajeExamen,temaAprobado")
+                .json().toString();
     }
 
 }
