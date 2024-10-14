@@ -6,13 +6,12 @@
 
             <h4 class="text-primary block m-b-lg">{{title}}</h4>
 
-            <form v-bind:id="form">
+            <form v-bind:id="form" data-parsley-validate="">
                 <template>
 
                     <div class="form-group">
                         <label>Nombre</label>
-                        <span class="item-form-control item-form-gray text-primary" v-model="curso.nombre">
-                        </span>
+                        <input class="form-control" v-model="curso.nombre" required="true"/>
                     </div>
 
                 </template>
@@ -29,16 +28,19 @@
             return {
                 form: "id-form-curso-nivelacion",
                 title: "",
-                curso: {nombre: ''},
+                curso: {id: null, nombre: ''},
+                raptor: null,
                 modalCurso: VUE_MODAL.structFormAjax({
                     id: "id-modal-curso",
-                    okbtn: "Nuevo",
+                    okbtn: "Guardar",
                     okclass: "btn-primary"
                 })
             };
         },
         methods: {
-            open() {
+
+            open(raptor) {
+
                 var form = $("#" + this.form);
                 form.parsley().destroy();
 
@@ -46,22 +48,39 @@
 //                this.configNueva = JSON.parse(JSON.stringify(config));
                 this.title = "Nuevo Curso Nivelación";
                 this.$refs.modalCurso.open();
+                this.raptor = raptor;
+
             },
             saveCurso() {
                 var form = $("#" + this.form);
+                console.dir(form);
                 if (!form.parsley().validate()) {
                     return;
                 }
 
-                myUtils.axios(VUE_AXIOS.structModalClose({
-                    url: `/${rutaModulo}/saveCurso`,
-                    modal: this.$refs.modalCurso,
-                    body: this.curso.nombre
-                }));
-            },
+//
+//                console.log("body")
+//                console.dir(JSON.stringify(this.curso));
+////                return;
 
-            getModal() {
-//                return this.$refs.modalEditar;
+                myUtils.axios(VUE_AXIOS.structModalClose({
+                    url: `/${rutaModulo}/save`,
+                    modal: this.$refs.modalCurso,
+                    raptor: this.raptor,
+                    body: this.curso
+                }));
+
+
+//                axios.post(
+//                        `/${rutaModulo}/saveCurso`,
+//                        {id: null, nombre: this.curso.nombre})
+//                        .then(response => {
+//                            console.log(response.data);  // Usuario creado
+//                            this.$refs.modalCurso.close();
+//                        })
+//                        .catch(error => {
+//                            console.error(error);
+//                        });
             },
 
             // metodos genericos

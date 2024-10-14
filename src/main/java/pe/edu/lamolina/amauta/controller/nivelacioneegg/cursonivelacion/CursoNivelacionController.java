@@ -66,10 +66,10 @@ public class CursoNivelacionController {
         json.setFiltered(filter.getFiltered());
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse habilitarAlumno(@RequestBody Curso curso, HttpSession session) {
+    public JsonResponse save(@RequestBody Curso curso, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.save(curso, ds);
 

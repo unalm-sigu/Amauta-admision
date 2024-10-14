@@ -25,7 +25,7 @@
 
                     <raptor-table v-bind:url="cursosNivelacionURL" 
                                   v-bind:pagination="pagination"
-                                  ref="raptorConfigs">
+                                  ref="raptorCurso">
                         <template scope="props" >
                             <table class="table table-striped">
                                 <thead class="panel panel-heading">
@@ -117,7 +117,7 @@
         methods: {
 
             nuevoCurso() {
-                this.$refs.modalCurso.open();
+                this.$refs.modalCurso.open(this.$refs.raptorCurso);
             },
             estadoClass(item) {
                 if (item.estado === 'ACT') {
@@ -164,6 +164,9 @@
 //
 //                this.$refs.modalConfirm.open(config);
             },
+//            getModal() {
+//                return this.$refs.modalCurso;
+//            },
 
             // metodos genericos
 //            activarNumeric: myUtils.activarNumeric,
