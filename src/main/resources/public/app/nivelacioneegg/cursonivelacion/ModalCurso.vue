@@ -39,29 +39,32 @@
         },
         methods: {
 
-            open(raptor) {
-
+            abrirModal(raptor) {
                 var form = $("#" + this.form);
                 form.parsley().destroy();
 
-//                this.raptor = raptor;
-//                this.configNueva = JSON.parse(JSON.stringify(config));
+                this.curso = {id: '', nombre: ''};
                 this.title = "Nuevo Curso Nivelación";
                 this.$refs.modalCurso.open();
                 this.raptor = raptor;
 
             },
+            editar(item, raptor) {
+                var form = $("#" + this.form);
+                form.parsley().destroy();
+
+                this.curso = JSON.parse(JSON.stringify(item));
+                this.title = "Editar Curso Nivelación";
+                this.raptor = raptor;
+                this.$refs.modalCurso.open();
+                this.$refs.modalCurso.okbtn = "Actualizar";
+            },
+
             saveCurso() {
                 var form = $("#" + this.form);
-                console.dir(form);
                 if (!form.parsley().validate()) {
                     return;
                 }
-
-//
-//                console.log("body")
-//                console.dir(JSON.stringify(this.curso));
-////                return;
 
                 myUtils.axios(VUE_AXIOS.structModalClose({
                     url: `/${rutaModulo}/save`,
@@ -69,27 +72,8 @@
                     raptor: this.raptor,
                     body: this.curso
                 }));
+            }
 
-
-//                axios.post(
-//                        `/${rutaModulo}/saveCurso`,
-//                        {id: null, nombre: this.curso.nombre})
-//                        .then(response => {
-//                            console.log(response.data);  // Usuario creado
-//                            this.$refs.modalCurso.close();
-//                        })
-//                        .catch(error => {
-//                            console.error(error);
-//                        });
-            },
-
-            // metodos genericos
-            getListIds(list) {
-                return list.map(item => item.id).join(',');
-            },
-//            getObjectId: myUtils.getObjectId,
-//            getObjectName: myUtils.getObjectName,
-//            commas: myUtils.commas
         }
     };
 </script>

@@ -61,7 +61,7 @@
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="editar(item)">Editar</a></li>
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
-                                                    <li v-if="item.estado == 'INA' " class="pointer"><a v-on:click="desactivar(item)">Desactivar</a></li>
+                                                    <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -78,34 +78,25 @@
 
         <modal-curso ref="modalCurso"></modal-curso>
 
-        <!--        <modal-confirm ref="modalConfirm"></modal-confirm>
-                <modal-info ref="modalInfo"></modal-info>
-                <modal-editar ref="modalEditar"></modal-editar>-->
+        <modal-confirm ref="modalConfirm"></modal-confirm>
     </div>
 
 </template>
 <script>
-//    Vue.component("multiselect", window.VueMultiselect.default);
-//    Vue.component('date-picker', window.VueBootstrapDatetimePicker);
-
-//    const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
-//    const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
+    const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
     const ModalCurso = httpVueLoader('./ModalCurso.vue');
 
     module.exports = {
         components: {
-            ModalCurso
+            ModalCurso, ModalConfirm
         },
         data() {
             return {
                 idModalCurso: "id-modal-curso",
+                idModalConfirmacion: "id-modal-confirmacion",
                 ciclo: JSON.parse(cicloJson),
                 cursosNivelacionURL: `/${rutaModulo}/list`,
-                pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
-                configDate: {
-                    format: 'DD/MM/YYYY',
-                    locale: 'es'
-                }
+                pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}
             };
         },
         mounted() {
@@ -117,7 +108,7 @@
         methods: {
 
             nuevoCurso() {
-                this.$refs.modalCurso.open(this.$refs.raptorCurso);
+                this.$refs.modalCurso.abrirModal(this.$refs.raptorCurso);
             },
             estadoClass(item) {
                 if (item.estado === 'ACT') {
@@ -128,51 +119,44 @@
                 }
                 return "";
             },
+            editar(item) {
+                this.$refs.modalCurso.editar(item, this.$refs.raptorCurso);
+            },
             activar(item) {
-//                let config = VUE_MODAL.structConfirm({
-//                    id: this.idModalConfirm,
-//                    message: "¿Seguro que desea activar este registro?",
-//                    okbtn: "Si, activar",
-//                    okclass: "btn-primary",
-//                    okaction: () => {
-//                        myUtils.axios(VUE_AXIOS.structModalClose({
-//                            url: `/${rutaModulo}/activar`,
-//                            modal: this.$refs.modalConfirm.getModal(),
-//                            raptor: this.$refs.raptorConfigs,
-//                            body: {id: item.id}
-//                        }));
-//                    }
-//                });
-//
-//                this.$refs.modalConfirm.open(config);
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirmacion,
+                    message: "¿Seguro que desea activar este registro?",
+                    okbtn: "Si, activar",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/activar`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCurso,
+                            body: {id: item.id}
+                        }));
+                    }
+                });
+                this.$refs.modalConfirm.open(config);
             },
-            desactivar(item) {
-//                let config = VUE_MODAL.structConfirm({
-//                    id: this.idModalConfirm,
-//                    message: "¿Seguro que desea desactivar este registro?",
-//                    okbtn: "Si, desactivar",
-//                    okclass: "btn-danger",
-//                    okaction: () => {
-//                        myUtils.axios(VUE_AXIOS.structModalClose({
-//                            url: `/${rutaModulo}/desactivar`,
-//                            modal: this.$refs.modalConfirm.getModal(),
-//                            raptor: this.$refs.raptorConfigs,
-//                            body: {id: item.id}
-//                        }));
-//                    }
-//                });
-//
-//                this.$refs.modalConfirm.open(config);
-            },
-//            getModal() {
-//                return this.$refs.modalCurso;
-//            },
+            eliminar(item) {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirmacion,
+                    message: "¿Seguro que desea eliminar este registro?",
+                    okbtn: "Si, eliminar",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/eliminar`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCurso,
+                            body: {id: item.id}
+                        }));
+                    }
+                });
 
-            // metodos genericos
-//            activarNumeric: myUtils.activarNumeric,
-//            getObjectId: myUtils.getObjectId,
-//            getObjectName: myUtils.getObjectName,
-//            commas: myUtils.commas
+                this.$refs.modalConfirm.open(config);
+            }
         }
     };
 

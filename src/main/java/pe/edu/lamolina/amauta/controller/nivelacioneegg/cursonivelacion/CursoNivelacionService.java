@@ -11,4 +11,8 @@ public interface CursoNivelacionService {
 
     void save(Curso curso, DataSessionPivot ds);
 
+    public void activar(Curso curso, DataSessionPivot ds);
+
+    public void eliminar(Curso curso, DataSessionPivot ds);
+
 }

@@ -45,15 +45,21 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Transactional
     public void save(Curso curso, DataSessionPivot ds) {
 
-        Curso cursoNew = new Curso();
-        cursoNew.setCodigo(this.getCodigo(curso));
-        cursoNew.setNombre(curso.getNombre());
-        cursoNew.setModalidadEstudio(new ModalidadEstudio(ID_NIVELACION_INGRESANTES));
-        cursoNew.setDepartamentoAcademico(new DepartamentoAcademico(ID_DPTO_ESTUDIOS_GENERALES));
-        cursoNew.setUserRegsitro(ds.getUsuario());
-        cursoNew.setFechaRegistro(new Date());
-        cursoNew.setEstadoEnum(EstadoEnum.ACT);
-        cursoDAO.save(cursoNew);
+        if (curso.getId() == null) {
+            Curso cursoNew = new Curso();
+            cursoNew.setCodigo(this.getCodigo(curso));
+            cursoNew.setNombre(curso.getNombre());
+            cursoNew.setModalidadEstudio(new ModalidadEstudio(ID_NIVELACION_INGRESANTES));
+            cursoNew.setDepartamentoAcademico(new DepartamentoAcademico(ID_DPTO_ESTUDIOS_GENERALES));
+            cursoNew.setUserRegsitro(ds.getUsuario());
+            cursoNew.setFechaRegistro(new Date());
+            cursoNew.setEstadoEnum(EstadoEnum.PEN);
+            cursoDAO.save(cursoNew);
+        } else {
+            Curso cursoBD = cursoDAO.find(curso.getId());
+            cursoBD.setNombre(curso.getNombre());
+            cursoDAO.update(cursoBD);
+        }
     }
 
     private String getCodigo(Curso curso) {
@@ -85,6 +91,20 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
             cod.append("0");
         }
         return value.concat(cod.toString());
+    }
+
+    @Override
+    @Transactional
+    public void activar(Curso curso, DataSessionPivot ds) {
+        Curso cursoBD = cursoDAO.find(curso.getId());
+        cursoBD.setEstadoEnum(EstadoEnum.ACT);
+        cursoDAO.update(cursoBD);
+    }
+
+    @Override
+    @Transactional
+    public void eliminar(Curso curso, DataSessionPivot ds) {
+        cursoDAO.delete(curso);
     }
 
 }

@@ -74,7 +74,33 @@ public class CursoNivelacionController {
         service.save(curso, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se creo el curso satisfactoriamente");
+        json.setMessage(curso.getId() == null ? "Se creo el curso satisfactoriamente": "Se actualizo el curso satisfactoriamente.");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("activar")
+    public JsonResponse activar(@RequestBody Curso curso, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.activar(curso, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se activo el curso satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminar")
+    public JsonResponse eliminar(@RequestBody Curso curso, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.eliminar(curso, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se elimino el curso satisfactoriamente");
         json.setSuccess(Boolean.TRUE);
 
         return json;
