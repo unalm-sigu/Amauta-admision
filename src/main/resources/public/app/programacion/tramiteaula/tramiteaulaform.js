@@ -135,13 +135,13 @@ new Vue({
             }
             $vue.reservados = [];
             $vue.clearHorario();
-//            $vue.changefilteraula();
+            $vue.changefilteraula();
         },
         changeFechaFin() {
             let $vue = this;
             $vue.reservados = [];
             $vue.clearHorario();
-//            $vue.changefilteraula();
+            $vue.changefilteraula();
         },
         validarDiaSeleccionado(reservaaula) {
             let fechaString = reservaaula.fechaInicio;
@@ -165,7 +165,7 @@ new Vue({
                 return;
             }
 
-            if ($vue.reservaaula.fechaInicio === $vue.reservaaula.fechaInicio) {
+            if ($vue.reservaaula.fechaInicio === $vue.reservaaula.fechaFin) {
 
                 let diaDateJs = $vue.jsonaulahorario[0].dia.id + 1;// se sumas +1 por el date del JS
                 let diaSeleccionado = this.validarDiaSeleccionado($vue.reservaaula);
@@ -173,14 +173,16 @@ new Vue({
                 let diaTmp = $vue.jsonaulahorario[0].dia.id;
 
                 for (var i = 0; i < $vue.jsonaulahorario.length; i++) {
-                    
+
                     if (diaTmp !== $vue.jsonaulahorario[i].dia.id) {
                         notify("Solo debe seleccionar el día de la fecha " + $vue.reservaaula.fechaInicio + " día " + diaSeleccionado.dia, "error");
+                        return;
                     }
                 }
 
                 if (diaDateJs !== diaSeleccionado.id) {
                     notify("El dia seleccionado debe ser igual a la fecha " + $vue.reservaaula.fechaInicio + " día " + diaSeleccionado.dia, "error");
+                    return;
                 }
             }
 
@@ -275,7 +277,7 @@ new Vue({
         changehorario() {
             let $vue = this;
             $vue.reservados = [];
-//            $vue.changefilteraula();
+            $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
         },
         reloadaulalist() {
