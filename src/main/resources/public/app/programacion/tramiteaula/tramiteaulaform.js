@@ -89,7 +89,7 @@ new Vue({
         },
         addInstitucion() {
             let $vue = this;
-            $vue.institucion = {paisUbicacion : {}};
+            $vue.institucion = {paisUbicacion: {}};
             $vue.$refs.nuevaInstitucionModal.open();
         },
         saveInstitucionModal() {
@@ -99,7 +99,7 @@ new Vue({
             if (!valid) {
                 return;
             }
-                
+
             $.ajax({
                 url: APP.url('tramite/aula/saveInstitucion'),
                 type: 'POST',
@@ -109,7 +109,6 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        console.log(response.data);
                         $vue.reservaaula.tramite.empresa = response.data;
                         $vue.$refs.nuevaInstitucionModal.close();
                     } else {
@@ -131,18 +130,31 @@ new Vue({
         },
         changeFechaInicio() {
             let $vue = this;
-            if ($vue.reservaaula.fechaFin == undefined) {
+            if ($vue.reservaaula.fechaFin === undefined) {
                 $vue.reservaaula.fechaFin = $vue.reservaaula.fechaInicio;
             }
             $vue.reservados = [];
             $vue.clearHorario();
-            $vue.changefilteraula();
+//            $vue.changefilteraula();
         },
         changeFechaFin() {
             let $vue = this;
             $vue.reservados = [];
             $vue.clearHorario();
-            $vue.changefilteraula();
+//            $vue.changefilteraula();
+        },
+        validarDiaSeleccionado(reservaaula) {
+            let fechaString = reservaaula.fechaInicio;
+            let partes = fechaString.split("/");
+            let fecha = new Date(partes[2], partes[1] - 1, partes[0]);
+            let diaSemana = fecha.getDay();
+            return this.getDiaByIdDateJS(diaSemana);
+
+        },
+        getDiaByIdDateJS(dia) {
+            let diasSemana = [{id: 1, dia: 'Domingo'}, {id: 2, dia: 'Lunes'}, {id: 3, dia: 'Martes'},
+                {id: 4, dia: 'Miércoles'}, {id: 5, dia: 'Jueves'}, {id: 6, dia: 'Viernes'}, {id: 7, dia: 'Sábado'}];
+            return diasSemana[dia];
         },
         guardarTramite() {
 
@@ -152,7 +164,26 @@ new Vue({
             if (!valid) {
                 return;
             }
-            console.dir($vue.jsonaulahorario);
+
+            if ($vue.reservaaula.fechaInicio === $vue.reservaaula.fechaInicio) {
+
+                let diaDateJs = $vue.jsonaulahorario[0].dia.id + 1;// se sumas +1 por el date del JS
+                let diaSeleccionado = this.validarDiaSeleccionado($vue.reservaaula);
+
+                let diaTmp = $vue.jsonaulahorario[0].dia.id;
+
+                for (var i = 0; i < $vue.jsonaulahorario.length; i++) {
+                    
+                    if (diaTmp !== $vue.jsonaulahorario[i].dia.id) {
+                        notify("Solo debe seleccionar el día de la fecha " + $vue.reservaaula.fechaInicio + " día " + diaSeleccionado.dia, "error");
+                    }
+                }
+
+                if (diaDateJs !== diaSeleccionado.id) {
+                    notify("El dia seleccionado debe ser igual a la fecha " + $vue.reservaaula.fechaInicio + " día " + diaSeleccionado.dia, "error");
+                }
+            }
+
             $vue.reservaaula.reservados = $vue.reservados;
             $vue.reservaaula.diahora = $vue.jsonaulahorario;
             $vue.isactiveguardar = true;
@@ -207,7 +238,7 @@ new Vue({
                 }
             }
             $vue.reservados.push(aula);
-            $vue.changefilteraula();
+//            $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
         },
         changefilteraula() {
@@ -244,7 +275,7 @@ new Vue({
         changehorario() {
             let $vue = this;
             $vue.reservados = [];
-            $vue.changefilteraula();
+//            $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
         },
         reloadaulalist() {
@@ -346,7 +377,6 @@ new Vue({
                     $vue.isSearchingModulos = false;
                     if (response.success) {
                         $vue.modulos = response.data;
-                        console.dir($vue.modulos);
                     } else {
                         notify(response.message, "error");
                     }

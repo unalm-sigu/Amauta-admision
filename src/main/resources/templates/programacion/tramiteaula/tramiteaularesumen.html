@@ -4,10 +4,14 @@
 
         <div class="col-xs-12">
 
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='DOC' "><b>Solicitante:</b>  {{tramiteresumen.tramite.docente.persona.nombreCompleto}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='ALU' "><b>Solicitante:</b>  {{tramiteresumen.tramite.alumno.persona.nombreCompleto}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='EMP' "><b>Solicitante:</b>  {{tramiteresumen.tramite.empresa.razonSocial}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='OFI' "><b>Solicitante:</b>  {{tramiteresumen.tramite.oficina.nombre}}</p>
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='DOC' "><b>Solicitante:</b>  
+                {{tramiteresumen.tramite.docente !==  undefined ? tramiteresumen.tramite.docente.persona.nombreCompleto : ''}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='ALU' "><b>Solicitante:</b>  
+                {{tramiteresumen.tramite.alumno !== undefined ? tramiteresumen.tramite.alumno.persona.nombreCompleto : ''}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='EMP' "><b>Solicitante:</b>  
+                {{tramiteresumen.tramite.empresa !== undefined ? tramiteresumen.tramite.empresa.razonSocial : ''}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='OFI' "><b>Solicitante:</b>  
+                {{tramiteresumen.tramite.oficina !== undefined ? tramiteresumen.tramite.oficina.nombre : ''}}</p>
         </div>
 
 
