@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Slf4j
@@ -74,7 +75,7 @@ public class CursoNivelacionController {
         service.save(curso, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage(curso.getId() == null ? "Se creo el curso satisfactoriamente": "Se actualizo el curso satisfactoriamente.");
+        json.setMessage(curso.getId() == null ? "Se creo el curso satisfactoriamente" : "Se actualizo el curso satisfactoriamente.");
         json.setSuccess(Boolean.TRUE);
 
         return json;
@@ -82,9 +83,9 @@ public class CursoNivelacionController {
 
     @ResponseBody
     @RequestMapping("activar")
-    public JsonResponse activar(@RequestBody Curso curso, HttpSession session) {
+    public JsonResponse changeEstado(@RequestBody Curso curso, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.activar(curso, ds);
+        service.changeEstado(curso, ds);
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se activo el curso satisfactoriamente");
@@ -111,6 +112,18 @@ public class CursoNivelacionController {
                 .from(ciclo)
                 .only("id,descripcion,descripcion2")
                 .json();
+    }
+
+    @ResponseBody
+    @RequestMapping("allTemas")
+    public ArrayNode allTemas(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<TemaExamen> temasExamen = service.allTemas(ds);
+
+        return JaneHelper
+                .from(temasExamen)
+                .only("id,codigo,nombre")
+                .array();
     }
 
 }

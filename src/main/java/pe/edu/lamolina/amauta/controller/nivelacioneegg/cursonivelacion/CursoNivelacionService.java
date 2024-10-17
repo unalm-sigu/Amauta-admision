@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.calificacion.TemaExamen;
 
 public interface CursoNivelacionService {
 
@@ -11,8 +12,10 @@ public interface CursoNivelacionService {
 
     void save(Curso curso, DataSessionPivot ds);
 
-    public void activar(Curso curso, DataSessionPivot ds);
+    public void changeEstado(Curso curso, DataSessionPivot ds);
 
     public void eliminar(Curso curso, DataSessionPivot ds);
+
+    List<TemaExamen> allTemas(DataSessionPivot ds);
 
 }

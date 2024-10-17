@@ -61,7 +61,9 @@
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="editar(item)">Editar</a></li>
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
+                                                    <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="relacionarConTemas(item)">Relacionar con Temas</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -77,23 +79,25 @@
         </section>
 
         <modal-curso ref="modalCurso"></modal-curso>
-
         <modal-confirm ref="modalConfirm"></modal-confirm>
+        <modal-relacion-curso-con-tema ref="modalRelacionCursoConTema"></modal-relacion-curso-con-tema>
     </div>
 
 </template>
 <script>
     const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
     const ModalCurso = httpVueLoader('./ModalCurso.vue');
+    const ModalRelacionCursoConTema = httpVueLoader('./ModalRelacionCursoConTema.vue');
 
     module.exports = {
         components: {
-            ModalCurso, ModalConfirm
+            ModalCurso, ModalConfirm, ModalRelacionCursoConTema,
         },
         data() {
             return {
                 idModalCurso: "id-modal-curso",
                 idModalConfirmacion: "id-modal-confirmacion",
+                idModalRelacionCursoConTema: "id-modal-relacion-curso-con-tema",
                 ciclo: JSON.parse(cicloJson),
                 cursosNivelacionURL: `/${rutaModulo}/list`,
                 pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}
@@ -116,6 +120,9 @@
                 }
                 if (item.estado === 'PEN') {
                     return "label label-default";
+                }
+                if (item.estado === 'ANU') {
+                    return "label label-danger";
                 }
                 return "";
             },
@@ -142,7 +149,7 @@
             eliminar(item) {
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirmacion,
-                    message: "¿Seguro que desea eliminar este registro?",
+                    message: "¿Seguro que desea eliminar este curso?",
                     okbtn: "Si, eliminar",
                     okclass: "btn-danger",
                     okaction: () => {
@@ -156,6 +163,29 @@
                 });
 
                 this.$refs.modalConfirm.open(config);
+            },
+            anular(item) {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirmacion,
+                    message: "¿Seguro que desea anular este curso?",
+                    okbtn: "Si, anular",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/activar`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCurso,
+                            body: {id: item.id}
+                        }));
+                    }
+                });
+                this.$refs.modalConfirm.open(config);
+            },
+            relacionarConTemas(item) {
+                console.log("this.$refs.modalRelacionCursoConTema");
+                console.log(this.$refs);
+                this.$refs.modalRelacionCursoConTema.abrirModalRelacion(item, this.$refs.raptorCurso);
+
             }
         }
     };

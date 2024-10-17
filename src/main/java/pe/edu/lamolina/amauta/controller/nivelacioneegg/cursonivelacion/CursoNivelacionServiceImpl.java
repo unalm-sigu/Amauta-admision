@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacion;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
@@ -35,6 +37,7 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     private final CursoDAO cursoDAO;
     private final ModalidadEstudioDAO modalidadEstudioDAO;
     private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+//    private final TemaExamenDAOH temaCicloDAO;
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter) {
@@ -95,9 +98,13 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
 
     @Override
     @Transactional
-    public void activar(Curso curso, DataSessionPivot ds) {
+    public void changeEstado(Curso curso, DataSessionPivot ds) {
         Curso cursoBD = cursoDAO.find(curso.getId());
-        cursoBD.setEstadoEnum(EstadoEnum.ACT);
+        if (curso.getEstadoEnum() == EstadoEnum.PEN) {
+            cursoBD.setEstadoEnum(EstadoEnum.ACT);
+        } else {
+            cursoBD.setEstadoEnum(EstadoEnum.ANU);
+        }
         cursoDAO.update(cursoBD);
     }
 
@@ -105,6 +112,12 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Transactional
     public void eliminar(Curso curso, DataSessionPivot ds) {
         cursoDAO.delete(curso);
+    }
+
+    @Override
+    public List<TemaExamen> allTemas(DataSessionPivot ds) {
+//        return temaCicloDAO.allByCiclo(ds.getCicloAcademico());
+        return Arrays.asList(new TemaExamen(1L));
     }
 
 }
