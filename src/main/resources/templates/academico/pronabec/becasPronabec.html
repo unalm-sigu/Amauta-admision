@@ -5,40 +5,51 @@
 </head>
 
 <body>
-<div id="omisioVUE" layout:fragment="main" v-cloak="">
-    <header class="header b-b padder-lg">
-        <div class="btn-group pull-right">
-            <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                Acciones &nbsp; <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li> <a  type="button" v-bind:href="'omisoeleccion/load'">Cargar Datos</a></li>
-                <li> <a  type="button" v-on:click="openNuevo">Nuevo Becario</a></li>
-            </ul>
-        </div>
-        <h2> Becas Pronabec </h2>
-    </header>
+    <div layout:fragment="main">
+        <div id="main" v-cloak="">
+            <header class="header b-b padder-lg">
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                        Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li> <a  type="button" v-bind:href="'becaspronabec/load'">Cargar Excel</a></li>
+                        <li> <a  type="button" v-on:click="openModal">Nuevo Becado</a></li>
+                        <li><a type="button" v-on:click="openReporteModal">Reportes con Filtro</a></li>
+                        <li><a v-on:click.prevent="generarReporte()">Reporte Becados Matriculados</a></li>
+                    </ul>
+                </div>
+                <h2> Becas Pronabec </h2>
+            </header>
 
-    <section class="wrapper-lg">
-        <section class="panel">
+            <section class="wrapper-lg">
+                <section class="panel">
 
-            <section class="panel-body">
+                    <section class="panel-body">
 
-                <profesor-list></profesor-list>
+                        <becas-list></becas-list>
+
+                    </section>
+                </section>
 
             </section>
-        </section>
 
-    </section>
+            <div th:substituteby="academico/pronabec/nuevoBecadoModal"></div>
+            <div th:substituteby="academico/pronabec/reporteBecadoModal"></div>
+        </div>
 
-</div>
+    </div>
 
-<div layout:fragment="js">
-    <script>
-        Vue.component("multiselect", window.VueMultiselect.default);
-        const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');
-    </script>
-</div>
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var tipoBecaJson = /*[[${tipoBecas.toString()}]]*/ '';
+            var ciclos = /*[[${ciclos.toString()}]]*/ 'json';
+            /*]]>*/
+        </script>
+        <script th:src="@{/app/academico/pronabec/listaBecados.js}" charset="utf-8"></script>
+
+    </div>
 
 </body>
 </html>

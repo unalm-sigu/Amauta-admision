@@ -1,325 +1,273 @@
 <template>
   <div>
 
-    <section class="panel">
-      <section class="panel-body">
-        <raptor-table v-bind:url="URL_BECAS_PRONABEC" v-bind:preload="true" ref="load">
+        <raptor-table v-bind:url="URL_BECAS_PRONABEC" ref="becaLoad">
           <template scope="props" >
             <table class="table table-striped table-hover">
               <thead>
-              <tr>
-                <th class="col-md-4" colspan="2"></th><!--  //-->
-                <th class="col-md-3 text-center">Estado</th>
-                <th class="col-md-3 text-center v-middle">Motivo</th>
-                <th class="col-md-1 text-center v-middle">Ciclo</th>
-                <th class="col-md-1 text-center v-middle">Monto</th>
-                <th></th>
-              </tr>
+                <tr>
+                  <th class="col-md-4" colspan="2"></th>
+                  <th class="col-md-3 text-center">Tipo Beca</th>
+                  <th class="col-md-1 text-center v-middle">Año Convocatoria</th>
+                  <th class="col-md-2 text-center v-middle">Fecha Inicio</th>
+                  <th class="col-md-2 text-center v-middle">Fecha Fin</th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody>
-              <template  v-for="item in props.data" >
-                <tr v-for="(deudas,idx) in item.alumnoOmisoEleccions">
-                  <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+              <tr  v-for="item in props.data" >
+                  <td class="v-middle">
                     <div class="pull-left">
-                      <div v-if="item.persona.tipoFoto=='POSTUL' "
-                           class="img-responsive img-thumbnail img-circle div-foto-list">
-                        <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
-                      </div>
-
-                      <img v-else-if="item.persona.tipoFoto=='COMUN' "
-                           class="img-responsive img-thumbnail img-circle div-foto-alumno-list"
-                           v-bind:src="item.persona.rutaFoto" />
-
-                      <img v-else=""
-                           class="img-foto-tempo img-responsive img-thumbnail img-circle"
-                           v-bind:src="item.persona.rutaFoto" />
+                      <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
                     </div>
                   </td>
-                  <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+                  <td class="v-middle">
                     <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
-                      {{item.persona.nombreCompleto}}
+                      {{item.nombre}}
                     </a>
-                    <span class="block">
-                                                    Matrícula: <b>{{item.codigo}}</b>
-                                                </span>
-                    <span class="block">
-                                                    Modalidad: <b> {{item.modalidadEstudio.nombre}}</b>
-                                                </span>
-                    <small v-if="item.persona.numeroDocIdentidad != '' " class="block bold">
-                      {{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}}
+                    <small class="block">
+                        DNI:  <b>{{item.nroDocumento}}</b>
                     </small>
                     <span class="block">
-                                                    Correo institucional:  <b>{{item.persona.emailCompania}}</b>
+                                                    Correo institucional:  <b>{{item.emailEmpresa}}</b>
                                                 </span>
                     <span class="block">
-                                                    Correo personal:  <b>{{item.persona.email}}</b>
+                                                    Correo personal:  <b>{{item.email}}</b>
                                                 </span>
                   </td>
 
                   <td class="v-middle text-center" >
-                    <span class="label " v-bind:class="getClass(deudas.estadoEnum.name)" v-text="deudas.estadoEnum.value"></span>
+                    <span >{{item.tipoBeca}}</span>
                   </td>
 
                   <td class="v-middle text-center" >
-                    <span v-text="deudas.motivoEnum.value"></span>
+                    <span >{{item.yearConvocatoria}}</span>
                   </td>
 
                   <td class="v-middle text-center" >
-                    <span v-text="deudas.cicloAcademico.descripcion"></span>
+                    <span>{{item.fechaInicio}}</span>
                   </td>
 
                   <td class="text-center v-middle" >
-                    <span v-text="commas(deudas.multa)"></span>
+                    <span >{{item.fechaFin}}</span>
                   </td>
-                  <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+                  <td class="v-middle">
                     <div class="actions">
                       <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                       <ul class="dropdown-menu pull-right">
-                        <li><a href="#" v-on:click.prevent="openAnular(item)">Anular Deuda</a></li>
-                        <li><a href="#" v-on:click.prevent="verAportes(item)">Ver aportes</a></li>
-                        <li><a href="#" v-on:click.prevent="verBoletas(item)">Ver boletas</a></li>
+                        <li><a href="#" v-on:click.prevent="openEliminar(item)" class="text-danger"><i class="fa fa-trash" style="color: #ff0000;"></i> Eliminar Becado</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" v-on:click.prevent="openEditar(item)"><i class="fa fa-pencil text-warning"></i> Editar Becario</a></li>
+                        <li><a href="#" v-on:click.prevent=""><i class="fa fa-ban text-secondary"></i> Anular Becado</a></li>
+                        <li><a href="#"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
                       </ul>
                     </div>
                   </td>
-                </tr>
 
-              </template>
+              </tr>
               </tbody>
             </table>
           </template>
         </raptor-table>
-      </section>
-    </section>
+        <modal-vik ref="modalAnular"
+                   v-bind="modalAnular"
+                   v-bind:okaction="eliminarBecado">
+
+          <div slot="body">
+            <form id="formAnular" data-parsley-validate="true" v-if="becadoAnular.id != null">
+
+              <div class="form-group" >
+                <table>
+                  <tr >
+                    <td class="v-middle col-md-4" >
+                      <img
+                           class="img-foto-tempo img-responsive img-thumbnail img-circle"
+                           v-bind:src="becadoAnular.rutaFoto" />
+                    </td>
+                    <td  class="v-middle col-md-4" >
+                      <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                        {{becadoAnular.nombre}}
+                      </a>
+                      <span class="block">
+                                Matrícula: {{becadoAnular.nroDocumento}}
+                            </span>
+                      <span class="block">Tipo beca: {{becadoAnular.tipoBeca}}</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </form>
+          </div>
+        </modal-vik>
+        <modal-vik ref="modalEditarBecc" v-bind="modalEditarBecc" v-bind:okaction="updateBecado">
+
+          <div slot="body">
+            <form ref="formEditar" data-parsley-validate="true">
+              <div class="form-group">
+                <label> Alumno </label>
+                <input class="form-control col-md-4 m-b-xs" v-model="becadoEditar.nombre" required="" readonly/>
+              </div>
+              <div class="form-group">
+                <label> Tipo de beca </label>
+                <multiselect v-model="becadoEditar.tipoBeca"
+                             v-bind:options='tipoBeca'
+                             v-bind:internal-search="true"
+                             label='nombre'
+                             track-by='id'
+                             placeholder="Seleccione un ciclo">
+                </multiselect>
+                <input type="hidden" v-model="becadoEditar.tipoBeca" required=""/>
+              </div>
+              <div class="form-group">
+                <label> Año de convocatoria </label>
+                <div>
+                  <input type="number" class="form-control col-md-4 m-b-xs" minlength="4" placeholder="Ingrese el año ej. 2024" v-model="becadoEditar.yearConvocatoria" required="true"/>
+                </div>
+
+              </div>
+              <div class="form-group">
+                <label>Fecha de inicio</label>
+                <div class="input-group date">
+                  <date-picker v-model="becadoEditar.fechaInicio"
+                               required="true"
+                               v-bind:config="configDate"
+                               data-parsley-id="2"
+                               v-bind:wrap="true" >
+                  </date-picker>
+                  <div class="input-group-addon">
+                    <span class="fa fa-calendar"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Fecha fin</label>
+                <div class="input-group date">
+                  <date-picker v-model="becadoEditar.fechaFin"
+                               required="true"
+                               v-bind:config="configDate"
+                               data-parsley-id="2"
+                               v-bind:wrap="true" >
+                  </date-picker>
+                  <div class="input-group-addon">
+                    <span class="fa fa-calendar"></span>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </modal-vik>
 
   </div>
 </template>
-
 <script>
-module.exports = {
-  data() {
-    return {
-      URL_BECAS_PRONABEC: APP.url('academico/matricula/bloqueo/all'),
-    };
-  },
-  mounted: function () {
-    let $vue = this;
-  },
-  methods: {
-    update(item) {
-      this.$parent.update({...item});
-    },
-    eliminar(item) {
-      let $vue = this;
-      swal('¿Seguro que desea eliminar el registro?', {
-        icon: "warning",
-        closeOnClickOutside: false,
-        closeOnEsc: false,
-        dangerMode: true,
-        buttons: {
-          cancel: {text: "Cancelar", closeModal: true, visible: true},
-          confirm: {text: "Sí, Eliminar", closeModal: false}
-        }
-      }).then((value) => {
-        if (value != true) {
-          return;
-        }
-        axios_.delete("/academico/matricula/bloqueo/" + item.id)
-            .then(({data}) => {
-              $vue.reload();
-              notify(data, 'info');
-              return swal({text: data, icon: "success", button: false, timer: 1000});
-            }, () => {
-              return swal(APP.errorComunicacion, "error");
-            });
-
-      }).catch(err => {
-        if (err) {
-          swal(APP.errorComunicacion, "error");
-        } else {
-          swal.stopLoading();
-          swal.close();
-        }
-      });
-
-    },
-    reload() {
-      this.$refs.dynatable.repreload();
-    }
-  }
-};
-</script>
-<script>
-// DDDDSSSSSS
 module.exports={
+  components:{
+    RaptorTable: use("/_vue/modules/RaptorTable.vue")
+  },
   data() {
     return {
-      alumnosURL: APP.url(`${rutaModulo}/list`),
-      ciclos: JSON.parse(cicloJson),
-      motivos: JSON.parse(motivosJson),
-      modalOmisoEleccion: this.createModal('Agregar Deuda', 'Guardar'),
-      modalAnular: this.createModal('Anular deuda', 'Anular deuda'),
-      modalLoadModal: this.createModal('Cargar Deuda', 'Cargar'),
-      isLoading: false,
-      alumnos: [],
-      alumnoOmisoEleccion: {},
-      omisionAnular: {},
-      resumenModal: {},
-      resumenes: [],
-      alumno: {}
+      tipoBeca: JSON.parse(tipoBecaJson),
+      URL_BECAS_PRONABEC: APP.url('academico/becaspronabec/list'),
+      modalAnular: VUE_MODAL.structFormAjax({
+        id: 'modalAnular',
+        header: true,
+        title: 'Eliminar Becado',
+        okbtn: "Eliminar Becado",
+        showaccept: true
+      }),
+      modalEditarBecc: VUE_MODAL.structFormAjax({
+        id: 'modalEditarBecc',
+        header: true,
+        title: 'Editar Becado',
+        okbtn: "Guardar Becado",
+        showaccept: true
+      }),
+      becadoEditar:{},
+      becadoAnular:{},
+      configDate: {
+        format: 'DD/MM/YYYY',
+        useCurrent: false
+      },
     };
   },
   mounted() {
-    $(".numeric").numeric({ negative: false });
+    //$(".numeric").numeric({ negative: false });
   },
   methods: {
-    createModal(title, okbtn) {
-      return {
-        id: title.replace(/\s+/g, '') + 'Modal',
-        header: true,
-        title,
-        okbtn,
-        showaccept: true
-      };
+    openEliminar(item) {
+      let $vue = this;
+      $vue.becadoAnular = JSON.parse(JSON.stringify(item));
+      $vue.$refs.modalAnular.open();
     },
-    customLabel({ persona, codigo }) {
-      return `${persona.nombreCompleto} — ${codigo}`;
-    },
-    openNuevo() {
-      this.alumnoOmisoEleccion = {};
-      this.$refs.modalOmisoEleccion.open();
-    },
-    save() {
-      const form = $("#formNuevo");
-      if (!form.parsley().validate()) return;
+    eliminarBecado() {
+      let $vue = this;
+      var form = $("#formAnular");
 
-      MODAL.showWait("Espere un momento por favor");
-      this.alumnoOmisoEleccion.motivo = this.alumnoOmisoEleccion.motivo.name;
-
-      axios_.post(APP.url(`${rutaModulo}/saveOmision`), this.alumnoOmisoEleccion)
-          .then(response => {
-            if (response.data.success) {
-              this.$refs.load.loadRemoteData();
-              notify(response.data.message, "success");
-            } else {
-              notify(response.data.message, "error");
-            }
-            this.$refs.modalOmisoEleccion.close();
-            MODAL.hideWait();
-          })
-          .catch(() => {
-            this.$refs.modalOmisoEleccion.close();
-            notify(Messages.errorComunicacion, "error");
-          });
-    },
-    openAnular(item) {
-      this.omisionAnular = JSON.parse(JSON.stringify(item));
-      this.$refs.modalAnular.open();
-    },
-    saveAnular() {
-      const form = $("#formAnular");
-      if (!form.parsley().validate()) return;
-
-      const selectedCount = this.omisionAnular.alumnoOmisoEleccions.filter(item => item.seleccionado).length;
-
-      if (selectedCount === 0) {
-        notify("No ha seleccionado que multas van a ser anuladas", "error");
+      if (!form.parsley().validate()) {
         return;
       }
 
       bootbox.confirm({
-        message: '¿Seguro que desea anular las deudas?',
+        message: '¿Está seguro que desea eliminar al becario?',
         buttons: {
-          confirm: { label: 'Si, anular', className: "btn-danger" },
-          cancel: { label: 'Cancelar', className: "btn-link" }
+          confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+          cancel: {label: 'Cancelar', className: 'btn-link'}
         },
-        callback: (result) => {
+        callback: function (result) {
           if (result) {
-            this.$refs.modalAnular.beginProcessing();
-            axios_.post(APP.url(`${rutaModulo}/anularOmision`), this.omisionAnular)
+            axios.post(APP.url('academico/becaspronabec/eliminar'), null, {
+              params: {
+                id: $vue.becadoAnular.id
+              },
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
                 .then(response => {
-                  this.$refs.modalAnular.confirmReaction(response.data.success);
                   if (response.data.success) {
-                    this.$refs.load.loadRemoteData();
-                    notify(response.data.message, "success");
+                    notify(response.data.message, "info");
+                    $vue.$refs.becaLoad.loadRemoteData();
+                    $vue.$refs.modalAnular.close();
                   } else {
                     notify(response.data.message, "error");
                   }
                 })
                 .catch(() => {
-                  this.$refs.modalAnular.confirmReaction(false);
                   notify(Messages.errorComunicacion, "error");
                 });
           }
         }
       });
     },
-    loadAlumno(nombre) {
-      if (!nombre) return;
-
-      this.isLoading = true;
-
-      axios_.post(APP.url(`${rutaModulo}/allAlumnoByNombre`), { nombre })
-          .then(response => {
-            if (response.data.success) {
-              this.alumnos = response.data.data;
-            }
-            this.isLoading = false;
-          })
-          .catch(() => {
-            this.isLoading = false;
-          });
+    openEditar(item) {
+      let $vue = this;
+      $vue.becadoEditar = JSON.parse(JSON.stringify(item));
+      const becaSeleccionada = $vue.tipoBeca.find(beca => beca.nombre === $vue.becadoEditar.tipoBeca);
+      if (becaSeleccionada) {
+        $vue.becadoEditar.tipoBeca = becaSeleccionada;
+      } else {
+        $vue.becadoEditar.tipoBeca = null;
+      }
+      $vue.$refs.modalEditarBecc.open();
     },
-    verAportes(item) {
-      this.alumno = { ...item };
-      this.resumenModal = {};
-      this.$refs.modalAporteAlumno.open();
-      this.$refs.modalAporteAlumno.showWait("Cargando aportes");
-
-      axios_.post(APP.url(`${rutaModulo}/getInfoAportes/${item.id}`))
-          .then(response => {
-            this.$refs.modalAporteAlumno.hideWait();
-            if (response.data.success) {
-              this.resumenes = response.data.data;
-            } else {
-              this.$refs.modalAporteAlumno.close();
-              notify(response.data.message, "error");
-            }
-          })
-          .catch(() => {
-            this.$refs.modalAporteAlumno.close();
-            notify(Messages.errorComunicacion, "error");
+    updateBecado() {
+      let $vue = this;
+      if (!$($vue.$refs.formEditar).parsley().validate()) {
+        return;
+      }
+      axios.post(APP.url('academico/becaspronabec/updateBeca'), $vue.becadoEditar)
+          .then(({data}) => {
+            notify(data.message, "info");
+            $vue.$refs.modalEditarBecc.close();
+            $vue.$refs.becaLoad.loadRemoteData();
+          }, () => {
+            notify(data.message, "error");
+            $vue.$refs.modalEditarBecc.close();
           });
-    },
-    verBoletas(item) {
-      this.resumenModal = {};
-      this.$refs.modalBoletaAlumno.open();
-      this.$refs.modalBoletaAlumno.showWait("Buscando boletas..");
 
-      axios_.post(APP.url(`${rutaModulo}/findBoleta/${item.id}`))
-          .then(response => {
-            this.$refs.modalBoletaAlumno.hideWait();
-            if (response.data.success) {
-              if (response.data.data.boletas.length === 0) {
-                this.$refs.modalBoletaAlumno.close();
-                notify("No existen boletas generadas para este alumno", "warning");
-                return;
-              }
-              this.resumenModal = response.data.data;
-            } else {
-              this.$refs.modalBoletaAlumno.close();
-              notify(response.data.message, "error");
-            }
-          })
-          .catch(() => {
-            this.$refs.modalBoletaAlumno.close();
-            notify(Messages.errorComunicacion, "error");
-          });
     },
-    commas(n) {
-      return Number(n).toLocaleString('en', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+    refreshTable() {
+      this.$refs.becaLoad.loadRemoteData(); // Refresca la tabla
     }
   }
 };
