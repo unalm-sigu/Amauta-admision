@@ -2104,7 +2104,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
             if (renunciaTramite == null) {
-                throw new PhobosException("El alumno " + renunciaAlumno.getAlumno().getCodigo() + " no tiene un trámite titulo");
+                throw new PhobosException("El alumno " + renunciaAlumno.getAlumno().getCodigo() + "No cuenta con trámite de inicio..");
             }
             renunciaTramite.setResolucion(resolucion);
             renunciaTramite.setEstado(TramiteEstadoEnum.ACEP.name());
