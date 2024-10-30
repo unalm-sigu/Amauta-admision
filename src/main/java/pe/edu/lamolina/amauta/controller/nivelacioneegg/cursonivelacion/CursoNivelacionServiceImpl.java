@@ -1,8 +1,8 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacion;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -12,9 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.admision.TemaExamenDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTemaExamenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -22,6 +25,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 
 @Slf4j
 @Service
@@ -37,7 +41,8 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     private final CursoDAO cursoDAO;
     private final ModalidadEstudioDAO modalidadEstudioDAO;
     private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
-//    private final TemaExamenDAOH temaCicloDAO;
+    private final TemaExamenDAO temaExamenDAO;
+    private final CursoTemaExamenDAO cursoTemaExamenDAO;
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter) {
@@ -116,8 +121,34 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
 
     @Override
     public List<TemaExamen> allTemas(DataSessionPivot ds) {
-//        return temaCicloDAO.allByCiclo(ds.getCicloAcademico());
-        return Arrays.asList(new TemaExamen(1L));
+        return temaExamenDAO.all().stream().filter(x -> x.getCicloFin() == null).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public int saveRelacion(CursoListTemas cursoListTemas, DataSessionPivot ds) {
+        List<CursoTemaExamen> temasCursoBD = cursoTemaExamenDAO.allByCurso(cursoListTemas.getCurso());
+
+        if (!temasCursoBD.isEmpty()) {
+            temasCursoBD.stream().forEach(cursoTemaExamen -> {
+                cursoTemaExamenDAO.delete(cursoTemaExamen);
+            });
+        }
+
+        cursoListTemas.getIds().stream().forEach(x -> {
+            CursoTemaExamen cte = new CursoTemaExamen();
+            cte.setCurso(cursoListTemas.getCurso());
+            cte.setTemaExamen(new TemaExamen(x));
+            cte.setUserRegistro(ds.getUsuario());
+            cte.setFechaRegistro(new Date());
+            cursoTemaExamenDAO.save(cte);
+        });
+        return temasCursoBD.size();
+    }
+
+    @Override
+    public List<CursoTemaExamen> allByCurso(Curso curso) {
+        return cursoTemaExamenDAO.allByCurso(curso);
     }
 
 }

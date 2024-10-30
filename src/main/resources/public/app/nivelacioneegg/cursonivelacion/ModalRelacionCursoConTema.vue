@@ -9,7 +9,8 @@
             <form v-bind:id="form" data-parsley-validate="">
                 <template>
                     <div class="form-group has-success">
-                        <label class="control-label" for="inputSuccess1">Lista de Temas</label>
+                        <label class="control-label" for="inputSuccess1"><strong>Lista de Temas</strong></label>
+                        <hr/>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -55,6 +56,7 @@
                 title: "",
                 curso: {id: null, nombre: ''},
                 temas: [],
+                cursoListTemas: {curso: {id: '', nombre: ''}, ids: []},
                 seleccionados: [],
                 tema: {id: null, codigo: '', nombre: ''},
                 raptor: null,
@@ -66,63 +68,50 @@
             };
         },
         mounted() {
+
         },
         methods: {
 
             abrirModalRelacion(item, raptor) {
                 var form = $("#" + this.form);
                 form.parsley().destroy();
+                this.cursoListTemas.curso = item;
 
-                this.curso = {id: '', nombre: ''};
                 this.title = "Relacionar el curso " + item.codigo + " " + item.nombre + " con temas";
                 this.$refs.modalRelacionCursoConTema.open();
                 this.raptor = raptor;
 
                 let $vue = this;
-                $vue.temas = [
-                    {id: 1, codigo: '', nombre: 'Tema 1'},
-                    {id: 2, codigo: '', nombre: 'Tema 2'},
-                    {id: 3, codigo: '', nombre: 'Tema 3'},
-                    {id: 4, codigo: '', nombre: 'Tema 4'},
-                    {id: 5, codigo: '', nombre: 'Tema 5'},
-                    {id: 6, codigo: '', nombre: 'Tema 6'},
-                    {id: 7, codigo: '', nombre: 'Tema 7'},
-                    {id: 8, codigo: '', nombre: 'Tema 8'},
-                    {id: 9, codigo: '', nombre: 'Tema 9'},
-                    {id: 10, codigo: '', nombre: 'Tema 10'},
-                    {id: 11, codigo: '', nombre: 'Tema 11'},
-                    {id: 12, codigo: '', nombre: 'Tema 12'},
-                ];
-                console.log($vue.temas);
-
+                $vue.getTemas();
+                $vue.getCursoTemasSeleccionados();
             },
+
             getTemas() {
-
-
+                myUtils.axios(VUE_AXIOS.structGetData({
+                    url: `/${rutaModulo}/allTemas`
+                })).then((resp) => this.temas = resp.data.data);
             },
-            editar(item, raptor) {
-//                var form = $("#" + this.form);
-//                form.parsley().destroy();
-//
-//                this.curso = JSON.parse(JSON.stringify(item));
-//                this.title = "Editar Curso Nivelación";
-//                this.raptor = raptor;
-//                this.$refs.modalCurso.open();
-//                this.$refs.modalCurso.okbtn = "Actualizar";
+            getCursoTemasSeleccionados() {
+                myUtils.axios(VUE_AXIOS.structGetData({
+                    url: `/${rutaModulo}/getCursoTemas`,
+                    modal: this.$refs.modalRelacionCursoConTema,
+                    body: this.cursoListTemas
+                })).then((resp) => this.seleccionados = resp.data.data.ids);
             },
-
             saveRelacion() {
                 var form = $("#" + this.form);
                 if (!form.parsley().validate()) {
                     return;
                 }
-                console.dir(this.seleccionados);
-//                myUtils.axios(VUE_AXIOS.structModalClose({
-//                    url: `/${rutaModulo}/save`,
-//                    modal: this.$refs.modalRelacionCursoConTema,
-//                    raptor: this.raptor,
-//                    body: this.curso
-//                }));
+
+                this.cursoListTemas.ids = this.seleccionados;
+
+                myUtils.axios(VUE_AXIOS.structModalClose({
+                    url: `/${rutaModulo}/saveRelacion`,
+                    modal: this.$refs.modalRelacionCursoConTema,
+                    raptor: this.raptor,
+                    body: this.cursoListTemas
+                }));
             }
 
         }

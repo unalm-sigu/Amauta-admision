@@ -1,8 +1,10 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacion;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 
 @Slf4j
 @Controller
@@ -116,14 +119,62 @@ public class CursoNivelacionController {
 
     @ResponseBody
     @RequestMapping("allTemas")
-    public ArrayNode allTemas(HttpSession session) {
+    public JsonResponse allTemass(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<TemaExamen> temasExamen = service.allTemas(ds);
-
-        return JaneHelper
+        ArrayNode array = JaneHelper
                 .from(temasExamen)
                 .only("id,codigo,nombre")
                 .array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(array);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
     }
 
+    @ResponseBody
+    @RequestMapping("saveRelacion")
+    public JsonResponse saveRelacion(@RequestBody CursoListTemas cursoListTemas, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        int relacion = service.saveRelacion(cursoListTemas, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage(relacion > 0 ? "Se relaciono los temas con el curso." : "Se quitaron los temas relacionados al curso.");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("getCursoTemas")
+    public JsonResponse getCursoTemas(@RequestBody CursoListTemas cursoListTemas, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<CursoTemaExamen> cursoTemaExamenes = service.allByCurso(cursoListTemas.getCurso());
+        List<Long> temasId = cursoTemaExamenes.stream().map(x -> x.getTemaExamen().getId()).collect(Collectors.toList());
+
+        cursoListTemas.setIds(temasId);
+
+        ObjectNode cursoJson = new ObjectNode(JsonNodeFactory.instance);
+        cursoJson.put("id", cursoListTemas.getCurso().getId());
+        cursoJson.put("nombre", cursoListTemas.getCurso().getNombre());
+
+        ArrayNode temasSeleccionadas = new ArrayNode(JsonNodeFactory.instance);
+
+        for (Long idTema : temasId) {
+            temasSeleccionadas.add(idTema);
+        }
+
+        ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+        obj.set("curso", cursoJson);
+        obj.set("ids", temasSeleccionadas);
+
+        JsonResponse json = new JsonResponse();
+        json.setData(obj);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
 }

@@ -32,7 +32,7 @@
                                     <tr>
                                         <th class="v-middle">Curso</th>
                                         <th class="v-middle">Dependencia</th>
-                                        <th class="v-middle">Estado</th>
+                                        <th class="v-middle text-right">Estado</th>
                                         <th class=""></th>
                                     </tr>
                                 </thead>
@@ -46,7 +46,7 @@
                                             <span class="block text-primary bold">Facultad {{item.departamentoAcademico.facultad.nombre}}</span>
                                             <span class="block"><b>Dpto. Acad.</b> {{item.departamentoAcademico.nombre}}</span>
                                         </td>
-                                        <td class="v-middle text-center">
+                                        <td class="v-middle text-right">
                                             <div v-bind:class="estadoClass(item)">
                                                 {{item.estadoEnum.value}}
                                             </div>
@@ -182,8 +182,6 @@
                 this.$refs.modalConfirm.open(config);
             },
             relacionarConTemas(item) {
-                console.log("this.$refs.modalRelacionCursoConTema");
-                console.log(this.$refs);
                 this.$refs.modalRelacionCursoConTema.abrirModalRelacion(item, this.$refs.raptorCurso);
 
             }
