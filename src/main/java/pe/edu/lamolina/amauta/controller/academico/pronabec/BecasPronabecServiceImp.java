@@ -120,14 +120,35 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         List<BecadosFilterBean> listBecadosExcel = new ArrayList<>();
         //TipoBeca tipoBecaCodigo = tipoBecaPronabecDAO.findByCodigo(tipoBeca.getCodigo());
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        CicloAcademico cicloRegular = cicloAcademicoDAO.findActivo(modalidadEstudio);
 
-        listBecadosExcel = becasPronabecDAO.allBecadosFilterExcel(cicloAcademico,modalidadEstudio,becadosFilterBean);
+        listBecadosExcel = becasPronabecDAO.allBecadosFilterExcel(cicloRegular,modalidadEstudio,becadosFilterBean);
         return listBecadosExcel;
     }
 
     @Override
     public List<CicloAcademico> allCicloRegular() {
         return cicloAcademicoDAO.allPregradoByRangeCode(201500,300000);
+    }
+
+    @Override
+    public List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean) {
+        List<BecadosFilterBean> listBecadosExcel = new ArrayList<>();
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        CicloAcademico cicloRegular = cicloAcademicoDAO.findActivo(modalidadEstudio);
+
+        listBecadosExcel = becasPronabecDAO.filterActualBecados(cicloRegular,modalidadEstudio,becadosFilterBean);
+        return listBecadosExcel;
+    }
+
+    @Override
+    public List<BecadosFilterBean> filterAnteriorBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean) {
+        List<BecadosFilterBean> listBecadosExcel = new ArrayList<>();
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        CicloAcademico cicloRegular = cicloAcademicoDAO.findActivo(modalidadEstudio);
+
+        listBecadosExcel = becasPronabecDAO.filterAnteriorBecados(cicloRegular,modalidadEstudio,becadosFilterBean);
+        return listBecadosExcel;
     }
 
     private void procesarArchivo(MultipartFile file, List<String> observados, List<InformacionBeca> pronabec, DataSessionPivot ds) {

@@ -20,5 +20,7 @@ public interface BecasPronabecService {
     List<MatriculadosBecadosBean> allMatriculadosBecados(CicloAcademico cicloAcademico);
     List<BecadosFilterBean> filterBecadosExcel(CicloAcademico cicloAcademico,BecadosFilterBean becadosFilterBean);
     public List<CicloAcademico> allCicloRegular();
+    List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean);
+    List<BecadosFilterBean> filterAnteriorBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean);
 
 }

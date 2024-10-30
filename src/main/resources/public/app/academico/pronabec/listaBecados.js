@@ -26,10 +26,16 @@ new Vue({
             id: 'modalReporteBec',
             header: true,
             title: 'Reportes',
-            okbtn: "Guardar",
+            okbtn: "Descargar",
             showaccept: true
         },
         filtroExcel:{
+            nota: false,
+            curso_matriculado: false,
+            ciclo_academico: null,
+            tercera_vez: false,
+            retiro_ciclo: false,
+            electivo_matriculado: false,
         },
     },
     components: {
@@ -168,13 +174,36 @@ new Vue({
         },
         reporteFiltro(){
             let $vue = this;
+            var form = $("#formReporte");
+            if (!form.parsley().validate()) {
+                return;
+            }
             let urll = '';
             $vue.processreporte = true;
 
             console.log(this.filtroExcel);
+            // if(this.filtroExcel.tipoReporte == null){
+            //     return;
+            // }
+            // if(this.filtroExcel.cicloActual == null){
+            //     return;
+            // }
+
 
             const objetoComoString = JSON.stringify(this.filtroExcel);
-            urll = APP.url('academico/becaspronabec/filtroBecadosExcel');
+            if (this.filtroExcel.tipoReporte === 'general') {
+                urll = this.filtroExcel.cicloActual === 'si'
+                    ? APP.url('academico/becaspronabec/cicloActual/descargar')
+                    : APP.url('academico/becaspronabec/cicloAnterior/descargar');
+            } else {
+                urll = this.filtroExcel.cicloActual === 'si'
+                    ? APP.url('academico/becaspronabec/cicloActual/descargar')
+                    : APP.url('academico/becaspronabec/cicloAnterior/descargar');
+                    // : APP.url('academico/becaspronabec/filtroBecadosExcel');
+            }
+
+
+            $vue.$refs.modalReporte.beginProcessing();
 
             axios({
                 url: urll,
@@ -195,81 +224,28 @@ new Vue({
                 link.setAttribute('download', namee);
                 document.body.appendChild(link);
                 link.click();
+
                 $vue.processreporte = false;
+                $vue.$refs.modalReporte.confirmReaction(true);
             }).catch(error => {
                 $vue.processreporte = false;
+                $vue.$refs.modalReporte.confirmReaction(false);
                 notify(Messages.errorComunicacion, "error");
             });
 
         },
+        clearFields() {
+            this.filtroExcel = {
+                tipo_beca: null,
+                ciclo_academico: null,
+                veces_desaprobado: null,
+                retiroCiclo: null,
+                curso_matriculado: false,
+                nota: false,
+                cambioCarrera: false
+            };
+        },
 
-        // searchPersona(nombre) {
-        //     let $vue = this;
-        //     if (nombre == null || nombre.trim().length == 0) {
-        //         return;
-        //     }
-        //     $vue.listPersona = [];
-        //     axios.get("/comun/buscar/allPersona", {params: {nombre: nombre}})
-        //         .then(response => {
-        //             $vue.listPersona = response.data.data;
-        //         });
-        // },
-        // save() {
-        //     let $vue = this;
-        //     if (!$("#form-validar-escalafon").parsley().validate()) {
-        //         notify.warning("Debe completar todos los campos requeridos.");
-        //         return;
-        //     }
-        //     $vue.$refs.escalofonModal.beginProcessing();
-        //     axios.post("/escalafon/save", $vue.escalafon)
-        //         .then(function (response) {
-        //             if (response.data.success) {
-        //                 notify(response.data.message, 'success');
-        //                 $vue.$refs.escalofonModal.confirmReaction(true);
-        //                 if (response.data.data != null) {
-        //                     location.href = $vue.editar(response.data.data);
-        //                 }
-        //                 $vue.$refs.raptorEscalafon.loadRemoteData();
-        //             } else {
-        //                 $vue.$refs.escalofonModal.confirmReaction(false);
-        //                 notify(response.data.message, 'warning');
-        //             }
-        //         })
-        //         .catch(function (error) {
-        //             notify(error.errorComunicacion, "error");
-        //             $vue.$refs.escalofonModal.confirmReaction(false);
-        //         });
-        // },
-        // editar(item) {
-        //     return APP.url('escalafon/update/' + item.id) + this.getOrigenURL();
-        // },
-        // ver(item) {
-        //     return location.href = '/escalafon/info/' + item.id;
-        // },
-        // getOrigenURL() {
-        //     var url = window.location.href;
-        //     return "?origen=" + Base64.encode(url);
-        // },
-        // eliminar(item) {
-        //     let $vue = this;
-        //     $vue.configConfirmAction.message = Messages.confirmDelete;
-        //     $vue.configConfirmAction.okbtn = "Si, eliminar";
-        //     $vue.configConfirmAction.okclass = "btn-danger";
-        //     $vue.configConfirmAction.okaction = function () {
-        //         axios.post("/escalafon/eliminar", item).then(response => {
-        //             $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
-        //             if (response.data.success) {
-        //                 notify(response.data.message, "success");
-        //                 $vue.$refs.raptorEscalafon.loadRemoteData();
-        //             } else {
-        //                 notify(response.data.message, "warning");
-        //             }
-        //         }).catch(e => {
-        //             $vue.$refs.modalConfirmAction.confirmReaction(false);
-        //             notify(Messages.errorComunicacion, "error");
-        //         });
-        //     };
-        //     $vue.$refs.modalConfirmAction.open();
-        // }
+
     }
 });

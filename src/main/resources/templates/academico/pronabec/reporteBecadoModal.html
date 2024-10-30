@@ -1,97 +1,148 @@
 <modal-vik ref="modalReporte" v-bind="modalReporteBec"
-           v-bind:okaction="reporteFiltro">
+           v-bind:okaction="reporteFiltro" v-bind:cancelaction="clearFields">
 
     <div slot="body">
         <form id="formReporte" data-parsley-validate="true" class="form-horizontal">
+
+            <!-- Pregunta si es en el ciclo actual -->
             <div class="form-group">
-                <label class="control-label col-md-4">Tipo de beca</label>
+                <label class="control-label col-md-4">¿Sacar reporte del ciclo actual?</label>
                 <div class="col-md-8">
-                    <multiselect v-model="filtroExcel.tipo_beca"
-                                 v-bind:options='tipoBeca'
-                                 v-bind:internal-search="true"
-                                 label='nombre'
-                                 track-by='id'
-                                 placeholder="Seleccione un ciclo">
-                    </multiselect>
-                    <input type="hidden" v-model="filtroExcel.tipo_beca" required=""/>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="cicloActual" value="si" v-model="filtroExcel.cicloActual" required="" /> Sí
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="cicloActual" value="no" v-model="filtroExcel.cicloActual" required="" /> No
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="control-label col-md-4"> Ciclo Academico</label>
+            <!-- Ciclo Académico (Se oculta o deshabilita según la respuesta) -->
+            <div class="form-group" v-if="filtroExcel.cicloActual === 'no'" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                <label class="control-label col-md-4"> Ciclo Académico</label>
                 <div class="col-md-8">
                     <multiselect v-model="filtroExcel.ciclo_academico"
                                  v-bind:options='ciclos'
                                  v-bind:internal-search="true"
                                  label='descripcion'
                                  track-by='codigo'
-                                 placeholder="Seleccione un ciclo">
+                                 placeholder="Seleccione un ciclo"
+                                 :disabled="filtroExcel.cicloActual === 'si'">
                     </multiselect>
                     <input type="hidden" v-model="filtroExcel.ciclo_academico" required=""/>
                 </div>
-
             </div>
 
             <div class="form-group">
-                <label class="control-label col-md-4">Cursos matriculados por 3ra vez(Reinscripciones en cursos/Cursos repetidos)</label>
+                <label class="control-label col-md-4">Tipo de Reporte</label>
                 <div class="col-md-8">
                     <div class="radio">
                         <label>
-                            <input type="radio" name="cursando" value="0" v-model="filtroExcel.veces_desaprobado" />
-                            Sí
+                            <input type="radio" name="tipoReporte" value="general" v-model="filtroExcel.tipoReporte" required="" /> General
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" name="cursando" value="1" v-model="filtroExcel.veces_desaprobado" />
-                            No
+                            <input type="radio" name="tipoReporte" value="filtros" v-model="filtroExcel.tipoReporte" required="" /> Con Filtros
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="control-label col-md-4">Tiene retiro de ciclo</label>
-                <div class="col-md-8">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="retiro" value="si" v-model="filtroExcel.retiroCiclo" />
-                            Sí
-                        </label>
-                    </div>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="retiro" value="no" v-model="filtroExcel.retiroCiclo" />
-                            No
-                        </label>
+            <div v-if="filtroExcel.tipoReporte === 'filtros'">
+
+                <div class="form-group" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <label class="control-label col-md-4">Tipo de beca</label>
+                    <div class="col-md-8">
+                        <multiselect v-model="filtroExcel.tipo_beca"
+                                     v-bind:options='tipoBeca'
+                                     v-bind:internal-search="true"
+                                     label='nombre'
+                                     track-by='id'
+                                     placeholder="Seleccione un tipo de beca">
+                        </multiselect>
+                        <input type="hidden" v-model="filtroExcel.tipo_beca" required=""/>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                <label class="control-label col-md-4">Parametros adicionales al reporte</label>
-                <div class="col-md-8">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="cursosMatriculados" v-model="filtroExcel.cursosMatriculados" />
-                            Cursos matriculados
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="notaMinima" v-model="filtroExcel.nota" />
-                            Nota mínima
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="cambioCarrera" v-model="filtroExcel.cambioCarrera" />
-                            Cambio de carrera
-                        </label>
+<!--                <div class="form-group">-->
+<!--                    <label class="control-label col-md-4">Reinscripciones en cursos (3ra)</label>-->
+<!--                    <div class="col-md-8">-->
+<!--                        <div class="radio">-->
+<!--                            <label>-->
+<!--                                <input type="radio" name="cursando" value="si" v-model="filtroExcel.tercera_vez" />-->
+<!--                                Sí-->
+<!--                            </label>-->
+<!--                        </div>-->
+<!--                        <div class="radio">-->
+<!--                            <label>-->
+<!--                                <input type="radio" name="cursando" value="no" v-model="filtroExcel.tercera_vez" />-->
+<!--                                No-->
+<!--                            </label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="form-group">-->
+<!--                    <label class="control-label col-md-4">Tiene retiro de ciclo</label>-->
+<!--                    <div class="col-md-8">-->
+<!--                        <div class="radio">-->
+<!--                            <label>-->
+<!--                                <input type="radio" name="retiro" value="si" v-model="filtroExcel.retiroCiclo" />-->
+<!--                                Sí-->
+<!--                            </label>-->
+<!--                        </div>-->
+<!--                        <div class="radio">-->
+<!--                            <label>-->
+<!--                                <input type="radio" name="retiro" value="no" v-model="filtroExcel.retiroCiclo" />-->
+<!--                                No-->
+<!--                            </label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <div class="form-group" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <label class="control-label col-md-4">Parametros adicionales al reporte</label>
+                    <div class="col-md-8">
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'no'" >
+                            <label>
+                                <input type="checkbox" name="cursosMatriculados" v-model="filtroExcel.electivo_matriculado" />
+                                Nro Cursos Electivos matriculados
+                            </label>
+                        </div>
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'porahorano'" >
+                            <label>
+                                <input type="checkbox" name="notaMinima" v-model="filtroExcel.nota" />
+                                Nota
+                            </label>
+                        </div>
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'porahorano'" >
+                            <label>
+                                <input type="checkbox" name="cambioCarrera" v-model="filtroExcel.cambioCarrera" />
+                                Cambio de carrera
+                            </label>
+                        </div>
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'no'" >
+                            <label>
+                                <input type="checkbox" name="tercera_vez" v-model="filtroExcel.tercera_vez" />
+                                Reinscripciones en cursos (3ra)
+                            </label>
+                        </div>
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'si'" >
+                            <label>
+                                <input type="checkbox" name="retiro_ciclo" v-model="filtroExcel.retiro_ciclo" />
+                                Tiene retiro de ciclo
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
         </form>
+
 
     </div>
 </modal-vik>

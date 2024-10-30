@@ -14,13 +14,19 @@ public class BecadosFilterBean {
     private String nombre_institucion;
     private String carrera;
     private String periodo_academico;
-    private String ciclo_academico;
+    private CicloAcademico ciclo_academico;
+    private String ciclos;
     private String curso_matriculado;
     private String nota;
+    private String creditos;
     private Long veces_desaprobado;
+    private String veces_cursado;
     private Long promedio_ponderado;
     private String condicion;
     private String cambio_carrera;
+    private String retiro_ciclo;
+    private String electivo_matriculado;
+    private String tercera_vez;
 
     public BecadosFilterBean() {
     }
@@ -89,12 +95,20 @@ public class BecadosFilterBean {
         this.periodo_academico = periodo_academico;
     }
 
-    public String getCiclo_academico() {
+    public CicloAcademico getCiclo_academico() {
         return ciclo_academico;
     }
 
-    public void setCiclo_academico(String ciclo_academico) {
+    public void setCiclo_academico(CicloAcademico ciclo_academico) {
         this.ciclo_academico = ciclo_academico;
+    }
+
+    public String getCiclos() {
+        return ciclos;
+    }
+
+    public void setCiclos(String ciclos) {
+        this.ciclos = ciclos;
     }
 
     public String getCurso_matriculado() {
@@ -113,12 +127,28 @@ public class BecadosFilterBean {
         this.nota = nota;
     }
 
+    public String getCreditos() {
+        return creditos;
+    }
+
+    public void setCreditos(String creditos) {
+        this.creditos = creditos;
+    }
+
     public Long getVeces_desaprobado() {
         return veces_desaprobado;
     }
 
     public void setVeces_desaprobado(Long veces_desaprobado) {
         this.veces_desaprobado = veces_desaprobado;
+    }
+
+    public String getVeces_cursado() {
+        return veces_cursado;
+    }
+
+    public void setVeces_cursado(String veces_cursado) {
+        this.veces_cursado = veces_cursado;
     }
 
     public Long getPromedio_ponderado() {
@@ -143,5 +173,29 @@ public class BecadosFilterBean {
 
     public void setCambio_carrera(String cambio_carrera) {
         this.cambio_carrera = cambio_carrera;
+    }
+
+    public String getRetiro_ciclo() {
+        return retiro_ciclo;
+    }
+
+    public void setRetiro_ciclo(String retiro_ciclo) {
+        this.retiro_ciclo = retiro_ciclo;
+    }
+
+    public String getElectivo_matriculado() {
+        return electivo_matriculado;
+    }
+
+    public void setElectivo_matriculado(String electivo_matriculado) {
+        this.electivo_matriculado = electivo_matriculado;
+    }
+
+    public String getTercera_vez() {
+        return tercera_vez;
+    }
+
+    public void setTercera_vez(String tercera_vez) {
+        this.tercera_vez = tercera_vez;
     }
 }

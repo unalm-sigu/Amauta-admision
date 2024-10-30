@@ -18,6 +18,8 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.*;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosCicloActualExcelView;
+import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosCicloAnteriorExcelView;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosFilterExcelView;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.RecordNotasBecadosExcelView;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -48,6 +50,8 @@ public class BecasPronabecController {
     private final TipoBecaPronabecService tipoBecaPronabecService;
     RecordNotasBecadosExcelView recordNotasBecadosExcelView;
     private final BecadosFilterExcelView becadosFilterExcelView;
+    private final BecadosCicloActualExcelView becadosCicloActualExcelView;
+    private final BecadosCicloAnteriorExcelView becadosCicloAnteriorExcelView;
 
 
 
@@ -302,6 +306,7 @@ public class BecasPronabecController {
             List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterBecadosExcel(ds.getCicloAcademico(), becadosFilterBean);
             model.addAttribute("listBecadosFilter", listBecadosFilter);
 //            model.addAttribute("tipoBeca", tipoBecado);
+            model.addAttribute("objtBecados", becadosFilterBean);
 
         }catch (PhobosException e){
             e.printStackTrace();
@@ -311,5 +316,47 @@ public class BecasPronabecController {
             return new ModelAndView("redirect:/");
         }
         return new ModelAndView(becadosFilterExcelView);
+    }
+
+    @ResponseBody
+    @RequestMapping("cicloActual/descargar")
+    public ModelAndView descargarCicloActualBecados(@RequestBody BecadosFilterBean becadosFilterBean,Model model, HttpSession session){
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            ObjectUtil.printAttr(becadosFilterBean);
+            List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterActualBecados(ds.getCicloAcademico(), becadosFilterBean);
+            model.addAttribute("listBecadosFilter", listBecadosFilter);
+            model.addAttribute("objtBecados", becadosFilterBean);
+
+        }catch (PhobosException e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }
+        return new ModelAndView(becadosCicloActualExcelView);
+    }
+
+    @ResponseBody
+    @RequestMapping("cicloAnterior/descargar")
+    public ModelAndView descargarCicloAnteriorBecados(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session){
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            ObjectUtil.printAttr(becadosFilterBean);
+            List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterAnteriorBecados(ds.getCicloAcademico(), becadosFilterBean);
+            model.addAttribute("listBecadosFilter", listBecadosFilter);
+            model.addAttribute("objtBecados", becadosFilterBean);
+
+        }catch (PhobosException e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }
+        return new ModelAndView(becadosCicloAnteriorExcelView);
     }
 }
