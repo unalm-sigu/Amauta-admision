@@ -21,6 +21,7 @@ public class TemaCicloDAOH extends AbstractEasyDAO<TemaCiclo> implements TemaCic
         Octavia sql = Octavia.query()
                 .from(TemaCiclo.class, "eva")
                 .join("temaExamen te", "cicloPostula cp", "cp.cicloAcademico ci")
+                .leftJoin("te.temaSuperior")
                 .filter("ci.id", ciclo)
                 .orderBy("eva.orden");
 

@@ -2,10 +2,13 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.confignotanivelacion;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +64,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
 
     private final BigDecimal ONCE = new BigDecimal("11");
     private final BigDecimal VEINTE = new BigDecimal("20");
+    private final BigDecimal CIEN = new BigDecimal("100");
+    private final BigDecimal CIEN_NEG = new BigDecimal("-100");
 
     @Override
     @Transactional
@@ -497,42 +502,145 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         ModalidadIngreso modalidad = modalidadIngresoDAO.findByCode(ModalidadIngresoEnum.CEPRE.getCode());
         Assert.isNotNull(modalidad, "No se pudo ubicar la modalidad CEPRE");
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
-        DateTime today = new DateTime();
+        Map<Long, TemaCiclo> mapTemaCiclo = temasCiclo.stream()
+                .collect(Collectors.toMap(tc -> tc.getTemaExamen().getId(), Function.identity()));
+
+        List<TemaExamen> temasSuper = this.allTemasSuperiores(temasCiclo);
+        Map<Long, TemaExamen> mapTemaSuper = temasSuper.stream()
+                .collect(Collectors.toMap(ts -> ts.getId(), Function.identity()));
+        List<String> codigos = new ArrayList();
 
         for (TemaCiclo temaCiclo : temasCiclo) {
-            BigDecimal puntajeMin = ONCE.multiply(new BigDecimal(temaCiclo.getPreguntas())).divide(VEINTE, 4, RoundingMode.HALF_UP);
+            TemaCiclo temaSuper = this.getTemaCicloSuper(temaCiclo, mapTemaSuper, mapTemaCiclo, codigos);
+            if (temaSuper != null) {
+                this.createModalidadTema(ciclo, modalidad, temaSuper, ds);
+            }
 
-            ModalidadTemaCiclo item = new ModalidadTemaCiclo();
-            item.setModalidadIngreso(modalidad);
-            item.setOtrasModalidades(Boolean.FALSE);
-            item.setTemaCiclo(temaCiclo);
-            item.setNotaMinima(ONCE);
-            item.setPuntajeMinimo(puntajeMin);
-            item.setEstadoEnum(PEN);
-            item.setUserRegistro(ds.getUsuario());
-            item.setFechaRegistro(today.toDate());
-            modalidadTemaCicloDAO.save(item);
+            this.createModalidadTema(ciclo, modalidad, temaCiclo, ds);
         }
 
+        codigos.clear();
         for (TemaCiclo temaCiclo : temasCiclo) {
-            BigDecimal puntajeMin = ONCE.multiply(new BigDecimal(temaCiclo.getPreguntas())).divide(VEINTE, 4, RoundingMode.HALF_UP);
+            TemaCiclo temaSuper = this.getTemaCicloSuper(temaCiclo, mapTemaSuper, mapTemaCiclo, codigos);
+            if (temaSuper != null) {
+                this.createModalidadTema(ciclo, null, temaSuper, ds);
+            }
+            this.createModalidadTema(ciclo, null, temaCiclo, ds);
+        }
+    }
 
-            ModalidadTemaCiclo item = new ModalidadTemaCiclo();
-            item.setOtrasModalidades(Boolean.TRUE);
+    private TemaCiclo getTemaCicloSuper(TemaCiclo temaCiclo, Map<Long, TemaExamen> mapTemaSuper, Map<Long, TemaCiclo> mapTemaCiclo, List<String> codigos) {
+        if (temaCiclo.getTemaExamen().getTemaSuperior() != null) {
+            TemaExamen temaSuper = mapTemaSuper.get(temaCiclo.getTemaExamen().getTemaSuperior().getId());
+            if (!codigos.contains(temaSuper.getCodigo())) {
+                codigos.add(temaSuper.getCodigo());
+                TemaCiclo tcs = new TemaCiclo();
+                tcs.setPreguntas(0);
+                tcs.setTemaExamen(temaSuper);
+                for (TemaExamen inferior : temaSuper.getTemasInferiores()) {
+                    TemaCiclo tc = mapTemaCiclo.get(inferior.getId());
+                    if (tc != null) {
+                        tcs.setPreguntas(tcs.getPreguntas() + tc.getPreguntas());
+                    }
+                }
+                return tcs;
+            }
+        }
+        return null;
+    }
+
+    private void createModalidadTema(CicloAcademico ciclo, ModalidadIngreso modalidad, TemaCiclo temaCiclo, DataSessionPivot ds) {
+        BigDecimal puntajeMin = ONCE.multiply(new BigDecimal(temaCiclo.getPreguntas())).divide(VEINTE, 4, RoundingMode.HALF_UP);
+
+        ModalidadTemaCiclo item = new ModalidadTemaCiclo();
+        if (temaCiclo.getId() != null) {
             item.setTemaCiclo(temaCiclo);
-            item.setNotaMinima(ONCE);
-            item.setPuntajeMinimo(puntajeMin);
-            item.setEstadoEnum(PEN);
-            item.setUserRegistro(ds.getUsuario());
-            item.setFechaRegistro(today.toDate());
-            modalidadTemaCicloDAO.save(item);
         }
 
+        item.setCicloAcademico(ciclo);
+        item.setTemaExamen(temaCiclo.getTemaExamen());
+        item.setModalidadIngreso(modalidad);
+        item.setOtrasModalidades(modalidad == null);
+        item.setNotaMinima(ONCE);
+        item.setPuntajeMinimo(puntajeMin);
+        item.setEstadoEnum(PEN);
+        item.setUserRegistro(ds.getUsuario());
+        item.setFechaRegistro(new Date());
+        modalidadTemaCicloDAO.save(item);
+    }
+
+    private List<TemaExamen> allTemasSuperiores(List<TemaCiclo> temasCiclo) {
+        List<TemaExamen> superiores = temasCiclo.stream()
+                .filter(tc -> tc.getTemaExamen().getTemaSuperior() != null)
+                .map(tc -> tc.getTemaExamen().getTemaSuperior())
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, TemaExamen> mapTemaSuper = superiores.stream()
+                .collect(Collectors.toMap(te -> te.getId(), Function.identity()));
+
+        superiores.forEach(sup -> sup.setTemasInferiores(new ArrayList()));
+
+        temasCiclo.forEach(tc -> {
+            TemaExamen tema = mapTemaSuper.get(tc.getTemaExamen().getId());
+            if (tema != null) {
+                superiores.remove(tema);
+            }
+            if (tc.getTemaExamen().getTemaSuperior() != null) {
+                TemaExamen temaSuper = mapTemaSuper.get(tc.getTemaExamen().getTemaSuperior().getId());
+                temaSuper.getTemasInferiores().add(tc.getTemaExamen());
+            }
+        });
+        return superiores;
     }
 
     @Override
     public List<ModalidadTemaCiclo> allConfiguracionsByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        return modalidadTemaCicloDAO.allByDynatable(filter, ciclo);
+        List<ModalidadTemaCiclo> items = modalidadTemaCicloDAO.allByDynatable(filter, ciclo);
+        items.stream()
+                .filter(mtc -> mtc.getTemaCiclo() == null)
+                .forEach(mtc -> {
+                    TemaExamen tema = mtc.getTemaExamen();
+                    TemaCiclo temaPadre = this.crearTemaCiclo(tema, items, mtc.getModalidadIngreso());
+                    mtc.setTemaCiclo(temaPadre);
+                });
+        return items;
+    }
+
+    private TemaCiclo crearTemaCiclo(TemaExamen temaSuper, List<ModalidadTemaCiclo> items, ModalidadIngreso modalidad) {
+        TemaCiclo tc = new TemaCiclo();
+        tc.setPreguntas(0);
+        if (modalidad != null && modalidad.isPreLaMolina()) {
+            tc.setPuntajeCepreMinimo(CIEN);
+            tc.setPuntajeCepreMaximo(CIEN_NEG);
+        } else {
+            tc.setPuntajeMinimo(CIEN);
+            tc.setPuntajeMaximo(CIEN_NEG);
+        }
+
+        items.stream()
+                .filter(mtc -> mtc.getTemaExamen().getTemaSuperior() != null)
+                .filter(mtc -> mtc.getTemaExamen().getTemaSuperior().equals(temaSuper))
+                .forEach(mtc -> {
+                    TemaCiclo hijo = mtc.getTemaCiclo();
+                    tc.setPreguntas(tc.getPreguntas() + hijo.getPreguntas());
+                    if (modalidad != null && modalidad.isPreLaMolina()) {
+                        if (hijo.getPuntajeCepreMinimo().compareTo(tc.getPuntajeCepreMinimo()) < 0) {
+                            tc.setPuntajeCepreMinimo(hijo.getPuntajeCepreMinimo());
+                        }
+                        if (hijo.getPuntajeCepreMaximo().compareTo(tc.getPuntajeCepreMaximo()) > 0) {
+                            tc.setPuntajeCepreMaximo(hijo.getPuntajeCepreMaximo());
+                        }
+                    } else {
+                        if (hijo.getPuntajeMinimo().compareTo(tc.getPuntajeMinimo()) < 0) {
+                            tc.setPuntajeMinimo(hijo.getPuntajeMinimo());
+                        }
+                        if (hijo.getPuntajeMaximo().compareTo(tc.getPuntajeMaximo()) > 0) {
+                            tc.setPuntajeMaximo(hijo.getPuntajeMaximo());
+                        }
+                    }
+                });
+
+        return tc;
     }
 
     @Override

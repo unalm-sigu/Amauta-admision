@@ -76,7 +76,7 @@ public class AlumnosNivelacionController {
             ArrayNode notasJson = JaneHelper
                     .from(notasNivelaciones)
                     .join("temaCiclo", "id,preguntas")
-                    .join("temaCiclo.temaExamen", "id,codigo,nombre")
+                    .join("temaExamen", "id,codigo,nombre")
                     .array();
 
             List<AlumnoNivelacionDTO> cambios = changeAlumnoNivelacionService.recrearLista(alumnoNiv.getCambios());

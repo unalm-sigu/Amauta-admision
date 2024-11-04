@@ -34,8 +34,8 @@ public class ModalidadTemaCicloDAOH extends AbstractEasyDAO<ModalidadTemaCiclo> 
     public List<ModalidadTemaCiclo> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ModalidadTemaCiclo.class, "mtc")
-                .join("temaCiclo tc", "tc.temaExamen te")
-                .join("tc.cicloPostula cp", "cp.cicloAcademico ci")
+                .join("temaExamen te", "cicloAcademico ci")
+                .leftJoin("temaCiclo tc", "tc.temaExamen", "te.temaSuperior")
                 .leftJoin("modalidadIngreso mi")
                 .searchFields("te.codigo", "te.nombre")
                 .filter("ci.id", ciclo)

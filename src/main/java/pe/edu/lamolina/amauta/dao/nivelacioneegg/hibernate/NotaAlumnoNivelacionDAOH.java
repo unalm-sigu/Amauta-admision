@@ -51,7 +51,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         Octavia sql = Octavia.query()
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
-                .join("temaCiclo tc", "tc.temaExamen")
+                .join("temaExamen")
+                .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
                 .leftJoin("an.prelamolina", "an.evaluado")
                 .filter("an.id", alumnoNiv);
 
@@ -63,7 +64,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         Octavia sql = Octavia.query()
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
-                .join("temaCiclo tc", "tc.temaExamen")
+                .join("temaExamen")
+                .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
                 .leftJoin("an.prelamolina", "an.evaluado")
                 .in("an.id", alumnosNiv);
 
@@ -81,7 +83,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .into(NotaAlumnoNivelacion.class)
                 .columns("estado", "notaExamen", "puntajeExamen", "temaAprobado",
                         "notaCurso", "esMatriculable", "fechaRegistro",
-                        "alumnoNivelacion", "temaCiclo", "curso", "cursoNivelacion", "userRegistro")
+                        "alumnoNivelacion", "temaCiclo", "temaExamen", "curso", "cursoNivelacion", "userRegistro")
                 .values(notasAlumnos);
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());

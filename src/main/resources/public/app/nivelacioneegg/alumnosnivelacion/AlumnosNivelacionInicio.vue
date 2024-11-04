@@ -68,7 +68,7 @@
                                                       v-on:mouseover="verDetalle(item,tema)"
                                                       v-on:mouseout="noverDetalle(item)"
                                                       v-bind:class="classAprobado(tema)">
-                                                    {{tema.temaCiclo.temaExamen.codigo}}
+                                                    {{tema.temaExamen.codigo}}
                                                 </span>
                                             </template>
                                         </td>
@@ -241,7 +241,7 @@
             },
 
             verDetalle(item, tema) {
-                item.descripcion = tema.temaCiclo.temaExamen.nombre;
+                item.descripcion = tema.temaExamen.nombre;
                 item.descripcion += " : Puntaje " + tema.puntajeExamen + " de " + tema.temaCiclo.preguntas;
                 item.ocultar = false;
             },

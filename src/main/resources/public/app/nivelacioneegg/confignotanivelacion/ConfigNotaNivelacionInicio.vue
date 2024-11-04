@@ -56,7 +56,7 @@
 
                                         <td class="v-middle">
                                             <div class="text-primary block">
-                                                {{item.temaCiclo.temaExamen.nombre}}
+                                                {{item.temaExamen.nombre}}
                                             </div>
                                         </td>
 
@@ -96,13 +96,14 @@
                                             {{puntaje(item.notaMinima)}}
                                         </td>
                                         <td class="v-middle text-center">
-                                            <div v-bind:class="estadoClass(item)" class="label">
+                                            <div v-if="item.temaCiclo.id"
+                                                 v-bind:class="estadoClass(item)" class="label">
                                                 {{item.estadoEnum.value}}
                                             </div>
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <div class="dropdown actions">
+                                            <div v-if="item.temaCiclo.id" class="dropdown actions">
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                                     <i class="fa fa-cog"></i>
                                                 </a>

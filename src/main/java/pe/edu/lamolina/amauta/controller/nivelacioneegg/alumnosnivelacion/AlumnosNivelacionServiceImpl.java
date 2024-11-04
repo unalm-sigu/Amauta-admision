@@ -46,6 +46,8 @@ import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.ModalidadTemaCiclo;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
+import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
+import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
 @Slf4j
 @Service
@@ -65,15 +67,46 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     private final ChangeNotaAlumnoNivelacionService changeNotaAlumnoNivelacionService;
     private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
 
+    private final BigDecimal VEINTE = new BigDecimal("20");
+
     @Override
     public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         List<AlumnoNivelacion> alumnosNiv = alumnoNivelacionDAO.allByDynatable(filter, ciclo);
         List<NotaAlumnoNivelacion> notasAlumnosAll = notaAlumnoNivelacionDAO.allByAlumnosNivelacion(alumnosNiv);
+
+        List<TemaCiclo> temasCiclosAll = notasAlumnosAll.stream()
+                .filter(na -> na.getTemaCiclo() != null)
+                .map(na -> na.getTemaCiclo())
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, List<TemaCiclo>> mapTemas = temasCiclosAll.stream()
+                .collect(Collectors.groupingBy(tc -> tc.getCicloPostula().getId()));
+
         Map<Long, List<NotaAlumnoNivelacion>> mapNotasAlumnos = notasAlumnosAll.stream()
                 .collect(Collectors.groupingBy(nan -> nan.getAlumnoNivelacion().getId()));
 
         for (AlumnoNivelacion alumnoNiv : alumnosNiv) {
             List<NotaAlumnoNivelacion> notasAlumnos = TypesUtil.getListNotNull(mapNotasAlumnos.get(alumnoNiv.getId()));
+            CicloPostula cicloPostula = notasAlumnos.stream()
+                    .filter(na -> na.getTemaCiclo() != null)
+                    .map(na -> na.getTemaCiclo().getCicloPostula())
+                    .findFirst().get();
+            List<TemaCiclo> temasCiclo = mapTemas.get(cicloPostula.getId());
+            notasAlumnos.stream()
+                    .filter(na -> na.getTemaCiclo() == null)
+                    .forEach(na -> {
+                        Acumulador acumulador = new Acumulador();
+                        temasCiclo.stream()
+                                .filter(tc -> tc.getTemaExamen().getTemaSuperior() != null)
+                                .filter(tc -> tc.getTemaExamen().getTemaSuperior().equals(na.getTemaExamen()))
+                                .forEach(tc -> acumulador.incrementar(tc.getPreguntas()));
+
+                        TemaCiclo temaNul = new TemaCiclo();
+                        temaNul.setPreguntas(acumulador.getValor());
+                        temaNul.setTemaExamen(na.getTemaExamen());
+                        na.setTemaCiclo(temaNul);
+                    });
+
             alumnoNiv.setNotasNivelaciones(notasAlumnos);
         }
 
@@ -180,7 +213,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         for (AlumnoNivelacion alumnoNiv : habiles) {
             List<NotaAlumnoNivelacion> notasAlumno = TypesUtil.getListNotNull(mapNotaAlumnos.get(alumnoNiv.getId()));
             Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos = notasAlumno.stream()
-                    .collect(Collectors.toMap(nan -> nan.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                    .collect(Collectors.toMap(nan -> nan.getTemaExamen().getId(), Function.identity()));
 
             Evaluado evaluado = alumnoNiv.getEvaluado();
             Prelamolina cepre = alumnoNiv.getPrelamolina();
@@ -221,7 +254,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         List<NotaAlumnoNivelacion> notasAlumno = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(alumnoNiv);
         Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos = notasAlumno.stream()
-                .collect(Collectors.toMap(nan -> nan.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(nan -> nan.getTemaExamen().getId(), Function.identity()));
 
         Evaluado evaluado = alumnoNiv.getEvaluado();
         Prelamolina cepre = alumnoNiv.getPrelamolina();
@@ -412,6 +445,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             DataSessionPivot ds) {
 
         DateTime today = new DateTime();
+        List<String> codigos = new ArrayList();
 
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaExamen temaExamen = temaCiclo.getTemaExamen();
@@ -431,11 +465,20 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             } else {
                 nota.setAlumnoNivelacion(alumnoNiv);
                 nota.setTemaCiclo(temaCiclo);
+                nota.setTemaExamen(temaCiclo.getTemaExamen());
                 nota.setEstadoEnum(NMAT);
                 nota.setEsMatriculable(false);
                 nota.setTemaAprobado(false);
                 nota.setUserRegistro(ds.getUsuario());
                 nota.setFechaRegistro(today.toDate());
+            }
+
+            TemaExamen temaSuperior = temaCiclo.getTemaExamen().getTemaSuperior();
+            if (temaSuperior != null && !codigos.contains(temaSuperior.getCodigo())) {
+                if (temaSuperior.getCodigo().equals("MAT")) {
+                    this.crearMatematicasPrelamolina(alumnoNiv, cepre, temaSuperior, config, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
+                    codigos.add(temaSuperior.getCodigo());
+                }
             }
 
             if (temaExamen.getCodigo().equals("RV")) {
@@ -510,6 +553,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             DataSessionPivot ds) {
 
         DateTime today = new DateTime();
+        List<String> codigos = new ArrayList();
 
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaExamen temaExamen = temaCiclo.getTemaExamen();
@@ -529,11 +573,24 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             } else {
                 nota.setAlumnoNivelacion(alumnoNiv);
                 nota.setTemaCiclo(temaCiclo);
+                nota.setTemaExamen(temaExamen);
                 nota.setEstadoEnum(NMAT);
                 nota.setEsMatriculable(false);
                 nota.setTemaAprobado(false);
                 nota.setUserRegistro(ds.getUsuario());
                 nota.setFechaRegistro(today.toDate());
+            }
+
+            TemaExamen temaSuperior = temaCiclo.getTemaExamen().getTemaSuperior();
+            if (temaSuperior != null) {
+                nota.setEstadoEnum(INH);
+            }
+
+            if (temaSuperior != null && !codigos.contains(temaSuperior.getCodigo())) {
+                if (temaSuperior.getCodigo().equals("MAT")) {
+                    this.crearMatematicasEvaluado(alumnoNiv, evaluado, temaSuperior, config, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
+                    codigos.add(temaSuperior.getCodigo());
+                }
             }
 
             if (temaExamen.getCodigo().equals("RV")) {
@@ -595,6 +652,172 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 }
             }
         }
+    }
+
+    private void crearMatematicasEvaluado(
+            AlumnoNivelacion alumnoNiv,
+            Evaluado evaluado,
+            TemaExamen temaExamen,
+            ModalidadTemaCiclo config,
+            List<TemaCiclo> temasCiclo,
+            Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos,
+            List<NotaAlumnoNivelacion> notasSave,
+            List<NotaAlumnoNivelacion> notasUpdate,
+            DateTime today,
+            DataSessionPivot ds) {
+
+        NotaAlumnoNivelacion notaBD = mapNotasAlumnos.get(temaExamen.getId());
+        String dataInicio = this.comparableNotaAlumnoJson(notaBD);
+        String cambios = null;
+
+        NotaAlumnoNivelacion nota = new NotaAlumnoNivelacion();
+        if (notaBD != null) {
+            BeanUtils.copyProperties(notaBD, nota);
+            if (StringUtils.isBlank(notaBD.getCambios())) {
+                cambios = changeNotaAlumnoNivelacionService.createCambiosJson(nota, null, notaBD.getCambios());
+            }
+
+        } else {
+            nota.setAlumnoNivelacion(alumnoNiv);
+            nota.setTemaExamen(temaExamen);
+            nota.setEstadoEnum(NMAT);
+            nota.setEsMatriculable(false);
+            nota.setTemaAprobado(false);
+            nota.setUserRegistro(ds.getUsuario());
+            nota.setFechaRegistro(today.toDate());
+        }
+
+        int preguntas = 0;
+        BigDecimal puntaje = BigDecimal.ZERO;
+        if (evaluado.getPuntajeAlgebra() != null) {
+            puntaje = puntaje.add(evaluado.getPuntajeAlgebra());
+            preguntas += this.getPreguntaso("ALG", temasCiclo);
+        }
+        if (evaluado.getPuntajeAritmetica() != null) {
+            puntaje = puntaje.add(evaluado.getPuntajeAritmetica());
+            preguntas += this.getPreguntaso("ARI", temasCiclo);
+        }
+        if (evaluado.getPuntajeGeometria() != null) {
+            puntaje = puntaje.add(evaluado.getPuntajeGeometria());
+            preguntas += this.getPreguntaso("GEOM", temasCiclo);
+        }
+        if (evaluado.getPuntajeTrigonometria() != null) {
+            puntaje = puntaje.add(evaluado.getPuntajeTrigonometria());
+            preguntas += this.getPreguntaso("TRI", temasCiclo);
+        }
+
+        BigDecimal notaFinal = BigDecimal.ZERO;
+        if (puntaje.compareTo(BigDecimal.ZERO) != 0) {
+            notaFinal = VEINTE.multiply(puntaje).divide(new BigDecimal(preguntas), 4, RoundingMode.HALF_UP);
+        }
+
+        this.saveNotaNivelacion(puntaje, notaFinal, config.getPuntajeMinimo(), nota);
+
+        if (nota.getId() == null) {
+            notasSave.add(nota);
+
+        } else {
+            String dataFinal = this.comparableNotaAlumnoJson(nota);
+            if (!dataInicio.equals(dataFinal)) {
+                if (StringUtils.isBlank(nota.getCambios())) {
+                    nota.setCambios(cambios);
+                }
+
+                nota.setUserModificacion(ds.getUsuario());
+                nota.setFechaModificacion(today.toDate());
+                String cambiosTwo = changeNotaAlumnoNivelacionService.createCambiosJson(nota, "Revisión de nota aprobatoria", nota.getCambios());
+                nota.setCambios(cambiosTwo);
+                notasUpdate.add(nota);
+            }
+        }
+    }
+
+    private void crearMatematicasPrelamolina(
+            AlumnoNivelacion alumnoNiv,
+            Prelamolina prelamolina,
+            TemaExamen temaExamen,
+            ModalidadTemaCiclo config,
+            List<TemaCiclo> temasCiclo,
+            Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos,
+            List<NotaAlumnoNivelacion> notasSave,
+            List<NotaAlumnoNivelacion> notasUpdate,
+            DateTime today,
+            DataSessionPivot ds) {
+
+        NotaAlumnoNivelacion notaBD = mapNotasAlumnos.get(temaExamen.getId());
+        String dataInicio = this.comparableNotaAlumnoJson(notaBD);
+        String cambios = null;
+
+        NotaAlumnoNivelacion nota = new NotaAlumnoNivelacion();
+        if (notaBD != null) {
+            BeanUtils.copyProperties(notaBD, nota);
+            if (StringUtils.isBlank(notaBD.getCambios())) {
+                cambios = changeNotaAlumnoNivelacionService.createCambiosJson(nota, null, notaBD.getCambios());
+            }
+
+        } else {
+            nota.setAlumnoNivelacion(alumnoNiv);
+            nota.setTemaExamen(temaExamen);
+            nota.setEstadoEnum(NMAT);
+            nota.setEsMatriculable(false);
+            nota.setTemaAprobado(false);
+            nota.setUserRegistro(ds.getUsuario());
+            nota.setFechaRegistro(today.toDate());
+        }
+
+        int preguntas = 0;
+        BigDecimal puntaje = BigDecimal.ZERO;
+        if (prelamolina.getPuntajeAlgebra() != null) {
+            puntaje = puntaje.add(prelamolina.getPuntajeAlgebra());
+            preguntas += this.getPreguntaso("ALG", temasCiclo);
+        }
+        if (prelamolina.getPuntajeAritmetica() != null) {
+            puntaje = puntaje.add(prelamolina.getPuntajeAritmetica());
+            preguntas += this.getPreguntaso("ARI", temasCiclo);
+        }
+        if (prelamolina.getPuntajeGeometria() != null) {
+            puntaje = puntaje.add(prelamolina.getPuntajeGeometria());
+            preguntas += this.getPreguntaso("GEOM", temasCiclo);
+        }
+        if (prelamolina.getPuntajeTrigonometria() != null) {
+            puntaje = puntaje.add(prelamolina.getPuntajeTrigonometria());
+            preguntas += this.getPreguntaso("TRI", temasCiclo);
+        }
+
+        BigDecimal notaFinal = BigDecimal.ZERO;
+        if (puntaje.compareTo(BigDecimal.ZERO) != 0) {
+            notaFinal = VEINTE.multiply(puntaje).divide(new BigDecimal(preguntas), 4, RoundingMode.HALF_UP);
+        }
+
+        this.saveNotaNivelacion(puntaje, notaFinal, config.getPuntajeMinimo(), nota);
+
+        if (nota.getId() == null) {
+            notasSave.add(nota);
+
+        } else {
+            String dataFinal = this.comparableNotaAlumnoJson(nota);
+            if (!dataInicio.equals(dataFinal)) {
+                if (StringUtils.isBlank(nota.getCambios())) {
+                    nota.setCambios(cambios);
+                }
+
+                nota.setUserModificacion(ds.getUsuario());
+                nota.setFechaModificacion(today.toDate());
+                String cambiosTwo = changeNotaAlumnoNivelacionService.createCambiosJson(nota, "Revisión de nota aprobatoria", nota.getCambios());
+                nota.setCambios(cambiosTwo);
+                notasUpdate.add(nota);
+            }
+        }
+    }
+
+    private Integer getPreguntaso(String codigo, List<TemaCiclo> temasCiclo) {
+        TemaCiclo temaCiclo = temasCiclo.stream()
+                .filter(tc -> tc.getTemaExamen().getCodigo().equals(codigo))
+                .findFirst().orElse(null);
+        if (temaCiclo == null) {
+            return 0;
+        }
+        return temaCiclo.getPreguntas();
     }
 
     private void saveNotaNivelacion(

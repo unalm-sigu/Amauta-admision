@@ -61,7 +61,8 @@ public class ConfigNotaNivelacionController {
                 .join("temaCiclo", "id,orden,preguntas")
                 .join("temaCiclo", "puntajeMinimo,puntajeMaximo,notaMinima,notaMaxima")
                 .join("temaCiclo", "puntajeCepreMinimo,puntajeCepreMaximo,notaCepreMinima,notaCepreMaxima")
-                .join("temaCiclo.temaExamen", "id,nombre")
+                .join("temaExamen", "id,nombre")
+                .join("cicloAcademico", "id,descripcion")
                 .array();
 
         DynatableResponse json = new DynatableResponse();
