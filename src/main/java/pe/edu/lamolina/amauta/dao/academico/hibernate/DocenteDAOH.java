@@ -3,9 +3,9 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
-import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloBean;
 import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloCargaBean;
-import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import pe.edu.lamolina.amauta.controller.academico.profesor.HistoricoCargaAcademicoBean;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.FiltroHistoricoCargaAcademicaDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -570,6 +571,75 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         query.setParameter("IDCICLO", cicloAcademico.getId());
         return (List<HorarioDocenteDTO>) query.list();
 //        return query.list();
+    }
+
+    @Override
+    public List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademica(FiltroHistoricoCargaAcademicaDTO filtro) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select x.ciclo,x.facultad,x.departamento,x.codigo codDocente,x.docente nombreDocente, TRUNCATE(sum(CRED_PROFE),2) creditosPre ");
+        sql.append(" from (  ");
+        sql.append("      select aca.descripcion ciclo,af.nombre facultad, ada.nombre departamento, as2.codigo2, ");
+        sql.append(" ad.codigo , concat(ifnull(gp.paterno,''),' ',ifnull(gp.materno,''), ', ',ifnull(gp.nombres,'')) docente,  ");
+        sql.append("      ac.nombre curso,  ");
+        sql.append("      ifnull(  ");
+        sql.append("      case  ");
+        sql.append("      when (as2.tipo_seccion = 'TCUR' or as2.tipo_seccion = 'TEO')  ");
+        sql.append("      then (if(ags.curso_dirigido = true,(((ac.creditos_teoria * ads.porcentaje_carga) / 100) * (1 / 3)),((ac.creditos_teoria * ads.porcentaje_carga) / 100)))  ");
+        sql.append("      end,'0'  ");
+        sql.append("      ) creditos_teoria,  ");
+        sql.append("      ifnull(  ");
+        sql.append("      case  ");
+        sql.append("      when as2.tipo_seccion = 'PCUR' or as2.tipo_seccion = 'PRA'  ");
+        sql.append("      then (if(ags.curso_dirigido = true, (((ac.creditos_practica * ads.porcentaje_carga) / 100) * (1 / 3)),(ac.creditos_practica * ads.porcentaje_carga) / 100))  ");
+        sql.append("      end,'0'  ");
+        sql.append("      ) creditos_practica,  ");
+        sql.append("      case  ");
+        sql.append("      when (as2.tipo_seccion = 'TCUR' or as2.tipo_seccion = 'TEO')  ");
+        sql.append("      then (if(ags.curso_dirigido = true, (((ac.creditos_teoria * ads.porcentaje_carga) / 100) * (1 / 3)),((ac.creditos_teoria * ads.porcentaje_carga) / 100)))  ");
+        sql.append("      when as2.tipo_seccion = 'PCUR' or as2.tipo_seccion = 'PRA'  ");
+        sql.append("      then (if(ags.curso_dirigido = true,(((ac.creditos_practica * ads.porcentaje_carga) / 100)* (1 / 3)),((ac.creditos_practica * ads.porcentaje_carga) / 100)))  ");
+        sql.append("      end CRED_PROFE  ");
+        sql.append("      from aca_docente_seccion ads  ");
+        sql.append("      join aca_seccion as2 on ads.id_seccion = as2.id  ");
+        sql.append("      join aca_grupo_seccion ags on as2.id_grupo_seccion = ags.id  ");
+        sql.append("      join aca_ciclo_academico aca on ags.id_ciclo = aca.id  ");
+        sql.append("      join aca_anexo_boletin aab on ags.id_anexo_boletin = aab.id  ");
+        sql.append("      join aca_anexo_boletin aabs on aab.id_anexo_superior = aabs.id  ");
+        sql.append("      join aca_curso ac on ags.id_curso = ac.id  ");
+        sql.append("      join aca_docente ad on ads.id_docente =ad.id  ");
+        sql.append("      join gen_persona gp on ad.id_persona = gp.id  ");
+        sql.append("      join aca_departamento_academico ada on ad.id_departamento_academico = ada.id  ");
+        sql.append("      join aca_facultad af on ada.id_facultad = af.id  ");
+        sql.append("      where aca.id in :IDCICLO   ");
+        sql.append("      and as2.estado ='ACT' and ags.estado = 'ACT'  ");
+        sql.append("      and as2.matriculados > 0  ");
+        sql.append("      and aabs.codigo <> 'G04'  ");
+
+        if (filtro.getDocente() != null) {
+            sql.append("      and ad.id = :DOCENTE  ");
+        }
+
+        sql.append("      group by aca.descripcion,af.nombre, ada.nombre, docente,ac.nombre, as2.codigo2, ags.curso_dirigido, ad.codigo,  ac.creditos_teoria ,ac.creditos_practica, ");
+        sql.append("      as2.tipo_seccion, ads.porcentaje_carga ");
+        sql.append(" ) x  ");
+        sql.append(" group by x.ciclo,x.facultad,x.departamento,x.codigo,x.docente  ");
+        sql.append(" order by 2,3,5;  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("ciclo", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("departamento", StringType.INSTANCE)
+                .addScalar("codDocente", StringType.INSTANCE)
+                .addScalar("nombreDocente", StringType.INSTANCE)
+                .addScalar("creditosPre", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(HistoricoCargaAcademicoBean.class));
+        if (filtro.getDocente() != null) {
+            query.setParameter("DOCENTE", filtro.getDocente());
+
+        }
+        query.setParameterList("IDCICLO", filtro.getCicloAcademicos().stream().map(x -> x.getId()).collect(Collectors.toList()));
+
+        return (List<HistoricoCargaAcademicoBean>) query.list();
     }
 
 }

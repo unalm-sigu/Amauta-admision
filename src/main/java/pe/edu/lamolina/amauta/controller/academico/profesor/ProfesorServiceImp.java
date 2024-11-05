@@ -24,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.FiltroHistoricoCargaAcademicaDTO;
 import pe.edu.lamolina.amauta.controller.general.persona.PersonaService;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -101,7 +102,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos, String activo) {
-        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament,activo);
+        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament, activo);
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByDocente(docentes, cicloAcademicos);
         Map<Long, List<DocenteSeccion>> mapDocentesSeccion = TypesUtil.convertListToMapList("docente.id", docentesSeccion);
         for (Docente docente : docentes) {
@@ -718,6 +719,13 @@ public class ProfesorServiceImp implements ProfesorService {
         List<DocenteCicloCargaBean> docenteCicloCargaBean = new ArrayList<>();
         docenteCicloCargaBean = docenteDAO.AllDocentecicloCargaAcademico(docente);
         return docenteCicloCargaBean;
+    }
+
+    @Override
+    public List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademico(FiltroHistoricoCargaAcademicaDTO filtro, DataSessionPivot ds) {
+        log.info("Usuario descarga {}", ds.getUsuario().getGoogle());
+        
+        return docenteDAO.allHistoricoCargaAcademica(filtro);
     }
 
 }

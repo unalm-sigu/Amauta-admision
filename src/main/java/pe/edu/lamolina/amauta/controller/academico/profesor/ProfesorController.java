@@ -14,7 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +40,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
@@ -50,6 +52,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentemodalidad.FiltroEncuestaCargaAcademicaDTO;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.FiltroHistoricoCargaAcademicaDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -64,6 +67,7 @@ import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteCargaAcademicaPDF;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCargaCicloView;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteDocenteCicloView;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.ReporteHistoricoCargaAcademicoView;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
@@ -92,6 +96,7 @@ public class ProfesorController {
     private final ReporteCargaAcademicaPDF reporte;
     private final ReporteDocenteCicloView reporteDocenteCicloView;
     private final ReporteDocenteCargaCicloView reportedocentecargacicloView;
+    private final ReporteHistoricoCargaAcademicoView reporteHistoricoCargaAcademicoViewPDF;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -134,8 +139,8 @@ public class ProfesorController {
 
         boolean rolDocente = ds.getRoles().stream().anyMatch(rol -> RolEnum.LOGUEO_DOCENTE == rol.getCodigoEnum());
 
-        boolean isLoginDocente= !despliegueConfig.isProduccion() || rolDocente;
-        boolean isProduction=despliegueConfig.isProduccion();
+        boolean isLoginDocente = !despliegueConfig.isProduccion() || rolDocente;
+        boolean isProduction = despliegueConfig.isProduccion();
 
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
@@ -147,7 +152,7 @@ public class ProfesorController {
         model.addAttribute("jCicloAcademicos", jCicloAcademicos.toString());
         model.addAttribute("loginDocente", isLoginDocente);
         model.addAttribute("isRevisorDocente", isRevisorDocente);
-        model.addAttribute("isProduction",isProduction);
+        model.addAttribute("isProduction", isProduction);
 
         ArrayNode jCicloAcademicosNivelacion = JaneHelper.from(ciclosNivelacion).only("id,codigo,descripcion").array();
         model.addAttribute("jCicloAcademicosNivelacion", jCicloAcademicosNivelacion.toString());
@@ -685,6 +690,121 @@ public class ProfesorController {
                 only("id").
                 join("persona", "id,nombreCompleto").array();
 
+    }
+
+    @RequestMapping("reporteHistoricoCargaAcademica")
+    public ModelAndView reporteHistoricoCargaAcademica(@RequestBody FiltroHistoricoCargaAcademicaDTO filtro,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+//        ObjectUtil.printAttr(filtro);
+        List<HistoricoCargaAcademicoBean> historicos = service.allHistoricoCargaAcademico(filtro, ds);
+//        List<HistoricoCargaAcademicoBean> histoDptoDocDistinct = historicos.stream().
+//                filter(distinctByKey(r -> Arrays.asList(r.getDepartamento(), r.getNombreDocente())))
+//                .collect(Collectors.toList());
+
+//        List<String> docentes = histoDptoDocDistinct.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
+        Map<String, List<String>> histoDptoDocDistinct = historicos.stream()
+                .collect(Collectors.groupingBy(
+                        HistoricoCargaAcademicoBean::getDepartamento,
+                        Collectors.mapping(HistoricoCargaAcademicoBean::getNombreDocente, Collectors.toSet())
+                ))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> new ArrayList<>(e.getValue())
+                ));
+
+        histoDptoDocDistinct.forEach((departamento, docentes) -> {
+            System.out.println("Departamento: " + departamento);
+            docentes.stream().forEach(x -> {
+                System.out.println("Docente: " + x);
+
+            });
+        });
+
+        Map<String, String> credito = TypesUtil.convertListToMapList("ciclo" + "-" + "departamento" + "-" + "nombreDocente", "creditosPre", historicos);
+//        Map<String, String> docente = TypesUtil.convertListToMap("ciclo" + "-" + "departamento", "nombreDocente", historicos);
+//        Map<String, String> departamento = TypesUtil.convertListToMap("ciclo" + "-" + "departamento", "nombreDocente", historicos);
+
+        historicos.forEach(x -> {
+            System.out.println("CICLO_DPTO_DOCENTE::::: " + x.getCiclo() + "-" + x.getDepartamento() + "-" + x.getNombreDocente());
+            System.out.println("CREDITO_ 2024_II::::: " + credito.get(x.getCiclo() + "-" + x.getDepartamento() + "-" + x.getNombreDocente()));
+        });
+//                historicos.stream().
+//                collect(Collectors.toMap(
+//                r -> generarClave(r.getCiclo(), r.getDepartamento(), r.getNombreDocente())), 
+//                HistoricoCargaAcademicoBean::getCreditosPre,
+//                (credito1, credito2) -> credito1 
+//            ));
+
+//        List<DptoListDocentesDTO> dptoDocentes = new ArrayList();
+//        for (HistoricoCargaAcademicoBean histo : histoDptoDocDistinct) {
+//
+//            System.out.println("DPTOO::: " + histo.getDepartamento());
+//
+//            DptoListDocentesDTO dptoDocs = new DptoListDocentesDTO();
+//            dptoDocs.setDepartamento(histo.getDepartamento());
+//            
+//            
+////            for (String doc : docentes) {
+////                if (histo.getNombreDocente().equalsIgnoreCase(doc)) {
+////                    System.out.println("DOCENTE::: " + histo.getNombreDocente());
+////                }
+////                
+////            }
+////            docentes.stream().forEach(doc -> {
+////            });
+//            dptoDocentes.add(dptoDocs);
+//
+//        }
+//        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
+//        Map<String,String> mapDptoDocente = historicos.stream()
+//                .collect(Collectors.toMap(z -> z.));
+//        
+//        
+//        List<String> departamentos = historicos.stream().map(x -> x.getDepartamento()).distinct().collect(Collectors.toList());
+//        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
+//
+//        historicos.stream().forEach(histo -> {
+//        
+//
+//        });
+//        historicos.stream().forEach(histo -> {
+//            System.out.println("Ciclo::: " + histo.getCiclo());
+////            DptoListDocentesDTO dto = new DptoListDocentesDTO();
+//        });
+//        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente().trim().toLowerCase()).distinct().collect(Collectors.toList());
+//        System.out.println("Total:: " + docentes.size());
+//        docentes.stream().forEach(x -> {
+//            System.out.println("Docente::: " + x);
+//
+//        });
+//
+//        List<String> departamentos = historicos.stream().map(x -> x.getDepartamento()).distinct().collect(Collectors.toList());
+//        departamentos.stream().forEach(x -> {
+//            System.out.println("DEPARTAMENTO::: " + x);
+//
+//        });
+//
+//        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
+//        ciclos.stream().forEach(x -> {
+//            System.out.println("CICLOf::: " + x);
+//
+//        });
+        model.addAttribute("historicos", historicos);
+//        return;
+        return new ModelAndView(reporteHistoricoCargaAcademicoViewPDF);
+    }
+
+    public static <T> java.util.function.Predicate<T> distinctByKey(java.util.function.Function<? super T, Object> keyExtractor) {
+        Set<Object> seen = new HashSet<>();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
+
+    public static String generarClave(String ciclo, String departamento, String docente) {
+        return ciclo + "-" + departamento + "-" + docente;
     }
 
 }
