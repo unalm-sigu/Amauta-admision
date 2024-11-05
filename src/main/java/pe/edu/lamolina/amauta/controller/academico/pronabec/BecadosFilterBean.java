@@ -27,6 +27,7 @@ public class BecadosFilterBean {
     private String retiro_ciclo;
     private String electivo_matriculado;
     private String tercera_vez;
+    private String se_matriculo;
 
     public BecadosFilterBean() {
     }
@@ -197,5 +198,13 @@ public class BecadosFilterBean {
 
     public void setTercera_vez(String tercera_vez) {
         this.tercera_vez = tercera_vez;
+    }
+
+    public String getSe_matriculo() {
+        return se_matriculo;
+    }
+
+    public void setSe_matriculo(String se_matriculo) {
+        this.se_matriculo = se_matriculo;
     }
 }

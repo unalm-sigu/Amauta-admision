@@ -67,6 +67,13 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     }
 
     @Override
+    public List<InformacionBeca> getHistorialBecas(InformacionBeca infoBeca) {
+//        List<InformacionBeca> becas = new ArrayList<>();
+//        becas = becasPronabecDAO.finByPersonaId(personaId);
+        return  becasPronabecDAO.finByPersonaIds(infoBeca);
+    }
+
+    @Override
     public void saveBecado(InformacionBeca informacionBeca, DataSessionPivot ds) {
 //        informacionBeca.setPersona(informacionBeca.getPersona());
         informacionBeca.setFechaRegistro(new Date());

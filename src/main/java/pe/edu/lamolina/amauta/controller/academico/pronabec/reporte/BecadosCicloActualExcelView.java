@@ -83,22 +83,16 @@ public class BecadosCicloActualExcelView extends AbstractView {
 
         excelUtil.replaceVal(0, 0, "DNI");
         excelUtil.replaceVal(0, 1, "APELLIDOS Y NOMBRES");
-        excelUtil.replaceVal(0, 2, "CONVOCATORIA");
-        excelUtil.replaceVal(0, 3, "BECA");
-        excelUtil.replaceVal(0, 4, "NOMBRE DE LA INSTITUCION");
-        excelUtil.replaceVal(0, 5, "CARRERA");
-        excelUtil.replaceVal(0, 6, "PERIODO ACADEMICO");
-        excelUtil.replaceVal(0, 7, "CICLOS");
-        excelUtil.replaceVal(0, 8, "CURSO MATRICULADO");
-        excelUtil.replaceVal(0, 9, "CREDITOS");
-        excelUtil.replaceVal(0, 10, "Nro VECES CURSADO");
+        excelUtil.replaceVal(0, 2, "NOMBRE DE LA INSTITUCION");
+        excelUtil.replaceVal(0, 3, "CARRERA");
+        excelUtil.replaceVal(0, 4, "REALIZO MATRICULA EL SEMESTRE ACTUAL");
+        excelUtil.replaceVal(0, 5, "CICLO EN EL SEMESTRE");
+        excelUtil.replaceVal(0, 6, "NRO CURSOS MATRICULADOS");
+        excelUtil.replaceVal(0, 7, "CREDITO");
+        excelUtil.replaceVal(0, 8, "NRO ELECTIVOS MATRICULADOS");
+        excelUtil.replaceVal(0, 9, "REALIZO CAMBIO CARRERA");
+        excelUtil.replaceVal(0, 10, "CURSO MATRICULADO POR TERCERA VEZ");
 
-
-        if (!becadosFilterBeanX.getRetiro_ciclo().equalsIgnoreCase("false")) {
-            this.setWidthColumn(excelUtil.getSheet(), 11, 9000);
-            excelUtil.replaceStyle(0, 11, estiloCabecera);
-            excelUtil.replaceVal(0, 11, "RETIRO CICLO");
-        }
 
     }
 
@@ -152,21 +146,15 @@ public class BecadosCicloActualExcelView extends AbstractView {
 
             excelUtil.replaceVal(irow - 1, 0, item.getDni());
             excelUtil.replaceVal(irow - 1, 1, item.getApellidos_nombres());
-            excelUtil.replaceVal(irow - 1, 2, item.getYear_convocatoria());
-            excelUtil.replaceVal(irow - 1, 3, item.getTipo_beca().getNombre());
-            excelUtil.replaceVal(irow - 1, 4, item.getNombre_institucion());
-            excelUtil.replaceVal(irow - 1, 5, item.getCarrera());
-            excelUtil.replaceVal(irow - 1, 6, item.getPeriodo_academico());
-            excelUtil.replaceVal(irow - 1, 7, item.getCiclos());
-            excelUtil.replaceVal(irow - 1, 8, item.getCurso_matriculado());
-            excelUtil.replaceVal(irow - 1, 9, item.getCreditos());
-            excelUtil.replaceVal(irow - 1, 10, item.getVeces_cursado());
-
-
-            if (!becadosFilterBeanX.getRetiro_ciclo().equalsIgnoreCase("false")) {
-                excelUtil.replaceStyle(irow - 1, 11, estiloGeneral);
-                excelUtil.replaceVal(irow - 1, 11, item.getRetiro_ciclo());
-            }
+            excelUtil.replaceVal(irow - 1, 2, item.getNombre_institucion());
+            excelUtil.replaceVal(irow - 1, 3, item.getCarrera());
+            excelUtil.replaceVal(irow - 1, 4, item.getSe_matriculo());
+            excelUtil.replaceVal(irow - 1, 5, item.getPeriodo_academico());
+            excelUtil.replaceVal(irow - 1, 6, item.getCurso_matriculado());
+            excelUtil.replaceVal(irow - 1, 7, item.getCreditos());
+            excelUtil.replaceVal(irow - 1, 8, item.getElectivo_matriculado());
+            excelUtil.replaceVal(irow - 1, 9, item.getCambio_carrera());
+            excelUtil.replaceVal(irow - 1, 10, item.getTercera_vez());
 
             irow++;
         }

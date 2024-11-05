@@ -59,7 +59,7 @@
                         <li class="divider"></li>
                         <li><a href="#" v-on:click.prevent="openEditar(item)"><i class="fa fa-pencil text-warning"></i> Editar Becario</a></li>
                         <li><a href="#" v-on:click.prevent=""><i class="fa fa-ban text-secondary"></i> Anular Becado</a></li>
-                        <li><a href="#"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
+                        <li><a href="#" v-on:click.prevent="verHistorial(item)"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
                       </ul>
                     </div>
                   </td>
@@ -156,6 +156,43 @@
             </form>
           </div>
         </modal-vik>
+        <modal-vik ref="modalHistorial"
+                   v-bind="modalHistorial">
+
+          <div slot="body">
+            <div class="panel padder-v">
+              <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                  <th class="col-xs-7">Tipo Beca</th>
+                  <th class="col-xs-1  text-center">Año Convocatoria</th>
+                  <th class="col-xs-2  text-center">Fecha Inicio</th>
+                  <th class="col-xs-2  text-center">Fecha Fin</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="alumno in becadoEditar">
+
+                  <td class="v-middle">
+                    <p class="text-primary text-sm">{{alumno.tipoBeca}}</p>
+                  </td>
+
+                  <td class="v-middle  text-center">
+                    <span class="label label-default" >{{alumno.yearConvocatoria}}</span>
+                  </td>
+                  <td class="v-middle  text-center">
+                    <span class="text-success text-sm" >{{alumno.fechaInicio}}</span>
+                  </td>
+                  <td class="v-middle  text-center">
+                    <span class="text-danger text-sm" >{{alumno.fechaFin}}</span>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </modal-vik>
 
   </div>
 </template>
@@ -182,6 +219,13 @@ module.exports={
         okbtn: "Guardar Becado",
         showaccept: true
       }),
+      modalHistorial: VUE_MODAL.structFormAjax({
+        id: 'modalHistorial',
+        header: true,
+        title: 'Historial Becado',
+        cancelbtn: 'Aceptar',
+        showaccept: false
+      }),
       becadoEditar:{},
       becadoAnular:{},
       configDate: {
@@ -191,7 +235,6 @@ module.exports={
     };
   },
   mounted() {
-    //$(".numeric").numeric({ negative: false });
   },
   methods: {
     openEliminar(item) {
@@ -268,6 +311,27 @@ module.exports={
     },
     refreshTable() {
       this.$refs.becaLoad.loadRemoteData(); // Refresca la tabla
+    },
+    verHistorial(item) {
+      var vue = this;
+      console.log(item)
+      $.ajax({
+        method: 'POST',
+        url: APP.url("academico/becaspronabec/historial"),
+        data: {id: item.nroDocumento},
+        success: function(response) {
+          if (response.success) {
+            vue.becadoEditar = response.data;
+          } else {
+            notify(response.message, 'error');
+          }
+        },
+        error: function() {
+          notify(Messages.errorComunicacion, "error");
+        }
+      });
+      this.$refs.modalHistorial.open();
+
     }
   }
 };

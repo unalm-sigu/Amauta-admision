@@ -13,6 +13,7 @@ import java.util.List;
 public interface BecasPronabecService {
     List<InformacionBeca> allByDynatable(DynatableFilter filter);
     List<String> cargarBecados(MultipartFile file, DataSessionPivot ds);
+    List<InformacionBeca> getHistorialBecas(InformacionBeca infoBeca);
     void saveBecado(InformacionBeca informacionBeca, DataSessionPivot ds);
     List<Persona>  allPersonaAlumno(String nombre, DataSessionPivot ds);
     void eliminarBecado(Long id);

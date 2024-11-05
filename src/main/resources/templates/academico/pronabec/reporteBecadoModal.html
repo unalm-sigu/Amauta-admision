@@ -34,6 +34,7 @@
                                  :disabled="filtroExcel.cicloActual === 'si'">
                     </multiselect>
                     <input type="hidden" v-model="filtroExcel.ciclo_academico" required=""/>
+                    <span class="help-block">Por favor, seleccione un ciclo académico.</span>
                 </div>
             </div>
 
@@ -45,7 +46,7 @@
                             <input type="radio" name="tipoReporte" value="general" v-model="filtroExcel.tipoReporte" required="" /> General
                         </label>
                     </div>
-                    <div class="radio">
+                    <div class="radio" v-if="filtroExcel.cicloActual === 'no'" >
                         <label>
                             <input type="radio" name="tipoReporte" value="filtros" v-model="filtroExcel.tipoReporte" required="" /> Con Filtros
                         </label>
@@ -68,42 +69,6 @@
                         <input type="hidden" v-model="filtroExcel.tipo_beca" required=""/>
                     </div>
                 </div>
-
-<!--                <div class="form-group">-->
-<!--                    <label class="control-label col-md-4">Reinscripciones en cursos (3ra)</label>-->
-<!--                    <div class="col-md-8">-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="cursando" value="si" v-model="filtroExcel.tercera_vez" />-->
-<!--                                Sí-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="cursando" value="no" v-model="filtroExcel.tercera_vez" />-->
-<!--                                No-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="form-group">-->
-<!--                    <label class="control-label col-md-4">Tiene retiro de ciclo</label>-->
-<!--                    <div class="col-md-8">-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="retiro" value="si" v-model="filtroExcel.retiroCiclo" />-->
-<!--                                Sí-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="retiro" value="no" v-model="filtroExcel.retiroCiclo" />-->
-<!--                                No-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
 
                 <div class="form-group" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
                     <label class="control-label col-md-4">Parametros adicionales al reporte</label>

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -36,6 +38,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -147,6 +150,37 @@ public class BecasPronabecController {
     @RequestMapping("load")
     public String load(){
         return "academico/pronabec/loadCargaPronabec";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "historial")
+    public JsonResponse obtenerHistorialBecas(InformacionBeca infoBeca, HttpSession session ) {
+        JsonResponse response = new JsonResponse();
+        try {
+            List<InformacionBeca> listBeca = serviceBecasPronabec.getHistorialBecas(infoBeca);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for(InformacionBeca informacionBeca : listBeca){
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                Persona persona = informacionBeca.getPersona();
+                TipoBeca tipoBeca = informacionBeca.getTipoBeca();
+
+                node.put("id",informacionBeca.getId());
+                node.put("tipoBeca",tipoBeca.getNombre());
+                node.put("yearConvocatoria",informacionBeca.getYearConvocatoria());
+                node.put("fechaInicio", TypesUtil.getStringDate(informacionBeca.getFechaInicio(),"dd/MM/yyyy"));
+                node.put("fechaFin", TypesUtil.getStringDate(informacionBeca.getFechaFin(),"dd/MM/yyyy"));
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
     }
 
     @ResponseBody
@@ -302,10 +336,8 @@ public class BecasPronabecController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ObjectUtil.printAttr(becadosFilterBean);
             List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterBecadosExcel(ds.getCicloAcademico(), becadosFilterBean);
             model.addAttribute("listBecadosFilter", listBecadosFilter);
-//            model.addAttribute("tipoBeca", tipoBecado);
             model.addAttribute("objtBecados", becadosFilterBean);
 
         }catch (PhobosException e){
@@ -324,7 +356,6 @@ public class BecasPronabecController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ObjectUtil.printAttr(becadosFilterBean);
             List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterActualBecados(ds.getCicloAcademico(), becadosFilterBean);
             model.addAttribute("listBecadosFilter", listBecadosFilter);
             model.addAttribute("objtBecados", becadosFilterBean);
@@ -345,7 +376,6 @@ public class BecasPronabecController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            ObjectUtil.printAttr(becadosFilterBean);
             List<BecadosFilterBean> listBecadosFilter = serviceBecasPronabec.filterAnteriorBecados(ds.getCicloAcademico(), becadosFilterBean);
             model.addAttribute("listBecadosFilter", listBecadosFilter);
             model.addAttribute("objtBecados", becadosFilterBean);

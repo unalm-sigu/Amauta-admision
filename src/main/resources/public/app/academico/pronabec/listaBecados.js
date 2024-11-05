@@ -71,8 +71,6 @@ new Vue({
             let $vue = this;
             $vue.alumnoBecado = {};
             $vue.$refs.modalNuevoBec.open();
-            //console.log($vue);
-
         },
         loadAlumno(nombre) {
             let $vue = this;
