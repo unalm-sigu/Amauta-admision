@@ -1,0 +1,250 @@
+package pe.edu.lamolina.amauta.controller.academico.pronabec.reporte;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.joda.time.DateTime;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.AbstractView;
+import pe.albatross.zelpers.file.excel.ExcelHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.edu.lamolina.amauta.controller.academico.pronabec.BecadosFilterBean;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class BecadosCicloAnteriorExcelView extends AbstractView {
+
+    private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    @Override
+    protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        setContentType(CONTENT_TYPE_XLSX);
+        this.buildExcelDocument(map, workbook, request, response);
+    }
+
+    private void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<BecadosFilterBean> listAptoPreBean = (List<BecadosFilterBean>) model.get("listBecadosFilter");
+        //String tipoReporte = (String) model.get("tipoReporte");
+        BecadosFilterBean becadosFilterBeanX = (BecadosFilterBean) model.get("objtBecados");
+
+        this.generateCelda(workbook, listAptoPreBean, becadosFilterBeanX);
+        String fecha = new DateTime().toString("yyyMMdd_Hmm");
+
+        String header = "Reporte-Becado-Ciclo-Anteriores";
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xls\"");
+        response.setContentType(getContentType());
+        response.setStatus(200);
+        ServletOutputStream out = response.getOutputStream();
+        out.flush();
+        workbook.write(out);
+        out.flush();
+    }
+
+    private void generateCelda(Workbook workbook, List<BecadosFilterBean> listAptoPreBean, BecadosFilterBean becadosFilterBeanX ) {
+        Sheet sheet = workbook.createSheet("Hoja1");
+        //ObjectUtil.printAttr(becadosFilterBeanX);
+        ExcelHelper excelUtil = new ExcelHelper(sheet, workbook);
+        int irow = 2; // fila de inicio para la data
+        this.createHeader(excelUtil, workbook,becadosFilterBeanX);
+        this.createBody(excelUtil, irow, listAptoPreBean, workbook, becadosFilterBeanX);
+    }
+
+    private void createHeader(ExcelHelper excelUtil, Workbook workbook, BecadosFilterBean becadosFilterBeanX) {
+        CellStyle estiloCabecera = getStyleCabecera(workbook, HorizontalAlignment.CENTER);
+        CellStyle estiloCabeceraLeft = getStyleCabecera(workbook, HorizontalAlignment.LEFT);
+        this.setWidthColumn(excelUtil.getSheet(), 1, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 2, 12000);
+        this.setWidthColumn(excelUtil.getSheet(), 3, 10000);
+        this.setWidthColumn(excelUtil.getSheet(), 4, 5000);
+        this.setWidthColumn(excelUtil.getSheet(), 5, 10000);
+        this.setWidthColumn(excelUtil.getSheet(), 6, 10000);
+        this.setWidthColumn(excelUtil.getSheet(), 7, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 8, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 9, 10000);
+        this.setWidthColumn(excelUtil.getSheet(), 10, 5000);
+        this.setWidthColumn(excelUtil.getSheet(), 11, 9000);
+        this.setWidthColumn(excelUtil.getSheet(), 12, 8000);
+        this.setWidthColumn(excelUtil.getSheet(), 13, 9000);
+
+        excelUtil.replaceStyle(0, 0, estiloCabecera);
+        excelUtil.replaceStyle(0, 1, estiloCabeceraLeft);
+        excelUtil.replaceStyle(0, 2, estiloCabeceraLeft);
+        excelUtil.replaceStyle(0, 3, estiloCabeceraLeft);
+        excelUtil.replaceStyle(0, 4, estiloCabecera);
+        excelUtil.replaceStyle(0, 5, estiloCabecera);
+        excelUtil.replaceStyle(0, 6, estiloCabeceraLeft);
+        excelUtil.replaceStyle(0, 7, estiloCabecera);
+        excelUtil.replaceStyle(0, 8, estiloCabecera);
+        excelUtil.replaceStyle(0, 9, estiloCabecera);
+        excelUtil.replaceStyle(0, 10, estiloCabecera);
+        excelUtil.replaceStyle(0, 11, estiloCabecera);
+        excelUtil.replaceStyle(0, 12, estiloCabecera);
+        excelUtil.replaceStyle(0, 13, estiloCabecera);
+
+        excelUtil.replaceVal(0, 0, "DNI");
+        excelUtil.replaceVal(0, 1, "APELLIDOS Y NOMBRES");
+        excelUtil.replaceVal(0, 2, "CONVOCATORIA");
+        excelUtil.replaceVal(0, 3, "BECA");
+        excelUtil.replaceVal(0, 4, "NOMBRE DE LA INSTITUCION");
+        excelUtil.replaceVal(0, 5, "CARRERA");
+        excelUtil.replaceVal(0, 6, "PERIODO ACADEMICO");
+        excelUtil.replaceVal(0, 7, "CICLO");
+        excelUtil.replaceVal(0, 8, "CURSO MATRICULADO");
+        excelUtil.replaceVal(0, 9, "NOTA");
+        excelUtil.replaceVal(0, 10, "CREDITOS");
+        excelUtil.replaceVal(0, 11, "Nro VECES CURSADO");
+        excelUtil.replaceVal(0, 12, "PROMEDIO PONDERADO DEL CICLO");
+        excelUtil.replaceVal(0, 13, "CONDICION CICLO");
+
+        if (!becadosFilterBeanX.getTercera_vez().equalsIgnoreCase("false")) {
+            this.setWidthColumn(excelUtil.getSheet(), 14, 8000);
+            excelUtil.replaceStyle(0, 14, estiloCabecera);
+            excelUtil.replaceVal(0, 14, "LLEVANDO CURSO POR 3RA VEZ");
+
+            // Si electivo_matriculado es true, ocupa la posición 15
+            if (!becadosFilterBeanX.getElectivo_matriculado().equalsIgnoreCase("false")) {
+                this.setWidthColumn(excelUtil.getSheet(), 15, 8000);
+                excelUtil.replaceStyle(0, 15, estiloCabecera);
+                excelUtil.replaceVal(0, 15, "CURSOS ELECTIVOS");
+            }
+        } else if (!becadosFilterBeanX.getElectivo_matriculado().equalsIgnoreCase("false")) {
+            // Si tercera_vez es false y electivo_matriculado es true
+            this.setWidthColumn(excelUtil.getSheet(), 14, 8000);
+            excelUtil.replaceStyle(0, 14, estiloCabecera);
+            excelUtil.replaceVal(0, 14, "CURSOS ELECTIVOS");
+        }
+//
+//        if (becadosFilterBeanX.getNota().equalsIgnoreCase("false") && becadosFilterBeanX.getCurso_matriculado().equalsIgnoreCase("true")){
+//            this.setWidthColumn(excelUtil.getSheet(), 13, 10000);
+//            excelUtil.replaceStyle(0, 13, estiloCabecera);
+//            excelUtil.replaceVal(0, 13, "CURSO MATRICULADO");
+//        }else if (becadosFilterBeanX.getNota().equalsIgnoreCase("true") && becadosFilterBeanX.getCurso_matriculado().equalsIgnoreCase("true")){
+//            this.setWidthColumn(excelUtil.getSheet(), 14, 10000);
+//            excelUtil.replaceStyle(0, 14, estiloCabecera);
+//            excelUtil.replaceVal(0, 14, "CURSO MATRICULADO");
+//        }else {
+//
+//        }
+
+    }
+
+    private CellStyle getStyleCabecera(Workbook workbook, HorizontalAlignment posicion) {
+        Font font = workbook.createFont();
+        font.setFontName("Arial");
+        font.setBold(true);
+        CellStyle cell = workbook.createCellStyle();
+        cell.setAlignment(posicion);
+        cell.setFont(font);
+        cell.setBorderTop(BorderStyle.MEDIUM);
+        cell.setBorderBottom(BorderStyle.MEDIUM);
+        cell.setBorderRight(BorderStyle.MEDIUM);
+        cell.setBorderLeft(BorderStyle.MEDIUM);
+        return cell;
+    }
+
+    private CellStyle getStyleGeneral(Workbook workbook, HorizontalAlignment posicion) {
+        Font font = workbook.createFont();
+        font.setFontName("Arial");
+        CellStyle cell = workbook.createCellStyle();
+        cell.setAlignment(posicion);
+        cell.setFont(font);
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
+        return cell;
+    }
+
+    private void setWidthColumn(Sheet sheet, int numberColumn, int width) {
+        sheet.setColumnWidth(numberColumn, width);
+    }
+
+    private void createBody(ExcelHelper excelUtil, int irow, List<BecadosFilterBean> listBecadosFilter, Workbook workbook, BecadosFilterBean becadosFilterBeanX) {
+        CellStyle estiloGeneral = getStyleGeneral(workbook, HorizontalAlignment.CENTER);
+        CellStyle estiloLeft = getStyleGeneral(workbook, HorizontalAlignment.LEFT);
+        ObjectUtil.printAttr(listBecadosFilter);
+        for (BecadosFilterBean item : listBecadosFilter) {
+            excelUtil.replaceStyle(irow - 1, 0, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 1, estiloLeft);
+            excelUtil.replaceStyle(irow - 1, 2, estiloLeft);
+            excelUtil.replaceStyle(irow - 1, 3, estiloLeft);
+            excelUtil.replaceStyle(irow - 1, 4, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 5, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 6, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 7, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 8, estiloLeft);
+            excelUtil.replaceStyle(irow - 1, 9, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 10, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 11, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 12, estiloGeneral);
+            excelUtil.replaceStyle(irow - 1, 13, estiloGeneral);
+
+
+            excelUtil.replaceVal(irow - 1, 0, item.getDni());
+            excelUtil.replaceVal(irow - 1, 1, item.getApellidos_nombres());
+            excelUtil.replaceVal(irow - 1, 2, item.getYear_convocatoria());
+            excelUtil.replaceVal(irow - 1, 3, item.getTipo_beca().getNombre());
+            excelUtil.replaceVal(irow - 1, 4, item.getNombre_institucion());
+            excelUtil.replaceVal(irow - 1, 5, item.getCarrera());
+            excelUtil.replaceVal(irow - 1, 6, item.getCiclo_academico().getDescripcion());
+            excelUtil.replaceVal(irow - 1, 7, item.getCiclos());
+            excelUtil.replaceVal(irow - 1, 8, item.getCurso_matriculado());
+            excelUtil.replaceVal(irow - 1, 9, item.getNota());
+            excelUtil.replaceVal(irow - 1, 10, item.getCreditos());
+            excelUtil.replaceVal(irow - 1, 11, item.getVeces_cursado());
+            excelUtil.replaceVal(irow - 1, 12, item.getPromedio_ponderado());
+            excelUtil.replaceVal(irow - 1, 13, item.getCondicion());
+
+            if (!becadosFilterBeanX.getTercera_vez().equalsIgnoreCase("false")) {
+                excelUtil.replaceStyle(irow - 1, 14, estiloGeneral);
+                excelUtil.replaceVal(irow - 1, 14, item.getTercera_vez());
+
+                // Si electivo_matriculado es true, ocupa la posición 15
+                if (!becadosFilterBeanX.getElectivo_matriculado().equalsIgnoreCase("false")) {
+                    excelUtil.replaceStyle(irow - 1, 15, estiloGeneral);
+                    excelUtil.replaceVal(irow - 1, 15, item.getElectivo_matriculado());
+                }
+            } else if (!becadosFilterBeanX.getElectivo_matriculado().equalsIgnoreCase("false")) {
+                // Si tercera_vez es false y electivo_matriculado es true
+                excelUtil.replaceStyle(irow - 1, 14, estiloGeneral);
+                excelUtil.replaceVal(irow - 1, 14, item.getElectivo_matriculado());
+            }
+
+//            if (becadosFilterBeanX.getNota().equalsIgnoreCase("false") && becadosFilterBeanX.getCurso_matriculado().equalsIgnoreCase("true")){
+//                excelUtil.replaceStyle(irow - 1, 13, estiloLeft);
+//                excelUtil.replaceVal(irow - 1, 13, item.getCurso_matriculado());
+//            }else if (becadosFilterBeanX.getNota().equalsIgnoreCase("true") && becadosFilterBeanX.getCurso_matriculado().equalsIgnoreCase("true")){
+//                excelUtil.replaceStyle(irow - 1, 14, estiloLeft);
+//                excelUtil.replaceVal(irow - 1, 14, item.getCurso_matriculado());
+//            }else {
+//
+//            }
+//            if (becadosFilterBeanX.getCurso_matriculado().equalsIgnoreCase("true")) {
+//                if (becadosFilterBeanX.getNota().equalsIgnoreCase("false")) {
+//                    excelUtil.replaceStyle(irow - 1, 13, estiloLeft);
+//                    excelUtil.replaceVal(irow - 1, 13, item.getCurso_matriculado());
+//                } else if (becadosFilterBeanX.getNota().equalsIgnoreCase("true")) {
+//                    excelUtil.replaceStyle(irow - 1, 14, estiloLeft);
+//                    excelUtil.replaceVal(irow - 1, 14, item.getCurso_matriculado());
+//                }
+//            }
+
+            irow++;
+        }
+    }
+
+    private String retornVacio(Long parametro) {
+        if (parametro == null) {
+            return "-";
+        }
+        return parametro.toString();
+    }
+
+}
