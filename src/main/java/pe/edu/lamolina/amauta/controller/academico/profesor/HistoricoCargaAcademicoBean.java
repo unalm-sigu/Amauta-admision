@@ -8,6 +8,7 @@ public class HistoricoCargaAcademicoBean {
     private String codDocente;
     private String nombreDocente;
     private String creditosPre;
+    private String docenteCiclo;
 
     public HistoricoCargaAcademicoBean() {
     }
@@ -19,6 +20,10 @@ public class HistoricoCargaAcademicoBean {
         this.codDocente = codDocente;
         this.nombreDocente = nombreDocente;
         this.creditosPre = creditosPre;
+    }
+
+    public String getKey() {
+        return ciclo + "-" + codDocente;
     }
 
     public String getCiclo() {

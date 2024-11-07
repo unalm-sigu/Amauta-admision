@@ -2,19 +2,28 @@ package pe.edu.lamolina.amauta.controller.academico.profesor.view;
 
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -25,23 +34,33 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.edu.lamolina.amauta.controller.academico.profesor.HistoricoCargaAcademicoBean;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.Phaser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import pe.edu.lamolina.amauta.controller.academico.profesor.ProfesorService;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.PDF_LOGO_UNALM;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.zelper.pdfgenerator.FooterTypeEnum;
+import pe.edu.lamolina.model.zelper.pdfgenerator.HeaderTypeEnum;
+import pe.edu.lamolina.model.zelper.pdfgenerator.UEventoPaginaPdf;
 
 @Component
 public class ReporteHistoricoCargaAcademicoView extends AbstractOnlyPdfView {
 
     private final String TITULO = "UNIVERSIDAD AGRARIA LA MOLINA";
-    private final String SUB_TITULO = "DIRECCIÓN DE ESTUDIOS Y REGISTROS ACADEMICOS";
-    private final String SUB_TITULO_2 = "Historico de Carga Académica de créditos por profesor";
+    private final String SUB_TITULO = "DIRECCIÓN DE ESTUDIOS Y REGISTROS ACADÉMICOS";
+    private final String SUB_TITULO_2 = "Historico de carga académica de créditos pre grado";
 
-    private String DPTO = "";
+    @Autowired
+    ProfesorService service;
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         List<HistoricoCargaAcademicoBean> historicos = (List<HistoricoCargaAcademicoBean>) model.get("historicos");
-        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
-        List<String> departamentos = historicos.stream().map(x -> x.getDepartamento()).distinct().collect(Collectors.toList());
-        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
 
         // IE workaround: write into byte array first.
         ByteArrayOutputStream baos = createTemporaryOutputStream();
@@ -51,17 +70,21 @@ public class ReporteHistoricoCargaAcademicoView extends AbstractOnlyPdfView {
 
         File tempFile = new File("TablaConFiltros.pdf");
         PdfWriter writer = PdfWriter.getInstance(document, baos);
-        prepareWriter(model, writer, request);
-        buildPdfMetadata(model, document, request);
+//        prepareWriter(model, writer, request);
+//        buildPdfMetadata(model, document, request);
+
+        // Crear un nuevo evento de página para manejar los pies de página
+        FooterPageEvent footer = new FooterPageEvent();
+
+        // Establecer el evento de página en el escritor
+        writer.setPageEvent(footer);
 
         // Build PDF document.
 //        writer.setInitialLeading(100);
         document.open();
         this.headerPDF(document, writer);
         this.buildPdfDocument(model, document, writer, request, response);
-//        this.bodyPDF(model, document);
 
-        System.out.println("PDF creado con éxito con los filtros aplicados.");
 
         String filename = "historico-carga-academica";
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
@@ -95,181 +118,57 @@ public class ReporteHistoricoCargaAcademicoView extends AbstractOnlyPdfView {
 
     protected void headerPDF(Document document, PdfWriter writer) throws DocumentException, BadElementException, IOException {
 
-        Font fontTitulo = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-        Font fontSubtitulo = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+        float[] columnWidths = new float[]{20f, 65f, 20f};
+        PdfPTable tabla = new PdfPTable(columnWidths); // Tabla de una sola columna
+        tabla.setWidths(columnWidths);       // Ancho de la tabla al 50% de la página
 
-        Paragraph parrafoTitulo = new Paragraph();
-        parrafoTitulo.setFont(fontTitulo);
-        parrafoTitulo.add(TITULO);
-        document.add(parrafoTitulo);
+        Image img = Image.getInstance(this.getClass().getResource(PDF_LOGO_UNALM));
+        img.scalePercent(40F);
 
-        Paragraph parrafoSubTitulo = new Paragraph();
-        parrafoSubTitulo.setFont(fontSubtitulo);
-        parrafoSubTitulo.add(SUB_TITULO);
-        document.add(parrafoSubTitulo);
+        PdfPCell cell = new PdfPCell(img);
+        cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+        cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
+        cell.setPaddingBottom(5f);
+        cell.setPaddingTop(5f);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        tabla.addCell(cell);
 
-        Paragraph texto = new Paragraph();
-        parrafoSubTitulo.setFont(fontSubtitulo);
-        texto.setAlignment(Paragraph.ALIGN_CENTER);
-        texto.add(SUB_TITULO_2);
+        Font font = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+        Font fontSubtitulo = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL);
+        Paragraph parrafo = new Paragraph();
+        parrafo.setFont(font);
+        parrafo.add(this.TITULO);
+        parrafo.add(Chunk.NEWLINE);
+        parrafo.add(Chunk.NEWLINE);
+        parrafo.add(this.SUB_TITULO);
 
-        document.add(new Paragraph(""));
+        Paragraph parrafosub = new Paragraph();
+        parrafosub.setFont(fontSubtitulo);
+        parrafo.add(Chunk.NEWLINE);
+        parrafo.add(Chunk.NEWLINE);
+        parrafo.add(this.SUB_TITULO_2);
 
-        // Crear una celda y agregarle el texto
-        PdfPCell celda = new PdfPCell();
-        celda.addElement(texto);
-        celda.setPadding(5);
-        celda.setBorderWidth(2);
-        celda.setFixedHeight(30);
-        celda.setBorderColor(BaseColor.BLACK);
-        celda.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-        celda.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
+        PdfPCell cell2 = new PdfPCell(parrafo);
+        cell2.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+        cell2.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
+        cell2.setBorder(PdfPCell.NO_BORDER);
+        tabla.addCell(cell2);
 
-        // Crear una tabla con una sola celda y agregar la celda a la tabla
-        PdfPTable tabla = new PdfPTable(1); // Tabla de una sola columna
-//        tabla.setWidthPercentage(50);       // Ancho de la tabla al 50% de la página
-        tabla.setSpacingBefore(20);         // Espacio antes de la tabla
-        tabla.setSpacingAfter(20);          // Espacio después de la tabla
-        tabla.addCell(celda);               // Agregar la celda a la tabla
-        tabla.setHorizontalAlignment(Element.ALIGN_LEFT);
-        tabla.setWidthPercentage(70);
+        PdfPCell cell3 = new PdfPCell();
+        cell3.setBorder(PdfPCell.NO_BORDER);
+        tabla.addCell(cell3);
 
         // Agregar la tabla al documento
         document.add(tabla);
 
-    }
+        Font fontFecha = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
 
-    protected void bodyPDF(Map<String, Object> model, Document document) throws Exception {
-        List<HistoricoCargaAcademicoBean> historicos = (List<HistoricoCargaAcademicoBean>) model.get("historicos");
-        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
-        List<String> departamentos = historicos.stream().map(x -> x.getDepartamento()).distinct().collect(Collectors.toList());
-        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
+        Paragraph fecha = new Paragraph();
+        fecha.setFont(fontFecha);
+        fecha.setAlignment(Element.ALIGN_RIGHT);
+        fecha.add(this.getFecha());
+        document.add(fecha);
 
-        departamentos.forEach(dpto -> {
-
-            Font fontTitulo = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-
-            Paragraph textoDPTO = new Paragraph();
-            textoDPTO.setFont(fontTitulo);
-            textoDPTO.add("DPTO ACADEMICO " + dpto.toUpperCase());
-
-            try {
-                document.add(textoDPTO);
-                int docenteCol = 1;
-                int numColumnas = docenteCol + ciclos.size();
-
-//          Crear una tabla con 3 columnas para Nombre, Ciclo Académico y Calificación
-                PdfPTable tabla = new PdfPTable(numColumnas);
-                tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
-
-                float[] anchosColumnas = new float[numColumnas];
-                anchosColumnas[0] = 100; // Ancho mayor para la primera columna
-                for (int i = 1; i < numColumnas; i++) {
-                    anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
-                }
-                tabla.setWidths(anchosColumnas);
-
-                // Encabezados de columna
-                PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR"));
-                celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
-                celdaDocente.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
-//        celdaDocente.setPadding(20);
-
-                tabla.addCell(celdaDocente);
-
-                ciclos.stream().forEach(ciclo -> {
-                    PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo));
-                    tabla.addCell(cellCiclo);
-
-                });
-
-                ciclos.stream().forEach(ciclo -> {
-                    PdfPCell textCred = new PdfPCell(new Paragraph("Pre"));
-                    tabla.addCell(textCred);
-
-                });
-
-                docentes.stream().forEach(docente -> {
-                    historicos.stream().forEach(reporte -> {
-                        if (reporte.getDepartamento().equalsIgnoreCase(dpto)
-                                && reporte.getNombreDocente().equalsIgnoreCase(docente)) {
-                            tabla.addCell(docente);
-
-                            ciclos.stream().forEach(ciclo -> {
-                                if (reporte.getDepartamento().equalsIgnoreCase(dpto)
-                                        && reporte.getNombreDocente().equalsIgnoreCase(docente)
-                                        && reporte.getCiclo().equalsIgnoreCase(ciclo)) {
-                                    tabla.addCell(reporte.getCreditosPre());
-                                }
-
-                            });
-                        }
-                        int countCiclo = ciclos.size();
-                        int count = 0;
-
-                    });
-
-//                    ciclos.stream().forEach(x -> {
-//                        tabla.addCell("50.00");
-//                    });
-                });
-
-//                this.DPTO = dpto;
-//                this.buildPdfDocument(model, document, writer, request, response);
-//                this.DPTO = "";
-            } catch (DocumentException ex) {
-                Logger.getLogger(ReporteHistoricoCargaAcademicoView.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                Logger.getLogger(ReporteHistoricoCargaAcademicoView.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        });
-
-        ///***********************
-//        int docenteCol = 1;
-//        int numColumnas = docenteCol + ciclos.size();
-//
-////          Crear una tabla con 3 columnas para Nombre, Ciclo Académico y Calificación
-//        PdfPTable tabla = new PdfPTable(numColumnas);
-//        tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
-//
-//        float[] anchosColumnas = new float[numColumnas];
-//        anchosColumnas[0] = 100; // Ancho mayor para la primera columna
-//        for (int i = 1; i < numColumnas; i++) {
-//            anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
-//        }
-//        tabla.setWidths(anchosColumnas);
-//
-//        // Encabezados de columna
-//        PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR"));
-//        celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
-//        celdaDocente.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
-////        celdaDocente.setPadding(20);
-//
-//        tabla.addCell(celdaDocente);
-//
-//        ciclos.stream().forEach(ciclo -> {
-//            PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo));
-//            tabla.addCell(cellCiclo);
-//
-//        });
-//        ciclos.stream().forEach(ciclo -> {
-//            PdfPCell textCred = new PdfPCell(new Paragraph("Pre"));
-//            tabla.addCell(textCred);
-//
-//        });
-//
-////         Agregar los datos filtrados a la tabla
-//        docentes.stream().forEach(docente -> {
-//            tabla.addCell(docente);
-//            int countCiclo = ciclos.size();
-//            int count = 0;
-//            ciclos.stream().forEach(x -> {
-//                tabla.addCell("50.00");
-//            });
-//
-//        });
-//        document.add(tabla);
     }
 
     @Override
@@ -277,221 +176,161 @@ public class ReporteHistoricoCargaAcademicoView extends AbstractOnlyPdfView {
             HttpServletResponse response) throws Exception {
 
         List<HistoricoCargaAcademicoBean> historicos = (List<HistoricoCargaAcademicoBean>) model.get("historicos");
-//        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
-////
-//        List<String> departamentos = historicos.stream().map(x -> x.getDepartamento()).distinct().collect(Collectors.toList());
-//        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
-//
-//        departamentos.stream().forEach(dpto -> {
-//            try {
-//                PdfPTable tabla = this.tablaBody(ciclos);
-//                docentes.stream().forEach(docente -> {
-//                    Optional<HistoricoCargaAcademicoBean> histo = historicos.stream().
-//                            filter(a -> a.getDepartamento().equalsIgnoreCase(dpto) && a.getNombreDocente().equalsIgnoreCase(docente)).
-//                            distinct().findFirst();
-//                    tabla.addCell(histo.isPresent() ? histo.get().getCodDocente():"NO DICTO");
-//                    for (int i = 0; i < ciclos.size(); i++) {
-////
-//                        tabla.addCell("4");
-////
-//                    }
-//                });
-//
-//            } catch (DocumentException ex) {
-//                Logger.getLogger(ReporteHistoricoCargaAcademicoView.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        });
+        List<String> ciclosTotal = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
+        List<String> ciclos = ciclosTotal.stream()
+                .sorted((c1, c2) -> {
+                    // Extraer año y semestre de cada string
+                    int año1 = Integer.parseInt(c1.split("-")[0]);
+                    int semestre1 = c1.split("-")[1].equals("I") ? 2 : 1; // Invertir: II = 1, I = 2
 
-////        xxxxxxxxxxxxxxxxxxxxxxx  Crear una tabla con 3 columnas para Nombre, Ciclo Académico y Calificación
-//        departamentos.forEach(dpto -> {
-//            this.DPTO = dpto;
-//
-//            try {
-//                Font fontTitulo = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-//
-//                Paragraph textoDPTO = new Paragraph();
-//                textoDPTO.setFont(fontTitulo);
-//                textoDPTO.add("DPTO ACADEMICO " + dpto.toUpperCase());
-//
-//                document.add(textoDPTO);
-//
-//                // Encabezados de columna
-//                PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR"));
-//                celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
-//                celdaDocente.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
-////        celdaDocente.setPadding(20);
-//
-//                PdfPTable tabla = new PdfPTable(numColumnas);
-//                tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
-//
-//                float[] anchosColumnas = new float[numColumnas];
-//                anchosColumnas[0] = 100; // Ancho mayor para la primera columna
-//                for (int i = 1; i < numColumnas; i++) {
-//                    anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
-//                }
-//                tabla.setWidths(anchosColumnas);
-//
-//                tabla.addCell(celdaDocente);
-//
-//                ciclos.stream().forEach(ciclo -> {
-//                    PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo));
-//                    tabla.addCell(cellCiclo);
-//
-//                });
-//
-//                ciclos.stream().forEach(ciclo -> {
-//                    PdfPCell textCred = new PdfPCell(new Paragraph("Pre"));
-//                    tabla.addCell(textCred);
-//
-//                });
-//
-//                docentes.stream().forEach(docente -> {
-//
-////                    historicos.stream().forEach(reporte -> {
-////                        int ciclosCount = ciclos.size();
-////
-////                        if (reporte.getDepartamento().equalsIgnoreCase(dpto)
-////                                && reporte.getNombreDocente().equalsIgnoreCase(docente)) {
-////
-////                            tabla.addCell(docente);
-//                    for (int i = 0; i < ciclos.size(); i++) {
-//
-//                        tabla.addCell("4");
-//
-//                    }
-//
-////                            ciclos.stream().forEach(ciclo -> {
-////                                if (reporte.getDepartamento().equalsIgnoreCase(dpto)
-////                                        && reporte.getNombreDocente().equalsIgnoreCase(docente)
-////                                        && reporte.getCiclo().equalsIgnoreCase(ciclo)) {
-////                                    tabla.addCell(reporte.getCreditosPre());
-////                                }
-////
-////                            });
-////                        }
-////                        int countCiclo = ciclos.size();
-////                        int count = 0;
-////
-////                    });
-////                    ciclos.stream().forEach(x -> {
-////                        tabla.addCell("50.00");
-////                    });
-//                });
-//                document.add(tabla);
-//
-////                this.DPTO = dpto;
-////                this.buildPdfDocument(model, document, writer, request, response);
-////                this.DPTO = "";
-//            } catch (Exception ex) {
-//                Logger.getLogger(ReporteHistoricoCargaAcademicoView.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//
-//        });
-//        document.add(tabla);
-//        List<HistoricoCargaAcademicoBean> historicos = (List<HistoricoCargaAcademicoBean>) model.get("historicos");
-//        List<String> docentes = historicos.stream().map(x -> x.getNombreDocente()).distinct().collect(Collectors.toList());
-//        List<String> ciclos = historicos.stream().map(x -> x.getCiclo()).distinct().collect(Collectors.toList());
-//
-//        int docenteCol = 1;
-//        int numColumnas = docenteCol + ciclos.size();
-//
-////          Crear una tabla con 3 columnas para Nombre, Ciclo Académico y Calificación
-//        PdfPTable tabla = new PdfPTable(numColumnas);
-//        tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
-//
-//        float[] anchosColumnas = new float[numColumnas];
-//        anchosColumnas[0] = 100; // Ancho mayor para la primera columna
-//        for (int i = 1; i < numColumnas; i++) {
-//            anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
-//        }
-//        tabla.setWidths(anchosColumnas);
-//
-//        // Encabezados de columna
-//        PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR"));
-//        celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
-//        celdaDocente.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
-////        celdaDocente.setPadding(20);
-//
-//        tabla.addCell(celdaDocente);
-//
-//        ciclos.stream().forEach(ciclo -> {
-//            PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo));
-//            tabla.addCell(cellCiclo);
-//
-//        });
-//        ciclos.stream().forEach(ciclo -> {
-//            PdfPCell textCred = new PdfPCell(new Paragraph("Pre"));
-//            tabla.addCell(textCred);
-//
-//        });
-//
-////         Agregar los datos filtrados a la tabla
-//        docentes.stream().forEach(docente -> {
-//            tabla.addCell(docente);
-//            int countCiclo = ciclos.size();
-//            int count = 0;
-//            ciclos.stream().forEach(x -> {
-//                tabla.addCell("50.00");
-//            });
-//            for (HistoricoCargaAcademicoBean reporte : historicos) {
-//
-//                if (this.DPTO.equalsIgnoreCase(reporte.getDepartamento()) && docente.equalsIgnoreCase(reporte.getNombreDocente())) {
-//                    tabla.addCell(reporte.getCreditosPre());
-////                    count++;
-////                    if (countCiclo == count ) {
-////                        tabla.addCell("0.00"); // Puedes cambiar "N/A" a cualquier texto o dejar vacío
-////                    }
-//                }
-//
-//            }
-////            if (countCiclo > count && count == 1) {
-////                tabla.addCell("0.00"); // Puedes cambiar "N/A" a cualquier texto o dejar vacío
-////            }
-////
-////            // Si no hay registros en 'historicos' para el docente, agregar dos celdas vacías
-////            if (countCiclo > count && count == 0) {
-////                tabla.addCell("0.00");
-////                tabla.addCell("0.00");
-////            }
-//        });
-//         Agregar la tabla al documento
-//        document.add(tabla);
-    }
+                    int año2 = Integer.parseInt(c2.split("-")[0]);
+                    int semestre2 = c2.split("-")[1].equals("I") ? 2 : 1; // Invertir: II = 1, I = 2
 
-    PdfPTable tablaBody(List<String> ciclos) throws DocumentException {
+                    // Primero comparamos por año (en orden descendente)
+                    if (año1 != año2) {
+                        return Integer.compare(año2, año1); // Orden descendente por año
+                    }
 
-        int docenteCol = 1;
-        int numColumnas = docenteCol + ciclos.size();
+                    // Si los años son iguales, comparamos por semestre (II antes de I)
+                    return Integer.compare(semestre1, semestre2);
+                })
+                .collect(Collectors.toList());
 
-        PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR"));
-        celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
-        celdaDocente.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
+        Map<String, List<String>> mapDptosListDocente = historicos.stream()
+                .collect(Collectors.groupingBy(
+                        HistoricoCargaAcademicoBean::getDepartamento,
+                        Collectors.mapping(HistoricoCargaAcademicoBean::getNombreDocente, Collectors.toSet())
+                ))
+                .entrySet()
+                .stream()
+                // Ordena por clave del departamento
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        // Convierte el Set a una lista ordenada de docentes
+                        e -> e.getValue().stream()
+                                .sorted() // Ordena los nombres de los docentes alfabéticamente
+                                .collect(Collectors.toList()),
+                        (oldValue, newValue) -> oldValue, // En caso de colisión (no debe ocurrir), conserva el valor antiguo
+                        LinkedHashMap::new // Asegura el orden de inserción
+                ));
+
+        Map<String, String> mapCreditoByCicloDocente = historicos.stream().
+                collect(Collectors.toMap(
+                        x -> x.getCiclo() + "-" + x.getNombreDocente(),
+                        HistoricoCargaAcademicoBean::getCreditosPre)
+                );
+
+        Font fontTitulo = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+        Font fontceldaTabla = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL);
+
+        mapDptosListDocente.forEach((departamento, docentes) -> {
+
+            Paragraph textoDPTO = new Paragraph();
+            textoDPTO.setFont(fontTitulo);
+            textoDPTO.add("DPTO ACADEMICO " + departamento.toUpperCase());
+
+            try {
+                document.add(textoDPTO);
+                document.add(new Paragraph(new Chunk(Chunk.NEWLINE)));
+
+                int docenteCol = 1;
+                int numColumnas = docenteCol + ciclos.size();
+
+                PdfPTable tabla = new PdfPTable(numColumnas);
+                tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
+
+                float[] anchosColumnas = new float[numColumnas];
+                anchosColumnas[0] = 80; // Ancho mayor para la primera columna
+                for (int i = 1; i < numColumnas; i++) {
+                    anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
+                }
+                tabla.setWidths(anchosColumnas);
+
+                // Encabezados de columna
+                PdfPCell celdaDocente = new PdfPCell(new Paragraph("NOMBRE DEL PROFESOR", fontceldaTabla));
+                celdaDocente.setBackgroundColor(new BaseColor(238, 238, 238));
+                celdaDocente.setRowspan(2); // Fusionar la celda en las 3 columnas
+                celdaDocente.setHorizontalAlignment(Element.ALIGN_LEFT); // Centrar el texto dentro de la celda
+                celdaDocente.setVerticalAlignment(Element.ALIGN_MIDDLE);
 //        celdaDocente.setPadding(20);
 
-        PdfPTable tabla = new PdfPTable(numColumnas);
-        tabla.setWidthPercentage(100);  // Ancho de la tabla al 100% de la página
+                tabla.addCell(celdaDocente);
 
-        float[] anchosColumnas = new float[numColumnas];
-        anchosColumnas[0] = 100; // Ancho mayor para la primera columna
-        for (int i = 1; i < numColumnas; i++) {
-            anchosColumnas[i] = 8; // Anchos iguales para las demás columnas
-        }
-        tabla.setWidths(anchosColumnas);
+                ciclos.stream().forEach(ciclo -> {
+                    PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo, fontceldaTabla));
+                    cellCiclo.setBackgroundColor(new BaseColor(238, 238, 238));
+                    cellCiclo.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
+                    cellCiclo.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    tabla.addCell(cellCiclo);
 
-        tabla.addCell(celdaDocente);
+                });
 
-        ciclos.stream().forEach(ciclo -> {
-            PdfPCell cellCiclo = new PdfPCell(new Paragraph(ciclo));
-            tabla.addCell(cellCiclo);
+                ciclos.stream().forEach(ciclo -> {
+                    PdfPCell cellCred = new PdfPCell(new Paragraph("Cred.", fontceldaTabla));
+                    cellCred.setBackgroundColor(new BaseColor(238, 238, 238));
+                    cellCred.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
+                    cellCred.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    tabla.addCell(cellCred);
+
+                });
+
+                docentes.stream().forEach(docente -> {
+
+                    PdfPCell cellDocente = new PdfPCell(new Paragraph(docente, fontceldaTabla));
+                    cellDocente.setHorizontalAlignment(Element.ALIGN_LEFT); // Centrar el texto dentro de la celda
+                    cellDocente.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    tabla.addCell(cellDocente);
+
+                    ciclos.stream().forEach(ciclo -> {
+                        String creditoCiclo = mapCreditoByCicloDocente.get(ciclo + "-" + docente);
+                        PdfPCell cellCred = new PdfPCell(new Paragraph(creditoCiclo, fontceldaTabla));
+                        cellCred.setHorizontalAlignment(Element.ALIGN_CENTER); // Centrar el texto dentro de la celda
+                        cellCred.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                        tabla.addCell(cellCred);
+                    });
+
+                });
+
+                document.add(tabla);
+                document.newPage();
+            } catch (DocumentException ex) {
+                Logger.getLogger(ReporteHistoricoCargaAcademicoView.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         });
-
-        ciclos.stream().forEach(ciclo -> {
-            PdfPCell textCred = new PdfPCell(new Paragraph("Pre"));
-            tabla.addCell(textCred);
-
-        });
-        return tabla;
     }
 
+    class FooterPageEvent extends PdfPageEventHelper {
+
+        private int totalPages;  // Variable para almacenar el número total de páginas
+
+        // Este método se ejecuta al final de cada página
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            // Obtener el número de página actual
+            int pageNumber = writer.getPageNumber();
+
+            // Crear un objeto Font para el pie de página (puedes personalizar el estilo aquí)
+            Font font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
+
+            // Establecer el texto del pie de página (por ahora solo con el número de página actual)
+            String footerText = "pág. " + pageNumber;  // XX será reemplazado por el total de páginas
+
+            // Centrar el pie de página en la parte inferior de la página
+            float x = (document.getPageSize().getWidth() - 100) / 2; // Centrando el pie de página horizontalmente
+            float y = document.bottom(); // Posición vertical del pie de página (a 30 puntos desde el borde inferior)
+
+            // Posicionar el pie de página en la parte inferior central de la página
+            ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER,
+                    new Phrase(footerText, font), x, y, 0);
+        }
+
+    }
+
+    private String getFecha() {
+        SimpleDateFormat sdf = new SimpleDateFormat("'La Molina,' d 'de' MMMM yyyy", Locale.forLanguageTag("es"));
+        Date date = new Date();
+        return sdf.format(date);
+    }
 }

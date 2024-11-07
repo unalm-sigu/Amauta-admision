@@ -576,7 +576,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     @Override
     public List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademica(FiltroHistoricoCargaAcademicaDTO filtro) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" select x.ciclo,x.facultad,x.departamento,x.codigo codDocente,x.docente nombreDocente, TRUNCATE(sum(CRED_PROFE),2) creditosPre ");
+        sql.append(" select x.ciclo, x.facultad, x.departamento, x.codigo codDocente, x.docente nombreDocente, TRUNCATE(sum(CRED_PROFE),2) creditosPre ");
         sql.append(" from (  ");
         sql.append("      select aca.descripcion ciclo,af.nombre facultad, ada.nombre departamento, as2.codigo2, ");
         sql.append(" ad.codigo , concat(ifnull(gp.paterno,''),' ',ifnull(gp.materno,''), ', ',ifnull(gp.nombres,'')) docente,  ");
@@ -618,6 +618,12 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         if (filtro.getDocente() != null) {
             sql.append("      and ad.id = :DOCENTE  ");
         }
+        if (filtro.getDepartamento() != null) {
+            sql.append("      and ada.id = :DPTO  ");
+        }
+        if (filtro.getFacultad() != null) {
+            sql.append("      and af.id = :FACULTAD  ");
+        }
 
         sql.append("      group by aca.descripcion,af.nombre, ada.nombre, docente,ac.nombre, as2.codigo2, ags.curso_dirigido, ad.codigo,  ac.creditos_teoria ,ac.creditos_practica, ");
         sql.append("      as2.tipo_seccion, ads.porcentaje_carga ");
@@ -635,8 +641,14 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .setResultTransformer(Transformers.aliasToBean(HistoricoCargaAcademicoBean.class));
         if (filtro.getDocente() != null) {
             query.setParameter("DOCENTE", filtro.getDocente());
-
         }
+        if (filtro.getDepartamento() != null) {
+            query.setParameter("DPTO", filtro.getDepartamento());
+        }
+        if (filtro.getFacultad() != null) {
+            query.setParameter("FACULTAD", filtro.getFacultad());
+        }
+        
         query.setParameterList("IDCICLO", filtro.getCicloAcademicos().stream().map(x -> x.getId()).collect(Collectors.toList()));
 
         return (List<HistoricoCargaAcademicoBean>) query.list();
