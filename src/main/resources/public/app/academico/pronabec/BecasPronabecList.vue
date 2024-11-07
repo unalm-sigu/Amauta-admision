@@ -7,10 +7,11 @@
               <thead>
                 <tr>
                   <th class="col-md-4" colspan="2"></th>
-                  <th class="col-md-3 text-center">Tipo Beca</th>
+                  <th class="col-md-2 text-center">Tipo Beca</th>
                   <th class="col-md-1 text-center v-middle">Año Convocatoria</th>
                   <th class="col-md-2 text-center v-middle">Fecha Inicio</th>
                   <th class="col-md-2 text-center v-middle">Fecha Fin</th>
+                  <th class="col-md-1 text-center v-middle">Estado</th>
                   <th></th>
                 </tr>
               </thead>
@@ -51,6 +52,15 @@
                   <td class="text-center v-middle" >
                     <span >{{item.fechaFin}}</span>
                   </td>
+                <td class="text-center v-middle" >
+                  <span :class="{
+                    'label': true,
+                    'label-success': item.estado === 'ACTIVO',
+                    'label-danger': item.estado === 'ANU'
+                  }">
+                    {{ item.estado === 'ANU' ? 'Anulado' : item.estado }}
+                  </span>
+                </td>
                   <td class="v-middle">
                     <div class="actions">
                       <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
@@ -58,7 +68,7 @@
                         <li><a href="#" v-on:click.prevent="openEliminar(item)" class="text-danger"><i class="fa fa-trash" style="color: #ff0000;"></i> Eliminar Becado</a></li>
                         <li class="divider"></li>
                         <li><a href="#" v-on:click.prevent="openEditar(item)"><i class="fa fa-pencil text-warning"></i> Editar Becario</a></li>
-                        <li><a href="#" v-on:click.prevent=""><i class="fa fa-ban text-secondary"></i> Anular Becado</a></li>
+                        <li v-if="item.estado !== 'ANU'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Anular Becado</a></li>
                         <li><a href="#" v-on:click.prevent="verHistorial(item)"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
                       </ul>
                     </div>
@@ -168,11 +178,12 @@
                   <th class="col-xs-1  text-center">Año Convocatoria</th>
                   <th class="col-xs-2  text-center">Fecha Inicio</th>
                   <th class="col-xs-2  text-center">Fecha Fin</th>
+
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr v-for="alumno in becadoEditar">
+                <tr v-for="alumno in becadoHistorial">
 
                   <td class="v-middle">
                     <p class="text-primary text-sm">{{alumno.tipoBeca}}</p>
@@ -228,6 +239,7 @@ module.exports={
       }),
       becadoEditar:{},
       becadoAnular:{},
+      becadoHistorial:{},
       configDate: {
         format: 'DD/MM/YYYY',
         useCurrent: false
@@ -282,6 +294,58 @@ module.exports={
         }
       });
     },
+    anular(item) {
+      let $vue = this;
+      console.log(item);
+
+      swal('¿El alumno perdió la beca?', {
+        icon: "warning",
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+        dangerMode: true,
+        buttons: {
+          cancel: { text: "Cancelar", closeModal: true, visible: true },
+          confirm: { text: "Sí, Anular", closeModal: false }
+        }
+      }).then((value) => {
+        if (value !== true) {
+          return;
+        }
+
+        // Enviar el id como parámetro en la URL
+        axios.post(APP.url('academico/becaspronabec/anular'), null, {
+          params: {
+            id: item.id  // Aquí se pasa el id del alumno como parámetro
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+            .then(({data}) => {
+              // Verificar si 'data' tiene un mensaje
+              if (data && data.message) {
+                // Si el servidor devuelve un mensaje de éxito, recargamos los datos y mostramos el mensaje
+                $vue.$refs.becaLoad.loadRemoteData();
+                return swal({ text: data.message, icon: "success", button: false, timer: 1700 });
+              } else {
+                // Si no hay un mensaje definido, mostrar un mensaje por defecto
+                return swal({ text: "Operación realizada con éxito", icon: "success", button: false, timer: 1700 });
+              }
+            })
+            .catch(() => {
+              // Si hubo un error, mostramos un mensaje de error
+              return swal(APP.errorComunicacion, "error");
+            });
+      }).catch(err => {
+        if (err) {
+          swal(APP.errorComunicacion, "error");
+        } else {
+          swal.stopLoading();
+          swal.close();
+        }
+      });
+
+    },
     openEditar(item) {
       let $vue = this;
       $vue.becadoEditar = JSON.parse(JSON.stringify(item));
@@ -321,7 +385,7 @@ module.exports={
         data: {id: item.nroDocumento},
         success: function(response) {
           if (response.success) {
-            vue.becadoEditar = response.data;
+            vue.becadoHistorial = response.data;
           } else {
             notify(response.message, 'error');
           }

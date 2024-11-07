@@ -17,6 +17,7 @@ public interface BecasPronabecService {
     void saveBecado(InformacionBeca informacionBeca, DataSessionPivot ds);
     List<Persona>  allPersonaAlumno(String nombre, DataSessionPivot ds);
     void eliminarBecado(Long id);
+    public void anularBecado(Long id);
     void actualizarInformBecado(InformacionBeca informacionBeca,DataSessionPivot ds);
     List<MatriculadosBecadosBean> allMatriculadosBecados(CicloAcademico cicloAcademico);
     List<BecadosFilterBean> filterBecadosExcel(CicloAcademico cicloAcademico,BecadosFilterBean becadosFilterBean);

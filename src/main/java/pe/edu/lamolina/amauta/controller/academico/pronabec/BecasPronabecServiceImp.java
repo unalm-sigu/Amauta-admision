@@ -20,6 +20,7 @@ import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
@@ -96,6 +97,22 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         } else {
             throw new PhobosException("El registro no fue encontrado.");
         }
+    }
+
+    @Override
+    @Transactional
+    public void anularBecado(Long id) {
+        InformacionBeca informacionBecaDB = becasPronabecDAO.find(id);
+        Long idBeca = informacionBecaDB.getId();
+        if (informacionBecaDB != null) {
+            //informacionBecaDB.setEstado("ANULADO");
+            informacionBecaDB.setEstadoEnum(EstadoEnum.ANU);
+            becasPronabecDAO.updateEstado(informacionBecaDB);
+
+        } else {
+            throw new PhobosException("El registro no fue encontrado.");
+        }
+
     }
 
     @Override

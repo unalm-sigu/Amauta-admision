@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
 import pe.edu.lamolina.model.pronabec.TipoBeca;
+import pe.edu.lamolina.model.tramite.Tramite;
 
 import java.util.Arrays;
 import java.util.List;
@@ -76,6 +77,14 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .endBlock()
                 .limit(15);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void updateEstado(InformacionBeca informacionBeca) {
+        Octavia octavia = Octavia.update(InformacionBeca.class);
+        octavia.set(informacionBeca, "estado");
+        octavia.set(informacionBeca, "usuario");
+        this.update(octavia);
     }
 
     @Override

@@ -42,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.OK;
+
 @Slf4j
 @Controller
 @RequestMapping("academico/becaspronabec")
@@ -133,6 +135,7 @@ public class BecasPronabecController {
                 node.put("emailEmpresa", persona.getEmailCompania());
                 node.put("rutaFoto", persona.getRutaFoto());
                 node.put("tipoFoto", persona.getTipoFoto());
+                node.put("estado",becPro.getEstado());
                 array.add(node);
             }
 
@@ -279,6 +282,27 @@ public class BecasPronabecController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             serviceBecasPronabec.eliminarBecado(id);
+            response.setMessage("El registro fue eliminado satisfactoriamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="anular", method = RequestMethod.POST)
+    public JsonResponse anularBecadoPronabec(@RequestParam Long id, HttpSession session){
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            serviceBecasPronabec.anularBecado(id);
             response.setMessage("El registro fue eliminado satisfactoriamente.");
             response.setSuccess(true);
         } catch (PhobosException e) {

@@ -17,6 +17,7 @@ public interface BecasPronabecDAO extends EasyDAO<InformacionBeca> {
     List<InformacionBeca> allByFilter(DynatableFilter filter);
     List<InformacionBeca> finByPersonaIds(InformacionBeca infoBeca);
     List<Persona> allByName(String nombre);
+    void updateEstado(InformacionBeca informacionBeca);
     List<MatriculadosBecadosBean> allMatriculadosBecadosPregrado(CicloAcademico cicloAcademico);
     List<BecadosFilterBean> allBecadosFilterExcel(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio,BecadosFilterBean becadosFilterBean);
     List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, BecadosFilterBean becadosFilterBean);
