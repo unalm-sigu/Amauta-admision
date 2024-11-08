@@ -55,10 +55,10 @@
                 <td class="text-center v-middle" >
                   <span :class="{
                     'label': true,
-                    'label-success': item.estado === 'ACTIVO',
+                    'label-success': item.estado === 'ACT',
                     'label-danger': item.estado === 'ANU'
                   }">
-                    {{ item.estado === 'ANU' ? 'Anulado' : item.estado }}
+                    {{ item.estado === 'ANU' ? 'Anulado' : item.estado === 'ACT' ? 'Activo' : item.estado }}
                   </span>
                 </td>
                   <td class="v-middle">
