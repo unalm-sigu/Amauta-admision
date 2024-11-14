@@ -1,6 +1,9 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.List;
+
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.amauta.dao.academico.TipoEvaluacionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -21,5 +24,41 @@ public class TipoEvaluacionDAOH extends AbstractEasyDAO<TipoEvaluacion> implemen
                 .orderBy("te.orden");
         
         return all(sql);
+    }
+
+    @Override
+    public List<TipoEvaluacion> allByDynaTable(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(TipoEvaluacion.class, "te")
+                .searchFields("te.nombre", "te.codigo")
+                .orderBy("te.orden desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<TipoEvaluacion> findByOrdenGreater(int orden) {
+        Octavia sql = Octavia.query()
+                .from(TipoEvaluacion.class, "te")
+                .filter("te.orden",">=" ,orden);
+
+        return all(sql);
+    }
+
+    @Override
+    public boolean existsByCodigo(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(TipoEvaluacion.class, "te")
+                .filter("te.codigo" ,codigo);
+
+        return !all(sql).isEmpty();
+    }
+
+    @Override
+    public boolean existsByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(TipoEvaluacion.class, "te")
+                .filter("te.nombre" ,nombre);
+
+        return !all(sql).isEmpty();
     }
 }
