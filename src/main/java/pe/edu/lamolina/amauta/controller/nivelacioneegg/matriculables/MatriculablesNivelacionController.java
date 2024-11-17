@@ -14,19 +14,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnoNivelacionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
@@ -39,7 +34,6 @@ public class MatriculablesNivelacionController {
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final MatriculablesNivelacionService service;
-    private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -50,7 +44,7 @@ public class MatriculablesNivelacionController {
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
 
-        return "nivelacioneegg/matriculablesnivelacion/matriculablesnivelacion";
+        return "nivelacioneegg/matriculablesnivelacion/matriculablesNivelacion";
     }
 
     @ResponseBody
@@ -58,38 +52,22 @@ public class MatriculablesNivelacionController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<AlumnoNivelacion> alumnosNivelacion = service.allAlumnosByDynatable(filter, ciclo);
+        List<NotaAlumnoNivelacion> matriculables = service.allMatriculablesByDynatable(filter, ciclo);
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (AlumnoNivelacion alumnoNiv : alumnosNivelacion) {
+        for (NotaAlumnoNivelacion matble : matriculables) {
             ObjectNode node = JaneHelper
-                    .from(alumnoNiv)
-                    .join("alumno", "id,codigo")
-                    .join("alumno.modalidadEstudio", "id,codigo,nombre")
-                    .join("alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
-                    .join("alumno.carrera.facultad", "id,codigo,nombre")
-                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
-                    .join("alumno.persona.tipoDocumento", "simbolo")
+                    .from(matble)
+                    .join("temaExamen", "id,codigo,nombre")
+                    .join("curso", "id,codigo,nombre")
+                    .join("alumnoNivelacion.alumno", "id,codigo")
+                    .join("alumnoNivelacion.alumno.modalidadEstudio", "id,codigo,nombre")
+                    .join("alumnoNivelacion.alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
+                    .join("alumnoNivelacion.alumno.carrera.facultad", "id,codigo,nombre")
+                    .join("alumnoNivelacion.alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
+                    .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo")
                     .json();
 
-            List<NotaAlumnoNivelacion> notasNivelaciones = alumnoNiv.getNotasNivelaciones();
-            ArrayNode notasJson = JaneHelper
-                    .from(notasNivelaciones)
-                    .join("temaCiclo", "id,preguntas")
-                    .join("temaExamen", "id,codigo,nombre")
-                    .array();
-
-            List<AlumnoNivelacionDTO> cambios = changeAlumnoNivelacionService.recrearLista(alumnoNiv.getCambios());
-            ArrayNode cambiosJson = JaneHelper
-                    .from(cambios)
-                    .join("userRegistro", "id,google")
-                    .join("userRegistro.persona", "id,nombreCompleto")
-                    .array();
-
-            node.set("notasNivelaciones", notasJson);
-            node.set("cambios", cambiosJson);
-            node.put("ocultar", true);
-            node.put("descripcion", "");
             array.add(node);
         }
 
@@ -101,119 +79,48 @@ public class MatriculablesNivelacionController {
     }
 
     @ResponseBody
-    @RequestMapping("createAlumnos")
-    public JsonResponse createAlumnos(HttpSession session) {
+    @RequestMapping("generarMatriculables")
+    public JsonResponse generarMatriculables(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        service.createAlumnos(ciclo, ds);
+        int nuevos = service.generarMatriculables(ds.getCicloAcademico(), ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se crearon los alumnos satisfactoriamente");
-        json.setSuccess(Boolean.TRUE);
-
-        return json;
-    }
-
-    @ResponseBody
-    @RequestMapping("revisarTodosAlumnos")
-    public JsonResponse revisarTodosAlumnos(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        int cambios = service.revisarTodosAlumnos(ciclo, ds);
-
-        JsonResponse json = new JsonResponse();
-        if (cambios > 0) {
-            json.setMessage("Se realizaron " + cambios + " modificaciones");
+        if (nuevos > 0) {
+            json.setMessage("Se crearon " + nuevos + " matriculables");
         } else {
-            json.setMessage("No se encontraron cambios que realizar");
+            json.setMessage("No se encontraron matriculables para crear");
         }
 
-        json.setSuccess(cambios > 0);
+        json.setSuccess(nuevos > 0);
         return json;
     }
 
     @ResponseBody
-    @RequestMapping("revisarAlumno")
-    public JsonResponse revisarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
+    @RequestMapping("matriculaMasivaTipo1")
+    public JsonResponse matriculaMasivaTipo1(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        int cambios = service.revisarAlumno(alumnoNiv, ds);
+        int nuevos = service.matriculaMasivaTipo1(ds.getCicloAcademico(), ds);
 
         JsonResponse json = new JsonResponse();
-        if (cambios > 0) {
-            json.setMessage("Se realizaron " + cambios + " modificaciones");
+        if (nuevos > 0) {
+            json.setMessage("Se realizaron " + nuevos + " inscripciones");
         } else {
-            json.setMessage("No se encontraron cambios que realizar");
+            json.setMessage("No se encontraron matriculables para inscribir");
         }
 
-        json.setSuccess(cambios > 0);
-
+        json.setSuccess(nuevos > 0);
         return json;
     }
 
     @ResponseBody
-    @RequestMapping("searchAlumno")
-    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
-
+    @RequestMapping("matricularCurso")
+    public JsonResponse matricularCurso(@RequestBody NotaAlumnoNivelacion alumnoCurso, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<Alumno> alumnos = service.searchAlumno(nombre, ds);
-
-        ArrayNode jsonList = JaneHelper.from(alumnos).only("id,codigo")
-                .join("persona", "numeroDocIdentidad,apellidosNombres,nombreCompleto,rutaFoto")
-                .join("persona.tipoDocumento", "simbolo,nombre")
-                .join("modalidadEstudio", "id,nombre")
-                .join("carrera", "codigo,nombre")
-                .join("carrera.facultad", "codigo,nombre")
-                .join("cicloIngreso", "id,descripcion")
-                .join("postulantePregrado", "id,codigo")
-                .join("postulantePregrado.modalidadIngreso", "id,codigo,nombre")
-                .join("postulantePregrado.cicloPostula.cicloAcademico", "id,descripcion")
-                .array();
-
-        JsonResponse response = new JsonResponse();
-        response.setData(jsonList);
-        response.setTotal(jsonList.size());
-        response.setSuccess(true);
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("addAlumno")
-    public JsonResponse addAlumno(@RequestBody Alumno alumno, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        service.addAlumno(alumno, ciclo, ds);
+        service.matricularCurso(alumnoCurso, ds.getCicloAcademico(), ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se agregó al alumno satisfactoriamente");
+        json.setMessage("Se matriculó satisfactoriamente");
         json.setSuccess(Boolean.TRUE);
-
-        return json;
-    }
-
-    @ResponseBody
-    @RequestMapping("deshabilitarAlumno")
-    public JsonResponse deshabilitarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.deshabilitarAlumno(alumnoNiv, ds);
-
-        JsonResponse json = new JsonResponse();
-        json.setMessage("Se deshabilitó al alumno satisfactoriamente");
-        json.setSuccess(Boolean.TRUE);
-
-        return json;
-    }
-
-    @ResponseBody
-    @RequestMapping("habilitarAlumno")
-    public JsonResponse habilitarAlumno(@RequestBody AlumnoNivelacion alumnoNiv, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.habilitarAlumno(alumnoNiv, ds);
-
-        JsonResponse json = new JsonResponse();
-        json.setMessage("Se rehabilitó al alumno satisfactoriamente");
-        json.setSuccess(Boolean.TRUE);
-
         return json;
     }
 

@@ -17,6 +17,8 @@ public interface CursoNivelacionDAO extends EasyDAO<CursoNivelacion> {
 
     List<CursoNivelacion> allByDocenteCiclo(Docente docente, CicloAcademico ciclo);
 
+    List<CursoNivelacion> allActivosByCiclo(CicloAcademico ciclo);
+
     CursoNivelacion findLastByCiclo(CicloAcademico ciclo);
 
 }

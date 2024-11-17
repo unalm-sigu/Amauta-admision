@@ -1,15 +1,20 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
@@ -23,11 +28,82 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
+    public NotaAlumnoNivelacion find(long id) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci", "curso cur")
+                .filter("nan.id", id);
+
+        return find(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso cur")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .filter("ci.id", ciclo)
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("nan.id DESC");
+
+        return all(sql);
+    }
+
+    @Override
     public List<NotaAlumnoNivelacion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(NotaAlumnoNivelacion.class, "nan")
-                .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno")
-                .leftJoin("an.prelamolina", "an.evaluado")
+                .join("alumnoNivelacion an", "temaExamen te")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allSinCursoByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .leftJoin("curso cu")
+                .isNull("cur.id")
+                .in("an.estado", Arrays.asList(NMAT, MAT))
+                .filter("nan.estado", NMAT)
+                .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allConCursoByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .leftJoin("cursoNivelacion cn")
+                .isNull("cn.id")
+                .in("an.estado", Arrays.asList(NMAT, MAT))
+                .filter("nan.estado", NMAT)
                 .filter("ci.id", ciclo);
 
         return all(sql);
