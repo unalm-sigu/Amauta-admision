@@ -8,7 +8,7 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a v-on:click.prevent="addCurso" class="dropdown-item pointer">Agregar curso</a></li>
+                        <li><a v-on:click.prevent="addCurso" class="dropdown-item pointer">Agregar sección</a></li>
                     </ul>
                 </div>
             </div>
@@ -56,7 +56,6 @@
                                             <template v-if="item.aula">
                                                 <span class="block bold">{{item.aula.codigo}}</span>
                                                 <span class="block">Cap.: {{item.aula.capacidadAula}}</span>
-                                                <!--<span class="block">Aforo: {{item.aula.aforo}}</span>-->
 
                                             </template>
                                         </td>
@@ -101,8 +100,10 @@
                                                     <li class="divider"> </li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeDocente(item)">Cambiar docente</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeAula(item)">Cambiar aula</a></li>
-                                                    <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeGrupoHoras(item)">Cambiar horario</a></li>
+                                                    <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeGrupoHoras(item)">Cambiar grupo</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeVacantes(item)">Cambiar vacantes</a></li>
+                                                    <li class="divider"> </li>
+                                                    <li class="pointer"><a v-on:click="cambios(item)">Historial de cambios</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -121,6 +122,13 @@
         <modal-info ref="modalInfo"></modal-info>
         <modal-add-curso ref="modalAddCurso"></modal-add-curso>
         <modal-add-horario ref="modalAddHorario"></modal-add-horario>
+        <modal-change-docente ref="modalChangeDocente"></modal-change-docente>
+        <modal-change-aula ref="modalChangeAula"></modal-change-aula>
+        <modal-change-grupo ref="modalChangeGrupo"></modal-change-grupo>
+        <modal-change-vacantes ref="modalChangeVacantes"></modal-change-vacantes>
+        <modal-cambios ref="modalCambios"></modal-cambios>
+        <modal-cancelar ref="modalCancelar"></modal-cancelar>
+        <modal-reactivar ref="modalReactivar"></modal-reactivar>
     </div>
 
 </template>
@@ -132,10 +140,20 @@
     const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
     const ModalAddCurso = httpVueLoader('./ModalAddCurso.vue');
     const ModalAddHorario = httpVueLoader('./ModalAddHorario.vue');
+    const ModalChangeDocente = httpVueLoader('./ModalChangeDocente.vue');
+    const ModalChangeAula = httpVueLoader('./ModalChangeAula.vue');
+    const ModalChangeGrupo = httpVueLoader('./ModalChangeGrupo.vue');
+    const ModalChangeVacantes = httpVueLoader('./ModalChangeVacantes.vue');
+    const ModalCambios = httpVueLoader('./ModalCambios.vue');
+    const ModalCancelar = httpVueLoader('./ModalCancelar.vue');
+    const ModalReactivar = httpVueLoader('./ModalReactivar.vue');
 
     module.exports = {
         components: {
-            ModalConfirm, ModalInfo, ModalAddCurso, ModalAddHorario
+            ModalConfirm, ModalInfo, ModalAddCurso, ModalAddHorario,
+            ModalChangeDocente, ModalChangeAula, ModalChangeGrupo,
+            ModalChangeVacantes, ModalCambios, ModalCancelar,
+            ModalReactivar
         },
 
         data() {
@@ -172,8 +190,6 @@
 
                 this.$refs.modalConfirm.open(config);
             },
-            desactivar(item) {},
-            cancelar(item) {},
             bloquear(item) {
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirm,
@@ -210,18 +226,36 @@
 
                 this.$refs.modalConfirm.open(config);
             },
-            reactivar(item) {},
+            reactivar(item) {
+                this.$refs.modalReactivar.open(item, this.$refs.raptorCursos);
+            },
+            cancelar(item) {
+                this.$refs.modalCancelar.open(item, this.$refs.raptorCursos);
+            },
 
-            changeDocente(item) {},
-            changeAula(item) {},
-            changeGrupoHoras(item) {},
-            changeVacantes(item) {},
+            changeDocente(item) {
+                this.$refs.modalChangeDocente.open(item, this.$refs.raptorCursos);
+            },
+            changeAula(item) {
+                this.$refs.modalChangeAula.open(item, this.$refs.raptorCursos);
+            },
+            changeGrupoHoras(item) {
+                this.$refs.modalChangeGrupo.open(item, this.$refs.raptorCursos);
+            },
+            changeVacantes(item) {
+                this.$refs.modalChangeVacantes.open(item, this.$refs.raptorCursos);
+            },
+            cambios(item) {
+                this.$refs.modalCambios.open(item);
+            },
 
             classEstado(item) {
                 if (item.estado === 'CRE') {
-                    return "label-warning";
+                    return "label-default";
                 } else if (item.estado === 'ACT') {
                     return "label-success";
+                } else if (item.estado === 'BLO') {
+                    return "label-warning";
                 }
                 return "label-danger";
             },

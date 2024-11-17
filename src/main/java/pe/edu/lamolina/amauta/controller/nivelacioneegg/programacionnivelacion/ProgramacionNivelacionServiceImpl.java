@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -23,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoCicloGrupoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion.ChangeProgramacionNivelacionService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
@@ -74,6 +76,13 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
     private final HorarioCursoDAO horarioCursoDAO;
+
+    private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
+
+    @Override
+    public CursoNivelacion findCursoNivelacion(CursoNivelacion form) {
+        return cursoNivelacionDAO.find(form.getId());
+    }
 
     @Override
     public List<GrupoHorasNivelacion> allGruposHoras() {
@@ -541,7 +550,21 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             horarioAulaDAO.delete(horario);
         }
 
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
         cursoNiv.setGrupoHoras(grupoHoras);
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+
+        String datoAntes = grupoHorasBD.getCodigo();
+        String datoNuevo = grupoHoras.getCodigo();
+        String cambio = "Cambio grupo de " + datoAntes + " a " + datoNuevo;
+
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
 
         CursoCicloAcademico cursoCiclo = cursoNiv.getCursoCiclo();
@@ -580,18 +603,66 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     @Override
     @Transactional
+    public void changeVacantes(CursoNivelacion form, DataSessionPivot ds) {
+        Assert.isNotNull(form.getVacantes(), "No ha indicado las vacantes");
+        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
+        Assert.isFalse(form.getVacantes() == cursoNiv.getVacantes().intValue(), "La cantidad de vacantes debe ser distinta");
+        Assert.isFalse(form.getVacantes() == 0, "La cantidad de vacantes debe ser mayor a CERO");
+        Assert.isTrue(form.getVacantes() >= cursoNiv.getMatriculados(), "La cantidad de vacantes no puede ser menor al de los matriculados");
+
+        String datoAntes = cursoNiv.getVacantes() + "";
+        String datoNuevo = form.getVacantes() + "";
+
+        if (cursoNiv.getAula() != null) {
+            Aula aula = cursoNiv.getAula();
+            Assert.isTrue(form.getVacantes() <= aula.getCapacidadAula(), "La cantidad de vacantes no puede ser mayor a la capacidad del aula");
+        }
+
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        cursoNiv.setVacantes(form.getVacantes());
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+
+        String cambio = "Cambio de vacantes de " + datoAntes + " a " + datoNuevo;
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
+        cursoNivelacionDAO.update(cursoNiv);
+    }
+
+    @Override
+    @Transactional
     public void changeAula(CursoNivelacion form, DataSessionPivot ds) {
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
         Assert.isFalse(sonAulasIguales(form.getAula(), cursoNiv.getAula()), "El aula nueva es la que ya estaba asignada");
 
+        Aula aulaBD = cursoNiv.getAula();
         Aula aula = this.getAula(form);
         if (aula != null) {
             Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurada su capacidad");
             Assert.isTrue(cursoNiv.getVacantes() <= aula.getCapacidadAula(), "La cantidad de vacantes no puede ser mayor que la capacidad del aula");
         }
 
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
         cursoNiv.setAula(aula);
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+
+        String datoAntes = aulaBD == null ? "vacio" : aulaBD.getCodigo();
+        String datoNuevo = aula == null ? "vacio" : aula.getCodigo();
+        String cambio = "Cambio de aula de " + datoAntes + " a " + datoNuevo;
+
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
 
         List<HorarioAula> horariosAntes = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
@@ -644,14 +715,14 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
         Assert.isNotNull(form.getDocente(), "No ha indicado el docente nuevo");
         Assert.isNotNull(form.getDocente().getId(), "No ha indicado el docente nuevo");
+        cursoNiv.setMotivoCambio(form.getMotivoCambio());
 
         Docente docente = this.getDocente(form.getDocente());
         Docente docenteAntes = cursoNiv.getDocente();
         Assert.isFalse(docente.equals(docenteAntes), "El docente es el mismo que ya está asignado");
 
         if (docente.isCodigoNN()) {
-            cursoNiv.setDocente(docente);
-            cursoNivelacionDAO.update(cursoNiv);
+            this.saveCambioDocente(cursoNiv, docente, ds);
             return;
         }
 
@@ -660,16 +731,33 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, grupoHoras);
 
         if (horariosCurso.isEmpty()) {
-            cursoNiv.setDocente(docente);
-            cursoNivelacionDAO.update(cursoNiv);
+            this.saveCambioDocente(cursoNiv, docente, ds);
             return;
         }
 
         CicloAcademico ciclo = cursoNiv.getCursoCiclo().getCicloAcademico();
         String cruce = this.getCruceDocente(docente, ciclo, horariosCurso);
         Assert.isNull(cruce, cruce);
+        this.saveCambioDocente(cursoNiv, docente, ds);
+    }
+
+    private void saveCambioDocente(CursoNivelacion cursoNiv, Docente docente, DataSessionPivot ds) {
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        Docente docenteBD = cursoNiv.getDocente();
+        String datoAntes = docenteBD.getCodigo();
+        String datoNuevo = docente.getCodigo();
 
         cursoNiv.setDocente(docente);
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+
+        String cambio = "Cambio de docente de " + datoAntes + " a " + datoNuevo;
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, cursoNiv.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
     }
 
@@ -678,6 +766,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     public void changeEstado(CursoNivelacion form, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
+        cursoNiv.setMotivoCambio(form.getMotivoCambio());
 
         switch (estadoEnum) {
             case ACT:
@@ -796,9 +885,22 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     }
 
     private void registrarCambio(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        String datoAntes = cursoNiv.getEstadoEnum().getValue();
+        String datoNuevo = estadoEnum.getValue();
+
         cursoNiv.setEstadoEnum(estadoEnum);
         cursoNiv.setUserModificacion(ds.getUsuario());
         cursoNiv.setFechaModificacion(new Date());
+
+        String cambio = "Cambio de estado de " + datoAntes + " a " + datoNuevo;
+
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, cursoNiv.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
     }
 

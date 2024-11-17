@@ -18,6 +18,8 @@ import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
 public interface ProgramacionNivelacionService {
 
+    CursoNivelacion findCursoNivelacion(CursoNivelacion form);
+
     List<GrupoHorasNivelacion> allGruposHoras();
 
     List<CursoNivelacion> allCursosNivelacionByDynatable(DynatableFilter filter, CicloAcademico ciclo);
@@ -43,6 +45,8 @@ public interface ProgramacionNivelacionService {
     void setHorario(CursoCicloAcademico cursoCiclo, CicloAcademico ciclo, DataSessionPivot ds);
 
     void changeGrupo(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
+
+    void changeVacantes(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 
     void changeAula(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 

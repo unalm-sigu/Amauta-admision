@@ -21,7 +21,10 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnoNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CambioCursoNivevalacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion.ChangeProgramacionNivelacionService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -46,6 +49,7 @@ public class ProgramacionNivelacionController {
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final ProgramacionNivelacionService service;
+    private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -261,6 +265,19 @@ public class ProgramacionNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("changeVacantes")
+    public JsonResponse changeVacantes(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.changeVacantes(cursoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se modificó las vacantes del curso satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("changeAula")
     public JsonResponse changeAula(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -357,6 +374,26 @@ public class ProgramacionNivelacionController {
 
         JsonResponse json = new JsonResponse();
         json.setData(semnasJson);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCambios")
+    public JsonResponse addSemana(@RequestBody CursoNivelacion form, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CursoNivelacion cursoNiv = service.findCursoNivelacion(form);
+        List<CambioCursoNivevalacionDTO> cambios = changeProgramacionNivelacionService.recrearLista(cursoNiv.getCambios());
+        ArrayNode cambiosJson = JaneHelper
+                .from(cambios)
+                .join("userRegistro", "id,google")
+                .join("userRegistro.persona", "id,nomPaterno")
+                .array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(cambiosJson);
         json.setSuccess(Boolean.TRUE);
 
         return json;

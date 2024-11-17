@@ -449,12 +449,12 @@
                 });
             },
             selectDocente(item) {
-                this.hayCruceAula = false;
+                this.hayCruceDocente = false;
                 let payload = {
                     cursoCiclo: {
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
-                    docente: {id: item.id},
+                    docente: {id: item.id, codigo: item.codigo},
                     grupoHoras: {id: this.cursoNiv.grupoHoras.id}
                 };
 
