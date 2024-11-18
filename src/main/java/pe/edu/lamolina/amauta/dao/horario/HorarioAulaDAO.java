@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -131,6 +132,12 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByRangoFechaTipoHorario(Date fechaInicio, Date fechaFin, TipoHorarioAulaEnum tipoEnum);
 
+    List<HorarioAula> allRangoDiaAndPabellonByDiasHoras(List<String> diaHoras, Aula pabellon, Date fechaInicio, Date fechaFin);
+
+    List<HorarioAula> allByCursosNivelacion(List<CursoNivelacion> cursosNivelacion);
+
+    List<HorarioAula> allByCursoNivelacion(CursoNivelacion cursoNivelacion);
+
     int saveList(List<HorarioAula> horariosAulas);
 
     int updateList(List<HorarioAula> horariosAulas, String... columnas);
@@ -138,7 +145,5 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
 
     void deleteAllByCiclo(CicloAcademico ciclo);
-
-    List<HorarioAula> allRangoDiaAndPabellonByDiasHoras(List<String> diaHoras, Aula pabellon, Date fechaInicio, Date fechaFin);
 
 }
