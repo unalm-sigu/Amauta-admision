@@ -62,6 +62,7 @@ public class CursoNivelacionController {
                 .only("id,codigo,nombre,estadoEnum,estado")
                 .join("departamentoAcademico", "id,codigo,nombre")
                 .join("departamentoAcademico.facultad", "id,codigo,nombre")
+                .join("cursoTemasExamen temas", "id")
                 .array();
 
         DynatableResponse json = new DynatableResponse();

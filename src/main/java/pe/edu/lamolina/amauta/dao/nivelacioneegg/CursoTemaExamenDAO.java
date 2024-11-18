@@ -11,4 +11,6 @@ public interface CursoTemaExamenDAO extends EasyDAO<CursoTemaExamen> {
 
     List<CursoTemaExamen> allByCurso(Curso curso);
 
+    List<CursoTemaExamen> allByCursos(List<Curso> cursosNivelacion);
+
 }

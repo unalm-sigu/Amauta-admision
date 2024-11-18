@@ -1,7 +1,10 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacion;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
@@ -46,7 +48,25 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter) {
-        return cursoDAO.allByDynatableModalidad(filter, ModalidadEstudioEnum.NIV_ING);
+        List<Curso> cursosNivelacion = cursoDAO.allByDynatableModalidad(filter, ModalidadEstudioEnum.NIV_ING);
+        List<CursoTemaExamen> cursosTemas = cursoTemaExamenDAO.allByCursos(cursosNivelacion);
+        Map<Long, List<CursoTemaExamen>> mapCursoTemas = cursosTemas.stream()
+                .filter(x -> x.getCurso() != null)
+                .collect(Collectors.groupingBy(x -> x.getCurso().getId()));
+
+        if (cursosNivelacion != null && !cursosNivelacion.isEmpty()) {
+            cursosNivelacion.stream().forEach(cursoTemasBD -> {
+                List<CursoTemaExamen> cursoTemas = mapCursoTemas.get(cursoTemasBD.getId());
+                if (cursoTemas != null && !cursoTemas.isEmpty()) {
+                    cursoTemasBD.setCursoTemasExamen(cursoTemas);
+                } else {
+                    cursoTemasBD.setCursoTemasExamen(new ArrayList<>());
+                }
+            });
+
+        }
+
+        return cursosNivelacion;
     }
 
     @Override
@@ -129,21 +149,39 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     public int saveRelacion(CursoListTemas cursoListTemas, DataSessionPivot ds) {
         List<CursoTemaExamen> temasCursoBD = cursoTemaExamenDAO.allByCurso(cursoListTemas.getCurso());
 
-        if (!temasCursoBD.isEmpty()) {
-            temasCursoBD.stream().forEach(cursoTemaExamen -> {
-                cursoTemaExamenDAO.delete(cursoTemaExamen);
-            });
-        }
+        Map<String, CursoTemaExamen> mapCursoTemaBD = temasCursoBD.stream()
+                .collect(Collectors.toMap(x -> x.getCurso().getId() + "-" + x.getTemaExamen().getId(), cursoTemaExamen -> cursoTemaExamen));
+
+        List<CursoTemaExamen> cursosFinal = new ArrayList<>();
 
         cursoListTemas.getIds().stream().forEach(x -> {
-            CursoTemaExamen cte = new CursoTemaExamen();
-            cte.setCurso(cursoListTemas.getCurso());
-            cte.setTemaExamen(new TemaExamen(x));
-            cte.setUserRegistro(ds.getUsuario());
-            cte.setFechaRegistro(new Date());
-            cursoTemaExamenDAO.save(cte);
+            CursoTemaExamen cursoTemaExamenFinal = mapCursoTemaBD.get(cursoListTemas.getCurso().getId() + "-" + x);
+
+            if (cursoTemaExamenFinal == null) {
+                CursoTemaExamen cte = new CursoTemaExamen();
+                cte.setCurso(cursoListTemas.getCurso());
+                cte.setTemaExamen(new TemaExamen(x));
+                cte.setUserRegistro(ds.getUsuario());
+                cte.setFechaRegistro(new Date());
+                cursoTemaExamenDAO.save(cte);
+            }
+            cursosFinal.add(cursoTemaExamenFinal);
+
         });
-        return temasCursoBD.size();
+
+        Map<String, CursoTemaExamen> mapCursoTemaFinal = cursosFinal.stream().filter(Objects::nonNull)
+                .collect(Collectors.toMap(x -> x.getCurso().getId() + "-" + x.getTemaExamen().getId(), cursoTemaExamen -> cursoTemaExamen));
+
+        temasCursoBD.stream().forEach(x -> {
+
+            CursoTemaExamen cursoTemaExamen = mapCursoTemaFinal.get(x.getCurso().getId() + "-" + x.getTemaExamen().getId());
+            if (cursoTemaExamen == null) {
+                cursoTemaExamenDAO.delete(x);
+            }
+
+        });
+
+        return cursosFinal.size();
     }
 
     @Override

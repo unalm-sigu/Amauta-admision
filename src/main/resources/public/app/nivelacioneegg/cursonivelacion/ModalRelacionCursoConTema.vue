@@ -9,7 +9,7 @@
             <form v-bind:id="form" data-parsley-validate="">
                 <template>
                     <div class="form-group has-success">
-                        <label class="control-label" for="inputSuccess1"><strong>Lista de Temas</strong></label>
+                        <label class="control-label" for="inputSuccess1"><strong>Lista de Temas relacionadas</strong></label>
                         <hr/>
                     </div>
                     <div class="row">
@@ -73,11 +73,15 @@
         methods: {
 
             abrirModalRelacion(item, raptor) {
+                console.log("raptor")
+                console.log(item.temas.length)
+                console.dir(raptor);
+
                 var form = $("#" + this.form);
                 form.parsley().destroy();
                 this.cursoListTemas.curso = item;
 
-                this.title = "Relacionar el curso " + item.codigo + " " + item.nombre + " con temas";
+                this.title = item.codigo + " " + item.nombre;
                 this.$refs.modalRelacionCursoConTema.open();
                 this.raptor = raptor;
 

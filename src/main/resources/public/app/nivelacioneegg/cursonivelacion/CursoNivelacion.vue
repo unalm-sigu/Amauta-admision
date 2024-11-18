@@ -30,23 +30,35 @@
                             <table class="table table-striped">
                                 <thead class="panel panel-heading">
                                     <tr>
-                                        <th class="v-middle">Curso</th>
-                                        <th class="v-middle">Dependencia</th>
-                                        <th class="v-middle text-right">Estado</th>
+                                        <th class="v-middle col-md-4">Curso</th>
+                                        <th class="v-middle col-md-4">Dependencia</th>
+                                        <th class="v-middle text-center col-md-2">Temas Relacionados</th>
+                                        <th class="v-middle text-right col-md-2">Estado</th>
                                         <th class=""></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in props.data">
-                                        <td class="v-middle">
+                                        <td class="v-middle col-md-4">
                                             <span class="block text-primary h4 m-t-xs m-b-xs">{{item.nombre}}</span>
                                             <span class="block"><b>{{item.codigo}}</b> 
                                         </td>
-                                        <td class="v-middle">
+                                        <td class="v-middle col-md-4">
                                             <span class="block text-primary bold">Facultad {{item.departamentoAcademico.facultad.nombre}}</span>
                                             <span class="block"><b>Dpto. Acad.</b> {{item.departamentoAcademico.nombre}}</span>
                                         </td>
-                                        <td class="v-middle text-right">
+                                        <td class="v-middle text-center col-md-2"> 
+                                            <div class="pointer" v-if="item.estado == 'ACT'"  v-on:click="relacionarConTemas(item)">
+                                                <div v-if="item.temas.length > 0">
+                                                     <i class="fa fa-sitemap fa-3x text-success"></i>
+                                                </div>
+                                                <div v-else="">
+                                                    <i class="fa fa-sitemap fa-3x text-default"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="v-middle text-right col-md-2">
                                             <div v-bind:class="estadoClass(item)">
                                                 {{item.estadoEnum.value}}
                                             </div>

@@ -34,4 +34,13 @@ public class CursoTemaExamenDAOH extends AbstractEasyDAO<CursoTemaExamen> implem
         return all(sql);
     }
 
+    @Override
+    public List<CursoTemaExamen> allByCursos(List<Curso> cursosNivelacion) {
+        Octavia sql = Octavia.query()
+                .from(CursoTemaExamen.class, "cte")
+                .join("curso cur", "temaExamen te")
+                .in("cur.id", cursosNivelacion);
+        return all(sql);
+    }
+
 }
