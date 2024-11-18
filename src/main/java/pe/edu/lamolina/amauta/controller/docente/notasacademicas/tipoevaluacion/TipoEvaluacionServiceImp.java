@@ -29,6 +29,7 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
     public void save(TipoEvaluacion tipo) {
 
         String nuevoCodigo = generarCodigo(tipo.getNombre());
+
         ObjectUtil.printAttr(tipo);
 
         int contador = 1;

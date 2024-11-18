@@ -46,7 +46,7 @@
                             <input type="radio" name="tipoReporte" value="general" v-model="filtroExcel.tipoReporte" required="" /> General
                         </label>
                     </div>
-                    <div class="radio" v-if="filtroExcel.cicloActual === 'no'" >
+                    <div class="radio" >
                         <label>
                             <input type="radio" name="tipoReporte" value="filtros" v-model="filtroExcel.tipoReporte" required="" /> Con Filtros
                         </label>
@@ -70,7 +70,7 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                <div class="form-group" v-if="filtroExcel.cicloActual === 'no'" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
                     <label class="control-label col-md-4">Parametros adicionales al reporte</label>
                     <div class="col-md-8">
                         <div class="checkbox" v-if="filtroExcel.cicloActual === 'no'" >
@@ -97,7 +97,7 @@
                                 Reinscripciones en cursos (3ra)
                             </label>
                         </div>
-                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'si'" >
+                        <div class="checkbox" v-if="filtroExcel.cicloActual === 'porahorano'" >
                             <label>
                                 <input type="checkbox" name="retiro_ciclo" v-model="filtroExcel.retiro_ciclo" />
                                 Tiene retiro de ciclo

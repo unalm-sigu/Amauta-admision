@@ -273,6 +273,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         sql.append(" join aca_ciclo_academico d on d.id =c.id_ciclo_academico  ");
         sql.append(" join aca_carrera e on e.id =b.id_carrera  ");
         sql.append(" join pronabec_informacion pi on pi.id_persona= a.id  ");
+        sql.append(" join pronabec_tipo_beca tb on pi.id_tipo_beca = tb.id ");
         sql.append(" left join(select p4.codigo,p.id_alumno AS alu,p3.nombre as itemca ,p1.id ,p1.codigo_anterior ,p2.estado as estado1 ,p.estado as estado2,p2.tipo_traslado,p1.descripcion  ");
         sql.append(" from tram_tramite p  ");
         sql.append(" join aca_ciclo_academico p1 on p1.id =p.id_ciclo_academico  ");
@@ -310,6 +311,9 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         sql.append(" group by a1.id_alumno ,amc.id_curso ) y5 on y5.id_curso =y.id_curso and y5.id_alumno =y4.id  ");
         sql.append(" where y.veces_cursado_regular ='2') h on h.id_alumno =c.id_alumno and h.id_alumno=b.id  ");
         sql.append(" where d.codigo_anterior = :CICLO_ACTUAL  ");
+        if(becadosFilterBean.getTipo_beca() != null){
+            sql.append(" and tb.id = :TIPOBECA");
+        }
         sql.append(" order by 2,6  ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
@@ -326,6 +330,9 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .addScalar("tercera_vez", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(BecadosFilterBean.class));
         query.setParameter("CICLO_ACTUAL",cicloAcademico.getCodigoAnterior());
+        if(becadosFilterBean.getTipo_beca() != null){
+            query.setParameter("TIPOBECA", becadosFilterBean.getTipo_beca().getId());
+        }
 
         return (List<BecadosFilterBean>) query.list();
     }
@@ -392,7 +399,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .addScalar("condicion", StringType.INSTANCE)
                 .addScalar("promedio_ponderado", LongType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(BecadosFilterBean.class));
-;
+
         query.setParameter("CICLOACADEMICO", becadosFilterBean.getCiclo_academico().getCodigo());
         if(becadosFilterBean.getTipo_beca() != null){
             query.setParameter("TIPOBECA", becadosFilterBean.getTipo_beca().getId());

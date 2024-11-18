@@ -152,7 +152,8 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
 
     @Override
     public List<CicloAcademico> allCicloRegular() {
-        return cicloAcademicoDAO.allPregradoByRangeCode(201500,300000);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivoByModalidadEstudio(ModalidadEstudioEnum.PRE);
+        return cicloAcademicoDAO.allMenorRegularPreByCantidad(14,cicloAcademico);
     }
 
     @Override
