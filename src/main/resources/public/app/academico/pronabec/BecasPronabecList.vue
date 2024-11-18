@@ -9,9 +9,10 @@
                   <th class="col-md-4" colspan="2"></th>
                   <th class="col-md-2 text-center">Tipo Beca</th>
                   <th class="col-md-1 text-center v-middle">Año Convocatoria</th>
-                  <th class="col-md-2 text-center v-middle">Fecha Inicio</th>
-                  <th class="col-md-2 text-center v-middle">Fecha Fin</th>
+                  <th class="col-md-1 text-center v-middle">Fecha Inicio</th>
+                  <th class="col-md-1 text-center v-middle">Fecha Fin</th>
                   <th class="col-md-1 text-center v-middle">Estado</th>
+                  <th class="col-md-2 text-center v-middle" >Modifica</th>
                   <th></th>
                 </tr>
               </thead>
@@ -60,6 +61,10 @@
                   }">
                     {{ item.estado === 'ANU' ? 'Anulado' : item.estado === 'ACT' ? 'Activo' : item.estado }}
                   </span>
+                </td>
+                <td class="v-middle">
+                  <span class="block small"> <b>{{item.modificador}}</b> </span>
+                  <span class="small"> {{item.fechaModificacion}} </span>
                 </td>
                   <td class="v-middle">
                     <div class="actions">

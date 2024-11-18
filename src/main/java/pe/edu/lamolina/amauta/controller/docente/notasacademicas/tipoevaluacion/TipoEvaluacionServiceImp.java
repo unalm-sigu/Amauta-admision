@@ -28,10 +28,9 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
     @Transactional
     public void save(TipoEvaluacion tipo) {
 
-        // Generación del código a partir del nombre
         String nuevoCodigo = generarCodigo(tipo.getNombre());
+        ObjectUtil.printAttr(tipo);
 
-        // Verifica si el código ya existe y ajusta si es necesario
         int contador = 1;
         String codigoOriginal = nuevoCodigo;
         while (tipoEvaluacionDAO.existsByCodigo(nuevoCodigo)) {
@@ -40,14 +39,17 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
         }
         tipo.setCodigo(nuevoCodigo);
 
-        List<TipoEvaluacion> evaluaciones = tipoEvaluacionDAO.findByOrdenGreater(220);
+//        int orden = tipo.getOrden();
+//        System.out.println("-------------------------"+orden);
+
+        List<TipoEvaluacion> evaluaciones = tipoEvaluacionDAO.findByOrdenGreater(212);
 
         for (TipoEvaluacion evaluacion : evaluaciones) {
             evaluacion.setOrden(evaluacion.getOrden() + 1);
             tipoEvaluacionDAO.update(evaluacion);
 
         }
-        tipo.setOrden(220);
+        tipo.setOrden(212);
         tipoEvaluacionDAO.save(tipo);
     }
 

@@ -136,6 +136,8 @@ public class BecasPronabecController {
                 node.put("rutaFoto", persona.getRutaFoto());
                 node.put("tipoFoto", persona.getTipoFoto());
                 node.put("estado",becPro.getEstado());
+                node.put("modificador",becPro.getUsuario().getPersona().getApellidosNombres());
+                node.put("fechaModificacion", becPro.getFechaRegistro().toString());
                 array.add(node);
             }
 
