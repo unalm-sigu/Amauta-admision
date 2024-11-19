@@ -10,6 +10,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.BecadosFilterBean;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.MatriculadosBecadosBean;
 import pe.edu.lamolina.amauta.dao.academico.BecasPronabecDAO;
@@ -247,6 +248,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
 
     @Override
     public List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, BecadosFilterBean becadosFilterBean) {
+        ObjectUtil.printAttr(becadosFilterBean);
         StringBuilder sql = new StringBuilder();
         sql.append(" select distinct a.numero_doc_identidad as dni, concat(ifnull(a.paterno,''),' ',ifnull(a.materno,''),', ',ifnull(a.nombres,'')) apellidos_nombres,  ");
         sql.append("         'Universidad Agraria La Molina' nombre_institucion,  ");
@@ -312,7 +314,10 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         sql.append(" where y.veces_cursado_regular ='2') h on h.id_alumno =c.id_alumno and h.id_alumno=b.id  ");
         sql.append(" where d.codigo_anterior = :CICLO_ACTUAL  ");
         if(becadosFilterBean.getTipo_beca() != null){
-            sql.append(" and tb.id = :TIPOBECA");
+            sql.append(" and tb.id =:TIPOBECA ");
+        }
+        if(becadosFilterBean.getSe_matriculo().equalsIgnoreCase("si")){
+            sql.append(" and c.estado='MAT' ");
         }
         sql.append(" order by 2,6  ");
 
@@ -329,6 +334,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .addScalar("cambio_carrera", StringType.INSTANCE)
                 .addScalar("tercera_vez", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(BecadosFilterBean.class));
+
         query.setParameter("CICLO_ACTUAL",cicloAcademico.getCodigoAnterior());
         if(becadosFilterBean.getTipo_beca() != null){
             query.setParameter("TIPOBECA", becadosFilterBean.getTipo_beca().getId());

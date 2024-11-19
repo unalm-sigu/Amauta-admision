@@ -21,7 +21,6 @@
                 </div>
             </div>
 
-            <!-- Ciclo Académico (Se oculta o deshabilita según la respuesta) -->
             <div class="form-group" v-if="filtroExcel.cicloActual === 'no'" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
                 <label class="control-label col-md-4"> Ciclo Académico</label>
                 <div class="col-md-8">
@@ -69,6 +68,23 @@
                         <input type="hidden" v-model="filtroExcel.tipo_beca" required=""/>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-4">Matriculado</label>
+                    <div class="col-md-8">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="seMatriculo" value="si" v-model="filtroExcel.se_matriculo" required="" /> Sí
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="seMatriculo" value="no" v-model="filtroExcel.se_matriculo" required="" /> Todos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="form-group" v-if="filtroExcel.cicloActual === 'no'" style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
                     <label class="control-label col-md-4">Parametros adicionales al reporte</label>

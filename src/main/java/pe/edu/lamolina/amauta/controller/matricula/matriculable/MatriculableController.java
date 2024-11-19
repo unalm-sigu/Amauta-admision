@@ -214,6 +214,7 @@ public class MatriculableController {
                             "aporteCarnet", "boletaPendiente", "aporteDuplicadoCarnet",
                             "prioridadAnterior",
                             "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
+                                "alumno.persona.foto","alumno.persona.sexo",
                             "alumno.persona.tipoDocumento.simbolo",
                             "alumno.modalidadEstudio.nombre",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
