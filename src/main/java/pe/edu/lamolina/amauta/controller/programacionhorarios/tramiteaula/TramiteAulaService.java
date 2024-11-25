@@ -50,6 +50,8 @@ public interface TramiteAulaService {
 
     void cambiarVisibilidadReserva(ReservaAula reservaAulaForm);
 
+    List<ReservaAulaBean> filterByTipoReserva();
+
     public List<Aula> allAulaFiltro(String nombre);
 
     public List<Empresa> allEmpresaByName(Pais pais, String nombre);

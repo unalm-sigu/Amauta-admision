@@ -39,9 +39,8 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
             contador++;
         }
         tipo.setCodigo(nuevoCodigo);
-
-//        int orden = tipo.getOrden();
-//        System.out.println("-------------------------"+orden);
+        tipo.setEsDivisible(1);
+        tipo.setCantidadMaxima(100);
 
         List<TipoEvaluacion> evaluaciones = tipoEvaluacionDAO.findByOrdenGreater(212);
 

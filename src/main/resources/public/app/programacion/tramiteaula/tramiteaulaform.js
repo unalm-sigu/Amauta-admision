@@ -4,9 +4,10 @@ Vue.component('date-picker', VueBootstrapDatetimePicker);
 new Vue({
     el: '#main',
     data: {
-        reservaaula: {tipoSolicitante: null, tramite: {alumno: {}, empresa: {}, docente: {}, oficina: {}}},
+        reservaaula: {tipoSolicitante: null,tipoReservaAmbiente:null, tramite: {alumno: {}, empresa: {}, docente: {}, oficina: {}}},
         reservaaulaedit: JSON.parse(reservaAulaJson),
         tiposSolicitante: JSON.parse(tiposSolicitanteJson),
+        tipoReservaAmbiente: JSON.parse(tipoReservaAmbienteJson),
         urlfilter: APP.url("tramite/aula/filteraula"),
         institucion: {pais: {}},
         dataInstitucionModal: {
@@ -35,6 +36,7 @@ new Vue({
         modulos: [],
         paises: [],
         isSearchingTipos: false,
+        isSearchingTipoReservas: false,
         isSearchingAlumnos: false,
         isSearchingDocentes: false,
         isSearchingEmpresas: false,
@@ -189,6 +191,7 @@ new Vue({
             $vue.reservaaula.reservados = $vue.reservados;
             $vue.reservaaula.diahora = $vue.jsonaulahorario;
             $vue.isactiveguardar = true;
+            console.log($vue.reservaaula);
             $.ajax({
                 method: 'POST',
                 async: true,
@@ -413,6 +416,10 @@ new Vue({
         changeSolicitante(value) {
             let $vue = this;
             $vue.reservaaula.tramite.tipoSolicitante = value.id;
+        },
+        changeTipoReserva(value){
+            let $vue = this;
+            $vue.reservaaula.tramite.tipoReservaAmbiente = value.id;
         },
         changeCapacidadMinima() {
             let $vue = this;
