@@ -49,8 +49,8 @@
                                         </td>
                                         <td class="v-middle text-center col-md-2"> 
                                             <div class="pointer" v-if="item.estado == 'ACT'"  v-on:click="relacionarConTemas(item)">
-                                                <div v-if="item.temas.length > 0">
-                                                     <i class="fa fa-sitemap fa-3x text-success"></i>
+                                                <div v-if="item.temas && item.temas.length > 0">
+                                                    <i class="fa fa-sitemap fa-3x text-success"></i>
                                                 </div>
                                                 <div v-else="">
                                                     <i class="fa fa-sitemap fa-3x text-default"></i>
@@ -72,7 +72,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="editar(item)">Editar</a></li>
-                                                    <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li v-if="item.estado == 'PEN' || item.estado == 'ANU' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="relacionarConTemas(item)">Relacionar con Temas</a></li>

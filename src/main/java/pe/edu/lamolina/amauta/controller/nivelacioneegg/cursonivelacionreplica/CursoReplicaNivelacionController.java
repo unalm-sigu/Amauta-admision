@@ -13,10 +13,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -71,6 +73,24 @@ public class CursoReplicaNivelacionController {
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
+        return json;
+    }
+    
+    @ResponseBody
+    @RequestMapping("searchCurso")
+    public JsonResponse searchCurso(@RequestParam String nombre, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Curso> cursos = service.allCursos(nombre);
+
+        ArrayNode cursosJson = JaneHelper.from(cursos)
+                .only("id,codigo,nombre")
+                .join("cursoCicloActivo", "id,horasCiclo")
+                .array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(cursosJson);
+        json.setSuccess(Boolean.TRUE);
+
         return json;
     }
 

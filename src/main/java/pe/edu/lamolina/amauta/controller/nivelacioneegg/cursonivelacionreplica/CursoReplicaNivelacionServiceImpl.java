@@ -25,12 +25,12 @@ import pe.edu.lamolina.model.nivelacioneegg.CursoReplicaNivelacion;
 @Transactional(readOnly = true)
 public class CursoReplicaNivelacionServiceImpl implements CursoReplicaNivelacionService {
 
-    public final CursoDAO cursoBD;
+    public final CursoDAO cursoDAO;
     public final CursoReplicaNivelacionDAO cursoReplicaNivelacionDAO;
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter) {
-        List<Curso> cursosNivelacion = cursoBD.allByDynatableModalidad(filter, ModalidadEstudioEnum.NIV_ING);
+        List<Curso> cursosNivelacion = cursoDAO.allByDynatableModalidad(filter, ModalidadEstudioEnum.NIV_ING);
         List<CursoReplicaNivelacion> cursosReplicasBD = cursoReplicaNivelacionDAO.allByParents();
 
         Map<Long, List<CursoReplicaNivelacion>> mapCursoNivelacion = cursosReplicasBD.stream()
@@ -47,6 +47,11 @@ public class CursoReplicaNivelacionServiceImpl implements CursoReplicaNivelacion
         }
 
         return cursosNivelacion;
+    }
+
+    @Override
+    public List<Curso> allCursos(String nombre) {
+        return cursoDAO.allByModalidadEstudioNombre(ModalidadEstudioEnum.PRE, nombre);
     }
 
 }

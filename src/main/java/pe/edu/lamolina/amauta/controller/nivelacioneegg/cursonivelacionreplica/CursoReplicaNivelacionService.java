@@ -8,4 +8,6 @@ public interface CursoReplicaNivelacionService {
 
     List<Curso> allByDynatable(DynatableFilter filter);
 
+    List<Curso> allCursos(String nombre);
+
 }

@@ -13,7 +13,7 @@ public interface CursoNivelacionService {
 
     void save(Curso curso, DataSessionPivot ds);
 
-    void changeEstado(Curso curso, DataSessionPivot ds);
+    Curso changeEstado(Curso curso, DataSessionPivot ds);
 
     void eliminar(Curso curso, DataSessionPivot ds);
 

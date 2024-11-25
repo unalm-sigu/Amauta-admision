@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 
 @Slf4j
@@ -89,10 +90,10 @@ public class CursoNivelacionController {
     @RequestMapping("activar")
     public JsonResponse changeEstado(@RequestBody Curso curso, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.changeEstado(curso, ds);
+        Curso cursoBD = service.changeEstado(curso, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se activo el curso satisfactoriamente");
+        json.setMessage(cursoBD.getEstadoEnum() == EstadoEnum.ACT ? "Se activo el curso satisfactoriamente" : "Se anulo el curso satisfactoriamente");
         json.setSuccess(Boolean.TRUE);
 
         return json;

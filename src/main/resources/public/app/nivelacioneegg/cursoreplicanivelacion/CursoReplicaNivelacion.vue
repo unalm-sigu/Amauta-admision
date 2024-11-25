@@ -46,6 +46,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li class="pointer"><a v-on:click="editar(item)">Editar</a></li>
+                                                    <li class="pointer"><a v-on:click="relacionar(item)">Relacionar</a></li>
                                                     <!--                                                    <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
                                                                                                         <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                                                                         <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
@@ -67,21 +68,24 @@
         <!--    <modal-curso ref="modalCurso"></modal-curso>
                 <modal-confirm ref="modalConfirm"></modal-confirm>
                 <modal-relacion-curso-con-tema ref="modalRelacionCursoConTema"></modal-relacion-curso-con-tema>-->
+        <!--<modal-confirm ref="modalConfirm"></modal-confirm>-->
+        <modal-relacion-curso-regular ref="modalRelacionCursoRegular"></modal-relacion-curso-regular>
     </div>
 
 </template>
+
 <script>
-//    const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
-//    const ModalCurso = httpVueLoader('./ModalCurso.vue');
-//    const ModalRelacionCursoConTema = httpVueLoader('./ModalRelacionCursoConTema.vue');
+    Vue.component("multiselect", window.VueMultiselect.default);
+
+    const ModalRelacionCursoRegular = httpVueLoader('./ModalRelacionCursoRegular.vue');
 
     module.exports = {
         components: {
-//            ModalCurso, ModalConfirm, ModalRelacionCursoConTema,
+            ModalRelacionCursoRegular
         },
         data() {
             return {
-//                idModalCurso: "id-modal-curso",
+                idModalRelacion: "id-modal-relacion",
 //                idModalConfirmacion: "id-modal-confirmacion",
 //                idModalRelacionCursoConTema: "id-modal-relacion-curso-con-tema",
                 ciclo: JSON.parse(cicloJson),
@@ -89,17 +93,14 @@
                 pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}
             };
         },
-        mounted() {
-
-        },
         computed: {
 
         },
         methods: {
 
-//            nuevoCurso() {
-//                this.$refs.modalCurso.abrirModal(this.$refs.raptorCurso);
-//            },
+            relacionar(item) {
+                this.$refs.modalRelacionCursoRegular.abrirModalRelacion(item, this.$refs.raptorCurso);
+            },
 //            estadoClass(item) {
 //                if (item.estado === 'ACT') {
 //                    return "label label-success";

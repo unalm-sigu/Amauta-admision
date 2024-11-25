@@ -50,20 +50,27 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     public List<Curso> allByDynatable(DynatableFilter filter) {
         List<Curso> cursosNivelacion = cursoDAO.allByDynatableModalidad(filter, ModalidadEstudioEnum.NIV_ING);
         List<CursoTemaExamen> cursosTemas = cursoTemaExamenDAO.allByCursos(cursosNivelacion);
-        Map<Long, List<CursoTemaExamen>> mapCursoTemas = cursosTemas.stream()
-                .filter(x -> x.getCurso() != null)
-                .collect(Collectors.groupingBy(x -> x.getCurso().getId()));
 
-        if (cursosNivelacion != null && !cursosNivelacion.isEmpty()) {
-            cursosNivelacion.stream().forEach(cursoTemasBD -> {
-                List<CursoTemaExamen> cursoTemas = mapCursoTemas.get(cursoTemasBD.getId());
-                if (cursoTemas != null && !cursoTemas.isEmpty()) {
-                    cursoTemasBD.setCursoTemasExamen(cursoTemas);
-                } else {
-                    cursoTemasBD.setCursoTemasExamen(new ArrayList<>());
-                }
+        if (!cursosTemas.isEmpty()) {
+            Map<Long, List<CursoTemaExamen>> mapCursoTemas = cursosTemas.stream()
+                    .filter(x -> x.getCurso() != null)
+                    .collect(Collectors.groupingBy(x -> x.getCurso().getId()));
+
+            if (cursosNivelacion != null && !cursosNivelacion.isEmpty()) {
+                cursosNivelacion.stream().forEach(cursoTemasBD -> {
+                    List<CursoTemaExamen> cursoTemas = mapCursoTemas.get(cursoTemasBD.getId());
+                    if (cursoTemas != null && !cursoTemas.isEmpty()) {
+                        cursoTemasBD.setCursoTemasExamen(cursoTemas);
+                    } else {
+                        cursoTemasBD.setCursoTemasExamen(new ArrayList<>());
+                    }
+                });
+
+            }
+        } else {
+            cursosNivelacion.stream().forEach(x -> {
+                x.setCursoTemasExamen(new ArrayList<>());
             });
-
         }
 
         return cursosNivelacion;
@@ -123,14 +130,15 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
 
     @Override
     @Transactional
-    public void changeEstado(Curso curso, DataSessionPivot ds) {
+    public Curso changeEstado(Curso curso, DataSessionPivot ds) {
         Curso cursoBD = cursoDAO.find(curso.getId());
-        if (curso.getEstadoEnum() == EstadoEnum.PEN) {
+        if (cursoBD.getEstadoEnum() == EstadoEnum.PEN || cursoBD.getEstadoEnum() == EstadoEnum.ANU) {
             cursoBD.setEstadoEnum(EstadoEnum.ACT);
         } else {
             cursoBD.setEstadoEnum(EstadoEnum.ANU);
         }
         cursoDAO.update(cursoBD);
+        return cursoBD;
     }
 
     @Override
