@@ -1,15 +1,13 @@
-package pe.edu.lamolina.amauta.controller.docente.notasacademicas.tipoevaluacion;
+package pe.edu.lamolina.amauta.controller.academico.acta.tipoevaluacion;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.docente.notasacademicas.tipoevaluacion;
+package pe.edu.lamolina.amauta.controller.academico.acta.tipoevaluacion;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -30,7 +28,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
-@RequestMapping("tipoevaluacion")
+@RequestMapping("academico/tipoevaluacion")
 public class TipoEvaluacionController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,7 +42,7 @@ public class TipoEvaluacionController {
 //
 //        ArrayNode arrayTipoBeca = JaneHelper.from(tipoEvaluacionList).array();
 //        model.addAttribute("tiposEvaluacion", arrayTipoBeca);
-        return "docente/notaacademica/tipoevaluacion/tipoevaluacion";
+        return "academico/acta/tipoevaluacion/tipoevaluacion";
     }
 
     @ResponseBody

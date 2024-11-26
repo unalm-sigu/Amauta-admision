@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.docente.notasacademicas.tipoevaluacion;
+package pe.edu.lamolina.amauta.controller.academico.acta.tipoevaluacion;
 
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;

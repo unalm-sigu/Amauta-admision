@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#tipoevaluacionVUE',
     data: {
-        URL: APP.url('tipoevaluacion/list'),
+        URL: APP.url('academico/tipoevaluacion/list'),
         modalNuevo: VUE_MODAL.structFormAjax({
             id: 'modalNuevo',
             header: true,
@@ -39,7 +39,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url(`tipoevaluacion/save`),
+                url: APP.url(`academico/tipoevaluacion/save`),
                 data: JSON.stringify($vue.tiposEv),
                 contentType: "application/json",
                 success: function (response) {
@@ -83,7 +83,7 @@ new Vue({
             // if (!$($vue.$refs.formEditar).parsley().validate()) {
             //     return;
             // }
-            axios.post(APP.url('tipoevaluacion/update'), $vue.tiposEditar)
+            axios.post(APP.url('academico/tipoevaluacion/update'), $vue.tiposEditar)
                 .then(({data}) => {
                     notify(data.message, "info");
                     $vue.$refs.modalEditar.close();
