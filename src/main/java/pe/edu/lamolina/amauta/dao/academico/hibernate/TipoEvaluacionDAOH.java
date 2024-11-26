@@ -31,7 +31,7 @@ public class TipoEvaluacionDAOH extends AbstractEasyDAO<TipoEvaluacion> implemen
         DynatableSql sql = new DynatableSql(filter)
                 .from(TipoEvaluacion.class, "te")
                 .searchFields("te.nombre", "te.codigo")
-                .orderBy("te.orden desc");
+                .orderBy("te.id desc");
         return all(sql);
     }
 
