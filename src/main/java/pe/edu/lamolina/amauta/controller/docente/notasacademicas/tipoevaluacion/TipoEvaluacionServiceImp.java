@@ -27,10 +27,12 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
     @Override
     @Transactional
     public void save(TipoEvaluacion tipo) {
+        boolean nombre = tipoEvaluacionDAO.existsByNombre(tipo.getNombre());
 
         String nuevoCodigo = generarCodigo(tipo.getNombre());
-
-        ObjectUtil.printAttr(tipo);
+        if(nombre){
+            throw new PhobosException("Ya existe un nombre igual");
+        }
 
         int contador = 1;
         String codigoOriginal = nuevoCodigo;
