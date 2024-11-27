@@ -135,7 +135,7 @@ public class VerificadorServiceImp implements VerificadorService {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
 
         for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
+            if (oficina.getCodigoEnum() == OERA || oficina.getCodigoEnum() == VACA) {
                 if (tipoSolicitud == DPTO) {
                     lista.addAll(departamentoAcademicoDAO.all());
                     return lista;
@@ -372,7 +372,7 @@ public class VerificadorServiceImp implements VerificadorService {
                 puedeEditar = true;
                 break;
             }
-            if (rol.getCodigoEnum() == RolEnum.ADMINISTRADOR_TUTORIA){
+            if (rol.getCodigoEnum() == RolEnum.ADMINISTRADOR_TUTORIA) {
                 puedeEditar = true;
                 break;
             }
@@ -1164,7 +1164,7 @@ public class VerificadorServiceImp implements VerificadorService {
         return rolBuscado.isPresent();
     }
 
-    private boolean esAdministradorTutor(RolEnum rolEnum, DataSessionPivot ds){
+    private boolean esAdministradorTutor(RolEnum rolEnum, DataSessionPivot ds) {
         log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
 
         List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
