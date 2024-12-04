@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,12 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTemaExamenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
@@ -47,8 +50,21 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     }
 
     @Override
+    public MatriculablesResumen resumen(CicloAcademico ciclo, DataSessionPivot ds) {
+        return notaAlumnoNivelacionDAO.findResumen(ciclo);
+    }
+
+    @Override
     @Transactional
     public int generarMatriculables(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<NotaAlumnoNivelacion> matbles = notaAlumnoNivelacionDAO.allActivosByCiclo(ciclo);
+        Map<String, NotaAlumnoNivelacion> mapMatbles = new HashMap();
+        for (NotaAlumnoNivelacion matble : matbles) {
+            String key = matble.getAlumnoNivelacion().getAlumno().getId() + "-";
+            key += matble.getCurso().getId();
+            mapMatbles.put(key, matble);
+        }
+
         List<NotaAlumnoNivelacion> nuevosMtbles = notaAlumnoNivelacionDAO.allSinCursoByCiclo(ciclo);
         if (nuevosMtbles.isEmpty()) {
             return nuevosMtbles.size();
@@ -68,18 +84,28 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
         int nuevos = 0;
         for (NotaAlumnoNivelacion mtble : nuevosMtbles) {
+            Alumno alumno = mtble.getAlumnoNivelacion().getAlumno();
             if (mtble.getTemaAprobado()) {
                 continue;
             }
 
             TemaExamen tema = mtble.getTemaExamen();
             List<CursoTemaExamen> cursosTema = mapCursoTema.get(tema.getId());
-            if (cursosTema.isEmpty()) {
+            if (cursosTema == null) {
                 continue;
             }
 
             for (CursoTemaExamen cursoTema : cursosTema) {
                 Curso curso = cursoTema.getCurso();
+                String key = alumno.getId() + "-" + curso.getId();
+                NotaAlumnoNivelacion existe = mapMatbles.get(key);
+                if (existe != null) {
+                    mtble.setEsMatriculable(Boolean.FALSE);
+                    mtble.setCurso(curso);
+                    notaAlumnoNivelacionDAO.update(mtble);
+                    continue;
+                }
+
                 List<CursoNivelacion> cursosMtbles = mapCursoNiv.get(curso.getId());
                 if (cursosMtbles.isEmpty()) {
                     continue;
@@ -88,6 +114,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                 mtble.setEsMatriculable(Boolean.TRUE);
                 mtble.setCurso(curso);
                 notaAlumnoNivelacionDAO.update(mtble);
+                mapMatbles.put(key, mtble);
                 nuevos++;
             }
         }
@@ -140,11 +167,12 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     @Transactional
     public void matricularCurso(NotaAlumnoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
         Assert.isNotNull(form.getCursoNivelacion(), "No ha indicado la sección al cual matricularse");
+        Assert.isNotNull(form.getCursoNivelacion().getId(), "No ha indicado la sección al cual matricularse");
 
         NotaAlumnoNivelacion mtble = notaAlumnoNivelacionDAO.find(form.getId());
         Assert.isNotNull(mtble, "No existe el registro que ha seleccionado");
         Assert.isNull(mtble.getCursoNivelacion(), "Ya se encuetra matriculado");
-        Assert.isTrue(mtble.getEstadoEnum() == NMAT, "No se encuetra habilitado este registro");
+        Assert.isTrue(mtble.getEstadoEnum() == NMAT, "No se encuetra habilitado en este registro");
 
         CicloAcademico cicloBD = mtble.getAlumnoNivelacion().getCicloAcademico();
         Assert.isTrue(cicloBD.getId().equals(ciclo.getId()), "El registro no corresponde el ciclo actual");
@@ -163,6 +191,35 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
         mtble.setCursoNivelacion(cursoNiv);
         mtble.setEstadoEnum(MAT);
+        mtble.setUserModificacion(ds.getUsuario());
+        mtble.setFechaModificacion(new Date());
+        notaAlumnoNivelacionDAO.update(mtble);
+    }
+
+    @Override
+    @Transactional
+    public void retirarCurso(NotaAlumnoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
+        Assert.isNotNull(form.getCursoNivelacion(), "No ha indicado la sección de la cual retirar");
+        Assert.isNotNull(form.getCursoNivelacion().getId(), "No ha indicado la sección de la cual retirar");
+
+        NotaAlumnoNivelacion mtble = notaAlumnoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(mtble, "No existe el registro que ha seleccionado");
+        Assert.isNotNull(mtble.getCursoNivelacion(), "Ya se encuetra matriculado");
+        Assert.isFalse(mtble.getEstadoEnum() == NMAT, "No se encuetra inscrito en este registro");
+
+        CicloAcademico cicloBD = mtble.getAlumnoNivelacion().getCicloAcademico();
+        Assert.isTrue(cicloBD.getId().equals(ciclo.getId()), "El registro no corresponde el ciclo actual");
+
+        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getCursoNivelacion().getId());
+        Assert.isNotNull(cursoNiv, "No existe la sección que ha seleccionado");
+        Assert.isTrue(cursoNiv.getId().equals(form.getCursoNivelacion().getId()), "La sección no corresponde al registro seleccionado");
+
+        cursoNiv.setDisponibles(cursoNiv.getDisponibles() + 1);
+        cursoNiv.setMatriculados(cursoNiv.getMatriculados() - 1);
+        cursoNivelacionDAO.update(cursoNiv);
+
+        mtble.setCursoNivelacion(null);
+        mtble.setEstadoEnum(NMAT);
         mtble.setUserModificacion(ds.getUsuario());
         mtble.setFechaModificacion(new Date());
         notaAlumnoNivelacionDAO.update(mtble);

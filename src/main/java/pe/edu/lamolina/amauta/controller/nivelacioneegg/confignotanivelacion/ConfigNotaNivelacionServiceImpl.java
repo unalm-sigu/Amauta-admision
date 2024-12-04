@@ -62,7 +62,7 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     private final PrelamolinaDAO prelamolinaDAO;
     private final TemaCicloDAO temaCicloDAO;
 
-    private final BigDecimal ONCE = new BigDecimal("11");
+    private final BigDecimal ONCE = new BigDecimal("10.5");
     private final BigDecimal VEINTE = new BigDecimal("20");
     private final BigDecimal CIEN = new BigDecimal("100");
     private final BigDecimal CIEN_NEG = new BigDecimal("-100");
@@ -620,6 +620,15 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         items.stream()
                 .filter(mtc -> mtc.getTemaExamen().getTemaSuperior() != null)
                 .filter(mtc -> mtc.getTemaExamen().getTemaSuperior().equals(temaSuper))
+                .filter(mtc -> {
+                    if (mtc.getModalidadIngreso() == null && modalidad == null) {
+                        return true;
+                    }
+                    if (mtc.getModalidadIngreso() != null && modalidad != null) {
+                        return mtc.getModalidadIngreso().getId().equals(modalidad.getId());
+                    }
+                    return false;
+                })
                 .forEach(mtc -> {
                     TemaCiclo hijo = mtc.getTemaCiclo();
                     tc.setPreguntas(tc.getPreguntas() + hijo.getPreguntas());

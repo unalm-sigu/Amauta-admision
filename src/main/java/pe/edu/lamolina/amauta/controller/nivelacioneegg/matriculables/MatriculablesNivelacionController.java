@@ -19,6 +19,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -60,6 +61,9 @@ public class MatriculablesNivelacionController {
                     .from(matble)
                     .join("temaExamen", "id,codigo,nombre")
                     .join("curso", "id,codigo,nombre")
+                    .join("cursoNivelacion", "id,codigo")
+                    .join("cursoNivelacion.aula", "id,codigo")
+                    .join("cursoNivelacion.grupoHoras", "id,codigo")
                     .join("alumnoNivelacion.alumno", "id,codigo")
                     .join("alumnoNivelacion.alumno.modalidadEstudio", "id,codigo,nombre")
                     .join("alumnoNivelacion.alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
@@ -75,6 +79,18 @@ public class MatriculablesNivelacionController {
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumen")
+    public JsonResponse resumen(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        MatriculablesResumen resumen = service.resumen(ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setData(JaneHelper.from(resumen).json());
+        json.setSuccess(true);
         return json;
     }
 
@@ -120,6 +136,18 @@ public class MatriculablesNivelacionController {
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se matriculó satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("retirarCurso")
+    public JsonResponse retirarCurso(@RequestBody NotaAlumnoNivelacion alumnoCurso, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.retirarCurso(alumnoCurso, ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se retiró satisfactoriamente");
         json.setSuccess(Boolean.TRUE);
         return json;
     }
