@@ -18,6 +18,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.*;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -45,6 +46,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     private final TipoBecaPronabecDAO tipoBecaPronabecDAO;
     private final ModalidadEstudioDAO modalidadEstudioDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final CarreraDAO carreraDAO;
 
     PersonaDAO personaDAO;
     MatriculaResumenDAO matriculaResumenDAO;
@@ -106,7 +108,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         Long idBeca = informacionBecaDB.getId();
         if (informacionBecaDB != null) {
             //informacionBecaDB.setEstado("ANULADO");
-            informacionBecaDB.setEstadoEnum(EstadoEnum.ANU);
+            informacionBecaDB.setEstado("INACTIVO");
             becasPronabecDAO.updateEstado(informacionBecaDB);
 
         } else {
@@ -120,12 +122,16 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     public void actualizarInformBecado(InformacionBeca informacionBecaForm, DataSessionPivot ds) {
         InformacionBeca informacionBecaDB = becasPronabecDAO.find(informacionBecaForm.getId());
         if(informacionBecaDB==null){
-            throw new PhobosException("No tiene un informacion");
+            throw new PhobosException("No tiene una informacion");
         }
         informacionBecaDB.setTipoBeca(informacionBecaForm.getTipoBeca());
         informacionBecaDB.setFechaFin(informacionBecaForm.getFechaFin());
         informacionBecaDB.setFechaInicio(informacionBecaForm.getFechaInicio());
         informacionBecaDB.setYearConvocatoria(informacionBecaForm.getYearConvocatoria());
+        informacionBecaDB.setFechaOtorgamiento(informacionBecaForm.getFechaOtorgamiento());
+        informacionBecaDB.setCarrera(informacionBecaForm.getCarrera());
+        informacionBecaDB.setCondicion(informacionBecaForm.getCondicion());
+        informacionBecaDB.setSituacion(informacionBecaForm.getSituacion());
         informacionBecaDB.setFechaRegistro(new Date());
         informacionBecaDB.setUsuario(ds.getUsuario());
         becasPronabecDAO.update(informacionBecaDB);
@@ -201,6 +207,11 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
                 String yearConvocatoria = getCellValue(2, row);
                 String fechaInicioStr = getCellValue(3, row);
                 String fechaFinStr = getCellValue(4, row);
+                String fechaOtorgamientoStr = getCellValue(5, row);
+                String condicion = getCellValue(6, row);
+                String situacion = getCellValue(7, row);
+                String carrera = getCellValue(8, row);
+                String estado = getCellValue(9, row);
 
                 if (validateFields(fila, nroDNI, codigoTipoBeca, yearConvocatoria, mapObservados)) {
                     continue;
@@ -208,6 +219,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
 
                 Persona personaBD = personaDAO.findByDocIdentidad(nroDNI);
                 TipoBeca tipoBeca = tipoBecaPronabecDAO.findByCodigo(codigoTipoBeca);
+                //Carrera carrera = carreraDAO.findByNombre(carreraStr);
 
                 if (personaBD == null) {
                     addObservation(mapObservados, fila, "El nro de DNI " + nroDNI + " no existe.");
@@ -219,6 +231,11 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
                     continue;
                 }
 
+//                if(carrera == null){
+//                    addObservation(mapObservados, fila, "La carrera " + carrera + " no existe.");
+//                    continue;
+//                }
+
                 if (!validateYearConvocatoria(fila, yearConvocatoria, mapObservados)) {
                     continue;
                 }
@@ -229,6 +246,9 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
                 Date fechaFin = parseDate(fila, fechaFinStr, "fin", mapObservados);
                 if (fechaFin == null) continue;
 
+                Date fechaOtorgamiento = parseDate(fila, fechaOtorgamientoStr, "otorga", mapObservados);
+                if (fechaOtorgamiento == null) continue;
+
                 InformacionBeca becasPro = new InformacionBeca();
                 becasPro.setPersona(personaBD);
                 becasPro.setTipoBeca(tipoBeca);
@@ -237,6 +257,12 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
                 becasPro.setFechaFin(fechaFin);
                 becasPro.setFechaRegistro(fechaRegistro);
                 becasPro.setUsuario(userRegistro);
+                becasPro.setFechaOtorgamiento(fechaOtorgamiento);
+                becasPro.setCondicion(condicion);
+                becasPro.setSituacion(situacion);
+                becasPro.setCarrera(carrera);
+                becasPro.setEstado(estado);
+
                 pronabec.add(becasPro);
             }
         } catch (FileNotFoundException ex) {
@@ -307,7 +333,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
             return null;
         }
 
-        if (pos == 3 || pos == 4) {
+        if (pos == 3 || pos == 4 || pos == 5) {
             return handleDateCell(cell);
         } else {
             return handleStringCell(cell);

@@ -135,9 +135,12 @@ public class BecasPronabecController {
                 node.put("emailEmpresa", persona.getEmailCompania());
                 node.put("rutaFoto", persona.getRutaFoto());
                 node.put("tipoFoto", persona.getTipoFoto());
-                node.put("estado",becPro.getEstado());
+                node.put("condicion",becPro.getCondicion());
+                node.put("situacion", becPro.getSituacion());
                 node.put("modificador",becPro.getUsuario().getPersona().getApellidosNombres());
                 node.put("fechaModificacion", becPro.getFechaRegistro().toString());
+                node.put("carrera",becPro.getCarrera());
+                node.put("estado",becPro.getEstado());
                 array.add(node);
             }
 

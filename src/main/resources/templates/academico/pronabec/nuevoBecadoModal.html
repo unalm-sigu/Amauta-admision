@@ -45,6 +45,33 @@
 
             </div>
             <div class="form-group">
+                <label> Carrera </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.carrera" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Condicion </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.condicion" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Situacion </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.situacion" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Estado </label>
+                <div>
+                    <select class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.estado">
+                        <option value="ACTIVO">ACTIVO</option>
+                        <option value="INACTIVO">INACTIVO</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
                 <label>Fecha de inicio</label>
                 <div class="input-group date">
                     <date-picker v-model="alumnoBecado.fechaInicio"

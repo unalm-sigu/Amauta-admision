@@ -7,11 +7,9 @@
               <thead>
                 <tr>
                   <th class="col-md-4" colspan="2"></th>
-                  <th class="col-md-2 text-center">Tipo Beca</th>
-                  <th class="col-md-1 text-center v-middle">Año Convocatoria</th>
-                  <th class="col-md-1 text-center v-middle">Fecha Inicio</th>
-                  <th class="col-md-1 text-center v-middle">Fecha Fin</th>
-                  <th class="col-md-1 text-center v-middle">Estado</th>
+                  <th class="col-md-2 text-center">Beca</th>
+                  <th class="col-md-2 text-center v-middle">Fecha</th>
+                  <th class="col-md-2 text-center v-middle">Estado</th>
                   <th class="col-md-2 text-center v-middle" >Modifica</th>
                   <th></th>
                 </tr>
@@ -23,44 +21,54 @@
                       <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
                     </div>
                   </td>
-                  <td class="v-middle">
-                    <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
-                      {{item.nombre}}
-                    </a>
-                    <small class="block">
-                        DNI:  <b>{{item.nroDocumento}}</b>
-                    </small>
-                    <span class="block">
-                                                    Correo institucional:  <b>{{item.emailEmpresa}}</b>
-                                                </span>
-                    <span class="block">
-                                                    Correo personal:  <b>{{item.email}}</b>
-                                                </span>
-                  </td>
-
-                  <td class="v-middle text-center" >
-                    <span >{{item.tipoBeca}}</span>
-                  </td>
-
-                  <td class="v-middle text-center" >
-                    <span >{{item.yearConvocatoria}}</span>
-                  </td>
-
-                  <td class="v-middle text-center" >
-                    <span>{{item.fechaInicio}}</span>
-                  </td>
-
-                  <td class="text-center v-middle" >
-                    <span >{{item.fechaFin}}</span>
-                  </td>
-                <td class="text-center v-middle" >
-                  <span :class="{
-                    'label': true,
-                    'label-success': item.estado === 'ACT',
-                    'label-danger': item.estado === 'ANU'
-                  }">
-                    {{ item.estado === 'ANU' ? 'Anulado' : item.estado === 'ACT' ? 'Activo' : item.estado }}
+                <td class="v-middle">
+                  <a class="block text-primary bold h5 m-b-xs m-t-xs">
+                    {{item.nombre}}
+                  </a>
+                  <small class="block">
+                    DNI:  <b>{{item.nroDocumento}}</b>
+                  </small>
+                  <span class="block">
+                      Correo institucional:  <b>{{item.emailEmpresa}}</b>
                   </span>
+                  <span class="block">
+                      Correo personal:  <b>{{item.email}}</b>
+                  </span>
+                  <span class="block">
+                      Convocatoria: <span class="label label-success">{{item.yearConvocatoria}}</span>
+                  </span>
+                </td>
+
+                  <td class="v-middle text-center" >
+                    <span > Tipo: <b>{{item.tipoBeca}}</b> </span>
+                    <br/>
+                    <span> Carrera:  <b>{{item.carrera}}</b> </span>
+                  </td>
+                  <td class="v-middle text-center">
+                    <span>
+                      Inicio: <b>{{item.fechaInicio}}</b>
+                    </span>
+                    <br/>
+                    <span>
+                      Fin: <b>{{item.fechaFin}}</b>
+                    </span>
+                  </td>
+                <td class="v-middle" >
+                  <small style="display: block; text-align: center;">
+                    <span :class="{
+                      'label label-success': item.estado === 'ACTIVO',
+                      'label label-danger': item.estado === 'INACTIVO',
+                      'label label-warning': item.estado !== 'ACTIVO' && item.estado !== 'INACTIVO'
+                    }">
+                      {{ item.estado }}
+                    </span>
+                  </small>
+                  <small class="block">
+                    Condicion:  <b>{{item.condicion}}</b>
+                  </small>
+                  <small class="block">
+                    Situacion:  <b>{{item.situacion}}</b>
+                  </small>
                 </td>
                 <td class="v-middle">
                   <span class="block small"> <b>{{item.modificador}}</b> </span>
@@ -73,7 +81,7 @@
                         <li><a href="#" v-on:click.prevent="openEliminar(item)" class="text-danger"><i class="fa fa-trash" style="color: #ff0000;"></i> Eliminar Becado</a></li>
                         <li class="divider"></li>
                         <li><a href="#" v-on:click.prevent="openEditar(item)"><i class="fa fa-pencil text-warning"></i> Editar Becario</a></li>
-                        <li v-if="item.estado !== 'ANU'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Anular Becado</a></li>
+                        <li v-if="item.estado !== 'INACTIVO'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Desactivar Beca</a></li>
                         <li><a href="#" v-on:click.prevent="verHistorial(item)"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
                       </ul>
                     </div>
@@ -139,6 +147,25 @@
                   <input type="number" class="form-control col-md-4 m-b-xs" minlength="4" placeholder="Ingrese el año ej. 2024" v-model="becadoEditar.yearConvocatoria" required="true"/>
                 </div>
 
+              </div>
+              <div class="form-group">
+                <label> Carrera Universitaria </label>
+                <div>
+                  <input type="text" class="form-control col-md-4 m-b-xs" v-model="becadoEditar.carrera" required="true"/>
+                </div>
+
+              </div>
+              <div class="form-group">
+                <label> Condición </label>
+                <div>
+                  <input type="text" class="form-control col-md-4 m-b-xs" v-model="becadoEditar.condicion" required="true"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label> Situación </label>
+                <div>
+                  <input type="text" class="form-control col-md-4 m-b-xs" v-model="becadoEditar.situacion" required="true"/>
+                </div>
               </div>
               <div class="form-group">
                 <label>Fecha de inicio</label>

@@ -31,7 +31,7 @@ public class RecordNotasBecadosExcelView extends AbstractView {
         List<MatriculadosBecadosBean> listMatriculadosBecadosBean = (List<MatriculadosBecadosBean>) model.get("listMatriculadosBecadosBean");
         this.generateCelda(workbook, listMatriculadosBecadosBean);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
-        String header = "Reporte_Notas_Becados_";
+        String header = "Reporte_Situacion_y_Carrera_UNALM_";
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xls\"");
         response.setContentType(getContentType());
@@ -54,46 +54,24 @@ public class RecordNotasBecadosExcelView extends AbstractView {
         CellStyle estiloCabecera = getStyleCabecera(workbook, HorizontalAlignment.CENTER);
         CellStyle estiloCabeceraLeft = getStyleCabecera(workbook, HorizontalAlignment.LEFT);
         this.setWidthColumn(excelUtil.getSheet(), 1, 7000);
-        this.setWidthColumn(excelUtil.getSheet(), 2, 12000);
-        this.setWidthColumn(excelUtil.getSheet(), 3, 10000);
-        this.setWidthColumn(excelUtil.getSheet(), 4, 5000);
-        this.setWidthColumn(excelUtil.getSheet(), 5, 10000);
-        this.setWidthColumn(excelUtil.getSheet(), 6, 10000);
-        this.setWidthColumn(excelUtil.getSheet(), 7, 7000);
-        this.setWidthColumn(excelUtil.getSheet(), 8, 7000);
-        this.setWidthColumn(excelUtil.getSheet(), 9, 10000);
-        this.setWidthColumn(excelUtil.getSheet(), 10, 5000);
-        this.setWidthColumn(excelUtil.getSheet(), 11, 9000);
-        this.setWidthColumn(excelUtil.getSheet(), 12, 8000);
-        this.setWidthColumn(excelUtil.getSheet(), 13, 9000);
+        this.setWidthColumn(excelUtil.getSheet(), 2, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 3, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 4, 7000);
+        this.setWidthColumn(excelUtil.getSheet(), 5, 7000);
+
         excelUtil.replaceStyle(0, 0, estiloCabecera);
         excelUtil.replaceStyle(0, 1, estiloCabeceraLeft);
         excelUtil.replaceStyle(0, 2, estiloCabeceraLeft);
         excelUtil.replaceStyle(0, 3, estiloCabeceraLeft);
         excelUtil.replaceStyle(0, 4, estiloCabecera);
         excelUtil.replaceStyle(0, 5, estiloCabecera);
-        excelUtil.replaceStyle(0, 6, estiloCabecera);
-        excelUtil.replaceStyle(0, 7, estiloCabecera);
-        excelUtil.replaceStyle(0, 8, estiloCabecera);
-        excelUtil.replaceStyle(0, 9, estiloCabecera);
-        excelUtil.replaceStyle(0, 10, estiloCabecera);
-        excelUtil.replaceStyle(0, 11, estiloCabecera);
-        excelUtil.replaceStyle(0, 12, estiloCabecera);
-        excelUtil.replaceStyle(0, 13, estiloCabecera);
+
         excelUtil.replaceVal(0, 0, "DNI");
         excelUtil.replaceVal(0, 1, "CODIGO ESTUDIANTE");
-        excelUtil.replaceVal(0, 2, "APELLIDOS Y NOMBRES");
-        excelUtil.replaceVal(0, 3, "BECA");
-        excelUtil.replaceVal(0, 4, "CONVOCATORIA");
-        excelUtil.replaceVal(0, 5, "NOMBRE DE LA INSTITUCION");
-        excelUtil.replaceVal(0, 6, "CARRERA");
-        excelUtil.replaceVal(0, 7, "PERIODO ACADEMICO");
-        excelUtil.replaceVal(0, 8, "CICLO");
-        excelUtil.replaceVal(0, 9, "CURSO MATRICULADO");
-        excelUtil.replaceVal(0, 10, "NOTA");
-        excelUtil.replaceVal(0, 11, "Nro VECES QUE DESAPROBO EL CURSO");
-        excelUtil.replaceVal(0, 12, "PROMEDIO PONDERADO DEL CICLO");
-        excelUtil.replaceVal(0, 13, "CONDICION (APROBADO/DESAAPROBADO)");
+        excelUtil.replaceVal(0, 2, "SITUACION UNALM");
+        excelUtil.replaceVal(0, 3, "SITUACION PRONABEC");
+        excelUtil.replaceVal(0, 4, "CARRERA UNALM");
+        excelUtil.replaceVal(0, 5, "CARRERA PRONABEC");
 
     }
 
@@ -126,31 +104,13 @@ public class RecordNotasBecadosExcelView extends AbstractView {
             excelUtil.replaceStyle(irow - 1, 3, estiloLeft);
             excelUtil.replaceStyle(irow - 1, 4, estiloGeneral);
             excelUtil.replaceStyle(irow - 1, 5, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 6, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 7, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 8, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 9, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 10, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 11, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 12, estiloGeneral);
-            excelUtil.replaceStyle(irow - 1, 13, estiloGeneral);
 
             excelUtil.replaceVal(irow - 1, 0, item.getDni());
             excelUtil.replaceVal(irow - 1, 1, item.getCodigo_estudiante());
-            excelUtil.replaceVal(irow - 1, 2, item.getApellidos_nombres());
-            excelUtil.replaceVal(irow - 1, 3, item.getTipo_beca());
-            excelUtil.replaceVal(irow - 1, 4, item.getYear_convocatoria());
-            excelUtil.replaceVal(irow - 1, 5, item.getNombre_institucion());
-            excelUtil.replaceVal(irow - 1, 6, item.getCarrera());
-            //excelUtil.replaceVal(irow - 1, 6, this.retornVacio(item.getCiclos_estudiados()));
-            excelUtil.replaceVal(irow - 1, 7, item.getPeriodo_academico());
-            excelUtil.replaceVal(irow - 1, 8, item.getCiclo());
-            excelUtil.replaceVal(irow - 1, 9, item.getCurso_matriculado());
-            excelUtil.replaceVal(irow - 1, 10, item.getNota());
-            excelUtil.replaceVal(irow - 1, 11, item.getVeces_desaprobado());
-            excelUtil.replaceVal(irow - 1, 12, item.getPromedio_ponderado());
-            excelUtil.replaceVal(irow - 1, 13, item.getCondicion());
-            //excelUtil.replaceVal(irow - 1, 8, this.retornVacio(item.getNivel()));
+            excelUtil.replaceVal(irow - 1, 2, item.getSituacion_unalm());
+            excelUtil.replaceVal(irow - 1, 3, item.getSituacion_pronabec());
+            excelUtil.replaceVal(irow - 1, 4, item.getCarrera_unalm());
+            excelUtil.replaceVal(irow - 1, 5, item.getCarrera_pronabec());
 
             irow++;
 

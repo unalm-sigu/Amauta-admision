@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoReservaAmbienteEnum {
-    EPG("Posgrado"),
     PRE("Pregrado"),
-    LIB("Libre");
+    EPG("Posgrado"),
+    LIB("Otros");
 
     private final String value;
     private static final Map<String, TipoReservaAmbienteEnum> lookup = new HashMap<>();
