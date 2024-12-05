@@ -119,7 +119,7 @@ public class PdfHtml extends AbstractPdfHtml {
 
             }
 
-            documentPdf.newPage();
+//            documentPdf.newPage();
 
         }
 

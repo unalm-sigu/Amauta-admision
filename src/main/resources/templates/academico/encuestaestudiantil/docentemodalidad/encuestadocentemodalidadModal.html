@@ -29,94 +29,95 @@
         <p class="h4 text-primary">Reporte General</p>
     </div>
     <div slot="body">
+        <form  data-parsley-validate="true">
+            <div class="form-group m-b-xs">
+                <label class="bold">Ciclo Académico</label>
 
-        <div class="form-group m-b-xs">
-            <label class="bold">Ciclo Académico</label>
+                <multiselect v-model='ciclo'
+                             v-bind:multiple="true"
+                             label='descripcion'
+                             placeholder="Seleccione un ciclo "
+                             deselect-label=""
+                             select-label=""
+                             track-by='id'
+                             v-bind:allow-empty="true"
+                             v-bind:options='ciclos'>
+                </multiselect>
+                <input v-model="ciclo" required="true" type="text" class="hide"/>
+            </div>
 
-            <multiselect v-model='ciclo'
-                         v-bind:multiple="true"
-                         label='descripcion'
-                         placeholder="Seleccione un ciclo "
-                         deselect-label=""
-                         select-label=""
-                         track-by='id'
-                         v-bind:allow-empty="true"
-                         v-bind:options='ciclos'>
-            </multiselect>
-        </div>
+            <div class="form-group m-b-xs">
+                <label class="bold">Facultad</label>
 
-        <div class="form-group m-b-xs">
-            <label class="bold">Facultad</label>
+                <multiselect v-model='facultad'
+                             label='nombre'
+                             placeholder="Todas las facultades"
+                             deselect-label=""
+                             select-label=""
+                             track-by='id'
+                             v-on:input="changeFacultad"
+                             v-bind:allow-empty="true"
+                             v-bind:options='facultades'>
+                </multiselect>
+            </div>
+            <div class="form-group m-b-xs">
+                <label class="bold">Departamento Acádemico</label>
 
-            <multiselect v-model='facultad'
-                         label='nombre'
-                         placeholder="Todas las facultades"
-                         deselect-label=""
-                         select-label=""
-                         track-by='id'
-                         v-on:input="changeFacultad"
-                         v-bind:allow-empty="true"
-                         v-bind:options='facultades'>
-            </multiselect>
-        </div>
-        <div class="form-group m-b-xs">
-            <label class="bold">Departamento Acádemico</label>
+                <multiselect v-model='departamento'
+                             label='nombre'
+                             placeholder="Todos los departamentos académicos"
+                             deselect-label=""
+                             select-label=""
+                             track-by='id'
+                             v-bind:allow-empty="true"
+                             v-bind:options='departamentosSelectos'>
+                </multiselect>
+            </div>
+            <div class="form-group m-b-xs">
+                <label class="bold"></label>
 
-            <multiselect v-model='departamento'
-                         label='nombre'
-                         placeholder="Todos los departamentos académicos"
-                         deselect-label=""
-                         select-label=""
-                         track-by='id'
-                         v-bind:allow-empty="true"
-                         v-bind:options='departamentosSelectos'>
-            </multiselect>
-        </div>
-        <div class="form-group m-b-xs">
-            <label class="bold"></label>
+                <multiselect v-model='tipoGrado'
+                             label='nombre'
+                             placeholder="Pregrado y posgrado"
+                             deselect-label=""
+                             select-label=""
+                             v-bind:hide-selected="true"
+                             track-by='id'
+                             v-bind:allow-empty="false"
+                             v-bind:options='grados'>
+                </multiselect>
+            </div>
 
-            <multiselect v-model='tipoGrado'
-                         label='nombre'
-                         placeholder="Pregrado y posgrado"
-                         deselect-label=""
-                         select-label=""
-                         v-bind:hide-selected="true"
-                         track-by='id'
-                         v-bind:allow-empty="false"
-                         v-bind:options='grados'>
-            </multiselect>
-        </div>
+            <div class="form-group m-b-xs">
+                <label class="bold">Docente</label>
 
-        <div class="form-group m-b-xs">
-            <label class="bold">Docente</label>
+                <multiselect 
+                    v-model="docente" 
+                    v-bind:options="docentes"
+                    v-on:search-change="searchDocente"
+                    placeholder=" "
+                    v-bind:allow-empty="true"
+                    deselect-label=" "
+                    v-bind:internal-search='false'
+                    track-by="id" 
+                    required="true"
+                    v-bind:showNoOptions="true"
+                    v-bind:show-labels="false" >
 
-            <multiselect 
-                v-model="docente" 
-                v-bind:options="docentes"
-                v-on:search-change="searchDocente"
-                placeholder=" "
-                v-bind:allow-empty="true"
-                deselect-label=" "
-                v-bind:internal-search='false'
-                track-by="id" 
-                required="true"
-                v-bind:showNoOptions="true"
-                v-bind:show-labels="false" >
+                    <template slot="singleLabel" slot-scope="props">
+                        <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                    </template>
 
-                <template slot="singleLabel" slot-scope="props">
-                    <span class=""> {{ props.option.persona.nombreCompleto }}</span>
-                </template>
+                    <template slot="option" slot-scope="props">
+                        <span class=""> {{ props.option.persona.nombreCompleto }}</span>
+                    </template>
 
-                <template slot="option" slot-scope="props">
-                    <span class=""> {{ props.option.persona.nombreCompleto }}</span>
-                </template>
+                    <template slot="noOptions">&nbsp;</template>
+                    <template slot="noResult">&nbsp;</template>
 
-                <template slot="noOptions">&nbsp;</template>
-                <template slot="noResult">&nbsp;</template>
+                </multiselect>
 
-            </multiselect>
-
-        </div>
-
+            </div>
+        </form>
     </div>
 </modal-simple>

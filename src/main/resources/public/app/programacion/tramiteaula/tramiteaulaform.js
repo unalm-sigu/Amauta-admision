@@ -243,7 +243,7 @@ new Vue({
                 }
             }
             $vue.reservados.push(aula);
-//            $vue.changefilteraula();
+            $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
         },
         changefilteraula() {
