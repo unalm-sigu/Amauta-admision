@@ -195,7 +195,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
                 .join("temaExamen")
                 .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
-                .leftJoin("an.prelamolina", "an.evaluado")
+                .leftJoin("an.prelamolina", "an.evaluado", "cursoNivelacion cn")
                 .filter("an.id", alumnoNiv);
 
         return all(sql);

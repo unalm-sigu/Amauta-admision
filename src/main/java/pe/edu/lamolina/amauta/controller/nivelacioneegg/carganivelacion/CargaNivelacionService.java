@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
+package pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
-public interface MatriculablesNivelacionService {
+public interface CargaNivelacionService {
 
     List<GrupoHorasNivelacion> allGruposHoras();
 

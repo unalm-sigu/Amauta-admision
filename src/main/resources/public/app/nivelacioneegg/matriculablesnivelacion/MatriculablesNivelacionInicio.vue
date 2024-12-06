@@ -126,6 +126,7 @@
 
         <modal-confirm ref="modalConfirm"></modal-confirm>
         <modal-info ref="modalInfo"></modal-info>
+        <modal-matricular ref="modalMatricular"></modal-matricular>
     </div>
 
 </template>
@@ -137,10 +138,12 @@
     const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
     const FotoPersona = httpVueLoader('/app/_componentes/FotoPersonaAlumno.vue');
     const InfoAlumno = httpVueLoader('/app/_componentes/InfoAlumno.vue');
+    const ModalMatricular = httpVueLoader('./ModalMatricular.vue');
 
     module.exports = {
         components: {
             ModalConfirm, ModalInfo, FotoPersona, InfoAlumno,
+            ModalMatricular
         },
 
         data() {
@@ -246,7 +249,7 @@
                     id: item.id,
                     cursoNivelacion: {id: item.cursoNivelacion.id}
                 };
-                
+
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirm,
                     message: `¿Seguro que desea retirar del curso ${item.curso.nombre} al alumno ${item.alumnoNivelacion.alumno.codigo}?`,
@@ -265,6 +268,7 @@
                 this.$refs.modalConfirm.open(config);
             },
             inscribir(item) {
+                this.$refs.modalMatricular.open(item, this.$refs.raptor);
             },
 
             classEstado(item) {

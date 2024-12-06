@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
+package pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -31,12 +31,12 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 @Controller
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
-@RequestMapping("nivelacioneegg/matriculablesnivelacion")
-public class MatriculablesNivelacionController {
+@RequestMapping("nivelacioneegg/carganivelacion")
+public class CargaNivelacionController {
 
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
-    private final MatriculablesNivelacionService service;
+    private final CargaNivelacionService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

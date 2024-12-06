@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
+package pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -39,7 +39,7 @@ import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
 @Transactional(readOnly = true)
-public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelacionService {
+public class CargaNivelacionServiceImpl implements CargaNivelacionService {
 
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
