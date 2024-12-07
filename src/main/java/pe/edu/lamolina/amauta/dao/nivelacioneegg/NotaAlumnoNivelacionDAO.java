@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.nivelacioneegg;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
@@ -12,7 +13,11 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<NotaAlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
+    MatriculablesResumen findResumen(CicloAcademico ciclo);
+
     List<NotaAlumnoNivelacion> allByCiclo(CicloAcademico ciclo);
+
+    List<NotaAlumnoNivelacion> allActivosByCiclo(CicloAcademico ciclo);
 
     List<NotaAlumnoNivelacion> allSinCursoByCiclo(CicloAcademico ciclo);
 

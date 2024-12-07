@@ -620,6 +620,15 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         items.stream()
                 .filter(mtc -> mtc.getTemaExamen().getTemaSuperior() != null)
                 .filter(mtc -> mtc.getTemaExamen().getTemaSuperior().equals(temaSuper))
+                .filter(mtc -> {
+                    if (mtc.getModalidadIngreso() == null && modalidad == null) {
+                        return true;
+                    }
+                    if (mtc.getModalidadIngreso() != null && modalidad != null) {
+                        return mtc.getModalidadIngreso().getId().equals(modalidad.getId());
+                    }
+                    return false;
+                })
                 .forEach(mtc -> {
                     TemaCiclo hijo = mtc.getTemaCiclo();
                     tc.setPreguntas(tc.getPreguntas() + hijo.getPreguntas());

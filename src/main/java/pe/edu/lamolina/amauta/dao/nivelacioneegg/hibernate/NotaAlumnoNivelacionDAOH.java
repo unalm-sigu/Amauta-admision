@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -49,14 +51,62 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
                 .join("an.cicloAcademico ci")
-                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
                 .filter("ci.id", ciclo)
-                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre")
+                .filter("nan.esMatriculable", 1)
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("nan.id DESC");
 
+        sql.beginRelativeFilters();
+        this.setCondicionEstado(filter, sql);
+
         return all(sql);
+    }
+
+    private void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("situacion")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            if (values.equals("inscritos")) {
+                sql.filter("nan.estado", MAT);
+            } else if (values.equals("pendientes")) {
+                sql.filter("nan.estado", NMAT);
+            }
+        }
+
+    }
+
+    @Override
+    public MatriculablesResumen findResumen(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(MatriculablesResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case nan.estado when 'MAT' then 1 else 0 end),   ");
+        sql.append("   sum(case nan.estado when 'NMAT' then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(NotaAlumnoNivelacion.class.getName()).append(" as nan ");
+        sql.append(" inner join nan.curso cu ");
+        sql.append(" inner join nan.alumnoNivelacion an ");
+        sql.append(" inner join an.cicloAcademico ci ");
+        sql.append(" where ci.id = :CICLO ");
+        sql.append("   and nan.esMatriculable = 1 ");
+        sql.append("   and an.estado in ('NMAT','MAT') ");
+        sql.append("   and nan.estado in ('NMAT','MAT') ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO", ciclo.getId());
+
+        return (MatriculablesResumen) query.uniqueResult();
     }
 
     @Override
@@ -74,6 +124,23 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
+    public List<NotaAlumnoNivelacion> allActivosByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
+                .isNull("cn.id")
+                .in("an.estado", Arrays.asList(NMAT, MAT))
+                .in("nan.estado", Arrays.asList(NMAT, MAT))
+                .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<NotaAlumnoNivelacion> allSinCursoByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(NotaAlumnoNivelacion.class, "nan")
@@ -82,7 +149,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
-                .leftJoin("curso cu")
+                .leftJoin("curso cur")
                 .isNull("cur.id")
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
@@ -100,7 +167,6 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
-                .leftJoin("cursoNivelacion cn")
                 .isNull("cn.id")
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
