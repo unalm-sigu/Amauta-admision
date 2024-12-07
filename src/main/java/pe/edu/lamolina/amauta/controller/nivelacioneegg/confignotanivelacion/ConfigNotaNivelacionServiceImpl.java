@@ -62,7 +62,7 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     private final PrelamolinaDAO prelamolinaDAO;
     private final TemaCicloDAO temaCicloDAO;
 
-    private final BigDecimal ONCE = new BigDecimal("11");
+    private final BigDecimal ONCE = new BigDecimal("10.5");
     private final BigDecimal VEINTE = new BigDecimal("20");
     private final BigDecimal CIEN = new BigDecimal("100");
     private final BigDecimal CIEN_NEG = new BigDecimal("-100");

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacion.CursoListTemas;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacionreplica.dto.CursoReplicaDTO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -64,7 +67,10 @@ public class CursoReplicaNivelacionController {
                     .join("departamentoAcademico.facultad", "id,codigo,nombre")
                     .json();
             List<CursoReplicaNivelacion> cursosReplica = curso.getCursosReplica();
-            ArrayNode arrayReplica = this.createCursosReplicaJson(cursosReplica);
+            ArrayNode arrayReplica = new ArrayNode(JsonNodeFactory.instance);
+            if (cursosReplica != null) {
+                arrayReplica = this.createCursosReplicaJson(cursosReplica);
+            }
             node.set("cursosReplica", arrayReplica);
             array.add(node);
         }
@@ -75,7 +81,7 @@ public class CursoReplicaNivelacionController {
         json.setFiltered(filter.getFiltered());
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("searchCurso")
     public JsonResponse searchCurso(@RequestParam String nombre, HttpSession session) {
@@ -89,6 +95,19 @@ public class CursoReplicaNivelacionController {
 
         JsonResponse json = new JsonResponse();
         json.setData(cursosJson);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveRelacionRegular")
+    public JsonResponse saveRelacion(@RequestBody CursoReplicaDTO cursoDTO, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        int relacionados = service.saveRelacionRegular(cursoDTO, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage(relacionados > 0 ? "Se relaciono los curso satisfactoriamente." : "Se quitaron los temas relacionados al curso.");
         json.setSuccess(Boolean.TRUE);
 
         return json;

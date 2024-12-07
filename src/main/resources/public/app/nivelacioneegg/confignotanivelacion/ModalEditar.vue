@@ -22,7 +22,7 @@
                     <div class="form-group">
                         <label>Tema del examen de admisión</label>
                         <span class="item-form-control item-form-gray text-primary">
-                            {{configNueva.temaCiclo.temaExamen.nombre}}
+                            {{configNueva.temaExamen.nombre}}
                         </span>
                     </div>
 
