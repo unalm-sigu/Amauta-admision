@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
@@ -892,6 +893,31 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .from(HorarioAula.class, "ha")
                 .join("dia dia", "hora hora", "aula aula", "cursoNivelacion cn")
                 .filter("cn.id", cursoNivelacion);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCursoNivelacionFecha(CursoNivelacion cursoNivelacion, Date fecha) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia dia", "hora hora", "aula aula", "cursoNivelacion cn")
+                .filter("ha.fechaInicio", "<=", fecha)
+                .filter("ha.fechaFin", ">=", fecha)
+                .filter("cn.id", cursoNivelacion);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByDocente(Docente docente, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia dia", "hora hora", "aula aula", "cursoNivelacion cn")
+                .join("cn.docente doc", "cn.cursoCiclo cuci")
+                .join("cuci.curso", "cuci.cicloAcademico ci")
+                .filter("doc.id", docente)
+                .filter("ci.id", ciclo);
 
         return all(sql);
     }

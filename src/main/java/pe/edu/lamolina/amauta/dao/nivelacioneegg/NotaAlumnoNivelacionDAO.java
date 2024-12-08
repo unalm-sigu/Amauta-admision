@@ -7,6 +7,7 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.Matric
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
@@ -22,6 +23,8 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
     List<NotaAlumnoNivelacion> allSinCursoByCiclo(CicloAcademico ciclo);
 
     List<NotaAlumnoNivelacion> allConCursoByCiclo(CicloAcademico ciclo);
+
+    List<NotaAlumnoNivelacion> allInscritosByCursoNivelacion(CursoNivelacion seccion);
 
     List<NotaAlumnoNivelacion> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 

@@ -425,7 +425,7 @@ public class ProgramacionNivelacionController {
             ObjectNode node = JaneHelper
                     .from(cursoNiv)
                     .join("docente", "id,codigo")
-                    .join("docente.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
+                    .join("docente.persona", "id,apellidosNombres,emailCompania,numeroDocIdentidad,tipoFoto,rutaFoto")
                     .join("aula", "id,codigo,nombre,capacidadAula,aforo")
                     .join("aula.aulaSuperior", "id,codigo,nombre")
                     .join("grupoHoras", "id,codigo")

@@ -17,7 +17,9 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
@@ -171,6 +173,23 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
                 .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allInscritosByCursoNivelacion(CursoNivelacion cursoNiv) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci")
+                .filter("an.estado", NMAT)
+                .filter("nan.estado", NMAT)
+                .filter("cn.estado", SeccionEstadoEnum.ACT)
+                .filter("cn.id", cursoNiv);
 
         return all(sql);
     }

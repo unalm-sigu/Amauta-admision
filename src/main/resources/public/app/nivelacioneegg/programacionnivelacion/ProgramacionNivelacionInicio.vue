@@ -48,8 +48,10 @@
                                                 Desconocido
                                             </span>
                                             <template v-else="">
-                                                {{item.docente.persona.apellidosNombres}}
+                                                <div class="block">{{item.docente.persona.apellidosNombres}}</div>
+                                                <div class="block text-primary">{{item.docente.persona.emailCompania}}</div>
                                             </template>
+                                            <small class="block"><strong>Código:</strong> {{item.docente.codigo}}</small>
                                         </td>
 
                                         <td class="v-middle text-center">

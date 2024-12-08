@@ -51,6 +51,21 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
     }
 
     @Override
+    public List<CursoNivelacion> allDocenteByDynatable(DynatableFilter filter, CicloAcademico ciclo, Docente docente) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(CursoNivelacion.class, "cn")
+                .join("docente doc", "cursoCiclo cuci")
+                .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .leftJoin("aula au", "doc.persona per")
+                .filter("ci.id", ciclo)
+                .filter("doc.id", docente)
+                .searchFields("cu.codigo", "cu.nombre", "cn.codigo", "au.codigo")
+                .orderBy("cu.nombre");
+
+        return all(sql);
+    }
+
+    @Override
     public List<CursoNivelacion> allByCursoCiclo(CursoCicloAcademico cursoCiclo, GrupoHorasNivelacion grupoHoras) {
         Octavia sql = Octavia.query()
                 .from(CursoNivelacion.class, "cn")
