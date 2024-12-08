@@ -1,5 +1,7 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacionreplica;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.cursonivelacionreplica.dto.CursoReplicaDTO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoReplicaNivelacionDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.nivelacioneegg.CursoReplicaNivelacion;
@@ -50,6 +54,57 @@ public class CursoReplicaNivelacionServiceImpl implements CursoReplicaNivelacion
     @Override
     public List<Curso> allCursos(String nombre) {
         return cursoDAO.allByModalidadEstudioNombre(ModalidadEstudioEnum.PRE, nombre);
+    }
+
+    @Override
+    @Transactional
+    public int saveRelacionRegular(CursoReplicaDTO cursoReplicaDTO, DataSessionPivot ds) {
+
+        List<CursoReplicaNivelacion> relacionadosBD = cursoReplicaNivelacionDAO.allByCursoNivelacion(cursoReplicaDTO.getCurso());
+        List<CursoReplicaNivelacion> relacionadosFinal = new ArrayList<>();
+
+//        if (!relacionadosBD.isEmpty()) {
+            Map<String, CursoReplicaNivelacion> mapRelacionados = relacionadosBD.stream()
+                    .collect(Collectors.toMap(x -> x.getCursoNivelacion().getId() + "-" + x.getCursoRegular().getId(), x -> x));
+
+            cursoReplicaDTO.getCursosRegulares().stream().forEach(x -> {
+
+                CursoReplicaNivelacion cursoReplicaNivelacion = mapRelacionados.get(cursoReplicaDTO.getCurso().getId() + "-" + x.getId());
+                if (cursoReplicaNivelacion == null) {
+                    CursoReplicaNivelacion curso = new CursoReplicaNivelacion();
+                    curso.setCursoNivelacion(cursoReplicaDTO.getCurso());
+                    curso.setCursoRegular(x);
+                    curso.setUserRegistro(ds.getUsuario());
+                    curso.setFechaRegistro(new Date());
+                    cursoReplicaNivelacionDAO.save(curso);
+                }
+                relacionadosFinal.add(cursoReplicaNivelacion);
+
+            });
+
+            Map<String, CursoReplicaNivelacion> mapRelacionadosFinal = relacionadosFinal.stream().filter(Objects::nonNull)
+                    .collect(Collectors.toMap(x -> x.getCursoNivelacion().getId() + "-" + x.getCursoRegular().getId(), x -> x));
+
+            relacionadosBD.stream().forEach(x -> {
+                CursoReplicaNivelacion cursoReplicaNivelacion = mapRelacionadosFinal.get(x.getCursoNivelacion().getId() + "-" + x.getCursoRegular().getId());
+                if (cursoReplicaNivelacion == null) {
+                    cursoReplicaNivelacionDAO.delete(x);
+                }
+            });
+//        } else {
+//            cursoReplicaDTO.getCursosRegulares().stream().forEach(x -> {
+//                CursoReplicaNivelacion cursoReplicaNivelacion = new CursoReplicaNivelacion();
+//                cursoReplicaNivelacion.setCursoNivelacion(cursoReplicaDTO.getCurso());
+//                cursoReplicaNivelacion.setCursoRegular(x);
+//                cursoReplicaNivelacion.setUserRegistro(ds.getUsuario());
+//                cursoReplicaNivelacion.setFechaRegistro(new Date());
+//                cursoReplicaNivelacionDAO.save(cursoReplicaNivelacion);
+//                relacionadosFinal.add(cursoReplicaNivelacion);
+//            });
+//        }
+
+        return relacionadosFinal.size();
+
     }
 
 }
