@@ -88,6 +88,26 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
+    public List<NotaAlumnoNivelacion> allSeccionByDynatable(DynatableFilter filter, CursoNivelacion cursoNiv) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso cur")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
+                .filter("cn.id", cursoNiv)
+                .filter("an.estado", MAT)
+                .filter("nan.estado", MAT)
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+
+        return all(sql);
+    }
+
+    @Override
     public MatriculablesResumen findResumen(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
 
@@ -229,6 +249,23 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
                 .leftJoin("an.prelamolina", "an.evaluado")
                 .in("an.id", alumnosNiv);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allByCursoNivelacion(CursoNivelacion cursoNiv) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso cur")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
+                .filter("cn.id", cursoNiv)
+                .filter("an.estado", MAT)
+                .filter("nan.estado", MAT)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
 
         return all(sql);
     }

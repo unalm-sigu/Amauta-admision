@@ -14,6 +14,8 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<NotaAlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
+    List<NotaAlumnoNivelacion> allSeccionByDynatable(DynatableFilter filter, CursoNivelacion seccion);
+
     MatriculablesResumen findResumen(CicloAcademico ciclo);
 
     List<NotaAlumnoNivelacion> allByCiclo(CicloAcademico ciclo);
@@ -31,6 +33,8 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
     List<NotaAlumnoNivelacion> allByAlumnoNivelacion(AlumnoNivelacion alumnoNiv);
 
     List<NotaAlumnoNivelacion> allByAlumnosNivelacion(List<AlumnoNivelacion> alumnosNiv);
+
+    List<NotaAlumnoNivelacion> allByCursoNivelacion(CursoNivelacion cursoNiv);
 
     int saveList(List<NotaAlumnoNivelacion> notasAlumnos);
 
