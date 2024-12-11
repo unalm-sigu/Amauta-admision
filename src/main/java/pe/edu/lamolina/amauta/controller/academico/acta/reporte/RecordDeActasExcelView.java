@@ -80,6 +80,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             String emails = "";
             String secciones = "";
 
+            System.out.println("inicio reporte");
             for (Seccion sec : grupoSeccion.getSecciones()) {
 
                 if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {

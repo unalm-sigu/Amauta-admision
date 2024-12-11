@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.acta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -32,6 +34,9 @@ import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.auditoria.ControlDeActasDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,6 +61,9 @@ public class ActaServiceImpl implements ActaService {
 
     @Autowired
     ControlDeActasDAO controlDeActasDAO;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @Override
     public List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico cicloAcademico) {
@@ -191,12 +199,13 @@ public class ActaServiceImpl implements ActaService {
     }
 
     @Override
-    public List<GrupoSeccion> allGrupoSeccionByCiclo(CicloAcademico cicloAcademico) {
-        List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allActivoByCiclo(cicloAcademico);
+    public List<GrupoSeccion> allGrupoSeccionByCiclo(DataSessionPivot ds) {
+
+        List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allActivoByCicloDpto(ds.getCicloAcademico(), ds.getDepartamentos());
         List<GrupoSeccion> gpoSeccionesFinal = new ArrayList();
         List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gpoSecciones);
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
-
+       
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         Map<Long, List<DocenteSeccion>> mapDocentes = TypesUtil.convertListToMapList("seccion.id", profeSecciones);
 

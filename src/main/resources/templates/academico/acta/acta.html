@@ -14,7 +14,7 @@
             -->
         </header>
 
-        <div th:if="${esOperadorEditor}">
+        <!--<div th:if="${esOperadorEditor}">-->
             <div class="col-md-3">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
@@ -22,11 +22,11 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a th:href="@{'/academico/acta/exportExcel/recordActas'}">Record Actas Pre Grado</a></li>
-                        <li><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
+                        <li th:if="${esOperadorEditor}"><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
                     </ul>
                 </div>
             </div>
-        </div>
+        <!--</div>-->
         <div  id="dynaTable" class="row"></div>
 
         <script id="templateActas" type="text/x-template" class="hide" >
