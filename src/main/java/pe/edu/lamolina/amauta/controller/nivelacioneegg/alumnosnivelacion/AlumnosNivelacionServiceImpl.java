@@ -46,6 +46,7 @@ import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.ModalidadTemaCiclo;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
@@ -66,8 +67,14 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
     private final ChangeNotaAlumnoNivelacionService changeNotaAlumnoNivelacionService;
     private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
+    private final VerificadorService verificadorService;
 
     private final BigDecimal VEINTE = new BigDecimal("20");
+
+    private void verificarPermiso(DataSessionPivot ds) {
+        boolean esOperador = verificadorService.esOperadorEEGG(ds);
+        Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
 
     @Override
     public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
@@ -116,6 +123,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public void createAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         List<AlumnoNivelacion> nivelados = alumnoNivelacionDAO.allByCiclo(ciclo);
         Map<String, AlumnoNivelacion> mapNivelados = nivelados.stream()
                 .collect(Collectors.toMap(aln -> aln.getAlumno().getCodigo(), Function.identity()));
@@ -186,6 +195,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public int revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         List<AlumnoNivelacion> nivelados = alumnoNivelacionDAO.allByCiclo(ciclo);
         List<AlumnoNivelacion> habiles = nivelados.stream()
                 .filter(aluNiv -> aluNiv.getEstadoEnum() != INH)
@@ -236,6 +247,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public int revisarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar del alumno que desea revisar");
         CicloAcademico ciclo = alumnoNiv.getCicloAcademico();
@@ -280,6 +293,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public void addAlumno(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         Alumno alumno = alumnoDAO.find(alumnoForm);
         Assert.isNotNull(alumno, "No existe el alumno que desea agregar");
         Assert.isTrue(alumno.isPregrado(), "Solo apto para alumnos de pregrado");
@@ -344,6 +359,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public void deshabilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
         Assert.isFalse(alumnoNiv.getEstadoEnum() == MAT, "El alumno no debe estar matriculado en ningún curso");
@@ -367,6 +384,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Override
     @Transactional
     public void habilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
         Assert.isTrue(alumnoNiv.getEstadoEnum() == INH, "El alumno ya no se encuentra deshabilitado");

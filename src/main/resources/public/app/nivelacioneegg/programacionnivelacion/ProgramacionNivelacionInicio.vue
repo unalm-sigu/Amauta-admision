@@ -31,6 +31,7 @@
                                         <th class="v-middle text-center">Aula</th>
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Vac / Mat</th>
+                                        <th class="v-middle text-center">Estado Notas</th>
                                         <th class="v-middle text-center">Estado</th>
                                         <th class=""></th>
                                     </tr>
@@ -83,6 +84,12 @@
                                         </td>
 
                                         <td class="v-middle text-center">
+                                            <div v-bind:class="classEstadoNotas(item)" class="label">
+                                                {{item.estadoNotasEnum.value}}
+                                            </div>
+                                        </td>
+
+                                        <td class="v-middle text-center">
                                             <div v-bind:class="classEstado(item)" class="label">
                                                 {{item.estadoEnum.value}}
                                             </div>
@@ -104,6 +111,7 @@
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeAula(item)">Cambiar aula</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeGrupoHoras(item)">Cambiar grupo</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeVacantes(item)">Cambiar vacantes</a></li>
+                                                    <li v-if="item.estadoNotas == 'CER' " class="pointer"><a v-on:click="reabrirNotas(item)">Reabrir notas</a></li>
                                                     <li class="divider"> </li>
                                                     <li class="pointer"><a v-on:click="cambios(item)">Historial de cambios</a></li>
                                                 </ul>
@@ -131,6 +139,7 @@
         <modal-cambios ref="modalCambios"></modal-cambios>
         <modal-cancelar ref="modalCancelar"></modal-cancelar>
         <modal-reactivar ref="modalReactivar"></modal-reactivar>
+        <modal-reabrir-notas ref="modalReabrirNotas"></modal-reabrir-notas>
     </div>
 
 </template>
@@ -149,13 +158,14 @@
     const ModalCambios = httpVueLoader('./ModalCambios.vue');
     const ModalCancelar = httpVueLoader('./ModalCancelar.vue');
     const ModalReactivar = httpVueLoader('./ModalReactivar.vue');
+    const ModalReabrirNotas = httpVueLoader('./ModalReabrirNotas.vue');
 
     module.exports = {
         components: {
             ModalConfirm, ModalInfo, ModalAddCurso, ModalAddHorario,
             ModalChangeDocente, ModalChangeAula, ModalChangeGrupo,
             ModalChangeVacantes, ModalCambios, ModalCancelar,
-            ModalReactivar
+            ModalReactivar, ModalReabrirNotas
         },
 
         data() {
@@ -250,6 +260,9 @@
             cambios(item) {
                 this.$refs.modalCambios.open(item);
             },
+            reabrirNotas(item) {
+                this.$refs.modalReabrirNotas.open(item, this.$refs.raptorCursos);
+            },
 
             classEstado(item) {
                 if (item.estado === 'CRE') {
@@ -272,6 +285,14 @@
                     return "text-danger";
                 }
                 return "text-primary";
+            },
+            classEstadoNotas(item) {
+                if (item.estadoNotas === 'CER') {
+                    return "label-success";
+                } else if (item.estadoNotas === 'RAB') {
+                    return "label-primary";
+                }
+                return "label-warning";
             },
 
             addCurso() {

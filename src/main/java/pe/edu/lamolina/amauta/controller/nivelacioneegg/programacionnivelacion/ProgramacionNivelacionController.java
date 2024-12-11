@@ -303,6 +303,19 @@ public class ProgramacionNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("reabrirNotas")
+    public JsonResponse reabrirNotas(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.reabrirNotas(cursoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se reabrió el acta de notas satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("changeEstado/{estado}")
     public JsonResponse changeEstado(
             @PathVariable("estado") String estado,

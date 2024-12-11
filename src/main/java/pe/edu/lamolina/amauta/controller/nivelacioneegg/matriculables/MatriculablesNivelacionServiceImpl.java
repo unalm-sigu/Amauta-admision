@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.horario.GrupoHorasNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
@@ -50,7 +50,12 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     private final GrupoHorasNivelacionDAO grupoHorasNivelacionDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
-    private final BigDecimal VEINTE = new BigDecimal("20");
+    private final VerificadorService verificadorService;
+
+    private void verificarPermiso(DataSessionPivot ds) {
+        boolean esOperador = verificadorService.esOperadorEEGG(ds);
+        Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
 
     @Override
     public List<GrupoHorasNivelacion> allGruposHoras() {
@@ -79,6 +84,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     @Override
     @Transactional
     public int generarMatriculables(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         List<NotaAlumnoNivelacion> matbles = notaAlumnoNivelacionDAO.allActivosByCiclo(ciclo);
         Map<String, NotaAlumnoNivelacion> mapMatbles = new HashMap();
         for (NotaAlumnoNivelacion matble : matbles) {
@@ -147,6 +154,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     @Override
     @Transactional
     public int matriculaMasivaTipo1(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         List<NotaAlumnoNivelacion> nuevosMtbles = notaAlumnoNivelacionDAO.allConCursoByCiclo(ciclo);
         if (nuevosMtbles.isEmpty()) {
             return nuevosMtbles.size();
@@ -238,6 +247,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     @Override
     @Transactional
     public synchronized void matricularCurso(NotaAlumnoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(form.getCursoNivelacion(), "No ha indicado la sección al cual matricularse");
         Assert.isNotNull(form.getCursoNivelacion().getId(), "No ha indicado la sección al cual matricularse");
 
@@ -279,6 +290,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     @Override
     @Transactional
     public synchronized void retirarCurso(NotaAlumnoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(form.getCursoNivelacion(), "No ha indicado la sección de la cual retirar");
         Assert.isNotNull(form.getCursoNivelacion().getId(), "No ha indicado la sección de la cual retirar");
 

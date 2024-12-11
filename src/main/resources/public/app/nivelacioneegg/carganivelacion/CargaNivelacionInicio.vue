@@ -184,6 +184,8 @@
             classEstadoNotas(item) {
                 if (item.estadoNotas === 'CER') {
                     return "label-success";
+                } else if (item.estadoNotas === 'RAB') {
+                    return "label-primary";
                 }
                 return "label-warning";
             },

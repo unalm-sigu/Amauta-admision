@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
 import pe.edu.lamolina.amauta.dao.admision.ModalidadIngresoDAO;
@@ -67,9 +68,26 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     private final BigDecimal CIEN = new BigDecimal("100");
     private final BigDecimal CIEN_NEG = new BigDecimal("-100");
 
+    private final VerificadorService verificadorService;
+
+    private void verificarPermiso(DataSessionPivot ds) {
+        boolean esOperador = verificadorService.esOperadorEEGG(ds);
+        Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
+
     @Override
     @Transactional
     public void revisarNotasExamen(CicloAcademico ciclo, DataSessionPivot ds) {
+        boolean esOperadorEEGG = verificadorService.esOperadorEEGG(ds);
+        if (esOperadorEEGG) {
+            this.crearDatosIniciales(ciclo, ds);
+        }
+
+    }
+
+    private void crearDatosIniciales(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
         if (temasCiclo.isEmpty()) {
             return;
@@ -655,6 +673,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     @Transactional
     public void saveConfig(ModalidadTemaCiclo configForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(configForm.getNotaMinima(), "No ha indicado la nota mínima aprobatoria");
         ModalidadTemaCiclo config = modalidadTemaCicloDAO.find(configForm.getId());
         Assert.isNotNull(config, "No se ha podido ubicar el registro que desea modificar");
@@ -676,6 +696,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     @Transactional
     public int activarTodos(CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         DateTime today = new DateTime();
         List<ModalidadTemaCiclo> configuraciones = modalidadTemaCicloDAO.allByCiclo(ciclo);
 
@@ -697,6 +719,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     @Transactional
     public void activar(ModalidadTemaCiclo configForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         ModalidadTemaCiclo config = modalidadTemaCicloDAO.find(configForm.getId());
         Assert.isNotNull(config, "No se pudo ubicar el registro que desea modificar");
         Assert.isTrue(config.getEstadoEnum() == PEN, "No se puede activar este registro");
@@ -710,6 +734,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     @Transactional
     public void desactivar(ModalidadTemaCiclo configForm, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         ModalidadTemaCiclo config = modalidadTemaCicloDAO.find(configForm.getId());
         Assert.isNotNull(config, "No se pudo ubicar el registro que desea modificar");
         Assert.isTrue(config.getEstadoEnum() == ACT, "No se puede desactivar este registro");

@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion.ChangeProgramacionNivelacionService;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -37,6 +39,8 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
 
     private final BigDecimal VEINTE = new BigDecimal("20");
     private final List<EstadoGrupoSeccionEnum> ESTADOS_NOTAS = Arrays.asList(ABI, RAB);
+
+    private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
 
     @Override
     public CursoNivelacion findSeccion(CursoNivelacion form, Docente docenteForm, CicloAcademico cicloForm) {
@@ -91,10 +95,20 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
                 .collect(Collectors.toList());
         Assert.isTrue(sinNotas.isEmpty(), "Falta ingresar las notas de " + sinNotas.size() + " alumnos");
 
+        if (StringUtils.isBlank(seccion.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(seccion);
+            seccion.setCambios(cambios);
+        }
+
         seccion.setEstadoNotasEnum(CER);
         seccion.setFechaEntregaNotas(new Date());
         seccion.setFechaModificacion(new Date());
         seccion.setUserModificacion(ds.getUsuario());
+
+        String cambio = "Entrega del acta de notas";
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(seccion, cambio, null, seccion.getCambios());
+        seccion.setCambios(cambiosTwo);
+
         cursoNivelacionDAO.update(seccion);
     }
 

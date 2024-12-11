@@ -84,8 +84,8 @@ public interface VerificadorService {
     boolean isRevisorActaNotas(DataSessionPivot ds);
 
     boolean isRolCape(DataSessionPivot ds);
-    
-   boolean isRolRacd(DataSessionPivot ds);
+
+    boolean isRolRacd(DataSessionPivot ds);
 
     boolean isDeveloperOERA(DataSessionPivot ds);
 
@@ -94,6 +94,8 @@ public interface VerificadorService {
     boolean isRevisorActaNotasDepartamento(DataSessionPivot ds);
 
     boolean esInformaticoOERA(DataSessionPivot ds);
+
+    boolean esOperadorEEGG(DataSessionPivot ds);
 
     boolean soloEditarDatosAlumno(DataSessionPivot ds);
 

@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.admision.TemaExamenDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTemaExamenDAO;
@@ -39,6 +41,13 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     private final CursoDAO cursoDAO;
     private final CursoTemaExamenDAO cursoTemaExamenDAO;
     private final TemaExamenDAO temaExamenDAO;
+
+    private final VerificadorService verificadorService;
+
+    private void verificarPermiso(DataSessionPivot ds) {
+        boolean esOperador = verificadorService.esOperadorEEGG(ds);
+        Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter) {
@@ -125,6 +134,8 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Override
     @Transactional
     public Curso changeEstado(Curso curso, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Curso cursoBD = cursoDAO.find(curso.getId());
         if (cursoBD.getEstadoEnum() == EstadoEnum.PEN || cursoBD.getEstadoEnum() == EstadoEnum.ANU) {
             cursoBD.setEstadoEnum(EstadoEnum.ACT);
@@ -138,6 +149,7 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Override
     @Transactional
     public void eliminar(Curso curso, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
         cursoDAO.delete(curso);
     }
 
@@ -149,6 +161,8 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Override
     @Transactional
     public int saveRelacion(CursoListTemas cursoListTemas, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         List<CursoTemaExamen> temasCursoBD = cursoTemaExamenDAO.allByCurso(cursoListTemas.getCurso());
 
         Map<String, CursoTemaExamen> mapCursoTemaBD = temasCursoBD.stream()

@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoCicloGrupoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion.ChangeProgramacionNivelacionService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
@@ -43,6 +44,8 @@ import pe.edu.lamolina.model.academico.Docente;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.DOCENTE_INDETERMINADO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.RAB;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -79,6 +82,12 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     private final HorarioCursoDAO horarioCursoDAO;
 
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
+    private final VerificadorService verificadorService;
+
+    private void verificarPermiso(DataSessionPivot ds) {
+        boolean esOperador = verificadorService.esOperadorEEGG(ds);
+        Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
 
     @Override
     public CursoNivelacion findCursoNivelacion(CursoNivelacion form) {
@@ -286,6 +295,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void addCurso(CursoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(form.getDocente(), "No ha indicado el docente");
         Assert.isNotNull(form.getDocente().getId(), "No ha indicado el docente");
         Assert.isNotNull(form.getDocente().getCodigo(), "No ha indicado el docente");
@@ -394,6 +405,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void setHorario(CursoCicloAcademico form, CicloAcademico ciclo, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.find(form.getId());
         Assert.isNotNull(cursoCiclo, "No existe el registro del curso y ciclo seleccionado");
         Assert.isTrue(ciclo.getId().equals(cursoCiclo.getCicloAcademico().getId()), "El registro no corresponde al ciclo correcto");
@@ -537,6 +550,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void changeGrupo(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(form.getGrupoHoras(), "No ha indicado el grupo nuevo");
         Assert.isNotNull(form.getGrupoHoras().getId(), "No ha indicado el grupo nuevo");
         GrupoHorasNivelacion grupoHoras = grupoHorasNivelacionDAO.find(form.getGrupoHoras().getId());
@@ -606,6 +621,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void changeVacantes(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         Assert.isNotNull(form.getVacantes(), "No ha indicado las vacantes");
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
@@ -639,6 +656,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void changeAula(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
         Assert.isFalse(sonAulasIguales(form.getAula(), cursoNiv.getAula()), "El aula nueva es la que ya estaba asignada");
@@ -713,6 +732,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     @Transactional
     public void changeDocente(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
         Assert.isNotNull(form.getDocente(), "No ha indicado el docente nuevo");
@@ -765,7 +786,37 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     @Override
     @Transactional
+    public void reabrirNotas(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
+        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
+        Assert.isNotNull(form.getMotivoCambio(), "No ha indicado el motivo del cambio");
+
+        Assert.isTrue(cursoNiv.getEstadoNotasEnum() == CER, "El acta no se encuentra cerrada");
+
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        cursoNiv.setEstadoNotasEnum(RAB);
+        cursoNiv.setMotivoCambio(form.getMotivoCambio());
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+
+        String cambio = "Reabriendo el acta de notas";
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
+        cursoNivelacionDAO.update(cursoNiv);
+
+    }
+
+    @Override
+    @Transactional
     public void changeEstado(CursoNivelacion form, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
         cursoNiv.setMotivoCambio(form.getMotivoCambio());
