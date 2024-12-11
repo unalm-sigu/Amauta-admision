@@ -882,7 +882,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .from(HorarioAula.class, "ha")
                 .join("dia dia", "hora hora", "aula aula")
                 .join("cursoNivelacion cn", "cn.grupoHoras gh")
-                .in("cn.id", cursosNivelacion);
+                .in("cn.id", cursosNivelacion)
+                .orderBy("ha.fechaInicio", "hora.numero");
 
         return all(sql);
     }

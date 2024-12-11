@@ -11,8 +11,10 @@ public interface TemaAsistenciaDAO extends EasyDAO<TemaAsistencia> {
 
     List<TemaAsistencia> allSeccionByDynatable(DynatableFilter filter, CursoNivelacion cursoNivelacion);
 
-    List<TemaAsistencia> allByCursoNivelacion(CursoNivelacion seccion);
+    List<TemaAsistencia> allByCursoNivelacion(CursoNivelacion cursoNivelacion);
 
-    TemaAsistencia findByCursoNivelacionFecha(CursoNivelacion seccion, Date fecha);
+    List<TemaAsistencia> allByCursosNivelaciones(List<CursoNivelacion> cursosNivelaciones);
+
+    TemaAsistencia findByCursoNivelacionFecha(CursoNivelacion cursoNivelacion, Date fecha);
 
 }

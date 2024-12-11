@@ -16,12 +16,14 @@
                             <table class="table table-striped">
                                 <thead class="panel panel-heading">
                                     <tr>
-                                        <th class="v-middle">Curso</th>
+                                        <th class="v-middle wd-37">Curso</th>
                                         <th class="v-middle text-center">Sección</th>
                                         <th class="v-middle text-center">Aula</th>
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Matriculados</th>
-                                        <th class="v-middle text-center">Estado</th>
+                                        <th class="v-middle text-center">Estado notas</th>
+                                        <th class="v-middle text-center">Control asistencia</th>
+                                        <th class="v-middle text-center">Estado inscripción</th>
                                         <th class=""></th>
                                     </tr>
                                 </thead>
@@ -62,6 +64,19 @@
                                                   v-bind:class="classMatriculados(item)">
                                                 {{item.matriculados}}
                                             </span>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <div v-bind:class="classEstadoNotas(item)" class="label">
+                                                {{item.estadoNotasEnum.value}}
+                                            </div>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <div v-bind:class="classAsistencia(item)" class="circle-recorrido pointer"
+                                                 v-on:click="controlAsistencia(item)">
+                                                {{item.controlesEjecutados}}/{{item.controlesConfigurados}}
+                                            </div>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -144,6 +159,10 @@
 
                 this.$refs.modalConfirm.open(config);
             },
+            controlAsistencia(item) {
+                const url = APP.url(`${rutaModulo}/${item.id}/lecciones${myUtils.getOrigenURL()}`);
+                location.href = url;
+            },
 
             classEstado(item) {
                 if (item.estado === 'CRE') {
@@ -155,10 +174,13 @@
                 }
                 return "label-danger";
             },
-            classHorario(item) {
-                if (item.horariosCurso.length === 0) {
-                    return "text-danger";
+            classEstadoNotas(item) {
+                if (item.estado === 'CER') {
+                    return "label-success";
                 }
+                return "label-warning";
+            },
+            classHorario(item) {
                 return "text-primary";
             },
             classMatriculados(item) {
@@ -166,6 +188,14 @@
                     return "bgr-danger";
                 }
                 return "bgr-success";
+            },
+            classAsistencia(item) {
+                if (item.controlesEjecutados === 0) {
+                    return "bgr-danger";
+                } else if (item.controlesEjecutados >= item.controlesConfigurados) {
+                    return "bgr-success";
+                }
+                return "bgr-warning";
             },
 
             // metodos genericos

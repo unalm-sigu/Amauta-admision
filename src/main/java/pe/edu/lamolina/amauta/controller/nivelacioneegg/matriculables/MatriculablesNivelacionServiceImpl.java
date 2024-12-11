@@ -17,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.horario.GrupoHorasNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
@@ -31,6 +32,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 
@@ -41,6 +43,7 @@ import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 @Transactional(readOnly = true)
 public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelacionService {
 
+    private final AlumnoNivelacionDAO alumnoNivelacionDAO;
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final CursoTemaExamenDAO cursoTemaExamenDAO;
@@ -126,7 +129,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                 }
 
                 List<CursoNivelacion> cursosMtbles = mapCursoNiv.get(curso.getId());
-                if (cursosMtbles.isEmpty()) {
+                if (cursosMtbles == null) {
                     continue;
                 }
 
@@ -173,6 +176,14 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                     mtble.setFechaModificacion(new Date());
                     notaAlumnoNivelacionDAO.update(mtble);
                     nuevos++;
+
+                    AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
+                    if (alumnoNiv.getEstadoEnum() != MAT) {
+                        alumnoNiv.setEstadoEnum(MAT);
+                        alumnoNiv.setFechaModificacion(new Date());
+                        alumnoNiv.setUserModificacion(ds.getUsuario());
+                        alumnoNivelacionDAO.update(alumnoNiv);
+                    }
                     break;
                 }
             }
@@ -255,6 +266,14 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         mtble.setUserModificacion(ds.getUsuario());
         mtble.setFechaModificacion(new Date());
         notaAlumnoNivelacionDAO.update(mtble);
+
+        AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
+        if (alumnoNiv.getEstadoEnum() != MAT) {
+            alumnoNiv.setEstadoEnum(MAT);
+            alumnoNiv.setFechaModificacion(new Date());
+            alumnoNiv.setUserModificacion(ds.getUsuario());
+            alumnoNivelacionDAO.update(alumnoNiv);
+        }
     }
 
     @Override
@@ -284,6 +303,19 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         mtble.setUserModificacion(ds.getUsuario());
         mtble.setFechaModificacion(new Date());
         notaAlumnoNivelacionDAO.update(mtble);
+
+        AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
+        List<NotaAlumnoNivelacion> notasAll = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(alumnoNiv);
+        List<NotaAlumnoNivelacion> matriculados = notasAll.stream()
+                .filter(nan -> nan.getEstadoEnum() == MAT)
+                .collect(Collectors.toList());
+
+        if (matriculados.isEmpty() && alumnoNiv.getEstadoEnum() != NMAT) {
+            alumnoNiv.setEstadoEnum(NMAT);
+            alumnoNiv.setFechaModificacion(new Date());
+            alumnoNiv.setUserModificacion(ds.getUsuario());
+            alumnoNivelacionDAO.update(alumnoNiv);
+        }
     }
 
 }

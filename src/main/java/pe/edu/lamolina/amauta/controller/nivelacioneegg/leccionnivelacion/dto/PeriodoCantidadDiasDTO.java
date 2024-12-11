@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.zzerializator.DateDeserializer;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PeriodoDiaDTO {
+public class PeriodoCantidadDiasDTO {
 
     @JsonDeserialize(using = DateDeserializer.class)
     private Date fechaInicio;
@@ -21,7 +21,7 @@ public class PeriodoDiaDTO {
 
     private List<Integer> diasSemanas;
 
-    public PeriodoDiaDTO(Date fechaInicio, Date fechaFin, Integer diaSemana) {
+    public PeriodoCantidadDiasDTO(Date fechaInicio, Date fechaFin, Integer diaSemana) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
 

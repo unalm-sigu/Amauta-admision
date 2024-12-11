@@ -32,16 +32,31 @@ public class AsistenciaNivelacionDAOH extends AbstractEasyDAO<AsistenciaNivelaci
     public List<AsistenciaNivelacion> allLeccionByDynatable(DynatableFilter filter, TemaAsistencia leccion) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AsistenciaNivelacion.class, "asn")
-                .join("alumnoNivelacion an", "temaAsistencia tas")
+                .join("alumnoNivelacion an", "temaAsistencia tas", "hora hora")
                 .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento")
                 .filter("tas.id", leccion)
+                .filter("hora.id", leccion.getHoraInicio())
                 .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("per.paterno", "per.materno", "per.nombres");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AsistenciaNivelacion> allByLeccion(TemaAsistencia leccion) {
+        Octavia sql = Octavia.query()
+                .from(AsistenciaNivelacion.class, "asn")
+                .join("alumnoNivelacion an", "temaAsistencia tas", "hora hora")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci")
+                .leftJoin("per.tipoDocumento")
+                .filter("tas.id", leccion);
 
         return all(sql);
     }

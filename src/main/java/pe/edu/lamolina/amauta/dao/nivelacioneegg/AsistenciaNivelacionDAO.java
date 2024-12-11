@@ -10,4 +10,6 @@ public interface AsistenciaNivelacionDAO extends EasyDAO<AsistenciaNivelacion> {
 
     List<AsistenciaNivelacion> allLeccionByDynatable(DynatableFilter filter, TemaAsistencia leccion);
 
+    List<AsistenciaNivelacion> allByLeccion(TemaAsistencia leccion);
+
 }

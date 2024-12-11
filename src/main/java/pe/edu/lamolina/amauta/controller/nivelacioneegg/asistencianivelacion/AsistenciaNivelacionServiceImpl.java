@@ -1,9 +1,10 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.asistencianivelacion;
 
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,12 +68,27 @@ public class AsistenciaNivelacionServiceImpl implements AsistenciaNivelacionServ
             leccion.setAsistentes(leccion.getAsistentes() - 1);
             leccion.setFaltantes(leccion.getFaltantes() + 1);
         }
+
         temaAsistenciaDAO.update(leccion);
+        DateTime hoy = new DateTime();
 
         asistencia.setEstadoEnum(form.getEstadoEnum());
         asistencia.setUserRegistro(ds.getUsuario());
-        asistencia.setFechaRegistro(new Date());
+        asistencia.setFechaRegistro(hoy.toDate());
         asistenciaNivelacionDAO.update(asistencia);
+
+        List<AsistenciaNivelacion> otrosAll = asistenciaNivelacionDAO.allByLeccion(leccion);
+        List<AsistenciaNivelacion> otros = otrosAll.stream()
+                .filter(asn -> asn.getAlumnoNivelacion().equals(asistencia.getAlumnoNivelacion()))
+                .filter(asn -> !asn.getId().equals(asistencia.getId()))
+                .collect(Collectors.toList());
+
+        otros.forEach(asn -> {
+            asn.setEstadoEnum(form.getEstadoEnum());
+            asn.setUserRegistro(ds.getUsuario());
+            asn.setFechaRegistro(hoy.toDate());
+            asistenciaNivelacionDAO.update(asn);
+        });
     }
 
 }

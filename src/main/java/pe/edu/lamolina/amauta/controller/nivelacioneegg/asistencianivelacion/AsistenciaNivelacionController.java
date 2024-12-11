@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
-import static java.util.Locale.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -84,6 +83,23 @@ public class AsistenciaNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("findLeccion")
+    public JsonResponse findLeccion(@RequestBody TemaAsistencia form, HttpSession session, HttpServletRequest request) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        TemaAsistencia leccion = service.findLeccion(form, docente, ciclo);
+        ObjectNode data = this.createLeccionJson(leccion);
+
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.TRUE);
+        json.setData(data);
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("marcarAsistencia")
     public JsonResponse marcarAsistencia(@RequestBody AsistenciaNivelacion asistencia, HttpSession session, HttpServletRequest request) {
 
@@ -93,7 +109,7 @@ public class AsistenciaNivelacionController {
         service.marcarAsistencia(asistencia, docente, ciclo, ds);
 
         JsonResponse json = new JsonResponse();
-        json.setMessage("Se registró");
+        json.setMessage("Se registró la " + asistencia.getEstadoEnum().getMensaje());
         json.setSuccess(Boolean.TRUE);
         return json;
     }

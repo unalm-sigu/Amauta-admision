@@ -24,8 +24,8 @@ public class TemaAsistenciaDAOH extends AbstractEasyDAO<TemaAsistencia> implemen
         Octavia sql = Octavia.query()
                 .from(TemaAsistencia.class, "ta")
                 .join("cursoNivelacion cn")
-                .join("cn.docente doc", "cursoCiclo cuci")
-                .join("cn.cuci.curso cu", "cuci.cicloAcademico ci")
+                .join("cn.docente doc", "cn.cursoCiclo cuci")
+                .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("cn.aula", "doc.persona per")
                 .filter("ta.id", id);
 
@@ -51,6 +51,17 @@ public class TemaAsistenciaDAOH extends AbstractEasyDAO<TemaAsistencia> implemen
                 .join("cursoNivelacion cn")
                 .filter("cn.id", seccion)
                 .orderBy("ta.fecha DESC");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<TemaAsistencia> allByCursosNivelaciones(List<CursoNivelacion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(TemaAsistencia.class, "ta")
+                .join("cursoNivelacion cn")
+                .in("cn.id", secciones)
+                .orderBy("ta.fecha");
 
         return all(sql);
     }

@@ -150,6 +150,7 @@ public class LeccionNivelacionController {
             ObjectNode node = JaneHelper
                     .from(leccion)
                     .join("cursoNivelacion", "id,codigo")
+                    .join("horaInicio")
                     .json();
 
             array.add(node);

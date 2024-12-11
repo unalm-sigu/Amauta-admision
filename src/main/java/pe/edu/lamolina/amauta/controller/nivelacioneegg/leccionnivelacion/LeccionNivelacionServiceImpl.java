@@ -18,7 +18,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.ControlAsistenciaDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.PeriodoDiaDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.PeriodoCantidadDiasDTO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
@@ -53,7 +53,7 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
 
     @Override
     public CursoNivelacion findSeccion(CursoNivelacion form, Docente docenteForm, CicloAcademico cicloForm) {
-        Assert.isNull(docenteForm, "No existe un docente");
+        Assert.isNotNull(docenteForm, "No existe un docente");
 
         CursoNivelacion seccion = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(seccion, "No existe la sección solicitada");
@@ -75,25 +75,31 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
     @Override
     public List<ControlAsistenciaDTO> allFechasLecciones(CursoNivelacion seccion) {
         List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(seccion);
+        log.info("[allFechasLecciones] horarios.size={}", horarios.size());
 
-        Map<String, PeriodoDiaDTO> mapPeriodos = new HashMap();
+        Map<String, PeriodoCantidadDiasDTO> mapPeriodos = new HashMap();
 
         horarios.forEach(hor -> {
             String key = new LocalDate(hor.getFechaInicio()).toString("yyyyMMdd") + "-";
             key += new LocalDate(hor.getFechaFin()).toString("yyyyMMdd");
-            PeriodoDiaDTO periodo = mapPeriodos.get(key);
+            PeriodoCantidadDiasDTO periodo = mapPeriodos.get(key);
+
             if (periodo == null) {
-                periodo = new PeriodoDiaDTO(hor.getFechaInicio(), hor.getFechaFin(), hor.getDia().getNumeroDia());
+                periodo = new PeriodoCantidadDiasDTO(hor.getFechaInicio(), hor.getFechaFin(), hor.getDia().getNumeroDia());
                 mapPeriodos.put(key, periodo);
             } else {
                 periodo.getDiasSemanas().add(hor.getDia().getNumeroDia());
             }
         });
 
-        List<PeriodoDiaDTO> periodos = new ArrayList(mapPeriodos.values());
+        log.info("[allFechasLecciones] periodos.size={}", mapPeriodos.size());
+        List<PeriodoCantidadDiasDTO> periodos = new ArrayList(mapPeriodos.values());
         List<ControlAsistenciaDTO> fechas = this.crearFechas(periodos);
+        log.info("[allFechasLecciones] fechas.size={}", fechas.size());
 
         List<TemaAsistencia> lecciones = temaAsistenciaDAO.allByCursoNivelacion(seccion);
+        log.info("[allFechasLecciones] lecciones.size={}", lecciones.size());
+
         for (TemaAsistencia leccion : lecciones) {
             ControlAsistenciaDTO control = fechas.stream()
                     .filter(fec -> fec.getFecha().compareTo(leccion.getFecha()) == 0)
@@ -119,17 +125,26 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
         return fechas;
     }
 
-    private List<ControlAsistenciaDTO> crearFechas(List<PeriodoDiaDTO> periodos) {
+    private List<ControlAsistenciaDTO> crearFechas(List<PeriodoCantidadDiasDTO> periodos) {
         List<ControlAsistenciaDTO> fechas = new ArrayList();
-        for (PeriodoDiaDTO periodo : periodos) {
+        Map<Date, ControlAsistenciaDTO> mapFecha = new HashMap();
+
+        for (PeriodoCantidadDiasDTO periodo : periodos) {
             LocalDate fechaPivote = new LocalDate(periodo.getFechaInicio());
             LocalDate fechaFin = new LocalDate(periodo.getFechaFin());
 
             while (!fechaPivote.isAfter(fechaFin)) {
                 int diaSemana = fechaPivote.getDayOfWeek();
                 if (periodo.getDiasSemanas().contains(diaSemana)) {
-                    fechas.add(new ControlAsistenciaDTO(fechaPivote.toDate(), ControlAsistenciaEstadoEnum.SIN_CONTROL));
+                    Date fecha = fechaPivote.toDate();
+                    ControlAsistenciaDTO control = mapFecha.get(fecha);
+                    if (control == null) {
+                        control = new ControlAsistenciaDTO(fecha, ControlAsistenciaEstadoEnum.SIN_CONTROL);
+                        mapFecha.put(fecha, control);
+                        fechas.add(control);
+                    }
                 }
+                fechaPivote = fechaPivote.plusDays(1);
             }
         }
         return fechas;
@@ -174,6 +189,8 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
 
         tema = new TemaAsistencia();
         tema.setCursoNivelacion(seccion);
+        tema.setHoraInicio(horas.get(0));
+        tema.setCantidadHoras(horas.size());
         tema.setFecha(form.getFecha());
         tema.setTemaClase(form.getTemaClase());
         tema.setInscritos(inscritos.size());

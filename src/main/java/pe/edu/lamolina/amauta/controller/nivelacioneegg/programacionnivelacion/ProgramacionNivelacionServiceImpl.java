@@ -42,6 +42,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.DOCENTE_INDETERMINADO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -346,6 +347,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         form.setMatriculados(0);
         form.setDisponibles(form.getVacantes());
         form.setEstadoEnum(SeccionEstadoEnum.CRE);
+        form.setEstadoNotasEnum(EstadoGrupoSeccionEnum.ABI);
         form.setUserRegistro(ds.getUsuario());
         form.setFechaRegistro(new Date());
         cursoNivelacionDAO.save(form);
