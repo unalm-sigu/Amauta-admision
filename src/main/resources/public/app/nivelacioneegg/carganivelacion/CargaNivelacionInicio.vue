@@ -92,7 +92,9 @@
                                                     <i class="fa fa-cog"></i>
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
-                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li class="pointer"><a v-on:click="controlAsistencia(item)">Control de asistencia</a></li>
+                                                    <li v-if="item.estadoNotas == 'CER' " class="pointer"><a v-on:click="actasNotas(item)">Ver notas</a></li>
+                                                    <li v-if="item.estadoNotas != 'CER' " class="pointer"><a v-on:click="actasNotas(item)">Registrar notas</a></li>
                                                 </ul>
                                             </div>
                                         </td>
