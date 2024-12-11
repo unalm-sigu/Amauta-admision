@@ -67,7 +67,8 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <div v-bind:class="classEstadoNotas(item)" class="label">
+                                            <div v-bind:class="classEstadoNotas(item)" class="label pointer"
+                                                 v-on:click="actasNotas(item)">
                                                 {{item.estadoNotasEnum.value}}
                                             </div>
                                         </td>
@@ -163,6 +164,10 @@
                 const url = APP.url(`${rutaModulo}/${item.id}/lecciones${myUtils.getOrigenURL()}`);
                 location.href = url;
             },
+            actasNotas(item) {
+                const url = APP.url(`${rutaModulo}/${item.id}/notas${myUtils.getOrigenURL()}`);
+                location.href = url;
+            },
 
             classEstado(item) {
                 if (item.estado === 'CRE') {
@@ -175,7 +180,7 @@
                 return "label-danger";
             },
             classEstadoNotas(item) {
-                if (item.estado === 'CER') {
+                if (item.estadoNotas === 'CER') {
                     return "label-success";
                 }
                 return "label-warning";

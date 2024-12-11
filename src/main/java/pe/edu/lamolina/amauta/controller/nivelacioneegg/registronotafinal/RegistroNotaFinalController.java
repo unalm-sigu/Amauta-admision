@@ -20,7 +20,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.ControlAsistenciaDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -58,7 +57,7 @@ public class RegistroNotaFinalController {
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/nivelacioneegg/carganivelacion"));
 
-        return "nivelacioneegg/leccionnivelacion/leccionNivelacion";
+        return "nivelacioneegg/notasnivelacion/notasNivelacion";
     }
 
     @ResponseBody
@@ -113,6 +112,23 @@ public class RegistroNotaFinalController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("findSeccion")
+    public JsonResponse findLeccion(@RequestBody CursoNivelacion form, HttpSession session, HttpServletRequest request) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        CursoNivelacion seccion = service.findSeccion(form, docente, ciclo);
+        ObjectNode data = this.createSeccionJson(seccion);
+
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.TRUE);
+        json.setData(data);
+        return json;
+    }
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JaneHelper
                 .from(ciclo)
@@ -123,7 +139,7 @@ public class RegistroNotaFinalController {
     private ObjectNode createSeccionJson(CursoNivelacion cursoNiv) {
         ObjectNode node = JaneHelper
                 .from(cursoNiv)
-                .only("id,codigo,matriculados")
+                .only("id,codigo,matriculados,estado,estadoNotas")
                 .join("docente", "id,codigo")
                 .join("docente.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                 .join("aula", "id,codigo,nombre,capacidadAula,aforo")
@@ -137,9 +153,9 @@ public class RegistroNotaFinalController {
 
     private ArrayNode createAlumnosJson(List<NotaAlumnoNivelacion> alumnos) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (NotaAlumnoNivelacion leccion : alumnos) {
+        for (NotaAlumnoNivelacion nota : alumnos) {
             ObjectNode node = JaneHelper
-                    .from(leccion)
+                    .from(nota)
                     .join("cursoNivelacion", "id,codigo")
                     .join("alumnoNivelacion", "id,estado,estadoEnum")
                     .join("alumnoNivelacion.alumno", "id,codigo")
@@ -147,15 +163,10 @@ public class RegistroNotaFinalController {
                     .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo")
                     .json();
 
+            node.put("correcto", (nota.getNotaCurso() == null ? 0 : 1));
             array.add(node);
         }
         return array;
-    }
-
-    private ArrayNode createFechasJson(List<ControlAsistenciaDTO> fechas) {
-        return JaneHelper
-                .from(fechas)
-                .array();
     }
 
 }

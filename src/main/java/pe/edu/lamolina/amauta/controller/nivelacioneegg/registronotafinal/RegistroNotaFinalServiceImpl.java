@@ -13,12 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.edu.lamolina.amauta.config.DespliegueConfig;
-import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.TemaAsistenciaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -36,19 +32,15 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 @Transactional(readOnly = true)
 public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
 
-    private final AsistenciaNivelacionDAO asistenciaNivelacionDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
-    private final HorarioAulaDAO horarioAulaDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
-    private final TemaAsistenciaDAO temaAsistenciaDAO;
 
-    private final DespliegueConfig despliegueConfig;
     private final BigDecimal VEINTE = new BigDecimal("20");
     private final List<EstadoGrupoSeccionEnum> ESTADOS_NOTAS = Arrays.asList(ABI, RAB);
 
     @Override
     public CursoNivelacion findSeccion(CursoNivelacion form, Docente docenteForm, CicloAcademico cicloForm) {
-        Assert.isNull(docenteForm, "No existe un docente");
+        Assert.isNotNull(docenteForm, "No existe un docente");
 
         CursoNivelacion seccion = cursoNivelacionDAO.find(form.getId());
         Assert.isNotNull(seccion, "No existe la sección solicitada");
