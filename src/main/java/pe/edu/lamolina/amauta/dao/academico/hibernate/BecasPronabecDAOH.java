@@ -89,6 +89,17 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
     }
 
     @Override
+    public void updateResolucionFile(InformacionBeca informacionBeca) {
+        Octavia octavia = Octavia.update(InformacionBeca.class);
+        octavia.set(informacionBeca, "rutaUrl");
+        octavia.set(informacionBeca, "fechaActualizacion");
+        octavia.set(informacionBeca, "usuario");
+        octavia.set(informacionBeca, "estado");
+        octavia.set(informacionBeca, "condicion");
+        this.update(octavia);
+    }
+
+    @Override
     public List<MatriculadosBecadosBean> allMatriculadosBecadosPregrado(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT gp.numero_doc_identidad dni, aa.codigo codigo_estudiante,asa.nombre situacion_unalm, ");

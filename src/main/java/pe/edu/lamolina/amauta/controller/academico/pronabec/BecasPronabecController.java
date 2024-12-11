@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
 import pe.edu.lamolina.model.pronabec.TipoBeca;
+import pe.edu.lamolina.model.tramite.Resolucion;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -141,6 +142,7 @@ public class BecasPronabecController {
                 node.put("fechaModificacion", becPro.getFechaRegistro().toString());
                 node.put("carrera",becPro.getCarrera());
                 node.put("estado",becPro.getEstado());
+                node.put("rutaUrl",becPro.getRutaUrl());
                 array.add(node);
             }
 
@@ -417,5 +419,30 @@ public class BecasPronabecController {
             return new ModelAndView("redirect:/");
         }
         return new ModelAndView(becadosCicloAnteriorExcelView);
+    }
+
+    @ResponseBody
+    @RequestMapping("addFile")
+    public JsonResponse addFile(@RequestParam("becadoCondicionId") Long becadoCondicionId,
+                                @RequestParam("file") MultipartFile file,
+                                HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            log.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
+            serviceBecasPronabec.uploadResolucionFile(new InformacionBeca(becadoCondicionId), file, ds);
+            response.setMessage("Archivo cargado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+        return response;
+
     }
 }

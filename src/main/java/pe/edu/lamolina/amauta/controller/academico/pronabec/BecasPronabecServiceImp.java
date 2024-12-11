@@ -8,11 +8,14 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.cloud.storage.StorageService;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.*;
@@ -21,12 +24,16 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
 import pe.edu.lamolina.model.pronabec.TipoBeca;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.Resolucion;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,6 +54,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     private final ModalidadEstudioDAO modalidadEstudioDAO;
     private final CicloAcademicoDAO cicloAcademicoDAO;
     private final CarreraDAO carreraDAO;
+    private final StorageService minioService;
 
     PersonaDAO personaDAO;
     MatriculaResumenDAO matriculaResumenDAO;
@@ -182,6 +190,42 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         return listBecadosExcel;
     }
 
+    @Override
+    public void uploadResolucionFile(InformacionBeca informacionBeca, MultipartFile file, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        String absoluteName = null;
+
+        String name;
+
+        try {
+
+            name = TypesUtil.getUnixTime() + file.getOriginalFilename();
+            absoluteName = GlobalConstantine.TMP_DIR + name;
+            FileHelper.saveToDisk(file, absoluteName);
+
+        } catch (Exception e) {
+            throw new PhobosException("Error al guardar el archivo");
+        }
+
+        InformacionBeca informacionBecaDB = becasPronabecDAO.find(informacionBeca.getId());
+        if(informacionBecaDB==null){
+            throw new PhobosException("No tiene una informacion");
+        }
+        //resolucion = resolucionDAO.find(resolucion.getId());
+
+        //Resolucion resolucionUpd = new Resolucion(resolucion.getId());
+
+        informacionBecaDB.setRutaUrl(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_RESOLUCIONES_DIR + name);
+        minioService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
+
+        informacionBecaDB.setUsuario(ds.getUsuario());
+        informacionBecaDB.setFechaActualizacion(today.toDate());
+        informacionBecaDB.setEstado("INACTIVO");
+        informacionBecaDB.setCondicion("PÉRDIDA DE BECA");
+        becasPronabecDAO.updateResolucionFile(informacionBecaDB);
+    }
+
     private void procesarArchivo(MultipartFile file, List<String> observados, List<InformacionBeca> pronabec, DataSessionPivot ds) {
         List<InformacionBeca> becadosPronabec = becasPronabecDAO.all();
         Map<String, InformacionBeca> mapBecadosPronabec = TypesUtil.convertListToMap("key", becadosPronabec);
@@ -241,13 +285,13 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
                 }
 
                 Date fechaInicio = parseDate(fila, fechaInicioStr, "inicio", mapObservados);
-                if (fechaInicio == null) continue;
+//                if (fechaInicio == null) continue;
 
                 Date fechaFin = parseDate(fila, fechaFinStr, "fin", mapObservados);
-                if (fechaFin == null) continue;
+//                if (fechaFin == null) continue;
 
                 Date fechaOtorgamiento = parseDate(fila, fechaOtorgamientoStr, "otorga", mapObservados);
-                if (fechaOtorgamiento == null) continue;
+//                if (fechaOtorgamiento == null) continue;
 
                 InformacionBeca becasPro = new InformacionBeca();
                 becasPro.setPersona(personaBD);
