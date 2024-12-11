@@ -13,16 +13,48 @@
                         Acciones &nbsp; <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li> <a  type="button" v-bind:href="'becaspronabec/load'"> <i class="fa fa-upload"></i> Cargar Excel</a></li>
-                        <li> <a  type="button" v-on:click="openModal"> <i class="fa fa-user-plus"></i>  Nuevo Becado</a></li>
-                        <li><a type="button" v-on:click="openReporteModal"> <i class="fa fa-filter"></i>  Reportes con Filtro</a></li>
-                        <li><a v-on:click.prevent="generarReporte()"> <i class="fa fa-file-excel-o"></i>  Reporte Becados Matriculados</a></li>
+                        <li> <a  type="button" v-bind:href="'becaspronabec/load'"> <i class="fa fa-upload text-primary m-r-xs"></i>Cargar Excel</a></li>
+                        <li> <a  type="button" v-on:click="openModal"> <i class="fa fa-user-plus text-success m-r-xs"></i>Nuevo Becado</a></li>
+                        <li><a type="button" v-on:click="openReporteModal"> <i class="fa fa-filter text-warning m-r-xs"></i>Reportes con Filtro</a></li>
+                        <li><a v-on:click.prevent="generarReporte()"> <i class="fa fa-file-excel-o text-success m-r-xs"></i>Reporte Situacion-Carrera UNALM</a></li>
                     </ul>
                 </div>
                 <h2> Becados Pronabec </h2>
             </header>
 
             <section class="wrapper-lg">
+<!--                <section class="panel m-b-md">-->
+<!--                    <section class="panel-body">-->
+<!--                        <div class="col-md-12">-->
+<!--                            <div class="row">-->
+<!--                                <div class="col-md-3 text-center">-->
+<!--                                    <a class="text-danger pointer">-->
+<!--                                        <span class="h1 block bold">573</span>-->
+<!--                                        <small>Total Becados</small>-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                                <div class="col-md-3 text-center">-->
+<!--                                    <a class="text-black pointer">-->
+<!--                                        <span class="h1 block bold">356</span>-->
+<!--                                        <small>Becados Matriculados</small>-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                                <div class="col-md-3 text-center">-->
+<!--                                    <a class="text-success pointer">-->
+<!--                                        <span class="h1 block bold">212</span>-->
+<!--                                        <small>Becados Graduado</small>-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                                <div class="col-md-3 text-center">-->
+<!--                                    <a class="text-warning pointer">-->
+<!--                                        <span class="h1 block bold">431</span>-->
+<!--                                        <small>Otros</small>-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </section>-->
+<!--                </section>-->
                 <section class="panel">
 
                     <section class="panel-body">

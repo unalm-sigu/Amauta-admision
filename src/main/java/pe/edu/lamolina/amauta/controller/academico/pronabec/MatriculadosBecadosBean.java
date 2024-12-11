@@ -15,6 +15,42 @@ public class MatriculadosBecadosBean {
     private Long veces_desaprobado;
     private Long promedio_ponderado;
     private String condicion;
+    private String situacion_unalm;
+    private String situacion_pronabec;
+    private String carrera_unalm;
+    private String carrera_pronabec;
+
+    public String getSituacion_unalm() {
+        return situacion_unalm;
+    }
+
+    public void setSituacion_unalm(String situacion_unalm) {
+        this.situacion_unalm = situacion_unalm;
+    }
+
+    public String getSituacion_pronabec() {
+        return situacion_pronabec;
+    }
+
+    public void setSituacion_pronabec(String situacion_pronabec) {
+        this.situacion_pronabec = situacion_pronabec;
+    }
+
+    public String getCarrera_unalm() {
+        return carrera_unalm;
+    }
+
+    public void setCarrera_unalm(String carrera_unalm) {
+        this.carrera_unalm = carrera_unalm;
+    }
+
+    public String getCarrera_pronabec() {
+        return carrera_pronabec;
+    }
+
+    public void setCarrera_pronabec(String carrera_pronabec) {
+        this.carrera_pronabec = carrera_pronabec;
+    }
 
     public MatriculadosBecadosBean() {}
 

@@ -83,69 +83,44 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
     @Override
     public void updateEstado(InformacionBeca informacionBeca) {
         Octavia octavia = Octavia.update(InformacionBeca.class);
-        octavia.set(informacionBeca, "estado");
+        octavia.set(informacionBeca, "condicion");
         octavia.set(informacionBeca, "usuario");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateResolucionFile(InformacionBeca informacionBeca) {
+        Octavia octavia = Octavia.update(InformacionBeca.class);
+        octavia.set(informacionBeca, "rutaUrl");
+        octavia.set(informacionBeca, "fechaActualizacion");
+        octavia.set(informacionBeca, "usuario");
+        octavia.set(informacionBeca, "estado");
+        octavia.set(informacionBeca, "condicion");
         this.update(octavia);
     }
 
     @Override
     public List<MatriculadosBecadosBean> allMatriculadosBecadosPregrado(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" select distinct f.numero_doc_identidad dni, e.codigo as codigo_estudiante, concat(f.paterno,'  ',f.materno,'   ',f.nombres) as apellidos_nombres, ");
-        sql.append(" ptb.nombre tipo_beca, pi2.year_convocatoria year_convocatoria, ");
-        sql.append(" concat('UNIVERSIDAD AGRARIA LA MOLINA') nombre_institucion, ");
-        sql.append(" g.nombre carrera, d.codigo_anterior periodo_academico, ");
-        sql.append(" case when z3.codigo_anterior=d.codigo_anterior then z3.cantidad end ciclo, ");
-        sql.append(" CONCAT_WS('   ', b.codigo,b.nombre) curso_matriculado, a.nota nota ,a.veces_cursado_regular veces_desaprobado, ");
-        sql.append(" truncate(c.promedio_ciclo ,2) promedio_ponderado, ");
-        sql.append(" case when c.promedio_ciclo  >= '11' then 'Aprobado' when c.promedio_ciclo <'11' then 'Desaprobado' end condicion ");
-        sql.append(" from aca_alumno_ciclo_curso a ");
-        sql.append(" left join aca_curso b on b.id =a.id_curso and b.creditos =a.creditos ");
-        sql.append(" join aca_alumno_ciclo c on c.id =a.id_alumno_ciclo ");
-        sql.append(" join aca_ciclo_academico d on d.id =c.id_ciclo_academico ");
-        sql.append(" join aca_alumno e on e.id =c.id_alumno  and e.id_modalidad_estudio ='1' ");
-        sql.append(" join gen_persona f on f.id =e.id_persona  ");
-        sql.append(" join aca_carrera g on g.id =e.id_carrera ");
-        sql.append(" join aca_facultad h on h.id =g.id_facultad ");
-        sql.append(" join pronabec_informacion pi2 on pi2.id_persona =f.id ");
-        sql.append(" join pronabec_tipo_beca ptb on ptb.id =pi2.id_tipo_beca ");
-        sql.append(" left join (select distinct z.id_alumno,z1.codigo_anterior,ROW_NUMBER() over(PARTITION by z.id_alumno order by z1.codigo_anterior)as cantidad ");
-        sql.append("        from aca_alumno_ciclo z ");
-        sql.append("        join aca_ciclo_academico z1 on z1.id =z.id_ciclo_academico ");
-        sql.append("        where z.estado ='MAT' ");
-        sql.append("        and z1.tipo ='REG') z3 on z3.id_alumno=e.id and z3.codigo_anterior=d.codigo_anterior ");
-        sql.append(" left join (select distinct y1.id_alumno,y.id_curso,ac.codigo,ac.nombre,(y.veces_cursado_regular + y5.item1) as item2,y5.ciclo ");
-        sql.append("            from aca_alumno_ciclo_curso y ");
-        sql.append("            join aca_alumno_ciclo y1 on y1.id =y.id_alumno_ciclo ");
-        sql.append("            join aca_ciclo_academico y3 on y3.id =y1.id_ciclo_academico  and y3.tipo ='REG' ");
-        sql.append("            join aca_alumno y4 on y4.id =y1.id_alumno and y4.id_modalidad_estudio ='1' ");
-        sql.append("            join aca_curso ac on ac.id =y.id_curso ");
-        sql.append("            inner join (select a1.id_alumno ,amc.id_curso,aca.codigo_anterior as ciclo,count(*) item1 ");
-        sql.append("                    from aca_matricula_resumen a1 ");
-        sql.append("                    join aca_ciclo_academico aca on aca.id =a1.id_ciclo_academico and aca.tipo ='REG' and aca.codigo_anterior ='20242' ");
-        sql.append("                    join aca_matricula_curso amc on amc.id_matricula_resumen =a1.id WHERE a1.estado ='MAT' and amc.estado ='MAT' ");
-        sql.append("                    group by a1.id_alumno ,amc.id_curso ) y5 on y5.id_curso =y.id_curso and y5.id_alumno =y4.id  where y.veces_cursado_regular ='2')h on h.id_alumno =e.id and h.id_curso=a.id_curso ");
-        sql.append(" where d.codigo_anterior = :CICLO ");
-        sql.append(" and a.estado <>'NELI' ");
-        sql.append(" order by 3,1,8; ");
+        sql.append("SELECT gp.numero_doc_identidad dni, aa.codigo codigo_estudiante,asa.nombre situacion_unalm, ");
+        sql.append("        pi.situacion situacion_pronabec,ac.nombre carrera_unalm, pi.carrera carrera_pronabec");
+        sql.append(" FROM  pronabec_informacion pi ");
+        sql.append(" JOIN  pronabec_tipo_beca ptb ON pi.id_tipo_beca = ptb.id ");
+        sql.append(" JOIN  gen_persona gp ON gp.id = pi.id_persona ");
+        sql.append(" JOIN  aca_alumno aa ON aa.id_persona = gp.id AND aa.id_modalidad_estudio='1' ");
+        sql.append(" JOIN  aca_situacion_academica asa ON asa.id = aa.id_situacion_academica ");
+        sql.append(" JOIN  aca_carrera ac on ac.id=aa.id_carrera ");
+        sql.append(" where pi.estado='ACTIVO' ");
+        sql.append(" AND asa.codigo NOT IN ('RA','R', 'T','7','D'); ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("dni", StringType.INSTANCE)
                 .addScalar("codigo_estudiante", StringType.INSTANCE)
-                .addScalar("apellidos_nombres", StringType.INSTANCE)
-                .addScalar("tipo_beca", StringType.INSTANCE )
-                .addScalar("year_convocatoria", StringType.INSTANCE)
-                .addScalar("nombre_institucion", StringType.INSTANCE)
-                .addScalar("carrera", StringType.INSTANCE)
-                .addScalar("periodo_academico", StringType.INSTANCE)
-                .addScalar("ciclo", StringType.INSTANCE)
-                .addScalar("curso_matriculado", StringType.INSTANCE)
-                .addScalar("nota", StringType.INSTANCE)
-                .addScalar("veces_desaprobado", LongType.INSTANCE)
-                .addScalar("promedio_ponderado", LongType.INSTANCE)
-                .addScalar("condicion", StringType.INSTANCE)
+                .addScalar("situacion_unalm", StringType.INSTANCE)
+                .addScalar("situacion_pronabec", StringType.INSTANCE)
+                .addScalar("carrera_unalm", StringType.INSTANCE)
+                .addScalar("carrera_pronabec", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(MatriculadosBecadosBean.class));
-        query.setParameter("CICLO", cicloAcademico.getCodigoAnterior());
 
 
         return (List<MatriculadosBecadosBean>) query.list();
@@ -265,7 +240,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         sql.append(" when x.num_ciclo =10 then concat(x.descripcion,' - ','Decimo ciclo')  ");
         sql.append(" when x.num_ciclo =11 then concat(x.descripcion,' - ','Onceavo ciclo')  ");
         sql.append(" when x.num_ciclo =12 then concat(x.descripcion,' - ','Doceavo ciclo')  ");
-	    sql.append(" else 'No Matriculado'end as periodo_academico,  ");
+	    sql.append(" else concat('Matriculado',' - ',x.num_ciclo,' Ciclo') end as periodo_academico,  ");
         sql.append("         c.cursos_matriculados as curso_matriculado, c.creditos_matriculados as creditos,z.item2 as electivo_matriculado,  ");
         sql.append(" IF(t1.tipo_traslado = 'TRAS_INT', 'Si', 'No') as cambio_carrera,  ");
         sql.append(" IF(h.item2 = '3', 'Si', 'No') as tercera_vez  ");
@@ -318,6 +293,7 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         }
         if(becadosFilterBean.getSe_matriculo().equalsIgnoreCase("si")){
             sql.append(" and c.estado='MAT' ");
+            sql.append(" and pi.estado='ACTIVO' ");
         }
         sql.append(" order by 2,6  ");
 
