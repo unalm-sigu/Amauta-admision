@@ -1265,6 +1265,15 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
+    public boolean esAdministradorTutoria(DataSessionPivot ds) {
+        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.ADMINISTRADOR_TUTORIA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
+        }
+        return false;
+    }
+
+    @Override
     public boolean soloEditarDatosAlumno(DataSessionPivot ds) {
         for (Rol rol : ds.getRoles()) {
             if (rol.getCodigoEnum() == RolEnum.TRAM_DOCUM_OERA) {

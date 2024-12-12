@@ -57,6 +57,7 @@ public class AconsejadosCarreraController {
                 .toString());
 
         model.addAttribute("esInformaticoOERA", service.esInformaticoOERA(ds));
+        model.addAttribute("esAdministradorTutoria", service.esAdministradorTutoria(ds));
         
         model.addAttribute("RUTA_MODULO", getClass().getAnnotation(RequestMapping.class).value()[0]);
         

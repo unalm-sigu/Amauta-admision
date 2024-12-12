@@ -21,6 +21,7 @@ public interface AconsejadosCarreraService {
     public boolean isRolCape(DataSessionPivot ds);
 
     public boolean esInformaticoOERA(DataSessionPivot ds);
+    public boolean esAdministradorTutoria(DataSessionPivot ds);
 
     public List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico cicloAcademico);
 

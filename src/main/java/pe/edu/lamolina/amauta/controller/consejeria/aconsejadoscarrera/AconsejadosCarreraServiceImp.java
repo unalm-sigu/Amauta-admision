@@ -112,6 +112,11 @@ public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
     }
 
     @Override
+    public boolean esAdministradorTutoria(DataSessionPivot ds) {
+        return verificadorService.esAdministradorTutoria(ds);
+    }
+
+    @Override
     public List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico cicloAcademico) {
         return consejeroService.allCarreraByPersonaCiclo(persona, cicloAcademico);
     }
