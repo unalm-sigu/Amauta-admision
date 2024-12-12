@@ -97,4 +97,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     public List<GrupoSeccion> allActivoByCicloGrupoCerrado(CicloAcademico cicloAcademico);
 
+    List<GrupoSeccion> allActivoByCicloDpto(CicloAcademico cicloAcademico, List<DepartamentoAcademico> departamentos);
+
 }

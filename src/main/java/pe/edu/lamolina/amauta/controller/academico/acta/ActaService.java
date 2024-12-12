@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.acta;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -34,7 +35,7 @@ public interface ActaService {
 
     ActaResumen findResumenByDepartamento(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 
-    List<GrupoSeccion> allGrupoSeccionByCiclo(CicloAcademico cicloAcademico);
+    List<GrupoSeccion> allGrupoSeccionByCiclo(DataSessionPivot ds);
 
     Map mapCantidadAlumnoByGrupo(List<GrupoSeccion> gpoSecciones);
 

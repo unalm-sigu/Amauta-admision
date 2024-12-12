@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -337,11 +338,11 @@ public class ActaController {
     }
 
     @RequestMapping("exportExcel/recordActas")
-    public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+    public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr, HttpServletRequest request) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds);
             model.addAttribute("gruposSecciones", gpoSecciones);
             model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
             model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));
@@ -361,11 +362,11 @@ public class ActaController {
     }
 
     @RequestMapping("exportExcel/raPostGrado")
-    public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+    public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr, HttpServletRequest request) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds);
             model.addAttribute("gruposSecciones", gpoSecciones);
             model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
             model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));
