@@ -124,7 +124,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public void createAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         List<AlumnoNivelacion> nivelados = alumnoNivelacionDAO.allByCiclo(ciclo);
         Map<String, AlumnoNivelacion> mapNivelados = nivelados.stream()
                 .collect(Collectors.toMap(aln -> aln.getAlumno().getCodigo(), Function.identity()));
@@ -142,6 +142,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
 
         List<Alumno> alumnos = alumnoDAO.allIngresantePregradoByCicloIngreso(ciclo);
+        log.info("[createAlumnos] alumnos.size={}", alumnos.size());
+
         List<NotaAlumnoNivelacion> notasSave = new ArrayList();
         List<NotaAlumnoNivelacion> notasUpdate = new ArrayList();
 
@@ -196,7 +198,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public int revisarTodosAlumnos(CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         List<AlumnoNivelacion> nivelados = alumnoNivelacionDAO.allByCiclo(ciclo);
         List<AlumnoNivelacion> habiles = nivelados.stream()
                 .filter(aluNiv -> aluNiv.getEstadoEnum() != INH)
@@ -248,7 +250,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public int revisarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar del alumno que desea revisar");
         CicloAcademico ciclo = alumnoNiv.getCicloAcademico();
@@ -294,7 +296,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public void addAlumno(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         Alumno alumno = alumnoDAO.find(alumnoForm);
         Assert.isNotNull(alumno, "No existe el alumno que desea agregar");
         Assert.isTrue(alumno.isPregrado(), "Solo apto para alumnos de pregrado");
@@ -360,7 +362,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public void deshabilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
         Assert.isFalse(alumnoNiv.getEstadoEnum() == MAT, "El alumno no debe estar matriculado en ningún curso");
@@ -385,7 +387,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     @Transactional
     public void habilitarAlumno(AlumnoNivelacion alumnoNivForm, DataSessionPivot ds) {
         this.verificarPermiso(ds);
-        
+
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(alumnoNivForm.getId());
         Assert.isNotNull(alumnoNiv, "No se pudo ubicar el registro del alumno que desea modificar");
         Assert.isTrue(alumnoNiv.getEstadoEnum() == INH, "El alumno ya no se encuentra deshabilitado");
@@ -855,6 +857,10 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     private boolean esCodigoNumerico(String codigo) {
         if (codigo == null || codigo.isEmpty()) {
             return false;
+        }
+
+        if (codigo.startsWith("P")) {
+            return true;
         }
 
         try {
