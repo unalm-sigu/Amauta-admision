@@ -47,7 +47,7 @@ public class CursoReplicaNivelacionController {
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
 
-        return "nivelacioneegg/cursoreplicanivelacion/cursoreplicanivelacion";
+        return "nivelacioneegg/cursoreplicanivelacion/cursoReplicaNivelacion";
     }
 
     @ResponseBody
