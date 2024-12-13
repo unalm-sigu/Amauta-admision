@@ -190,6 +190,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci")
                 .isNull("cn.id")
+                .filter("nan.esMatriculable", 1)
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
                 .filter("ci.id", ciclo);

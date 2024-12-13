@@ -15,11 +15,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion.dto.PeriodoDiaDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
+import pe.edu.lamolina.amauta.dao.general.DiaDAO;
+import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.TemaAsistenciaDAO;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.TipoHoraEnum;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
@@ -32,6 +38,8 @@ import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
 public class CargaNivelacionServiceImpl implements CargaNivelacionService {
 
     private final CursoNivelacionDAO cursoNivelacionDAO;
+    private final DiaDAO diaDAO;
+    private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
     private final TemaAsistenciaDAO temaAsistenciaDAO;
 
@@ -108,6 +116,46 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
     public List<HorarioAula> getHorarioGrupo(Docente docente, CicloAcademico ciclo) {
         List<HorarioAula> horarios = horarioAulaDAO.allByDocente(docente, ciclo);
         return horarios;
+    }
+
+    @Override
+    public List<Dia> allDias() {
+        return diaDAO.all();
+    }
+
+    @Override
+    public List<Hora> allHoras(Docente docente, CicloAcademico ciclo) {
+        List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allByDocenteCiclo(docente, ciclo);
+        List<HorarioAula> horarios = horarioAulaDAO.allByCursosNivelacion(cursosNiv);
+
+        List<Hora> horas = horarios.stream()
+                .map(hor -> hor.getHora())
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (horas.isEmpty()) {
+            return horaDAO.allByTipo(TipoHoraEnum.H60);
+        }
+
+        Collections.sort(horas, (h1, h2) -> h1.getNumero().compareTo(h2.getNumero()));
+        return horas;
+    }
+
+    @Override
+    public List<PeriodoDTO> allSemanas(Docente docente, CicloAcademico ciclo) {
+        List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allByDocenteCiclo(docente, ciclo);
+        List<HorarioAula> horarios = horarioAulaDAO.allByCursosNivelacion(cursosNiv);
+        log.info("[allSemanas] horarios={}", horarios.size());
+
+        List<PeriodoDTO> periodos = horarios.stream()
+                .map(hor -> {
+                    return new PeriodoDTO(hor.getFechaInicio());
+                })
+                .distinct()
+                .collect(Collectors.toList());
+        log.info("[allSemanas] periodos={}", periodos.size());
+
+        return periodos;
     }
 
 }

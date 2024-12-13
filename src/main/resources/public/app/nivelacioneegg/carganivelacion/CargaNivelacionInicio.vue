@@ -54,7 +54,7 @@
                                             </span>
 
                                             <a v-bind:class="classHorario(item)"
-                                               v-on:click="setHorario(item)" class="pointer">
+                                               v-on:click="verHorario(item)" class="pointer">
                                                 <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
                                             </a>
                                         </td>
@@ -111,6 +111,7 @@
 
         <modal-confirm ref="modalConfirm"></modal-confirm>
         <modal-info ref="modalInfo"></modal-info>
+        <modal-horario ref="modalHorario"></modal-horario>
     </div>
 
 </template>
@@ -120,11 +121,11 @@
 
     const ModalConfirm = httpVueLoader('/app/_componentes/ModalConfirm.vue');
     const ModalInfo = httpVueLoader('/app/_componentes/ModalInfo.vue');
-    //const ModalReactivar = httpVueLoader('./ModalReactivar.vue');
+    const ModalHorario = httpVueLoader('./ModalHorario.vue');
 
     module.exports = {
         components: {
-            ModalConfirm, ModalInfo
+            ModalConfirm, ModalInfo, ModalHorario
         },
 
         data() {
@@ -169,6 +170,9 @@
             actasNotas(item) {
                 const url = APP.url(`${rutaModulo}/${item.id}/notas${myUtils.getOrigenURL()}`);
                 location.href = url;
+            },
+            verHorario(item) {
+                this.$refs.modalHorario.open(item, this.$refs.raptor);
             },
 
             classEstado(item) {

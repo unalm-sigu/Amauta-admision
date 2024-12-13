@@ -80,16 +80,17 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     public void revisarNotasExamen(CicloAcademico ciclo, DataSessionPivot ds) {
         boolean esOperadorEEGG = verificadorService.esOperadorEEGG(ds);
         if (esOperadorEEGG) {
-            this.crearDatosIniciales(ciclo, ds);
+            this.actualizarPunjesMinMax(ciclo, ds);
         }
 
     }
 
-    private void crearDatosIniciales(CicloAcademico ciclo, DataSessionPivot ds) {
+    private void actualizarPunjesMinMax(CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
 
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
         if (temasCiclo.isEmpty()) {
+            log.info("[crearDatosIniciales] salir temasCiclo.isEmpty");
             return;
         }
 
@@ -98,30 +99,35 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                 .collect(Collectors.toList());
 
         if (sinMinimos.isEmpty()) {
+            log.info("[crearDatosIniciales] salir sinMinimos.isEmpty");
             return;
         }
 
         CicloPostula cicloPostula = cicloPostulaDAO.findByCicloAcademico(ciclo);
         if (cicloPostula == null) {
+            log.info("[crearDatosIniciales] salir cicloPostula isNull");
             return;
         }
 
         Evento examen = eventoDAO.findByCode(EXAM.name());
         List<EventoCiclo> eventosExamen = eventoCicloDAO.allByEventoCiclo(examen, cicloPostula);
         if (eventosExamen.isEmpty()) {
+            log.info("[crearDatosIniciales] salir eventosExamen.isEmpty");
             return;
         }
 
         Optional<EventoCiclo> fechaMaxima = eventosExamen.stream()
-                .max(Comparator.comparing(EventoCiclo::getFechaInicio));
+                .min(Comparator.comparing(EventoCiclo::getFechaInicio));
         Date fechaExamen = new LocalDate(fechaMaxima.get().getFechaInicio()).toDate();
         Date hoy = new LocalDate().toDate();
         if (!hoy.after(fechaExamen)) {
+            log.info("[crearDatosIniciales] salir eventosExamen.isEmpty");
             return;
         }
 
         List<Evaluado> evaluados = evaluadoDAO.allByCiclo(ciclo);
         if (evaluados.isEmpty()) {
+            log.info("[crearDatosIniciales] salir evaluados.isEmpty");
             return;
         }
 
@@ -493,6 +499,13 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     @Transactional
     public void revisarDatos(CicloAcademico ciclo, DataSessionPivot ds) {
+        boolean esOperadorEEGG = verificadorService.esOperadorEEGG(ds);
+        if (esOperadorEEGG) {
+            this.crearConfiguracionInicial(ciclo, ds);
+        }
+    }
+
+    private void crearConfiguracionInicial(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloPostula cicloPostula = cicloPostulaDAO.findByCicloAcademico(ciclo);
         if (cicloPostula == null) {
             return;

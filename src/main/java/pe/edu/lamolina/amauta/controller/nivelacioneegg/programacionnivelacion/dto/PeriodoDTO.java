@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,24 @@ public class PeriodoDTO {
     public PeriodoDTO(Date fechaReferencia) {
         this.fechaReferencia = fechaReferencia;
         this.calcular();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PeriodoDTO that = (PeriodoDTO) o;
+        return Objects.equals(fechaInicio, that.fechaInicio)
+                && Objects.equals(fechaFin, that.fechaFin);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fechaInicio, fechaFin);
     }
 
 }

@@ -18,10 +18,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
@@ -66,6 +70,48 @@ public class CargaNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("allDias")
+    public JsonResponse allDias(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Dia> dias = service.allDias();
+        ArrayNode diasJson = JaneHelper.from(dias).array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(diasJson);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allHoras")
+    public JsonResponse allHoras(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Hora> horas = service.allHoras(ds.getDocente(), ds.getCicloAcademico());
+        ArrayNode horasJson = JaneHelper.from(horas).array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(horasJson);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allSemanas")
+    public JsonResponse allSemanas(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<PeriodoDTO> semanas = service.allSemanas(ds.getDocente(), ds.getCicloAcademico());
+        ArrayNode semnasJson = JaneHelper.from(semanas).array();
+
+        JsonResponse json = new JsonResponse();
+        json.setData(semnasJson);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("getHorario")
     public JsonResponse getHorario(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -73,7 +119,7 @@ public class CargaNivelacionController {
         Docente docente = ds.getDocente();
 
         List<HorarioAula> horarios = service.getHorarioGrupo(docente, ciclo);
-        ArrayNode horariosJson = this.createHorariosDocenteJson(horarios);
+        ArrayNode horariosJson = this.createHorariosCursosJson(horarios);
 
         JsonResponse json = new JsonResponse();
         json.setData(horariosJson);
@@ -89,17 +135,29 @@ public class CargaNivelacionController {
                 .json();
     }
 
-    private ArrayNode createHorariosDocenteJson(List<HorarioAula> horarios) {
-        return JaneHelper
-                .from(horarios)
-                .only("id,fechaIni,fechaFin")
-                .join("dia", "id,nombre,simbolo")
-                .join("hora", "id,codigo,numero,descripcion")
-                .join("aula", "id,codigo,nombre")
-                .join("cursoNivelacion", "id,codigo")
-                .join("cursoNivelacion.cursoCiclo", "id,descripcion")
-                .join("cursoNivelacion.cursoCiclo.curso", "id,codigo,nombre")
-                .array();
+    private ArrayNode createHorariosCursosJson(List<HorarioAula> horarios) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (HorarioAula horario : horarios) {
+            ObjectNode node = JaneHelper
+                    .from(horario)
+                    .only("id,fechaInicio")
+                    .join("aula", "id,codigo,nombre")
+                    .join("dia", "id,nombre,simbolo")
+                    .join("hora", "id,codigo,numero,descripcion")
+                    .join("cursoNivelacion", "id,codigo")
+                    .json();
+
+            Curso curso = horario.getCursoNivelacion().getCursoCiclo().getCurso();
+            ObjectNode cursoJson = JaneHelper
+                    .from(curso)
+                    .only("id,codigo,nombre")
+                    .json();
+
+            node.set("curso", cursoJson);
+            array.add(node);
+        }
+
+        return array;
     }
 
     private ArrayNode createCursosNivJson(List<CursoNivelacion> cursosNivela) {
