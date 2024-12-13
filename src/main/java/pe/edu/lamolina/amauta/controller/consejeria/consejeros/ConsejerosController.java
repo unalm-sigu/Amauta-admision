@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.amauta.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.amauta.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
@@ -533,5 +534,12 @@ public class ConsejerosController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminar/{idTutor}")
+    public String eliminar(@PathVariable("idTutor") Long idTutor, Model model, HttpSession session) {
+        service.eliminarTutorInactivo(idTutor);
+        return GlobalMessages.DELETED;
     }
 }

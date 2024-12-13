@@ -19,8 +19,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
-import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+
+import static pe.edu.lamolina.model.enums.EstadoEnum.*;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
@@ -58,8 +58,21 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .leftJoin("per.tipoDocumento")
                 .searchFields("per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("car.id", carrera)
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+                Map<String, Object> queries = filter.getQueries();
+                for (String key : queries.keySet()) {
+                    if (key.equals("search")) {
+                        continue;
+                    }
+
+                    if (filter.getQueries().size() == 1 && key.equals("carrera")) {
+
+                        sql.filter("estado", ACT);
+
+                    }
+                }
+
+                sql.filter("car.id", carrera)
                 .orderBy("con.id desc");
         if (filter.getQueries() != null && filter.getQueries().get("consjeroPrm") != null) {
             sql.filter("con.id", filter.getQueries().get("consjeroPrm"));
@@ -230,6 +243,17 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .join("carrera ca", "colaborador cola", "cola.persona per")
                 .filter("cola.id", colaborador)
                 .filter("ca.id", carrera);
+        return find(sql);
+    }
+
+    @Override
+    public Consejero findByColaboradorCarreraEstadoANU(Colaborador colaborador, Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "conse")
+                .join("carrera ca", "colaborador cola", "cola.persona per")
+                .filter("cola.id", colaborador)
+                .filter("ca.id", carrera)
+                .filter("estado", ANU);
         return find(sql);
     }
 
