@@ -485,6 +485,7 @@ public class VerificadorServiceImp implements VerificadorService {
             if (esAdministradorTutor) {
                 log.info("-Usuario {} tiene el rol {} de ADMINISTRADOR_TUTOR", ds.getUsuario().getId(), RolEnum.ADMINISTRADOR_TUTORIA);
                 List<Oficina> oficinasTutoria = oficinaDAO.allCoordinacionTutoria();
+                //List<Oficina> oficinasTutoria = oficinaDAO.findByCode(ASOERA.name());
                 oficinas.addAll(oficinasTutoria);
 
             } else {

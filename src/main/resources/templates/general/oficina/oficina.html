@@ -23,7 +23,7 @@
 
                             <raptor-table v-bind:url="oficinasURL" ref="raptorOficinas">
                                 <div slot="header">
-                                    <div class="col-md-6" th:if="${puedeEditarOficinas}">
+                                    <div class="col-md-6">
                                         <multiselect v-model='tipoOficinaSelect'
                                                      v-bind:options='tiposOficinas'
                                                      label='nombre'

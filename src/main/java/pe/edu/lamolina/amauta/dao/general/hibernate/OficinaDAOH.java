@@ -213,8 +213,8 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .join("compania cia")
-                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
-                .filter("ofi.codigo","like","CT%");
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina");
+//                .filter("ofi.codigo","like","CT%");
         return all(sql);
     }
 
