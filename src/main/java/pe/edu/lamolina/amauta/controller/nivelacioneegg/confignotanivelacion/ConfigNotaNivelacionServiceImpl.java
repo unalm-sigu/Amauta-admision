@@ -90,7 +90,7 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
 
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
         if (temasCiclo.isEmpty()) {
-            log.info("[crearDatosIniciales] salir temasCiclo.isEmpty");
+            log.info("[actualizarPunjesMinMax] salir temasCiclo.isEmpty");
             return;
         }
 
@@ -99,20 +99,20 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                 .collect(Collectors.toList());
 
         if (sinMinimos.isEmpty()) {
-            log.info("[crearDatosIniciales] salir sinMinimos.isEmpty");
+            log.info("[actualizarPunjesMinMax] salir sinMinimos.isEmpty");
             return;
         }
 
         CicloPostula cicloPostula = cicloPostulaDAO.findByCicloAcademico(ciclo);
         if (cicloPostula == null) {
-            log.info("[crearDatosIniciales] salir cicloPostula isNull");
+            log.info("[actualizarPunjesMinMax] salir cicloPostula isNull");
             return;
         }
 
         Evento examen = eventoDAO.findByCode(EXAM.name());
         List<EventoCiclo> eventosExamen = eventoCicloDAO.allByEventoCiclo(examen, cicloPostula);
         if (eventosExamen.isEmpty()) {
-            log.info("[crearDatosIniciales] salir eventosExamen.isEmpty");
+            log.info("[actualizarPunjesMinMax] salir eventosExamen.isEmpty");
             return;
         }
 
@@ -121,17 +121,20 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         Date fechaExamen = new LocalDate(fechaMaxima.get().getFechaInicio()).toDate();
         Date hoy = new LocalDate().toDate();
         if (!hoy.after(fechaExamen)) {
-            log.info("[crearDatosIniciales] salir eventosExamen.isEmpty");
+            log.info("[actualizarPunjesMinMax] salir eventosExamen.isEmpty");
             return;
         }
 
         List<Evaluado> evaluados = evaluadoDAO.allByCiclo(ciclo);
+        log.info("[actualizarPunjesMinMax] evaluados.size={}", evaluados.size());
         if (evaluados.isEmpty()) {
-            log.info("[crearDatosIniciales] salir evaluados.isEmpty");
+            log.info("[actualizarPunjesMinMax] salir evaluados.isEmpty");
             return;
         }
 
         List<NotaAlumnoNivelacion> notasExamen = notaAlumnoNivelacionDAO.allByCiclo(ciclo);
+        log.info("[actualizarPunjesMinMax] notasExamen.size={}", notasExamen.size());
+
         if (!notasExamen.isEmpty()) {
             for (TemaCiclo temaCiclo : temasCiclo) {
                 Optional<NotaAlumnoNivelacion> puntajeMin = notasExamen.stream()
@@ -161,7 +164,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
             return;
         }
 
-        List<Prelamolina> ingresantes = prelamolinaDAO.allIngresanteByCiclo(cicloPostula);
+        List<Prelamolina> cepres = prelamolinaDAO.allIngresanteByCiclo(cicloPostula);
+        log.info("[actualizarPunjesMinMax] cepres.size={}", cepres.size());
 
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaExamen tema = temaCiclo.getTemaExamen();
@@ -189,11 +193,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaRm() != null)
                         .max(Comparator.comparing(Evaluado::getNotaRm))
                         .get().getNotaRm();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeRm() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeRm))
                         .get().getPuntajeRm();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeRm() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeRm))
                         .get().getPuntajeRm();
@@ -215,11 +219,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaRv() != null)
                         .max(Comparator.comparing(Evaluado::getNotaRv))
                         .get().getNotaRv();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeRv() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeRv))
                         .get().getPuntajeRv();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeRv() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeRv))
                         .get().getPuntajeRv();
@@ -241,11 +245,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaFisica() != null)
                         .max(Comparator.comparing(Evaluado::getNotaFisica))
                         .get().getNotaFisica();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeFisica() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeFisica))
                         .get().getPuntajeFisica();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeFisica() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeFisica))
                         .get().getPuntajeFisica();
@@ -267,11 +271,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaQuimica() != null)
                         .max(Comparator.comparing(Evaluado::getNotaQuimica))
                         .get().getNotaQuimica();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeQuimica() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeQuimica))
                         .get().getPuntajeQuimica();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeQuimica() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeQuimica))
                         .get().getPuntajeQuimica();
@@ -293,11 +297,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaBiologia() != null)
                         .max(Comparator.comparing(Evaluado::getNotaBiologia))
                         .get().getNotaBiologia();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeBiologia() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeBiologia))
                         .get().getPuntajeBiologia();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeBiologia() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeBiologia))
                         .get().getPuntajeBiologia();
@@ -319,11 +323,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaAritmetica() != null)
                         .max(Comparator.comparing(Evaluado::getNotaAritmetica))
                         .get().getNotaAritmetica();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeAritmetica() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeAritmetica))
                         .get().getPuntajeAritmetica();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeAritmetica() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeAritmetica))
                         .get().getPuntajeAritmetica();
@@ -345,11 +349,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaAlgebra() != null)
                         .max(Comparator.comparing(Evaluado::getNotaAlgebra))
                         .get().getNotaAlgebra();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeAlgebra() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeAlgebra))
                         .get().getPuntajeAlgebra();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeAlgebra() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeAlgebra))
                         .get().getPuntajeAlgebra();
@@ -371,11 +375,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaGeometria() != null)
                         .max(Comparator.comparing(Evaluado::getNotaGeometria))
                         .get().getNotaGeometria();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeGeometria() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeGeometria))
                         .get().getPuntajeGeometria();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeGeometria() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeGeometria))
                         .get().getPuntajeGeometria();
@@ -397,11 +401,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaTrigonometria() != null)
                         .max(Comparator.comparing(Evaluado::getNotaTrigonometria))
                         .get().getNotaTrigonometria();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeTrigonometria() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeTrigonometria))
                         .get().getPuntajeTrigonometria();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeTrigonometria() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeTrigonometria))
                         .get().getPuntajeTrigonometria();
@@ -423,11 +427,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaEconomia() != null)
                         .max(Comparator.comparing(Evaluado::getNotaEconomia))
                         .get().getNotaEconomia();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeEconomia() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeEconomia))
                         .get().getPuntajeEconomia();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeEconomia() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeEconomia))
                         .get().getPuntajeEconomia();
@@ -449,11 +453,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaHistoria() != null)
                         .max(Comparator.comparing(Evaluado::getNotaHistoria))
                         .get().getNotaHistoria();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeHistoria() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeHistoria))
                         .get().getPuntajeHistoria();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeHistoria() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeHistoria))
                         .get().getPuntajeHistoria();
@@ -475,11 +479,11 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                         .filter(ne -> ne.getNotaGeografia() != null)
                         .max(Comparator.comparing(Evaluado::getNotaGeografia))
                         .get().getNotaGeografia();
-                puntajeCepreMin = ingresantes.stream()
+                puntajeCepreMin = cepres.stream()
                         .filter(ne -> ne.getPuntajeGeografia() != null)
                         .min(Comparator.comparing(Prelamolina::getPuntajeGeografia))
                         .get().getPuntajeGeografia();
-                puntajeCepreMax = ingresantes.stream()
+                puntajeCepreMax = cepres.stream()
                         .filter(ne -> ne.getPuntajeGeografia() != null)
                         .max(Comparator.comparing(Prelamolina::getPuntajeGeografia))
                         .get().getPuntajeGeografia();
@@ -508,25 +512,29 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     private void crearConfiguracionInicial(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloPostula cicloPostula = cicloPostulaDAO.findByCicloAcademico(ciclo);
         if (cicloPostula == null) {
+            log.info("[crearConfiguracionInicial] salir cicloPostula isNull");
             return;
         }
 
         Evento examen = eventoDAO.findByCode(EXAM.name());
         List<EventoCiclo> eventosExamen = eventoCicloDAO.allByEventoCiclo(examen, cicloPostula);
         if (eventosExamen.isEmpty()) {
+            log.info("[crearConfiguracionInicial] salir eventosExamen.isEmpty");
             return;
         }
 
         Optional<EventoCiclo> fechaMaxima = eventosExamen.stream()
-                .max(Comparator.comparing(EventoCiclo::getFechaInicio));
+                .min(Comparator.comparing(EventoCiclo::getFechaInicio));
         Date fechaExamen = new LocalDate(fechaMaxima.get().getFechaInicio()).toDate();
         Date hoy = new LocalDate().toDate();
         if (!hoy.after(fechaExamen)) {
+            log.info("[crearConfiguracionInicial] salir pq no hay 1er examen de admision");
             return;
         }
 
         List<ModalidadTemaCiclo> configsCiclo = modalidadTemaCicloDAO.allByCiclo(ciclo);
         if (!configsCiclo.isEmpty()) {
+            log.info("[crearConfiguracionInicial] salir pa configsCiclo.size={}", configsCiclo.size());
             return;
         }
 
