@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion;
+package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;

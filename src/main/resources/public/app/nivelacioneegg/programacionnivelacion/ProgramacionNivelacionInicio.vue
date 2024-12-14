@@ -31,7 +31,7 @@
                                         <th class="v-middle text-center">Aula</th>
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Vac / Mat</th>
-                                        <th class="v-middle text-center">Estado Notas</th>
+                                        <th class="v-middle text-center">Evaluaciones</th>
                                         <th class="v-middle text-center">Estado</th>
                                         <th class=""></th>
                                     </tr>
@@ -84,6 +84,12 @@
                                         </td>
 
                                         <td class="v-middle text-center">
+                                            <span class="block bold"
+                                                  v-bind:class="classEvaluaciones(item)">
+                                                {{item.examenesEjecutados}} / 
+                                                {{item.examenesConfigurados}}
+                                            </span>
+
                                             <div v-bind:class="classEstadoNotas(item)" class="label">
                                                 {{item.estadoNotasEnum.value}}
                                             </div>
@@ -293,6 +299,16 @@
                     return "label-primary";
                 }
                 return "label-warning";
+            },
+            classEvaluaciones(item) {
+                if (item.examenesEjecutados === 0) {
+                    return "text-danger";
+                } else if (item.examenesEjecutados < item.examenesConfigurados) {
+                    return "text-warning";
+                } else if (item.examenesEjecutados >= item.examenesConfigurados) {
+                    return "text-success";
+                }
+                return "";
             },
 
             addCurso() {

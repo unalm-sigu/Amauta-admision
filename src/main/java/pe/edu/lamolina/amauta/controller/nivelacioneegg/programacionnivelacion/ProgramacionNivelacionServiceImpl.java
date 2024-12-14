@@ -24,7 +24,7 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoCicloGrupoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helperprogramacionnivelacion.ChangeProgramacionNivelacionService;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
@@ -36,6 +36,8 @@ import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTipoExamenDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -45,6 +47,7 @@ import static pe.edu.lamolina.model.constantines.AcademicoConstantine.DOCENTE_IN
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.PEN;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.RAB;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -62,6 +65,8 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.CursoTipoExamen;
+import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 
 @Slf4j
 @Service
@@ -74,8 +79,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoDAO cursoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
+    private final CursoTipoExamenDAO cursoTipoExamenDAO;
     private final DiaDAO diaDAO;
     private final DocenteDAO docenteDAO;
+    private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
     private final GrupoHorasNivelacionDAO grupoHorasNivelacionDAO;
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
@@ -126,9 +133,20 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         long t4 = System.currentTimeMillis();
         log.info("[allDynatable] horarioCursoDAO.allByCursoCicloHorario {} mseg", (t4 - t3));
 
+        List<ExamenCursoNivelacion> examenesCurso = examenCursoNivelacionDAO.allByCursosNivelaciones(cursosNiv);
+        Map<Long, List<ExamenCursoNivelacion>> mapExamen = examenesCurso.stream()
+                .collect(Collectors.groupingBy(excn -> excn.getCursoNivelacion().getId()));
+
         cursosNiv.forEach(cn -> {
             String key = cn.getCursoCiclo().getId() + "-" + cn.getGrupoHoras().getId();
             cn.setHorariosCurso(mapHorarios.get(key));
+
+            List<ExamenCursoNivelacion> examenes = TypesUtil.getListNotNull(mapExamen.get(cn.getId()));
+            List<ExamenCursoNivelacion> ejecutados = examenes.stream()
+                    .filter(excn -> excn.getEstadoEnum() == CER)
+                    .collect(Collectors.toList());
+            cn.setExamenesConfigurados(examenes.size());
+            cn.setExamenesEjecutados(ejecutados.size());
         });
 
         long t5 = System.currentTimeMillis();
@@ -362,6 +380,20 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         form.setUserRegistro(ds.getUsuario());
         form.setFechaRegistro(new Date());
         cursoNivelacionDAO.save(form);
+
+        List<CursoTipoExamen> cursoTiposExamenes = cursoTipoExamenDAO.allByCurso(curso);
+        Assert.isFalse(cursoTiposExamenes.isEmpty(), "No existe los tipos de exámenes configurados para este curso");
+
+        cursoTiposExamenes.forEach(cte -> {
+            ExamenCursoNivelacion examenCurso = new ExamenCursoNivelacion();
+            examenCurso.setCursoNivelacion(form);
+            examenCurso.setTipoExamenNivelacion(cte.getTipoExamenNivelacion());
+            examenCurso.setOrden(cte.getOrden());
+            examenCurso.setEstadoEnum(PEN);
+            examenCurso.setUserRegistro(ds.getUsuario());
+            examenCurso.setFechaRegistro(new Date());
+            examenCursoNivelacionDAO.save(examenCurso);
+        });
 
         if (horarios.isEmpty() || aula == null) {
             return;
@@ -964,6 +996,11 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
         for (HorarioAula horario : horarios) {
             horarioAulaDAO.delete(horario);
+        }
+
+        List<ExamenCursoNivelacion> examenes = examenCursoNivelacionDAO.allByCursoNivelacion(cursoNiv);
+        for (ExamenCursoNivelacion examen : examenes) {
+            examenCursoNivelacionDAO.delete(examen);
         }
 
         cursoNivelacionDAO.delete(cursoNiv);

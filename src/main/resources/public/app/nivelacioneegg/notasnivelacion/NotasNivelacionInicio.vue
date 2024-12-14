@@ -38,9 +38,16 @@
                                     <tr>
                                         <th class="v-middle text-center"></th>
                                         <th class="v-middle text-center">Matrícula</th>
-                                        <th class="v-middle wd-70">Alumno</th>
-                                        <th class="v-middle text-center">Nota</th>
-                                        <th class=""></th>
+                                        <th class="v-middle wd-50">Alumno</th>
+                                        <th v-for="tex in examenes" class="v-middle text-center">
+                                            {{tex.tipoExamenNivelacion.simbolo}} 
+                                            <template v-if="!actaExamenAbierta">
+                                                &nbsp;
+                                                <i class="fa fa-pencil-square-o fa-lg text-primary pointer" 
+                                                   v-on:click.prevent="abrirExamen(tex)" aria-hidden="true"></i>
+                                            </template>
+                                        </th>
+                                        <th class="v-middle text-center">Nota final</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,26 +65,44 @@
                                             </h3>
                                         </td>
 
-                                        <td class="v-middle text-center">
-                                            <template v-if="seccion.estadoNotas == 'CER' ">
-                                                {{commas(item.notaCurso)}}
+                                        <td v-for="tex in examenes" class="v-middle text-center">
+                                            <template v-if="existeNota(tex,item)">
+                                                <template v-if="tex.estado == 'ABI' ">
+                                                    <input v-model="getNota(tex,item).notaExamen" class="form-control" type="text" required="yes"
+                                                           v-bind:class="classNota(tex,item)"
+                                                           v-bind:ref="'nota-'+idx"
+                                                           v-on:keyup.enter="sendNota(idx,tex)"/>
+                                                </template>
+                                                <template v-else="">
+                                                    {{commas(getNota(tex,item).notaExamen)}}
+                                                </template>
                                             </template>
-                                            <template v-else="">
-                                                <input v-model="item.notaCurso" class="form-control" type="text" required="yes"
-                                                       v-bind:class="classNota(item)"
-                                                       v-bind:ref="'nota-'+idx"
-                                                       v-on:keyup.enter="sendNota(idx)"
-                                                       q-numeric-only="2"/>
-                                            </template>
+                                            <span v-else="" class="text-danger">
+                                                Sin datos
+                                            </span>
                                         </td>
 
                                         <td class="v-middle text-center">
+                                            <span v-if="item.notaCurso"
+                                                  class="text-success">
+                                                {{commas(item.notaCurso)}}
+                                            </span>
+                                            <span v-else="" class="text-danger">
+                                                Sin datos
+                                            </span>
                                         </td>
                                     </tr>
                                     <tr v-if="seccion.estadoNotas != 'CER' ">
                                         <td colspan="3"></td>
-                                        <td colspan="2">
-                                            <a v-on:click.prevent="cerrarActa" class="btn btn-success">Cerrar acta de notas</a>
+                                        <td v-for="tex in examenes" class="v-middle text-center">
+                                            <template v-if="tex.estado == 'ABI' ">
+                                                <a v-on:click.prevent="cerrarExamen(tex)" class="btn btn-primary">Cerrar registro</a>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <template v-if="actasConNotas">
+                                                <a v-on:click.prevent="cerrarActa" class="btn btn-success">Cerrar acta</a>
+                                            </template>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -114,6 +139,7 @@
                 origen: origen,
                 ciclo: JSON.parse(cicloJson),
                 seccion: JSON.parse(seccionJson),
+                examenes: JSON.parse(examenesJson),
                 raptorURL: `/${rutaModulo}/${seccion.id}/alumnos`,
                 configDate: {
                     format: 'DD/MM/YYYY',
@@ -123,7 +149,19 @@
         },
 
         mounted() {},
-        computed: {},
+        computed: {
+            actaExamenAbierta() {
+                if (this.seccion.estadoNotas === 'CER') {
+                    return true;
+                }
+                let examenesAbiertos = this.examenes.filter(ex => ex.estado === "ABI");
+                return examenesAbiertos.length > 0;
+            },
+            actasConNotas() {
+                let examenesCerradas = this.examenes.filter(ex => ex.estado === "CER");
+                return examenesCerradas.length === this.examenes.length;
+            },
+        },
 
         methods: {
             addLeccion() {
@@ -133,9 +171,11 @@
                 const url = APP.url(`${rutaModulo}/${item.id}/asistencia${myUtils.getOrigenURL()}`);
                 location.href = url;
             },
-            sendNota(idx) {
-                let nota = this.$refs.raptor.data[idx];
-                if (!this.isNumeric(nota.notaCurso)) {
+            sendNota(idx, examen) {
+                let alumno = this.$refs.raptor.data[idx];
+                let nota = alumno.examenesAlumno.find(exa => exa.examenCursoNivelacion.id === examen.id);
+                console.log("nota=", nota)
+                if (!this.isNumeric(nota.notaExamen)) {
                     notify("Por favor, ingresa un valor numérico.", "error");
                     nota.correcto = 2;
                     return; // Salir sin enviar la solicitud
@@ -143,7 +183,7 @@
 
                 let payload = {
                     id: nota.id,
-                    notaCurso: nota.notaCurso
+                    notaExamen: nota.notaExamen
                 };
 
                 console.log("payload=", payload)
@@ -168,6 +208,52 @@
             isNumeric(value) {
                 return !isNaN(parseFloat(value)) && isFinite(value);
             },
+            abrirExamen(item) {
+                let configModal = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirm,
+                    message: `¿Está seguro que desea abrir el ingreso de notas del ${item.tipoExamenNivelacion.nombre}?`,
+                    okbtn: "Si, abrir",
+                    okclass: "btn-success",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/abrirActa`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptor,
+                            body: {id: item.id}
+                        })).then(() => this.reloadExamenes());
+                    }
+                });
+
+                this.$refs.modalConfirm.open(configModal);
+            },
+            cerrarExamen(item) {
+                let configModal = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirm,
+                    message: `¿Está seguro que desea cerrar el ingreso de notas del ${item.tipoExamenNivelacion.nombre}?`,
+                    okbtn: "Si, cerrar",
+                    okclass: "btn-primary",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/cerrarActa`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptor,
+                            body: {id: item.id}
+                        })).then(() => this.reloadExamenes());
+                    }
+                });
+
+                this.$refs.modalConfirm.open(configModal);
+            },
+            existeNota(examen, item) {
+                let nota = item.examenesAlumno.find(exa => exa.examenCursoNivelacion.id === examen.id);
+                if (nota) {
+                    return true;
+                }
+                return false;
+            },
+            getNota(examen, item) {
+                return item.examenesAlumno.find(exa => exa.examenCursoNivelacion.id === examen.id);
+            },
             cerrarActa() {
                 let configModal = VUE_MODAL.structConfirm({
                     id: "id-modal-confirm-upload",
@@ -191,11 +277,18 @@
                     body: {id: this.seccion.id}
                 })).then((resp) => this.seccion = resp.data.data);
             },
+            reloadExamenes() {
+                myUtils.axios(VUE_AXIOS.structGetData({
+                    url: `/${rutaModulo}/allExamenes`,
+                    body: {id: this.seccion.id}
+                })).then((resp) => this.examenes = resp.data.data);
+            },
 
-            classNota(item) {
-                if (item.correcto === 1) {
+            classNota(examen, item) {
+                let nota = item.examenesAlumno.find(exa => exa.examenCursoNivelacion.id === examen.id);
+                if (nota.correcto === 1) {
                     return "bg-success text-dark";
-                } else if (item.correcto === 2) {
+                } else if (nota.correcto === 2) {
                     return "bg-danger text-dark";
                 }
                 return "";

@@ -21,7 +21,7 @@
                                         <th class="v-middle text-center">Aula</th>
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Matriculados</th>
-                                        <th class="v-middle text-center">Estado notas</th>
+                                        <th class="v-middle text-center">Evaluaciones</th>
                                         <th class="v-middle text-center">Control asistencia</th>
                                         <th class="v-middle text-center">Estado inscripción</th>
                                         <th class=""></th>
@@ -67,6 +67,11 @@
                                         </td>
 
                                         <td class="v-middle text-center">
+                                            <div v-bind:class="classEvaluaciones(item)" class="circle-recorrido pointer"
+                                                 v-on:click="actasNotas(item)">
+                                                {{item.examenesEjecutados}}/{{item.examenesConfigurados}}
+                                            </div>
+                                            
                                             <div v-bind:class="classEstadoNotas(item)" class="label pointer"
                                                  v-on:click="actasNotas(item)">
                                                 {{item.estadoNotasEnum.value}}
@@ -209,6 +214,16 @@
                     return "bgr-success";
                 }
                 return "bgr-warning";
+            },
+            classEvaluaciones(item) {
+                if (item.examenesEjecutados === 0) {
+                    return "bgr-danger";
+                } else if (item.examenesEjecutados < item.examenesConfigurados) {
+                    return "bgr-warning";
+                } else if (item.examenesEjecutados >= item.examenesConfigurados) {
+                    return "bgr-success";
+                }
+                return "";
             },
 
             // metodos genericos

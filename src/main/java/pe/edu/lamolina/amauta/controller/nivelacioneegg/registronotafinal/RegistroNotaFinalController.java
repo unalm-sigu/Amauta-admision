@@ -26,6 +26,8 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.ExamenAlumnoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
@@ -51,7 +53,9 @@ public class RegistroNotaFinalController {
         Docente docente = ds.getDocente();
 
         CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), docente, ciclo);
+        List<ExamenCursoNivelacion> examenes = service.allExamenes(seccion);
 
+        model.addAttribute("examenesJson", this.createExamenesJson(examenes));
         model.addAttribute("seccionJson", this.createSeccionJson(seccion));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
@@ -83,8 +87,38 @@ public class RegistroNotaFinalController {
     }
 
     @ResponseBody
+    @RequestMapping("abrirActa")
+    public JsonResponse abrirActa(@RequestBody ExamenCursoNivelacion form, HttpSession session, HttpServletRequest request) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        service.abrirActa(form, docente, ciclo, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.TRUE);
+        json.setMessage("Acta de examen abierta satisfactoriamente");
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("cerrarActa")
+    public JsonResponse cerrarActa(@RequestBody ExamenCursoNivelacion form, HttpSession session, HttpServletRequest request) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        service.cerrarActa(form, docente, ciclo, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.TRUE);
+        json.setMessage("Acta de examen cerrada satisfactoriamente");
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("registrarNota")
-    public JsonResponse registrarNota(@RequestBody NotaAlumnoNivelacion form, HttpSession session, HttpServletRequest request) {
+    public JsonResponse registrarNota(@RequestBody ExamenAlumnoNivelacion form, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Docente docente = ds.getDocente();
@@ -129,6 +163,24 @@ public class RegistroNotaFinalController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("allExamenes")
+    public JsonResponse allExamenes(@RequestBody CursoNivelacion form, HttpSession session, HttpServletRequest request) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        CursoNivelacion seccion = service.findSeccion(form, docente, ciclo);
+        List<ExamenCursoNivelacion> examenes = service.allExamenes(seccion);
+        ArrayNode array = this.createExamenesJson(examenes);
+
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.TRUE);
+        json.setData(array);
+        return json;
+    }
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JaneHelper
                 .from(ciclo)
@@ -151,6 +203,14 @@ public class RegistroNotaFinalController {
         return node;
     }
 
+    private ArrayNode createExamenesJson(List<ExamenCursoNivelacion> examenes) {
+        return JaneHelper
+                .from(examenes)
+                .join("cursoNivelacion", "id,codigo")
+                .join("tipoExamenNivelacion", "id,codigo,simbolo,nombre")
+                .array();
+    }
+
     private ArrayNode createAlumnosJson(List<NotaAlumnoNivelacion> alumnos) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (NotaAlumnoNivelacion nota : alumnos) {
@@ -163,7 +223,22 @@ public class RegistroNotaFinalController {
                     .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo")
                     .json();
 
+            List<ExamenAlumnoNivelacion> examenes = nota.getExamenesAlumno();
+            ArrayNode examenesJson = new ArrayNode(JsonNodeFactory.instance);
+            for (ExamenAlumnoNivelacion examen : examenes) {
+                ObjectNode examenJson = JaneHelper
+                        .from(examen)
+                        .only("id,notaExamen")
+                        .join("examenCursoNivelacion", "id")
+                        .join("examenCursoNivelacion.tipoExamenNivelacion", "id")
+                        .json();
+
+                examenJson.put("correcto", (examen.getNotaExamen() == null ? 0 : 1));
+                examenesJson.add(examenJson);
+            }
+
             node.put("correcto", (nota.getNotaCurso() == null ? 0 : 1));
+            node.set("examenesAlumno", examenesJson);
             array.add(node);
         }
         return array;

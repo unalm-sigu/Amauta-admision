@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion.dto.PeriodoDiaDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
@@ -21,13 +22,16 @@ import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.TemaAsistenciaDAO;
 import pe.edu.lamolina.model.academico.Docente;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
 
 @Slf4j
@@ -39,6 +43,7 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
 
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final DiaDAO diaDAO;
+    private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
     private final TemaAsistenciaDAO temaAsistenciaDAO;
@@ -49,6 +54,10 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
 
         List<HorarioAula> horariosAll = horarioAulaDAO.allByCursosNivelacion(secciones);
         List<TemaAsistencia> leccionesAll = temaAsistenciaDAO.allByCursosNivelaciones(secciones);
+
+        List<ExamenCursoNivelacion> examenesSecciones = examenCursoNivelacionDAO.allByCursosNivelaciones(secciones);
+        Map<Long, List<ExamenCursoNivelacion>> mapExamen = examenesSecciones.stream()
+                .collect(Collectors.groupingBy(excn -> excn.getCursoNivelacion().getId()));
 
         for (CursoNivelacion seccion : secciones) {
             List<TemaAsistencia> lecciones = leccionesAll.stream()
@@ -62,6 +71,15 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
             seccion.setHorariosAulas(horarios);
             seccion.setControlesConfigurados(this.getCantidadDias(horarios));
             seccion.setControlesEjecutados(lecciones.size());
+
+            List<ExamenCursoNivelacion> examenes = TypesUtil.getListNotNull(mapExamen.get(seccion.getId()));
+            List<ExamenCursoNivelacion> ejecutados = examenes.stream()
+                    .filter(excn -> excn.getEstadoEnum() == CER)
+                    .collect(Collectors.toList());
+
+            seccion.setExamenesConfigurados(examenes.size());
+            seccion.setExamenesEjecutados(ejecutados.size());
+
         }
 
         return secciones;
