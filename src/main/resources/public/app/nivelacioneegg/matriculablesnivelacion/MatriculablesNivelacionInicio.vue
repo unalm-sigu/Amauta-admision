@@ -94,7 +94,12 @@
                                             </template>
                                         </td>
 
-                                        <td class="v-middle"></td>
+                                        <td class="v-middle text-center">
+                                            <span v-if="item.notaCurso" class="h4"
+                                                  v-bind:class="classColorNota(item)">
+                                                {{commas(item.notaCurso)}}
+                                            </span>
+                                        </td>
 
                                         <td class="v-middle text-center">
                                             <div v-bind:class="classEstado(item)" class="label">
@@ -110,6 +115,7 @@
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'MAT' " class="pointer"><a v-on:click="retirar(item)">Retirar</a></li>
                                                     <li v-if="item.estado == 'NMAT' " class="pointer"><a v-on:click="inscribir(item)">Matricular</a></li>
+                                                    <li class="pointer"><a v-on:click="infoAcad(item)">Información académica</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -270,6 +276,10 @@
             inscribir(item) {
                 this.$refs.modalMatricular.open(item, this.$refs.raptor);
             },
+            infoAcad(item) {
+                let url = APP.url(`academico/alumno/${item.alumnoNivelacion.alumno.id}/infoacademico${myUtils.getOrigenURL()}`);
+                location.href = url;
+            },
 
             classEstado(item) {
                 if (item.estado === 'NMAT') {
@@ -278,6 +288,12 @@
                     return "label-success";
                 }
                 return "label-danger";
+            },
+            classColorNota(item) {
+                if (item.aprobado) {
+                    return "text-primary";
+                }
+                return "text-danger";
             },
 
             // metodos genericos

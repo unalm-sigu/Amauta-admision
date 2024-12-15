@@ -74,7 +74,9 @@
                                                            v-on:keyup.enter="sendNota(idx,tex)"/>
                                                 </template>
                                                 <template v-else="">
+                                                    <span v-bind:class="classColorNota(getNota(tex,item))">
                                                     {{commas(getNota(tex,item).notaExamen)}}
+                                                    </span>
                                                 </template>
                                             </template>
                                             <span v-else="" class="text-danger">
@@ -83,8 +85,8 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <span v-if="item.notaCurso"
-                                                  class="text-success">
+                                            <span v-if="item.notaCurso" class="h3"
+                                                  v-bind:class="classColorNota(item)">
                                                 {{commas(item.notaCurso)}}
                                             </span>
                                             <span v-else="" class="text-danger">
@@ -292,6 +294,12 @@
                     return "bg-danger text-dark";
                 }
                 return "";
+            },
+            classColorNota(nota) {
+                if (nota.aprobado) {
+                    return "text-primary";
+                }
+                return "text-danger";
             },
 
             // metodos genericos

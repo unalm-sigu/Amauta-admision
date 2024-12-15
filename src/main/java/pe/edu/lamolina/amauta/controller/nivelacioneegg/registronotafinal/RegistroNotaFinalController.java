@@ -228,7 +228,7 @@ public class RegistroNotaFinalController {
             for (ExamenAlumnoNivelacion examen : examenes) {
                 ObjectNode examenJson = JaneHelper
                         .from(examen)
-                        .only("id,notaExamen")
+                        .only("id,notaExamen,aprobado")
                         .join("examenCursoNivelacion", "id")
                         .join("examenCursoNivelacion.tipoExamenNivelacion", "id")
                         .json();

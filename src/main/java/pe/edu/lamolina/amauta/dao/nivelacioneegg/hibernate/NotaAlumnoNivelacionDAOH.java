@@ -15,6 +15,7 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.Matric
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -194,6 +195,26 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
                 .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allConNotaByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci")
+                .isNotNull("nan.notaCurso")
+                .filter("cn.estadoNotas", EstadoGrupoSeccionEnum.CER)
+                .filter("nan.esMatriculable", 1)
+                .filter("an.estado", MAT)
+                .filter("nan.estado", MAT)
+                .filter("alu.id", alumno)
+                .orderBy("ci.codigo DESC");
 
         return all(sql);
     }

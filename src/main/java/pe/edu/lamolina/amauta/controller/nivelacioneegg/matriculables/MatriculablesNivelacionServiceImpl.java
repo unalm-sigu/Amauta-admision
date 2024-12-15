@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -267,6 +268,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         Assert.isNotNull(cursoNiv, "No existe la sección que ha seleccionado");
         Assert.isTrue(cursoNiv.getEstadoEnum() == SeccionEstadoEnum.ACT, "Esta sección no está habilitada para inscribirse");
         Assert.isTrue(cursoNiv.getDisponibles() > 0, "Ya no existe vacantes disponibles");
+        Assert.isFalse(cursoNiv.getEstadoNotasEnum() == CER, "Esta sección ya cerró su acta de notas");
 
         cursoNiv.setDisponibles(cursoNiv.getDisponibles() - 1);
         cursoNiv.setMatriculados(cursoNiv.getMatriculados() + 1);
@@ -306,6 +308,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getCursoNivelacion().getId());
         Assert.isNotNull(cursoNiv, "No existe la sección que ha seleccionado");
         Assert.isTrue(cursoNiv.getId().equals(form.getCursoNivelacion().getId()), "La sección no corresponde al registro seleccionado");
+        Assert.isFalse(cursoNiv.getEstadoNotasEnum() == CER, "Esta sección ya cerró su acta de notas");
 
         cursoNiv.setDisponibles(cursoNiv.getDisponibles() + 1);
         cursoNiv.setMatriculados(cursoNiv.getMatriculados() - 1);

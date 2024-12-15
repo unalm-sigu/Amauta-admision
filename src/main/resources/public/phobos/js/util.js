@@ -1068,7 +1068,14 @@ window.myUtils = {
             maximumFractionDigits: 2
         };
         return Number(n).toLocaleString('en', options);
-    }
+    },
+    score(n, dec) {
+        var options = {
+            minimumFractionDigits: dec,
+            maximumFractionDigits: dec
+        };
+        return Number(n).toLocaleString('en', options);
+    },
 };
 
 APP.select2();

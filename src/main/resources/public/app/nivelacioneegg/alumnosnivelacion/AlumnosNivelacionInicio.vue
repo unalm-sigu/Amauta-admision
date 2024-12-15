@@ -89,6 +89,7 @@
                                                     <li v-if="item.estado == 'INH' " class="pointer"><a v-on:click="reactivar(item)">Reactivar alumno</a></li>
                                                     <li v-if="item.estado == 'NMAT' " class="pointer"><a v-on:click="revisar(item)">Revisar nota aprobatoria</a></li>
                                                     <li v-if="item.cambios.length > 0" class="pointer"><a v-on:click="verCambios(item)">Ver cambios</a></li>
+                                                    <li class="pointer"><a v-on:click="infoAcad(item)">Información académica</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -238,6 +239,10 @@
                 });
 
                 this.$refs.modalConfirm.open(config);
+            },
+            infoAcad(item) {
+                let url = APP.url(`academico/alumno/${item.alumno.id}/infoacademico${myUtils.getOrigenURL()}`);
+                location.href = url;
             },
 
             verDetalle(item, tema) {

@@ -22,7 +22,7 @@ public class CursoTipoExamenDAOH extends AbstractEasyDAO<CursoTipoExamen> implem
                 .from(CursoTipoExamen.class, "cte")
                 .join("curso cu", "tipoExamenNivelacion te")
                 .filter("cu.id", curso)
-                .orderBy("te.orden");
+                .orderBy("cte.orden");
 
         return all(sql);
     }

@@ -51,6 +51,8 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
     private final BigDecimal VEINTE = new BigDecimal("20");
+    private final BigDecimal NOTA_MIN_PARCIAL = new BigDecimal("10.5");
+    private final BigDecimal NOTA_MIN_FINAL = new BigDecimal("11");
     private final List<EstadoGrupoSeccionEnum> ESTADOS_ABIERTOS = Arrays.asList(ABI, RAB);
     private final List<EstadoGrupoSeccionEnum> ESTADOS_CERRADOS = Arrays.asList(CER, PEN);
 
@@ -186,6 +188,7 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
         }
 
         examenAlumno.setNotaExamen(form.getNotaExamen());
+        examenAlumno.setAprobado(form.getNotaExamen().compareTo(NOTA_MIN_PARCIAL) >= 0);
         examenAlumno.setFechaRegistroNota(new Date());
         examenAlumnoNivelacionDAO.update(examenAlumno);
 
@@ -204,6 +207,7 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
         log.info("[registrarNota] otrosExamenes={} suma={} promedio={}", otrosExamenes.size(), suma, promedio);
 
         nota.setNotaCurso(promedio);
+        nota.setAprobado(promedio.compareTo(NOTA_MIN_FINAL) >= 0);
         notaAlumnoNivelacionDAO.update(nota);
     }
 

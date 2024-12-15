@@ -26,6 +26,8 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<NotaAlumnoNivelacion> allConCursoByCiclo(CicloAcademico ciclo);
 
+    List<NotaAlumnoNivelacion> allConNotaByAlumno(Alumno alumno);
+
     List<NotaAlumnoNivelacion> allInscritosByCursoNivelacion(CursoNivelacion seccion);
 
     List<NotaAlumnoNivelacion> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);

@@ -19,11 +19,11 @@ public class TemaCicloDAOH extends AbstractEasyDAO<TemaCiclo> implements TemaCic
     @Override
     public List<TemaCiclo> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
-                .from(TemaCiclo.class, "eva")
+                .from(TemaCiclo.class, "teci")
                 .join("temaExamen te", "cicloPostula cp", "cp.cicloAcademico ci")
                 .leftJoin("te.temaSuperior")
                 .filter("ci.id", ciclo)
-                .orderBy("eva.orden");
+                .orderBy("teci.orden");
 
         return all(sql);
     }

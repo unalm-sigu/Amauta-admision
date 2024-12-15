@@ -10,6 +10,8 @@ import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.EstadoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
@@ -99,6 +101,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("cn.estado", SeccionEstadoEnum.ACT)
+                .filter("cn.estadoNotas", EstadoGrupoSeccionEnum.ABI)
                 .filter("ci.id", ciclo);
 
         return all(sql);
