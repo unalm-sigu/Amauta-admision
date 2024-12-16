@@ -20,7 +20,7 @@ public interface TramiteAulaService {
 
     List<Aula> allByDynatableFilterAula(DynatableFilter filter, DataSessionPivot ds);
 
-    Empresa saveInstitucion(Empresa institucion);
+    Empresa saveInstitucion(Empresa institucion, DataSessionPivot ds);
 
     List<Alumno> allAlumnoByName(String nombre);
 

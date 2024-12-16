@@ -267,7 +267,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     @Transactional
-    public Empresa saveInstitucion(Empresa institucion) {
+    public Empresa saveInstitucion(Empresa institucion, DataSessionPivot ds) {
 
         TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), institucion.getPaisUbicacion());
 
@@ -275,6 +275,8 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
         institucion.setTipoDocIdentidad(doc);
         institucion.setNumeroDocIdentidad("RESERVA_AULA_" + RandomStringUtils.randomNumeric(6));
+        institucion.setUserRegistro(ds.getUsuario());
+        institucion.setFechaRegistro(new Date());
         empresaDAO.save(institucion);
         return institucion;
     }

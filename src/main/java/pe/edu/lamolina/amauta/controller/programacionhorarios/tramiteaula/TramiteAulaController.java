@@ -255,10 +255,12 @@ public class TramiteAulaController {
     @RequestMapping("saveInstitucion")
     public JsonResponse saveInstitucion(@RequestBody Empresa insticion, HttpSession session) {
 
+
         JsonResponse response = new JsonResponse();
 
         try {
-            Empresa institucionBD = service.saveInstitucion(insticion);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            Empresa institucionBD = service.saveInstitucion(insticion,ds);
             response.setData(JaneHelper.from(institucionBD).only("id,razonSocial").json());
             response.setSuccess(true);
             response.setMessage(GlobalMessages.CREATED);
