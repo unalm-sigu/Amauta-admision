@@ -202,6 +202,8 @@ public class ProfesorController {
                 node.put("celular", persona.getCelular());
                 node.put("email", persona.getEmail());
                 node.put("emailEmpresa", persona.getEmailCompania());
+                node.put("foto", persona.getFoto());
+                node.put("sexo", persona.getSexo());
                 node.put("rutaFoto", persona.getRutaFoto());
                 node.put("tipoFoto", persona.getTipoFoto());
 

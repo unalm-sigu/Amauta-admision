@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.*;
 import pe.edu.lamolina.amauta.controller.academico.profesor.ProfesorService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
 import pe.edu.lamolina.amauta.controller.reporte.view.HorarioDocentePDF;
@@ -92,7 +89,7 @@ public class InformacionProfesorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
         boolean isRevisorDocente = ds.getRoles().stream()
-                .anyMatch(rol -> "JEFE_DPTO_ACA".equals(rol.getCodigo()));
+                .anyMatch(rol -> "JEFE_DPTO_ACA".equals(rol.getCodigo()) || "SOPORTE_TECNICO_DERA".equals(rol.getCodigo()));
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ObjectNode cicloJson = JaneHelper.from(cicloAcademico).json();
 

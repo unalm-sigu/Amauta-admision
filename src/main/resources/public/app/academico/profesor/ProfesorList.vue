@@ -40,9 +40,18 @@
                     <tbody>
                         <tr v-for="item in props.data">
                             <td class="v-middle">
-                                <div class="pull-left">
-                                    <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
-                                </div>
+<!--                                <div class="pull-left">-->
+<!--                                    <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />-->
+<!--                                </div>-->
+                                  <div v-if="item.foto">
+                                    <img class="img-foto-tempo img-responsive img-thumbnail  img-circle" v-bind:src="item.foto" />
+                                  </div>
+                                  <div v-else="">
+                                    <img v-if="item.sexo == 'M'" class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/male.png'" />
+                                    <img v-else-if="item.sexo == 'F'" class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/female.png'" />
+                                    <img v-else class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/unknown-person.gif'" />
+                                  </div>
+
                             </td>
                             <td class="v-middle">
                                 <div class="v-middle">
