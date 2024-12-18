@@ -175,11 +175,11 @@ public class ReunionConsejerosEXCEL extends AbstractView {
 
             String strDate = dateFormat.format(agendaConsejero.getFecha());
             excelUtil.replaceVal(irow, column++, num, estiloNumero);
-            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getAlumnoConsejero().getConsejero().getColaborador().getPersona().getNombreCompleto());
-            excelUtil.replaceVal(irow, column++, agendaConsejero.getAsunto(), estiloNumero);
-            excelUtil.replaceVal(irow, column++, strDate.concat(" ").concat(agendaConsejero.getHora().getDescripcion()), estiloNumero);
-            excelUtil.replaceVal(irow, column++, alumno.getCodigo());
-            excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres());
+            excelUtil.replaceVal(irow, column++, reunionAlumnoConsejero.getAlumnoConsejero().getConsejero().getColaborador().getPersona().getNombreCompleto(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, agendaConsejero.getAsunto(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, strDate.concat(" ").concat(agendaConsejero.getHora().getDescripcion()), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
             String val = "";
             if (reunionAlumnoConsejero.getEstadoEnum() == ReunionAlumnoConsejeroEstadoEnum.ASIS) {

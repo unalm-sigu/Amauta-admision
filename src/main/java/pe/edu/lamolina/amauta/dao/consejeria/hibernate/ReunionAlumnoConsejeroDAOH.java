@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.consejeria.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
@@ -109,7 +110,11 @@ public class ReunionAlumnoConsejeroDAOH extends AbstractEasyDAO<ReunionAlumnoCon
                 .orderBy("acon.fecha", "acon.hora");
 
         if (filtroReporteAgendaDTO.getCarrera() != null) {
-            sql.filter("car.id", filtroReporteAgendaDTO.getCarrera());
+            if (filtroReporteAgendaDTO.getCarrera().getId() == 10L) {//Temporal por tener las 2 carreras de meteorologia y ing. meterologia con los mismos prof.
+                sql.in("car.id", Arrays.asList(filtroReporteAgendaDTO.getCarrera().getId(), 152L));
+            } else {
+                sql.filter("car.id", filtroReporteAgendaDTO.getCarrera());
+            }
         }
 
         if (filtroReporteAgendaDTO.getConsejero() != null) {
