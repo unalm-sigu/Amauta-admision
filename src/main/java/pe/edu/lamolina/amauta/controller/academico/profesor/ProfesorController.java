@@ -135,7 +135,7 @@ public class ProfesorController {
         List<CicloAcademico> ciclosNivelacion = service.allCicloAcademicoNivel();
         boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
         boolean isRevisorDocente = ds.getRoles().stream()
-                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum());
+                .anyMatch(rol -> RolEnum.JEFE_DPTO_ACA == rol.getCodigoEnum() || "SOPORTE_TECNICO_DERA".equals(rol.getCodigo()));
 
         boolean rolDocente = ds.getRoles().stream().anyMatch(rol -> RolEnum.LOGUEO_DOCENTE == rol.getCodigoEnum());
 
