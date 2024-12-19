@@ -174,6 +174,16 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             } else {
                 carreraCursoCachimbo.setCantidad(cursosCachimboMap.size());
             }
+
+            // Verificar si la cantidad es 0 y los valores de conHorario e ingresantes son 0
+            boolean isCarreraCachimboValid = (carreraCachimboMap != null) &&
+                    (carreraCachimboMap.getConHorario() != 0 || carreraCachimboMap.getIngresantes() != 0);
+
+            // Si la cantidad es 0 y no hay horario o ingresantes, no agregar el objeto a la lista
+            if (carreraCursoCachimbo.getCantidad() == 0 && !isCarreraCachimboValid) {
+                continue;
+            }
+
             if (carreraCachimboMap == null) {
                 continue;
             } else {
