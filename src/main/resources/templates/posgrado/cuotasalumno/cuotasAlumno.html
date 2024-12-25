@@ -269,14 +269,14 @@
 
                 <!-- modals -->
 
-                <!--<script id="gpoSeccionTemplate" type="text/x-template" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
+                <!--<script id="gpoSeccionTemplate" type="text/x-template" class="hide"><div th:replace="academico/gposeccion/gpoSeccionTemplate"/></script>-->
             </div>
-            <div th:substituteby="templates/modal"/>
+            <div th:replace="templates/modal"/>
         </div>
 
         <div layout:fragment="js">
             <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 var alumnoResumenCuotasJson = /*[[${alumnoResumenCuotasJson}]]*/{};
                 var tarifasCarrerasJson = /*[[${tarifasCarrerasJson}]]*/{};

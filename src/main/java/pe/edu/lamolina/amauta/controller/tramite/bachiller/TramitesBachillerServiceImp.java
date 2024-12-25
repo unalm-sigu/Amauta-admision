@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -137,7 +137,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     }
 
     @Override
-    public Context reporte(Long idTramite, DataSessionPivot ds) {
+    public void reporte(Long idTramite, Model model, DataSessionPivot ds) {
 
         Tramite tramite = this.findByTramite(idTramite);
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
@@ -182,8 +182,6 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 .stream()
                 .filter(x -> x.isAprobado() && x.getEsCaduco() == 0)
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
-
-        Context ctx = new Context();
 
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
         historialSorted.putAll(historial);
@@ -256,24 +254,22 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
         Postulante postulante = postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(), alumno.getCicloIngreso());
 
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("oficinaColaborador", oficinaColaborador);
-        ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("bachiller", tramiteBachiller);
-        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
-        ctx.setVariable("ciclosRegularesEstudiados", ciclosRegular);
-        ctx.setVariable("modalidadIngreso", postulante != null ? postulante.getModalidadIngreso().getNombre() : null);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("oficinaColaborador", oficinaColaborador);
+        model.addAttribute("ciclo", cicloAcademico);
+        model.addAttribute("historial", historialSorted);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("bachiller", tramiteBachiller);
+        model.addAttribute("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
+        model.addAttribute("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        model.addAttribute("planCurricular", alumno.getPlanCurricular() != null ? alumno.getPlanCurricular().getCicloInicioVigencia().getDescripcion() : "");
+        model.addAttribute("ciclosRegularesEstudiados", ciclosRegular);
+        model.addAttribute("modalidadIngreso", postulante != null ? postulante.getModalidadIngreso().getNombre() : null);
 
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
-        ctx.setVariable("nombrePdf", "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleBachiller,historialAcademicoBachiller");
-
-        return ctx;
+        model.addAttribute("nombrePdf", "Informe Bachiller " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "detalleBachiller,historialAcademicoBachiller");
     }
 
     @Override
@@ -372,7 +368,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ANU.name());
         tramiteBachiller.setUsuarioAnulaTramite(ds.getUsuario());
 
-        tramiteBachillerDAO.updateColumns(tramiteBachiller, "estado","estadofacultad");
+        tramiteBachillerDAO.updateColumns(tramiteBachiller, "estado", "estadofacultad");
 
         Egresado egresado = egresadoDAO.findByAlumno(tramiteBachiller.getTramite().getAlumno());
         if (egresado.getId() != null) {

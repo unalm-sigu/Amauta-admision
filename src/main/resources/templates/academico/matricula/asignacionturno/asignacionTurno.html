@@ -105,7 +105,7 @@
                         </section>
                     </section>
                 </section>                
-                <div th:substituteby="academico/matricula/asignacionturno/asignacionTurnoModals"></div>                
+                <div th:replace="academico/matricula/asignacionturno/asignacionTurnoModals"></div>                
             </div>
         </div>
         <div layout:fragment="js">
@@ -114,7 +114,7 @@
                     var rutaModulo = 'academico/matricula/asignacionturno';
                 /*]]>*/
             </script>            
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/matricula/asignacionturno/asignacionTurno.js}" charset="utf-8"></script>
         </div>
     </body>

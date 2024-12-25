@@ -59,13 +59,13 @@
                                                 <div th:if="${opcion.esTexto==1}" >
                                                     <label>
                                                         <input type="text" class="form-control preTexto" required="yes" th:rel='${pregunta.id}' />
-                                                        <div th:substituteby="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
+                                                        <div th:replace="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
                                                     </label>
                                                 </div>
 
 
                                                 <div th:if="${opcion.esMulti==1}" >
-                                                    <div th:substituteby="academico/encuestaestudiantil/preview/encuestaMultipleOpcion"></div>
+                                                    <div th:replace="academico/encuestaestudiantil/preview/encuestaMultipleOpcion"></div>
                                                 </div>
 
                                                 <div class="radio i-checks" th:if="${opcion.esTexto==null and opcion.esMulti==null}" >
@@ -94,7 +94,7 @@
                                                                th:rel='${pregunta.id}'
                                                                th:attr="ref=${opcion.itemsReferencias}" />
 
-                                                        <div th:substituteby="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
+                                                        <div th:replace="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
 
                                                     </label>
                                                 </div>

@@ -61,7 +61,7 @@ public class EncuestaDocenteModalidadController {
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
-        
+
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
@@ -133,9 +133,7 @@ public class EncuestaDocenteModalidadController {
 
     @RequestMapping("{id}/reporte")
     public ModelAndView reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
-
-        Context ctx = service.reporte(new EncuestaDocenteModalidad(id));
-        model.addAllAttributes(ctx.getVariables());
+        model.addAttribute(new EncuestaDocenteModalidad(id));
         return new ModelAndView(pdfHtml);
 
     }
@@ -152,7 +150,7 @@ public class EncuestaDocenteModalidadController {
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
-        if (filtro.getFacultad()!= null) {
+        if (filtro.getFacultad() != null) {
 
             List<DepartamentoAcademico> departamentosXfacutad = departamentos
                     .stream()
@@ -165,7 +163,7 @@ public class EncuestaDocenteModalidadController {
 
         }
 
-        if (filtro.getDepartamento()!= null) {
+        if (filtro.getDepartamento() != null) {
             departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
         }
 
@@ -177,7 +175,7 @@ public class EncuestaDocenteModalidadController {
             ciclos.add(ds.getCicloAcademico());
         }
 
-        if (filtro.getDocente()!= null) {
+        if (filtro.getDocente() != null) {
 
             List<Context> mulitpleContext = service.reporteUnicoDocenteMultipleCiclo(ciclos, modalidadEstudioEnum, departamentos, filtro.getDocente());
             model.addAttribute("multipleContext", mulitpleContext);

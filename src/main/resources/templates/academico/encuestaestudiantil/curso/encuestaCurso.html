@@ -427,8 +427,8 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/encuestaestudiantil/curso/encuestaCursoModal"></div>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <div th:replace="academico/encuestaestudiantil/curso/encuestaCursoModal"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
             </div>
 
 
@@ -445,10 +445,10 @@
                 var rutaEditor = 'academico/encuestaestudiantil/editor';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
 
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
 
             <script th:src="@{/app/academico/encuestaestudiantil/curso/encuestaCurso.js}" charset="utf-8"></script>
         </div>

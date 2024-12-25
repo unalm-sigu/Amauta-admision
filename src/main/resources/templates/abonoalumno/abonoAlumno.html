@@ -89,15 +89,15 @@
                         </template>
                     </raptor-table>
                 </section>
-                <div th:substituteby="abonoalumno/abonoModals"></div>
+                <div th:replace="abonoalumno/abonoModals"></div>
             </section>
-            <!--<div th:substituteby="templates/modal"/>-->
-            <!--<div th:substituteby="facturacion/abono/modalsAbono"/>-->
+            <!--<div th:replace="templates/modal"/>-->
+            <!--<div th:replace="facturacion/abono/modalsAbono"/>-->
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/abonoalumno/abonoAlumno.js}" charset="utf-8"></script>
         </div>
 

@@ -173,7 +173,7 @@
                     </section>
                 </section>
 
-                <th:block th:substituteby="academico/preciocursociclo/precioCursoCicloModal" />
+                <th:block th:replace="academico/preciocursociclo/precioCursoCicloModal" />
 
                 <modal-vik ref="cfgCantidadAlumnoModal"
                            v-bind="cfgCantidadAlumno"
@@ -211,7 +211,7 @@
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var tipoCarpetasJson = /*[[${tipoCarpetas}]]*/ 'json';

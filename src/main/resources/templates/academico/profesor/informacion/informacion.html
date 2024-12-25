@@ -134,16 +134,16 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/profesor/informacion/_modalProfeAddCtaBanco"></div>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <div th:substituteby="academico/profesor/personaDuplicadoModal"/>
+                <div th:replace="academico/profesor/informacion/_modalProfeAddCtaBanco"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
+                <div th:replace="academico/profesor/personaDuplicadoModal"/>
 
-                <div th:substituteby="academico/profesor/informacion/dataZoomModal"  ></div>
+                <div th:replace="academico/profesor/informacion/dataZoomModal"  ></div>
 
             </div>
 
             <th:block th:replace="academico/profesor/informacion/informacionacademicatemp"/>
-            <div th:substituteby="academico/alumno/includes/horario"/>
+            <div th:replace="academico/alumno/includes/horario"/>
 
 
             <script  th:inline="javascript" >
@@ -172,8 +172,8 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_layout/includes :: javascript-upload"> </div>
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:replace="_layout/includes :: javascript-upload"> </div>
+            <div th:replace="_modules/vue-raptor-table"/>
             <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicapais.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicaubicacion.js}" charset="utf-8"></script>

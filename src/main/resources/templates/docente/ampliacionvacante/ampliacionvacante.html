@@ -177,7 +177,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="docente/ampliacionvacante/ampliacionvacantemodals"/>
+                <div th:replace="docente/ampliacionvacante/ampliacionvacantemodals"/>
 
 
 
@@ -193,7 +193,7 @@
                 /*]]>*/
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
         
             <script th:src="@{/app/docente/ampliacionvacante/ampliacionvacante.js}" charset="utf-8"></script>
         </div>

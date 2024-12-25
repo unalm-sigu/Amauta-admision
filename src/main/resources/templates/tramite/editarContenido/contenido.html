@@ -121,7 +121,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="tramite/editarContenido/contenidopreview"></div>
+                <div th:replace="tramite/editarContenido/contenidopreview"></div>
 
             </div> 
 
@@ -133,7 +133,7 @@
                 var variablesJson = /*[[${variables}]]*/ {};
                 var documentoAcademico = /*[[${plantillaDocumentoAcademico}]]*/ {};
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/tramite/editorContenido/contenidoalumno.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/editorContenido/contenido.js}" charset="utf-8"></script>
 

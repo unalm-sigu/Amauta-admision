@@ -91,21 +91,17 @@ public class CursoDirigidoServiceImp implements CursoDirigidoService {
     }
 
     @Override
-    public Context alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
-        
+    public void alllistCursoDirigidoFac(Facultad facultad, Model model, DataSessionPivot ds) {
+
         facultad = facultadDAO.find(facultad.getId());
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(facultad, ds.getCicloAcademico());
 
-        Context ctx = new Context();
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("cursoDirigido", cursoDirigidos);
+        model.addAttribute("facultad", facultad.getNombre().toUpperCase(Locale.ROOT));
 
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("cursoDirigido", cursoDirigidos);
-        ctx.setVariable("facultad", facultad.getNombre().toUpperCase(Locale.ROOT));
-
-        ctx.setVariable("nombrePdf", "Reporte Facultad " + facultad.getId());
-        ctx.setVariable("templatePdf", "listDetalleCursoDirigido");
-
-        return ctx;
+        model.addAttribute("nombrePdf", "Reporte Facultad " + facultad.getId());
+        model.addAttribute("templatePdf", "listDetalleCursoDirigido");
     }
 
 }

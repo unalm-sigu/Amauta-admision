@@ -115,8 +115,8 @@
             <div th:replace="oficinas/matricula/omisoeleccion/aporteAlumnoModal"></div>
             <div th:replace="oficinas/matricula/omisoeleccion/boletaAlumnoModal"></div>
 
-            <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
-            <div th:substituteby="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
+            <div th:replace="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
+            <div th:replace="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
             
         </div>
 
@@ -129,7 +129,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/oficinas/matricula/omisoeleccion/omisoEleccion.js}" charset="utf-8"></script>
         </div>
 

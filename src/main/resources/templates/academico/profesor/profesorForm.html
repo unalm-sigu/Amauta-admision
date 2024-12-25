@@ -418,7 +418,7 @@
                 var datepicker = $.fn.datepicker.noConflict();
                 $.fn.datepickerBoot = datepicker;
             </script>
-            <div th:substituteby="_layout/includes :: javascript-upload"> </div>
+            <div th:replace="_layout/includes :: javascript-upload"> </div>
             <script th:src="@{/app/academico/profesor/profesorForm.js}" charset="utf-8"></script>
         </div>
 

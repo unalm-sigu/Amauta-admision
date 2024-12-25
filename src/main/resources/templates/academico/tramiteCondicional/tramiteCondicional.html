@@ -111,8 +111,8 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/tramiteCondicional/tramiteCondicionalModal"/>
-                <!--<div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>-->
+                <div th:replace="academico/tramiteCondicional/tramiteCondicionalModal"/>
+                <!--<div th:replace="academico/tramiteCondicional/tramiteResolucionModal"/>-->
 
             </div>
         </div>
@@ -126,7 +126,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:replace="_modules/vue-raptor-table"/>
 
 
             <script th:src="@{/app/academico/tramiteCondicional/tramiteCondicional.js}" charset="utf-8"></script>

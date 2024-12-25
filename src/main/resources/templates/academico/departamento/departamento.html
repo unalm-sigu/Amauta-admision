@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Departamento Académico</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -39,7 +39,7 @@
         </section>
 
         <script id="departamentoTemplate" type="text/x-template" class="hide">
-            <div th:substituteby="academico/departamento/departamentoTemplate"></div>
+            <div th:replace="academico/departamento/departamentoTemplate"></div>
         </script>
 
         <script id="motivoDesactivacionTemplate" type="text/x-template" class="hide">
@@ -56,7 +56,7 @@
                 </form>
             </div>
         </script>
-        <div th:substituteby="templates/modal"/>
+        <div th:replace="templates/modal"/>
 
         <script id="divListaDocente" type="text/x-template" class="hide">
             <div class="panel-body">
@@ -80,7 +80,7 @@
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/departamento/departamento.js}" charset="utf-8"></script>
     </div>
 

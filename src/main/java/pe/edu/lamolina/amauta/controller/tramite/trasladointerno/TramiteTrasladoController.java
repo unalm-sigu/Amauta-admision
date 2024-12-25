@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -50,15 +49,14 @@ public class TramiteTrasladoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Carrera> carreras = service.getCarreras(ds);
-        
+
         List<CicloAcademico> ciclos = service.allCicloAcademico();
-        
+
         ArrayNode carrerasJson = JaneHelper.from(carreras).array();
         ArrayNode jCicloAcademicos = JaneHelper.from(ciclos).only("id,codigo,descripcion2").array();
-        
+
         model.addAttribute("carreras", carrerasJson);
         model.addAttribute("ciclos", jCicloAcademicos);
-        
 
         return "academico/tramitescademicos/tramiteTraslado/tramiteTraslado";
     }
@@ -67,20 +65,20 @@ public class TramiteTrasladoController {
     @RequestMapping("list")
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
-        
+
         DynatableResponse json = new DynatableResponse();
 
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CicloAcademico> ciclos = new ArrayList();
-            
+
             if (filter.getQueries() != null && filter.getQueries().get("ciclo") != null) {
                 String ciclo = (String) filter.getQueries().get("ciclo");
                 Long cicloId = TypesUtil.getLong(ciclo);
                 ciclos = Arrays.asList(new CicloAcademico(cicloId));
             }
-            
+
             List<TramiteTraslado> tramitesTraslado = service.allTramitesByFilter(filter, ciclos);
 
             ArrayNode array = JaneHelper.from(tramitesTraslado)
@@ -104,7 +102,7 @@ public class TramiteTrasladoController {
             e.printStackTrace();
             json.setTotal(0);
         }
-        
+
         return json;
     }
 
@@ -120,8 +118,7 @@ public class TramiteTrasladoController {
     public ModelAndView reporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Context context = service.reporte(new Tramite(id), ds);
-        model.addAllAttributes(context.getVariables());
+        service.reporte(new Tramite(id), model, ds);
         return new ModelAndView(reporteTramiteTraslado);
     }
 

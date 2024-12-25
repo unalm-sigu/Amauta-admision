@@ -2,9 +2,6 @@ package pe.edu.lamolina.amauta.security.oauth;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.scribejava.apis.GoogleApi20;
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -59,14 +56,12 @@ import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
-import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.CompaniaDAO;
 import pe.edu.lamolina.amauta.dao.general.InstanciaEntidadDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
-import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
@@ -115,15 +110,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Autowired
     InstanciaEntidadDAO instanciaEntidadDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    ParametroDAO parametroDAO;
-
-    @Autowired
-    OAuthServiceConfig config;
+    
     @Autowired
     InterceptorService interceptorService;
     @Autowired
@@ -132,16 +119,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     DespliegueConfig despliegueConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Override
-    public OAuth20Service getService() {
-        return new ServiceBuilder(config.getKey())
-                .apiSecret(config.getSecret())
-                .scope("https://www.googleapis.com/auth/userinfo.email "
-                        + "https://www.googleapis.com/auth/userinfo.profile")
-                .callback(config.getCallback())
-                .build(GoogleApi20.instance());
-    }
 
     @Override
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {

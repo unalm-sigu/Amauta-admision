@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" class="app">
     <head>
-        <title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">La Molina</title>
-        <base th:substituteby="_layout/includes :: styles"/>
-        <base th:substituteby="_layout/includes :: favicon"/>
+        <!--<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">La Molina</title>-->
+        <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">La Molina</title>
+        <th:block th:replace="_layout/includes :: styles"/>
+        <th:block th:replace="_layout/includes :: favicon"/>
     </head>
 
     <body>
-        <section  layout:fragment="body"> </section>
+        <section layout:fragment="BODY"> </section>
 
-        <div th:substituteby="_layout/includes :: javascript"/>
-        <div th:substituteby="_modules/vue-modal"/>
-        <div th:substituteby="_modules/vue-modal-wait"/>
-        <div th:substituteby="_layout/includes :: notify"/>
+        <div th:replace="_layout/includes :: javascript"/>
+        <div th:replace="_modules/vue-modal"/>
+        <div th:replace="_modules/vue-modal-wait"/>
+        <div th:replace="_layout/includes :: notify"/>
 
         <section layout:fragment="js"> JAVASCRIPTS </section>
     </body>

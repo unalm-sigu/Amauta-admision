@@ -91,7 +91,7 @@
             </section>
 
 
-            <div th:substituteby="general/aula/divTipoAmbiente"/>
+            <div th:replace="general/aula/divTipoAmbiente"/>
         </section>
 
     </div>
@@ -102,7 +102,7 @@
             var tiposAula = /*[[${tiposAula}]]*/ tiposAulax;
             /*]]>*/
         </script>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/general/aula/aulaForm.js}" charset="utf-8"></script>
     </div>
 

@@ -2,8 +2,8 @@
 <html class="app">
     <head>
         <title>La Molina</title>
-        <base th:substituteby="_layout/includes :: styles"/>
-        <base th:substituteby="_layout/includes :: favicon"/>
+        <base th:replace="_layout/includes :: styles"/>
+        <base th:replace="_layout/includes :: favicon"/>
     </head>
 
     <body class="login-bg">
@@ -48,6 +48,6 @@
 
         <div class="login-footer"></div>
 
-        <div th:substituteby="_layout/includes :: javascript"/>
+        <div th:replace="_layout/includes :: javascript"/>
     </body>
 </html>

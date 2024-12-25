@@ -411,8 +411,8 @@
                         </section>
                     </section>
 
-                    <div th:substituteby="academico/encuestaestudiantil/docente/encuestaDocenteModal"></div>
-                    <div th:substituteby="_modules/vue-modal-confirm"></div>
+                    <div th:replace="academico/encuestaestudiantil/docente/encuestaDocenteModal"></div>
+                    <div th:replace="_modules/vue-modal-confirm"></div>
 
                     <editar-periodo-encuesta ref="editarperiodoencuesta"></editar-periodo-encuesta>
 
@@ -435,7 +435,7 @@
                 var rutaEditor = 'academico/encuestaestudiantil/editor';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             
             <script th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocente.js}" charset="utf-8"></script>
         </div>

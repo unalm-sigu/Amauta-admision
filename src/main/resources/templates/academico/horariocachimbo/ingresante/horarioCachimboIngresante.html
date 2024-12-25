@@ -236,9 +236,9 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
-                <div th:substituteby="academico/horariocachimbo/ingresante/erroresIngresanteModal"/>
-                <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboReporte"></div>
+                <div th:replace="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
+                <div th:replace="academico/horariocachimbo/ingresante/erroresIngresanteModal"/>
+                <div th:replace="academico/horariocachimbo/ingresante/horarioCachimboReporte"></div>
 
             </div>
 
@@ -253,7 +253,7 @@
             </script>
 
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
         </div>
 

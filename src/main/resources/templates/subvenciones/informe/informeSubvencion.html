@@ -111,8 +111,8 @@
                     </section>
                 </section>
 
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <div th:substituteby="subvenciones/informe/_modalObservarInforme"/>
+                <div th:replace="_modules/vue-modal-confirm"></div>
+                <div th:replace="subvenciones/informe/_modalObservarInforme"/>
             </div>
         </div>
 
@@ -122,8 +122,8 @@
                 var rutaModulo = /*[[${rutaModulo}]]*/ null;
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"/>
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:replace="_modules/vue-modal"/>
+            <div th:replace="_modules/vue-raptor-table"/>
             <script th:src="@{/app/subvenciones/informe/informeSubvencion.js}" charset="utf-8"></script>
         </div>
 

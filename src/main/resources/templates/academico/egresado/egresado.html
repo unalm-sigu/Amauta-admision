@@ -133,7 +133,7 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/egresado/modalReporte"></div>
+                <div th:replace="academico/egresado/modalReporte"></div>
             </div>
         </div>
         <div layout:fragment="js">
@@ -144,7 +144,7 @@
                 /*]]>*/
             </script>
             <div th:replace="_modules/vue-modal"></div>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/egresado/egresado.js}" charset="utf-8"></script>
         </div>
     </body>

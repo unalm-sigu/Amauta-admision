@@ -347,17 +347,17 @@ s
                     </section>
                 </section>
 
-                <div th:substituteby="academico/matriculable/modalSubirEgresados"></div>
-                <div th:substituteby="academico/matriculable/modalAsignarTurno"></div>
-                <div th:substituteby="academico/matriculable/matriculableModal"></div>
-                <div th:substituteby="academico/matriculable/inhabilitarMatriculable"></div>
-                <div th:substituteby="academico/matriculable/procesoNmatModal"></div>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <div th:substituteby="academico/matriculable/aporteAlumnoModal"></div>
-                <div th:substituteby="academico/matriculable/boletaAlumnoModal"></div>
+                <div th:replace="academico/matriculable/modalSubirEgresados"></div>
+                <div th:replace="academico/matriculable/modalAsignarTurno"></div>
+                <div th:replace="academico/matriculable/matriculableModal"></div>
+                <div th:replace="academico/matriculable/inhabilitarMatriculable"></div>
+                <div th:replace="academico/matriculable/procesoNmatModal"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
+                <div th:replace="academico/matriculable/aporteAlumnoModal"></div>
+                <div th:replace="academico/matriculable/boletaAlumnoModal"></div>
 
                 <clonar-matriculable-modal ref="clonarMatriculableModal"></clonar-matriculable-modal>
-                 <div th:substituteby="academico/matriculable/asignarTurnoMatriculable"></div>
+                 <div th:replace="academico/matriculable/asignarTurnoMatriculable"></div>
 
             </div>
         </div>
@@ -374,7 +374,7 @@ s
                 var rutaModulo = 'academico/matriculable';
                 /*]]>*/
                </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>
         </div>
     </body>

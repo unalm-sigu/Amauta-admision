@@ -144,7 +144,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="rolexamen/gruporegular/grupoRegularModals"/>
+                <div th:replace="rolexamen/gruporegular/grupoRegularModals"/>
 
             </div>
 
@@ -156,7 +156,7 @@
                 var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:src="@{/app/rolexamen/gruporegular/grupoRegular.js}" charset="utf-8"></script>

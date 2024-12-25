@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Aulas</title>
-        <link th:substituteby="_layout/includes :: styles-dynatable" />
+        <link th:replace="_layout/includes :: styles-dynatable" />
     </head>
 
     <body>
@@ -59,7 +59,7 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="general/tipocarpeta/tipocarpetaModal"></div>
+                <div th:replace="general/tipocarpeta/tipocarpetaModal"></div>
 
             </div>
 
@@ -67,7 +67,7 @@
 
         <div layout:fragment="js">
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             
             <script th:src="@{/app/general/tipocarpeta/tipocarpeta.js}" charset="utf-8"></script>
         </div>

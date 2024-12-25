@@ -66,12 +66,12 @@
                 <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
 
             </div>
-            <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
-            <div th:substituteby="academico/alumno/includes/inicio"/>
-            <div th:substituteby="academico/alumno/includes/alumnoMeritos"/>
-            <div th:substituteby="academico/alumno/includes/historial"/>
-            <div th:substituteby="academico/alumno/includes/matricula"/>
-            <div th:substituteby="academico/alumno/includes/retiroCiclo"/>
+            <div th:replace="tramite/tramiteConstancia/inicioTramite"/>
+            <div th:replace="academico/alumno/includes/inicio"/>
+            <div th:replace="academico/alumno/includes/alumnoMeritos"/>
+            <div th:replace="academico/alumno/includes/historial"/>
+            <div th:replace="academico/alumno/includes/matricula"/>
+            <div th:replace="academico/alumno/includes/retiroCiclo"/>
         </div>
 
         <div layout:fragment="js">
@@ -84,7 +84,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_layout/includes :: vuejs"/>
+            <div th:replace="_layout/includes :: vuejs"/>
             <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>

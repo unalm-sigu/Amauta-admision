@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Asistencia Académica</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -165,7 +165,7 @@
             </section>
         </div>
 
-        <div th:substituteby="templates/modal"/>
+        <div th:replace="templates/modal"/>
 
 
     </div>
@@ -174,7 +174,7 @@
         
         <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
 
-        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:replace="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             var seccionJson = [[${seccionJson}]];
             var rutaModulo = "docente/asistenciaacademica";

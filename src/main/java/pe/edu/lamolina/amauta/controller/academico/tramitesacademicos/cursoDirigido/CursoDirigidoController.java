@@ -173,12 +173,10 @@ public class CursoDirigidoController {
 
     @RequestMapping("repFacDirigido/{id}/reporte")
     public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        tramitesAcademicosService.allcursoDirigidoFac(new Facultad(id), model, ds);
 
-        List<Context> multipleContext = tramitesAcademicosService.allcursoDirigidoFac(new Facultad(id), ds);
-
-        model.addAttribute("multipleContext", multipleContext);
         model.addAttribute("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
         model.addAttribute("nombrePdf", "Reporte Facultad" + id);
 
@@ -189,8 +187,7 @@ public class CursoDirigidoController {
     public ModelAndView listFacDirigido(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Context ctx = service.alllistCursoDirigidoFac(new Facultad(id), ds);
-        model.addAllAttributes(ctx.getVariables());
+        service.alllistCursoDirigidoFac(new Facultad(id), model, ds);
         return new ModelAndView(pdfHtml);
 
     }

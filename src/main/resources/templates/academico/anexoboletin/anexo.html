@@ -170,8 +170,8 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/anexoboletin/modalAnexo"/>
-                <div th:substituteby="academico/anexoboletin/anexoForm"/>
+                <div th:replace="academico/anexoboletin/modalAnexo"/>
+                <div th:replace="academico/anexoboletin/anexoForm"/>
             </div>
 
         </div>
@@ -186,7 +186,7 @@
                 var puedeEditarPosgrado = /*[[${puedeEditarPosgrado}]]*/ {};
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/anexoboletin/anexo.js}" charset="utf-8"></script>
         </div>
 

@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Programacion Horario</title>
-        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
+        <!--<div th:replace="_layout/includes :: styles-dynatable"></div>-->
     </head>
 
     <body>
@@ -53,7 +53,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table-reporte"></div>
+            <div th:replace="_modules/vue-raptor-table-reporte"></div>
             <script th:src="@{/app/academico/programacion/ReportePrgramacionHorario.js}" charset="utf-8"></script>
         </div>
 

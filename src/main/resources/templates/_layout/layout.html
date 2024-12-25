@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/base">
     
-    <div class="hbox stretch"  layout:fragment="body">
-            <aside th:substituteby="_layout/menu :: sideBarFlat"> BARRA LATERAL </aside>
+    <div class="hbox stretch"  layout:fragment="BODY">
+            <aside th:replace="_layout/menu :: sideBarFlat"> BARRA LATERAL </aside>
 
             <section id="content" class="vbox">
                 <section class="scrollable" id="pjax-container">

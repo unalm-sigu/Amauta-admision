@@ -96,8 +96,8 @@
                 </section>
             </section>
 
-            <div th:substituteby="templates/modal"/> 
-            <script id="templateNuevoSistemaCalificacion" type="text/x-template" class="hide"><div th:substituteby="docente/notaacademica/templateNuevoSistemaCalificacion"/></script>
+            <div th:replace="templates/modal"/> 
+            <script id="templateNuevoSistemaCalificacion" type="text/x-template" class="hide"><div th:replace="docente/notaacademica/templateNuevoSistemaCalificacion"/></script>
         </div>
 
         <div layout:fragment="js">

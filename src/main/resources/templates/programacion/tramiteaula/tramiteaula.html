@@ -224,7 +224,7 @@
                     </div>
                 </modal-vik>
 
-                <div th:substituteby="programacion/tramiteaula/tramiteaularesumen"></div>
+                <div th:replace="programacion/tramiteaula/tramiteaularesumen"></div>
 
             </div>
 
@@ -232,9 +232,9 @@
 
         <div layout:fragment="js">
 
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
 
             <script th:src="@{/app/programacion/tramiteaula/tramiteaula.js}" charset="utf-8"></script>
 

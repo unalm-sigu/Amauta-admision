@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.consejeria.AgendaConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
@@ -21,7 +19,6 @@ import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ReunionAlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
-import pe.edu.lamolina.amauta.security.oauth.OAuthServiceConfig;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -63,9 +60,6 @@ public class ReunionConsejeroServiceImpl implements ReunionConsejeroService {
 
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
-
-    @Autowired
-    OAuthServiceConfig config;
 
     @Override
     public List<Hora> allHora30() {

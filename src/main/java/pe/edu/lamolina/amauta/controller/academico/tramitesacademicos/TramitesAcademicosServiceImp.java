@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -497,7 +498,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
+    public void cursoDirigidoReporte(Tramite tramite, Model model, DataSessionPivot ds) {
 
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
@@ -567,32 +568,30 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         Oficina oficina = oficinaDAO.findByCode(CODIGO_REGISTRO);
 
-        ctx.setVariable("oficina", oficina);
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("curso", curso);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("matriculados", matriculados);
-        ctx.setVariable("gpoSecciones", gpoSecciones);
-        ctx.setVariable("cursoDirigido", cursoDirigido);
-        ctx.setVariable("matriculaResumen", matriculaResumen);
+        model.addAttribute("oficina", oficina);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("ciclo", cicloAcademico);
+        model.addAttribute("curso", curso);
+        model.addAttribute("historial", historialSorted);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("matriculados", matriculados);
+        model.addAttribute("gpoSecciones", gpoSecciones);
+        model.addAttribute("cursoDirigido", cursoDirigido);
+        model.addAttribute("matriculaResumen", matriculaResumen);
 
-        ctx.setVariable("situacionActual", data);
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
+        model.addAttribute("situacionActual", data);
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("alumnoCicloCurso", listAlumnoCicloCurso);
 
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
         List<Hora> horas = findLimiteHoras(hss);
-        ctx.setVariable("horas", horas);
-        ctx.setVariable("dias", dias);
-        ctx.setVariable("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
+        model.addAttribute("horas", horas);
+        model.addAttribute("dias", dias);
+        model.addAttribute("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
 
-        ctx.setVariable("nombrePdf", "Información");
-        ctx.setVariable("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
-
-        return ctx;
+        model.addAttribute("nombrePdf", "Información");
+        model.addAttribute("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
 
     }
 
@@ -863,13 +862,13 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
+    public List<Context> allcursoDirigidoFac(Facultad facultad, Model model, DataSessionPivot ds) {
 
         List<Tramite> tramites = allTramitesByFac(facultad, ds);
         List<Context> multipleContext = new ArrayList();
 
         for (Tramite tramite : tramites) {
-            multipleContext.add(cursoDirigidoReporte(tramite, ds));
+            cursoDirigidoReporte(tramite, model, ds);
         }
 
         return multipleContext;
