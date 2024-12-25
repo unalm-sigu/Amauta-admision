@@ -68,6 +68,7 @@ import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Persona;
 
 @Slf4j
 @Service
@@ -98,13 +99,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo(modalidad);
-        Usuario usuario = usuarioDAO.findByGoogleEmail(email);
-        if (usuario == null) {
-            throw new PhobosException("Usuario no identificado.");
-        }
-        if (usuario.getEstadoEnum() != UserEstadoEnum.ACT) {
-            usuario = usuario.getUserActivo();
-        }
+        Usuario usuario = this.findUser(email);
 
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         List<Rol> rolesMain = generateRolesMain(roles);
@@ -171,6 +166,12 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
 
         Assert.isNotNull(usuario, "Usuario no identificado");
+        if (usuario.getEstadoEnum() == UserEstadoEnum.ACT) {
+            return usuario;
+        }
+
+        Persona persona = usuario.getPersona();
+        usuario = usuarioDAO.findActivoByPersona(persona);
         return usuario;
     }
 
