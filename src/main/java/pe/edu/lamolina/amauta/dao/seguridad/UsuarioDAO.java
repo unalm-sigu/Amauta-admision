@@ -10,6 +10,8 @@ public interface UsuarioDAO extends EasyDAO<Usuario> {
 
     Usuario findByGoogleEmail(String email);
 
+    Usuario findByOutlookEmail(String email);
+
     Usuario findActivoByPersona(Persona persona);
 
     List<Usuario> allByPersona(Persona persona);
@@ -20,6 +22,6 @@ public interface UsuarioDAO extends EasyDAO<Usuario> {
 
     Usuario find(Usuario user);
 
-    //Usuario findByPersonaId(Persona persona);
-    public List<Usuario> allByEmailEmpresaGoogle(String email);
+    List<Usuario> allByEmailEmpresaGoogle(String email);
+
 }

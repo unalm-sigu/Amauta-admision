@@ -190,30 +190,6 @@ public class OAuthController {
         }
 
         return "redirect:/route66";
-
-//        try {
-//            OAuth20Service service = serviceProvider.getService();
-//            OAuth2AccessToken accessToken = service.getAccessToken(oauthVerifier);
-//            session.setAttribute(OAuthConstant.ACCESS_TOKEN, accessToken);
-//
-//            OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, OAuthConstant.USER_INFO);
-//            service.signRequest(accessToken, oauthRequest);
-//            Response oauthResponse = service.execute(oauthRequest);
-//
-//            JsonNode jsonNode = new ObjectMapper().readTree(oauthResponse.getBody());
-//            serviceProvider.loginManually(jsonNode.get("email").asText(), session, servlet);
-//
-//        } catch (PhobosException e) {
-//            session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
-//            return "security/nologin";
-//
-//        } catch (InterruptedException | ExecutionException ex) {
-//            log.error(ex.getLocalizedMessage());
-//            session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
-//            return "security/nologin";
-//        }
-//
-//        return "redirect:/route66";
     }
 
     @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
