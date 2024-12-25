@@ -17,13 +17,13 @@
     <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/multiselect.css}" />
 </div>
 
-<script th:inline="javascript" >
-    /*<![CDATA[*/
-    var provider = /*[[${session.SESSION_USUARIO==null?'':session.SESSION_USUARIO.provider}]]*/ 'json';
-    /*]]>*/
-</script>
-
 <div th:fragment="javascript-login" th:remove="tag">
+    <script th:inline="javascript" >
+        /*<![CDATA[*/
+        var provider = /*[[${session.SESSION_USUARIO==null?'':session.SESSION_USUARIO.provider}]]*/ 'json';
+        /*]]>*/
+    </script>
+
     <script type="text/javascript" th:src="@{/vendor/vendor.min.js}" ></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"></script>
