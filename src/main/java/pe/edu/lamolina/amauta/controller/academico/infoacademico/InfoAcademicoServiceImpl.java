@@ -1429,7 +1429,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             log.info("[allNotasHistorial] analizado tema ={}", tema.getNombre());
             List<CursoTemaExamen> cursosTemas = mapTemaCursos.get(tema.getId());
             if (cursosTemas == null) {
-                log.info("[allNotasHistorial] \tcursosTemas is null}");
+                log.info("[allNotasHistorial] \tcursosTemas is null");
                 continue;
             }
 
@@ -1452,7 +1452,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                         .filter(acc -> {
                             Curso curso = acc.getCurso();
                             return replicas.stream()
-                                    .allMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
+                                    .anyMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
                         })
                         .findFirst().orElse(null);
                 if (cursoAprobado != null) {
@@ -1476,7 +1476,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                         .filter(acc -> {
                             Curso curso = acc.getCurso();
                             return replicas.stream()
-                                    .allMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
+                                    .anyMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
                         })
                         .findFirst().orElse(null);
                 if (cursoDesaprobado != null) {
