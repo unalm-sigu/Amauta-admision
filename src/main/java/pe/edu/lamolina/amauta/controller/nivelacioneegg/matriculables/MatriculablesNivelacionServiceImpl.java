@@ -174,6 +174,10 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
             Curso curso = mtble.getCurso();
             List<CursoNivelacion> cursosMtbles = mapCursoNiv.get(curso.getId());
+            if (cursosMtbles == null) {
+                continue;
+            }
+
             for (CursoNivelacion cursoNiv : cursosMtbles) {
                 if (cursoNiv.getDisponibles() > 0) {
                     cursoNiv.setDisponibles(cursoNiv.getDisponibles() - 1);
