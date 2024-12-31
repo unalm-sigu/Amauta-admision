@@ -3,23 +3,16 @@ package pe.edu.lamolina.amauta.controller.horariocachimbo.ingresante;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,44 +34,18 @@ import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
+@Slf4j
 @Controller
 @RequestMapping("academico/horariocachimbo/ingresante")
 public class HorarioCachimboIngresanteController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     HorarioCachimboIngresanteService service;
     @Autowired
     VisorMatricula visorMatricula;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -94,60 +61,58 @@ public class HorarioCachimboIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
+    @GetMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(filter, cicloAcademico);
-            List<RecorridoIngresante> recorridoIngresantes = service.allRecorridoIngresante(cicloAcademico);
-            Map<Long, RecorridoIngresante> map = TypesUtil.convertListToMap("alumno.id", recorridoIngresantes);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (AlumnoHorario alumHorario : alumnosHorario) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(filter, cicloAcademico);
+        List<RecorridoIngresante> recorridoIngresantes = service.allRecorridoIngresante(cicloAcademico);
+        Map<Long, RecorridoIngresante> map = TypesUtil.convertListToMap("alumno.id", recorridoIngresantes);
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                Alumno alumno = alumHorario.getAlumno();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
-                HorarioCachimbos hc = alumHorario.getHorarioCachimbos();
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (AlumnoHorario alumHorario : alumnosHorario) {
 
-                node.put("id", alumHorario.getId());
-                node.put("estudiante", alumno.getPersona().getApellidosNombres());
-                node.put("situacion", alumno.getSituacionAcademica().getCodigo());
-                node.put("situacionnombre", alumno.getSituacionAcademica().getNombre());
-                node.put("carrera", alumno.getCarrera().getNombre());
-                node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-                node.put("horario", hc != null ? hc.getCodigo() : "");
-                node.put("numCurso", hc != null ? hc.getCursos() : 0);
-                node.put("cursosMat", alumHorario.getCursosMatriculados().size());
-                node.put("estado", alumHorario.getEstado());
-                node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            Alumno alumno = alumHorario.getAlumno();
+            Carrera carrera = alumno.getCarrera();
+            Facultad facultad = carrera.getFacultad();
+            HorarioCachimbos hc = alumHorario.getHorarioCachimbos();
 
-                node.put("codigoMatricula", alumno.getCodigo());
-                node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
-                node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
-                node.put("errores", alumHorario.getErrores());
-                RecorridoIngresante recorridoIngresante = map.get(alumno.getId());
-                if (recorridoIngresante != null) {
-                    node.put("actividadesEjecutadas", recorridoIngresante.getActividadesEjecutadas());
-                    node.put("totalActividades", recorridoIngresante.getTotalActividades());
+            node.put("id", alumHorario.getId());
+            node.put("estudiante", alumno.getPersona().getApellidosNombres());
+            node.put("situacion", alumno.getSituacionAcademica().getCodigo());
+            node.put("situacionnombre", alumno.getSituacionAcademica().getNombre());
+            node.put("carrera", alumno.getCarrera().getNombre());
+            node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+            node.put("horario", hc != null ? hc.getCodigo() : "");
+            node.put("numCurso", hc != null ? hc.getCursos() : 0);
+            node.put("cursosMat", alumHorario.getCursosMatriculados().size());
+            node.put("estado", alumHorario.getEstado());
+            node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
 
-                }
+            node.put("codigoMatricula", alumno.getCodigo());
+            node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
+            node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+            node.put("errores", alumHorario.getErrores());
+            RecorridoIngresante recorridoIngresante = map.get(alumno.getId());
+            if (recorridoIngresante != null) {
+                node.put("actividadesEjecutadas", recorridoIngresante.getActividadesEjecutadas());
+                node.put("totalActividades", recorridoIngresante.getTotalActividades());
 
-                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-                node.put("horarioCachimbo", (Long) ObjectUtil.getParentTree(alumHorario, "horarioCachimbos.id"));
-
-                array.add(node);
             }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+
+            node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
+            node.put("horarioCachimbo", (Long) ObjectUtil.getParentTree(alumHorario, "horarioCachimbos.id"));
+
+            array.add(node);
         }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 
@@ -329,7 +294,7 @@ public class HorarioCachimboIngresanteController {
         return response;
     }
 
-     @ResponseBody
+    @ResponseBody
     @RequestMapping("searchFacultad")
     public JsonResponse searchFacultad(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -364,7 +329,7 @@ public class HorarioCachimboIngresanteController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("cargaringresantes")
     public JsonResponse cargarIngresantes(HttpSession session) {

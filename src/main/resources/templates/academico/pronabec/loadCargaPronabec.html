@@ -1,87 +1,86 @@
 <html layout:decorator="_layout/layout3">
-<head>
-    <title>Carga Becados </title>
-</head>
+    <head>
+        <title>Carga Becados</title>
+    </head>
 
-<body>
-<div layout:fragment="main">
-    <header class="page-header">
-    </header>
-    <section class="panel" id="loadArchivoBecadosVUE">
-        <section class="panel-body">
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header"> </header>
+            <section class="panel" id="loadArchivoBecadosVUE">
+                <section class="panel-body">
 
-            <div class="row">
-                <div class="col-md-6 col-md-offset-3">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Carga de becarios por pronabec</h3>
-                        </div>
-
-                        <div class="panel-body">
-                            <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/academico/becaspronabec}">
-                                <div class="row m-b-md">
-                                    <div class="col-md-9">
-
-                                        <span class="block">Descarga el ejemplo <strong><a href="https://cdn2.lamolina.edu.pe/lamolina-academico/pronabec/ModelobecadosPronabec.xlsx">aquí </a></strong>.</span>
-                                        <span class="block">Seleccionar un archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
-
-                                        <div class="form-group">
-                                            <br/>
-                                            <input  class="btn btn-default" type="file" v-on:change="getImage"  accept=".xlsx" required=""/>
-                                        </div>
-                                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Carga de becarios por pronabec</h3>
                                 </div>
-                                <span id="footerLoadAbonos" class="col-md-12 text-center">
+
+                                <div class="panel-body">
+                                    <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/academico/becaspronabec}">
+                                        <div class="row m-b-md">
+                                            <div class="col-md-9">
+
+                                                <span class="block">Descarga el ejemplo <strong><a href="https://cdn2.lamolina.edu.pe/lamolina-academico/pronabec/ModelobecadosPronabec.xlsx">aquí </a></strong>.</span>
+                                                <span class="block">Seleccionar un archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
+
+                                                <div class="form-group">
+                                                    <br/>
+                                                    <input  class="btn btn-default" type="file" v-on:change="getImage"  accept=".xlsx" required=""/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span id="footerLoadAbonos" class="col-md-12 text-center">
                                             <a class="btn btn-link" th:href="@{'/academico/becaspronabec'}">Regresar</a>
                                             <button type="button" class="btn btn-primary"
                                                     v-bind:disabled="procesando"
                                                     v-on:click.prevent="startUpload">
 
-                                                <i  v-if="procesando" class="fa fa-spinner fa-pulse fa-fw"></i>
+                                                <i v-if="procesando" class="fa fa-spinner fa-pulse fa-fw"></i>
 
                                                 {{btnText}}
                                             </button>
                                         </span>
-                            </form>
-                        </div>
+                                    </form>
+                                </div>
 
-                    </div>
-                    <br/>
+                            </div>
+                            <br/>
 
-                    <div id="pandelObservados" class="panel panel-danger" v-if="datos.length > 0">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Registros observados</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div id="observados" style="max-height: 30vh; overflow-y: auto;">
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>Observaciones</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr v-for="item in datos">
-                                        <td>{{item}}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                            <div id="pandelObservados" class="panel panel-danger" v-if="datos.length > 0">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Registros observados</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="observados" style="max-height: 30vh; overflow-y: auto;">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Observaciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in datos">
+                                                    <td>{{item}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-
                     </div>
-                </div>
-            </div>
-        </section>
+                </section>
 
-    </section>
+            </section>
 
 
-</div>
+        </div>
 
-<div layout:fragment="js">
-    <script th:src="@{/app/academico/pronabec/loadArchivoBecasPronabec.js}" charset="utf-8"></script>
-</div>
+        <div layout:fragment="js">
+            <script th:src="@{/app/academico/pronabec/loadArchivoBecasPronabec.js}" charset="utf-8"></script>
+        </div>
 
-</body>
+    </body>
 </html>

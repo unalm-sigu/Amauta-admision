@@ -32,9 +32,9 @@ new Vue({
         tabs: [
             {id: 1, name: "Inicio"},
             {id: 2, name: "Tramite"},
-            {id: 3, name: "Orden Merito"},
+            {id: 3, name: "Orden Mérito"},
             {id: 4, name: "Historial"},
-            {id: 5, name: "Matricula"},
+            {id: 5, name: "Matrícula"},
             {id: 6, name: "Retiro Ciclo"}
         ],
         alumno: {},

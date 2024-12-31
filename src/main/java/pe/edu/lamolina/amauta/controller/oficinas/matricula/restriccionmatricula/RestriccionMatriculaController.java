@@ -29,7 +29,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -63,32 +62,28 @@ public class RestriccionMatriculaController {
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        try {
-            JsonNodeFactory factory = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(factory);
-            List<DeudaMaterialAlumno> deudas = service.allDeudaAlumno(filter, ds);
 
-            for (DeudaMaterialAlumno deuda : deudas) {
-                ObjectNode node = JsonHelper.createJson(deuda, factory, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.modalidadEstudio.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "oficina.*",});
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(factory);
+        List<DeudaMaterialAlumno> deudas = service.allDeudaAlumno(filter, ds);
 
-                array.add(node);
-            }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
+        for (DeudaMaterialAlumno deuda : deudas) {
+            ObjectNode node = JsonHelper.createJson(deuda, factory, new String[]{
+                "*",
+                "alumno.*",
+                "alumno.modalidadEstudio.*",
+                "alumno.persona.*",
+                "alumno.persona.tipoDocumento.*",
+                "oficina.*",});
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            array.add(node);
         }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
         return json;
     }

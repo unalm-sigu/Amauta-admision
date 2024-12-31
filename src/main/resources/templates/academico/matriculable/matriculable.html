@@ -11,7 +11,7 @@
                 <header class="header b-b padder-lg">        
                     <div class="btn-group pull-right" th:if="${puedeMatricular}" >
                         <button v-bind:disabled="processreporte" type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i  v-if="!processreporte" class="fa fa-file-text-o"/>
+                            <i  v-if="!processreporte" class="fa fa-file-text-o"></i>
                             <span v-if="processreporte"> <i class="fa fa-spinner fa-spin" style="font-size:14px"></i></span>
                             &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>

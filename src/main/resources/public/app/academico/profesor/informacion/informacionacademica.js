@@ -1,5 +1,6 @@
 Vue.component('multiselect', {mixins: [window.VueMultiselect.default]});
 const EditarContratoDocente = httpVueLoader('/app/academico/profesor/EditarContratoDocente.vue');
+
 new Vue({
     el: '#main',
     components: {

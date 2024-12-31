@@ -28,8 +28,10 @@ Vue.component("historial-component", {
     },
     mounted() {
         let $vue = this;
-        if ($vue.alumno.modalidadEstudio.codigo == "EPG" || $vue.alumno.modalidadEstudio.codigo == "PRE") {
-            $vue.isVisibleMerito = true;
+        if ($vue.alumno.modalidadEstudio) {
+            if ($vue.alumno.modalidadEstudio.codigo == "EPG" || $vue.alumno.modalidadEstudio.codigo == "PRE") {
+                $vue.isVisibleMerito = true;
+            }
         }
     },
     watch: {

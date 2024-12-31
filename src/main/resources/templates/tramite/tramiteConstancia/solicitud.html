@@ -6,7 +6,6 @@
 
         <div layout:fragment="main">
             <div id="main" v-cloak="">
-
                 <header class="header b-b padder-lg">
 
                     <a class="pull-right btn btn-default  btn-sm"
@@ -15,13 +14,13 @@
                     </a>
 
                     <h1 >Tramite de Constancias y Certificados</h1>
-                    
-                    
+
+
                     <p class="block text-primary h4" v-if="solicitud.id">
                         <span v-if="solicitud.tipoDocumentoAcademico">{{solicitud.tipoDocumentoAcademico.nombre}}</span>
                     </p>
-                    
-                   <div v-if="solicitud.id" class="tabbable-line">
+
+                    <div v-if="solicitud.id" class="tabbable-line">
                         <ul class="nav nav-tabs" >
                             <li v-for="tab in tabs" v-bind:class="styleMenu(tab.id)">
                                 <a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a>
@@ -32,9 +31,8 @@
                 </header>
 
                 <section class="wrapper-lg m-b-xs">
-                    
+
                     <section class="panel">
-                        
                         <section class="panel-body m-t-sm">
                             <div class="wrapper-md" >
                                 <section class="panel">
@@ -63,15 +61,15 @@
                         </section>
                     </section>
                 </section>
-                <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
-
+                <div th:replace="tramite/tramiteConstancia/ciclosModal"></div>
             </div>
-            <div th:replace="tramite/tramiteConstancia/inicioTramite"/>
-            <div th:replace="academico/alumno/includes/inicio"/>
-            <div th:replace="academico/alumno/includes/alumnoMeritos"/>
-            <div th:replace="academico/alumno/includes/historial"/>
-            <div th:replace="academico/alumno/includes/matricula"/>
-            <div th:replace="academico/alumno/includes/retiroCiclo"/>
+
+            <div th:replace="tramite/tramiteConstancia/inicioTramite"></div>
+            <div th:replace="academico/alumno/includes/inicio"></div>
+            <div th:replace="academico/alumno/includes/alumnoMeritos"></div>
+            <div th:replace="academico/alumno/includes/historial"></div>
+            <div th:replace="academico/alumno/includes/matricula"></div>
+            <div th:replace="academico/alumno/includes/retiroCiclo"></div>
         </div>
 
         <div layout:fragment="js">
@@ -84,7 +82,7 @@
                 /*]]>*/
             </script>
 
-            <div th:replace="_layout/includes :: vuejs"/>
+            <!--<div th:replace="_layout/includes :: vuejs"></div>-->
             <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
