@@ -33,4 +33,6 @@ public interface TramiteDAO extends EasyDAO<Tramite> {
 
     public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite);
 
+    public List<Tramite> allByAlumnoCicloAcademicotTipoTram(Alumno alumno, CicloAcademico cicloAcademico, TipoTramite tipoTramiteRCU);
+
 }

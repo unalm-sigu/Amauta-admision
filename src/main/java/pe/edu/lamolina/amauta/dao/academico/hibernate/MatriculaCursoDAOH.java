@@ -467,4 +467,15 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         return all(sql);
     }
 
+    @Override
+    public void updateEstado(MatriculaCurso matriculaCurso) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update MatriculaCurso  set estado=:prm_estado, fecha_anula=:prm_fecha_anula, id_user_anula=:prm_user_anula where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", matriculaCurso.getId());
+        query.setParameter("prm_estado", matriculaCurso.getEstado());
+        query.setParameter("prm_fecha_anula", matriculaCurso.getFechaAnula());
+        query.setParameter("prm_user_anula", matriculaCurso.getUserAnula().getId());
+        query.executeUpdate();
+    }
 }

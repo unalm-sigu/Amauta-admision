@@ -133,4 +133,15 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
         query.setString("estado", OCUP.name());
         query.executeUpdate();
     }
+    
+    @Override
+    public VacanteAlumno findByAlumnoSeccion(Alumno alumno, Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(VacanteAlumno.class, "va")
+                .join("seccion se", "alumno alu")
+                .filter("se.id", seccion)
+                .filter("alu.id", alumno)
+                .filter("va.activo", 1);
+        return (VacanteAlumno) sql.find(getCurrentSession());
+    }
 }

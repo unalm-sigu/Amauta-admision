@@ -27,4 +27,6 @@ public interface VacanteAlumnoDAO extends EasyDAO<VacanteAlumno> {
 
     public void updateEstado(List<VacanteAlumno> vacantesAlumnoTemp);
 
+    public VacanteAlumno findByAlumnoSeccion(Alumno alumno, Seccion seccion);
+
 }

@@ -1116,8 +1116,8 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu")
                 .join("mr.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-//                .filter("mr.estado", EstadoMatriculaEnum.MAT)
-                .filter("sec.estado", SeccionEstadoEnum.ACT.name())              
+                //                .filter("mr.estado", EstadoMatriculaEnum.MAT)
+                .filter("sec.estado", SeccionEstadoEnum.ACT.name())
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.RCU, EstadoMatriculaEnum.RCI))
                 .groupBy("sec.id");
 
@@ -1127,6 +1127,42 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
             result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
         }
         return result;
+    }
+
+    @Override
+    public Seccion findResumenMatRet(Seccion seccion) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(Seccion.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case ms.estado when :MAT then 1 else 0 end) as matriculados,   ");
+        sql.append("   sum(case ms.estado when :RCU then 1 else 0 end) as retiradosCurso,   ");
+        sql.append("   sum(case ms.estado when :RCI then 1 else 0 end) as retiradosCiclo   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(MatriculaSeccion.class.getName()).append(" as ms ");
+        sql.append(" inner join ms.seccion sec ");
+        sql.append(" where 1=1 ");
+        sql.append("  and sec.id=:prm_seccion ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setParameter("MAT", EstadoMatriculaEnum.MAT.name());
+        query.setParameter("RCI", EstadoMatriculaEnum.RCI.name());
+        query.setParameter("RCU", EstadoMatriculaEnum.RCU.name());
+        query.setParameter("prm_seccion", seccion.getId());
+
+        return (Seccion) query.uniqueResult();
+    }
+
+    @Override
+    public void updateMatRet(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set matriculados=:prm_matriculados, retirados=:prm_retirados where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_matriculados", seccion.getMatriculados());
+        query.setParameter("prm_retirados", seccion.getRetirados());
+        query.setParameter("prm_id", seccion.getId());
+        query.executeUpdate();
     }
 
 }

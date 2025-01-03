@@ -161,4 +161,16 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("tr.estado", "!=", ANU);
         return find(sql);
     }
+    
+    @Override
+    public List<Tramite> allByAlumnoCicloAcademicotTipoTram(Alumno alumno, CicloAcademico cicloAcademico, TipoTramite tipoTramiteRCU) {
+        Octavia sql = Octavia.query()
+                .from(Tramite.class, "tr")
+                .join("persona per", "alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
+                .join("cicloAcademico ca", "tipoTramite tt", "tt.oficina ofic")
+                .filter("alum.id", alumno)
+                .filter("ca.id", cicloAcademico)
+                .filter("tt.id", tipoTramiteRCU);
+        return all(sql);
+    }
 }
