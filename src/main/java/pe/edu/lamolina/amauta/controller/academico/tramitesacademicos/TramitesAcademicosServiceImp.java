@@ -956,7 +956,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 //            alumnoSubvencionadoService.quitarSubvencionRetiroCiclo(alumno, cicloAcademico);
 
             if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
-                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANRES);
                 alumnoCiclo.setUserModificacion(ds.getUsuario());
                 alumnoCiclo.setFechaModificacion(new Date());
                 alumnoCicloDAO.update(alumnoCiclo);
@@ -993,7 +993,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, cicloAcademico);
 
         for (MatriculaCurso matriculaCursoEach : matriculasCursosRcu) {
-            matriculaCursoEach.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            matriculaCursoEach.setEstadoEnum(EstadoMatriculaEnum.ANRES);
             matriculaCursoEach.setFechaAnula(new Date());
             matriculaCursoEach.setUserAnula(ds.getUsuario());
             matriculaCursoDAO.updateEstado(matriculaCursoEach);
@@ -1012,16 +1012,16 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             creditosTotales = creditosTotales + matriculaCursoEach.getCreditos();
             MatriculaCurso matriculaCursoUpd = new MatriculaCurso();
             matriculaCursoUpd.setId(matriculaCursoEach.getId());
-            matriculaCursoUpd.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            matriculaCursoUpd.setEstadoEnum(EstadoMatriculaEnum.ANRES);
             matriculaCursoUpd.setFechaAnula(new Date());
-            matriculaCursoUpd.setUserAnula(GlobalConstantine.USUARIO_ADMIN);
+            matriculaCursoUpd.setUserAnula(ds.getUsuario());
             matriculaCursoDAO.updateEstado(matriculaCursoUpd);
 
             List<MatriculaSeccion> matriculasSecByCur = matriculasSecciones.stream().
                     filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCursoEach.getCurso().getId())).
                     collect(Collectors.toList());
             for (MatriculaSeccion matriculaSeccion : matriculasSecByCur) {
-                this.retirarMatriculaSeccion(matriculaSeccion, alumno, today, EstadoMatriculaEnum.RCI, EstadoVacanteAlumnoEnum.RCI, ds);
+                this.retirarMatriculaSeccion(matriculaSeccion, EstadoMatriculaEnum.ANRES, ds);
             }
         }
 
@@ -1075,7 +1075,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
     }
 
-    private void retirarMatriculaSeccion(MatriculaSeccion matriculaSeccion, Alumno alumno, DateTime today, EstadoMatriculaEnum estadoMatriculaEnum, EstadoVacanteAlumnoEnum estadoVacanteAlumnoEnum, DataSessionPivot ds) {
+    private void retirarMatriculaSeccion(MatriculaSeccion matriculaSeccion, EstadoMatriculaEnum estadoMatriculaEnum, DataSessionPivot ds) {
 
         Seccion seccion = matriculaSeccion.getSeccion();
         MatriculaSeccion matriculaSeccionUpdEstado = new MatriculaSeccion();
@@ -1096,7 +1096,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     private void updateMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico, MatriculaResumenData matriculaResumenData) {
         MatriculaResumen matricularesumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-        matricularesumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
+        matricularesumen.setEstadoEnum(EstadoMatriculaEnum.ANRES);
         matricularesumen.setCreditosRetirados(matriculaResumenData.getCreditosTotalesRetirados());
         matricularesumen.setCursosRetirados(matriculaResumenData.getCantidadCursosRetirados());
         matricularesumen.setCursosMatriculados(matricularesumen.getCursosMatriculados() - matriculaResumenData.getCantidadCursosRetirados());
