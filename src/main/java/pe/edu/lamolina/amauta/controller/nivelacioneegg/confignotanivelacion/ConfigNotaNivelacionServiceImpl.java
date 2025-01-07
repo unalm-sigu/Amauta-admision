@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.confignotanivelacion.dto.PuntajeMaxMinDTO;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
@@ -65,8 +66,6 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
 
     private final BigDecimal ONCE = new BigDecimal("10.5");
     private final BigDecimal VEINTE = new BigDecimal("20");
-    private final BigDecimal CIEN = new BigDecimal("100");
-    private final BigDecimal CIEN_NEG = new BigDecimal("-100");
 
     private final VerificadorService verificadorService;
 
@@ -538,8 +537,8 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
             return;
         }
 
-        ModalidadIngreso modalidad = modalidadIngresoDAO.findByCode(ModalidadIngresoEnum.CEPRE.getCode());
-        Assert.isNotNull(modalidad, "No se pudo ubicar la modalidad CEPRE");
+        ModalidadIngreso modalidadCepre = modalidadIngresoDAO.findByCode(ModalidadIngresoEnum.CEPRE.getCode());
+        Assert.isNotNull(modalidadCepre, "No se pudo ubicar la modalidad CEPRE");
         List<TemaCiclo> temasCiclo = temaCicloDAO.allByCiclo(ciclo);
         Map<Long, TemaCiclo> mapTemaCiclo = temasCiclo.stream()
                 .collect(Collectors.toMap(tc -> tc.getTemaExamen().getId(), Function.identity()));
@@ -552,10 +551,10 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaCiclo temaSuper = this.getTemaCicloSuper(temaCiclo, mapTemaSuper, mapTemaCiclo, codigos);
             if (temaSuper != null) {
-                this.createModalidadTema(ciclo, modalidad, temaSuper, ds);
+                this.createModalidadTema(ciclo, modalidadCepre, temaSuper, ds);
             }
 
-            this.createModalidadTema(ciclo, modalidad, temaCiclo, ds);
+            this.createModalidadTema(ciclo, modalidadCepre, temaCiclo, ds);
         }
 
         codigos.clear();
@@ -639,21 +638,23 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                 .filter(mtc -> mtc.getTemaCiclo() == null)
                 .forEach(mtc -> {
                     TemaExamen tema = mtc.getTemaExamen();
-                    TemaCiclo temaPadre = this.crearTemaCiclo(tema, items, mtc.getModalidadIngreso());
+                    TemaCiclo temaPadre = this.crearTemaCiclo(tema, items, mtc.getModalidadIngreso(), ciclo);
                     mtc.setTemaCiclo(temaPadre);
                 });
         return items;
     }
 
-    private TemaCiclo crearTemaCiclo(TemaExamen temaSuper, List<ModalidadTemaCiclo> items, ModalidadIngreso modalidad) {
+    private TemaCiclo crearTemaCiclo(TemaExamen temaSuper, List<ModalidadTemaCiclo> items, ModalidadIngreso modalidad, CicloAcademico ciclo) {
         TemaCiclo tc = new TemaCiclo();
         tc.setPreguntas(0);
         if (modalidad != null && modalidad.isPreLaMolina()) {
-            tc.setPuntajeCepreMinimo(CIEN);
-            tc.setPuntajeCepreMaximo(CIEN_NEG);
+            PuntajeMaxMinDTO puntajes = prelamolinaDAO.findPuntajeMatematicasByCiclo(ciclo);
+            tc.setPuntajeCepreMinimo(puntajes.getMinimo());
+            tc.setPuntajeCepreMaximo(puntajes.getMaximo());
         } else {
-            tc.setPuntajeMinimo(CIEN);
-            tc.setPuntajeMaximo(CIEN_NEG);
+            PuntajeMaxMinDTO puntajes = evaluadoDAO.findPuntajeMatematicasByCiclo(ciclo);
+            tc.setPuntajeMinimo(puntajes.getMinimo());
+            tc.setPuntajeMaximo(puntajes.getMaximo());
         }
 
         items.stream()
@@ -671,24 +672,25 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
                 .forEach(mtc -> {
                     TemaCiclo hijo = mtc.getTemaCiclo();
                     tc.setPreguntas(tc.getPreguntas() + hijo.getPreguntas());
-                    if (modalidad != null && modalidad.isPreLaMolina()) {
-                        if (hijo.getPuntajeCepreMinimo().compareTo(tc.getPuntajeCepreMinimo()) < 0) {
-                            tc.setPuntajeCepreMinimo(hijo.getPuntajeCepreMinimo());
-                        }
-                        if (hijo.getPuntajeCepreMaximo().compareTo(tc.getPuntajeCepreMaximo()) > 0) {
-                            tc.setPuntajeCepreMaximo(hijo.getPuntajeCepreMaximo());
-                        }
-                    } else {
-                        if (hijo.getPuntajeMinimo().compareTo(tc.getPuntajeMinimo()) < 0) {
-                            tc.setPuntajeMinimo(hijo.getPuntajeMinimo());
-                        }
-                        if (hijo.getPuntajeMaximo().compareTo(tc.getPuntajeMaximo()) > 0) {
-                            tc.setPuntajeMaximo(hijo.getPuntajeMaximo());
-                        }
-                    }
                 });
 
+        if (tc.getPreguntas() > 0) {
+            if (tc.getPuntajeCepreMinimo() != null) {
+                tc.setNotaCepreMinima(getNota(tc.getPuntajeCepreMinimo(), tc.getPreguntas()));
+                tc.setNotaCepreMaxima(getNota(tc.getPuntajeCepreMaximo(), tc.getPreguntas()));
+            }
+            if (tc.getPuntajeMinimo() != null) {
+                tc.setNotaMinima(getNota(tc.getPuntajeMinimo(), tc.getPreguntas()));
+                tc.setNotaMaxima(getNota(tc.getPuntajeMaximo(), tc.getPreguntas()));
+            }
+        }
+
         return tc;
+    }
+
+    private BigDecimal getNota(BigDecimal puntaje, int preguntas) {
+        BigDecimal pgtas = new BigDecimal(preguntas);
+        return puntaje.multiply(VEINTE).divide(pgtas, 4, RoundingMode.HALF_UP);
     }
 
     @Override

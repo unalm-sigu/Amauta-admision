@@ -22,9 +22,8 @@ public class ModalidadTemaCicloDAOH extends AbstractEasyDAO<ModalidadTemaCiclo> 
     public ModalidadTemaCiclo find(long id) {
         Octavia sql = Octavia.query()
                 .from(ModalidadTemaCiclo.class, "mtc")
-                .join("temaCiclo tc", "tc.temaExamen te")
-                .join("tc.cicloPostula cp", "cp.cicloAcademico ci")
-                .leftJoin("modalidadIngreso mi")
+                .join("temaExamen te", "cicloAcademico ci")
+                .leftJoin("modalidadIngreso mi", "temaCiclo tc")
                 .filter("mtc.id", id);
 
         return find(sql);
@@ -35,11 +34,10 @@ public class ModalidadTemaCicloDAOH extends AbstractEasyDAO<ModalidadTemaCiclo> 
         DynatableSql sql = new DynatableSql(filter)
                 .from(ModalidadTemaCiclo.class, "mtc")
                 .join("temaExamen te", "cicloAcademico ci")
-                .leftJoin("temaCiclo tc", "tc.temaExamen", "te.temaSuperior")
-                .leftJoin("modalidadIngreso mi")
+                .leftJoin("modalidadIngreso mi", "temaCiclo tc")
                 .searchFields("te.codigo", "te.nombre")
                 .filter("ci.id", ciclo)
-                .orderBy("mtc.otrasModalidades", "tc.orden");
+                .orderBy("mtc.otrasModalidades", "coalesce(tc.orden,2.5)");
 
         return all(sql);
     }
@@ -48,9 +46,8 @@ public class ModalidadTemaCicloDAOH extends AbstractEasyDAO<ModalidadTemaCiclo> 
     public List<ModalidadTemaCiclo> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(ModalidadTemaCiclo.class, "mtc")
-                .join("temaCiclo tc", "tc.temaExamen te")
-                .join("tc.cicloPostula cp", "cp.cicloAcademico ci")
-                .leftJoin("modalidadIngreso mi")
+                .join("temaExamen te", "cicloAcademico ci")
+                .leftJoin("modalidadIngreso mi", "temaCiclo tc")
                 .filter("ci.id", ciclo);
 
         return all(sql);

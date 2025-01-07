@@ -70,6 +70,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     private final VerificadorService verificadorService;
 
     private final BigDecimal VEINTE = new BigDecimal("20");
+    private static Boolean logUsad0 = false;
 
     private void verificarPermiso(DataSessionPivot ds) {
         boolean esOperador = verificadorService.esOperadorEEGG(ds);
@@ -134,12 +135,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         Map<Long, ModalidadTemaCiclo> mapConfigCepre = configuraciones.stream()
                 .filter(mtc -> mtc.getModalidadIngreso() != null)
                 .filter(mtc -> mtc.getModalidadIngreso().getCodigo().equals(CEPRE.getCode()))
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         List<Alumno> alumnos = alumnoDAO.allIngresantePregradoByCicloIngreso(ciclo);
         log.info("[createAlumnos] alumnos.size={}", alumnos.size());
@@ -497,7 +498,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             TemaExamen temaSuperior = temaCiclo.getTemaExamen().getTemaSuperior();
             if (temaSuperior != null && !codigos.contains(temaSuperior.getCodigo())) {
                 if (temaSuperior.getCodigo().equals("MAT")) {
-                    this.crearMatematicasPrelamolina(alumnoNiv, cepre, temaSuperior, config, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
+                    ModalidadTemaCiclo configSuper = mapConfig.get(temaSuperior.getId());
+                    this.crearMatematicasPrelamolina(alumnoNiv, cepre, temaSuperior, configSuper, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
                     codigos.add(temaSuperior.getCodigo());
                 }
             }
@@ -578,6 +580,9 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         for (TemaCiclo temaCiclo : temasCiclo) {
             TemaExamen temaExamen = temaCiclo.getTemaExamen();
+            if (!logUsad0) {
+                log.info("[crearNotaEvaluado] alumnoNiv={} tema={}", alumnoNiv.getId(), temaExamen.getCodigo());
+            }
             ModalidadTemaCiclo config = mapConfig.get(temaExamen.getId());
 
             NotaAlumnoNivelacion notaBD = mapNotasAlumnos.get(temaExamen.getId());
@@ -609,8 +614,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
             if (temaSuperior != null && !codigos.contains(temaSuperior.getCodigo())) {
                 if (temaSuperior.getCodigo().equals("MAT")) {
-                    this.crearMatematicasEvaluado(alumnoNiv, evaluado, temaSuperior, config, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
+                    ModalidadTemaCiclo configSuper = mapConfig.get(temaSuperior.getId());
+                    this.crearMatematicasEvaluado(alumnoNiv, evaluado, temaSuperior, configSuper, temasCiclo, mapNotasAlumnos, notasSave, notasUpdate, today, ds);
                     codigos.add(temaSuperior.getCodigo());
+                    if (!logUsad0) {
+                        log.info("[crearNotaEvaluado] \tcrearMatematicasEvaluado");
+                    }
                 }
             }
 
@@ -657,6 +666,9 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
             if (nota.getId() == null) {
                 notasSave.add(nota);
+                if (!logUsad0) {
+                    log.info("[crearNotaEvaluado] \tcrearNota temaExamen");
+                }
 
             } else {
                 String dataFinal = this.comparableNotaAlumnoJson(nota);
@@ -673,6 +685,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 }
             }
         }
+        logUsad0 = true;
     }
 
     private void crearMatematicasEvaluado(
