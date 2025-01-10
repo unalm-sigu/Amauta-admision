@@ -26,6 +26,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlEncuesta;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -50,6 +51,9 @@ public class EncuestaDocenteModalidadController {
 
     @Autowired
     PdfHtml pdfHtml;
+
+    @Autowired
+    PdfHtmlEncuesta pdfHtmlEncuesta;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
@@ -192,7 +196,7 @@ public class EncuestaDocenteModalidadController {
         model.addAttribute("templatePdf", "resultadoencuesta");
         model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
 
-        return new ModelAndView(pdfHtml);
+        return new ModelAndView(pdfHtmlEncuesta);
 
     }
 
