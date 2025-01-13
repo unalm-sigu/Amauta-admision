@@ -89,6 +89,7 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
+import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
@@ -123,6 +124,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.model.inscripcion.Prelamolina;
 import pe.edu.lamolina.model.nivelacioneegg.CursoReplicaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
@@ -161,6 +163,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final OrientacionCarreraDAO orientacionCarreraDAO;
     private final PlanCurricularDAO planCurricularDAO;
+    private final PrelamolinaDAO prelamolinaDAO;
     private final RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
     private final ResumenPlanCurricularDAO resumenPlanCurricularDAO;
     private final RetiroCicloDAO retiroCicloDAO;
@@ -1312,10 +1315,34 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return new Evaluado();
         }
 
-        Evaluado evaluado = evaluadoDAO.findByPostulante(alumno.getPostulantePregrado());
-        if (evaluado == null) {
+        Postulante postulante = alumno.getPostulantePregrado();
+        Evaluado evaluado = evaluadoDAO.findByPostulante(postulante);
+        if (evaluado != null) {
+            return evaluado;
+        }
+
+        Prelamolina cepre = prelamolinaDAO.findIngresanteByPostulante(postulante);
+        if (cepre == null) {
             return new Evaluado();
         }
+
+        evaluado = new Evaluado();
+        evaluado.setPostulante(postulante);
+        evaluado.setPuntajeAlgebra(cepre.getPuntajeAlgebra());
+        evaluado.setPuntajeAritmetica(cepre.getPuntajeAritmetica());
+        evaluado.setPuntajeBiologia(cepre.getPuntajeBiologia());
+        evaluado.setPuntajeEconomia(cepre.getPuntajeEconomia());
+        evaluado.setPuntajeFinal(cepre.getPuntajeFinal());
+        evaluado.setPuntajeFisica(cepre.getPuntajeFisica());
+        evaluado.setPuntajeGeografia(cepre.getPuntajeGeografia());
+        evaluado.setPuntajeGeometria(cepre.getPuntajeGeometria());
+        evaluado.setPuntajeHistoria(cepre.getPuntajeHistoria());
+        evaluado.setPuntajeMatematicas(cepre.getPuntajeMatematicas());
+        evaluado.setPuntajeQuimica(cepre.getPuntajeQuimica());
+        evaluado.setPuntajeRm(cepre.getPuntajeRm());
+        evaluado.setPuntajeRv(cepre.getPuntajeRv());
+        evaluado.setPuntajeTrigonometria(cepre.getPuntajeTrigonometria());
+
         return evaluado;
     }
 
