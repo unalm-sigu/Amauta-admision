@@ -150,7 +150,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         int nuevos = 0;
         for (Alumno alumno : alumnos) {
-            boolean esNumero = this.esCodigoNumerico(alumno.getCodigo());
+            boolean esNumero = this.esIngresanteCorrecto(alumno, ciclo);
             AlumnoNivelacion alumnoNiv = mapNivelados.get(alumno.getCodigo());
             if (esNumero && alumnoNiv == null) {
                 alumnoNiv = new AlumnoNivelacion();
@@ -303,7 +303,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         Assert.isTrue(alumno.isPregrado(), "Solo apto para alumnos de pregrado");
         Assert.isNotNull(alumno.getPostulantePregrado(), "Este alumno no tiene información de postulante");
 
-        boolean esNumero = this.esCodigoNumerico(alumno.getCodigo());
+        boolean esNumero = this.esIngresanteCorrecto(alumno, ciclo);
         Assert.isTrue(esNumero, "Este alumno no está habilitado para ser agregado");
 
         AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -867,7 +867,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         }
     }
 
-    private boolean esCodigoNumerico(String codigo) {
+    private boolean esIngresanteCorrecto(Alumno alumno, CicloAcademico cicloIngreso) {
+        String codigo = alumno.getCodigo();
         if (codigo == null || codigo.isEmpty()) {
             return false;
         }
@@ -876,8 +877,13 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
             return true;
         }
 
+        if (codigo.startsWith("Q")) {
+            CicloAcademico ciclo = alumno.getPostulantePregrado().getCicloPostula().getCicloAcademico();
+            return ciclo.getId().compareTo(cicloIngreso.getId()) != 0;
+        }
+
         try {
-            Integer.parseInt(codigo);
+            Integer.valueOf(codigo);
             return true;
         } catch (NumberFormatException e) {
             return false;
