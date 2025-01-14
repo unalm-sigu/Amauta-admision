@@ -65,7 +65,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
     @Override
     public List<NotaAlumnoNivelacion> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        List<NotaAlumnoNivelacion> matriculables = notaAlumnoNivelacionDAO.allByDynatable(filter, ciclo);
+        List<NotaAlumnoNivelacion> matriculables = notaAlumnoNivelacionDAO.allByDynatableCiclo(filter, ciclo);
 
         return matriculables;
     }

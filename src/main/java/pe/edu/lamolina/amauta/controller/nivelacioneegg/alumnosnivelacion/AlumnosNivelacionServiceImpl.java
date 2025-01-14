@@ -152,6 +152,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         for (Alumno alumno : alumnos) {
             boolean esNumero = this.esIngresanteCorrecto(alumno, ciclo);
             AlumnoNivelacion alumnoNiv = mapNivelados.get(alumno.getCodigo());
+            log.info("[createAlumnos] alumno={} es-correcto={} no-existe={}", alumno.getCodigo(), esNumero, alumnoNiv == null);
             if (esNumero && alumnoNiv == null) {
                 alumnoNiv = new AlumnoNivelacion();
                 Postulante postulante = alumno.getPostulantePregrado();
@@ -879,6 +880,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         if (codigo.startsWith("Q")) {
             CicloAcademico ciclo = alumno.getPostulantePregrado().getCicloPostula().getCicloAcademico();
+            log.info("[esIngresanteCorrecto] ciclo-proceso={} :::: ciclo-postulante={}", cicloIngreso.getDescripcion(), ciclo.getDescripcion());
             return ciclo.getId().compareTo(cicloIngreso.getId()) != 0;
         }
 

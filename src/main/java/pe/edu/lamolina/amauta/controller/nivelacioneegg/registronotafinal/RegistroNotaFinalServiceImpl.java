@@ -81,7 +81,7 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
 
     @Override
     public List<NotaAlumnoNivelacion> allAlumnos(DynatableFilter filter, CursoNivelacion seccion) {
-        List<NotaAlumnoNivelacion> notasAlumnos = notaAlumnoNivelacionDAO.allSeccionByDynatable(filter, seccion);
+        List<NotaAlumnoNivelacion> notasAlumnos = notaAlumnoNivelacionDAO.allByDynatableSeccion(filter, seccion);
 
         List<ExamenAlumnoNivelacion> examenesAlumnosAll = examenAlumnoNivelacionDAO.allByNotasAlumnos(notasAlumnos);
         Map<Long, List<ExamenAlumnoNivelacion>> mapExamenes = examenesAlumnosAll.stream()

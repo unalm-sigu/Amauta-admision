@@ -47,7 +47,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
-    public List<NotaAlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<NotaAlumnoNivelacion> allByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "temaExamen te", "curso cur")
@@ -89,7 +89,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
-    public List<NotaAlumnoNivelacion> allSeccionByDynatable(DynatableFilter filter, CursoNivelacion cursoNiv) {
+    public List<NotaAlumnoNivelacion> allByDynatableSeccion(DynatableFilter filter, CursoNivelacion cursoNiv) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "temaExamen te", "curso cur")

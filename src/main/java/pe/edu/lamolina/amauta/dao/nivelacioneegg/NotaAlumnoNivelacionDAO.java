@@ -12,9 +12,9 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
-    List<NotaAlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo);
+    List<NotaAlumnoNivelacion> allByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
 
-    List<NotaAlumnoNivelacion> allSeccionByDynatable(DynatableFilter filter, CursoNivelacion seccion);
+    List<NotaAlumnoNivelacion> allByDynatableSeccion(DynatableFilter filter, CursoNivelacion seccion);
 
     MatriculablesResumen findResumen(CicloAcademico ciclo);
 

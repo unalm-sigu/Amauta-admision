@@ -60,8 +60,9 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <span class="circle-recorrido"
-                                                  v-bind:class="classMatriculados(item)">
+                                            <span class="circle-recorrido pointer"
+                                                  v-bind:class="classMatriculados(item)"
+                                                  v-on:click="matriculados(item)">
                                                 {{item.matriculados}}
                                             </span>
                                         </td>
@@ -174,6 +175,10 @@
             },
             actasNotas(item) {
                 const url = APP.url(`${rutaModulo}/${item.id}/notas${myUtils.getOrigenURL()}`);
+                location.href = url;
+            },
+            matriculados(item) {
+                const url = APP.url(`${rutaModulo}/${item.id}/alumnado${myUtils.getOrigenURL()}`);
                 location.href = url;
             },
             verHorario(item) {
