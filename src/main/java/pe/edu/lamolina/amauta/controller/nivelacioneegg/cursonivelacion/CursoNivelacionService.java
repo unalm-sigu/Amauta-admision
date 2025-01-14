@@ -17,7 +17,7 @@ public interface CursoNivelacionService {
 
     void eliminar(Curso curso, DataSessionPivot ds);
 
-    List<TemaExamen> allTemas(DataSessionPivot ds);
+    List<TemaExamen> allNotTemaSuperior(DataSessionPivot ds);
 
     int saveRelacion(CursoListTemas cursoListTemas, DataSessionPivot ds);
 

@@ -121,9 +121,9 @@ public class CursoNivelacionController {
 
     @ResponseBody
     @RequestMapping("allTemas")
-    public JsonResponse allTemass(HttpSession session) {
+    public JsonResponse allTemas(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<TemaExamen> temasExamen = service.allTemas(ds);
+        List<TemaExamen> temasExamen = service.allNotTemaSuperior(ds);
         ArrayNode array = JaneHelper
                 .from(temasExamen)
                 .only("id,codigo,nombre")
