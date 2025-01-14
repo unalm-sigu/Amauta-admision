@@ -154,8 +154,8 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     }
 
     @Override
-    public List<TemaExamen> allTemas(DataSessionPivot ds) {
-        return temaExamenDAO.all();
+    public List<TemaExamen> allNotTemaSuperior(DataSessionPivot ds) {
+        return temaExamenDAO.allNotTemaSuperior();
     }
 
     @Override

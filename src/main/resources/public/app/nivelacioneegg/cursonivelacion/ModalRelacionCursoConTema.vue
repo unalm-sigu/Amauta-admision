@@ -73,10 +73,6 @@
         methods: {
 
             abrirModalRelacion(item, raptor) {
-                console.log("raptor")
-                console.log(item.temas.length)
-                console.dir(raptor);
-
                 var form = $("#" + this.form);
                 form.parsley().destroy();
                 this.cursoListTemas.curso = item;
