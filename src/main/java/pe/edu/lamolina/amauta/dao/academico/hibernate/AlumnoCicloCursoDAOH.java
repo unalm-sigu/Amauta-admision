@@ -204,7 +204,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
                 .filter("al.id", alumno)
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue())
-                .orderBy("cu.nombre");
+                .orderBy("cu.nombre", "ca.codigo DESC");
 
         return all(sql);
     }

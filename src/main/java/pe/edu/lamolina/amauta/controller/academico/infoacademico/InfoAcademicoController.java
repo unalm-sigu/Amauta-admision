@@ -23,6 +23,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.dto.AlumnoCursoCicloDTO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -52,7 +53,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.calificacion.TemaCiclo;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
-import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
 @Controller
@@ -108,7 +109,7 @@ public class InfoAcademicoController {
         ObjectNode cicloJson = createCicloJson(ciclo);
 
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
-       
+
         List<Hora> horas = service.allHoras();
         ArrayNode horasJson = JaneHelper.from(horas).array();
 
@@ -467,7 +468,9 @@ public class InfoAcademicoController {
     @RequestMapping("notasAdmision")
     public JsonResponse notasAdmision(@RequestBody Alumno alumno) {
         Evaluado evaluado = service.findEvaluadoAdmision(alumno);
+        List<NotaAlumnoNivelacion> notasNivelacion = service.allNotasNivelacion(alumno);
         List<TemaCiclo> temasCiclo = service.allTemasAdmision(alumno);
+        List<AlumnoCursoCicloDTO> historial = service.allNotasHistorial(alumno);
 
         ObjectNode evaluadoJson = JaneHelper
                 .from(evaluado)
@@ -480,9 +483,26 @@ public class InfoAcademicoController {
                 .join("temaExamen")
                 .array();
 
+        ArrayNode notasNivelacionJson = JaneHelper
+                .from(notasNivelacion).only("id,notaCurso,aprobado")
+                .join("temaExamen")
+                .join("curso", "id,codigo,nombre")
+                .join("alumnoNivelacion", "id")
+                .join("alumnoNivelacion.cicloAcademico", "id,descripcion")
+                .array();
+
+        ArrayNode historialJson = JaneHelper
+                .from(historial).only("nota,aprobado")
+                .join("temaExamen")
+                .join("curso", "id,codigo,nombre")
+                .join("ciclo", "id,descripcion")
+                .array();
+
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.set("evaluado", evaluadoJson);
         node.set("temasExamen", temasJson);
+        node.set("notasNivelacion", notasNivelacionJson);
+        node.set("historial", historialJson);
 
         JsonResponse response = new JsonResponse();
         response.setData(node);

@@ -2224,7 +2224,6 @@ only screen and (                min-resolution: 2dppx) {
     min-height: 40px;
     width: 100%;
     display: block;
-    white-space: pre-line;
 }
 
 .wd-1 {width: 1%}
@@ -2534,4 +2533,49 @@ only screen and (                min-resolution: 2dppx) {
 .py-2 {
     padding-top: 0.5rem!important;
     padding-bottom: 0.5rem!important;
+}
+
+.circle-recorrido {
+    display: inline-block;
+    border-radius: 50%;
+    min-width: 50px;
+    height: 50px;
+    overflow: hidden;
+    margin: 0 auto;
+    line-height: 50px;
+    /*                text-align: center;*/
+    font-size: 16px;
+    /*                margin-left: 49px;*/
+    text-indent: 0;
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 2px;
+}
+
+.circle-recorrido.bgr-success {
+    background-color: #2ECC71;
+    color: #fff;
+}
+
+.circle-recorrido.bgr-primary {
+    background-color: #0275D8;
+    color: #fff;
+}
+
+.circle-recorrido.bgr-danger {
+    background-color: #E74C3C;
+    color: #fff;
+}
+
+.circle-recorrido.bgr-warning {
+    background-color: #F1B41E;
+    color: #fff;
+}
+
+.circle-recorrido.bgr-black {
+    background-color: #3C4043;
+    color: #fff;
 }

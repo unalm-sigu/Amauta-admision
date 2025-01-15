@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.dto.AlumnoCursoCicloDTO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -20,6 +21,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.calificacion.TemaCiclo;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface InfoAcademicoService {
 
@@ -82,5 +84,9 @@ public interface InfoAcademicoService {
     Evaluado findEvaluadoAdmision(Alumno alumno);
 
     List<TemaCiclo> allTemasAdmision(Alumno alumno);
+
+    List<NotaAlumnoNivelacion> allNotasNivelacion(Alumno alumno);
+
+    List<AlumnoCursoCicloDTO> allNotasHistorial(Alumno alumno);
 
 }

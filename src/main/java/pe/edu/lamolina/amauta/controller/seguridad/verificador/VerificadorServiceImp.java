@@ -1145,6 +1145,28 @@ public class VerificadorServiceImp implements VerificadorService {
         return rolBuscado.isPresent();
     }
 
+    private boolean esTrabajadorEEGGConRol(RolEnum rolEnum, DataSessionPivot ds) {
+        log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
+
+        List<Oficina> oficinasOrganizadas = oficinaService.allOficinasOrganizadas();
+        List<UsuarioRol> rolesUser = usuarioRolDAO.allWithOfficeByUserRolEnum(ds.getUsuario(), rolEnum);
+        log.info("roles-user-size = {}", rolesUser.size());
+
+        for (UsuarioRol userRol : rolesUser) {
+            log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
+        }
+
+        Oficina oficinaEEGG = oficinaDAO.findByCode("EG");
+
+        Optional<UsuarioRol> rolBuscado = rolesUser.stream()
+                .filter(userRol -> areaDentroOficinaMain(userRol.getOficina(), oficinasOrganizadas, oficinaEEGG))
+                .findFirst();
+
+        log.info("rolBuscado = {}", rolBuscado.orElse(null));
+
+        return rolBuscado.isPresent();
+    }
+
     private boolean esTrabajadorObuaeConRol(RolEnum rolEnum, DataSessionPivot ds) {
         log.info("ver-rol-trabajador rol={} user.id={} user=google={}", rolEnum.name(), ds.getUsuario().getId(), ds.getUsuario().getGoogle());
 
@@ -1268,6 +1290,15 @@ public class VerificadorServiceImp implements VerificadorService {
     @Override
     public boolean esAdministradorTutoria(DataSessionPivot ds) {
         boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.ADMINISTRADOR_TUTORIA, ds);
+        if (puedeEditar) {
+            return puedeEditar;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean esOperadorEEGG(DataSessionPivot ds) {
+        boolean puedeEditar = this.esTrabajadorEEGGConRol(RolEnum.OPER_ACAD_EEGG, ds);
         if (puedeEditar) {
             return puedeEditar;
         }

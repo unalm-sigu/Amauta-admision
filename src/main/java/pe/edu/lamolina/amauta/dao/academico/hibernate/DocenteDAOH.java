@@ -648,7 +648,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         if (filtro.getFacultad() != null) {
             query.setParameter("FACULTAD", filtro.getFacultad());
         }
-        
+
         query.setParameterList("IDCICLO", filtro.getCicloAcademicos().stream().map(x -> x.getId()).collect(Collectors.toList()));
 
         return (List<HistoricoCargaAcademicoBean>) query.list();

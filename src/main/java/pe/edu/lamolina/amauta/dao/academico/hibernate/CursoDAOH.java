@@ -33,6 +33,7 @@ import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public CursoDAOH() {
         super();
         setClazz(Curso.class);
@@ -292,7 +293,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .__().like("cur.codigo", nombre)
                 .endBlock()
                 .orderBy("cur.nombre")
-                .filter("cur.estado",EstadoEnum.ACT)
+                .filter("cur.estado", EstadoEnum.ACT)
                 .limit(15);
 
         return all(sql);
@@ -502,60 +503,60 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .orderBy("cu.id desc");
 
         return all(sql);
-        
+
     }
 
     @Override
     public List<CursoDirigidoDTO> allCursosDirigidosByCiclo(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
         sql.append("select ")
-            .append("cur.codigo codCurso, ")
-            .append("cur.nombre nomCurso, ")
-            .append("sec.codigo2 seccion, ")
-            .append("case ")
-            .append(" when sec.tipo_seccion = 'PRA'  then 'PRÁCTICA' ")
-            .append(" when sec.tipo_seccion = 'PCUR' then 'PRÁCTICA' ")
-            .append(" when sec.tipo_seccion = 'TCUR' then 'TEORÍA' ")
-            .append(" when sec.tipo_seccion = 'TEO'  then 'TEORÍA' ")
-            .append("end tipo, ")
-            .append("gh.codigo grupo, ")
-            .append("concat(dsec.porcentaje_carga, '%') carga, ")
-            .append("au.codigo aula, ")
-            .append("coalesce(doc.codigo, '') codDocente, ")
-            .append("concat(coalesce(per.paterno, ''), ' ', coalesce(per.materno, ''), ', ', coalesce(per.nombres, '')) nomDocente, ")
-            .append("gsec.curso_dirigido esDirigido, ")
-            .append("sec.modo_dictado modalidad, ")
-            .append("sec.matriculados matriculados, ")
-            .append("concat('Departamento Academico de ', da.nombre) departamento, ")
-            .append("concat('Facultad de ', fa.nombre) facultad, ")
-            .append("ca.descripcion cicloAcademico ")
-            .append("from aca_seccion sec ")
-            .append("join aca_grupo_seccion gsec on sec.id_grupo_seccion = gsec.id ")
-            .append("join aca_ciclo_academico ca on ca.id = gsec.id_ciclo ")
-            .append("join aca_curso cur on gsec.id_curso = cur.id ")
-            .append("join aca_docente_seccion dsec on dsec.id_seccion = sec.id ")
-            .append("join aca_docente doc on dsec.id_docente = doc.id ")
-            .append("join gen_persona per on doc.id_persona = per.id ")
-            .append("left join hor_horario_seccion hs on hs.id_seccion = sec.id ")
-            .append("left join gen_dia di on hs.id_dia = di.id ")
-            .append("left join hor_hora ho on hs.id_hora = ho.id ")
-            .append("join hor_grupo_horas gh on sec.id_grupo_horas = gh.id ")
-            .append("left join gen_aula au on sec.id_aula = au.id ")
-            .append("left join gen_aula ausp on au.id_aula_superior = ausp.id ")
-            .append("left join gen_tipo_carpeta tc on sec.id_tipo_carpeta = tc.id ")
-            .append("join aca_anexo_boletin ab on gsec.id_anexo_boletin = ab.id ")
-            .append("join aca_anexo_boletin absp on ab.id_anexo_superior = absp.id ")
-            .append("join aca_departamento_academico da on doc.id_departamento_academico = da.id ")
-            .append("join aca_facultad fa on da.id_facultad = fa.id ")
-            .append("where ca.id = ").append(cicloAcademico.getId()).append(" ")
-            .append("and absp.codigo <> 'G04' ")
-            .append("and ca.id_modalidad_estudio = 1 ")
-            .append("and cur.id_modalidad_estudio = 1 ")
-            .append("and sec.estado = 'ACT' ")
-            .append("and gsec.estado = 'ACT' ")
-            .append("and gsec.curso_dirigido is true ")
-            .append("group by dsec.id ")
-            .append("order by facultad, departamento, nomDocente");
+                .append("cur.codigo codCurso, ")
+                .append("cur.nombre nomCurso, ")
+                .append("sec.codigo2 seccion, ")
+                .append("case ")
+                .append(" when sec.tipo_seccion = 'PRA'  then 'PRÁCTICA' ")
+                .append(" when sec.tipo_seccion = 'PCUR' then 'PRÁCTICA' ")
+                .append(" when sec.tipo_seccion = 'TCUR' then 'TEORÍA' ")
+                .append(" when sec.tipo_seccion = 'TEO'  then 'TEORÍA' ")
+                .append("end tipo, ")
+                .append("gh.codigo grupo, ")
+                .append("concat(dsec.porcentaje_carga, '%') carga, ")
+                .append("au.codigo aula, ")
+                .append("coalesce(doc.codigo, '') codDocente, ")
+                .append("concat(coalesce(per.paterno, ''), ' ', coalesce(per.materno, ''), ', ', coalesce(per.nombres, '')) nomDocente, ")
+                .append("gsec.curso_dirigido esDirigido, ")
+                .append("sec.modo_dictado modalidad, ")
+                .append("sec.matriculados matriculados, ")
+                .append("concat('Departamento Academico de ', da.nombre) departamento, ")
+                .append("concat('Facultad de ', fa.nombre) facultad, ")
+                .append("ca.descripcion cicloAcademico ")
+                .append("from aca_seccion sec ")
+                .append("join aca_grupo_seccion gsec on sec.id_grupo_seccion = gsec.id ")
+                .append("join aca_ciclo_academico ca on ca.id = gsec.id_ciclo ")
+                .append("join aca_curso cur on gsec.id_curso = cur.id ")
+                .append("join aca_docente_seccion dsec on dsec.id_seccion = sec.id ")
+                .append("join aca_docente doc on dsec.id_docente = doc.id ")
+                .append("join gen_persona per on doc.id_persona = per.id ")
+                .append("left join hor_horario_seccion hs on hs.id_seccion = sec.id ")
+                .append("left join gen_dia di on hs.id_dia = di.id ")
+                .append("left join hor_hora ho on hs.id_hora = ho.id ")
+                .append("join hor_grupo_horas gh on sec.id_grupo_horas = gh.id ")
+                .append("left join gen_aula au on sec.id_aula = au.id ")
+                .append("left join gen_aula ausp on au.id_aula_superior = ausp.id ")
+                .append("left join gen_tipo_carpeta tc on sec.id_tipo_carpeta = tc.id ")
+                .append("join aca_anexo_boletin ab on gsec.id_anexo_boletin = ab.id ")
+                .append("join aca_anexo_boletin absp on ab.id_anexo_superior = absp.id ")
+                .append("join aca_departamento_academico da on doc.id_departamento_academico = da.id ")
+                .append("join aca_facultad fa on da.id_facultad = fa.id ")
+                .append("where ca.id = ").append(cicloAcademico.getId()).append(" ")
+                .append("and absp.codigo <> 'G04' ")
+                .append("and ca.id_modalidad_estudio = 1 ")
+                .append("and cur.id_modalidad_estudio = 1 ")
+                .append("and sec.estado = 'ACT' ")
+                .append("and gsec.estado = 'ACT' ")
+                .append("and gsec.curso_dirigido is true ")
+                .append("group by dsec.id ")
+                .append("order by facultad, departamento, nomDocente");
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("codCurso", StringType.INSTANCE)
                 .addScalar("nomCurso", StringType.INSTANCE)
@@ -574,6 +575,19 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .addScalar("cicloAcademico", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(CursoDirigidoDTO.class));
         return query.list();
+    }
+
+    @Override
+    public List<Curso> allByDynatableModalidad(DynatableFilter filter, ModalidadEstudioEnum modalidadEstudioEnum) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Curso.class, "cu")
+                .join("departamentoAcademico da", "da.facultad fa", "modalidadEstudio me")
+                .searchFields("cu.nombre", "cu.codigo", "cu.codigoAnterior1", "fa.nombre", "da.nombre", "cu.estado")
+                .filter("me.codigo", modalidadEstudioEnum.NIV_ING.name())
+                .orderBy("cu.id desc");
+
+        return all(sql);
+
     }
 
 }

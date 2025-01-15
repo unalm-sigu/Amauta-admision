@@ -6,7 +6,6 @@ import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.DiaEnum;
 import pe.edu.lamolina.model.general.Dia;
 
 @Repository

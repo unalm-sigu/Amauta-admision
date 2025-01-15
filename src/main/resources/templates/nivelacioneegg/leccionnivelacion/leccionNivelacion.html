@@ -1,0 +1,27 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lecciones de Cursos de Nivelación</title>
+        <style>
+        </style>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="firstVue"  v-cloak=""></div>
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var seccionJson = /*[[${seccionJson.toString()}]]*/ 'json';
+                var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+                var origen = /*[[${origen}]]*/ 'json';
+                var seccion = JSON.parse(seccionJson);
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/nivelacioneegg/leccionnivelacion/leccionNivelacion.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
