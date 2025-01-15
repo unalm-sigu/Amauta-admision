@@ -139,10 +139,10 @@
                     </section>
                 </section>
 
-                <div th:substituteby="general/aula/producto/modalProducto"/>
+                <div th:replace="general/aula/producto/modalProducto"/>
             </div>
 
-            <div th:substituteby="templates/modal"/>
+            <div th:replace="templates/modal"/>
             
         </div>
 
@@ -154,7 +154,7 @@
             </script>
 
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/general/producto/producto.js}" charset="utf-8"></script>
         </div>
 

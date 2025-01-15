@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Procesar Tramties Academicos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style>
         .td-vacio {
             padding-right: 4px !important;
@@ -68,16 +68,16 @@
                 </section>
             </div>
         </div>
-        <div th:substituteby="templates/modal"/>
-        <div th:substituteby="academico/tramitescademicos/component/revisarHistorialComponent"/>
-        <div th:substituteby="academico/tramitescademicos/component/confirmarHistorialComponent"/>
-        <div th:substituteby="academico/alumno/includes/headerInfo"/>
-        <div th:substituteby="academico/alumno/includes/inicio"/>
-        <div th:substituteby="academico/alumno/includes/avance"/>
-        <div th:substituteby="academico/alumno/includes/horario"/>
-        <div th:substituteby="academico/alumno/includes/matricula"/>
-        <div th:substituteby="academico/alumno/includes/malla"/>
-        <div th:substituteby="academico/alumno/includes/historial"/>
+        <div th:replace="templates/modal"/>
+        <div th:replace="academico/tramitescademicos/component/revisarHistorialComponent"/>
+        <div th:replace="academico/tramitescademicos/component/confirmarHistorialComponent"/>
+        <div th:replace="academico/alumno/includes/headerInfo"/>
+        <div th:replace="academico/alumno/includes/inicio"/>
+        <div th:replace="academico/alumno/includes/avance"/>
+        <div th:replace="academico/alumno/includes/horario"/>
+        <div th:replace="academico/alumno/includes/matricula"/>
+        <div th:replace="academico/alumno/includes/malla"/>
+        <div th:replace="academico/alumno/includes/historial"/>
 
     </div>
 
@@ -89,13 +89,13 @@
         </script>
         
         
-        <div th:substituteby="_modules/vue-raptor-table"/>
-        <div th:substituteby="academico/tramitescademicos/component/tramiteDetalleComponent"/>
+        <div th:replace="_modules/vue-raptor-table"/>
+        <div th:replace="academico/tramitescademicos/component/tramiteDetalleComponent"/>
         <script th:src="@{/app/academico/tramitesacademicos/component/revisarHistorialComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/tramitesacademicos/component/confirmarHistorialComponent.js}" charset="utf-8"></script>
-        <div th:substituteby="academico/tramitescademicos/component/agendarComponent"/>
-        <div th:substituteby="academico/tramitescademicos/component/cursoDirigidoComponent"/>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="academico/tramitescademicos/component/agendarComponent"/>
+        <div th:replace="academico/tramitescademicos/component/cursoDirigidoComponent"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
         <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/alumno/avanceComponent.js}" charset="utf-8"></script>

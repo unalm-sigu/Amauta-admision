@@ -163,10 +163,10 @@
                                                                    class="pointer">Activar</a>
                                                             </li>
                                                             <li class="divider"></li>
-                                                            <li><a class="pointer" v-on:click="updateColaboradorUsuario(item)">Usuario Servicios SIGU</a></li>
-                                                            <li class="divider"></li>
-                                                            <li><a class="pointer" v-on:click="updateColaborador(item)">Editar funciones</a></li>
-                                                            <li><a class="pointer" v-on:click="updatePersona(item)">Editar info personal</a></li>
+                                                            <li th:if="${puedeEditarOficinas}"><a class="pointer" v-on:click="updateColaboradorUsuario(item)">Usuario Servicios SIGU</a></li>
+                                                            <li th:if="${puedeEditarOficinas}" class="divider"></li>
+                                                            <li th:if="${puedeEditarOficinas}"><a class="pointer" v-on:click="updateColaborador(item)">Editar funciones</a></li>
+                                                            <li th:if="${puedeEditarOficinas}"><a class="pointer" v-on:click="updatePersona(item)">Editar info personal</a></li>
                                                         </ul>
                                                     </div>
 

@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.consejeria.ReunionAlumnoConsejero;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
@@ -108,7 +109,13 @@ public class AdministracionConsejeriaController {
     }
 
     @RequestMapping("agendaconsejero")
-    public String agendaconsejero() {
+    public String agendaconsejero(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Long idCarreraSupervisor = ds.getCarreras().get(0).getId();
+        String nombreCarreraSupervisor = ds.getCarreras().get(0).getNombre();
+
+        model.addAttribute("nombreCarreraSupervisor", nombreCarreraSupervisor);
+        model.addAttribute("idCarreraSupervisor", idCarreraSupervisor);
         return "consejeria/administracion/agendaconsejeroadmin";
     }
 
@@ -124,11 +131,21 @@ public class AdministracionConsejeriaController {
     @RequestMapping("agendaconsejero/all")
     public DynatableResponse allAgenda(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String NombreCarreraSupervisor = ds.getCarreras().get(0).getNombre();
+        Long idCarreraSupervisor = ds.getCarreras().get(0).getId();
+        boolean isRevisorDocente = ds.getRoles().stream().anyMatch(rol -> RolEnum.COORD_TUTO == rol.getCodigoEnum());
         DynatableResponse response = new DynatableResponse();
         response.setTotal(0);
+        List<AgendaConsejero> agendaConsejeros = null;
 
-        List<AgendaConsejero> agendaConsejeros = service.agendaDynatable(filter);
+        if (isRevisorDocente) {
+            agendaConsejeros = service.agendaDynatableCarrera(filter, idCarreraSupervisor);
+        } else {
+            agendaConsejeros = service.agendaDynatable(filter);
+        }
 
+        // List<AgendaConsejero> agendaConsejeros = service.agendaDynatable(filter);
         ArrayNode arrayNodeAgenda = new ArrayNode(JsonNodeFactory.instance);
 
         for (AgendaConsejero agendaConsejero : agendaConsejeros) {
@@ -164,7 +181,18 @@ public class AdministracionConsejeriaController {
     @RequestMapping("allCarrera")
     public ArrayNode allCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        List<Carrera> carreras = service.buscarCarrera(nombre);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        boolean isRevisorDocente = ds.getRoles().stream()
+                .anyMatch(rol -> RolEnum.COORD_TUTO == rol.getCodigoEnum());
+        List<Carrera> carreras = null;
+
+        if (isRevisorDocente) {
+            carreras = service.buscarCarrera(ds.getCarreras().get(0).getNombre());
+        } else {
+            carreras = service.buscarCarrera(nombre);
+        }
+
+//List<Carrera> carreras = service.buscarCarrera(nombre);
         return JaneHelper.from(carreras)
                 .only("id,nombre")
                 .join("modalidadEstudio", "nombre").array();

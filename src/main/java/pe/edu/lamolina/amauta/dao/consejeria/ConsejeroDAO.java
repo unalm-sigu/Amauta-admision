@@ -36,6 +36,7 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
     AConsejeroEstado findAconsejadosByMatricula(Long carrera, CicloAcademico cicloAcademico);
 
     Consejero findByColaboradorCarrera(Colaborador colaborador, Carrera carrera);
+    Consejero findByColaboradorCarreraEstadoANU(Colaborador colaborador, Carrera carrera);
 
     List<Consejero> allCountAconsejadosMatriculadosByCiclo(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estadoEnums);
 

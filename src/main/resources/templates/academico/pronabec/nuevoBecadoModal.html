@@ -1,0 +1,104 @@
+<modal-vik ref="modalNuevoBec" v-bind="modalNuevoBecc"
+           v-bind:okaction="save">
+
+    <div slot="body">
+        <form id="formNuevo" data-parsley-validate="true">
+            <div class="form-group">
+                <label> Alumno </label>
+                <multiselect v-model="alumnoBecado.persona"
+                             v-bind:options='alumnos'
+                             v-bind:internal-search="false"
+                             v-bind:loading="isLoading"
+                             v-on:search-change="loadAlumno"
+                             v-bind:custom-label="customLabel"
+                             label='nombre'
+                             track-by='id'
+                             placeholder="Seleccione un alumno">
+                    <template slot="option" slot-scope="props">
+                        <div class="block h5 m-t-xs m-b-xs bold" v-text="props.option.nombreCompleto"></div>
+                        <small class="block">
+                            <i class="fa fa-at text-primary"></i> {{props.option.emailCompania}}
+                        </small>
+                        <small class="block h6 bold">
+                            <i class="fa fa-id-card text-primary"></i> {{props.option.numeroDocIdentidad}}
+                        </small>
+                    </template>
+                </multiselect>
+                <input class="hidden" v-model="alumnoBecado.persona" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Tipo de beca </label>
+                <multiselect v-model="alumnoBecado.tipoBeca"
+                             v-bind:options='tipoBeca'
+                             v-bind:internal-search="true"
+                             label='nombre'
+                             track-by='id'
+                             placeholder="Seleccione un ciclo">
+                </multiselect>
+                <input class="hidden" v-model="alumnoBecado.tipoBeca" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Año de convocatoria </label>
+                <div>
+                    <input type="number" class="form-control col-md-4 m-b-xs" minlength="4" placeholder="Ingrese el año ej. 2024" v-model="alumnoBecado.yearConvocatoria" required="true"/>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label> Carrera </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.carrera" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Condicion </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.condicion" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Situacion </label>
+                <div>
+                    <input type="text" class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.situacion" required="true"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label> Estado </label>
+                <div>
+                    <select class="form-control col-md-4 m-b-xs" v-model="alumnoBecado.estado">
+                        <option value="ACTIVO">ACTIVO</option>
+                        <option value="INACTIVO">INACTIVO</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fecha de inicio</label>
+                <div class="input-group date">
+                    <date-picker v-model="alumnoBecado.fechaInicio"
+                                 required="true"
+                                 v-bind:config="configDate"
+                                 data-parsley-id="2"
+                                 v-bind:wrap="true" >
+                    </date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <div class="input-group date">
+                    <date-picker v-model="alumnoBecado.fechaFin"
+                                 required="true"
+                                 v-bind:config="configDate"
+                                 data-parsley-id="2"
+                                 v-bind:wrap="true" >
+                    </date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

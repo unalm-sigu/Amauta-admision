@@ -115,7 +115,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="rolexamen/gruporegular/grupoRegularSeccionesModals"/>
+                <div th:replace="rolexamen/gruporegular/grupoRegularSeccionesModals"/>
 
             </div>
         </section>
@@ -130,10 +130,10 @@
                 /*]]>*/
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
-            <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
-            <div th:substituteby="rolexamen/components/cambio-aula"/>
+            <div th:replace="rolexamen/components/mover-seccion-examen"/>
+            <div th:replace="rolexamen/components/cambio-aula"/>
             <script th:src="@{/app/rolexamen/gruporegular/grupoRegularSecciones.js}" charset="utf-8"></script>
         </div>
 

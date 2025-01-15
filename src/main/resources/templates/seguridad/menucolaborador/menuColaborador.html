@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Menu Colaborador</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -107,12 +107,12 @@
 
         </section>
 
-        <!--<div th:substituteby="templates/modal"/>-->
-        <!--<div class="divEvaluacion" th:substituteby="academico/docente/cargaacademica/detalleNotasAcademicas"/>-->
-        <!--<div th:substituteby="academico/docente/cargaacademica/modalNotasAcademicas"/>-->
+        <!--<div th:replace="templates/modal"/>-->
+        <!--<div class="divEvaluacion" th:replace="academico/docente/cargaacademica/detalleNotasAcademicas"/>-->
+        <!--<div th:replace="academico/docente/cargaacademica/modalNotasAcademicas"/>-->
     </div>
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/docente/cargaacademica/notasAcademicas.js}" charset="utf-8"></script>
     </div>
 

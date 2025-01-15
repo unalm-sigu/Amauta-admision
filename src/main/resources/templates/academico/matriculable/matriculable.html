@@ -11,7 +11,7 @@
                 <header class="header b-b padder-lg">        
                     <div class="btn-group pull-right" th:if="${puedeMatricular}" >
                         <button v-bind:disabled="processreporte" type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i  v-if="!processreporte" class="fa fa-file-text-o"/>
+                            <i  v-if="!processreporte" class="fa fa-file-text-o"></i>
                             <span v-if="processreporte"> <i class="fa fa-spinner fa-spin" style="font-size:14px"></i></span>
                             &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
@@ -195,17 +195,26 @@
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
                                                     <div class="pull-left">
-                                                        <div v-if="item.alumno.persona.tipoFoto == 'POSTUL'"
-                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
-                                                            <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
-                                                        </div>
+<!--                                                        <div v-if="item.alumno.persona.tipoFoto == 'POSTUL'"-->
+<!--                                                             class="img-responsive img-thumbnail img-circle div-foto-list">-->
+<!--                                                            <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />-->
+<!--                                                        </div>-->
 
-                                                        <img v-else-if="item.alumno.persona.tipoFoto == 'COMUN'"
-                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                                             v-bind:src="item.alumno.persona.rutaFoto" />
-                                                        <img v-else=""
-                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                                             v-bind:src="item.alumno.persona.rutaFoto" />
+<!--                                                        <img v-else-if="item.alumno.persona.tipoFoto == 'COMUN'"-->
+<!--                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" -->
+<!--                                                             v-bind:src="item.alumno.persona.rutaFoto" />-->
+<!--                                                        <img v-else=""-->
+<!--                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" -->
+<!--                                                             v-bind:src="item.alumno.persona.rutaFoto" />-->
+                                                        <div v-if="item.alumno.persona.foto">
+                                                            <img class="img-foto-tempo img-responsive img-thumbnail  img-circle" v-bind:src="item.alumno.persona.foto" />
+                                                        </div>
+s
+                                                        <div v-else="">
+                                                            <img v-if="item.alumno.persona.sexo == 'M'" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/male.png}" />
+                                                            <img v-else-if="item.alumno.persona.sexo == 'F'" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/female.png}" />
+                                                            <img v-else="" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/unknown-person.gif}" />
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td class="v-middle">
@@ -338,17 +347,17 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/matriculable/modalSubirEgresados"></div>
-                <div th:substituteby="academico/matriculable/modalAsignarTurno"></div>
-                <div th:substituteby="academico/matriculable/matriculableModal"></div>
-                <div th:substituteby="academico/matriculable/inhabilitarMatriculable"></div>
-                <div th:substituteby="academico/matriculable/procesoNmatModal"></div>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <div th:substituteby="academico/matriculable/aporteAlumnoModal"></div>
-                <div th:substituteby="academico/matriculable/boletaAlumnoModal"></div>
+                <div th:replace="academico/matriculable/modalSubirEgresados"></div>
+                <div th:replace="academico/matriculable/modalAsignarTurno"></div>
+                <div th:replace="academico/matriculable/matriculableModal"></div>
+                <div th:replace="academico/matriculable/inhabilitarMatriculable"></div>
+                <div th:replace="academico/matriculable/procesoNmatModal"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
+                <div th:replace="academico/matriculable/aporteAlumnoModal"></div>
+                <div th:replace="academico/matriculable/boletaAlumnoModal"></div>
 
                 <clonar-matriculable-modal ref="clonarMatriculableModal"></clonar-matriculable-modal>
-                 <div th:substituteby="academico/matriculable/asignarTurnoMatriculable"></div>
+                 <div th:replace="academico/matriculable/asignarTurnoMatriculable"></div>
 
             </div>
         </div>
@@ -365,7 +374,7 @@
                 var rutaModulo = 'academico/matriculable';
                 /*]]>*/
                </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>
         </div>
     </body>

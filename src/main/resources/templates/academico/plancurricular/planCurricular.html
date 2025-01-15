@@ -12,7 +12,7 @@
                     <div class="btn-group pull-right"
                          th:if="${editor}" >
                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-random fa-lg"></i> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li>
@@ -126,7 +126,7 @@
                 </section>
 
                 <div th:replace="academico/plancurricular/planCurricularModals"></div>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
 
             </div>
 
@@ -138,7 +138,7 @@
                 var rutaModulo = 'academico/planCurricular';
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/plancurricular/planCurricularVue.js}" charset="utf-8"></script>
         </div>
     </body>

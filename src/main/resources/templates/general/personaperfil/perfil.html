@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Colaboradores</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -37,13 +37,13 @@
         </section>
 
 
-        <div th:substituteby="templates/modal"></div>
-        <script id="templatePerfil" type="text/x-template" class="hide" ><div th:substituteby="general/personaperfil/perfilTemplate"/></script>
+        <div th:replace="templates/modal"></div>
+        <script id="templatePerfil" type="text/x-template" class="hide" ><div th:replace="general/personaperfil/perfilTemplate"/></script>
 
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/general/personaperfil/perfil.js}" charset="utf-8"></script>
     </div>
 

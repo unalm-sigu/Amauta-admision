@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
 <head>
     <title>Inventario Aula</title>
-    <link th:substituteby="_layout/includes :: styles-dynatable"></link>
+    <link th:replace="_layout/includes :: styles-dynatable"></link>
 </head>
 
 <body>
@@ -684,7 +684,7 @@
         /*]]>*/
     </script>
 
-    <div th:substituteby="_modules/vue-raptor-table"></div>
+    <div th:replace="_modules/vue-raptor-table"></div>
 
 
     <script th:src="@{/app/general/inventarioaula/inventarioaula.js}" charset="utf-8"></script>

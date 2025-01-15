@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.profesor;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.academico.profesor.view.FiltroHistoricoCargaAcademicaDTO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -69,14 +70,16 @@ public interface ProfesorService {
 
     List<CicloAcademico> allCicloAcademico();
 
-    public List<Docente> allByNombre(String nombre);
+    List<Docente> allByNombre(String nombre);
 
-    public List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclos(List<Docente> docentes, List<CicloAcademico> cicloAcademicos);
+    List<DocenteSeccion> allDocenteSeccionActivosByDocentesCiclos(List<Docente> docentes, List<CicloAcademico> cicloAcademicos);
 
-    public List<CicloAcademico> allCicloAcademicoNivel();
+    List<CicloAcademico> allCicloAcademicoNivel();
 
-    public List<DocenteCicloBean> allDocentecicloAcademico(List<CicloAcademico> cicloAcademicos);
+    List<DocenteCicloBean> allDocentecicloAcademico(List<CicloAcademico> cicloAcademicos);
 
-    public List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente);
-     
+    List<DocenteCicloCargaBean> allDocenteCargacicloAcademico(Long docente);
+
+    List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademico(FiltroHistoricoCargaAcademicaDTO filtro, DataSessionPivot ds);
+
 }

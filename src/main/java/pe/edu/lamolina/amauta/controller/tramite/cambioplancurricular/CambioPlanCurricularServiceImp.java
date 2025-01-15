@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -292,19 +291,16 @@ public class CambioPlanCurricularServiceImp implements CambioPlanCurricularServi
             alumno.setConsejero(alumnoConsejero.getConsejero());
         }
 
-        Context ctx = new Context();
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("oficinaColaborador", oficinaColaborador);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("tramite", tramite);
-        ctx.setVariable("ciclo", ds.getCicloAcademico());
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("oficinaColaborador", oficinaColaborador);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("historial", historialSorted);
+        model.addAttribute("tramite", tramite);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         //metadata
-        ctx.setVariable("nombrePdf", "Informe Readmisión " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleCambioPlanCurricular,historialAcademicoCambioPlanCurricular");
-
-        model.addAllAttributes(ctx.getVariables());
+        model.addAttribute("nombrePdf", "Informe Readmisión " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "detalleCambioPlanCurricular,historialAcademicoCambioPlanCurricular");
 
     }
 

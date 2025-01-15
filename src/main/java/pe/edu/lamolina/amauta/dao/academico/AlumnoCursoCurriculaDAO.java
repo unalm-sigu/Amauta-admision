@@ -49,12 +49,14 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
     void updateColumns(AlumnoCursoCurricula alumnoCursoCurricula, String... columns);
 
-    public AlumnoCursoCurricula findPracticaPreProfesional(Alumno alumno);
+    AlumnoCursoCurricula findPracticaPreProfesional(Alumno alumno);
 
-    public AlumnoCursoCurricula findById(Long id);
+    AlumnoCursoCurricula findById(Long id);
 
-    public List<AlumnoCursoCurricula> allHabilesByAlumno(Alumno alumno);
+    List<AlumnoCursoCurricula> allHabilesByAlumno(Alumno alumno);
 
-    public List<AlumnoCursoCurricula> allByAlumnoCursosCurriculaInactivos(Alumno alumno, List<CursoCurricula> cursosCicloPlan);
+    List<AlumnoCursoCurricula> allByAlumnoCursosCurriculaInactivos(Alumno alumno, List<CursoCurricula> cursosCicloPlan);
+
+    List<AlumnoCursoCurricula> allByCursoCurriculaInactivo(CursoCurricula cursoCurriculaBD);
 
 }

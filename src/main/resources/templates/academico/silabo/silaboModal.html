@@ -2,7 +2,7 @@
               v-bind:okaction="save" >
 
     <div slot="header" >
-        <h4 class="modal-title text-center">Agregar nuevo Silabo</h4>
+        <h4 class="modal-title text-center">{{nombreTitulo}} Silabo</h4>
     </div>
 
 
@@ -115,8 +115,12 @@
                 <label>Archivo</label>
                 <div class="form-group">
 
+<!--                    <a v-if="silaboCurso.rutaDocumento"-->
+<!--                       href="#" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Archivo Adjunto</a>-->
                     <a v-if="silaboCurso.rutaDocumento"
-                       href="#" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Archivo Adjunto</a>
+                       :href="silaboCurso.rutaDocumento" class="btn btn-link">
+                        <i :class="getFileIcon(silaboCurso.rutaDocumento)" class="fa-lg"></i> Archivo Adjunto
+                    </a>
 
                     <vue-file-picker class="pull-right" v-bind:onpick="onFileUplad"></vue-file-picker>
 

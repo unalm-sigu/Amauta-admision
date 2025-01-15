@@ -210,13 +210,13 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="rolexamen/plantillahorario/plantillaHorarioModal"/>
+                <div th:replace="rolexamen/plantillahorario/plantillaHorarioModal"/>
             </div>
 
         </section>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
 

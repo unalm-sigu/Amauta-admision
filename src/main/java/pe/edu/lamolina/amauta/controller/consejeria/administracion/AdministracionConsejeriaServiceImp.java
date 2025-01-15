@@ -55,6 +55,7 @@ import pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum;
 import static pe.edu.lamolina.model.enums.AgendaConsejeroEstadoEnum.AGEN;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 
 @Slf4j
@@ -134,18 +135,26 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
             List<AlumnoConsejero> alumnoConsejerosModelo = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getModelo());
             List<AlumnoConsejero> alumnoConsejerosDestino = alumnoConsejeroDAO.allByCarreraCiclo(resumen.getCarrera(), clonarDTO.getDestino());
 
-            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream().filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()).
-                    collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+            Map<Long, AlumnoConsejero> alumnoConsejerosModeloMap = alumnoConsejerosModelo.stream()
+                    .filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()
+                    && !x.getAlumno().getSituacionAcademica().isSeparado()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoDefinitivo()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoTrika()
+                    && !x.getAlumno().getSituacionAcademica().isSeparadoUltimoCiclo()
+                    && !x.getAlumno().getSituacionAcademica().isDesertor()
+                    && !x.getAlumno().getSituacionAcademica().isGraduado()
+                    && !x.getAlumno().getSituacionAcademica().isIngresanteSeparado()
+                    && !x.getAlumno().getSituacionAcademica().isIngresanteRenunciante()
+                    && x.getAlumno().getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
+                    .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
-            Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream().
-                    collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
+            Map<Long, AlumnoConsejero> alumnoConsejerosDestinoMap = alumnoConsejerosDestino.stream()
+                    .collect(Collectors.toMap(x -> x.getAlumno().getId(), y -> y, (f, s) -> f));
 
             for (AlumnoConsejero alumnoConsejeroModelo : alumnoConsejerosModeloMap.values()) {
 
                 AlumnoConsejero alumnoTutor = alumnoConsejerosDestinoMap.getOrDefault(alumnoConsejeroModelo.getAlumno().getId(), new AlumnoConsejero());
-                if (alumnoConsejeroModelo.getAlumno().getCodigo().equals("20191006")) {
-                    System.out.println("ALUMNO:: " + alumnoConsejeroModelo.getAlumno().getCodigo());
-                }
+
                 if (alumnoTutor.getId() != null) {
 
                     if (alumnoTutor.getConsejero() == null) {
@@ -187,9 +196,22 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
         }
 ////////////
         List<Alumno> ingresantesCicloDestino = alumnoDAO.allIngresantePregradoByCicloIngreso(new ModalidadEstudio(1L), clonarDTO.getDestino());
+        List<Alumno> ingresantesCicloDestinoAptos = ingresantesCicloDestino.stream()
+                .filter(x -> !x.getSituacionAcademica().isEgresado()
+                && !x.getSituacionAcademica().isSeparado()
+                && !x.getSituacionAcademica().isSeparadoDefinitivo()
+                && !x.getSituacionAcademica().isSeparadoTrika()
+                && !x.getSituacionAcademica().isSeparadoUltimoCiclo()
+                && !x.getSituacionAcademica().isDesertor()
+                && !x.getSituacionAcademica().isGraduado()
+                && !x.getSituacionAcademica().isIngresanteSeparado()
+                && !x.getSituacionAcademica().isIngresanteRenunciante()
+                && x.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA
+                && !x.getCodigo().startsWith("T"))
+                .collect(Collectors.toList());
 
         log.debug("save IngresantesCicloDestino ");
-        for (Alumno alumno : ingresantesCicloDestino) {
+        for (Alumno alumno : ingresantesCicloDestinoAptos) {
             AlumnoConsejero alumnoConsejer = new AlumnoConsejero();
             alumnoConsejer.setAlumno(alumno);
             alumnoConsejer.setCicloAcademico(clonarDTO.getDestino());
@@ -201,9 +223,21 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
         }
 
         List<MatriculaResumen> mtrblesNoRegistrados = matriculaResumenDAO.allByCicloSinConsejeria(clonarDTO.getDestino());
+        List<MatriculaResumen> mtrblesNoRegistradosAptos = mtrblesNoRegistrados.stream()
+                .filter(x -> !x.getAlumno().getSituacionAcademica().isEgresado()
+                && !x.getAlumno().getSituacionAcademica().isSeparado()
+                && !x.getAlumno().getSituacionAcademica().isSeparadoDefinitivo()
+                && !x.getAlumno().getSituacionAcademica().isSeparadoTrika()
+                && !x.getAlumno().getSituacionAcademica().isSeparadoUltimoCiclo()
+                && !x.getAlumno().getSituacionAcademica().isDesertor()
+                && !x.getAlumno().getSituacionAcademica().isGraduado()
+                && !x.getAlumno().getSituacionAcademica().isIngresanteSeparado()
+                && !x.getAlumno().getSituacionAcademica().isIngresanteRenunciante()
+                && x.getAlumno().getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.S_RA)
+                .collect(Collectors.toList());
 
         log.debug("save Matriculables que no estan por su suspención del ciclo pasado ");
-        for (MatriculaResumen mtble : mtrblesNoRegistrados) {
+        for (MatriculaResumen mtble : mtrblesNoRegistradosAptos) {
             AlumnoConsejero alumnoTutor = new AlumnoConsejero();
             alumnoTutor.setAlumno(mtble.getAlumno());
             alumnoTutor.setCicloAcademico(clonarDTO.getDestino());
@@ -281,6 +315,26 @@ public class AdministracionConsejeriaServiceImp implements AdministracionConseje
     public List<AgendaConsejero> agendaDynatable(DynatableFilter filter) {
 
         List<AgendaConsejero> agendaConsejeros = agendaConsejeroDAO.allDynatableByCicloAcademico(filter);
+
+        List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejeros(agendaConsejeros);
+
+        Map<Long, List<ReunionAlumnoConsejero>> reunionAlumnoConsejerosMap = reunionAlumnoConsejeros.stream()
+                .collect(Collectors.groupingBy(x -> x.getAgendaConsejero().getId()));
+
+        for (AgendaConsejero agendaConsejero : agendaConsejeros) {
+            agendaConsejero.setReunionAlumnoConsejeros(reunionAlumnoConsejerosMap.getOrDefault(agendaConsejero.getId(), new ArrayList()));
+        }
+
+        this.verificarVencimiento(agendaConsejeros);
+
+        return agendaConsejeros;
+
+    }
+
+    @Override
+    public List<AgendaConsejero> agendaDynatableCarrera(DynatableFilter filter, Long idCarreraSupervisor) {
+
+        List<AgendaConsejero> agendaConsejeros = agendaConsejeroDAO.allDynatableByCicloAcademicoCarrera(filter, idCarreraSupervisor);
 
         List<ReunionAlumnoConsejero> reunionAlumnoConsejeros = reunionAlumnoConsejeroDAO.allByAgendaConsejeros(agendaConsejeros);
 

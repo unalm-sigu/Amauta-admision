@@ -19,7 +19,7 @@
                         {{item.idioma.nombre == "Otros" ? item.idiomaOtro : item.idioma.nombre}}
                     </td>
                     <td class="text-center">
-                        <i v-if="item.lenguaMaterna" class="fas fa-check fa-lg"></i>
+                        <i v-if="item.lenguaMaterna" class="fa fa-check fa-lg"></i>
                     </td>
                     <td class="text-center">
                         {{item.conversacion}}
@@ -45,7 +45,7 @@
         <idioma-form ref="idiomaFormVUE"></idioma-form>
     </div>
 </template>
-<div th:substituteby="_modules/vue-modal-confirm"></div>
+<div th:replace="_modules/vue-modal-confirm"></div>
 
 <script>
     Vue.component("multiselect", window.VueMultiselect.default);

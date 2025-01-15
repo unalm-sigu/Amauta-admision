@@ -108,5 +108,17 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         
         return find(sql);
     }
+
+    @Override
+    public List<CursoEquivalente> allActivoByCursoCaduco(CursoCurricula cursoCurricula) {
+         Octavia sql = Octavia.query()
+                .from(CursoEquivalente.class, "ce")
+                .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .join("cursoCaduco cca", "cca.curso")
+                .filter("cca.id", cursoCurricula)
+                .filter("estado", EstadoEnum.ACT.name());
+        
+        return sql.all(getCurrentSession());
+    }
     
 }

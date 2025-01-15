@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.tramite.retirocicloexcepcional;
 
-import groovyjarjarcommonscli.HelpFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -190,9 +188,8 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     public void reporte(Long idTramite, DataSessionPivot ds, Model model) {
 
         Tramite tramite = tramiteDAO.find(idTramite);
-
         Alumno alumno = tramite.getAlumno();
-        Context ctx = new Context();
+        
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCicloExpRCU(alumno, ds.getCicloAcademico());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCicloAceptadoRechazado(alumno);
@@ -265,21 +262,19 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         infoRetiroExcepcional.setRelacionEficiencia(relacionEficacion);
         infoRetiroExcepcional.setSituacion(ac.getSituacionFinal().getNombre().toUpperCase());
 
-        ctx.setVariable("tramite", tramite);
-        ctx.setVariable("infoRetiroExcepcional", infoRetiroExcepcional);
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("alumnoCiclo", ac);
-        ctx.setVariable("ciclo", ds.getCicloAcademico());
-        ctx.setVariable("matriculaCursos", matriculaCursos);
-        ctx.setVariable("retiroCiclos", retiroCiclos);
-        ctx.setVariable("tutor", tutor);
-        ctx.setVariable("coordinador", coordinador);
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("tramite", tramite);
+        model.addAttribute("infoRetiroExcepcional", infoRetiroExcepcional);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("alumnoCiclo", ac);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("matriculaCursos", matriculaCursos);
+        model.addAttribute("retiroCiclos", retiroCiclos);
+        model.addAttribute("tutor", tutor);
+        model.addAttribute("coordinador", coordinador);
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
-        ctx.setVariable("nombrePdf", "Informe Retiro Excepcional " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "retiroExcepcional");
-
-        model.addAllAttributes(ctx.getVariables());
+        model.addAttribute("nombrePdf", "Informe Retiro Excepcional " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "retiroExcepcional");
     }
 
     @Override

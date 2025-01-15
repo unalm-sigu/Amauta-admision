@@ -3,22 +3,15 @@ package pe.edu.lamolina.amauta.controller.academico.anexoboletin;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -46,33 +39,7 @@ public class AnexoBoletinController {
     @Autowired
     VerificadorService verificadorService;
 
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping("")
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
@@ -95,39 +62,36 @@ public class AnexoBoletinController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
+    @GetMapping("list")
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            CicloAcademico ciclo = findCicloAnexo(ds, session);
 
-            List<AnexoBoletin> anexos = service.allByDynatable(filter, ciclo);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = findCicloAnexo(ds, session);
 
-            Integer maximo = 0;
-            for (AnexoBoletin anexo : anexos) {
-                if (anexo.getEstadoEnum() != EstadoEnum.ACT) {
-                    continue;
-                }
-                if (anexo.getOrden() > maximo) {
-                    maximo = anexo.getOrden();
-                }
+        List<AnexoBoletin> anexos = service.allByDynatable(filter, ciclo);
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        Integer maximo = 0;
+        for (AnexoBoletin anexo : anexos) {
+            if (anexo.getEstadoEnum() != EstadoEnum.ACT) {
+                continue;
             }
-
-            for (AnexoBoletin anexo : anexos) {
-                ObjectNode node = createAnexoJson(anexo);
-                node.put("ordenMaximo", maximo);
-                array.add(node);
+            if (anexo.getOrden() > maximo) {
+                maximo = anexo.getOrden();
             }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
         }
+
+        for (AnexoBoletin anexo : anexos) {
+            ObjectNode node = createAnexoJson(anexo);
+            node.put("ordenMaximo", maximo);
+            array.add(node);
+        }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 

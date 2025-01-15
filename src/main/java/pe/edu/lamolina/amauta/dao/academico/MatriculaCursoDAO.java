@@ -81,4 +81,6 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
+    public void updateEstado(MatriculaCurso matriculaCursoEach);
+
 }

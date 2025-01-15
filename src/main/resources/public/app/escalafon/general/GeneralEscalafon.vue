@@ -83,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
+            <div class="form-group col-xs-12">
                 <label>Resumen</label>
                 <textarea type="text" required="true" class="form-control" rows="2" v-model="escalafon.resumen" ></textarea>
             </div>

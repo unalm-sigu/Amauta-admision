@@ -56,5 +56,6 @@ public interface ConsejerosService {
     List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, List<Carrera> carreras);
 
     List<AlumnoConsejero> allAlumnosOtraEspecialidad(Carrera carreraConsejero, CicloAcademico ciclo);
+    public void eliminarTutorInactivo(Long idTutor);
 
 }

@@ -82,6 +82,7 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.PersonaHistorial;
@@ -163,7 +164,7 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
     public void update(Oficina oficina, DataSessionPivot ds) {
         Assert.isTrue(verificadorService.puedeVerOficina(oficina, ds), "No tiene permiso para modificar la información de esta oficina");
         ObjectUtil.eliminarAttrSinId(oficina);
-        
+
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
 
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
@@ -285,10 +286,13 @@ public class OficinaModuloServiceImp implements OficinaModuloService {
         Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
         Assert.isNull(oficinaBD.getJefeEncargado(), "Antes debe retirar al jefe encargado");
 
-        TipoOficina tipo = oficinaBD.getTipoOficina();
-        boolean requiereJefeDocente = tipo.getNivelEnum() == NivelOficinaEnum.OFI;
-        List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
-        Assert.isFalse(requiereJefeDocente && docentesBD.isEmpty(), "Para este tipo de oficina debe elegir un docente como jefe.");
+        if (oficinaBD.getCodigoEnum() == OficinaEnum.OBUAE) {
+        } else {
+            TipoOficina tipo = oficinaBD.getTipoOficina();
+            boolean requiereJefeDocente = tipo.getNivelEnum() == NivelOficinaEnum.OFI;
+            List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
+            Assert.isFalse(requiereJefeDocente && docentesBD.isEmpty(), "Para este tipo de oficina debe elegir un docente como jefe.");
+        }
 
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         Assert.isFalse(oficina.getFechaInicioJefatura().after(hoy), "No puede poner como fecha de inicio un día futuro");

@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,30 +63,6 @@ public class ActaController {
     RecordDeActasExcelView recordDeActasExcelView;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -337,11 +314,11 @@ public class ActaController {
     }
 
     @RequestMapping("exportExcel/recordActas")
-    public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+    public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr, HttpServletRequest request) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds);
             model.addAttribute("gruposSecciones", gpoSecciones);
             model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
             model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));
@@ -361,11 +338,11 @@ public class ActaController {
     }
 
     @RequestMapping("exportExcel/raPostGrado")
-    public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+    public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr, HttpServletRequest request) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds);
             model.addAttribute("gruposSecciones", gpoSecciones);
             model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
             model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));

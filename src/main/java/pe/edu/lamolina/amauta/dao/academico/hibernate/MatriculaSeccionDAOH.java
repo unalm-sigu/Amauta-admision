@@ -611,5 +611,31 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         query.setParameter("CICLO", ciclo);
         return (List<MatriculaSeccion>) query.list();
     }
+    
+    @Override
+    public List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
+                .join("seccion s", "s.grupoSeccion gs", "gs.curso cur")
+                .leftJoin("s.aula")
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("alu.id", alumno)
+                .orderBy("cur.nombre", "s.tipoSeccion desc");
 
+        return all(sql);
+    }
+
+    
+    @Override
+    public void updateEstadoPersonalizado(MatriculaSeccion matriculaSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update MatriculaSeccion  set estado=:prm_estado, fecha_anula=:prm_fecha_anula, id_user_anula=:prm_user_anula where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", matriculaSeccion.getId());
+        query.setParameter("prm_estado", matriculaSeccion.getEstado());
+        query.setParameter("prm_fecha_anula", matriculaSeccion.getFechaAnula());
+        query.setParameter("prm_user_anula", matriculaSeccion.getUserAnula().getId());
+        query.executeUpdate();
+    }
 }

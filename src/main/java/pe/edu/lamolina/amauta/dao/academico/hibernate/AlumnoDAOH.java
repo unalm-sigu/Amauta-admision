@@ -51,6 +51,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_G;
@@ -1220,9 +1221,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
-                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
+                .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_8, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
                 .notLike("alu.codigo", "Q")
                 .notLike("alu.codigo", "P")
+                .notLike("alu.codigo", "T")
                 .__().notExists(subQuery)
                 .__().linkedBy("alu.id", "alum.id")
                 .__().notExists(sqlSub)

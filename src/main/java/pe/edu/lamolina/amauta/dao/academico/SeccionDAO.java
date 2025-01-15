@@ -156,4 +156,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     Map<Long, Integer> countRetiradosBySeccion(CicloAcademico cicloAcademico);
 
+    Seccion findResumenMatRet(Seccion seccion);
+
+    public void updateMatRet(Seccion seccionMatRetUpd);
+
 }

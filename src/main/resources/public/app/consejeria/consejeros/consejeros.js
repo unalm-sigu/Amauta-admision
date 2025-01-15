@@ -255,6 +255,57 @@ new Vue({
                 });
             }
         },
+        anularTutor(item, estado) {
+            let $vue = this;
+            let consejero = {id: item.id, estado: estado};
+
+            this.isLoading = true
+            if (consejero.estado == 'ACT') {
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url(rutaModulo + "/cambiarEstado"),
+                    data: JSON.stringify(consejero),
+                    contentType: "application/json",
+                }).then(response => {
+                    notify(response.message, 'info');
+                    $vue.loadResumen = true;
+                    $vue.$refs.raptorConsejero.loadRemoteData();
+                });
+
+            } else {
+
+                bootbox.confirm({
+                    message: '¿Seguro que desea eliminar al tutor seleccionado?',
+                    buttons: {
+                        confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url(rutaModulo + "/cambiarEstado"),
+                                data: JSON.stringify(consejero),
+                                contentType: "application/json",
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.loadResumen = true;
+                                        $vue.$refs.raptorConsejero.loadRemoteData();
+
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                },
+                                error: function () {
+                                    notify(Messages.errorComunicacion, "error");
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        },
         saveConsejero() {
             let $vue = this;
             bootbox.confirm({
@@ -574,7 +625,56 @@ new Vue({
                 return "text-success";
             }
             return "";
-        }
+        },
+        eliminarTutor(item) {
+
+            let $vue = this;
+            console.log(item);
+
+            swal('¿Seguro que desea eliminar el tutor ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Sí, Eliminar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('consejeria/consejeros/eliminar/'+item.id),
+                    data: {id: item.id},
+                    success: function(response) {
+                        if (response.success) {
+                            notify(response.message, 'info');
+                            dynatable.process();
+                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            notify(response.message, 'error');
+                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function() {
+                        notify(Messages.errorComunicacion, "error");
+                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+
+        },
+
     }
 });
 

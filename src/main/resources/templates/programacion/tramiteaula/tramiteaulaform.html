@@ -210,6 +210,7 @@
                                             v-bind:loading="isSearchingTipos"
                                             track-by="id">
                                         </multiselect>
+                                        <input class="hidden" v-model="reservaaula.tipoSolicitante" required="" />
 
                                     </div>
                                 </div>
@@ -313,6 +314,25 @@
                                         <label>Motivo </label>
 
                                         <textarea v-model="reservaaula.motivo" class="form-control" ></textarea>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12"></div>
+
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label>Tipo Solicitud </label>
+                                        <multiselect
+                                                v-model='reservaaula.tipoReservaAmbiente'
+                                                v-bind:internal-search='false'
+                                                v-bind:limit='15'
+                                                v-bind:options='tipoReservaAmbiente'
+                                                v-bind:allow-empty="false"
+                                                placeholder=""
+                                                v-on:input="changeTipoReserva"
+                                                v-bind:loading="isSearchingTipoReservas">
+                                        </multiselect>
 
                                     </div>
                                 </div>
@@ -530,7 +550,7 @@
 
             </div>
 
-            <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
+            <div th:replace="programacion/tramiteaula/tramiteaulahorario"></div>
 
             <script  type="text/x-template" id="divBuscarAlumno">
                 <div>
@@ -558,11 +578,12 @@
                 /*<![CDATA[*/
                 var reservaAulaJson = /*[[${reservaAula}]]*/ '';
                 var tiposSolicitanteJson = /*[[${tiposSolicitante}]]*/ '';
+                var tipoReservaAmbienteJson = /*[[${tipoReservaAmbiente}]]*/'';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
        
             <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>

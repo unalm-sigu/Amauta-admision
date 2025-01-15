@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Control de Asistencia</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -155,12 +155,12 @@
             </section>
         </div>
 
-        <div th:substituteby="templates/modal"/>
+        <div th:replace="templates/modal"/>
 
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:replace="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             var seccionJson = /*[[${seccionJson}]]*/ {}
             var temaLeccionJson = /*[[${temaLeccionJson}]]*/ {}

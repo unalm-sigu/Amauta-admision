@@ -36,9 +36,9 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
-import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
+import static pe.edu.lamolina.model.enums.EstadoEnum.*;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
@@ -257,6 +257,13 @@ public class ConsejerosServiceImp implements ConsejerosService {
             return;
         }
 
+        if (consejeroForm.getEstadoEnum() == ANU) {
+            consejeroBD.setEstadoEnum(ANU);
+            consejeroDAO.update(consejeroBD);
+            revisarConsejeria(consejeroBD.getCarrera(), ciclo, true, ds);
+            return;
+        }
+
         Consejero consejeroNN = new Consejero(GlobalConstantine.ID_CONSEJERO_NN);
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByConsejeroCiclo(consejeroBD, ciclo);
         for (AlumnoConsejero alumnoConsejero : alumnoConsejeros) {
@@ -284,6 +291,44 @@ public class ConsejerosServiceImp implements ConsejerosService {
         Assert.isNotNull(colaborador, "No se pudo encontrar al docente como empleado del departamento académico al que pertenece");
 
         Carrera carrera = this.findbByNombre(docente.getCarrera().getId());
+
+        Consejero consejeroEstado = consejeroDAO.findByColaboradorCarreraEstadoANU(colaborador, carrera);
+        if (consejeroEstado != null) {
+            consejeroEstado.setEstadoEnum(ACT);
+            consejeroEstado.setFechaRegistro(new Date());
+            consejeroEstado.setFechaInicio(new Date());
+            consejeroEstado.setUserRegistro(ds.getUsuario());
+            consejeroDAO.update(consejeroEstado);
+
+            // Realizamos las verificaciones y actualizaciones necesarias
+            revisarConsejeria(carrera, ciclo, true, ds);
+
+            ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
+            colaboradorEstado.setColaborador(colaborador);
+            colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
+            colaboradorEstado.setUserRegistro(ds.getUsuario());
+            colaboradorEstado.setFechaRegistro(new Date());
+            colaboradorEstadoDAO.save(colaboradorEstado);
+
+            // Actualizamos el perfil de la persona
+            PersonaCargo personaCargo = new PersonaCargo();
+            personaCargo.setCompania(ds.getCompania());
+            personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
+            personaCargo.setFechaInicio(colaborador.getFechaInicio());
+            personaCargo.setFechaRegistro(new Date());
+            personaCargo.setOficina(colaborador.getOficina());
+            personaCargo.setPerfilCompania(colaborador.getCargo());
+            personaCargo.setPersona(docente.getPersona());
+            personaCargo.setUserRegistro(ds.getUsuario());
+            personaCargoDAO.save(personaCargo);
+
+            Oficina oficinaColaborador = oficinaDAO.find(colaborador.getOficina().getId());
+            revisarPerfiles(colaborador, docente.getPersona(), oficinaColaborador, ds);
+
+            // Terminamos el proceso aquí si encontramos el consejero con estado ANU
+            return;
+        }
+
 
         Consejero consejero = consejeroDAO.findByColaboradorCarrera(colaborador, carrera);
         Assert.isNull(consejero, "Este docente ya existe como consejero para esta carrera");
@@ -644,6 +689,24 @@ public class ConsejerosServiceImp implements ConsejerosService {
     @Override
     public List<AlumnoConsejero> allAlumnosOtraEspecialidad(Carrera carreraConsejero, CicloAcademico ciclo) {
         return alumnoConsejeroDAO.allAlumnosOtraEspecialidad(carreraConsejero, ciclo);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTutorInactivo(Long idTutor) {
+//        Consejero consejeroBD = consejeroDAO.find(idTutor);
+//
+//        Consejero consejeroNN = new Consejero(GlobalConstantine.ID_CONSEJERO_NN);
+//        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByConsejeroCiclo(consejeroBD,ciclo);
+//        for (AlumnoConsejero alumnoConsejero : alumnoConsejeros) {
+//            Alumno alumno = alumnoConsejero.getAlumno();
+//            alumno.setConsejero(consejeroNN);
+//            alumnoDAO.update(alumno);
+//
+//            alumnoConsejero.setConsejero(consejeroNN);
+//            alumnoConsejeroDAO.update(alumnoConsejero);
+//        }
+        consejeroDAO.delete(idTutor);
     }
 
 }

@@ -1,0 +1,83 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'SOURCE_KIND', choices: ['branch', 'commit', 'tag'], description: 'Origen del código del repositorio git.') 
+        string(name: 'SOURCE', defaultValue: 'master', description: 'Branch, Commit Id o Tag del código del repositorio git.')
+        string(name: 'PROFILE', defaultValue: 'test', description: 'Spring Profile for deployment.')
+        string(name: 'SERVER', defaultValue: 'amauta-test.lamolina.edu.pe', description: 'Dirección IP del servidor remoto.')
+        string(name: 'PORT', defaultValue: '443', description: 'Puerto de servidor en que se ejecuta el pipeline.')
+        string(name: 'REMOTE_DIR', defaultValue: '/lost+found', description: 'Directorio remoto para la transferencia de archivos.')
+        string(name: 'USERNAME', defaultValue: 'root', description: 'Nombre de usuario SSH para la conexión al servidor remoto.')
+    }
+
+    environment { 
+        DELFIN_TEST = credentials('delfin-test') 
+    }
+
+    tools {
+        jdk 'java11'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    if (params.SOURCE_KIND == 'branch') {
+                        checkout scmGit(branches: [[name: '*/' + params.SOURCE]])
+                    } else {
+                        checkout scmGit(branches: [[name: params.SOURCE]])
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Transfer Files') {
+            steps {
+                script {
+                    def remoteCommand = "scp target/*.jar ${params.USERNAME}@${params.SERVER}:${params.REMOTE_DIR}/"
+                    sh remoteCommand
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    def remoteCommand = """
+                        ssh root@amauta-test.lamolina.edu.pe '
+                            fuser -n tcp -k ${PORT}
+                            export USERDB=${DELFIN_TEST_USR}
+                            export PASSWORD='${DELFIN_TEST_PSW}'
+                            nohup java -jar ${params.REMOTE_DIR}/*.jar --spring.profiles.active=${params.PROFILE} > /dev/null 2>&1 &
+                            wait-for-it -h localhost -p ${PORT} -t 60
+                        '
+                    """
+                    sh remoteCommand
+                }
+            }
+             post {
+                success {
+                    slackSend (
+                        color: 'good',
+                        message: "¡Despliegue exitoso en ${params.SERVER}!",
+                        tokenCredentialId: 'jenkins-id'
+                    )
+                }
+                failure {
+                    slackSend (
+                        color: 'danger',
+                        message: "¡Error durante el despliegue en ${params.SERVER}!",
+                        tokenCredentialId: 'jenkins-id'
+                    )
+                }
+            }
+        }
+    }
+}

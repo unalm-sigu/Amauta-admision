@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Lista de Ciclos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -46,13 +46,13 @@
             </section>
         </section>
 
-        <div th:substituteby="templates/modal"/> 
-        <div th:substituteby="academico/systemcalifica/sistema/modalSistema"/>
-        <script id="templateSistema" type="text/x-template" class="hide"><div th:substituteby="academico/systemcalifica/sistema/templateSistema"/></script>
+        <div th:replace="templates/modal"/> 
+        <div th:replace="academico/systemcalifica/sistema/modalSistema"/>
+        <script id="templateSistema" type="text/x-template" class="hide"><div th:replace="academico/systemcalifica/sistema/templateSistema"/></script>
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/systemcalifica/sistema/sistema.js}" charset="utf-8"></script>
     </div>
 </body>

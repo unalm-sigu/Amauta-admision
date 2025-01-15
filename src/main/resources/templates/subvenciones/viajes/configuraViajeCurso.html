@@ -214,10 +214,10 @@
                     </section>
                 </section>
 
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
-                <div th:substituteby="subvenciones/viajes/_modalAddObservacion"></div>
-                <div th:substituteby="subvenciones/viajes/_modalObservaJustifica"></div>
-                <div th:substituteby="subvenciones/viajes/_modalObservaciones"></div>
+                <div th:replace="_modules/vue-modal-confirm"></div>
+                <div th:replace="subvenciones/viajes/_modalAddObservacion"></div>
+                <div th:replace="subvenciones/viajes/_modalObservaJustifica"></div>
+                <div th:replace="subvenciones/viajes/_modalObservaciones"></div>
             </div>
         </div>
 

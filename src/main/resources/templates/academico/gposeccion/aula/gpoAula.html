@@ -236,12 +236,12 @@
                     </section>
                 </section>
 
-                <div th:substituteby="general/aula/modalAula"/>
+                <div th:replace="general/aula/modalAula"/>
             </div>
-            <div th:substituteby="general/aula/aulaHorarioComponent"/>
+            <div th:replace="general/aula/aulaHorarioComponent"/>
 
-            <div th:substituteby="templates/modal"/>
-            <!--<script id="aulaTemplate" type="text/x-template" class="hide"><div th:substituteby="general/aula/aulaTemplate"/></script>-->
+            <div th:replace="templates/modal"/>
+            <!--<script id="aulaTemplate" type="text/x-template" class="hide"><div th:replace="general/aula/aulaTemplate"/></script>-->
         </div>
 
         <div layout:fragment="js" th:remove="tag">
@@ -251,7 +251,7 @@
                 /*]]>*/
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             
             <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/aula/aula.js}" charset="utf-8"></script>

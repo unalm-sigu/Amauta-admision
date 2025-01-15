@@ -1,0 +1,53 @@
+Vue.component("multiselect", window.VueMultiselect.default);
+new Vue({
+    el: '#loadArchivoBecadosVUE',
+    data: {
+        files: [],
+        btnText: 'Iniciar Carga',
+        datos: [],
+        procesando: false,
+    },
+    mounted: function () {
+        let $vue = this;
+    },
+    methods: {
+
+        startUpload() {
+            let $vue = this;
+            var form = $("#formLoadFiles");
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('file', $vue.file);
+            //formData.append('cicloAcademico', $vue.cicloAcademico.codigo);
+            $vue.procesando = true;
+            AXIOS.post('/academico/becaspronabec/cargarDatos',
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            ).then(response => {
+
+                if (response.data.success) {
+//                    notify(response.data.message, "success");
+                } else {
+                    $vue.datos = response.data.data;
+//                    notify(response.data.message, "error");
+                }
+                console.log($vue.datos);
+                $vue.procesando = false;
+            }).catch(err => {
+                notify(Messages.errorComunicacion, "error");
+                $vue.procesando = false;
+            });
+        },
+        getImage(event) {
+            var $vue = this;
+            $vue.file = event.target.files[0];
+        }
+    }
+});

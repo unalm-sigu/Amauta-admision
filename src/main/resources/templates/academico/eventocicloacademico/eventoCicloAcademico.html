@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Evento Académico</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -69,11 +69,11 @@
                 </section>
             </section>
 
-            <div th:substituteby="academico/eventocicloacademico/eventoCicloAcademicoModal"></div>
+            <div th:replace="academico/eventocicloacademico/eventoCicloAcademicoModal"></div>
 
         </div>
 
-        <div th:substituteby="_modules/vue-fullcalendar"/>
+        <div th:replace="_modules/vue-fullcalendar"/>
 
         <th:block th:replace="academico/eventocicloacademico/eventoCicloAcademicoDynatable"/>
 
@@ -81,7 +81,7 @@
 
     <div layout:fragment="js">
         
-        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <div th:replace="_layout/includes :: javascript-dynatable"></div>
         
         <script type="text/javascript" th:src="@{/vue/vue-fullcalendar.js}"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademicoDynatable.js}" charset="utf-8"></script>

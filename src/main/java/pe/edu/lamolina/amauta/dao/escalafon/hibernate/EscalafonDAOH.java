@@ -24,7 +24,7 @@ public class EscalafonDAOH extends AbstractEasyDAO<Escalafon> implements Escalaf
                 .from(Escalafon.class, "es")
                 .join("persona p")
                 .searchComplexField("concat(coalesce(p.paterno,''),' ',coalesce(p.materno,''),' ',coalesce(p.nombres,''))")
-                .searchFields("p.nombres", "p.materno", "p.paterno", "ca.nombre", "a.codigo")
+                .searchFields("p.nombres", "p.materno", "p.paterno")
                 .orderBy("es.id desc");
 
         return sql.all(getCurrentSession());

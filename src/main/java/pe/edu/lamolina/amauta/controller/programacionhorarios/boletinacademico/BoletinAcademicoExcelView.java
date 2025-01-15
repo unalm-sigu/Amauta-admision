@@ -192,7 +192,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
                         if(ciclo.getTipoEnum().equals(TipoCicloEnum.NIV)) {
                             ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
-                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, isPractica ? String.format("s/ %s", String.valueOf(seccion.getPrecio())) : "");
+                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, !seccion.isTipoSeccionTCUR() ? String.format("s/ %s", String.valueOf(seccion.getPrecio())) : "");
                         } else {
                             ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
                         }

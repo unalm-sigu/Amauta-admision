@@ -26,13 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.*;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.tramite.AulaReservada;
@@ -56,6 +54,9 @@ public class TramiteAulaController {
 
     @Autowired
     TramiteAulaService service;
+
+    @Autowired
+    ReporteAulasReservadasExcelView recordFilterTipoReserva;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -135,7 +136,17 @@ public class TramiteAulaController {
                 array.add(node);
             }
         }
+
+        ArrayNode array2 = new ArrayNode(jFactory);
+        for (TipoReservaAmbienteEnum tipo : TipoReservaAmbienteEnum.values()) {
+//            ObjectNode node = new ObjectNode(jFactory);
+//            node.put("id", tipo.name());
+//            node.put("nombre", tipo.getValue());
+            array2.add(tipo.getValue());
+        }
+
         model.addAttribute("tiposSolicitante", array.toString());
+        model.addAttribute("tipoReservaAmbiente", array2.toString());
         return "programacion/tramiteaula/tramiteaulaform";
     }
 
@@ -144,6 +155,7 @@ public class TramiteAulaController {
     public JsonResponse save(@RequestBody ReservaAula reservaAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
+        ObjectUtil.printAttr(reservaAula);
 
         try {
 
@@ -179,7 +191,14 @@ public class TramiteAulaController {
                 array.add(node);
             }
         }
+
+        ArrayNode array2 = new ArrayNode(jFactory);
+        for (TipoReservaAmbienteEnum tipo : TipoReservaAmbienteEnum.values()) {
+            array2.add(tipo.getValue());
+        }
+
         model.addAttribute("tiposSolicitante", array.toString());
+        model.addAttribute("tipoReservaAmbiente", array2.toString());
         ReservaAula reservaAula = service.findReservaAula(idtramite);
         ObjectNode reservaAulaNode = JsonHelper.createJson(reservaAula, jFactory, true, new String[]{
             "*",
@@ -236,10 +255,12 @@ public class TramiteAulaController {
     @RequestMapping("saveInstitucion")
     public JsonResponse saveInstitucion(@RequestBody Empresa insticion, HttpSession session) {
 
+
         JsonResponse response = new JsonResponse();
 
         try {
-            Empresa institucionBD = service.saveInstitucion(insticion);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            Empresa institucionBD = service.saveInstitucion(insticion,ds);
             response.setData(JaneHelper.from(institucionBD).only("id,razonSocial").json());
             response.setSuccess(true);
             response.setMessage(GlobalMessages.CREATED);
@@ -571,6 +592,22 @@ public class TramiteAulaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("exportExcel")
+    public ModelAndView exportExcel(HttpSession session, Model model) {
+        try{
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<ReservaAulaBean> listReservas = service.filterByTipoReserva();
+            model.addAttribute("listReservas", listReservas);
+        }catch (PhobosException e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }
+        return new ModelAndView(recordFilterTipoReserva);
     }
 
 }

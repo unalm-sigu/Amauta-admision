@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Acta de Notas</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -14,19 +14,19 @@
             -->
         </header>
 
-        <div th:if="${esOperadorEditor}">
+        <!--<div th:if="${esOperadorEditor}">-->
             <div class="col-md-3">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-file-text-o"/> &nbsp; Reportes &nbsp; <span class="caret"></span>
+                        <i class="fa fa-file-text-o"></i> &nbsp; Reportes &nbsp; <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li><a th:href="@{'/academico/acta/exportExcel/recordActas'}">Record Actas Pre Grado</a></li>
-                        <li><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
+                        <li th:if="${esOperadorEditor}"><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
                     </ul>
                 </div>
             </div>
-        </div>
+        <!--</div>-->
         <div  id="dynaTable" class="row"></div>
 
         <script id="templateActas" type="text/x-template" class="hide" >
@@ -67,7 +67,7 @@
 
     </div>
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"></div>
         <script th:src="@{/app/academico/acta/acta.js}" charset="utf-8"></script>
     </div>
 </body>

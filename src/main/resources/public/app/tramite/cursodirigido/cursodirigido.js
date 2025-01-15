@@ -21,7 +21,7 @@ new Vue({
     },
     methods: {
         json(item) {
-            if (item.situacionActual.cruceHorario != null) {
+            if (item.situacionActual.cruceHorario != null || item.situacionActual != '{}') {
                 return;
             }
             item.situacionActual = JSON.parse(item.situacionActual);
@@ -56,8 +56,8 @@ new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea anular el curso dirigido?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-danger"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: { label: 'Si', className: "btn-danger" },
+                    cancel: { label: 'Cancelar', className: "btn-link" }
                 },
                 callback: function (result) {
                     if (result && !$vue.processing) {
@@ -103,23 +103,23 @@ new Vue({
             switch (estado) {
                 case 'SOL_ANU':
                 case 'RHZ_SOL':
-                    return  "label label-danger"
+                    return "label label-danger"
                     break;
                 case 'SOL_CUR_DIR':
-                    return  "label label-primary"
+                    return "label label-primary"
                     break;
                 case 'RES_FAC':
-                    return  "label label-success"
+                    return "label label-success"
                     break;
 
                 default:
-                    return  "label label-primary"
+                    return "label label-primary"
                     break;
             }
         },
         changeFacultadSelected() {
             let $vue = this;
-            $vue.$refs.load.querie.push({name: 'facultad-dirigido', value: $vue.facultad.id});
+            $vue.$refs.load.querie.push({ name: 'facultad-dirigido', value: $vue.facultad != null ? $vue.facultad.id : null });
             $vue.$refs.load.repreload();
         },
         dowloadListFac() {

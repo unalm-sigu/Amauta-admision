@@ -40,9 +40,18 @@
                     <tbody>
                         <tr v-for="item in props.data">
                             <td class="v-middle">
-                                <div class="pull-left">
-                                    <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />
-                                </div>
+<!--                                <div class="pull-left">-->
+<!--                                    <img class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="item.rutaFoto" />-->
+<!--                                </div>-->
+                                  <div v-if="item.foto">
+                                    <img class="img-foto-tempo img-responsive img-thumbnail  img-circle" v-bind:src="item.foto" />
+                                  </div>
+                                  <div v-else="">
+                                    <img v-if="item.sexo == 'M'" class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/male.png'" />
+                                    <img v-else-if="item.sexo == 'F'" class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/female.png'" />
+                                    <img v-else class="img-foto-tempo img-responsive img-thumbnail img-circle" :src="'/phobos/images/unalm/unknown-person.gif'" />
+                                  </div>
+
                             </td>
                             <td class="v-middle">
                                 <div class="v-middle">
@@ -59,7 +68,7 @@
                                 <span v-if="item.celular" class="block"><i class="fa fa-mobile"></i> {{item.celular}}</span>
                                 <span v-if="item.telefono" class="block"><i class="fa fa-phone"></i> {{item.telefono}}</span>
 
-                                <a v-if="item.emailEmpresa && LOGIN_DOCENTE" class="btn btn-warning m-t-sm" v-on:click="loginAmauta(item)">
+                                <a v-if="item.emailEmpresa && LOGIN_DOCENTE" :class="['btn', 'm-t-sm', IS_PRODUCTION ? 'btn-success' : 'btn-warning']" v-on:click="loginAmauta(item)">
                                     Login amauta
                                 </a>
                             </td>
@@ -108,6 +117,7 @@
                 URL_LIST_PROFESOR: APP.url('academico/profesor/all'),
                 PUEDE_ACTIVAR: PUEDE_ACTIVAR,
                 LOGIN_DOCENTE: LOGIN_DOCENTE,
+                IS_PRODUCTION: IS_PRODUCTION,
                 departamentos: JSON.parse(jDepartamentos),
                 departamento: null
             };

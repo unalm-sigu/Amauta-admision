@@ -20,4 +20,6 @@ public interface RequisitoCursoCurriculaDAO extends EasyDAO<RequisitoCursoCurric
 
     List<RequisitoCursoCurricula> allByPlanes(List<PlanCurricular> planes);
 
+    List<RequisitoCursoCurricula> allByCursoRequisito(CursoCurricula cursoCurricula);
+
 }

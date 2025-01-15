@@ -2,6 +2,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 const VueFilePicker = use('/_vue/modules/VueFilePicker.vue');
 const ModalSimple = use('/_vue/modules/ModalSimple.vue');
 const RaptorTable = use('/_vue/modules/RaptorTable.vue');
+
 new Vue({
     el: '#main',
     mixins: [VueLoader],
@@ -16,7 +17,8 @@ new Vue({
         departamentos: [],
         seleccionados: [],
         files: [],
-        ciclos: []
+        ciclos: [],
+        nombreTitulo: null,
     },
     mounted: function () {
         let $vue = this;
@@ -35,6 +37,7 @@ new Vue({
         },
         openModalSilabo() {
             let $vue = this;
+            $vue.nombreTitulo="Agregar Nuevo ";
             $vue.silaboCurso = {};
             $vue.$refs.modalSilabo.open();
         },
@@ -60,6 +63,7 @@ new Vue({
         },
         editar(item) {
             let $vue = this;
+            $vue.nombreTitulo="Editar ";
             $vue.silaboCurso = {...item};
             $vue.$refs.modalSilabo.open();
         },
@@ -123,16 +127,51 @@ new Vue({
                 notify('¡Este tipo de archivo no esta permitido!', 'error');
                 return;
             }
-            let formData = new FormData();
-            formData.append('file', archivo);
-            $vue.showLoader();
-            axios_.post("/comun/archivo/upload/", formData)
-                    .then(({data}) => {
-                        $vue.silaboCurso.rutaDocumento = data.data.nombre;
-                        $vue.silaboCurso.fileUpdated = 1;
-                        $vue.hideLoader();
-                        $vue.$forceUpdate();
-                    }, err => $vue.hideLoader());
+
+            swal({
+                title: "Confirmación",
+                text: `¿Estás seguro de que deseas subir el archivo "${nombre}"?`,
+                icon: "warning",
+                buttons: {
+                    cancel: {
+                        text: "No",
+                        value: false,
+                        visible: true,
+                        className: "",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "Sí, subirlo",
+                        value: true,
+                        visible: true,
+                        className: "",
+                        closeModal: false
+                    }
+                }
+            }).then((willUpload) => {
+                if (willUpload) {
+                    let formData = new FormData();
+                    formData.append('file', archivo);
+
+                    // Mostrar loader mientras se sube el archivo
+                    $vue.showLoader();
+
+                    axios_.post("/comun/archivo/upload/", formData)
+                        .then(({ data }) => {
+                            $vue.silaboCurso.rutaDocumento = data.data.nombre;
+                            $vue.silaboCurso.fileUpdated = 1;
+                            $vue.hideLoader();
+                            $vue.$forceUpdate();
+                            swal("¡Subido!", "Tu archivo ha sido subido exitosamente.", "success");
+                        })
+                        .catch(err => {
+                            $vue.hideLoader();
+                            swal("Error", "Hubo un error al subir el archivo.", "error");
+                        });
+                } else {
+                    // Opcional: acciones si el usuario cancela
+                }
+            });
         },
         descargarSeleccionados() {
             let $vue = this;
@@ -185,6 +224,46 @@ new Vue({
                 return;
             }
             window.open("https://docs.google.com/gview?url=" + item.rutaDocumento + "&embedded=true", '_blank');
-        }
+        },
+        getFileIcon(filePath) {
+            const extension = filePath.split('.').pop().toLowerCase();
+            switch (extension) {
+                case 'pdf':
+                    return 'fa fa-file-pdf-o';
+                case 'xls':
+                case 'xlsx':
+                    return 'fa fa-file-excel-o';
+                case 'doc':
+                case 'docx':
+                    return 'fa fa-file-word-o';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                    return 'fa fa-file-image-o';
+                default:
+                    return 'fa fa-file-o'; // ícono genérico para otros tipos de archivos
+            }
+        },
+        getFileColor(filePath) {
+            const extension = filePath.split('.').pop().toLowerCase();
+            switch (extension) {
+                case 'pdf':
+                    return 'red';
+                case 'xls':
+                case 'xlsx':
+                    return 'green';
+                case 'doc':
+                case 'docx':
+                    return 'blue';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                    return 'orange';
+                default:
+                    return 'black'; // color genérico para otros tipos de archivos
+            }
+        },
     }
 });

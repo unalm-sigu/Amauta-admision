@@ -3,17 +3,9 @@ package pe.edu.lamolina.amauta.controller.docente.resumenencuesta;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import static com.helger.commons.io.stream.StreamHelper.close;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -186,8 +177,7 @@ public class DocenteEncuestaController {
 
     @RequestMapping("resumen/{id}/reporte")
     public ModelAndView reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
-        Context ctx = service.reporte(new EncuestaDocenteModalidad(id));
-        model.addAllAttributes(ctx.getVariables());
+        service.reporte(new EncuestaDocenteModalidad(id), model);
         return new ModelAndView(pdfHtml);
     }
 

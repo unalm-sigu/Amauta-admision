@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Configuración</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
+    <div th:replace="_layout/includes :: styles-dynatable" th:remove="tag"></div>
 <style>
     .dellTurno {
         display: flex;

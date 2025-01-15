@@ -105,7 +105,8 @@ public class ConfiguracionTurnoController {
 
         for (ConfiguracionTurnosAtencion config : configuraciones) {
             ObjectNode node = JsonHelper.createJson(config, factory, true, new String[]{
-                "*", "eventoCicloAcademico.*", "eventoCicloAcademico.eventoAcademico.*"
+                "*", "eventoCicloAcademico.id", 
+                "eventoCicloAcademico.eventoAcademico.*"
             });
             eventosJson.add(node);
 

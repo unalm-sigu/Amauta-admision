@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Carga Académica</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 
     <style type="text/css">
         #dynatable-search-dynaTable, #dynatable-record-count-dynaTable{
@@ -68,12 +68,12 @@
             </div>
         </div>
 
-        <div th:substituteby="templates/modal"></div>
+        <div th:replace="templates/modal"></div>
 
-        <script id="templateEvaluacionPlan" type="text/x-template" class="hide"><div th:substituteby="docente/notaacademica/templateEvaluacionPlan"/></script>
+        <script id="templateEvaluacionPlan" type="text/x-template" class="hide"><div th:replace="docente/notaacademica/templateEvaluacionPlan"/></script>
     </div>
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/docente/notasacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
     </div>
 </body>

@@ -11,15 +11,19 @@
         <h5 v-else="">No se han generado aportes para el alumno</h5>
 
         <div v-for="resumenModal in resumenes">
-            
-            <h4 class="text-primary">Aportes {{resumenModal.ciclo}}</h4>
-            <h5><b>{{resumenModal.estado}}</b></h5>
+
+            <h4 class="text-primary">
+                Aportes {{ resumenModal.ciclo }}
+                <span :class="{'label label-primary': resumenModal.estado === 'Matriculado', 'label label-warning': resumenModal.estado !== 'Matriculado'}">
+                    {{ resumenModal.estado }}
+                </span>
+            </h4>
             <h5 v-if="resumenModal.fecharetiro">Fecha Retiro Ciclo <b>{{resumenModal.fecharetiro}}</b></h5>
 
             <div class="m-b-lg"></div>
 
             <div>
-                <table class="table table-striped table-hover">
+                <table class="table table-striped">
                     <thead> 
                         <tr>
                             <th class="col-md-4">Aporte</th>
@@ -31,7 +35,7 @@
                         </tr> 
                     </thead>
                     <tbody>
-                        <tr v-for="item in resumenModal.aporteAlumnoCiclo">
+                        <tr v-for="item in resumenModal.aporteAlumnoCiclo" :class="{'danger': item.aporteCiclo.aporte.nombre === 'No Votar'}">
                             <td> 
                                 <span class="block" v-text="item.aporteCiclo.aporte.nombre"> </span> 
                                 <span v-if="item.estadoEnum.name=='PAGO' " class="label label-success" v-text="item.estadoEnum.value"></span>

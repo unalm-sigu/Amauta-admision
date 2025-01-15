@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -105,8 +106,19 @@ import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableServ
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
+import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.tramite.RetiroCursoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
+import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
+import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 
 @Slf4j
 @Service
@@ -142,7 +154,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     private final TramiteDAO tramiteDAO;
     private final TramiteDocumentoAcademicoDAO tramiteDocumentoAcademicoDAO;
     private final TramiteReunionConsejoDAO tramiteReunionConsejoDAO;
-
+    private final TipoTramiteDAO tipoTramiteDAO;
+    private final RetiroCursoDAO retiroCursoDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final VacanteAlumnoDAO vacanteAlumnoDAO;
+    private final SeccionDAO seccionDAO;
+    
     private final InfoAcademicoService infoAcademicoService;
     private final OficinaService oficinaService;
     private final PromedioService promedioService;
@@ -497,7 +514,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
+    public void cursoDirigidoReporte(Tramite tramite, Model model, DataSessionPivot ds) {
 
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
@@ -567,32 +584,30 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         Oficina oficina = oficinaDAO.findByCode(CODIGO_REGISTRO);
 
-        ctx.setVariable("oficina", oficina);
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("curso", curso);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("matriculados", matriculados);
-        ctx.setVariable("gpoSecciones", gpoSecciones);
-        ctx.setVariable("cursoDirigido", cursoDirigido);
-        ctx.setVariable("matriculaResumen", matriculaResumen);
+        model.addAttribute("oficina", oficina);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("ciclo", cicloAcademico);
+        model.addAttribute("curso", curso);
+        model.addAttribute("historial", historialSorted);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("matriculados", matriculados);
+        model.addAttribute("gpoSecciones", gpoSecciones);
+        model.addAttribute("cursoDirigido", cursoDirigido);
+        model.addAttribute("matriculaResumen", matriculaResumen);
 
-        ctx.setVariable("situacionActual", data);
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
+        model.addAttribute("situacionActual", data);
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("alumnoCicloCurso", listAlumnoCicloCurso);
 
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
         List<Hora> horas = findLimiteHoras(hss);
-        ctx.setVariable("horas", horas);
-        ctx.setVariable("dias", dias);
-        ctx.setVariable("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
+        model.addAttribute("horas", horas);
+        model.addAttribute("dias", dias);
+        model.addAttribute("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
 
-        ctx.setVariable("nombrePdf", "Información");
-        ctx.setVariable("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
-
-        return ctx;
+        model.addAttribute("nombrePdf", "Información");
+        model.addAttribute("templatePdf", "detalleCursoDirigido,historialAcademicoCurdir,cursosMatriculados,horario");
 
     }
 
@@ -863,13 +878,13 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
+    public List<Context> allcursoDirigidoFac(Facultad facultad, Model model, DataSessionPivot ds) {
 
         List<Tramite> tramites = allTramitesByFac(facultad, ds);
         List<Context> multipleContext = new ArrayList();
 
         for (Tramite tramite : tramites) {
-            multipleContext.add(cursoDirigidoReporte(tramite, ds));
+            cursoDirigidoReporte(tramite, model, ds);
         }
 
         return multipleContext;
@@ -921,20 +936,176 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         AlumnoCicloCurso alumnoCursoBD = alumnoCicloCursoDAO.find(alumnoCurso);
         AlumnoCiclo alumnoCiclo = alumnoCursoBD.getAlumnoCiclo();
+        Alumno alumno = alumnoCiclo.getAlumno();
+        CicloAcademico cicloAcademico = alumnoCiclo.getCicloAcademico();
+
+        DateTime today = new DateTime();
 
         List<AlumnoCicloCurso> alumnoCursosAll = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
         if (alumnoCursosAll.isEmpty()) {
-            if (alumnoCursoBD.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
-                alumnoCursoBD.setEstadoEnum(EstadoMatriculaEnum.ANCI);
-                alumnoCursoBD.setUserModificacion(ds.getUsuario());
-                alumnoCursoBD.setFechaModificacion(new Date());
+
+            this.anularTramitesRCU(alumno, cicloAcademico, today, ds);
+
+            this.anularRetiroCursoRCU(alumno, cicloAcademico); //ACEPT -> ANU
+
+            MatriculaResumenData matriculaResumenData = this.updateMatriculaCurso(alumno, cicloAcademico, today, ds); // RCU -> RCI
+
+            this.updateMatriculaResumen(alumno, cicloAcademico, matriculaResumenData); // -> RCI
+
+//            alumnoSubvencionadoService.quitarSubvencionRetiroCiclo(alumno, cicloAcademico);
+
+            if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+                alumnoCiclo.setUserModificacion(ds.getUsuario());
+                alumnoCiclo.setFechaModificacion(new Date());
                 alumnoCicloDAO.update(alumnoCiclo);
             }
         }
+    }
+
+    public void anularTramitesRCU(Alumno alumno, CicloAcademico cicloAcademico, DateTime today, DataSessionPivot ds) {
+        TipoTramite tipoTramiteRCU = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCU.name());
+        List<Tramite> tramitesRCUByAluCiclo = tramiteDAO.allByAlumnoCicloAcademicotTipoTram(alumno, cicloAcademico, tipoTramiteRCU);
+        for (Tramite tramiteEach : tramitesRCUByAluCiclo) {
+            Tramite tramiteUpd = new Tramite();
+            tramiteUpd.setId(tramiteEach.getId());
+            tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ANU);
+            tramiteUpd.setFechaModificacion(today.toDate());
+            tramiteUpd.setUserModificacion(ds.getUsuario());
+            tramiteDAO.updateEstado(tramiteUpd);
+        }
+    }
+
+    private void anularRetiroCursoRCU(Alumno alumno, CicloAcademico cicloAcademico) {
+        List<RetiroCurso> retiroCursos = retiroCursoDAO.allByAlumnoCiclo(alumno, cicloAcademico);
+        for (RetiroCurso retiroCurso : retiroCursos) {
+            retiroCurso.setEstado(TramiteEstadoEnum.ANU.name());
+            retiroCursoDAO.update(retiroCurso);
+        }
+    }
+
+    private MatriculaResumenData updateMatriculaCurso(Alumno alumno, CicloAcademico cicloAcademico, DateTime today, DataSessionPivot ds) {
+        List<MatriculaCurso> allMatriculasCursos = matriculaCursoDAO.allByAlumnoCiclo(alumno, cicloAcademico);
+        List<MatriculaCurso> matriculasCursosRcu = allMatriculasCursos.stream().filter(x -> x.isEstadoRCU()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCursosMat = allMatriculasCursos.stream().filter(x -> x.isEstadoMAT()).collect(Collectors.toList());
+
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, cicloAcademico);
+
+        for (MatriculaCurso matriculaCursoEach : matriculasCursosRcu) {
+            matriculaCursoEach.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            matriculaCursoEach.setFechaAnula(new Date());
+            matriculaCursoEach.setUserAnula(ds.getUsuario());
+            matriculaCursoDAO.updateEstado(matriculaCursoEach);
+
+            List<MatriculaSeccion> matSeccion = matriculasSecciones.stream()
+                    .filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCursoEach.getCurso().getId()))
+                    .collect(Collectors.toList());
+
+            this.updateMatriculaSeccionRCU(matSeccion, alumno, today, EstadoMatriculaEnum.RCI, EstadoVacanteAlumnoEnum.RCI, ds);
+
+        }
+
+        int creditosTotales = 0;
+        for (MatriculaCurso matriculaCursoEach : matriculasCursosMat) {
+            //no se crea retiro curso
+            creditosTotales = creditosTotales + matriculaCursoEach.getCreditos();
+            MatriculaCurso matriculaCursoUpd = new MatriculaCurso();
+            matriculaCursoUpd.setId(matriculaCursoEach.getId());
+            matriculaCursoUpd.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+            matriculaCursoUpd.setFechaAnula(new Date());
+            matriculaCursoUpd.setUserAnula(ds.getUsuario());
+            matriculaCursoDAO.updateEstado(matriculaCursoUpd);
+
+            List<MatriculaSeccion> matriculasSecByCur = matriculasSecciones.stream().
+                    filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCursoEach.getCurso().getId())).
+                    collect(Collectors.toList());
+            for (MatriculaSeccion matriculaSeccion : matriculasSecByCur) {
+                this.retirarMatriculaSeccion(matriculaSeccion, EstadoMatriculaEnum.ANRES, ds);
+            }
+        }
+
+        MatriculaResumenData matriculaResumenData = new MatriculaResumenData(matriculasCursosMat.size(), creditosTotales); //cantCursoRE //cantCreditRE
+        return matriculaResumenData;
+    }
+
+    private class MatriculaResumenData {
+
+        int cantidadCursosRetirados;
+        int creditosTotalesRetirados;
+
+        public MatriculaResumenData(int cantidadCursosRetirados, int creditosTotalesRetirados) {
+            this.cantidadCursosRetirados = cantidadCursosRetirados;
+            this.creditosTotalesRetirados = creditosTotalesRetirados;
+        }
+
+        public int getCantidadCursosRetirados() {
+            return cantidadCursosRetirados;
+        }
+
+        public void setCantidadCursosRetirados(int cantidadCursosRetirados) {
+            this.cantidadCursosRetirados = cantidadCursosRetirados;
+        }
+
+        public int getCreditosTotalesRetirados() {
+            return creditosTotalesRetirados;
+        }
+
+        public void setCreditosTotalesRetirados(int creditosTotalesRetirados) {
+            this.creditosTotalesRetirados = creditosTotalesRetirados;
+        }
+    }
+
+    private void updateMatriculaSeccionRCU(List<MatriculaSeccion> matSeccion, Alumno alumno, DateTime today, EstadoMatriculaEnum estadoMatriculaEnum, EstadoVacanteAlumnoEnum estadoVacanteAlumnoEnum, DataSessionPivot ds) {
+        for (MatriculaSeccion matriculaSeccion : matSeccion) {
+            matriculaSeccion.setEstadoEnum(estadoMatriculaEnum);
+            matriculaSeccion.setFechaAnula(new Date());
+            matriculaSeccion.setUserAnula(ds.getUsuario());
+            matriculaSeccionDAO.update(matriculaSeccion);
+
+            Seccion seccion = matriculaSeccion.getSeccion();
+
+            VacanteAlumno vacanteAlumnoByAluSec = vacanteAlumnoDAO.findByAlumnoSeccion(alumno, seccion);
+            if (vacanteAlumnoByAluSec != null) {
+                vacanteAlumnoByAluSec.setUserModificacion(ds.getUsuario());
+                vacanteAlumnoByAluSec.setFechaModificacion(today.toDate());
+                vacanteAlumnoByAluSec.setEstadoEnum(estadoVacanteAlumnoEnum);
+                vacanteAlumnoDAO.update(vacanteAlumnoByAluSec);
+            }
+        }
+    }
+
+    private void retirarMatriculaSeccion(MatriculaSeccion matriculaSeccion, EstadoMatriculaEnum estadoMatriculaEnum, DataSessionPivot ds) {
+
+        Seccion seccion = matriculaSeccion.getSeccion();
+        MatriculaSeccion matriculaSeccionUpdEstado = new MatriculaSeccion();
+        matriculaSeccionUpdEstado.setId(matriculaSeccion.getId());
+        matriculaSeccionUpdEstado.setEstadoEnum(estadoMatriculaEnum);
+        matriculaSeccionUpdEstado.setFechaAnula(new Date());
+        matriculaSeccionUpdEstado.setUserAnula(ds.getUsuario());
+        matriculaSeccionDAO.updateEstadoPersonalizado(matriculaSeccionUpdEstado);
+
+        Seccion seccionResumenMatRet = seccionDAO.findResumenMatRet(seccion);
+
+        Seccion seccionMatRetUpd = new Seccion();
+        seccionMatRetUpd.setId(seccion.getId());
+        seccionMatRetUpd.setMatriculados(seccionResumenMatRet.getMatriculados());
+        seccionMatRetUpd.setRetirados(seccionResumenMatRet.getRetirados());
+        seccionDAO.updateMatRet(seccionMatRetUpd);
+    }
+
+    private void updateMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico, MatriculaResumenData matriculaResumenData) {
+        MatriculaResumen matricularesumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        matricularesumen.setEstadoEnum(EstadoMatriculaEnum.ANRES);
+        matricularesumen.setCreditosRetirados(matriculaResumenData.getCreditosTotalesRetirados());
+        matricularesumen.setCursosRetirados(matriculaResumenData.getCantidadCursosRetirados());
+        matricularesumen.setCursosMatriculados(matricularesumen.getCursosMatriculados() - matriculaResumenData.getCantidadCursosRetirados());
+        matricularesumen.setCreditosMatriculados(matricularesumen.getCreditosMatriculados() - matriculaResumenData.getCreditosTotalesRetirados());
+        matriculaResumenDAO.update(matricularesumen);
     }
 
     @Override
     public TipoTramite findTipoTramite(Long id) {
         return tramiteDAO.find(id).getTipoTramite();
     }
+
 }

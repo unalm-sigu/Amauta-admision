@@ -434,7 +434,19 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculableExist.put(alumnoCondicional.getId(), alumnoCondicional);
             matriculables.add(resumen);
         }
-        matriculaResumenDAO.saveList(matriculables);
+        int cantidadInsertados = matriculaResumenDAO.saveList(matriculables);
+
+        if (cantidadInsertados > 0) {
+            List<MatriculaResumen> matriculablesBD = matriculaResumenDAO.allByCicloFull(ciclo);
+
+            List<MatriculaResumen> matriculablesNoAptosXAdmision = matriculablesBD.stream()
+                    .filter(x -> x.getAlumno().getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_R && x.getAlumno().getCodigo().startsWith("T"))
+                    .collect(Collectors.toList());
+
+            for (MatriculaResumen matriculaResumen : matriculablesNoAptosXAdmision) {
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
+        }
 
     }
 
@@ -842,7 +854,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumen(nombre, ds.getCicloAcademico());
     }
-    
+
     @Override
     public List<Alumno> allAlumnoByNombrePRE_VIS(String nombre, DataSessionPivot ds) {
         return alumnoDAO.allByNameSinMatriculaResumenPRE_VIS(nombre, ds.getCicloAcademico());
@@ -864,6 +876,7 @@ public class MatriculableServiceImp implements MatriculableService {
         resumen.setCreditosPagados(0);
         resumen.setCreditosConsumidos(0);
         resumen.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
+        resumen.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         resumen.setEstadoEnum(NMAT);
         matriculaResumenDAO.save(resumen);
 
@@ -1084,7 +1097,7 @@ public class MatriculableServiceImp implements MatriculableService {
         if (prioridad.compareTo(new BigDecimal(BigInteger.ONE)) == -1) {
             prioridad = new BigDecimal(BigInteger.ONE);
         }
-        
+
         for (TurnoAtencion turno : turnos) {
             if (turno.getPrioridadInicio().compareTo(prioridad) <= 0
                     && turno.getPrioridadFin().compareTo(prioridad) >= 0) {

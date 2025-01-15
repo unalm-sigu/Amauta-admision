@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Tipo Grupos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -45,7 +45,7 @@
                 </section>
             </section>
 
-            <div th:substituteby="academico/cicloacademico/cicloAcademicoModal"></div>
+            <div th:replace="academico/cicloacademico/cicloAcademicoModal"></div>
 
         </div>
 
@@ -62,7 +62,7 @@
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <div th:replace="_layout/includes :: javascript-dynatable"></div>
 
 
         <script th:src="@{/app/academico/cicloacademico/cicloAcademicoDynatable.js}" charset="utf-8"></script>

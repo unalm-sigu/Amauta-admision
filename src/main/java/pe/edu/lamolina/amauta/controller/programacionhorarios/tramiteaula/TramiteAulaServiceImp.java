@@ -3,10 +3,7 @@ package pe.edu.lamolina.amauta.controller.programacionhorarios.tramiteaula;
 import com.google.common.base.Strings;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.tramite.AulaReservada;
 import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.tramite.ReservaAula;
@@ -269,7 +267,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     @Transactional
-    public Empresa saveInstitucion(Empresa institucion) {
+    public Empresa saveInstitucion(Empresa institucion, DataSessionPivot ds) {
 
         TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(), institucion.getPaisUbicacion());
 
@@ -277,6 +275,8 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
         institucion.setTipoDocIdentidad(doc);
         institucion.setNumeroDocIdentidad("RESERVA_AULA_" + RandomStringUtils.randomNumeric(6));
+        institucion.setUserRegistro(ds.getUsuario());
+        institucion.setFechaRegistro(new Date());
         empresaDAO.save(institucion);
         return institucion;
     }
@@ -294,6 +294,8 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public void save(ReservaAula reservaAula, DataSessionPivot ds) {
+
+        ObjectUtil.printAttr(reservaAula);
 
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
@@ -348,7 +350,16 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         tramite.setTipoTramite(tipoTramite);
         tramiteDAO.save(tramite);
 
+        if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Libre")){
+            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.LIB.name());
+        }else if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Pregrado")){
+            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.PRE.name());
+        }else {
+            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.EPG.name());
+        }
+
         reservaAula.setTipoReserva("PUNT");
+        //reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.EPG.name());
         reservaAula.setTipoSolicitud("1");
         reservaAula.setTramite(tramite);
         reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
@@ -452,6 +463,15 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         } else {
             reservaAulaForm.setEstadoEnum(ReservaAulaEstadoEnum.RES);
         }
+
+//        if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Libre")){
+//            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.LIB.name());
+//        }else if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Pregrado")){
+//            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.PRE.name());
+//        }else {
+//            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.EPG.name());
+//        }
+        //reservaAulaForm.setTipoReservaAmbiente();
 
         reservaAulaForm.setTipoReserva("PUNT");
         reservaAulaForm.setTipoSolicitud("1");
@@ -638,6 +658,13 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     public void cambiarVisibilidadReserva(ReservaAula reservaAulaForm) {
         reservaAulaDAO.updateColumns(reservaAulaForm, "visibleHorario");
+    }
+
+    @Override
+    public List<ReservaAulaBean> filterByTipoReserva() {
+        List<ReservaAulaBean> list = new ArrayList<>();
+        list = reservaAulaDAO.allReservaTipoAmbiente();
+        return list;
     }
 
     @Override

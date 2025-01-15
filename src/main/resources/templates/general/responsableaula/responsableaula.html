@@ -98,10 +98,10 @@
                     </section>
                 </section>
 
-                <div th:substituteby="general/responsableaula/modalresponsableaula"/>
+                <div th:replace="general/responsableaula/modalresponsableaula"/>
             </div>
 
-            <!--            <div th:substituteby="templates/modal"/>-->
+            <!--            <div th:replace="templates/modal"/>-->
         </div>
 
         <div layout:fragment="js" th:remove="tag">
@@ -114,7 +114,7 @@
             </script>
             
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/general/responsableaula/responsableaula.js}" charset="utf-8"></script>
         </div>
 

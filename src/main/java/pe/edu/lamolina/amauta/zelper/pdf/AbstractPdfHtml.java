@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.zelper.pdf;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
@@ -34,7 +35,11 @@ public abstract class AbstractPdfHtml extends AbstractView {
         // Build PDF document.
         writer.setInitialLeading(16);
         document.open();
+
         buildPdfDocument(model, document, writer, request, response);
+        if (document.getPageNumber() == 0) {
+            document.add(new Paragraph(" "));
+        }
         document.close();
 
         // Flush to HTTP response.

@@ -942,7 +942,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case BACHI:
 //                this.saveTramiteBachiller(resolucionForm, ds);
-                resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+                //resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
+                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
             case BACHIFAC:
 //                this.saveTramiteBachillerFacultad(resolucionForm, ds);
@@ -952,7 +953,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
                 break;
             case TITULBAC:
-                resolucionBD.setNumeroVisible(resolucionForm.getCodigoTituloBachiller());
+                resolucionBD.setNumeroVisible(resolucionForm.getDescripcion());
                 break;
             case CAMBIO_PLAN_CURRICULAR:
             case CURDIR:
@@ -970,6 +971,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionBD.setTipoResolucion(resolucionForm.getTipoResolucion());
 //        resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
 
         resolucionBD.setUserActualizacion(usuario);
@@ -1916,10 +1918,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
             }
 
-            if (!tramiteBachiller.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                log.debug("Solo esta permitido agregar alumnos en modo edición");
-                continue;
-            }
+//            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+//                log.debug("Solo esta permitido agregar alumnos en modo edición");
+//                continue;
+//            }
 
             tramiteBachiller.setResolucionFacultad(resolucion);
             tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
@@ -2036,7 +2038,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 return "El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo";
             }
@@ -2060,15 +2062,15 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
             }
 
-            if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-                log.debug("Solo esta permitido agregar alumnos en modo edición");
-                continue;
-            }
+//            if (!tramiteTitulo.getEstado().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+//                log.debug("Solo esta permitido agregar alumnos en modo edición");
+//                continue;
+//            }
             tramiteTitulo.setEstadoTitulo(TramiteEstadoEnum.ACEP.name());
             tramiteTitulo.setFechaResolucion(new Date());
             tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
@@ -2102,7 +2104,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
             if (renunciaTramite == null) {
-                throw new PhobosException("El alumno " + renunciaAlumno.getAlumno().getCodigo() + " no tiene un trámite titulo");
+                throw new PhobosException("El alumno " + renunciaAlumno.getAlumno().getCodigo() + "No cuenta con trámite de inicio..");
             }
             renunciaTramite.setResolucion(resolucion);
             renunciaTramite.setEstado(TramiteEstadoEnum.ACEP.name());

@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 
 public interface RetiroCursoDAO extends EasyDAO<RetiroCurso> {
@@ -12,5 +13,7 @@ public interface RetiroCursoDAO extends EasyDAO<RetiroCurso> {
     List<RetiroCurso> allInfo();
 
     List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
+
+    List<RetiroCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
 }

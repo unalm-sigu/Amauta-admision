@@ -94,7 +94,10 @@
                                                 <div class="actions">
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a href="#" v-on:click.prevent="openAnular(item)">Anular Deuda</a></li>
+
+                                                        <li v-if="deudas.estadoEnum.name !== 'PAG'  &amp;&amp; deudas.estadoEnum.name !== 'ANU'">
+                                                            <a href="#" v-on:click.prevent="openAnular(item)">Anular Deuda</a>
+                                                        </li>
                                                         <li><a href="#" v-on:click.prevent="verAportes(item)">Ver aportes</a></li>
                                                         <li><a href="#" v-on:click.prevent="verBoletas(item)">Ver boletas</a></li>
                                                     </ul>
@@ -115,8 +118,8 @@
             <div th:replace="oficinas/matricula/omisoeleccion/aporteAlumnoModal"></div>
             <div th:replace="oficinas/matricula/omisoeleccion/boletaAlumnoModal"></div>
 
-            <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
-            <div th:substituteby="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
+            <div th:replace="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
+            <div th:replace="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
             
         </div>
 
@@ -129,7 +132,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/oficinas/matricula/omisoeleccion/omisoEleccion.js}" charset="utf-8"></script>
         </div>
 

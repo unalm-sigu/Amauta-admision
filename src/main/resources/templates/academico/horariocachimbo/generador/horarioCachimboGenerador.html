@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Generador</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style>
         div.table-scroll-horario {
             width: auto;
@@ -66,7 +66,7 @@
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         
         
         <script th:src="@{/app/academico/horariocachimbo/generador/horarioCachimboGenerador.js}" charset="utf-8"></script>

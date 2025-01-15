@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
+import static java.lang.Boolean.FALSE;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -51,11 +52,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.plantilla.PlantillaGenerica;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.model.general.Archivo;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
@@ -65,9 +62,6 @@ public class ConstanciaSolicitudController {
     ConstanciaSolicitudService service;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    PdfHtml boletaPagoSolicitudConstanciaPDF;
 
     @Autowired
     GeneradorWordSolicitudService generadorWordSolicitudService;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -345,21 +346,40 @@ public class OmisoEleccionController {
             }
             ArrayNode array = new ArrayNode(factory);
 
-            List<DeudaAlumno> boletas = matriculableService.allDeudasByAlumnoCiclo(alumno, resumen.getCicloAcademico());
-            int numero = 1;
-            for (DeudaAlumno boleta : boletas) {
+            DeudaAlumno boleta = matriculableService.allDeudasByAlumnoCiclo(alumno, resumen.getCicloAcademico())
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+
+//            List<DeudaAlumno> boletas = matriculableService.allDeudasByAlumnoCiclo(alumno, resumen.getCicloAcademico());
+//            int numero = 1;
+//            for (DeudaAlumno boleta : boletas) {
+//                ObjectNode node = JsonHelper.createJson(boleta, factory, true, new String[]{
+//                    "monto", "estadoEnum", "estado", "fechaEmision", "fechaVencimiento", "numeroCuota",
+//                    "alumno.persona.numeroDocIdentidad",
+//                    "cuentaBancaria.numero",
+//                    "cuentaBancaria.nombre",
+//                    "cuentaBancaria.empresa",
+//                    "cuentaBancaria.banco"
+//                });
+//                node.put("numero", numero);
+//                node.put("acreencia", boleta.getAcreencia() != null ? boleta.getAcreencia().getId() : 0);
+//                array.add(node);
+//                numero++;
+//            }
+            if (boleta != null) {
                 ObjectNode node = JsonHelper.createJson(boleta, factory, true, new String[]{
-                    "monto", "estadoEnum", "estado", "fechaEmision", "fechaVencimiento", "numeroCuota",
-                    "alumno.persona.numeroDocIdentidad",
-                    "cuentaBancaria.numero",
-                    "cuentaBancaria.nombre",
-                    "cuentaBancaria.empresa",
-                    "cuentaBancaria.banco"
+                        "monto", "estadoEnum", "estado", "fechaEmision", "fechaVencimiento", "numeroCuota",
+                        "alumno.persona.numeroDocIdentidad",
+                        "cuentaBancaria.numero",
+                        "cuentaBancaria.nombre",
+                        "cuentaBancaria.empresa",
+                        "cuentaBancaria.banco"
                 });
-                node.put("numero", numero);
+                node.put("numero", 1); // Número fijo porque solo hay un elemento
                 node.put("acreencia", boleta.getAcreencia() != null ? boleta.getAcreencia().getId() : 0);
                 array.add(node);
-                numero++;
             }
             response.set("boletas", array);
 

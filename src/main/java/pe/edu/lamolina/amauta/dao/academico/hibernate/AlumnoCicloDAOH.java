@@ -1011,7 +1011,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         sql.append("            left join hor_horario_seccion hs1 on hs1.id_seccion = s1.id ");
         sql.append("            left join gen_dia di1 on hs1.id_dia = di1.id ");
         sql.append("            left join hor_hora ho1 on hs1.id_hora = ho1.id ");
-        sql.append("            where s1.id = s.id ");
+        sql.append("            where s1.id = s.id and di1.id =di.id ");
         sql.append("            order by  ho1.id asc limit 1) ");
         sql.append("            ,' a ', ");
         sql.append("            (select  ");
@@ -1020,7 +1020,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         sql.append("            left join hor_horario_seccion hs2 on hs2.id_seccion = s2.id ");
         sql.append("            left join gen_dia di2 on hs2.id_dia = di2.id ");
         sql.append("            left join hor_hora ho2 on hs2.id_hora = ho2.id ");
-        sql.append("            where s2.id = s.id ");
+        sql.append("            where s2.id = s.id and di2.id =di.id");
         sql.append("            order by ho2.id desc limit 1)) hora_dictado, ");
         sql.append("s.vacantes, ");
         sql.append("sum(s.matriculados) matriculados, ");

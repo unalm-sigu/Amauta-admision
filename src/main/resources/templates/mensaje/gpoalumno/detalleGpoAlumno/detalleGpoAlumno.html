@@ -66,18 +66,18 @@
                         </section>
                     </section>
                 </section>    
-                <div th:substituteby="mensaje/gpoalumno/detalleGpoAlumno/modalDetalleGrupo"></div>
+                <div th:replace="mensaje/gpoalumno/detalleGpoAlumno/modalDetalleGrupo"></div>
             </div>
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>  
+            <div th:replace="_modules/vue-raptor-table"></div>  
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var grupoAl = /*[[${grupo.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             
             
             

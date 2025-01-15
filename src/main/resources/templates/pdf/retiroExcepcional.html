@@ -74,7 +74,7 @@
                             <b >De: </b>
                         </td>
                         <td>
-                            <span th:text=" 'SUBDIRECCIÓN DE REGISTRO'"></span>
+                            <span th:text=" 'UNIDAD DE REGISTRO'"></span>
                         </td>
                     </tr>
                     <tr >
@@ -169,10 +169,10 @@
                             <span th:text=" ${item.curso.nombre}"></span> 
                         </td>
                         <td >
-                            <span th:text=" ${#numbers.formatDecimal(item.notaAvance, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
+                            <span th:text="${item.notaAvance.matches('[0-9.]+') ? #numbers.formatDecimal(item.notaAvance, 0, 'DEFAULT', 2, 'DEFAULT') : item.notaAvance}"></span>
                         </td>
                         <td >
-                            <span th:text=" ${#numbers.formatDecimal(item.notaFinal, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
+                            <span th:text="${item.notaFinal.matches('[0-9.]+') ? #numbers.formatDecimal(item.notaFinal, 0, 'DEFAULT', 2, 'DEFAULT') : item.notaFinal}"></span>
                         </td>
                         <td >
                             <span th:text=" ${item.creditos}"></span> 
@@ -341,7 +341,7 @@
         <div style="text-align: center; font-size: 11px">
             <span class="text-left">Atentamente,</span>
             <br/>
-            <img height= "100px" src="firmaAlipio.jpg" />
+            <img height= "100px" src="FirmaAlipioUnidad.jpg" />
 
             <!--            <br/>
                         <br/>-->

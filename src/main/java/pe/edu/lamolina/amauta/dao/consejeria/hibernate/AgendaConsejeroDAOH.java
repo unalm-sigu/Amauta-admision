@@ -48,6 +48,25 @@ public class AgendaConsejeroDAOH extends AbstractEasyDAO<AgendaConsejero> implem
 
     }
 
+    @Override
+    public List<AgendaConsejero> allDynatableByCicloAcademicoCarrera(DynatableFilter filter, Long idCarreraSupervisor) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AgendaConsejero.class, "acon")
+                .join("consejero con", "acon.hora hor", "con.colaborador cola")
+                .join("con.carrera car", "car.facultad", "cola.persona per")
+                .filter("car.id", idCarreraSupervisor)
+                .searchFields("acon.asunto", "acon.cuerpo", "acon.fecha")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("acon.fecha desc", "hor.id");
+
+        this.setCondicion(filter, sql);
+
+        return all(sql);
+
+    }
+
     private void setCondicion(DynatableFilter filter, DynatableSql sql) {
 
         Map<String, Object> queries = filter.getQueries();
@@ -71,7 +90,7 @@ public class AgendaConsejeroDAOH extends AbstractEasyDAO<AgendaConsejero> implem
                             .from(ReunionAlumnoConsejero.class, "rac")
                             .join("agendaConsejero agco", "alumnoConsejero alco")
                             .join("alco.alumno alu")
-                            .filter("alu.id",  new Long(value));
+                            .filter("alu.id", new Long(value));
                     sql.__()
                             .exists(subQuery)
                             .linkedBy("acon.id", "agco.id");

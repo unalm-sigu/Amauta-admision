@@ -38,6 +38,8 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     Oficina findByCode(String codigo);
 
+    List<Oficina> allCoordinacionTutoria();
+
     List<Oficina> allByCompania(Compania compania);
 
     Oficina findByTipoOficinaFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad);
@@ -71,5 +73,7 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
     List<Oficina> allByTiposOficinas(List<TipoOficinaEnum> tiposEnum);
 
     List<Oficina> allOficinaEmisora();
+
+    List<Oficina> allByLaboratorios(String laboratorio);
 
 }

@@ -1,88 +1,88 @@
 <!DOCTYPE html>
-<html class="app">
+<html layout:decorate="_layout/base" class="app">
     <head>
-        <title>La Molina</title>
-        <base th:substituteby="_layout/includes :: styles"/>
-        <base th:substituteby="_layout/includes :: favicon"/>
+        <title>Elegir ciclo</title>
+        <div th:replace="_layout/includes :: styles"/>
+        <div th:replace="_layout/includes :: favicon"/>
     </head>
 
     <body class="login-bg">
-
-        <div class="login-header">
-            <button th:if="${ambiente != 'prod'}" class="btn btn-warning btn-sm pull-right" disabled="" 
-                    style="font-weight: bold; cursor: default; margin-top: -8px; opacity: 100;">
-                SERVIDOR DE PRUEBAS
-            </button>
-            <span class="text-uppercase"> Universidad Nacional Agraria la Molina </span>
-        </div>
-
-        <div class="row">
-
-            <div id="main" class="col-md-4  col-sm-4 col-sm-offset-4" v-cloak="">
-                <section class="login-wrapper text-center ">
-                    <div class="box">
-
-
-                        <div class="m-b-md">
-                            <a href="#"><img th:src="@{/phobos/images/logo.svg}" width="300px"/></a>
-                        </div>
-
-                        <section style="max-height: 500px" class="panel-body text-center scrollable">
-
-                            <div class="row">
-
-                                <div class="col-xs-10">
-                                    <vueciclo v-bind:nombre="'ciclo.id'"  v-bind:ciclo="ciclo"/>
-                                </div>
-
-                                <div class="col-xs-2 ">
-                                    <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-default btn-rounded btn-sm pull-right"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                                </div>
-
-                                <div class="col-md-12 m-t-md" >
-                                    <button v-on:click.prevent="activarCiclo(ciclo)" v-for="ciclo in ciclosVisibles" class="col-md-12 btn btn-success m-b-md block" v-text="ciclo.descripcion2"></button>
-                                </div>
-
-                            </div>
-
-                        </section>
-
-                    </div>
-                </section>
+        <div layout:fragment="BODY">
+            <div class="login-header">
+                <button th:if="${ambiente != 'prod'}" class="btn btn-warning btn-sm pull-right" disabled="" 
+                        style="font-weight: bold; cursor: default; margin-top: -8px; opacity: 100;">
+                    SERVIDOR DE PRUEBAS
+                </button>
+                <span class="text-uppercase"> Universidad Nacional Agraria la Molina </span>
             </div>
 
-            <template id="vueciclotemp">
+            <div class="row">
 
-                <input type="text"
-                       class="form-control"
-                       placeholder="Ingrese un dígito"
-                       data-trigger="change"
-                       required="true"
-                       v-bind:name="ciclo.id"
-                       v-model="ciclo" />
+                <div id="main" class="col-md-4  col-sm-4 col-sm-offset-4" v-cloak="">
+                    <section class="login-wrapper text-center ">
+                        <div class="box">
 
-            </template>
 
+                            <div class="m-b-md">
+                                <a href="#"><img th:src="@{/phobos/images/logo.svg}" width="300px"/></a>
+                            </div>
+
+                            <section style="max-height: 500px" class="panel-body text-center scrollable">
+
+                                <div class="row">
+
+                                    <div class="col-xs-10">
+                                        <vueciclo v-bind:nombre="'ciclo.id'"  v-bind:ciclo="ciclo"/>
+                                    </div>
+
+                                    <div class="col-xs-2 ">
+                                        <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-default btn-rounded btn-sm pull-right"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                    </div>
+
+                                    <div class="col-md-12 m-t-md" >
+                                        <button v-on:click.prevent="activarCiclo(ciclo)" v-for="ciclo in ciclosVisibles" class="col-md-12 btn btn-success m-b-md block" v-text="ciclo.descripcion2"></button>
+                                    </div>
+
+                                </div>
+
+                            </section>
+
+                        </div>
+                    </section>
+                </div>
+
+                <template id="vueciclotemp">
+
+                    <input type="text"
+                           class="form-control"
+                           placeholder="Ingrese un dígito"
+                           data-trigger="change"
+                           required="true"
+                           v-bind:name="ciclo.id"
+                           v-model="ciclo" />
+
+                </template>
+
+            </div>
+
+            <div class="login-copyright text-muted">
+                © 2016 UNALM | Desarrollado por Albatross
+            </div>
+
+            <div class="login-footer"></div>
+
+            <div th:replace="_layout/includes :: javascript" ></div>
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var idciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.id:''}]]*/ '';
+                var nameciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion2:''}]]*/ '';
+                var cicloVisible = /*[[${cicloAcademico != null ? cicloAcademico.toString(): ''}]]*/ '';
+                /*]]>*/
+            </script>
+
+            <script th:src="@{/app/academico/cicloacademico/buscarciclo.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/cicloacademico/ciclolanding.js}" charset="utf-8"></script>
         </div>
-
-        <div class="login-copyright text-muted">
-            © 2016 UNALM | Desarrollado por Albatross
-        </div>
-
-        <div class="login-footer"></div>
-
-        <div th:substituteby="_layout/includes :: javascript" ></div>
-
-        <script  th:inline="javascript" >
-            /*<![CDATA[*/
-            var idciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.id:''}]]*/ '';
-            var nameciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion2:''}]]*/ '';
-            var cicloVisible = /*[[${cicloAcademico != null ? cicloAcademico.toString(): ''}]]*/ '';
-            /*]]>*/
-        </script>
-
-        <script th:src="@{/app/academico/cicloacademico/buscarciclo.js}" charset="utf-8"/>
-        <script th:src="@{/app/academico/cicloacademico/ciclolanding.js}" charset="utf-8"/>
-
     </body>
 </html>

@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Asistencia Académica</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -80,13 +80,13 @@
             </section>
         </section>
 
-        <div th:substituteby="templates/modal"/>
+        <div th:replace="templates/modal"/>
 
 
     </div>
 
     <div layout:fragment="js" th:remove="tag">
-        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:replace="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             var seccionJson = [[${seccionJson}]];
             var rutaModulo = "docente/asistenciaacademica";

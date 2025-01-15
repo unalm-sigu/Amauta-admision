@@ -170,11 +170,11 @@
                                                             <li v-if='item.beneficioUtlimoCiclo == 0' class="pointer"><a v-on:click="solicitudBeneficio(item)">Beneficio útimo ciclo</a></li>
 
 
-                                                            <li th:if="${esInformaticoOERA}" role="presentation" class="divider"></li>
-                                                            <li th:if="${esInformaticoOERA}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
+                                                            <li th:if="${esAdministradorTutoria}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esAdministradorTutoria}" class="pointer"><a v-on:click="eliminarTutorado(item)">Eliminar Tutorado</a></li>
 
-                                                            <li th:if="${esInformaticoOERA}" role="presentation" class="divider"></li>
-                                                            <li th:if="${esInformaticoOERA}" class="pointer"><a v-on:click="quitarTutorado(item)">Quitar Tutor</a></li>
+                                                            <li th:if="${esAdministradorTutoria}" role="presentation" class="divider"></li>
+                                                            <li th:if="${esAdministradorTutoria}" class="pointer"><a v-on:click="quitarTutorado(item)">Quitar Tutor</a></li>
 
                                                             <li role="separator" class="divider"></li>
                                                             <li class="pointer"><a v-bind:href="planificar(item)">Planificar</a></li>
@@ -205,13 +205,13 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="consejeria/aconsejadoscarrera/aconsejadoModal"></div>
+                <div th:replace="consejeria/aconsejadoscarrera/aconsejadoModal"></div>
             </div>
 
         </section>
 
         <div layout:fragment="js" th:remove="tag">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ '';

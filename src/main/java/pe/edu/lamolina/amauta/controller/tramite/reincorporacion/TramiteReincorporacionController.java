@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -95,8 +94,7 @@ public class TramiteReincorporacionController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        Context context = reincorporacionService.reporte(idTramite, ds);
-        model.addAllAttributes(context.getVariables());
+        reincorporacionService.reporte(idTramite, model, ds);
         return new ModelAndView(reporteTramiteReincorporacion);
     }
 

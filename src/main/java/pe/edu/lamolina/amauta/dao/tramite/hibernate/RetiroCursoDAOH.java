@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 
@@ -47,5 +49,17 @@ public class RetiroCursoDAOH extends AbstractEasyDAO<RetiroCurso> implements Ret
                 .leftJoin("tramite tra")
                 .filter("al.id", alumno);
         return all(sql);
+    }
+    
+    @Override
+    public List<RetiroCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(RetiroCurso.class, "recu")
+                .leftJoin("alumno alm", " cicloAcademico cic", "curso curs")
+                .filter("recu.estado", TramiteEstadoEnum.ACEP)
+                .filter("alm.id", alumno)
+                .filter("cic.codigo", cicloAcademico.getCodigo());
+
+        return sql.all(getCurrentSession());
     }
 }

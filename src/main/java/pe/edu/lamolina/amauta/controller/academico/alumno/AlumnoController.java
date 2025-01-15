@@ -181,6 +181,8 @@ public class AlumnoController {
                             "persona.id",
                             "persona.apellidosNombres",
                             "persona.rutaFoto",
+                                "persona.foto",
+                                "persona.sexo",
                             "persona.tipoFoto",
                             "persona.tipoDocumento.simbolo",
                             "persona.numeroDocIdentidad",

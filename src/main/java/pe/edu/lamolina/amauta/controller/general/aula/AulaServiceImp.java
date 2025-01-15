@@ -30,7 +30,6 @@ import static pe.edu.lamolina.model.enums.RolEnum.IOREA;
 import static pe.edu.lamolina.model.enums.RolEnum.OREA;
 import static pe.edu.lamolina.model.enums.RolEnum.RESCULT;
 import static pe.edu.lamolina.model.enums.RolEnum.RESDEP;
-import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.*;
 
 import pe.edu.lamolina.model.general.*;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -58,6 +57,7 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.RolEnum.OPER_PROGH_OERA;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Slf4j
@@ -89,6 +89,7 @@ public class AulaServiceImp implements AulaService {
 
     private final String SOPORTE_TECNICO_DERA = "SOPORTE_TECNICO_DERA";
     private final String PERSONAL_AULA = "PAULA";
+    private final String TIPO_AULA_LABORATORIO = "LAB";
 
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter, DataSessionPivot ds) {
@@ -104,7 +105,15 @@ public class AulaServiceImp implements AulaService {
         List<Long> aulaSuperior = responsableAulas.stream().map(a -> a.getAula().getId()).collect(Collectors.toList());
 
         List<Aula> aulas = new ArrayList();
-        if (roles.contains(SOPORTE_TECNICO_DERA)) {
+        if (roles.contains(OPER_PROGH_OERA.name())) {
+            log.info("Con permisos temporalmente hasta que las demas oficinas asuman su Rol.");
+            List<Oficina> oficiAulasLab = oficinaDAO.allByLaboratorios(TIPO_AULA_LABORATORIO);
+            for (Oficina oficina : oficiAulasLab) {
+                oficinas.add(oficina);
+            }
+            aulas = aulaDAO.allByDynatable(filter, oficiAulasLab);
+
+        } else if (roles.contains(SOPORTE_TECNICO_DERA)) {
             Oficina oficinaDera = oficinaDAO.findByCode(OficinaEnum.OERA.name());
             aulas = aulaDAO.allByDynatable(filter, oficinaDera);
 

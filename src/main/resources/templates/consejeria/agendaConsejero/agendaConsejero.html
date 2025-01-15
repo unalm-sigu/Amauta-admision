@@ -191,11 +191,11 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="consejeria/agendaConsejero/agendaConsejeroModal"></div>
+                <div th:replace="consejeria/agendaConsejero/agendaConsejeroModal"></div>
             </div>
         </section>
         <div layout:fragment="js" th:remove="tag">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';

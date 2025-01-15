@@ -516,8 +516,7 @@ public class TramitesAcademicosController {
     public ModelAndView cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        Context ctx = service.cursoDirigidoReporte(new Tramite(id), ds);
-        model.addAllAttributes(ctx.getVariables());
+        service.cursoDirigidoReporte(new Tramite(id), model, ds);
         return new ModelAndView(pdfHtml);
     }
 

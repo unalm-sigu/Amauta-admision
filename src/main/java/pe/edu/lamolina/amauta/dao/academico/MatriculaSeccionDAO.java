@@ -95,4 +95,8 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
     public List<MatriculaSeccion> allByReporte(String seccion, CicloAcademico cicloAcademico);
 
     List<MatriculaSeccion> allDataByReporte(String ciclo);
+
+    List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    public void updateEstadoPersonalizado(MatriculaSeccion matriculaSeccionUpdEstado);
 }

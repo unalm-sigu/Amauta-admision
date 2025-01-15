@@ -10,8 +10,15 @@
 
                 <header class="header b-b padder-lg">
 
-                    <div class="pull-right m-t-md">                 
-                        <a class="btn btn-success" type="button" th:href="@{/tramite/aula/nuevo}" >Nuevo</a>
+                    <div class="pull-right btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones  <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" th:href="@{/tramite/aula/nuevo}"> <i class="fa fa-location-arrow text-primary"> </i>    Nuevo</a> </li>
+                            <li><a type="button" v-on:click.prevent="generarReporte()" class="pointer"> <i class="fa fa-file-excel-o text-success bold"> </i>    Reporte reserva de ambientes</a></li>
+                        </ul>
+<!--                        <a class="btn btn-success" type="button" th:href="@{/tramite/aula/nuevo}" >Nuevo</a>-->
                     </div>  
 
                     <h2>Reserva de Ambiente</h2>
@@ -44,7 +51,8 @@
                                                 <th class="col-xs-3 text-center v-middle">Solicitante</th>
                                                 <th class="col-xs-3 text-center v-middle">Motivo</th>
                                                 <th class="col-xs-2 text-center v-middle">Comentario</th>
-                                                <th class="col-xs-2 text-center v-middle">Ambiente</th>
+                                                <th class="col-xs-1 text-center v-middle">Ambiente</th>
+                                                <th class="col-xs-1 text-center v-middle">Tipo <br/>Ambiente </th>
                                                 <th class="col-xs-1 text-center v-middle">Visible <br/>Reporte</th>
                                                 <th class="col-xs-1 text-center v-middle">Estado</th>
                                                 <th></th>
@@ -83,6 +91,11 @@
 
                                                     <span v-for="aula in item.reservados" class="text-xs">{{aula.nombrePublico}}, </span> 
 
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span>
+                                                        {{ item.tipoReservaAmbiente === 'LIB' ? 'Otros' : (item.tipoReservaAmbiente === 'PRE' ? 'Pregrado' : (item.tipoReservaAmbiente === 'EPG' ? 'Posgrado' : item.tipoReservaAmbiente)) }}
+                                                    </span>
                                                 </td>
 
                                                 <td class="v-middle text-center">
@@ -211,7 +224,7 @@
                     </div>
                 </modal-vik>
 
-                <div th:substituteby="programacion/tramiteaula/tramiteaularesumen"></div>
+                <div th:replace="programacion/tramiteaula/tramiteaularesumen"></div>
 
             </div>
 
@@ -219,9 +232,9 @@
 
         <div layout:fragment="js">
 
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
 
             <script th:src="@{/app/programacion/tramiteaula/tramiteaula.js}" charset="utf-8"></script>
 

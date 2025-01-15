@@ -49,6 +49,14 @@ new Vue({
     },
     methods: {
         editarTramite(tramite) {
+            // console.log(tramite)
+            // if(tramite.tipoReservaAmbiente== 'LIB'){
+            //     tramite.tipoReservaAmbiente = 'Libre'
+            // }else if(tramite.tipoReservaAmbiente == 'EPG'){
+            //     tramite.tipoReservaAmbiente = 'Posgrado'
+            // }else {
+            //     tramite.tipoReservaAmbiente = 'Pregrado'
+            // }
             return APP.url('tramite/aula/' + tramite.id + '/update')
         },
         aceptarTramite(tramite) {
@@ -229,6 +237,33 @@ new Vue({
                 $vue.$refs.raptor.querie.push({name: 'solicitante', value: null});
             }
             $vue.$refs.raptor.loadRemoteData();
+        },
+        generarReporte() {
+            let $vue = this;
+            let urll = '';
+            $vue.processreporte = true;
+            urll = APP.url(`tramite/aula/exportExcel`);
+
+            axios({
+                url: urll,
+                method: 'POST',
+                responseType: 'blob',
+            }).then((response) => {
+                var namee = response
+                    .headers["content-disposition"]
+                    .replace("attachment; filename=", "")
+                    .replace(/"/g, '');
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', namee);
+                document.body.appendChild(link);
+                link.click();
+                $vue.processreporte = false;
+            }).catch(error => {
+                $vue.processreporte = false;
+                notify(Messages.errorComunicacion, "error");
+            });
         },
     }
     

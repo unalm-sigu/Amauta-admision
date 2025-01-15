@@ -2,7 +2,6 @@ package pe.edu.lamolina.amauta.controller.academico.plancurricular;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -108,7 +107,6 @@ import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_I;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_II;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT_III;
@@ -569,6 +567,26 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumenPlanCurricularDAO.delete(resumen);
         } else {
             resumenPlanCurricularDAO.update(resumen);
+        }
+
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByCursoCurricula(cursoCurricula);
+        Assert.isTrue(cursoEquivalentes.isEmpty(), "El curso tiene relacionado " + (cursoEquivalentes.size() == 0 ? " un curso equivalente, " : "cursos equivalentes, ") + "desvinculelo.");
+
+        List<CursoEquivalente> cursoCaducos = cursoEquivalenteDAO.allActivoByCursoCaduco(cursoCurricula);
+        Assert.isTrue(cursoCaducos.isEmpty(), "El curso tiene relacionado " + (cursoCaducos.size() == 0 ? " un curso caduco, " : "cursos caducos, ") + "desvinculelo.");
+
+        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
+        Assert.isTrue(requisitoCursoCurriculas.isEmpty(), "El curso tiene relacionado cursos de la curricula, desvinculelo.");
+
+        List<RequisitoCursoCurricula> requisitoCursoRequisito = requisitoCursoCurriculaDAO.allByCursoRequisito(cursoCurricula);
+        Assert.isTrue(requisitoCursoRequisito.isEmpty(), "El curso tiene relacionado cursos requisitos, desvinculelo.");
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByCursoCurriculaInactivo(cursoCurriculaBD);
+
+        if (!alumnoCursoCurriculas.isEmpty()) {
+            alumnoCursoCurriculas.stream().forEach(x -> {
+                alumnoCursoCurriculaDAO.delete(x);
+            });
         }
 
         cursoCurriculaDAO.delete(cursoCurriculaBD);
@@ -1192,16 +1210,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         String year = Long.toString(cursosRegulares.get(0).getYear());
         Map<String, List<PlanEstudiosCursoRegularDTO>> cursosRegularesPorNivel = TypesUtil.convertListToMapList("nivel", cursosRegulares);
         Context ctx = new Context();
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("facultad", facultad);
-        ctx.setVariable("especialidad", especialidad);
-        ctx.setVariable("orientacion", orientacion);
-        ctx.setVariable("year", year);
-        ctx.setVariable("cursosRegulares", cursosRegularesPorNivel);
-        ctx.setVariable("cursosElectivos", cursosElectivos);
-        ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
-        ctx.setVariable("templatePdf", "planEstudios");
-        model.addAllAttributes(ctx.getVariables());
+
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("facultad", facultad);
+        model.addAttribute("especialidad", especialidad);
+        model.addAttribute("orientacion", orientacion);
+        model.addAttribute("year", year);
+        model.addAttribute("cursosRegulares", cursosRegularesPorNivel);
+        model.addAttribute("cursosElectivos", cursosElectivos);
+        model.addAttribute("nombrePdf", "Plan de estudios ".concat(especialidad));
+        model.addAttribute("templatePdf", "planEstudios");
     }
 
     @Override
@@ -1211,14 +1229,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         String year = Long.toString(listPlanEstudiosDTO.get(0).getYear());
         Map<String, List<PlanEstudiosCursoRegularDTO>> mapPlanEstudios = TypesUtil.convertListToMapList("nivel", listPlanEstudiosDTO);
         Context ctx = new Context();
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-        ctx.setVariable("facultad", facultad);
-        ctx.setVariable("especialidad", especialidad);
-        ctx.setVariable("year", year);
-        ctx.setVariable("datos", mapPlanEstudios);
-        ctx.setVariable("nombrePdf", "Plan de estudios ".concat(especialidad));
-        ctx.setVariable("templatePdf", "planEstudios");
-        model.addAllAttributes(ctx.getVariables());
+
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("facultad", facultad);
+        model.addAttribute("especialidad", especialidad);
+        model.addAttribute("year", year);
+        model.addAttribute("datos", mapPlanEstudios);
+        model.addAttribute("nombrePdf", "Plan de estudios ".concat(especialidad));
+        model.addAttribute("templatePdf", "planEstudios");
     }
 
     @Override

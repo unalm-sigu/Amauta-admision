@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Programación de Horarios</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style type="text/css">
         .buscarDocClass {
             min-width: 300px;
@@ -637,23 +637,23 @@
 
                                     <div class="tab-content">
                                         <div class="tab-pane" v-bind:class="getClassTab('DOCENTES')" id="1Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/docenteSeccionForm"/>
+                                            <div th:replace="academico/gposeccion/includes/docenteSeccionForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('AMPLIACIONES')" id="2Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/ampliaVacantesForm"/>
+                                            <div th:replace="academico/gposeccion/includes/ampliaVacantesForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('AULAGRUPO')" id="3Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
+                                            <div th:replace="academico/gposeccion/includes/aulaSeccionForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('FUSIONES')" id="4Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/fusionSeccionForm"/>
+                                            <div th:replace="academico/gposeccion/includes/fusionSeccionForm"/>
                                         </div>
                                         <div v-if="ciclo.tipo == 'NIV' " 
                                              class="tab-pane" v-bind:class="getClassTab('PRECIOS')" id="5Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/precioSeccionForm"/>
+                                            <div th:replace="academico/gposeccion/includes/precioSeccionForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
+                                            <div th:replace="academico/gposeccion/includes/tipocarpetaform"/>
                                         </div>
                                         <div v-if="(seccionSeleccionada.isEstadoOperativo || seccionSeleccionada.isEstadoCancelado)"
                                              class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
@@ -669,30 +669,30 @@
                 </section>
             </div>
 
-            <div th:substituteby="academico/gposeccion/gpoSeccionFormModal"></div>
+            <div th:replace="academico/gposeccion/gpoSeccionFormModal"></div>
 
-            <div th:substituteby="_modules/vue-modal-confirm"></div>
+            <div th:replace="_modules/vue-modal-confirm"></div>
 
         </div>
 
-        <div th:substituteby="templates/modal"/>
+        <div th:replace="templates/modal"/>
         <th:block th:replace="academico/gposeccion/components/dynatableComponent"/>
 
-        <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/> 
-        <div th:substituteby="academico/gposeccion/components/aulaHorarioComponent"/> 
-        <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
-        <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
-        <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
-        <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
-        <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
-        <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
-        <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
-        <div th:substituteby="academico/gposeccion/components/cancelarSeccionComponent"/>
+        <div th:replace="academico/gposeccion/components/seccionDetalleComponent"/> 
+        <div th:replace="academico/gposeccion/components/aulaHorarioComponent"/> 
+        <div th:replace="academico/gposeccion/components/aulaComponent"/> 
+        <div th:replace="academico/gposeccion/components/grupoHorarioComponent"/>
+        <div th:replace="academico/gposeccion/components/restriccionComponent"/>
+        <div th:replace="academico/gposeccion/components/repitenciaComponent"/>
+        <div th:replace="academico/gposeccion/components/grupoRegularAulaComponent"/>
+        <div th:replace="academico/gposeccion/components/horaAdicionalComponente"/>
+        <div th:replace="academico/gposeccion/components/tipocarpetacomponent"/>
+        <div th:replace="academico/gposeccion/components/cancelarSeccionComponent"/>
 
     </section>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
             var modosDictadosJson = /*[[${modosDictadosJson}]]*/ {};
             var gpoSeccionJson = /*[[${grupoSeccionJson}]]*/ {};

@@ -4,7 +4,7 @@
     </head>
 
     <body>
-        <div id="restriccionVUE" layout:fragment="main">
+        <div id="restriccionVUE" layout:fragment="main" v-cloak="">
             <header class="header b-b padder-lg">
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
@@ -114,7 +114,7 @@
                 </section>
             </section>
 
-            <div th:substituteby="oficinas/matricula/restriccionmatricula/restriccionMatriculaModals"></div>        
+            <div th:replace="oficinas/matricula/restriccionmatricula/restriccionMatriculaModals"></div>        
         </div>
 
         <div layout:fragment="js">
@@ -124,7 +124,7 @@
                 /*]]>*/
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/oficinas/matricula/restriccionmatricula/restriccionMatricula.js}" charset="utf-8"></script>
         </div>
 

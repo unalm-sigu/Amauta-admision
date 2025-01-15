@@ -14,7 +14,8 @@
                         track-by="id" 
                         required="true"
                         v-bind:showNoOptions="true"
-                        v-bind:show-labels="false" >
+                        v-bind:show-labels="false" 
+                        @select="tipoResolucionSelect">
 
                         <template slot="singleLabel" slot-scope="props">
                             <span class="option__title">
@@ -91,9 +92,9 @@
                         deselect-label="No se puede eliminar este valor"
                         track-by="id" 
                         required="true"
-                        v-bind:disabled="isEdicion"
                         >
                     </multiselect>
+                    <!--                                            v-bind:disabled="isEdicion"-->
                     <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                 </div>
             </div> 
@@ -166,6 +167,22 @@
                     }
                 }
             },
+            tipoResolucionSelect(oficinaSeleccionada) {
+                if (oficinaSeleccionada.nombre === "Consejo Universitario") {
+                    this.tiposResolucion = JSON.parse(tiposResolucionJson).filter(
+                            tipo =>
+                        tipo.nombre !== "Obtención Bachiller Facultad" &&
+                                tipo.nombre !== "Obtención Título Res.Facultad"
+                    );
+                } else {
+                    this.tiposResolucion = JSON.parse(tiposResolucionJson).filter(
+                            tipo =>
+                        tipo.nombre !== "Obtención Bachiller" &&
+                                tipo.nombre !== "Obtención Título"
+                    );
+                }
+
+            }
         }
     };
 </script>

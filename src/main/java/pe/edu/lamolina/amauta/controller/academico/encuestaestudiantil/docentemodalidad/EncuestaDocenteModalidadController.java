@@ -26,6 +26,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlEncuesta;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -51,6 +52,9 @@ public class EncuestaDocenteModalidadController {
     @Autowired
     PdfHtml pdfHtml;
 
+    @Autowired
+    PdfHtmlEncuesta pdfHtmlEncuesta;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         String codeRequest = verificadorService.generateCodeRequest();
@@ -61,7 +65,7 @@ public class EncuestaDocenteModalidadController {
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         ArrayNode jFacultades = JaneHelper.from(facultades).array();
         ArrayNode jDepartamentos = JaneHelper.from(departamentos).join("facultad", "id").array();
-        
+
         List<CicloAcademico> ciclos = service.allCicloAcademico();
         model.addAttribute("jFacultades", jFacultades.toString());
         model.addAttribute("jDepartamentos", jDepartamentos.toString());
@@ -133,9 +137,7 @@ public class EncuestaDocenteModalidadController {
 
     @RequestMapping("{id}/reporte")
     public ModelAndView reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
-
-        Context ctx = service.reporte(new EncuestaDocenteModalidad(id));
-        model.addAllAttributes(ctx.getVariables());
+        model.addAttribute(new EncuestaDocenteModalidad(id));
         return new ModelAndView(pdfHtml);
 
     }
@@ -152,7 +154,7 @@ public class EncuestaDocenteModalidadController {
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
 
-        if (filtro.getFacultad()!= null) {
+        if (filtro.getFacultad() != null) {
 
             List<DepartamentoAcademico> departamentosXfacutad = departamentos
                     .stream()
@@ -165,7 +167,7 @@ public class EncuestaDocenteModalidadController {
 
         }
 
-        if (filtro.getDepartamento()!= null) {
+        if (filtro.getDepartamento() != null) {
             departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
         }
 
@@ -177,7 +179,7 @@ public class EncuestaDocenteModalidadController {
             ciclos.add(ds.getCicloAcademico());
         }
 
-        if (filtro.getDocente()!= null) {
+        if (filtro.getDocente() != null) {
 
             List<Context> mulitpleContext = service.reporteUnicoDocenteMultipleCiclo(ciclos, modalidadEstudioEnum, departamentos, filtro.getDocente());
             model.addAttribute("multipleContext", mulitpleContext);
@@ -192,7 +194,7 @@ public class EncuestaDocenteModalidadController {
         model.addAttribute("templatePdf", "resultadoencuesta");
         model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
 
-        return new ModelAndView(pdfHtml);
+        return new ModelAndView(pdfHtmlEncuesta);
 
     }
 
