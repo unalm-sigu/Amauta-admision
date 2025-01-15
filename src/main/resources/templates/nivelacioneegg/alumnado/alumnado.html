@@ -17,8 +17,8 @@
                 var seccion = JSON.parse(seccionJson);
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/nivelacioneegg/alumnado/alumnado.js}" charset="utf-8"></script>
         </div>
     </body>
