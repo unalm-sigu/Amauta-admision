@@ -63,8 +63,6 @@
 
             <input type="hidden" name="seccion.id"  v-bind:value="ampliacionVacante.seccion.id" />
 
-            <!--<input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />-->
-
             <div class="form-group" >
                 <label  class="control-label">Solicitante</label>
                 <p class="capitalize text-primary h5 form-control-static m-t-xs" th:text="${session.SESSION_USUARIO.persona.nombreCompleto}"></p>
@@ -232,17 +230,6 @@
                         <label>Grupo Nuevo</label>
 
                         <pre>{{changeAulaGpo.grupoHorasFin.codigo}}</pre>
-                        <!--                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
-                                                              v-on:search-change="asyncFindCambioGrupos"
-                                                              v-bind:options="grupos"
-                                                              v-bind:internal-search="false"
-                                                              v-bind:limit="15"
-                                                              placeholder=" "
-                                                              track-by="id"
-                                                              deselect-label=""
-                                                              select-label=""
-                                                              label="codigo">
-                                                </multiselect>-->
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -352,7 +339,7 @@
             </div>
             <div class="form-group">
                 <label> Motivo </label>
-                <textarea class="form-control" v-model="descuentoSeccion.motivo" rows="4" required=""/>
+                <textarea class="form-control" v-model="descuentoSeccion.motivo" rows="4" required=""></textarea>
             </div>
         </form>
     </div>
