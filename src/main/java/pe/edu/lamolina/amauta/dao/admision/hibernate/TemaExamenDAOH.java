@@ -4,27 +4,24 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.amauta.dao.admision.TemaCicloDAO;
-import pe.edu.lamolina.model.calificacion.TemaCiclo;
-import pe.edu.lamolina.model.inscripcion.CicloPostula;
+import pe.edu.lamolina.amauta.dao.admision.TemaExamenDAO;
+import pe.edu.lamolina.model.calificacion.TemaExamen;
 
 @Repository
-public class TemaExamenDAOH extends AbstractEasyDAO<TemaCiclo> implements TemaCicloDAO {
+public class TemaExamenDAOH extends AbstractEasyDAO<TemaExamen> implements TemaExamenDAO {
 
     public TemaExamenDAOH() {
         super();
-        setClazz(TemaCiclo.class);
+        setClazz(TemaExamen.class);
     }
 
     @Override
-    public List<TemaCiclo> allByCiclo(CicloPostula ciclo) {
-        Octavia sql = Octavia.query()
-                .from(TemaCiclo.class, "eva")
-                .join("temaExamen te", "cicloPostula cp")
-                .filter("cp.id", ciclo)
-                .orderBy("eva.orden");
-
-        return all(sql);
+    public List<TemaExamen> allNotTemaSuperior() {
+       Octavia sql =Octavia.query()
+               .from(TemaExamen.class,"t")
+               .left("temaSuperior ts")
+               .isNull("ts.id");
+       return all(sql);
     }
 
 }

@@ -17,5 +17,4 @@ lamolina-pivot.log.*
 .factorypath 
 ./settings/
 ./vscode/
-
-nbproject/project.properties
+/nbproject/

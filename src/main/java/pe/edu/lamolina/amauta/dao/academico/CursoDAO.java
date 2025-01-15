@@ -75,4 +75,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<CursoDirigidoDTO> allCursosDirigidosByCiclo(CicloAcademico cicloAcademico);
 
+    List<Curso> allByDynatableModalidad(DynatableFilter filter, ModalidadEstudioEnum modalidadEstudioEnum);
+
 }

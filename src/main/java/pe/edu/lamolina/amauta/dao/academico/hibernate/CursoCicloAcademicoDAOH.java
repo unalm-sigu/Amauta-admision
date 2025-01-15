@@ -135,15 +135,6 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
     }
 
     @Override
-    public void updateColumns(CursoCicloAcademico cursoCicloAcademico, String... columns) {
-        Octavia octavia = Octavia.update(CursoCicloAcademico.class);
-        for (String column : columns) {
-            octavia.set(cursoCicloAcademico, column);
-        }
-        this.update(octavia);
-    }
-
-    @Override
     public List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico cicloAcademico, String nombre) {
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")

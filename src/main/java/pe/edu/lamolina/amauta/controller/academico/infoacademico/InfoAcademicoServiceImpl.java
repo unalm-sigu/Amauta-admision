@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,7 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.dto.AlumnoCursoCicloDTO;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -87,16 +89,21 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.PlanCurricularDAO;
+import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
 import pe.edu.lamolina.amauta.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.admision.EvaluadoDAO;
 import pe.edu.lamolina.amauta.dao.admision.TemaCicloDAO;
+import pe.edu.lamolina.amauta.dao.admision.TemaExamenDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoReplicaNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTemaExamenDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCursoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
@@ -106,6 +113,7 @@ import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.calificacion.TemaCiclo;
+import pe.edu.lamolina.model.calificacion.TemaExamen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -116,6 +124,10 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.model.inscripcion.Prelamolina;
+import pe.edu.lamolina.model.nivelacioneegg.CursoReplicaNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -136,6 +148,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final CicloAcademicoDAO cicloAcademicoDAO;
     private final CursoCurriculaDAO cursoCurriculaDAO;
     private final CursoEquivalenteDAO cursoEquivalenteDAO;
+    private final CursoReplicaNivelacionDAO cursoReplicaNivelacionDAO;
+    private final CursoTemaExamenDAO cursoTemaExamenDAO;
     private final DiaDAO diaDAO;
     private final DocenteSeccionDAO docenteSeccionDAO;
     private final EgresadoDAO egresadoDAO;
@@ -146,13 +160,16 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     private final MatriculaCursoDAO matriculaCursoDAO;
     private final MatriculaResumenDAO matriculaResumenDAO;
     private final MatriculaSeccionDAO matriculaSeccionDAO;
+    private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final OrientacionCarreraDAO orientacionCarreraDAO;
     private final PlanCurricularDAO planCurricularDAO;
+    private final PrelamolinaDAO prelamolinaDAO;
     private final RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
     private final ResumenPlanCurricularDAO resumenPlanCurricularDAO;
     private final RetiroCicloDAO retiroCicloDAO;
     private final RetiroCursoDAO retiroCursoDAO;
     private final TemaCicloDAO temaCicloDAO;
+    private final TemaExamenDAO temaExamenDAO;
     private final TramiteBachillerDAO tramiteBachillerDAO;
     private final TramiteTituloDAO tramiteTituloDAO;
     private final ColaboradorDAO colaboradorDAO;
@@ -1298,10 +1315,34 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return new Evaluado();
         }
 
-        Evaluado evaluado = evaluadoDAO.findByPostulante(alumno.getPostulantePregrado());
-        if (evaluado == null) {
+        Postulante postulante = alumno.getPostulantePregrado();
+        Evaluado evaluado = evaluadoDAO.findByPostulante(postulante);
+        if (evaluado != null) {
+            return evaluado;
+        }
+
+        Prelamolina cepre = prelamolinaDAO.findIngresanteByPostulante(postulante);
+        if (cepre == null) {
             return new Evaluado();
         }
+
+        evaluado = new Evaluado();
+        evaluado.setPostulante(postulante);
+        evaluado.setPuntajeAlgebra(cepre.getPuntajeAlgebra());
+        evaluado.setPuntajeAritmetica(cepre.getPuntajeAritmetica());
+        evaluado.setPuntajeBiologia(cepre.getPuntajeBiologia());
+        evaluado.setPuntajeEconomia(cepre.getPuntajeEconomia());
+        evaluado.setPuntajeFinal(cepre.getPuntajeFinal());
+        evaluado.setPuntajeFisica(cepre.getPuntajeFisica());
+        evaluado.setPuntajeGeografia(cepre.getPuntajeGeografia());
+        evaluado.setPuntajeGeometria(cepre.getPuntajeGeometria());
+        evaluado.setPuntajeHistoria(cepre.getPuntajeHistoria());
+        evaluado.setPuntajeMatematicas(cepre.getPuntajeMatematicas());
+        evaluado.setPuntajeQuimica(cepre.getPuntajeQuimica());
+        evaluado.setPuntajeRm(cepre.getPuntajeRm());
+        evaluado.setPuntajeRv(cepre.getPuntajeRv());
+        evaluado.setPuntajeTrigonometria(cepre.getPuntajeTrigonometria());
+
         return evaluado;
     }
 
@@ -1313,8 +1354,175 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return new ArrayList();
         }
 
-        return temaCicloDAO.allByCiclo(postulante.getCicloPostula());
+        List<TemaCiclo> temasCiclo = new ArrayList();
+        List<TemaCiclo> temasCicloAll = temaCicloDAO.allByCiclo(postulante.getCicloPostula().getCicloAcademico());
 
+        int orden = 1;
+        Map<Long, TemaExamen> mapTemas = new HashMap();
+        for (TemaCiclo temaCiclo : temasCicloAll) {
+            TemaExamen tema = temaCiclo.getTemaExamen();
+            TemaExamen temaSuper = tema.getTemaSuperior();
+
+            if (temaSuper != null) {
+                TemaExamen existe = mapTemas.get(temaSuper.getId());
+
+                if (existe == null) {
+                    TemaCiclo temaCicloSuper = new TemaCiclo();
+                    temaCicloSuper.setId(9000L);
+                    temaCicloSuper.setOrden(orden);
+                    temaCicloSuper.setTemaExamen(temaSuper);
+                    temasCiclo.add(temaCicloSuper);
+
+                    orden++;
+                    mapTemas.put(temaSuper.getId(), temaSuper);
+                }
+            }
+
+            temaCiclo.setOrden(orden);
+            temasCiclo.add(temaCiclo);
+            orden++;
+        }
+
+        return temasCiclo;
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allNotasNivelacion(Alumno alumno) {
+        List<TemaExamen> temas = temaExamenDAO.all();
+        List<CursoTemaExamen> cursosTemasAll = cursoTemaExamenDAO.all();
+        Map<Long, List<CursoTemaExamen>> mapTemaCursos = cursosTemasAll.stream()
+                .collect(Collectors.groupingBy(cutex -> cutex.getTemaExamen().getId()));
+
+        List<NotaAlumnoNivelacion> notas = new ArrayList();
+        List<NotaAlumnoNivelacion> notasAll = notaAlumnoNivelacionDAO.allConNotaByAlumno(alumno);
+
+        for (TemaExamen tema : temas) {
+            List<CursoTemaExamen> cursosTemas = mapTemaCursos.get(tema.getId());
+            if (cursosTemas == null) {
+                continue;
+            }
+
+            NotaAlumnoNivelacion notaAprobada = notasAll.stream()
+                    .filter(nan -> nan.getAprobado() != null)
+                    .filter(nan -> nan.getAprobado())
+                    .filter(nan -> {
+                        Curso curso = nan.getCurso();
+                        return cursosTemas.stream()
+                                .anyMatch(cutex -> cutex.getCurso().getId().equals(curso.getId()));
+                    })
+                    .findFirst().orElse(null);
+            if (notaAprobada != null) {
+                notas.add(notaAprobada);
+                continue;
+            }
+
+            NotaAlumnoNivelacion notaDesaprobada = notasAll.stream()
+                    .filter(nan -> nan.getAprobado() != null)
+                    .filter(nan -> !nan.getAprobado())
+                    .filter(nan -> {
+                        Curso curso = nan.getCurso();
+                        return cursosTemas.stream()
+                                .anyMatch(cutex -> cutex.getCurso().getId().equals(curso.getId()));
+                    })
+                    .findFirst().orElse(null);
+            if (notaDesaprobada != null) {
+                notas.add(notaDesaprobada);
+            }
+        }
+
+        return notas;
+    }
+
+    @Override
+    public List<AlumnoCursoCicloDTO> allNotasHistorial(Alumno alumno) {
+        List<TemaExamen> temas = temaExamenDAO.all();
+        log.info("[allNotasHistorial] temas.size={}", temas.size());
+
+        List<CursoTemaExamen> cursosTemasAll = cursoTemaExamenDAO.all();
+        log.info("[allNotasHistorial] cursosTemasAll.size={}", cursosTemasAll.size());
+        Map<Long, List<CursoTemaExamen>> mapTemaCursos = cursosTemasAll.stream()
+                .collect(Collectors.groupingBy(cutex -> cutex.getTemaExamen().getId()));
+
+        List<CursoReplicaNivelacion> replicasAll = cursoReplicaNivelacionDAO.all();
+        log.info("[allNotasHistorial] replicasAll.size={}", replicasAll.size());
+        Map<Long, List<CursoReplicaNivelacion>> mapReplicas = replicasAll.stream()
+                .collect(Collectors.groupingBy(repli -> repli.getCursoNivelacion().getId()));
+
+        List<AlumnoCicloCurso> alumnoCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        log.info("[allNotasHistorial] alumnoCursos.size={}", alumnoCursos.size());
+
+        List<AlumnoCursoCicloDTO> historial = new ArrayList();
+        for (TemaExamen tema : temas) {
+            log.info("[allNotasHistorial] analizado tema ={}", tema.getNombre());
+            List<CursoTemaExamen> cursosTemas = mapTemaCursos.get(tema.getId());
+            if (cursosTemas == null) {
+                log.info("[allNotasHistorial] \tcursosTemas is null");
+                continue;
+            }
+
+            log.info("[allNotasHistorial] \tcursosTemas.size={}", cursosTemas.size());
+            for (CursoTemaExamen cursoTema : cursosTemas) {
+                Curso cursoNivela = cursoTema.getCurso();
+                log.info("[allNotasHistorial] \tcursoNivela.codigo={}", cursoNivela.getCodigo());
+                List<CursoReplicaNivelacion> replicas = mapReplicas.get(cursoNivela.getId());
+                if (replicas == null) {
+                    log.info("[allNotasHistorial] \treplicas is null");
+                    continue;
+                }
+
+                log.info("[allNotasHistorial] \treplicas.size={}", replicas.size());
+                AlumnoCicloCurso cursoAprobado = alumnoCursos.stream()
+                        .filter(acc -> acc.getAlumnoCiclo().getEstadoEnum() == MAT)
+                        .filter(acc -> acc.getEstadoEnum() == MAT)
+                        .filter(acc -> acc.getEstaAprobado() != null)
+                        .filter(acc -> acc.getEstaAprobado() == 1)
+                        .filter(acc -> {
+                            Curso curso = acc.getCurso();
+                            return replicas.stream()
+                                    .anyMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
+                        })
+                        .findFirst().orElse(null);
+                if (cursoAprobado != null) {
+                    log.info("[allNotasHistorial] \tcursoAprobado.id={}", cursoAprobado.getId());
+                    AlumnoCursoCicloDTO acc = new AlumnoCursoCicloDTO();
+                    acc.setTemaExamen(tema);
+                    acc.setCiclo(cursoAprobado.getAlumnoCiclo().getCicloAcademico());
+                    acc.setCurso(cursoAprobado.getCurso());
+                    acc.setNota(cursoAprobado.getNota());
+                    acc.setAprobado(Boolean.TRUE);
+
+                    historial.add(acc);
+                    break;
+                }
+
+                AlumnoCicloCurso cursoDesaprobado = alumnoCursos.stream()
+                        .filter(acc -> acc.getAlumnoCiclo().getEstadoEnum() == MAT)
+                        .filter(acc -> acc.getEstadoEnum() == MAT)
+                        .filter(acc -> acc.getEstaAprobado() != null)
+                        .filter(acc -> acc.getEstaAprobado() == 0)
+                        .filter(acc -> {
+                            Curso curso = acc.getCurso();
+                            return replicas.stream()
+                                    .anyMatch(repli -> repli.getCursoRegular().getId().equals(curso.getId()));
+                        })
+                        .findFirst().orElse(null);
+                if (cursoDesaprobado != null) {
+                    log.info("[allNotasHistorial] \tcursoDesprobado.id={}", cursoDesaprobado.getId());
+                    AlumnoCursoCicloDTO acc = new AlumnoCursoCicloDTO();
+                    acc.setTemaExamen(tema);
+                    acc.setCiclo(cursoDesaprobado.getAlumnoCiclo().getCicloAcademico());
+                    acc.setCurso(cursoDesaprobado.getCurso());
+                    acc.setNota(cursoDesaprobado.getNota());
+                    acc.setAprobado(Boolean.FALSE);
+
+                    historial.add(acc);
+                    break;
+                }
+            }
+        }
+
+        log.info("[allNotasHistorial] historial.size={}", historial.size());
+        return historial;
     }
 
 }

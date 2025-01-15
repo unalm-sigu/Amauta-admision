@@ -16,9 +16,10 @@ public class EventoDAOH extends AbstractEasyDAO<Evento> implements EventoDAO {
 
     @Override
     public Evento findByCode(String exam) {
-        Octavia sqlUtil = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(Evento.class)
                 .filter("codigo", exam);
-        return (Evento) sqlUtil.find(getCurrentSession());
+
+        return find(sql);
     }
 }
