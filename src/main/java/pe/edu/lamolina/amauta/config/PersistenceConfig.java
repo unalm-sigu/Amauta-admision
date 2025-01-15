@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.beans.PropertyVetoException;
 import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -60,17 +61,58 @@ public class PersistenceConfig {
         config.setDriverClassName(this.driver);
         config.setMaximumPoolSize(this.maxPool);
         config.setMinimumIdle(this.minPool);
+        config.setIdleTimeout(this.maxIddleTime);
+        
 
         return new HikariDataSource(config);
     }
+    
+//    @Primary
+//    @Bean(name = "dataSource")
+//    public ComboPooledDataSource dataSource() throws PropertyVetoException {
+//
+//        ComboPooledDataSource ds = new ComboPooledDataSource();
+//        ds.setDriverClass(this.driver);
+//        ds.setJdbcUrl(this.jdbcUrl);
+//        ds.setUser(this.username);
+//        ds.setPassword(this.password);
+//        ds.setAcquireIncrement(this.acquireIncrement);
+//        ds.setMinPoolSize(this.minPool);
+//        ds.setMaxPoolSize(this.maxPool);
+//        ds.setMaxIdleTime(this.maxIddleTime);
+//
+//        return ds;
+//    }
 
-    @Bean
-    public LocalSessionFactoryBean sessionFactory() throws PropertyVetoException {
-        LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
-        factoryBean.setDataSource(dataSource());
-        factoryBean.setPackagesToScan(this.model);
+//    @Bean
+//    public LocalSessionFactoryBean sessionFactory() throws PropertyVetoException {
+//        LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
+//        factoryBean.setDataSource(dataSource());
+//        factoryBean.setPackagesToScan(this.model);
+//        
+//
+//        return factoryBean;
+//    }
+    
+    @Primary
+    @Autowired
+    @Bean(name = "sessionFactory")
+    public LocalSessionFactoryBean factoryBean() {
 
-        return factoryBean;
+        LocalSessionFactoryBean fb = new LocalSessionFactoryBean();
+        fb.setDataSource(dataSource());
+        fb.setPackagesToScan(this.model);
+
+        Properties prop = new Properties();
+        prop.setProperty("hibernate.dialect", this.dialect);
+        prop.setProperty("hibernate.show_sql", this.showSql);
+        prop.setProperty("hibernate.connection.release_mode", "after_transaction");
+        prop.setProperty("hibernate.connection.useUnicode", "true");
+        prop.setProperty("hibernate.connection.charSet", "UTF8");
+
+        fb.setHibernateProperties(prop);
+
+        return fb;
     }
 
 }
