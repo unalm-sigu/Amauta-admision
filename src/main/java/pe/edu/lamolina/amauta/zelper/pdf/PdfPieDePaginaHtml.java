@@ -19,6 +19,13 @@ import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
@@ -27,17 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class PdfPieDePaginaHtml extends AbstractPdfHtml {
@@ -115,12 +114,7 @@ public class PdfPieDePaginaHtml extends AbstractPdfHtml {
                 if (resultado != null) {
                     p.parse(new StringReader(resultado));
                 }
-
-//                if (plantillasArray.length > 1) {
-//
-//                    documentPdf.newPage();
-//
-//                }
+                
                 // Verifica si es necesario agregar una nueva página
                 if (isFirstPage) {
                     documentPdf.newPage();
@@ -128,8 +122,6 @@ public class PdfPieDePaginaHtml extends AbstractPdfHtml {
                 isFirstPage = false;
 
             }
-
-//            documentPdf.newPage();
 
         }
 

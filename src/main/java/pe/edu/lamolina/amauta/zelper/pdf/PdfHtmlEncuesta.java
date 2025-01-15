@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
@@ -34,6 +33,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 @Component
 public class PdfHtmlEncuesta extends AbstractPdfHtml{
