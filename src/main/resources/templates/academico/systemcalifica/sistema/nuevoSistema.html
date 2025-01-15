@@ -147,8 +147,8 @@
                 </section>
             </section>
 
-            <div th:substituteby="templates/modal"/> 
-            <script id="templateNuevoSistema" type="text/x-template" class="hide"><div th:substituteby="academico/systemcalifica/sistema/templateNuevoSistema"/></script>
+            <div th:replace="templates/modal"/> 
+            <script id="templateNuevoSistema" type="text/x-template" class="hide"><div th:replace="academico/systemcalifica/sistema/templateNuevoSistema"/></script>
         </div>
 
         <div layout:fragment="js">

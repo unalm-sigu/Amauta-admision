@@ -39,13 +39,13 @@
 
 
 
-            <div th:substituteby="templates/modal"/> 
-            <div th:substituteby="academico/systemcalifica/sistema/modalCursos"/>
-            <script id="templateCursos" type="text/x-template" class="hide"><div th:substituteby="academico/systemcalifica/sistema/templateCursos"/></script>
+            <div th:replace="templates/modal"/> 
+            <div th:replace="academico/systemcalifica/sistema/modalCursos"/>
+            <script id="templateCursos" type="text/x-template" class="hide"><div th:replace="academico/systemcalifica/sistema/templateCursos"/></script>
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <div th:replace="_layout/includes :: javascript-dynatable"/>
             <script th:src="@{/app/academico/systemcalifica/sistema/cursos.js}" charset="utf-8"></script>
         </div>
     </body>

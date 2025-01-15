@@ -1,4 +1,4 @@
-<th:block th:fragment="styles">
+<div th:fragment="styles" th:remove="tag">
     <meta charset="utf-8"/>
     <meta name="google" value="notranslate"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -15,49 +15,52 @@
     <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/select2-bootstrap.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/fullcalendar-theme.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/multiselect.css}" />
-</th:block>
+</div>
 
-
-<th:block th:fragment="javascript-login">
-    <script type="text/javascript" th:src="@{/vendor/vendor.min.js}" />
-
-    <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
-    <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
-    <script type="text/javascript" th:src="@{/phobos/js/left.js}"/>
-    <script type="text/javascript" th:src="@{/phobos/js/plugins.js}"   charset="utf-8"/>
+<div th:fragment="javascript-login" th:remove="tag">
+    <script type="text/javascript" th:src="@{/vendor/vendor.min.js}" ></script>
+    <script type="text/javascript" th:src="@{/phobos/js/app.js}"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/left.js}"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/plugins.js}"   charset="utf-8"></script>
     <script type="text/javascript" th:src="@{/vue/vue-loader.js}" charset="utf-8"></script>
 
-</th:block>
+</div>
 
-<th:block th:fragment="javascript">
-    <script type="text/javascript" th:src="@{/vendor/vendor.min.js}" />
+<div th:fragment="javascript" th:remove="tag">
+    <script th:inline="javascript" >
+        /*<![CDATA[*/
+        var provider = /*[[${session.SESSION_USUARIO==null?'':session.SESSION_USUARIO.provider}]]*/ 'json';
+        /*]]>*/
+    </script>
+    
+    <script type="text/javascript" th:src="@{/vendor/vendor.min.js}" ></script>
 
-    <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
-    <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
-    <script type="text/javascript" th:src="@{/phobos/js/left.js}"/>
-    <script type="text/javascript" th:src="@{/phobos/js/plugins.js}"   charset="utf-8"/>
+    <script type="text/javascript" th:src="@{/phobos/js/app.js}"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/left.js}"></script>
+    <script type="text/javascript" th:src="@{/phobos/js/plugins.js}"   charset="utf-8"></script>
 
     <script type="text/javascript" th:src="@{/phobos/js/stomp.min.js}" charset="utf-8"></script>
     <script type="text/javascript" th:src="@{/vue/vue-loader.js}" charset="utf-8"></script>
     <script type="text/javascript" th:src="@{/app/chatunalm/chatUnalm.js}"></script>
-
-</th:block>
-
+</div>
 
 
-<th:block th:fragment="styles-dynatable">
+
+<div th:fragment="styles-dynatable" th:remove="tag">
     <link rel="stylesheet" type="text/css" th:href="@{/dynatable/jquery.dynatable.css}" />
-</th:block>
+</div>
 
-<th:block  th:fragment="javascript-dynatable">
-    <script type="text/javascript" th:src="@{/dynatable/jquery.dynatable.js}" />
-    <script type="text/javascript" th:src="@{/dynatable/dynatable.setup.js}" charset="utf-8"/>
-</th:block>
-
-
+<div th:fragment="javascript-dynatable" th:remove="tag">
+    <script type="text/javascript" th:src="@{/dynatable/jquery.dynatable.js}" ></script>
+    <script type="text/javascript" th:src="@{/dynatable/dynatable.setup.js}" charset="utf-8"></script>
+</div>
 
 
-<th:block th:fragment="notify">
+
+
+<div th:fragment="notify" th:remove="tag">
     <script th:inline="javascript" th:if="${notificaciones}">
         /*<![CDATA[*/
         Messenger.options = {
@@ -74,10 +77,10 @@
 
         /*]]>*/
     </script>
-</th:block>
+</div>
 
 
-<th:block  th:fragment="favicon">
+<div th:fragment="favicon" th:remove="tag">
     <link rel="apple-touch-icon" sizes="57x57" th:href="@{/phobos/images/favicon/apple-touch-icon-57x57.png}"/>
     <link rel="apple-touch-icon" sizes="114x114" th:href="@{/phobos/images/favicon/apple-touch-icon-114x114.png}"/>
     <link rel="apple-touch-icon" sizes="72x72" th:href="@{/phobos/images/favicon/apple-touch-icon-72x72.png}"/>
@@ -93,4 +96,4 @@
     <meta name="msapplication-TileColor" content="#ffffff"/>
     <meta name="msapplication-TileImage" th:content="@{/phobos/images/favicon/mstile-150x150.png}"/>
     <meta name="msapplication-config" th:content="@{/phobos/images/favicon/browserconfig.xml}"/>
-</th:block>
+</div>

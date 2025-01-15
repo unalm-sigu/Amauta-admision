@@ -457,11 +457,11 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/gposeccion/gpoSeccionModal"/>
-                <div th:substituteby="_modules/vue-modal-confirm"></div>
+                <div th:replace="academico/gposeccion/gpoSeccionModal"/>
+                <div th:replace="_modules/vue-modal-confirm"></div>
 
             </div>
-            <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
+            <div th:replace="academico/gposeccion/components/seccionDetalleComponent"/>
         </div>
 
         <div layout:fragment="js">
@@ -475,7 +475,7 @@
             </script>
             
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
         
             <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>

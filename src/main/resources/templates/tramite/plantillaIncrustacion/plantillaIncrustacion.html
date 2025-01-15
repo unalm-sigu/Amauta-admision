@@ -57,7 +57,7 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="tramite/plantillaIncrustacion/incrustacionModal"></div>
+                <div th:replace="tramite/plantillaIncrustacion/incrustacionModal"></div>
             </div>
         </div>
         <div layout:fragment="js">
@@ -68,7 +68,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/plantillaIncrustacion/plantillaIncrustacion.js}" charset="utf-8"></script>
         </div>
 

@@ -237,8 +237,8 @@
                         <hr/>
 
                     </section>
-                    <div th:substituteby="academico/carrera/modalOrientacion"></div>
-                    <div th:substituteby="_modules/vue-modal-confirm"></div>
+                    <div th:replace="academico/carrera/modalOrientacion"></div>
+                    <div th:replace="_modules/vue-modal-confirm"></div>
 
                 </section>
             </div>
@@ -256,7 +256,7 @@
                 var rutaModulo = 'academico/carrera';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/carrera/carreraForm.js}" charset="utf-8"></script>
         </div>
 

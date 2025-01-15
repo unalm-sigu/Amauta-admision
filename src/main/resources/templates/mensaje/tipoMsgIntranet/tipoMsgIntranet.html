@@ -65,19 +65,19 @@
                     </section>
                 </section>    
 
-                <div th:substituteby="mensaje/tipoMsgIntranet/modalTipoMsgIntranet"></div>
+                <div th:replace="mensaje/tipoMsgIntranet/modalTipoMsgIntranet"></div>
             </div>
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>  
+            <div th:replace="_modules/vue-raptor-table"></div>  
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var tipoMsjIntraEnums = /*[[${TipoMensajeIntranetEnums.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             
             <script th:src="@{/app/mensaje/tipoMsgIntranet/tipoMsgIntranet.js}" charset="utf-8"></script>
         </div>

@@ -82,13 +82,13 @@
                     </section>
                 </section>
 
-                <div th:substituteby="academico/cursoPropedeutico/cursoPropedeuticoModal"/>
+                <div th:replace="academico/cursoPropedeutico/cursoPropedeuticoModal"/>
 
             </div>
         </section>
 
         <div layout:fragment="js" th:remove="tag">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/cursoPropedeutico/cursoPropedeutico.js}" charset="utf-8"></script>
         </div>
 

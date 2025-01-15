@@ -10,7 +10,7 @@
                 <header class="header b-b padder-lg">
                     <div class="btn-group pull-right" v-if="puedeVerHead">
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-file-text-o"></i> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a href="/academico/alumno/especial">Crear Alumno Especial</a></li>
@@ -177,7 +177,7 @@
         </div>
         <div layout:fragment="js">
             <div th:replace="_modules/vue-modal"></div>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/alumno/alumno.js}" charset="utf-8"></script>
         </div>
     </body>

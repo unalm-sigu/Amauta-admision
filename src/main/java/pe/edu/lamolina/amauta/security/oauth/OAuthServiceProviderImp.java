@@ -2,9 +2,6 @@ package pe.edu.lamolina.amauta.security.oauth;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.scribejava.apis.GoogleApi20;
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -12,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -59,101 +57,49 @@ import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
-import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.CompaniaDAO;
 import pe.edu.lamolina.amauta.dao.general.InstanciaEntidadDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
-import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Persona;
 
+@Slf4j
 @Service
-@Transactional(readOnly = false)
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
+@Transactional(readOnly = true)
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
-    @Autowired
-    UsuarioDAO usuarioDAO;
+    private final CarreraDAO carreraDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
+    private final ColaboradorDAO colaboradorDAO;
+    private final CompaniaDAO companiaDAO;
+    private final DocenteDAO docenteDAO;
+    private final DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    private final FacultadDAO facultadDAO;
+    private final InstanciaEntidadDAO instanciaEntidadDAO;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final MenuDAO menuDAO;
+    private final OficinaDAO oficinaDAO;
+    private final RolDAO rolDAO;
+    private final UsuarioDAO usuarioDAO;
 
-    @Autowired
-    RolDAO rolDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    DocenteDAO docenteDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
-    @Autowired
-    CompaniaDAO companiaDAO;
-
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-
-    @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    FacultadDAO facultadDAO;
-
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    MenuDAO menuDAO;
-
-    @Autowired
-    InstanciaEntidadDAO instanciaEntidadDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    ParametroDAO parametroDAO;
-
-    @Autowired
-    OAuthServiceConfig config;
-    @Autowired
-    InterceptorService interceptorService;
-    @Autowired
-    MenuService menuService;
-    @Autowired
-    DespliegueConfig despliegueConfig;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Override
-    public OAuth20Service getService() {
-        return new ServiceBuilder(config.getKey())
-                .apiSecret(config.getSecret())
-                .scope("https://www.googleapis.com/auth/userinfo.email "
-                        + "https://www.googleapis.com/auth/userinfo.profile")
-                .callback(config.getCallback())
-                .build(GoogleApi20.instance());
-    }
+    private final DespliegueConfig despliegueConfig;
+    private final InterceptorService interceptorService;
+    private final MenuService menuService;
 
     @Override
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo(modalidad);
-        Usuario usuario = usuarioDAO.findByGoogleEmail(email);
-        if (usuario == null) {
-            throw new PhobosException("Usuario no identificado.");
-        }
-        if (usuario.getEstadoEnum() != UserEstadoEnum.ACT) {
-            usuario = usuario.getUserActivo();
-        }
+        Usuario usuario = this.findUser(email);
 
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         List<Rol> rolesMain = generateRolesMain(roles);
@@ -210,6 +156,23 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
+    }
+
+    private Usuario findUser(String email) {
+        log.info("[findUser] Busqueda de usuario = {}", email);
+        Usuario usuario = usuarioDAO.findByGoogleEmail(email);
+        if (usuario == null) {
+            usuario = usuarioDAO.findByOutlookEmail(email);
+        }
+
+        Assert.isNotNull(usuario, "Usuario no identificado");
+        if (usuario.getEstadoEnum() == UserEstadoEnum.ACT) {
+            return usuario;
+        }
+
+        Persona persona = usuario.getPersona();
+        usuario = usuarioDAO.findActivoByPersona(persona);
+        return usuario;
     }
 
     @Async
@@ -290,7 +253,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             Oficina oficina = mapOficinas.get(colaborador.getOficina().getId());
             colaborador.setOficina(oficina);
             Oficina oficinaMain = findOficinaMain(oficina);
-            logger.debug("oficina-main: {}", oficinaMain.getNombre());
+            log.debug("oficina-main: {}", oficinaMain.getNombre());
             mapOficinasMain.put(oficinaMain.getId(), oficinaMain);
         }
         return new ArrayList(mapOficinasMain.values());
@@ -312,10 +275,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setModalidades(new ArrayList());
 
         if (oficinaMain == null) {
-            logger.debug("No tiene oficinaMain.. sale sin asignacion de menu");
+            log.debug("No tiene oficinaMain.. sale sin asignacion de menu");
             return;
         }
-        logger.debug("oficinaMain instanciasEntidades {} {}", oficinaMain.getNombre(), oficinaMain.getInstanciaEntidades().isEmpty());
+        log.debug("oficinaMain instanciasEntidades {} {}", oficinaMain.getNombre(), oficinaMain.getInstanciaEntidades().isEmpty());
 
         List<ModalidadEstudio> modalidades = modalidadEstudioDAO.all();
         List<Facultad> facultades = facultadDAO.all();
@@ -477,17 +440,17 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setModalidades(new ArrayList());
 
         if (rol.getCodigoEnum() == RolEnum.ADM_UNALM) {
-            logger.debug("Configurando rol adm_unalm");
+            log.debug("Configurando rol adm_unalm");
             Oficina ofiMain = ds.getOficinas().isEmpty() ? null : ds.getOficinas().get(0);
             ds.setOficinaMain(ofiMain);
             settingOficinaMain(ofiMain, ds);
         }
 
         if (rol.getCodigoEnum() == RolEnum.DOC) {
-            logger.debug("Configurando rol docente");
+            log.debug("Configurando rol docente");
             List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
             for (Docente docente : docentes) {
-                logger.info("add-docente-to-session {}", docente);
+                log.info("add-docente-to-session {}", docente);
                 if (docente.getEstadoEnum() == DocenteEstadoEnum.ACT) {
                     ds.setDocente(docente);
                     ds.setDepartamentoAcademico(docente.getDepartamentoAcademico());
@@ -497,10 +460,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {
-            logger.debug("Configurando rol alumno que sera expulsado del amauta");
+            log.debug("Configurando rol alumno que sera expulsado del amauta");
         }
 
-        logger.debug("Configurando menus para este rol");
+        log.debug("Configurando menus para este rol");
         Sistema sistema = new Sistema(despliegueConfig.getSistema());
         List<Menu> menus = allMenusByRolMain(rol, sistema, ds);
         ds.setMenu(menus);
@@ -513,7 +476,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     private List<Menu> allMenusByRolMain(Rol rol, Sistema sistema, DataSessionPivot ds) {
         List<Rol> roles = new ArrayList(rol.getRolesInferiores());
         for (Rol roli : roles) {
-            logger.debug("rol-inferior {} {}", roli.getId(), roli.getNombre());
+            log.debug("rol-inferior {} {}", roli.getId(), roli.getNombre());
         }
         roles.add(rol);
 

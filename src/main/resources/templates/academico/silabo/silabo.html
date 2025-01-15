@@ -12,7 +12,7 @@
 
                     <div class="btn-group pull-right" >
                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-random fa-lg"></i> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="pointer" v-on:click="openModalSilabo"> Agregar Sílabo </a></li>
@@ -157,7 +157,7 @@
 
                         </section>
                     </section>
-                    <div th:substituteby="academico/silabo/silaboModal"></div>
+                    <div th:replace="academico/silabo/silaboModal"></div>
                 </section>
 
             </div>

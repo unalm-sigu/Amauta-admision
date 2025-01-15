@@ -1,17 +1,13 @@
 package pe.edu.lamolina.amauta.controller.academico.pronabec;
 
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -25,25 +21,15 @@ import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosCiclo
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosFilterExcelView;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.RecordNotasBecadosExcelView;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
 import pe.edu.lamolina.model.pronabec.TipoBeca;
-import pe.edu.lamolina.model.tramite.Resolucion;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @Controller
@@ -54,43 +40,15 @@ public class BecasPronabecController {
 
     private final BecasPronabecService serviceBecasPronabec;
     private final TipoBecaPronabecService tipoBecaPronabecService;
-    RecordNotasBecadosExcelView recordNotasBecadosExcelView;
+    private final RecordNotasBecadosExcelView recordNotasBecadosExcelView;
     private final BecadosFilterExcelView becadosFilterExcelView;
     private final BecadosCicloActualExcelView becadosCicloActualExcelView;
     private final BecadosCicloAnteriorExcelView becadosCicloAnteriorExcelView;
 
-
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        List<TipoBeca> tiposBecaList=tipoBecaPronabecService.allTipoBecaPronabec();
+        List<TipoBeca> tiposBecaList = tipoBecaPronabecService.allTipoBecaPronabec();
 
         ArrayNode arrayTipoBeca = JaneHelper.from(tiposBecaList).array();
         model.addAttribute("tipoBecas", arrayTipoBeca);
@@ -103,7 +61,7 @@ public class BecasPronabecController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allBecasPronabec(DynatableFilter filter, HttpSession session, HttpServletRequest request){
+    public DynatableResponse allBecasPronabec(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
@@ -116,40 +74,38 @@ public class BecasPronabecController {
             log.debug("Número de becas obtenidas: " + becasPronabec.size());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (InformacionBeca becPro : becasPronabec){
+            for (InformacionBeca becPro : becasPronabec) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 //Alumno alumno = becPro.getAlumno();
                 Persona persona = becPro.getPersona();
-
-
 
                 node.put("id", becPro.getId());
                 node.put("yearConvocatoria", becPro.getYearConvocatoria());
                 node.put("nombre", persona.getApellidosNombres());
                 //node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
                 node.put("nroDocumento", persona.getNumeroDocIdentidad());
-                node.put("fechaOtorgamiento", TypesUtil.getStringDate( becPro.getFechaOtorgamiento(),"dd/MM/yyyy"));
-                node.put("fechaInicio", TypesUtil.getStringDate(becPro.getFechaInicio(),"dd/MM/yyyy"));
-                node.put("fechaFin", TypesUtil.getStringDate(becPro.getFechaFin(),"dd/MM/yyyy"));
-                node.put("tipoBeca",becPro.getTipoBeca().getNombre());
+                node.put("fechaOtorgamiento", TypesUtil.getStringDate(becPro.getFechaOtorgamiento(), "dd/MM/yyyy"));
+                node.put("fechaInicio", TypesUtil.getStringDate(becPro.getFechaInicio(), "dd/MM/yyyy"));
+                node.put("fechaFin", TypesUtil.getStringDate(becPro.getFechaFin(), "dd/MM/yyyy"));
+                node.put("tipoBeca", becPro.getTipoBeca().getNombre());
                 node.put("email", persona.getEmail());
                 node.put("emailEmpresa", persona.getEmailCompania());
                 node.put("rutaFoto", persona.getRutaFoto());
                 node.put("tipoFoto", persona.getTipoFoto());
-                node.put("condicion",becPro.getCondicion());
+                node.put("condicion", becPro.getCondicion());
                 node.put("situacion", becPro.getSituacion());
-                node.put("modificador",becPro.getUsuario().getPersona().getApellidosNombres());
+                node.put("modificador", becPro.getUsuario().getPersona().getApellidosNombres());
                 node.put("fechaModificacion", becPro.getFechaRegistro().toString());
-                node.put("carrera",becPro.getCarrera());
-                node.put("estado",becPro.getEstado());
-                node.put("rutaUrl",becPro.getRutaUrl());
+                node.put("carrera", becPro.getCarrera());
+                node.put("estado", becPro.getEstado());
+                node.put("rutaUrl", becPro.getRutaUrl());
                 array.add(node);
             }
 
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
@@ -158,27 +114,27 @@ public class BecasPronabecController {
     }
 
     @RequestMapping("load")
-    public String load(){
+    public String load() {
         return "academico/pronabec/loadCargaPronabec";
     }
 
     @ResponseBody
     @RequestMapping(value = "historial")
-    public JsonResponse obtenerHistorialBecas(InformacionBeca infoBeca, HttpSession session ) {
+    public JsonResponse obtenerHistorialBecas(InformacionBeca infoBeca, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             List<InformacionBeca> listBeca = serviceBecasPronabec.getHistorialBecas(infoBeca);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for(InformacionBeca informacionBeca : listBeca){
+            for (InformacionBeca informacionBeca : listBeca) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 Persona persona = informacionBeca.getPersona();
                 TipoBeca tipoBeca = informacionBeca.getTipoBeca();
 
-                node.put("id",informacionBeca.getId());
-                node.put("tipoBeca",tipoBeca.getNombre());
-                node.put("yearConvocatoria",informacionBeca.getYearConvocatoria());
-                node.put("fechaInicio", TypesUtil.getStringDate(informacionBeca.getFechaInicio(),"dd/MM/yyyy"));
-                node.put("fechaFin", TypesUtil.getStringDate(informacionBeca.getFechaFin(),"dd/MM/yyyy"));
+                node.put("id", informacionBeca.getId());
+                node.put("tipoBeca", tipoBeca.getNombre());
+                node.put("yearConvocatoria", informacionBeca.getYearConvocatoria());
+                node.put("fechaInicio", TypesUtil.getStringDate(informacionBeca.getFechaInicio(), "dd/MM/yyyy"));
+                node.put("fechaFin", TypesUtil.getStringDate(informacionBeca.getFechaFin(), "dd/MM/yyyy"));
                 array.add(node);
             }
             response.setData(array);
@@ -195,13 +151,13 @@ public class BecasPronabecController {
 
     @ResponseBody
     @RequestMapping("cargarDatos")
-    public JsonResponse cargarDatos(@RequestParam("file") MultipartFile file, HttpSession session){
+    public JsonResponse cargarDatos(@RequestParam("file") MultipartFile file, HttpSession session) {
 
         JsonResponse json = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            List<String> observados = serviceBecasPronabec.cargarBecados(file,ds);
+            List<String> observados = serviceBecasPronabec.cargarBecados(file, ds);
             if (observados.isEmpty()) {
                 json.setData(null);
                 json.setSuccess(true);
@@ -215,7 +171,7 @@ public class BecasPronabecController {
                 }
                 json.setData(observaciones);
                 json.setSuccess(false);
-                json.setMessage("Hay "  + observaciones.size() + " observacion(es) y no se guardo " + observaciones.size() + " fila(s)");
+                json.setMessage("Hay " + observaciones.size() + " observacion(es) y no se guardo " + observaciones.size() + " fila(s)");
             }
         } catch (PhobosException e) {
             pe.albatross.zelpers.miscelanea.ExceptionHandler.handlePhobosEx(e, json);
@@ -240,14 +196,13 @@ public class BecasPronabecController {
             for (Persona alum : lista) {
                 jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
                         new String[]{
-                                "id",
-                                "numeroDocIdentidad",
-                                "nombreCompleto",
-                                "paterno",
-                                "materno",
-                                "nombres",
-                                "emailCompania",
-                        }));
+                            "id",
+                            "numeroDocIdentidad",
+                            "nombreCompleto",
+                            "paterno",
+                            "materno",
+                            "nombres",
+                            "emailCompania",}));
             }
 
             response.setData(jsonList);
@@ -281,8 +236,8 @@ public class BecasPronabecController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "eliminar",method = RequestMethod.POST)
-    public JsonResponse eliminar(@RequestParam Long id, HttpSession session){
+    @RequestMapping(value = "eliminar", method = RequestMethod.POST)
+    public JsonResponse eliminar(@RequestParam Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
@@ -302,8 +257,8 @@ public class BecasPronabecController {
     }
 
     @ResponseBody
-    @RequestMapping(value="anular", method = RequestMethod.POST)
-    public JsonResponse anularBecadoPronabec(@RequestParam Long id, HttpSession session){
+    @RequestMapping(value = "anular", method = RequestMethod.POST)
+    public JsonResponse anularBecadoPronabec(@RequestParam Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
@@ -323,17 +278,17 @@ public class BecasPronabecController {
     }
 
     @ResponseBody
-    @RequestMapping(value="updateBeca", method = RequestMethod.POST)
-    public JsonResponse actualizarInformaBec(@RequestBody InformacionBeca informacionBeca,HttpSession session){
+    @RequestMapping(value = "updateBeca", method = RequestMethod.POST)
+    public JsonResponse actualizarInformaBec(@RequestBody InformacionBeca informacionBeca, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         json.setSuccess(false);
 
         try {
-            serviceBecasPronabec.actualizarInformBecado(informacionBeca,ds);
+            serviceBecasPronabec.actualizarInformBecado(informacionBeca, ds);
             json.setSuccess(true);
             json.setMessage(GlobalMessages.UPDATED);
-        }catch (PhobosException e) {
+        } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, json);
@@ -344,16 +299,16 @@ public class BecasPronabecController {
     }
 
     @RequestMapping("exportExcel")
-    public ModelAndView recordMatriculados(HttpSession session, Model model){
-        try{
+    public ModelAndView recordMatriculados(HttpSession session, Model model) {
+        try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<MatriculadosBecadosBean> listMatriculadosBecadosBean = serviceBecasPronabec.allMatriculadosBecados(ds.getCicloAcademico());
-            model.addAttribute("listMatriculadosBecadosBean",listMatriculadosBecadosBean);
+            model.addAttribute("listMatriculadosBecadosBean", listMatriculadosBecadosBean);
 
-        }catch (PhobosException e){
+        } catch (PhobosException e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
         }
@@ -362,7 +317,7 @@ public class BecasPronabecController {
 
     @ResponseBody
     @RequestMapping("filtroBecadosExcel")
-    public ModelAndView descargaeBecadosFiltro(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session){
+    public ModelAndView descargaeBecadosFiltro(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session) {
 
         try {
 
@@ -371,10 +326,10 @@ public class BecasPronabecController {
             model.addAttribute("listBecadosFilter", listBecadosFilter);
             model.addAttribute("objtBecados", becadosFilterBean);
 
-        }catch (PhobosException e){
+        } catch (PhobosException e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
         }
@@ -383,7 +338,7 @@ public class BecasPronabecController {
 
     @ResponseBody
     @RequestMapping("cicloActual/descargar")
-    public ModelAndView descargarCicloActualBecados(@RequestBody BecadosFilterBean becadosFilterBean,Model model, HttpSession session){
+    public ModelAndView descargarCicloActualBecados(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session) {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -391,10 +346,10 @@ public class BecasPronabecController {
             model.addAttribute("listBecadosFilter", listBecadosFilter);
             model.addAttribute("objtBecados", becadosFilterBean);
 
-        }catch (PhobosException e){
+        } catch (PhobosException e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
         }
@@ -403,7 +358,7 @@ public class BecasPronabecController {
 
     @ResponseBody
     @RequestMapping("cicloAnterior/descargar")
-    public ModelAndView descargarCicloAnteriorBecados(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session){
+    public ModelAndView descargarCicloAnteriorBecados(@RequestBody BecadosFilterBean becadosFilterBean, Model model, HttpSession session) {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -411,10 +366,10 @@ public class BecasPronabecController {
             model.addAttribute("listBecadosFilter", listBecadosFilter);
             model.addAttribute("objtBecados", becadosFilterBean);
 
-        }catch (PhobosException e){
+        } catch (PhobosException e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ModelAndView("redirect:/");
         }
@@ -424,8 +379,8 @@ public class BecasPronabecController {
     @ResponseBody
     @RequestMapping("addFile")
     public JsonResponse addFile(@RequestParam("becadoCondicionId") Long becadoCondicionId,
-                                @RequestParam("file") MultipartFile file,
-                                HttpSession session) {
+            @RequestParam("file") MultipartFile file,
+            HttpSession session) {
         JsonResponse response = new JsonResponse();
 
         try {

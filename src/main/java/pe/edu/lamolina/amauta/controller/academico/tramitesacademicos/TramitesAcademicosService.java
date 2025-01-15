@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import org.joda.time.DateTime;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -65,8 +66,8 @@ public interface TramitesAcademicosService {
 
     TipoTramite findTipoTramite(Long id);
 
-    Context cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
+    void cursoDirigidoReporte(Tramite tramite, Model model, DataSessionPivot ds);
 
-    List<Context> allcursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
+    List<Context> allcursoDirigidoFac(Facultad facultad, Model model, DataSessionPivot ds);
 
 }

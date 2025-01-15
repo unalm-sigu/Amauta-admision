@@ -155,17 +155,17 @@
                     </section>
                 </section>
 
-                <div th:substituteby="rolexamen/grupoespecial/grupoEspecialModals"/>
+                <div th:replace="rolexamen/grupoespecial/grupoEspecialModals"/>
 
             </div>
 
         </section>
 
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
-            <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
+            <div th:replace="rolexamen/components/mover-seccion-examen"/>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
                 var jRolExamenes = /*[[${jRolExamenes}]]*/ {};

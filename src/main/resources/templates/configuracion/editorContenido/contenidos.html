@@ -72,7 +72,7 @@
                 </section>
                 <div id='contenidoModal'></div>
             </div>
-            <!--            <script id="templateContenidos" type="text/x-template" class="hide"><div th:substituteby="configuracion/editorContenido/templateContenido"/></script>-->
+            <!--            <script id="templateContenidos" type="text/x-template" class="hide"><div th:replace="configuracion/editorContenido/templateContenido"/></script>-->
         </div>
 
         <div layout:fragment="js">
@@ -82,7 +82,7 @@
                 /*]]>*/
             </script>
             <div th:replace="_modules/vue-modal"></div>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
         
             <script th:src="@{/app/configuracion/editorcontenido/editorcontenido.js}" charset="utf-8"></script>
         </div>

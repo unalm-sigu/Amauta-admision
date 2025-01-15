@@ -292,19 +292,19 @@
                         </div>
                     </modal-vik>
 
-                    <div th:substituteby="academico/resolucion/alumnosResolucionModal"/>
+                    <div th:replace="academico/resolucion/alumnosResolucionModal"/>
 
                 </section>
 
             </div>
 
-            <div th:substituteby="templates/modal"/>
+            <div th:replace="templates/modal"/>
 
         </div>
 
         <div layout:fragment="js">
 
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:replace="_modules/vue-raptor-table"/>
             <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
             <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/resolucion/resolucion.js}" charset="utf-8"></script> 

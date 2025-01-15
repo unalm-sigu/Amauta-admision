@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Tipo Grupos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style>
         .no-top-border > thead > tr:first-child > td,
         .no-top-border > tbody > tr:first-child > td {
@@ -35,7 +35,7 @@
                 </section>
             </section>
 
-            <div th:substituteby="academico/horariocachimbo/generar/horarioCachimboGenerarModal"/>
+            <div th:replace="academico/horariocachimbo/generar/horarioCachimboGenerarModal"/>
 
         </div>
 
@@ -46,7 +46,7 @@
 
     <div layout:fragment="js">
         
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         
         <script th:src="@{/app/academico/horariocachimbo/generar/horarioCachimboGenerar.js}" charset="utf-8"></script>
     </div>

@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Menú</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style>
         .m1 {
             display: flex;
@@ -55,11 +55,11 @@
         </section>
 
         <script id="titulotemplate" type="text/x-template" class="hide">
-            <div th:substituteby="seguridad/menu/tituloTemplate"></div>
+            <div th:replace="seguridad/menu/tituloTemplate"></div>
         </script>
 
         <script id="menuSistemaTemplate" type="text/x-template" class="hide">
-            <div th:substituteby="seguridad/menu/menuSistemaTemplate"></div>
+            <div th:replace="seguridad/menu/menuSistemaTemplate"></div>
         </script>
 
     </div>

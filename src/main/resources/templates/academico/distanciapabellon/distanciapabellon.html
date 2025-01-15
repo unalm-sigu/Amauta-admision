@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Aulas</title>
-        <link th:substituteby="_layout/includes :: styles-dynatable" />
+        <link th:replace="_layout/includes :: styles-dynatable" />
     </head>
 
     <body>
@@ -147,7 +147,7 @@
         <div layout:fragment="js">
             
         
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/distanciapabellon/distanciapabellon.js}" charset="utf-8"></script>
         </div>
 

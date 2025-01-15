@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Correccion Historial</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
 </head>
 <body>
     <div layout:fragment="main">
@@ -119,7 +119,7 @@
             /*]]>*/
         </script>
         
-        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:replace="_modules/vue-raptor-table"/>
         <script th:src="@{/app/tramite/correccionHisto/correccionHistorial.js}" charset="utf-8"></script>
     </div>
 

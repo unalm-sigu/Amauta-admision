@@ -8,17 +8,14 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
@@ -61,9 +58,6 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     TramiteTituloDAO tramiteTituloDAO;
 
     @Autowired
-    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Autowired
@@ -85,9 +79,6 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     AlumnoDAO alumnoDAO;
 
     @Autowired
-    EgresadoDAO egresadoDAO;
-
-    @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
 
     @Autowired
@@ -96,9 +87,6 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     @Autowired
     TramiteBachillerDAO tramiteBachillerDAO;
 
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
     @Override
     public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter) {
 
@@ -106,7 +94,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     }
 
     @Override
-    public Context reporte(Long idTramite, DataSessionPivot ds) {
+    public void reporte(Long idTramite, Model model, DataSessionPivot ds) {
 
         Tramite tramite = this.findByTramite(idTramite);
 
@@ -169,23 +157,20 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
             throw new PhobosException("El trámite no tiene resolución");
         }
 
-        Context ctx = new Context();
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("ciclo", cicloAcademico);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("titulo", tramiteTitulo);
+        model.addAttribute("obtencionGrado", obtencionGrado);
+        model.addAttribute("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
+        model.addAttribute("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        model.addAttribute("fechaResolucion", TypesUtil.getStringDate(obtencionGrado.getResolucion().getFecha(), " dd'/'MM'/'yyyy", "es"));
 
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("titulo", tramiteTitulo);
-        ctx.setVariable("obtencionGrado", obtencionGrado);
-        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("fechaResolucion", TypesUtil.getStringDate(obtencionGrado.getResolucion().getFecha(), " dd'/'MM'/'yyyy", "es"));
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("nombrePdf", "Informe Titulo " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "detalleTitulo");
 
-        ctx.setVariable("nombrePdf", "Informe Titulo " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleTitulo");
-
-        return ctx;
     }
 
     @Override
@@ -200,7 +185,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
 
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumnoDB);
-        
+
         if (tramiteBachiller == null) {
             throw new PhobosException(String.format("El alumno %s no es bachiller", alumnoDB.getCodigo()));
         }
@@ -266,7 +251,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
         tramiteTitulo.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteTitulo.setUsuarioAnulaTramite(ds.getUsuario());
-        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado","usuarioAnulaTramite");
+        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado", "usuarioAnulaTramite");
     }
 
     public Tramite findByTramite(Long id) {

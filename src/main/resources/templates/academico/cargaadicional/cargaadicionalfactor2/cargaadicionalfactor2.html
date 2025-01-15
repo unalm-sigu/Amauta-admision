@@ -54,7 +54,7 @@
 
                         </section>
                     </section>
-                    <div th:substituteby="academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2Modal"></div>
+                    <div th:replace="academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2Modal"></div>
                 </section>
 
             </div>
@@ -66,8 +66,8 @@
 
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2.js}" charset="utf-8"></script>
         </div>
 

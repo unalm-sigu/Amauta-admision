@@ -15,7 +15,7 @@
                     <h2 th:text="| Tramite Condicional ${ciclo.descripcion}|"></h2>
                     <div class="btn-group pull-right">
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-file-text-o" /> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-file-text-o"></i> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li ><a  v-on:click="modal" >Tramite Condicional</a></li>
@@ -111,8 +111,8 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/tramiteCondicional/tramiteCondicionalModal"/>
-                <!--<div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>-->
+                <div th:replace="academico/tramiteCondicional/tramiteCondicionalModal"/>
+                <!--<div th:replace="academico/tramiteCondicional/tramiteResolucionModal"/>-->
 
             </div>
         </div>
@@ -126,7 +126,7 @@
                 /*]]>*/
             </script>
 
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:replace="_modules/vue-raptor-table"/>
 
 
             <script th:src="@{/app/academico/tramiteCondicional/tramiteCondicional.js}" charset="utf-8"></script>

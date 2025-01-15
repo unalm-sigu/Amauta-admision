@@ -36,7 +36,6 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
-import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 
 @Controller
 @RequestMapping("academico/encuestaestudiantil/docente")

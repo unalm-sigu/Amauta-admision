@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -315,16 +314,13 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
             mapTotales.put(key, total);
         }
 
-        Context ctx = new Context();
-        ctx.setVariable("mapFacultades", mapFacultades);
-        ctx.setVariable("mapTotales", mapTotales);
-        ctx.setVariable("cicloAcademico", cicloAcademico);
-        ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
+        model.addAttribute("mapFacultades", mapFacultades);
+        model.addAttribute("mapTotales", mapTotales);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("fecha", String.format("La Molina, %s", formateador.format(new Date())));
 
-        ctx.setVariable("nombrePdf", String.format("Subvención por carga académica adicional %s", cicloAcademico.getDescripcion()));
-        ctx.setVariable("templatePdf", "subvencionCargaAdicional");
-       
-        model.addAllAttributes(ctx.getVariables());
+        model.addAttribute("nombrePdf", String.format("Subvención por carga académica adicional %s", cicloAcademico.getDescripcion()));
+        model.addAttribute("templatePdf", "subvencionCargaAdicional");
 
     }
 

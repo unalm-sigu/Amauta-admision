@@ -22,6 +22,7 @@ new Vue({
         let vue = this;
     },
     mounted: function () {
+        console.log("mounted-inicio --> ")
         let vue = this;
 
         $(".numerico").numeric({negative: false});
@@ -39,6 +40,7 @@ new Vue({
         $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
         vue.initFileupload();
         vue.avatarInit();
+        console.log("mounted-final --> ")
     },
     methods: {
         buscarPais: function () {
@@ -287,6 +289,7 @@ new Vue({
 
         },
         fileuploadtrigger: function () {
+            console.log("fileupload --> ")
             $('#fileupload').trigger('click');
         },
         avatarInit: function () {

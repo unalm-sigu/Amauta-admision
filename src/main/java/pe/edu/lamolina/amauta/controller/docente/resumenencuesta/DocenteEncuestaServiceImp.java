@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -103,7 +104,7 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
     }
 
     @Override
-    public Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad) {
+    public void reporte(EncuestaDocenteModalidad encuestaDocenteModalidad, Model model) {
         EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
 
         List<PuntajeEncuestaDocente> peds = puntajeEncuestaDocenteDAO.allByDocenteModalidadCicloAcademico(edm.getDocente(), edm.getModalidadEstudio(), edm.getCicloAcademico());
@@ -112,14 +113,15 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
 
         List<EncuestaDocente> anuladas = encuestaDocenteDAO.allAnuladaByModalidadEstudioDocenteCicloAcademico(edm.getModalidadEstudio(), edm.getDocente(), edm.getCicloAcademico());
 
-        return buildReport(edm, peds, puntajes, anuladas);
+        buildReport(edm, peds, puntajes, anuladas, model);
     }
 
-    private Context buildReport(
+    private void buildReport(
             EncuestaDocenteModalidad edm,
             List<PuntajeEncuestaDocente> peds,
             List<PuntajeEncuestaDocenteModalidad> puntajes,
-            List<EncuestaDocente> anuladas) {
+            List<EncuestaDocente> anuladas,
+            Model model) {
 
         Map<GrupoSeccion, List<PuntajeEncuestaDocente>> mapCursos = peds.stream().collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getSeccion().getGrupoSeccion()));
 
@@ -159,24 +161,22 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
         String imgBuilt = buildPlot(puntajes);
 
         Context ctx = new Context();
-        ctx.setVariable("edm", edm);
-        ctx.setVariable("docente", edm.getDocente());
-        ctx.setVariable("modalidad", edm.getModalidadEstudio());
-        ctx.setVariable("cicloAcademico", edm.getCicloAcademico());
-        ctx.setVariable("mapCursos", mapCursos);
-        ctx.setVariable("mapEncuestados", mapEncuestados);
-        ctx.setVariable("mapMatriculados", mapMatriculados);
-        ctx.setVariable("puntajes", puntajes);
-        ctx.setVariable("anuladas", anuladas);
-        ctx.setVariable("temas", temas);
-        ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
-        ctx.setVariable("imagenChart", imgBuilt);
+        model.addAttribute("edm", edm);
+        model.addAttribute("docente", edm.getDocente());
+        model.addAttribute("modalidad", edm.getModalidadEstudio());
+        model.addAttribute("cicloAcademico", edm.getCicloAcademico());
+        model.addAttribute("mapCursos", mapCursos);
+        model.addAttribute("mapEncuestados", mapEncuestados);
+        model.addAttribute("mapMatriculados", mapMatriculados);
+        model.addAttribute("puntajes", puntajes);
+        model.addAttribute("anuladas", anuladas);
+        model.addAttribute("temas", temas);
+        model.addAttribute("fecha", String.format("La Molina, %s", formateador.format(new Date())));
+        model.addAttribute("imagenChart", imgBuilt);
         logger.debug("imagenChart {}", imgBuilt);
 
-        ctx.setVariable("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
-        ctx.setVariable("templatePdf", "resultadoencuesta");
-
-        return ctx;
+        model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
+        model.addAttribute("templatePdf", "resultadoencuesta");
 
     }
 

@@ -1,71 +1,3 @@
-<!--<div id="divEditar" type="text/x-template" class="hide" >
-    <form name="formEditar" data-parsley-validate="true">
-        <input type="hidden" name="id" value="{{:id}}"/>
-        <div class="form-group">
-            <label> Deudor </label>
-            <span class="form-control"> {{:nombre}} </span>
-        </div>
-        <div class="form-group">
-            <label> Oficina </label>
-            <span class="form-control"> {{:oficina}} </span>
-        </div>
-        <div class="form-group">
-            <label>Descripción</label>
-            <textarea rows="6" required="true" type="text" name="descripcion" data-trigger="change" class="form-control"/>
-        </div>
-    </form>
-</div>
-
-<div id="divAnular" type="text/x-template" class="hide" >
-    <form name="formAnular" data-parsley-validate="true">
-        <input type="hidden" name="id" value="{{:id}}"/>
-        <div class="form-group">
-            <label> Deudor </label>
-            <span class="form-control"> {{:nombre}} </span>
-        </div>
-        <div class="form-group">
-            <label> Oficina </label>
-            <span class="form-control"> {{:oficina}} </span>
-        </div>
-        <div class="form-group">
-            <label> Descripción </label>
-            <span class="form-control"> {{:descripcion}} </span>
-        </div>
-        <div class="form-group">
-            <label>Motivo</label>
-            <textarea name="motivoAnulacion" row="6" required="true" type="text" data-trigger="change" class="form-control"/>
-        </div>
-    </form>
-</div>
-<div id="divNevo" type="text/x-template" class="hide" >
-    <form name="formNuevo" data-parsley-validate="true">
-        <input type="hidden" name="id" value="{{:id}}"/>
-        <div class="form-group">
-            <label> Deudor </label>
-            <div class="">
-                <select class="form-control select2" id="oficina">
-                    <option th:each="ofic : ${oficinas}"
-                            th:value="${ofic.id}"
-                            th:text="${ofic.nombre}"></option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label> Oficina </label>
-            <span class="form-control"> {{:oficina}} </span>
-        </div>
-        <div class="form-group">
-            <label> Descripción </label>
-            <span class="form-control"> {{:descripcion}} </span>
-        </div>
-        <div class="form-group">
-            <label>Motivo</label>
-            <textarea name="motivoAnulacion" row="6" required="true" type="text" data-trigger="change" class="form-control"/>
-        </div>
-    </form>
-</div>-->
-<!--
--->
 <modal-vik ref="modalEdit"
            v-bind="modalEdit"
            v-bind:okaction="editar">
@@ -82,7 +14,7 @@
             </div>
             <div class="form-group">
                 <label>Descripción</label>
-                <textarea rows="6" required="true" type="text" name="descripcion" v-model="temp.descripcion" class="form-control"/>
+                <textarea rows="6" required="true" type="text" name="descripcion" v-model="temp.descripcion" class="form-control"></textarea>
             </div>
         </form>
     </div>
@@ -108,7 +40,8 @@
             </div>
             <div class="form-group">
                 <label>Motivo</label>
-                <textarea name="motivoAnulacion" row="6" required="true" type="text" data-trigger="change"  v-model="temp.motivoAnulacion" class="form-control"/>
+                <textarea name="motivoAnulacion" row="6" required="true" data-trigger="change"
+                          v-model="temp.motivoAnulacion" class="form-control"></textarea>
             </div>
         </form>
     </div>
@@ -154,7 +87,7 @@
             </div>
             <div class="form-group">
                 <label> Descripción </label>
-                <textarea class="form-control" v-model="temp.descripcion" required="true"/>
+                <textarea class="form-control" v-model="temp.descripcion" required="true"></textarea>
             </div>
 
         </form>

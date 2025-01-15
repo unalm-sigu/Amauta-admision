@@ -550,7 +550,7 @@
 
             </div>
 
-            <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
+            <div th:replace="programacion/tramiteaula/tramiteaulahorario"></div>
 
             <script  type="text/x-template" id="divBuscarAlumno">
                 <div>
@@ -581,9 +581,9 @@
                 var tipoReservaAmbienteJson = /*[[${tipoReservaAmbiente}]]*/'';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-modal"></div>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
        
             <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -171,7 +172,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     }
 
     @Override
-    public Context reporte(Long idTramite, DataSessionPivot ds) {
+    public void reporte(Long idTramite, Model model, DataSessionPivot ds) {
 
         Tramite tramite = this.findByTramite(idTramite);
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -232,18 +233,16 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
         }
 
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("oficinaColaborador", oficinaColaborador);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("tramite", tramite);
-        ctx.setVariable("ciclo", ds.getCicloAcademico());
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("oficinaColaborador", oficinaColaborador);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        model.addAttribute("historial", historialSorted);
+        model.addAttribute("tramite", tramite);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 
-        ctx.setVariable("nombrePdf", "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        ctx.setVariable("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
-
-        return ctx;
+        model.addAttribute("nombrePdf", "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
     }
 
     @Override

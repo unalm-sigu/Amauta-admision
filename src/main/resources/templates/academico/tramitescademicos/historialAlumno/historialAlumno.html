@@ -102,7 +102,7 @@
                         </section>
                     </section>
                 </section>                
-                <div th:substituteby="academico/tramitescademicos/historialAlumno/historialAlumnoModal"></div>                
+                <div th:replace="academico/tramitescademicos/historialAlumno/historialAlumnoModal"></div>                
             </div>
         </div>
         <div layout:fragment="js">
@@ -111,7 +111,7 @@
                     var rutaModulo = 'academico/matricula/asignacionturno';
                 /*]]>*/
             </script>            
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/tramitesacademicos/historialAlumno/historialAlumno.js}" charset="utf-8"></script>
         </div>
     </body>

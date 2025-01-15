@@ -94,9 +94,20 @@ function notifyBootbox(message, type) {
     }, 100);
 }
 
-function exitSession() {
-    var win = window.open('http://www.google.com.mx/accounts/Logout2', '_blank', 'modal=yes,width=500,height=500');
-    location.href = "/logout";
+async function exitSession() {
+    const logoutUri = APP.url(`logout2`);
+    const finalUrl = `${window.location.protocol}//${window.location.host}${logoutUri}`;
+    const postLogout = encodeURIComponent(finalUrl);
+
+    if (provider === 'microsoft') {
+        const providerLogout = 'https://login.microsoftonline.com/common/oauth2/v2.0/logout';
+        location.href = `${providerLogout}?post_logout_redirect_uri=${postLogout}`;
+
+    } else if (provider === 'google') {
+        const providerLogout = 'https://accounts.google.com/logout';
+        window.open(providerLogout, '_blank', 'modal=yes,width=500,height=500');
+        location.href = logoutUri;
+    }
 }
 
 function randString(n) {

@@ -45,7 +45,7 @@
         <idioma-form ref="idiomaFormVUE"></idioma-form>
     </div>
 </template>
-<div th:substituteby="_modules/vue-modal-confirm"></div>
+<div th:replace="_modules/vue-modal-confirm"></div>
 
 <script>
     Vue.component("multiselect", window.VueMultiselect.default);

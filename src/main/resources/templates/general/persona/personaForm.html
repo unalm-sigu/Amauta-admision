@@ -38,20 +38,20 @@
 
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane fade in active" id="inicio">
-                                <div th:substituteby="general/persona/personaFormMain"/>
+                                <div th:replace="general/persona/personaFormMain"/>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="ctasbanco">
-                                <div th:substituteby="general/persona/personaFormCtaBanco"/>
+                                <div th:replace="general/persona/personaFormCtaBanco"/>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="firmapersona">
-                                <div th:substituteby="general/persona/personaFirma"/>
+                                <div th:replace="general/persona/personaFirma"/>
                             </div>
                         </div>
                     </div>
 
                 </section>
 
-                <div th:substituteby="templates/modal"/>
+                <div th:replace="templates/modal"/>
 
             </section>
 

@@ -187,7 +187,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="rolexamen/cursosexcluidos/cursosexcluidosModals"/>
+                <div th:replace="rolexamen/cursosexcluidos/cursosexcluidosModals"/>
 
 
             </div>
@@ -200,7 +200,7 @@
                 /*]]>*/
             </script>
             
-            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
             <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:src="@{/app/rolexamen/cursosexcluidos/cursosexcluidos.js}" charset="utf-8"></script>
 

@@ -1,7 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Plan curricular</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
     <style>
         #divMalla {
             overflow-x: auto;
@@ -90,22 +90,22 @@
                 <section class="panel-body">
                     <div class="tab-content">
                         <div class="tab-pane active" id="1">
-                            <div th:substituteby="academico/plancurricular/includes/inicio"/>
+                            <div th:replace="academico/plancurricular/includes/inicio"/>
                         </div>
                         <div class="tab-pane" id="2" th:if="${planCurricular.id}">
-                            <div th:substituteby="academico/plancurricular/includes/obligatorios"/>
+                            <div th:replace="academico/plancurricular/includes/obligatorios"/>
                         </div>
                         <div class="tab-pane" id="3" th:if="${planCurricular.id}">
-                            <div th:substituteby="academico/plancurricular/includes/electivos"/>
+                            <div th:replace="academico/plancurricular/includes/electivos"/>
                         </div>
                         <div class="tab-pane" id="4" th:if="${planCurricular.id}">
-                            <div th:substituteby="academico/plancurricular/includes/adicionales"/>
+                            <div th:replace="academico/plancurricular/includes/adicionales"/>
                         </div>
                         <div class="tab-pane" id="5" th:if="${planCurricular.id}">
-                            <div th:substituteby="academico/plancurricular/includes/resumen"/>
+                            <div th:replace="academico/plancurricular/includes/resumen"/>
                         </div>
                         <div class="tab-pane" id="6" th:if="${planCurricular.id}">
-                            <div th:substituteby="academico/plancurricular/includes/malla"/>
+                            <div th:replace="academico/plancurricular/includes/malla"/>
                         </div>
                     </div>
 
@@ -118,7 +118,7 @@
             </section>
         </div>
 
-        <div th:substituteby="templates/modal"></div>
+        <div th:replace="templates/modal"></div>
 
         <script id="divBuscarCurso" type="text/x-template" class="hide" >
             <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
@@ -143,7 +143,7 @@
             var datepicker = $.fn.datepicker.noConflict();
             $.fn.datepickerBoot = datepicker;
         </script>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:replace="_layout/includes :: javascript-dynatable"/>
         
         <script th:src="@{/app/academico/plancurricular/planCurricularForm.js}" charset="utf-8"></script>
         <!--<script th:src="@{/app/academico/plancurricular/planCurricularFormVue.js}" charset="utf-8"></script>-->

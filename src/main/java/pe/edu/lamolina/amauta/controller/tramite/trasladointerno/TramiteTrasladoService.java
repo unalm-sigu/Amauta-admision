@@ -1,7 +1,7 @@
 package pe.edu.lamolina.amauta.controller.tramite.trasladointerno;
 
 import java.util.List;
-import org.thymeleaf.context.Context;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -16,11 +16,11 @@ public interface TramiteTrasladoService {
 
     void saveTramiteTraslado(TramiteTraslado traslado, DataSessionPivot ds);
 
-    Context reporte(Tramite tramite, DataSessionPivot ds);
+    void reporte(Tramite tramite, Model model, DataSessionPivot ds);
 
     List<Carrera> getCarreras(DataSessionPivot ds);
 
-    void anular(Long idTramiteTraslado, Usuario  usuarioAnulacion);
+    void anular(Long idTramiteTraslado, Usuario usuarioAnulacion);
 
     List<CicloAcademico> allCicloAcademico();
 

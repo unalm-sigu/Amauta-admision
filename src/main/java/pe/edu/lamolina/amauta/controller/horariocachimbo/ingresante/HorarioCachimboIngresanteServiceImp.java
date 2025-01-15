@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -48,7 +47,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraCachimbosDAO;
-import pe.edu.lamolina.amauta.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCachimbosDAO;
@@ -63,11 +61,8 @@ import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.ConfigRecorridoIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
-import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
@@ -81,74 +76,39 @@ import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.FISOEC;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOMATRI;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.RPAGOADM;
 
+@Slf4j
 @Service
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
 @Transactional(readOnly = true)
 public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngresanteService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Integer CANT_MINIMA_MATRICULA_CACHIMBOS = 14;
 
-    private static Integer CANT_MINIMA_MATRICULA_CACHIMBOS = 14;
-
-    private final SituacionAcademicaDAO situacionAcademicaDAO;
-
-    @Autowired
-    ActividadIngresanteDAO actividadIngresanteDAO;
-    @Autowired
-    AlumnoDAO alumnoDAO;
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    @Autowired
-    AlumnoHorarioDAO alumnoHorarioDAO;
-    @Autowired
-    CarreraCachimbosDAO carreraCachimbosDAO;
-    @Autowired
-    ConfigRecorridoIngresanteDAO configRecorridoIngresanteDAO;
-    @Autowired
-    CursoCachimbosDAO cursoCachimbosDAO;
-    @Autowired
-    HorarioCachimbosDAO horarioCachimbosDAO;
-    @Autowired
-    HorarioFallidoDAO horarioFallidoDAO;
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-    @Autowired
-    RecorridoIngresanteDAO recorridoIngresanteDAO;
-    @Autowired
-    SeccionDAO seccionDAO;
-    @Autowired
-    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-    @Autowired
-    VacanteAlumnoDAO vacanteAlumnoDAO;
-
-    @Autowired
-    TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
-    @Autowired
-    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-
-    @Autowired
-    HelperMatriculaIngresanteService helperMatriculaIngresanteService;
-    @Autowired
-    HorarioCachimboGenerarService generarHorarioIngresanteService;
-    @Autowired
-    MatriculaIngresanteService matriculaIngresanteService;
-    @Autowired
-    ResponseRestService responseRestService;
-    @Autowired
-    VisorMatricula visorMatricula;
-    @Autowired
-    VerificadorService verificadorService;
-    @Autowired
-    FacultadDAO facultadDAO;
-
+    private final ActividadIngresanteDAO actividadIngresanteDAO;
+    private final AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    private final AlumnoDAO alumnoDAO;
+    private final AlumnoHorarioDAO alumnoHorarioDAO;
+    private final AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+    private final CarreraCachimbosDAO carreraCachimbosDAO;
     private final CarreraDAO carreraDAO;
+    private final ConfigRecorridoIngresanteDAO configRecorridoIngresanteDAO;
+    private final FacultadDAO facultadDAO;
+    private final HelperMatriculaIngresanteService helperMatriculaIngresanteService;
+    private final HorarioCachimboGenerarService generarHorarioIngresanteService;
+    private final HorarioCachimbosDAO horarioCachimbosDAO;
+    private final HorarioFallidoDAO horarioFallidoDAO;
+    private final MatriculaCursoDAO matriculaCursoDAO;
+    private final MatriculaIngresanteService matriculaIngresanteService;
+    private final ModalidadEstudioDAO modalidadEstudioDAO;
+    private final RecorridoIngresanteDAO recorridoIngresanteDAO;
+    private final ResponseRestService responseRestService;
+    private final SeccionDAO seccionDAO;
+    private final SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
+    private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final VacanteAlumnoDAO vacanteAlumnoDAO;
+    private final VerificadorService verificadorService;
+    private final VisorMatricula visorMatricula;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -173,7 +133,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
-        logger.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
+        log.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
         Alumno alumnoDB = alumnoDAO.find(alumno);
         Carrera carrera = alumnoDB.getCarrera();
 
@@ -323,7 +283,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         if (alumnosIngresantes.isEmpty()) {
             throw new PhobosException("No existen alumnos nuevos");
         }
-        logger.debug("alumnosIngresantes  {}", alumnosIngresantes.size());
+        log.debug("alumnosIngresantes  {}", alumnosIngresantes.size());
 
         Map<Long, Carrera> mapCarreras = new LinkedHashMap();
         Map<Long, Integer> mapIngresantes = new LinkedHashMap();
@@ -341,27 +301,27 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             Carrera carrera = ingresante.getCarrera();
             Integer cant = mapIngresantes.get(carrera.getId());
             if (cant == null) {
-                logger.debug("Carrera ubicada: {}", carrera.getNombre());
+                log.debug("Carrera ubicada: {}", carrera.getNombre());
             }
             cant = (cant == null) ? 1 : cant + 1;
             mapCarreras.put(carrera.getId(), carrera);
             mapIngresantes.put(carrera.getId(), cant);
         }
 
-        logger.debug("Existe {} carreras en el map", mapCarreras.values().size());
-        logger.debug("Hay {} carreras preexistentes en el map", mapCarreraCachimbos.values().size());
+        log.debug("Existe {} carreras en el map", mapCarreras.values().size());
+        log.debug("Hay {} carreras preexistentes en el map", mapCarreraCachimbos.values().size());
 
         for (Map.Entry<Long, CarreraCachimbos> entry : mapCarreraCachimbos.entrySet()) {
-            logger.debug("id:{} carrera:{}", entry.getKey(), entry.getValue().getCarrera().getNombre());
+            log.debug("id:{} carrera:{}", entry.getKey(), entry.getValue().getCarrera().getNombre());
             System.out.println(entry.getKey() + "/" + entry.getValue());
         }
 
         for (Carrera carrera : mapCarreras.values()) {
-            logger.debug("Creando {} carrera-cachimbo {}", carrera.getId(), carrera.getNombre());
+            log.debug("Creando {} carrera-cachimbo {}", carrera.getId(), carrera.getNombre());
             Integer ingresantes = mapIngresantes.get(carrera.getId());
 
             CarreraCachimbos ch = mapCarreraCachimbos.get(carrera.getId());
-            logger.debug("\tCarrera-cachimno {}", ch);
+            log.debug("\tCarrera-cachimno {}", ch);
 
             if (ch == null) {
                 ch = new CarreraCachimbos();
@@ -375,13 +335,13 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 ch.setSuspendidos(0);
                 carreraCachimbosDAO.save(ch);
                 mapCarreraCachimbos.put(carrera.getId(), ch);
-                logger.debug("\tCarrera-cachimno nuevo {}", ch.getId());
+                log.debug("\tCarrera-cachimno nuevo {}", ch.getId());
 
             } else {
                 ch.setIngresantes(ingresantes + ch.getIngresantes());
                 ch.setSinHorario(ingresantes + ch.getSinHorario());
                 carreraCachimbosDAO.update(ch);
-                logger.debug("\tCarrera-cachimno editado {}", ch.getId());
+                log.debug("\tCarrera-cachimno editado {}", ch.getId());
             }
         }
     }
@@ -476,7 +436,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
         Map<Long, List<ActividadIngresante>> mapActividadesIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
 
-        logger.debug("Total actividades-alumnos  {} ", actividadIngresantes.size());
+        log.debug("Total actividades-alumnos  {} ", actividadIngresantes.size());
 
         List<Alumno> allAlumnos = new ArrayList();
 
@@ -529,12 +489,12 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
                 List<ActividadIngresante> actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
                 if (actividadesAlumno.isEmpty()) {
-                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getCodigo());
+                    log.debug("ALUMNO SIN RECORRIDO {}", alumno.getCodigo());
 
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
-                    logger.debug("alumno {} codigo {}", alumno.getId(), alumno.getCodigo());
-                    logger.debug("actividadesAlumno {}", actividadesAlumno.size());
+                    log.debug("alumno {} codigo {}", alumno.getId(), alumno.getCodigo());
+                    log.debug("actividadesAlumno {}", actividadesAlumno.size());
                     int cantActividadAlumnoPreMatri = cantidadActividadesObligatoriasPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
                     if (cantActividadAlumnoPreMatri >= CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
@@ -598,12 +558,12 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         List<ActividadIngresante> actividadesAlumnoObligatorio = new ArrayList<>();
 
         for (ActividadIngresante actIng : actividadesAlumno) {
-            logger.debug("ActividadIngresante {}", actIng.getId());
+            log.debug("ActividadIngresante {}", actIng.getId());
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
-            logger.debug("TipoActividadIngresante {}", tipo.getId());
+            log.debug("TipoActividadIngresante {}", tipo.getId());
             ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
             if (cfg == null) {
-                logger.debug("*************** no encontrado tipo actividada {}", tipo.getId());
+                log.debug("*************** no encontrado tipo actividada {}", tipo.getId());
                 continue;
             }
             actIng.setOrden(cfg.getOrdenActividad());

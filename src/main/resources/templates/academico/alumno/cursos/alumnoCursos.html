@@ -15,13 +15,13 @@
                 <section   class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <div th:substituteby="academico/alumno/cursos/alumnoCursosList"/>
+                            <div th:replace="academico/alumno/cursos/alumnoCursosList"/>
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/alumno/cursos/alumnoCursosModal"/>
+                <div th:replace="academico/alumno/cursos/alumnoCursosModal"/>
             </div>
-            <div th:substituteby="templates/modal"/>
+            <div th:replace="templates/modal"/>
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var rutaModulo = /*[[${rutaModulo}]]*/'';
@@ -32,8 +32,8 @@
             </script>
         </section>
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"></div>
-            <div th:substituteby="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
+            <div th:replace="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/alumno/alumnoCursos.js}" charset="utf-8"></script>
         </div>
     </body>

@@ -32,6 +32,16 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
     }
 
     @Override
+    public Usuario findByOutlookEmail(String email) {
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
+                .filter("u.outlook", email);
+
+        return find(sql);
+    }
+
+    @Override
     public Usuario findActivoByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
