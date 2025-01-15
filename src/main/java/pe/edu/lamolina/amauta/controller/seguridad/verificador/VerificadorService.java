@@ -97,6 +97,8 @@ public interface VerificadorService {
 
     boolean esAdministradorTutoria(DataSessionPivot ds);
 
+    boolean esOperadorEEGG(DataSessionPivot ds);
+
     boolean soloEditarDatosAlumno(DataSessionPivot ds);
 
     boolean esConsejeroCarrera(DataSessionPivot ds, Carrera carrera);

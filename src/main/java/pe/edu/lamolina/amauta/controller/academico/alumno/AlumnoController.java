@@ -35,7 +35,6 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -92,30 +91,6 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.tramite.ReservaAula;
@@ -14,6 +15,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -131,6 +133,16 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByRangoFechaTipoHorario(Date fechaInicio, Date fechaFin, TipoHorarioAulaEnum tipoEnum);
 
+    List<HorarioAula> allRangoDiaAndPabellonByDiasHoras(List<String> diaHoras, Aula pabellon, Date fechaInicio, Date fechaFin);
+
+    List<HorarioAula> allByCursosNivelacion(List<CursoNivelacion> cursosNivelacion);
+
+    List<HorarioAula> allByCursoNivelacion(CursoNivelacion cursoNivelacion);
+
+    List<HorarioAula> allByCursoNivelacionFecha(CursoNivelacion cursoNivelacion, Date fecha);
+
+    List<HorarioAula> allByDocente(Docente docente, CicloAcademico ciclo);
+
     int saveList(List<HorarioAula> horariosAulas);
 
     int updateList(List<HorarioAula> horariosAulas, String... columnas);
@@ -138,7 +150,5 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
 
     void deleteAllByCiclo(CicloAcademico ciclo);
-
-    List<HorarioAula> allRangoDiaAndPabellonByDiasHoras(List<String> diaHoras, Aula pabellon, Date fechaInicio, Date fechaFin);
 
 }
