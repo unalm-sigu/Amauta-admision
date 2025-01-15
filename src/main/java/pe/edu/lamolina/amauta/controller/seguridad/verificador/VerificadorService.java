@@ -94,6 +94,7 @@ public interface VerificadorService {
     boolean isRevisorActaNotasDepartamento(DataSessionPivot ds);
 
     boolean esInformaticoOERA(DataSessionPivot ds);
+    
     boolean esAdministradorTutoria(DataSessionPivot ds);
 
     boolean esOperadorEEGG(DataSessionPivot ds);
