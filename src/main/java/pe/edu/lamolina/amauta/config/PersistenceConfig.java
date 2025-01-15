@@ -1,16 +1,22 @@
 package pe.edu.lamolina.amauta.config;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.beans.PropertyVetoException;
 import java.util.Properties;
+import javax.servlet.DispatcherType;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -53,54 +59,28 @@ public class PersistenceConfig {
 
     @Primary
     @Bean(name = "dataSource")
-    public HikariDataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(this.jdbcUrl);
-        config.setUsername(this.username);
-        config.setPassword(this.password);
-        config.setDriverClassName(this.driver);
-        config.setMaximumPoolSize(this.maxPool);
-        config.setMinimumIdle(this.minPool);
-        config.setIdleTimeout(this.maxIddleTime);
-        
+    public ComboPooledDataSource dataSource() throws PropertyVetoException {
 
-        return new HikariDataSource(config);
+        ComboPooledDataSource ds = new ComboPooledDataSource();
+        ds.setDriverClass(this.driver);
+        ds.setJdbcUrl(this.jdbcUrl);
+        ds.setUser(this.username);
+        ds.setPassword(this.password);
+        ds.setAcquireIncrement(this.acquireIncrement);
+        ds.setMinPoolSize(this.minPool);
+        ds.setMaxPoolSize(this.maxPool);
+        ds.setMaxIdleTime(this.maxIddleTime);
+
+        return ds;
     }
-    
-//    @Primary
-//    @Bean(name = "dataSource")
-//    public ComboPooledDataSource dataSource() throws PropertyVetoException {
-//
-//        ComboPooledDataSource ds = new ComboPooledDataSource();
-//        ds.setDriverClass(this.driver);
-//        ds.setJdbcUrl(this.jdbcUrl);
-//        ds.setUser(this.username);
-//        ds.setPassword(this.password);
-//        ds.setAcquireIncrement(this.acquireIncrement);
-//        ds.setMinPoolSize(this.minPool);
-//        ds.setMaxPoolSize(this.maxPool);
-//        ds.setMaxIdleTime(this.maxIddleTime);
-//
-//        return ds;
-//    }
 
-//    @Bean
-//    public LocalSessionFactoryBean sessionFactory() throws PropertyVetoException {
-//        LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
-//        factoryBean.setDataSource(dataSource());
-//        factoryBean.setPackagesToScan(this.model);
-//        
-//
-//        return factoryBean;
-//    }
-    
     @Primary
     @Autowired
     @Bean(name = "sessionFactory")
-    public LocalSessionFactoryBean factoryBean() {
+    public LocalSessionFactoryBean factoryBean(ComboPooledDataSource ds) {
 
         LocalSessionFactoryBean fb = new LocalSessionFactoryBean();
-        fb.setDataSource(dataSource());
+        fb.setDataSource(ds);
         fb.setPackagesToScan(this.model);
 
         Properties prop = new Properties();
@@ -113,6 +93,34 @@ public class PersistenceConfig {
         fb.setHibernateProperties(prop);
 
         return fb;
+    }
+
+    @Primary
+    @Autowired
+    @Bean(name = "transactionManager")
+    public HibernateTransactionManager transactionManager(SessionFactory sf) {
+        HibernateTransactionManager transManager = new HibernateTransactionManager();
+        transManager.setSessionFactory(sf);
+        return transManager;
+    }
+
+    @Bean
+    public FilterRegistrationBean someFilterRegistration() {
+
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(someFilter());
+        registration.addUrlPatterns("/*");
+        registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.FORWARD);
+        registration.setName("hibernateFilter");
+        return registration;
+    }
+
+    @Bean(name = "hibernateFilter")
+    public OpenSessionInViewFilter someFilter() {
+        OpenSessionInViewFilter filter = new OpenSessionInViewFilter();
+        filter.setSessionFactoryBeanName("sessionFactory");
+
+        return filter;
     }
 
 }
