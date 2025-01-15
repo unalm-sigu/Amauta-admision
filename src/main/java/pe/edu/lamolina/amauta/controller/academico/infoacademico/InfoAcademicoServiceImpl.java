@@ -811,7 +811,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_RA) {
             throw new PhobosException("Alumno renunciante no se recalcula promedios.");
         }
-        promedioService.calcularSituacionAcademica(alumno, ds);
+        promedioService.calcularSituacionAcademicaNewSession(alumno, ds);
     }
 
     @Override

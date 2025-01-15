@@ -580,8 +580,8 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (MatriculaResumen matriculable : matriculables) {
-            Egresado egresado = mapEgresado.get(matriculable.getAlumno().getId());
-            promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), egresado, ds);
+//            Egresado egresado = mapEgresado.get(matriculable.getAlumno().getId());
+            promedioService.calcularSituacionAcademicaNewSession(matriculable.getAlumno(), ds);
             loop++;
         }
     }

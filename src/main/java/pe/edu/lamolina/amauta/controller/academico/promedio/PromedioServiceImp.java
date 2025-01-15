@@ -451,7 +451,7 @@ public class PromedioServiceImp implements PromedioService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void calulcarSituacionAcademicaNewSession(Alumno alumno, Egresado egresado, DataSessionPivot ds) {
+    public void calcularSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds) {
         long t1 = System.currentTimeMillis();
         this.calcularSituacionAcademica(alumno, ds);
         visorCalculaSituacion.incrementar();
