@@ -227,23 +227,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         String imgBuilt = buildPlot(puntajes, edm.getCicloAcademico());
 
-//        Context ctx = new Context();
-//        ctx.setVariable("edm", edm);
-//        ctx.setVariable("docente", edm.getDocente());
-//        ctx.setVariable("modalidad", edm.getModalidadEstudio());
-//        ctx.setVariable("cicloAcademico", edm.getCicloAcademico());
-//        ctx.setVariable("mapCursos", mapCursos);
-//        ctx.setVariable("mapEncuestados", mapEncuestados);
-//        ctx.setVariable("mapMatriculados", mapMatriculados);
-//        ctx.setVariable("mapDocenteSeccion", mapDocenteSeccion);
-//        ctx.setVariable("mapPorcentaje", mapPorcentaje);
-//        ctx.setVariable("mapHorasTeo", mapHorasTeo);
-//        ctx.setVariable("mapHorasPra", mapHorasPra);
-//        ctx.setVariable("puntajes", puntajes);
-//        ctx.setVariable("anuladas", anuladas);
-//        ctx.setVariable("temas", temas);
-//        ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
-//        ctx.setVariable("imagenChart", imgBuilt);
         model.addAttribute("edm", edm);
         model.addAttribute("docente", edm.getDocente());
         model.addAttribute("modalidad", edm.getModalidadEstudio());
@@ -262,12 +245,130 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         model.addAttribute("imagenChart", imgBuilt);
         logger.debug("imagenChart {}", imgBuilt);
 
-//        ctx.setVariable("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
-//        ctx.setVariable("templatePdf", "resultadoencuesta");
         model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
         model.addAttribute("templatePdf", "resultadoencuesta");
 
-        //return ctx;
+    }
+
+    private Context buildReport2(
+            EncuestaDocenteModalidad edm,
+            List<PuntajeEncuestaDocente> peds,
+            List<PuntajeEncuestaDocenteModalidad> puntajes,
+            List<EncuestaDocente> anuladas) {
+
+        Collections.sort(puntajes, new PuntajeEncuestaDocenteModalidad.CompareOrdenEncuesta());
+
+        Map<Seccion, List<PuntajeEncuestaDocente>> mapCursos = TypesUtil.convertListToMapList("encuestaDocente.docenteSeccion.seccion", peds);
+
+        List<TemaExamenVirtual> temas = peds
+                .stream()
+                .map(PuntajeEncuestaDocente::getTemaEncuesta)
+                .distinct()
+                .sorted(Comparator.comparing(TemaExamenVirtual::getNombre))
+                .collect(Collectors.toList());
+
+        Map<Seccion, Long> mapEncuestados = new HashMap();
+        Map<Seccion, Long> mapMatriculados = new HashMap();
+        Map<Seccion, BigDecimal> mapPorcentaje = new HashMap();
+        Map<Seccion, BigDecimal> mapHorasTeo = new HashMap();
+        Map<Seccion, BigDecimal> mapHorasPra = new HashMap();
+        Map<Seccion, EncuestaDocente> mapDocenteSeccion = new HashMap();
+
+        Set<EncuestaDocente> encuestas = new HashSet();
+        BigDecimal CIEN = new BigDecimal("100");
+
+        for (Map.Entry<Seccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
+            Collections.sort(entry.getValue(), new PuntajeEncuestaDocente.CompareOrdenEncuesta());
+            for (PuntajeEncuestaDocente ped : entry.getValue()) {
+
+                EncuestaDocente encuesta = ped.getEncuestaDocente();
+                if (encuestas.contains(encuesta)) {
+                    continue;
+                } else {
+                    encuestas.add(encuesta);
+                }
+
+                Seccion key = entry.getKey();
+                Curso curso = key.getGrupoSeccion().getCurso();
+                DocenteSeccion docenteSeccion = encuesta.getDocenteSeccion();
+                if (docenteSeccion.getPorcentajeCargaFraccion() == null) {
+                    docenteSeccion.setPorcentajeCargaFraccion("0");
+                }
+                BigDecimal horasTeo = new Fraxtion("0/1").getValue(2);
+                BigDecimal horasPra = new Fraxtion("0/1").getValue(2);
+
+                if (Arrays.asList(TEO, TCUR).contains(key.getTipoSeccionEnum())) {
+                    Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
+                    frax = frax.multiply(new BigDecimal(curso.getHorasTeoria())).divide(CIEN);
+                    horasTeo = frax.getValue(2);
+                    if (Arrays.asList(TCUR).contains(key.getTipoSeccionEnum())) {
+                        boolean tieneCursoPractico = false;
+                        Fraxtion frax1 = new Fraxtion(0);
+                        for (Seccion seccione : docenteSeccion.getSeccion().getGrupoSeccion().getSecciones()) {
+                            if (PCUR == seccione.getTipoSeccionEnum()) {
+                                for (DocenteSeccion docenteSeccion1 : seccione.getDocenteSeccion()) {
+                                    if (docenteSeccion1.getDocente().getId() == docenteSeccion.getDocente().getId()) {
+                                        tieneCursoPractico = true;
+                                        frax1 = new Fraxtion(docenteSeccion1.getPorcentajeCarga());
+                                        frax1 = frax1.multiply(new BigDecimal(curso.getHorasPractica())).divide(CIEN);
+                                    }
+                                }
+                            }
+                        }
+                        if (tieneCursoPractico) {
+                            horasPra = frax1.getValue(2);
+                        }
+                    }
+                }
+
+                if (Arrays.asList(PRA, PCUR).contains(key.getTipoSeccionEnum())) {
+                    Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
+                    frax = frax.multiply(new BigDecimal(curso.getHorasPractica())).divide(CIEN);
+                    horasPra = frax.getValue(2);
+                }
+
+                if (!mapEncuestados.containsKey(key)) {
+                    mapEncuestados.put(key, encuesta.getAlumnosEncuestados());
+                    mapMatriculados.put(key, encuesta.getAlumnosInicio());
+                    mapDocenteSeccion.put(key, encuesta);
+                    mapHorasTeo.put(key, horasTeo);
+                    mapHorasPra.put(key, horasPra);
+
+                    BigDecimal encuestados = new BigDecimal(encuesta.getAlumnosEncuestados());
+                    BigDecimal matriculados = new BigDecimal(encuesta.getAlumnosInicio());
+                    BigDecimal porc = encuestados.multiply(CIEN).divide(matriculados, 2, RoundingMode.HALF_UP);
+                    mapPorcentaje.put(key, porc);
+                }
+            }
+        }
+
+        SimpleDateFormat formateador = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-ES"));
+
+        String imgBuilt = buildPlot(puntajes, edm.getCicloAcademico());
+
+        Context ctx = new Context();
+        ctx.setVariable("edm", edm);
+        ctx.setVariable("docente", edm.getDocente());
+        ctx.setVariable("modalidad", edm.getModalidadEstudio());
+        ctx.setVariable("cicloAcademico", edm.getCicloAcademico());
+        ctx.setVariable("mapCursos", mapCursos);
+        ctx.setVariable("mapEncuestados", mapEncuestados);
+        ctx.setVariable("mapMatriculados", mapMatriculados);
+        ctx.setVariable("mapDocenteSeccion", mapDocenteSeccion);
+        ctx.setVariable("mapPorcentaje", mapPorcentaje);
+        ctx.setVariable("mapHorasTeo", mapHorasTeo);
+        ctx.setVariable("mapHorasPra", mapHorasPra);
+        ctx.setVariable("puntajes", puntajes);
+        ctx.setVariable("anuladas", anuladas);
+        ctx.setVariable("temas", temas);
+        ctx.setVariable("fecha", String.format("La Molina, %s", formateador.format(new Date())));
+        ctx.setVariable("imagenChart", imgBuilt);
+        logger.debug("imagenChart {}", imgBuilt);
+
+        ctx.setVariable("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
+        ctx.setVariable("templatePdf", "resultadoencuesta");
+
+        return ctx;
     }
 
     public static void replaceStream(PRStream orig, PdfStream stream) throws IOException {
@@ -307,7 +408,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         for (EncuestaDocenteModalidad encuesta : encuestas) {
             key = encuesta.getDocente().getId();
-            // multipleContext.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), mapAnuladas.getOrDefault(key, dfault)));
+            multipleContext.add(buildReport2(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), mapAnuladas.getOrDefault(key, dfault)));
         }
 
         return multipleContext;
@@ -342,7 +443,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
             for (EncuestaDocenteModalidad encuesta : encuestas) {
                 key = encuesta.getDocente().getId();
-                // multipleContext.add(buildReport(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), anuladas));
+                multipleContext.add(buildReport2(encuesta, pedsXdocente.getOrDefault(key, dfault), puntajesXencuesta.getOrDefault(key, dfault), anuladas));
             }
         }
 
