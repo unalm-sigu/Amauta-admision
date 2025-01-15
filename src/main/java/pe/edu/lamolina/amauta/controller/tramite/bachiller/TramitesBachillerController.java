@@ -38,7 +38,6 @@ public class TramitesBachillerController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-
         return "academico/tramitescademicos/tramitebachiller/tramitesBachiller";
     }
 
