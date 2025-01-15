@@ -85,12 +85,12 @@ new Vue({
                         $vue.docentes = response.data;
                     });
         },
-          base10(codigo){
-              return codigo <= 202210;
-          },                                                  
-          base5(codigo){
-              return codigo > 202210;
-          }
+        base10(codigo) {
+            return codigo <= 202210;
+        },
+        base5(codigo) {
+            return codigo > 202210;
+        }
     }
 });
 
