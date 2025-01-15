@@ -35,7 +35,7 @@
 
                                             <label class="" v-if="fotoCargada">Foto nueva</label>
                                             <div class="" ff-style="width:220px; height: 220px;">
-                                                <img class="" ref="imagen" v-bind:src="alumno.persona.foto" />
+                                                <img class="" ref="imagen" v-bind:src="alumno.persona.foto" ></img>
                                             </div>
                                             <file-upload
                                                 extensions="jpg,jpeg,png"
@@ -61,7 +61,7 @@
                                         <div class="form-group" v-if="fotoCargada">
                                             <label class="">Foto actual</label>
                                             <div class="" ff-style="width:220px; height: 220px;">
-                                                <img class="" th:src="${alumno.persona.foto}" />
+                                                <img class="" th:src="${alumno.persona.foto}" ></img>
                                             </div>
                                         </div>
                                     </div>
@@ -85,8 +85,8 @@
 
                         <form  method="post" id="formAlumno" data-parsley-validate="true">
 
-                            <input type="hidden"  name="id" th:value="${alumno.id}"/>
-                            <input type="hidden"  name="persona.id" th:value="${alumno.persona.id}"/>
+                            <input type="hidden"  name="id" th:value="${alumno.id}"></input>
+                            <input type="hidden"  name="persona.id" th:value="${alumno.persona.id}"></input>
 
                             <div class="panel-body">
                                 <div class="col-xs-12">
@@ -119,7 +119,7 @@
                                         <input type="text"
                                                name="persona.numeroDocIdentidad"
                                                th:value="${alumno.persona.numeroDocIdentidad}"
-                                               class="form-control" required="true"/>
+                                               class="form-control" required="true"></input>
 
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@
                                                name="persona.paterno"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.paterno}"
-                                               class="form-control"/>
+                                               class="form-control"></input>
 
                                     </div>
                                 </div>
@@ -147,7 +147,7 @@
                                                name="persona.materno"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.materno}"
-                                               class="form-control"/>
+                                               class="form-control"></input>
                                     </div>
                                 </div>
 
@@ -160,7 +160,7 @@
                                                required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.nombres}"
-                                               class="form-control"/>
+                                               class="form-control"></input>
                                     </div>
                                 </div>
 
@@ -172,7 +172,7 @@
                                                 data-trim-value="true"
                                                 name="persona.emailCompania" id="emailCompania"
                                                 th:value=" ${alumno.persona.emailCompania}"
-                                                />
+                                                ></input>
                                     </div>
                                 </div>
 
@@ -191,8 +191,7 @@
                                                                 name="persona.sexo"
                                                                 id="inlineCheckbox1"
                                                                 value="M"
-                                                                th:checked="${alumno.persona.sexo=='M'}" /> Masculino
-                                                    </label>
+                                                                th:checked="${alumno.persona.sexo=='M'}" > Masculino</input>                                                    </label>
 
                                                 </div>
                                                 <div class="col-sm-5">
@@ -203,7 +202,7 @@
                                                                 name="persona.sexo"
                                                                 id="inlineCheckbox2"
                                                                 value="F"
-                                                                th:checked="${alumno.persona.sexo=='F'}" /> Femenino
+                                                                th:checked="${alumno.persona.sexo=='F'}" > Femenino</input>
                                                     </label>
 
                                                 </div>
@@ -227,7 +226,7 @@
                                                th:attr="codigo=${helper.showCodigoPais(alumno.persona.paisNacer)}"
                                                th:rel="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.nombre}"
                                                th:value="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.id}"
-                                               required="true"/>
+                                               required="true"></input>
                                     </div>
                                 </div>
 
@@ -242,7 +241,7 @@
                                                name="persona.ubicacionNacer.id"
                                                data-trigger="change"
                                                th:rel="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.distrito}"
-                                               th:value="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.id}"/>
+                                               th:value="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.id}"></input>
                                         <span id="mensaje"></span>
 
                                     </div>
@@ -258,7 +257,7 @@
                                                    data-parsley-errors-container="#errorfechaNacer"
                                                    th:value="${alumno.persona.fechaNacer}? ${#dates.format(alumno.persona.fechaNacer,'dd/MM/yyyy')}"
                                                    class="form-control"
-                                                   name="persona.fechaNacer" required="true" />
+                                                   name="persona.fechaNacer" required="true" ></input>
 
                                             <span class="input-group-addon">
                                                 <i class="fa fa-calendar" aria-hidden="true"></i>
@@ -281,7 +280,7 @@
                                                data-trigger="change"
                                                th:rel="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.nombre}"
                                                th:value="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.id}"
-                                               required="true"/>
+                                               required="true"></input>
 
                                     </div>
                                 </div>
@@ -298,7 +297,7 @@
                                         <input type="text"
                                                name="persona.telefono"
                                                th:value="${alumno.persona.telefono}"
-                                               class="form-control sin-espacios numerico"/>
+                                               class="form-control sin-espacios numerico"></input>
 
                                     </div>
                                 </div>
@@ -311,7 +310,7 @@
                                         <input type="text"
                                                name="persona.celular"
                                                th:value="${alumno.persona.celular}"
-                                               class="form-control sin-espacios numerico"/>
+                                               class="form-control sin-espacios numerico"></input>
 
                                     </div>
                                 </div>
@@ -324,7 +323,7 @@
                                         <input type="text"
                                                name="persona.email"
                                                th:value="${alumno.persona.email}"
-                                               class="form-control verificar-email"/>
+                                               class="form-control verificar-email"></input>
 
                                     </div>
                                 </div>
@@ -344,7 +343,7 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.paisDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.paisDomicilio.id')}"
-                                               required="true"/>
+                                               required="true"></input>
 
                                     </div>
                                 </div>
@@ -361,7 +360,7 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.id')}"
-                                               required="true"/>
+                                               required="true"></input>
 
                                     </div>
                                 </div>
@@ -375,7 +374,7 @@
                                                class="form-control"
                                                name="persona.direccion"
                                                th:value="${alumno.persona.direccion}"
-                                               data-trigger="change" required="true" />
+                                               data-trigger="change" required="true" ></input>
 
                                     </div>
                                 </div>
@@ -433,7 +432,7 @@
                                                     maxlength="9"
                                                     data-trim-value="true"
                                                     th:value='${alumno.codigo}'
-                                                    name="codigo" id="codigo" />
+                                                    name="codigo" id="codigo" ></input>
 
                                         </div>
                                     </div>
@@ -444,7 +443,7 @@
                                         <div class="form-group">
                                             <label class="m-t-md"></label>
                                             <label class="m-t-md checkbox-inline form-control-static">
-                                                <input type="checkbox" id="chkbxGenMat"  v-on:click="checkMatricula"/>Generar Automáticamente
+                                                <input type="checkbox" id="chkbxGenMat"  v-on:click="checkMatricula">Generar Automáticamente</input>
                                             </label>
                                         </div>
                                     </div>
@@ -461,7 +460,7 @@
                                                    data-trigger="change"
                                                    th:rel="${helper.getParentTree(alumno,'carrera.nombre')}"
                                                    th:value="${helper.getParentTree(alumno,'carrera.id')}"
-                                                   required="true"/>
+                                                   required="true"></input>
                                         </div>
                                     </div>
                                 </div>
@@ -480,7 +479,7 @@
             </section>
 
 
-            <div th:replace="templates/modal"/>
+            <div th:replace="templates/modal"></div>
 
 
             <script id="divBuscarDistrito" type="text/x-template" class="hide" >
@@ -499,7 +498,7 @@
                 var alumnoJson = /*[[${alumnoJson.toString()}]]*/ '';
                 /*]]>*/
             </script>
-            <div th:replace="_layout/includes :: javascript-vue-upload"/>
+            <!--<div th:replace="_layout/includes :: javascript-vue-upload"></div>-->
             <script th:src="@{/app/academico/alumno/alumnoFisico.js}" charset="utf-8"></script>
         </div>
 
