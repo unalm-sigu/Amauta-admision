@@ -66,6 +66,8 @@ public class AlumnosNivelacionController {
                     .from(alumnoNiv)
                     .join("alumno", "id,codigo")
                     .join("alumno.modalidadEstudio", "id,codigo,nombre")
+                    .join("alumno.postulantePregrado.modalidadIngreso", "id,nombre")
+                    .join("alumno.postulantePregrado.cicloPostula.cicloAcademico", "id,descripcion")
                     .join("alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
                     .join("alumno.carrera.facultad", "id,codigo,nombre")
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")

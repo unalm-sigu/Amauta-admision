@@ -30,6 +30,13 @@
             </template>
             <span v-if="noEsPosgrado(alumno.carrera)" class="block text-success">{{alumno.carrera.nombre}}</span>
             <span class="block">{{alumno.modalidadEstudio.nombre}}</span>
+            <template>
+                <span><strong>Modalidad de Ingreso:</strong> {{alumno.postulantePregrado.modalidadIngreso.nombre}}</span>
+            </template>
+            <br>
+            <template>
+                <span><strong>Ciclo de Ingreso Admisión:</strong> {{alumno.postulantePregrado.cicloPostula.cicloAcademico.descripcion}}</span>
+            </template>
         </template>
     </div>
 
