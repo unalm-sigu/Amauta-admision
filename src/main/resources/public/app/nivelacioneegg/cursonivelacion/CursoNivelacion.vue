@@ -71,7 +71,7 @@
                                                     <i class="fa fa-cog"></i>
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
-                                                    <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="editar(item)">Editar</a></li>
+                                                    <li class="pointer"><a v-on:click="editar(item)">Editar</a></li>
                                                     <li v-if="item.estado == 'PEN' || item.estado == 'ANU' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="anular(item)">Anular</a></li>
                                                     <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>

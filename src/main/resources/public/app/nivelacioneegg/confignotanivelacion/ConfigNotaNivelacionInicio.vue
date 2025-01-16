@@ -89,7 +89,7 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            {{puntaje(item.puntajeMinimo)}}
+                                            {{puntaje3Decimales(item.puntajeMinimo,3)}}
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -164,6 +164,12 @@
             puntaje(nota) {
                 if (nota) {
                     return myUtils.commas(nota);
+                }
+                return "";
+            },
+            puntaje3Decimales(nota,decimal) {
+                if (nota) {
+                    return myUtils.score(nota,decimal);
                 }
                 return "";
             },
