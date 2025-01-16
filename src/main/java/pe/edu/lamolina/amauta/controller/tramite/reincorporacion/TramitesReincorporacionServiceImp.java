@@ -177,7 +177,6 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         Tramite tramite = this.findByTramite(idTramite);
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-        Context ctx = new Context();
 
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);

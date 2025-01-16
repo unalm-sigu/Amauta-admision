@@ -19,7 +19,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaHtml;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -34,7 +34,7 @@ public class TramiteReincorporacionController {
     TramiteReincorporacionService reincorporacionService;
 
     @Autowired
-    PdfHtml reporteTramiteReincorporacion;
+    PdfPieDePaginaHtml reporteTramiteReincorporacion;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
