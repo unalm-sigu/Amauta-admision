@@ -39,6 +39,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
@@ -568,21 +569,30 @@ public class AulaController {
 
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
 
+        // Filtrar los objetos con seccion != null
+        List<HorarioAula> horariosConSeccion = horariosAulas.stream()
+                .filter(horario -> horario.getSeccion() != null)
+                .collect(Collectors.toList());
+
+        System.out.println(horariosConSeccion.size());
+
         List<Dia> dias = service.allDia();
         List<Hora> horas = service.allHorasHorario();
-        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
 
-        List<Aula> aulas = horariosAulas.stream()
+        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+        System.out.println("-------------");
+        System.out.println(diasHorasGruposByCiclo.size());
+
+        List<Aula> aulas = horariosConSeccion.stream()
                 .map(x -> x.getAula())
                 .distinct().collect(Collectors.toList());
 
-        if (aulas.size() > 1) {
+        if (!aulas.isEmpty()) {
             aulas = aulas.stream()
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
 
             try {
-                System.out.println("full estafas");
                 Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
                 logger.error("Error", e);
@@ -593,7 +603,7 @@ public class AulaController {
         model.addAttribute("aulas", aulas);
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
-        model.addAttribute("horariosAulas", horariosAulas);
+        model.addAttribute("horariosAulas", horariosConSeccion);
         model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
         model.addAttribute("responsablesAulasAsignadas", service.allResponsablesAulasAsignadas(EstadoEnum.ACT));
         return new ModelAndView(horarioAulaCicloPDF);

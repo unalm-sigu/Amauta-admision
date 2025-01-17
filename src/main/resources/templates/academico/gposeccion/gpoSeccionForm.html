@@ -2,7 +2,7 @@
     <head>
         <title>Programación de Horarios</title>
     <div th:replace="_layout/includes :: styles-dynatable"></div>
-    <style type="text/css">
+    <style>
         .buscarDocClass {
             min-width: 300px;
         }
@@ -78,8 +78,9 @@
                             <section class="panel-body">
                                 <div class="row">
                                     <div class="col-md-1 text-center">
-                                        <div class="avatar-gposecc"
-                                             v-text='grupoSeccion.codigo2'>999</div>
+                                        <div class="text-center" style="border-radius: 50%; width: 54px; height: 54px; line-height: 54px; background-color: #F5B041; color: #fff; font-size: 24px; margin: auto; margin-top: 10px;"
+                                             v-text="grupoSeccion.codigo2">
+                                        </div>
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
@@ -96,7 +97,7 @@
                                             <div class="col-md-1 bold text-primary">Curso 
                                                 <input type="hidden" v-bind:value="grupoSeccion.curso.tipoCursoEnum.name"/></div>
                                             <div class="col-md-11">
-                                                <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
+                                                <span class="block text-primary" style="font-size: 18px;" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
                                                 <span class="block bold">
                                                     <i class="fa fa-bookmark text-primary"></i>
                                                     <span v-text="grupoSeccion.curso.tpc"></span> &nbsp;
