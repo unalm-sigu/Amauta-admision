@@ -194,7 +194,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .filter("nan.esMatriculable", 1)
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
-                .filter("ci.id", ciclo);
+                .filter("ci.id", ciclo)
+                .orderBy("car.nombre","per.paterno","per.materno","per.nombres");
 
         return all(sql);
     }

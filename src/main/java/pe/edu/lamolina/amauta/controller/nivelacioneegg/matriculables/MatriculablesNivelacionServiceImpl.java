@@ -163,6 +163,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         }
 
         List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allActivosByCiclo(ciclo);
+        
         Map<Long, List<CursoNivelacion>> mapCursoNiv = cursosNiv.stream()
                 .collect(Collectors.groupingBy(cn -> cn.getCursoCiclo().getCurso().getId()));
 
