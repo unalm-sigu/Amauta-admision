@@ -74,6 +74,8 @@ public class MatriculablesNivelacionController {
                     .join("alumnoNivelacion.alumno.carrera.facultad", "id,codigo,nombre")
                     .join("alumnoNivelacion.alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                     .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo")
+                    .join("alumnoNivelacion.alumno.postulantePregrado.modalidadIngreso", "nombre")
+                    .join("alumnoNivelacion.alumno.postulantePregrado.cicloPostula.cicloAcademico", "descripcion")
                     .json();
 
             array.add(node);
