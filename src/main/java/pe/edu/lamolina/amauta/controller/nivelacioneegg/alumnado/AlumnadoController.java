@@ -115,6 +115,8 @@ public class AlumnadoController {
                     .join("alumnoNivelacion.alumno.carrera.facultad", "id,codigo,nombre")
                     .join("alumnoNivelacion.alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                     .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo")
+                    .join("alumnoNivelacion.alumno.postulantePregrado.modalidadIngreso", "id,nombre")
+                    .join("alumnoNivelacion.alumno.postulantePregrado.cicloPostula.cicloAcademico", "id,descripcion")
                     .json();
 
             array.add(node);
