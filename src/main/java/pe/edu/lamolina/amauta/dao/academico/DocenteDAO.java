@@ -54,4 +54,6 @@ public interface DocenteDAO extends EasyDAO<Docente> {
     List<HorarioDocenteDTO> horarioDocente(CicloAcademico cicloAcademico, String id);
 
     List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademica(FiltroHistoricoCargaAcademicaDTO filtro);
+
+    List<Docente> allByCodeNN(String codigo);
 }

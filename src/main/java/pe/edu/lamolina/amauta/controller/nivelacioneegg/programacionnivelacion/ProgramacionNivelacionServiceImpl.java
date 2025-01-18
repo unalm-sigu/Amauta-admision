@@ -232,7 +232,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         docente.setCodigo(nombre.toUpperCase());
         if (docente.isCodigoNN()) {
             List<Docente> docentes = new ArrayList();
-            docentes.add(docenteDAO.findByCode(DOCENTE_INDETERMINADO));
+            docentes.addAll(docenteDAO.allByCodeNN(DOCENTE_INDETERMINADO));
             return docentes;
         }
 
@@ -674,6 +674,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
             cursoNiv.setCambios(cambios);
         }
+        cursoNiv.setDisponibles(cursoNiv.getDisponibles() + (form.getVacantes() - cursoNiv.getVacantes()));
 
         cursoNiv.setVacantes(form.getVacantes());
         cursoNiv.setUserModificacion(ds.getUsuario());
@@ -683,6 +684,40 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
         cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
+    }
+
+    @Override
+    @Transactional
+    public void changeHorasDictado(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        Assert.isNotNull(form.getHorasDictado(), "No ha indicado las horas dictado");
+
+        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
+        Assert.isFalse(form.getHorasDictado() == cursoNiv.getHorasDictado().intValue(), "La cantidad de horas dictado debe ser distinta");
+        Assert.isFalse(form.getHorasDictado() == 0, "La cantidad de horas dictado debe ser mayor a CERO");
+
+        CursoCicloAcademico cursoCicloAcademico = cursoNiv.getCursoCiclo();
+
+        String datoAntes = cursoNiv.getHorasDictado() + "";
+        String datoNuevo = form.getHorasDictado() + "";
+
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        cursoNiv.setHorasDictado(form.getHorasDictado());
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+        String cambio = "Cambio de horas dictado de " + datoAntes + " a " + datoNuevo;
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
+        cursoNivelacionDAO.update(cursoNiv);
+
+        cursoCicloAcademico.setHorasCiclo(form.getHorasDictado());
+        cursoCicloAcademicoDAO.updateColumns(cursoCicloAcademico, "horasCiclo");
+
     }
 
     @Override

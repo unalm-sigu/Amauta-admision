@@ -275,6 +275,19 @@ public class ProgramacionNivelacionController {
 
         return json;
     }
+    
+    @ResponseBody
+    @RequestMapping("changeHorasDictado")
+    public JsonResponse changeHorasDictado(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.changeHorasDictado(cursoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se modificó las horas dictado del curso satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
 
     @ResponseBody
     @RequestMapping("changeAula")

@@ -64,4 +64,6 @@ public interface ProgramacionNivelacionService {
 
     List<PeriodoDTO> addSemana(List<PeriodoDTO> semanasForm, String direccion);
 
+    public void changeHorasDictado(CursoNivelacion cursoNiv, DataSessionPivot ds);
+
 }

@@ -23,4 +23,5 @@ public interface CursoNivelacionDAO extends EasyDAO<CursoNivelacion> {
 
     CursoNivelacion findLastByCiclo(CicloAcademico ciclo);
 
+
 }
