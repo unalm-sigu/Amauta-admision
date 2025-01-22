@@ -239,9 +239,13 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         model.addAttribute("tramite", tramite);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-
         model.addAttribute("nombrePdf", "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        model.addAttribute("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
+
+        if (alumno.getCicloActivo() != null) {
+            model.addAttribute("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
+        } else {
+            model.addAttribute("templatePdf", "detalleReincorporacion");
+        }
     }
 
     @Override
