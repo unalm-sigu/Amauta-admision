@@ -29,13 +29,15 @@ new Vue({
             okbtn: "Descargar",
             showaccept: true
         },
-        filtroExcel:{
+        filtroExcel:{},
+        filtroExcelDto:{
             nota: false,
             curso_matriculado: false,
             ciclo_academico: null,
             tercera_vez: false,
             retiro_ciclo: false,
             electivo_matriculado: false,
+            se_matriculo:'no',
         },
     },
     components: {
@@ -141,6 +143,7 @@ new Vue({
         },
         openReporteModal(){
             let $vue = this;
+            $vue.filtroExcel={... $vue.filtroExcelDto};
             $vue.$refs.modalReporte.open();
         },
         generarReporte() {
@@ -178,15 +181,6 @@ new Vue({
             }
             let urll = '';
             $vue.processreporte = true;
-
-            console.log(this.filtroExcel);
-            // if(this.filtroExcel.tipoReporte == null){
-            //     return;
-            // }
-            // if(this.filtroExcel.cicloActual == null){
-            //     return;
-            // }
-
 
             const objetoComoString = JSON.stringify(this.filtroExcel);
             if (this.filtroExcel.tipoReporte === 'general') {
@@ -233,15 +227,15 @@ new Vue({
 
         },
         clearFields() {
-            this.filtroExcel = {
-                tipo_beca: null,
-                ciclo_academico: null,
-                veces_desaprobado: null,
-                retiroCiclo: null,
-                curso_matriculado: false,
-                nota: false,
-                cambioCarrera: false
-            };
+            // this.filtroExcel = {
+            //     tipo_beca: null,
+            //     ciclo_academico: null,
+            //     veces_desaprobado: null,
+            //     retiroCiclo: null,
+            //     curso_matriculado: false,
+            //     nota: false,
+            //     cambioCarrera: false
+            // };
         },
 
 

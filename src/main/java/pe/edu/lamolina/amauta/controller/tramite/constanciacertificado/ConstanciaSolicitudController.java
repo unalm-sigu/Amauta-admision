@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -38,6 +39,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.descargaWord.GeneradorWordSolicitudService;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlConstanciaTPC;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -65,6 +67,9 @@ public class ConstanciaSolicitudController {
 
     @Autowired
     GeneradorWordSolicitudService generadorWordSolicitudService;
+
+    @Autowired
+    PdfHtmlConstanciaTPC reporteTramiteConstancia;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -730,6 +735,20 @@ public class ConstanciaSolicitudController {
             e.printStackTrace();
         }
         return response;
+    }
+
+    @RequestMapping(value = "{idTramite}/reporte", method = RequestMethod.GET)
+    public ModelAndView constanciaReporteTPC(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idTramite) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.generarConstancia(idTramite,model,ds);
+        return new ModelAndView(reporteTramiteConstancia);
+    }
+
+    @RequestMapping(value = "{idtramite}/rporteEgresado")
+    public ModelAndView constanciaEgresado(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idtramite) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.generarConstanciaEgresado(idtramite,model,ds);
+        return new ModelAndView(reporteTramiteConstancia);
     }
 
     private ArrayNode valores(VariablePlantilla plantilla, Alumno alumno) {

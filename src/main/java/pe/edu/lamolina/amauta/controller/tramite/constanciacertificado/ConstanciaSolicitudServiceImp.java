@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.Assert;
@@ -615,6 +616,51 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademico.setTipoDocumentoCompania(tipoDocumentoCompania);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
 
+    }
+
+    @Override
+    public void generarConstancia(Long idTramite, Model model, DataSessionPivot ds) {
+        Tramite tramite = this.findByTramite(idTramite);
+        TramiteDocumentoAcademico tramiteDocumento = tramiteDocumentoAcademicoDAO.findTramite(tramite);
+
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        List<AlumnoCicloCurso> cursos = alumnoCicloCursoDAO.obtenerConstanciaCursos(alumno.getCodigo());
+        int totalHorasTeoria = cursos.stream().mapToInt(c -> c.getCurso().getHorasTeoria()).sum();
+        int totalHorasPractica = cursos.stream().mapToInt(c -> c.getCurso().getHorasPractica()).sum();
+        int totalCreditos = cursos.stream().mapToInt(AlumnoCicloCurso::getCreditos).sum();
+        int totalHorasTeoriaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasTeoria() * 15).sum();
+        int totalHorasPracticaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasPractica() * 15).sum();
+        int totalHorasSemestrales = totalHorasTeoriaSemestrales + totalHorasPracticaSemestrales;
+
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("tramiteNumeroVisible",tramiteDocumento.getCorrelativoDocumento());
+        model.addAttribute("cursos", cursos);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate()," dd 'de' MMMM 'del' yyyy","es"));
+        model.addAttribute("nombrePdf", "Contancia TPC " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "constanciaTPC");
+        model.addAttribute("totalHorasTeoria", totalHorasTeoria);
+        model.addAttribute("totalHorasPractica", totalHorasPractica);
+        model.addAttribute("totalCreditos", totalCreditos);
+        model.addAttribute("totalHorasTeoriaSemestrales", totalHorasTeoriaSemestrales);
+        model.addAttribute("totalHorasPracticaSemestrales", totalHorasPracticaSemestrales);
+        model.addAttribute("totalHorasSemestrales", totalHorasSemestrales);
+
+    }
+
+    @Override
+    public void generarConstanciaEgresado(Long idTramite, Model model, DataSessionPivot ds) {
+        Tramite tramite = this.findByTramite(idTramite);
+        TramiteDocumentoAcademico tramiteDocumento = tramiteDocumentoAcademicoDAO.findTramite(tramite);
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("tramiteNumeroVisible",tramiteDocumento.getCorrelativoDocumento());
+        model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate()," dd 'de' MMMM 'del' yyyy","es"));
+        model.addAttribute("nombrePdf", "Contancia Egresado " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "constanciaTPC");
     }
 
     @Override
@@ -1293,6 +1339,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademicoDB.setFechaAnulacion(new Date());
         tramiteDocumentoAcademicoDB.setTramite(tramiteDB);
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademicoDB);
+    }
+
+    public Tramite findByTramite(Long id){
+        return tramiteDAO.findById(new Tramite(id));
     }
 
 }

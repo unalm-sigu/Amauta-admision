@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -783,6 +784,24 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("acc.registroActivo", 1)
                 .filter("acc.estado", EstadoMatriculaEnum.MAT)
                 .orderBy("cu.nombre asc", "cu.nombre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> obtenerConstanciaCursos(String codigoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("acc.alumnoCiclo ac", "ac.alumno alu", "ac.cicloAcademico aca")
+                .join("acc.curso c")
+                .filter("alu.codigo",codigoAlumno)
+                .filter("acc.estado",EstadoMatriculaEnum.MAT)
+//                .filter("acc.nota",">",BigDecimal.TEN)
+                .filter("acc.registroActivo",1)
+                .beginBlock()
+                .__().filter("acc.nota",">", BigDecimal.TEN)
+                .__().filter("acc.nota", "AP")
+                .endBlock();
 
         return all(sql);
     }

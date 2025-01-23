@@ -1,0 +1,144 @@
+<html>
+<head>
+    <title> Constancia TPC  </title>
+</head>
+<style>
+    body{
+        font-size: 8px;
+    }
+    .main-container {
+        border: 1px solid black;
+    }
+    .constancia-num {
+        text-align: center;
+    }
+    .constancia-num h2 {
+        margin: 0;
+    }
+    .table-dirigido {
+        width: 100%;
+    }
+    .tabled {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tabled th, .tabled td {
+        border: 1px solid black;
+        padding: 4px;
+        font-size: 12px;
+    }
+
+    .tabled td:nth-child(2) {
+        text-align: left;
+    }
+
+    .tabled thead th {
+        background-color: #D6D6D6;
+        font-weight: bold;
+    }
+    .tabled.no-center th,
+    .tabled.no-center td {
+        text-align: left;
+    }
+    .centered {
+        text-align: center;
+    }
+
+</style>
+<body>
+<table style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <td style="width: 50px; vertical-align: top;">
+            <img src="logoGray.jpg" alt="Logo" style="height: 70px; filter: grayscale(100%);">
+        </td>
+        <td style="vertical-align: middle;">
+            <p style="margin: 0; font-weight: bold; font-size: 14px;">UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</p>
+            <p style="margin: 0; font-weight: bold; font-size: 14px;">DIRECCIÓN DE ESTUDIOS Y REGISTROS ACADÉMICOS</p>
+            <p style="margin: 0; font-weight: bold; font-size: 14px;">UNIDAD DE REGISTRO</p>
+        </td>
+    </tr>
+</table>
+
+
+<div class="main-container">
+    <div class="constancia-num">
+        <h2> <b>CONSTANCIA</b></h2>
+        <p> <b th:text="${tramiteNumeroVisible}" >042-UR/2025</b></p>
+    </div>
+    <table class="tabled table-dirigido no-center">
+        <tr>
+            <td>
+                El Jefe de la Unidad de Registro hace constar que  <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b>, <span th:text="${alumno.persona.sexo == 'M' ? 'identificado' : 'identificada'}"></span>  &nbsp;con el código de
+                Matrícula N° <b th:text="${alumno.codigo}"></b>, es <span th:text="${alumno.situacionAcademica.nombre == 'Egresado' ? (alumno.persona.sexo == 'M' ? 'egresado' : 'egresada') : (alumno.persona.sexo == 'M' ? 'alumno' : 'alumna')}"></span> &nbsp;de la Facultad de <b class="" th:text="${alumno.carrera.facultad.nombre.toUpperCase()}"></b><span th:if="${alumno.carrera.codigo != alumno.carrera.facultad.codigo}">
+                    - Esp. <b class="" th:text="${alumno.carrera.nombre.toUpperCase()}"></b></span>, habiendo aprobado los cursos siguientes:
+            </td>
+        </tr>
+    </table>
+    <table class="tabled table-dirigido">
+        <thead>
+        <tr>
+            <th rowspan="2" class="centered">Ciclo</th>
+            <th rowspan="2" class="centered">Cursos</th>
+            <th colspan="2" class="centered">Hrs/Semanales</th>
+            <th rowspan="2" class="centered">Crédito</th>
+            <th colspan="2" class="centered">Hrs/Semestrales</th>
+            <th colspan="1" class="centered">Total</th>
+        </tr>
+        <tr>
+            <th class="centered">Teoría</th>
+            <th class="centered">Práctica</th>
+            <th class="centered">Teoría</th>
+            <th class="centered">Práctica</th>
+            <th class="centered">Horas</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cursox : ${cursos}">
+            <td class="centered" th:text="${cursox.alumnoCiclo.cicloAcademico.codigoAnterior}"></td>
+            <td th:text="${cursox.curso.nombre}"></td>
+            <td class="centered" th:text="${cursox.curso.horasTeoria}"></td>
+            <td class="centered" th:text="${cursox.curso.horasPractica}"></td>
+            <td class="centered" th:text="${cursox.creditos}"></td>
+            <td class="centered" th:text="${cursox.curso.horasTeoria * 15}"></td>
+            <td class="centered" th:text="${cursox.curso.horasPractica * 15}"></td>
+            <td class="centered" th:text="${cursox.curso.horasTeoria * 15 + cursox.curso.horasPractica * 15}"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td style="border: 1px solid white;"></td>
+            <td class="no-border centered">TOTAL</td>
+            <td class="centered" th:text="${totalHorasTeoria}"></td>
+            <td class="centered" th:text="${totalHorasPractica}"></td>
+            <td class="centered" th:text="${totalCreditos}"></td>
+            <td class="centered" th:text="${totalHorasTeoriaSemestrales}"></td>
+            <td class="centered" th:text="${totalHorasPracticaSemestrales}"></td>
+            <td class="centered" th:text="${totalHorasSemestrales}"></td>
+        </tr>
+        </tfoot>
+    </table>
+    <br/>
+    <div style="width: 100%; position: relative; font-family: Arial, sans-serif;">
+        <!-- Contenido de la izquierda -->
+        <div style="float: left; width: 50%; padding-left: 20px;">
+
+        </div>
+
+        <!-- Contenido de la derecha -->
+        <div style="float: right; width: 90%; text-align: center; padding-right: 20px;">
+            <span style="font-size: 12px;">Un semestre equivale a 15 semanas</span>
+            <br/><br/>
+            <span style="font-size: 12px;">La Molina, <span th:text="${fecha}"></span></span>
+            <br/><br/><br/><br/><br/>
+            <span style="font-size: 12px; display: block; font-weight: bold;">Alipio Ccorimanya Ccasani</span>
+            <br/>
+            <span style="font-size: 12px; display: block; font-weight: bold;">Jefe de la Unidad de Registro</span>
+            <!-- <img height="100px" src="firmaSelloAlipio.png" style="margin-top: 10px;" /> -->
+        </div>
+    </div>
+
+</div>
+<div></div>
+</body>
+</html>
