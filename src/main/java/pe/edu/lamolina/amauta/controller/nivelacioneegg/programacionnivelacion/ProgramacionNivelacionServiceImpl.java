@@ -1007,6 +1007,11 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         return null;
     }
 
+    @Override
+    public List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion) {
+        return notaAlumnoNivelacionDAO.allBySeccion(seccion);
+    }
+
     private Integer getEdadMinutos(CursoNivelacion cursoNiv) {
         if (cursoNiv.getCambios() != null) {
             return 7 * 24 * 60;

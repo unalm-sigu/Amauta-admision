@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.Acumulador;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
@@ -56,7 +57,7 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
         CursoNivelacion seccion = (CursoNivelacion) model.get("seccion");
         List<NotaAlumnoNivelacion> alumnado = (List<NotaAlumnoNivelacion>) model.get("alumnado");
 
-        this.crearHeaderDetalle(excelUtil, ciclo, seccion, rowCounterDetalle);
+        this.crearHeaderDetalle(excelUtil, ciclo, seccion, alumnado, rowCounterDetalle);
         rowCounterDetalle.incrementar();
         this.crearItemsDetalle(excelUtil, alumnado, rowCounterDetalle);
     }
@@ -69,7 +70,12 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
         {
 
             int col = 0;
-            excelUtil.setWidthColumn(col, 5000);
+            excelUtil.setWidthColumn(col, 1200);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Nº");
+            col++;
+
+            excelUtil.setWidthColumn(col, 4500);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Matrícula");
             col++;
@@ -89,7 +95,7 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
             excelUtil.replaceVal(rowCounter.getValor(), col, "Correo");
             col++;
 
-            excelUtil.setWidthColumn(col, 9000);
+            excelUtil.setWidthColumn(col, 4000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Celular");
             col++;
@@ -102,6 +108,7 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
             rowCounter.incrementar();
         }
 
+        Acumulador numeroAlumno = new Acumulador(1);
         matriculados.forEach(inscrito -> {
             Alumno alumno = inscrito.getAlumnoNivelacion().getAlumno();
             Persona persona = alumno.getPersona();
@@ -109,6 +116,11 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
             CicloAcademico cicloIngreso = alumno.getCicloIngreso();
 
             int col = 0;
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, numeroAlumno.getValor());
+            numeroAlumno.incrementar();
+            col++;
+
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, alumno.getCodigo());
             col++;
@@ -137,7 +149,7 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
         });
     }
 
-    private void crearHeaderDetalle(ExcelHelper excelUtil, CicloAcademico ciclo, CursoNivelacion seccion, Acumulador rowCounter) {
+    private void crearHeaderDetalle(ExcelHelper excelUtil, CicloAcademico ciclo, CursoNivelacion seccion, List<NotaAlumnoNivelacion> inscritos, Acumulador rowCounter) {
         DateTime today = new DateTime();
         ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 6);
 
@@ -145,38 +157,55 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Lista de alumnos matriculados en nivelación de ingresantes");
         rowCounter.incrementar();
 
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Ciclo");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, ciclo.getDescripcion2());
+        excelUtil.replaceVal(rowCounter.getValor(), 2, ciclo.getDescripcion2());
         rowCounter.incrementar();
 
         Curso curso = seccion.getCursoCiclo().getCurso();
         String datoCurso = curso.getCodigo() + " - " + curso.getNombre();
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Curso");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, datoCurso);
+        excelUtil.replaceVal(rowCounter.getValor(), 2, datoCurso);
         rowCounter.incrementar();
 
+        Docente docente = seccion.getDocente();
+        Persona persona = docente == null ? null : docente.getPersona();
+        String datoDocente = docente == null ? "Desconocido" : docente.getCodigo();
+        if (persona != null) {
+            datoDocente += " - " + persona.getApellidosNombres();
+        }
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
+        excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounter.getValor(), 0, "Docente");
+        excelUtil.replaceVal(rowCounter.getValor(), 2, datoDocente);
+        rowCounter.incrementar();
+
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Sección");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, seccion.getCodigo());
+        excelUtil.replaceVal(rowCounter.getValor(), 2, seccion.getCodigo());
         rowCounter.incrementar();
 
-        String rango = TypesUtil.getStringDate(seccion.getFechaInicio(), "'Del' dd/MMM/yyyy ", "es");
-        rango += TypesUtil.getStringDate(seccion.getFechaFin(), "'al' dd/MMM/yyyy ", "es");
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
-        excelUtil.replaceVal(rowCounter.getValor(), 0, "Periodo dictado");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, rango);
+        excelUtil.replaceVal(rowCounter.getValor(), 0, "Total alumnos");
+        excelUtil.replaceStyle(rowCounter.getValor(), 2, excelUtil.getNumerico(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounter.getValor(), 2, inscritos.size());
         rowCounter.incrementar();
 
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Fecha reporte");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, capitaliza(TypesUtil.getStringDate(today.toDate(), "EEEE dd 'de' MMMM 'de' yyyy", "es")));
+        excelUtil.replaceVal(rowCounter.getValor(), 2, capitaliza(TypesUtil.getStringDate(today.toDate(), "EEEE dd 'de' MMMM 'de' yyyy", "es")));
         rowCounter.incrementar();
 
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounter.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounter.getValor(), 0, "Hora reporte");
-        excelUtil.replaceVal(rowCounter.getValor(), 1, capitaliza(TypesUtil.getStringDate(today.toDate(), "HH:mm")));
+        excelUtil.replaceVal(rowCounter.getValor(), 2, capitaliza(TypesUtil.getStringDate(today.toDate(), "HH:mm")));
         rowCounter.incrementar();
     }
 

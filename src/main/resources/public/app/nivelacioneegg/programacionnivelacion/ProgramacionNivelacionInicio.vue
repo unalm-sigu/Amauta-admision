@@ -81,6 +81,12 @@
                                                     {{item.matriculados}}
                                                 </span>
                                             </span>
+
+                                            <span class="block pointer" v-if="item.matriculados > 0">
+                                                <a v-on:click.prevent="descargar(item)">
+                                                    <i class="fa fa-file-excel-o fa-lg text-success"></i>
+                                                </a>
+                                            </span>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -247,6 +253,36 @@
 
                 this.$refs.modalConfirm.open(config);
             },
+            descargar(item) {
+                axios({
+                    url: APP.url(`${rutaModulo}/${item.id}/reporteAlumnosSeccion`),
+                    method: 'POST',
+                    responseType: 'blob'
+                }).then((response) => {
+                    this.showReporte(response);
+                }).catch(error => {
+                    console.log(error);
+                    this.processReporte = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            },
+            showReporte(response) {
+                let $vue = this;
+                let fileName = response
+                        .headers["content-disposition"]
+                        .replace("attachment; filename=", "")
+                        .replace(/"/g, '');
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                this.processReporte = false;
+            },
+
             reactivar(item) {
                 this.$refs.modalReactivar.open(item, this.$refs.raptorCursos);
             },
