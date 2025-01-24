@@ -42,8 +42,13 @@ public class AlumnadoServiceImpl implements AlumnadoService {
     }
 
     @Override
-    public List<NotaAlumnoNivelacion> allMatriculados(DynatableFilter filter, CursoNivelacion seccion) {
+    public List<NotaAlumnoNivelacion> allMatriculadosDynatable(DynatableFilter filter, CursoNivelacion seccion) {
         return notaAlumnoNivelacionDAO.allByDynatableSeccion(filter, seccion);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion) {
+        return notaAlumnoNivelacionDAO.allBySeccion(seccion);
     }
 
 }

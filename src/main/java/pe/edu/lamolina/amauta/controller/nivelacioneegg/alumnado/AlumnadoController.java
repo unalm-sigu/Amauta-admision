@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnado.reporte.ExcelMatriculadosNivelacion;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -37,6 +39,7 @@ public class AlumnadoController {
 
     private final AlumnadoService service;
     private final VerificadorService verificadorService;
+    private final ExcelMatriculadosNivelacion excelMatriculadosNivelacion;
 
     @RequestMapping("{seccion}/alumnado")
     public String alumnado(
@@ -69,7 +72,7 @@ public class AlumnadoController {
         Docente docente = ds.getDocente();
 
         CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), docente, ciclo);
-        List<NotaAlumnoNivelacion> alumnos = service.allMatriculados(filter, seccion);
+        List<NotaAlumnoNivelacion> alumnos = service.allMatriculadosDynatable(filter, seccion);
         ArrayNode array = this.createAlumnosJson(alumnos);
 
         DynatableResponse json = new DynatableResponse();
@@ -78,6 +81,25 @@ public class AlumnadoController {
         json.setFiltered(filter.getFiltered());
 
         return json;
+    }
+
+    @RequestMapping("{seccion}/reporteAlumnos")
+    public ModelAndView reporteRecargasComedor(
+            @PathVariable("seccion") Long idSeccion,
+            HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Docente docente = ds.getDocente();
+
+        CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), docente, ciclo);
+        List<NotaAlumnoNivelacion> alumnado = service.allAlumnadoBySeccion(seccion);
+
+        model.addAttribute("alumnado", alumnado);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("ciclo", ciclo);
+
+        return new ModelAndView(excelMatriculadosNivelacion);
     }
 
     private ObjectNode createCicloJson(CicloAcademico ciclo) {

@@ -54,7 +54,7 @@ public interface ProgramacionNivelacionService {
 
     void reabrirNotas(CursoNivelacion cursoNiv, DataSessionPivot ds);
 
-    void changeEstado(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, DataSessionPivot ds);
+    void changeEstado(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, CicloAcademico ciclo, DataSessionPivot ds);
 
     List<Dia> allDias();
 

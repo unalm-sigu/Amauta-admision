@@ -163,7 +163,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         }
 
         List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allActivosByCiclo(ciclo);
-        
+
         Map<Long, List<CursoNivelacion>> mapCursoNiv = cursosNiv.stream()
                 .collect(Collectors.groupingBy(cn -> cn.getCursoCiclo().getCurso().getId()));
 
@@ -296,7 +296,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
     @Override
     @Transactional
-    public synchronized void retirarCurso(NotaAlumnoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
+    public synchronized void retirarCurso(NotaAlumnoNivelacion form, CursoNivelacion seccion, CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
 
         Assert.isNotNull(form.getCursoNivelacion(), "No ha indicado la sección de la cual retirar");
@@ -310,14 +310,18 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CicloAcademico cicloBD = mtble.getAlumnoNivelacion().getCicloAcademico();
         Assert.isTrue(cicloBD.getId().equals(ciclo.getId()), "El registro no corresponde el ciclo actual");
 
-        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getCursoNivelacion().getId());
-        Assert.isNotNull(cursoNiv, "No existe la sección que ha seleccionado");
-        Assert.isTrue(cursoNiv.getId().equals(form.getCursoNivelacion().getId()), "La sección no corresponde al registro seleccionado");
-        Assert.isFalse(cursoNiv.getEstadoNotasEnum() == CER, "Esta sección ya cerró su acta de notas");
+        CursoNivelacion seccionBD = seccion == null ? null : seccion;
+        if (seccion == null) {
+            seccionBD = cursoNivelacionDAO.find(form.getCursoNivelacion().getId());
+        }
 
-        cursoNiv.setDisponibles(cursoNiv.getDisponibles() + 1);
-        cursoNiv.setMatriculados(cursoNiv.getMatriculados() - 1);
-        cursoNivelacionDAO.update(cursoNiv);
+        Assert.isNotNull(seccionBD, "No existe la sección que ha seleccionado");
+        Assert.isTrue(seccionBD.getId().equals(form.getCursoNivelacion().getId()), "La sección no corresponde al registro seleccionado");
+        Assert.isFalse(seccionBD.getEstadoNotasEnum() == CER, "Esta sección ya cerró su acta de notas");
+
+        seccionBD.setDisponibles(seccionBD.getDisponibles() + 1);
+        seccionBD.setMatriculados(seccionBD.getMatriculados() - 1);
+        cursoNivelacionDAO.update(seccionBD);
 
         mtble.setCursoNivelacion(null);
         mtble.setEstadoEnum(NMAT);

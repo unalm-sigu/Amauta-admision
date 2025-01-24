@@ -122,14 +122,40 @@
         computed: {},
 
         methods: {
-            descargar() {
-                //this.$refs.modalAddLeccion.open(this.$refs.raptor);
-            },
             reloadSeccion() {
                 myUtils.axios(VUE_AXIOS.structGetData({
                     url: `/${rutaModulo}/findSeccion`,
                     body: {id: this.seccion.id}
                 })).then((resp) => this.seccion = resp.data.data);
+            },
+            descargar() {
+                axios({
+                    url: APP.url(`${rutaModulo}/${this.seccion.id}/reporteAlumnos`),
+                    method: 'POST',
+                    responseType: 'blob'
+                }).then((response) => {
+                    this.showReporte(response);
+                }).catch(error => {
+                    console.log(error);
+                    this.processReporte = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            },
+            showReporte(response) {
+                let $vue = this;
+                let fileName = response
+                        .headers["content-disposition"]
+                        .replace("attachment; filename=", "")
+                        .replace(/"/g, '');
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                this.processReporte = false;
             },
 
             classEstado(item) {

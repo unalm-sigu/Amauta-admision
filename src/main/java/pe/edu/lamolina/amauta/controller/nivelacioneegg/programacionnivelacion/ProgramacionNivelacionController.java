@@ -275,7 +275,7 @@ public class ProgramacionNivelacionController {
 
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("changeHorasDictado")
     public JsonResponse changeHorasDictado(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
@@ -335,8 +335,9 @@ public class ProgramacionNivelacionController {
             @RequestBody CursoNivelacion cursoNiv, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
         SeccionEstadoEnum estadoEnum = SeccionEstadoEnum.valueOf(estado);
-        service.changeEstado(cursoNiv, estadoEnum, ds);
+        service.changeEstado(cursoNiv, estadoEnum, ciclo, ds);
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se modificó el estado de la sección satisfactoriamente");

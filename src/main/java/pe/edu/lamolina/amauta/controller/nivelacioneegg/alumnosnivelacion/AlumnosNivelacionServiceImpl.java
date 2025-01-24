@@ -48,6 +48,7 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
 @Slf4j
@@ -78,8 +79,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     }
 
     @Override
-    public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        List<AlumnoNivelacion> alumnosNiv = alumnoNivelacionDAO.allByDynatable(filter, ciclo);
+    public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<Carrera> carreras, String todo) {
+        List<AlumnoNivelacion> alumnosNiv = alumnoNivelacionDAO.allByDynatable(filter, ciclo, carreras, todo);
         List<NotaAlumnoNivelacion> notasAlumnosAll = notaAlumnoNivelacionDAO.allByAlumnosNivelacion(alumnosNiv);
 
         List<TemaCiclo> temasCiclosAll = notasAlumnosAll.stream()
