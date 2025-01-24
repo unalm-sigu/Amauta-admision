@@ -198,7 +198,7 @@ public class MatriculablesNivelacionController {
     @RequestMapping("retirarCurso")
     public JsonResponse retirarCurso(@RequestBody NotaAlumnoNivelacion alumnoCurso, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.retirarCurso(alumnoCurso, ds.getCicloAcademico(), ds);
+        service.retirarCurso(alumnoCurso, null, ds.getCicloAcademico(), ds);
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se retiró satisfactoriamente");

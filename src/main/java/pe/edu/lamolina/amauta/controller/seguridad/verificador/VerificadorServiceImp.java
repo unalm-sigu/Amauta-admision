@@ -50,6 +50,7 @@ import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.ASOERA;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.BAN;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPACT;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.DEPFIS;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.EEGG;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.EPG;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OBUAE;
 import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
@@ -107,7 +108,7 @@ public class VerificadorServiceImp implements VerificadorService {
             if (oficina.getCodigoEnum() == VACA || oficina.getCodigoEnum() == OERA) {
                 return CantidadItemsEnum.TODOS;
             }
-            if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
+            if (Arrays.asList(OERA, BAN, EEGG).contains(oficina.getCodigoEnum())) {
                 if (tipoOficinaSolicitud == ESP) {
                     return CantidadItemsEnum.TODOS;
                 }
@@ -149,15 +150,12 @@ public class VerificadorServiceImp implements VerificadorService {
                 if (tipoSolicitud == DPTO) {
                     lista.addAll(departamentoAcademicoDAO.all());
                     return lista;
-                }
-            }
-            if (oficina.getCodigoEnum() == EPG) {
-                if (tipoSolicitud == ESP) {
+                } else if (tipoSolicitud == ESP) {
                     lista.addAll(carreraDAO.allPosGrado());
                     return lista;
                 }
             }
-            if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
+            if (Arrays.asList(OERA, BAN, EEGG).contains(oficina.getCodigoEnum())) {
                 if (tipoSolicitud == ESP) {
                     lista.addAll(carreraDAO.allPrePosGrado());
                     return lista;
@@ -485,7 +483,6 @@ public class VerificadorServiceImp implements VerificadorService {
             if (esAdministradorTutor) {
                 log.info("-Usuario {} tiene el rol {} de ADMINISTRADOR_TUTOR", ds.getUsuario().getId(), RolEnum.ADMINISTRADOR_TUTORIA);
                 List<Oficina> oficinasTutoria = oficinaDAO.allCoordinacionTutoria();
-                //List<Oficina> oficinasTutoria = oficinaDAO.findByCode(ASOERA.name());
                 oficinas.addAll(oficinasTutoria);
 
             } else {
@@ -1156,7 +1153,7 @@ public class VerificadorServiceImp implements VerificadorService {
             log.info("rol={} oficina={}", userRol.getRol().getCodigo(), userRol.getOficina().getCodigo());
         }
 
-        Oficina oficinaEEGG = oficinaDAO.findByCode("EG");
+        Oficina oficinaEEGG = oficinaDAO.findByCode(EEGG.name());
 
         Optional<UsuarioRol> rolBuscado = rolesUser.stream()
                 .filter(userRol -> areaDentroOficinaMain(userRol.getOficina(), oficinasOrganizadas, oficinaEEGG))

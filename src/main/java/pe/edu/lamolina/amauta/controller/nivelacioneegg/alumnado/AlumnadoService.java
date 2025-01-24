@@ -11,6 +11,8 @@ public interface AlumnadoService {
 
     CursoNivelacion findSeccion(CursoNivelacion cursoNiv, Docente docente, CicloAcademico ciclo);
 
-    List<NotaAlumnoNivelacion> allMatriculados(DynatableFilter filter, CursoNivelacion seccion);
+    List<NotaAlumnoNivelacion> allMatriculadosDynatable(DynatableFilter filter, CursoNivelacion seccion);
+
+    List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion);
 
 }
