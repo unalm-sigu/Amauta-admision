@@ -18,6 +18,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.zelper.reportes.ExcelHelper;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.general.Persona;
@@ -78,6 +79,21 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
             excelUtil.replaceVal(rowCounter.getValor(), col, "Alumno");
             col++;
 
+            excelUtil.setWidthColumn(col, 10000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Especialidad");
+            col++;
+
+            excelUtil.setWidthColumn(col, 9000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Correo");
+            col++;
+
+            excelUtil.setWidthColumn(col, 9000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Celular");
+            col++;
+
             excelUtil.setWidthColumn(col, 4000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Ciclo ingreso");
@@ -89,6 +105,7 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
         matriculados.forEach(inscrito -> {
             Alumno alumno = inscrito.getAlumnoNivelacion().getAlumno();
             Persona persona = alumno.getPersona();
+            Carrera carrera = alumno.getCarrera();
             CicloAcademico cicloIngreso = alumno.getCicloIngreso();
 
             int col = 0;
@@ -98,6 +115,18 @@ public class ExcelMatriculadosNivelacion extends AbstractView {
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
             excelUtil.replaceVal(rowCounter.getValor(), col, persona.getApellidosNombres());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
+            excelUtil.replaceVal(rowCounter.getValor(), col, carrera.getNombre());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
+            excelUtil.replaceVal(rowCounter.getValor(), col, persona.getEmail());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
+            excelUtil.replaceVal(rowCounter.getValor(), col, persona.getCelular());
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
