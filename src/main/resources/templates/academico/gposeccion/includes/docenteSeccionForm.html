@@ -1,13 +1,13 @@
-<div class="row" th:if="${esEditorOera or esEditorMaestria}">
-    <div class="col-md-0">
-        <span class="v-middle"> 
+<div class="row col-md-3" th:if="${esEditorOera or esEditorMaestria}" style="display: flex; align-items: center;">
+    <div class="col-md-0" style="flex: 0;">
+        <span class="v-middle">
             <label class="switch">
                 <input type="checkbox" v-model="habilDep" />
                 <span></span>
             </label>
         </span>
     </div>
-    <div class="col-md-2 bold">Busqueda por departamento</div>
+    <div class="col-md-2 bold" style="flex: 1; margin-left: 10px;">Búsqueda por departamento</div>
 </div>
 
 <table class="table">

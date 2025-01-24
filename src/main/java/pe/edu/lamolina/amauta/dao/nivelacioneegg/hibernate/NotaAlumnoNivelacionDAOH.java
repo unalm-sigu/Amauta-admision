@@ -52,12 +52,13 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "temaExamen te", "curso cur")
                 .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico cai")
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
                 .filter("ci.id", ciclo)
                 .filter("nan.esMatriculable", 1)
-                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo")
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo", "cai.codigoAnterior", "mi.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("nan.id DESC");
@@ -95,14 +96,33 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alumnoNivelacion an", "temaExamen te", "curso cur")
                 .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("alu.postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico cai")
                 .join("an.cicloAcademico ci", "cursoNivelacion cn")
                 .leftJoin("per.tipoDocumento", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
                 .filter("cn.id", cursoNiv)
                 .filter("an.estado", MAT)
                 .filter("nan.estado", MAT)
-                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo")
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo", "cai.codigoAnterior", "mi.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NotaAlumnoNivelacion> allBySeccion(CursoNivelacion cursoNiv) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso cur")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("alu.postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico cai")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
+                .filter("cn.id", cursoNiv)
+                .filter("an.estado", MAT)
+                .filter("nan.estado", MAT)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
 
         return all(sql);
@@ -194,7 +214,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .filter("nan.esMatriculable", 1)
                 .in("an.estado", Arrays.asList(NMAT, MAT))
                 .filter("nan.estado", NMAT)
-                .filter("ci.id", ciclo);
+                .filter("ci.id", ciclo)
+                .orderBy("car.nombre", "per.paterno", "per.materno", "per.nombres");
 
         return all(sql);
     }

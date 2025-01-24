@@ -3,12 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.alumno;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -119,77 +112,71 @@ public class AlumnoController {
 
         String codeRequest = verificadorService.generateCodeRequest();
 
-        DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        try {
+        List<Carrera> carreras = new ArrayList();
+        List<Alumno> alumnos = new ArrayList();
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
 
-            List<Carrera> carreras = new ArrayList();
-            List<Alumno> alumnos = new ArrayList();
-            VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+        logger.info("RQ={} cantidadEnum {}", codeRequest, cantidadEnum.name());
+        List<RolEnum> rolCodigos = new ArrayList();
 
-            logger.info("RQ={} cantidadEnum {}", codeRequest, cantidadEnum.name());
-            List<RolEnum> rolCodigos = new ArrayList();
-
-            for (Rol rol : ds.getRoles()) {
-                rolCodigos.add(rol.getCodigoEnum());
-                logger.debug("Rol {} {}", rol.getCodigo(), rol.getNombre());
-            }
-
-            if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
-                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
-                logger.info("RQ={} total-acceso-carreras={}", codeRequest, carreras.size());
-            }
-
-            if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
-                alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
-                logger.info("RQ={} retornaron-count-alumnos={}", codeRequest, alumnos.size());
-            }
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (Alumno alumn : alumnos) {
-                ObjectNode node = JsonHelper.createJson(alumn, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "id", "codigo", "estado", "estadoEnum",
-                            "promedioAcumulado", "creditosCursados", "creditosAprobados",
-                            "persona.id",
-                            "persona.apellidosNombres",
-                            "persona.rutaFoto",
-                                "persona.foto",
-                                "persona.sexo",
-                            "persona.tipoFoto",
-                            "persona.tipoDocumento.simbolo",
-                            "persona.numeroDocIdentidad",
-                            "persona.telefono",
-                            "persona.celular",
-                            "persona.email",
-                            "persona.emailCompania",
-                            "carrera.nombre",
-                            "carrera.codigo",
-                            "carrera.tipoEnum",
-                            "carrera.tipo",
-                            "carrera.facultad.codigo",
-                            "carrera.facultad.nombre",
-                            "modalidadEstudio.codigo",
-                            "situacionAcademica.codigo",
-                            "situacionAcademica.nombre",
-                            "modalidadEstudio.nombre",
-                            "cicloIngreso.descripcion",
-                            "cicloActivo.descripcion"
-                        });
-
-                array.add(node);
-            }
-
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+        for (Rol rol : ds.getRoles()) {
+            rolCodigos.add(rol.getCodigoEnum());
+            logger.debug("Rol {} {}", rol.getCodigo(), rol.getNombre());
         }
+
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, codeRequest);
+            logger.info("RQ={} total-acceso-carreras={}", codeRequest, carreras.size());
+        }
+
+        if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+            alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
+            logger.info("RQ={} retornaron-count-alumnos={}", codeRequest, alumnos.size());
+        }
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (Alumno alumn : alumnos) {
+            ObjectNode node = JsonHelper.createJson(alumn, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "id", "codigo", "estado", "estadoEnum",
+                        "promedioAcumulado", "creditosCursados", "creditosAprobados",
+                        "persona.id",
+                        "persona.apellidosNombres",
+                        "persona.rutaFoto",
+                        "persona.foto",
+                        "persona.sexo",
+                        "persona.tipoFoto",
+                        "persona.tipoDocumento.simbolo",
+                        "persona.numeroDocIdentidad",
+                        "persona.telefono",
+                        "persona.celular",
+                        "persona.email",
+                        "persona.emailCompania",
+                        "carrera.nombre",
+                        "carrera.codigo",
+                        "carrera.tipoEnum",
+                        "carrera.tipo",
+                        "carrera.facultad.codigo",
+                        "carrera.facultad.nombre",
+                        "modalidadEstudio.codigo",
+                        "situacionAcademica.codigo",
+                        "situacionAcademica.nombre",
+                        "modalidadEstudio.nombre",
+                        "cicloIngreso.descripcion",
+                        "cicloActivo.descripcion"
+                    });
+
+            array.add(node);
+        }
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 

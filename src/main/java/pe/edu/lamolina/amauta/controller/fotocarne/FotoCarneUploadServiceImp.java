@@ -53,6 +53,7 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    @Transactional
     public void procesarFotos(DataSessionPivot ds, String rutaFotos) {
 
         logger.debug("inicia carga de  foto {}", rutaFotos);
@@ -188,7 +189,7 @@ public class FotoCarneUploadServiceImp implements FotoCarneUploadService {
 
         Path start = Paths.get(rutaDir);
 
-        try ( Stream<Path> stream = Files.walk(start, 1)) {
+        try (Stream<Path> stream = Files.walk(start, 1)) {
 
             List<String> collect = stream
                     .map(String::valueOf)

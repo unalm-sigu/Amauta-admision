@@ -54,7 +54,7 @@ public interface ProgramacionNivelacionService {
 
     void reabrirNotas(CursoNivelacion cursoNiv, DataSessionPivot ds);
 
-    void changeEstado(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, DataSessionPivot ds);
+    void changeEstado(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, CicloAcademico ciclo, DataSessionPivot ds);
 
     List<Dia> allDias();
 
@@ -63,5 +63,7 @@ public interface ProgramacionNivelacionService {
     List<PeriodoDTO> allSemanas(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 
     List<PeriodoDTO> addSemana(List<PeriodoDTO> semanasForm, String direccion);
+
+    public void changeHorasDictado(CursoNivelacion cursoNiv, DataSessionPivot ds);
 
 }

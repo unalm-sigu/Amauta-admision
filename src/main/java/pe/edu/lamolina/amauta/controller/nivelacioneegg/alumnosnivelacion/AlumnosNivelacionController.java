@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -22,10 +23,14 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnoNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
@@ -40,6 +45,7 @@ public class AlumnosNivelacionController {
 
     private final AlumnosNivelacionService service;
     private final ChangeAlumnoNivelacionService changeAlumnoNivelacionService;
+    private final VerificadorService verificadorService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -58,7 +64,19 @@ public class AlumnosNivelacionController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<AlumnoNivelacion> alumnosNivelacion = service.allAlumnosByDynatable(filter, ciclo);
+        List<AlumnoNivelacion> alumnosNivelacion = new ArrayList();
+
+        List<Carrera> carreras = new ArrayList();
+        VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+
+        if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+            carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds, null);
+            log.info("[list] total-acceso-carreras={}", carreras.size());
+        }
+
+        if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+            alumnosNivelacion = service.allAlumnosByDynatable(filter, ciclo, carreras, cantidadEnum.name());
+        }
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoNivelacion alumnoNiv : alumnosNivelacion) {
@@ -66,6 +84,8 @@ public class AlumnosNivelacionController {
                     .from(alumnoNiv)
                     .join("alumno", "id,codigo")
                     .join("alumno.modalidadEstudio", "id,codigo,nombre")
+                    .join("alumno.postulantePregrado.modalidadIngreso", "id,nombre")
+                    .join("alumno.postulantePregrado.cicloPostula.cicloAcademico", "id,descripcion")
                     .join("alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
                     .join("alumno.carrera.facultad", "id,codigo,nombre")
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")

@@ -277,6 +277,19 @@ public class ProgramacionNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("changeHorasDictado")
+    public JsonResponse changeHorasDictado(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.changeHorasDictado(cursoNiv, ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage("Se modificó las horas dictado del curso satisfactoriamente");
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("changeAula")
     public JsonResponse changeAula(@RequestBody CursoNivelacion cursoNiv, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -322,8 +335,9 @@ public class ProgramacionNivelacionController {
             @RequestBody CursoNivelacion cursoNiv, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
         SeccionEstadoEnum estadoEnum = SeccionEstadoEnum.valueOf(estado);
-        service.changeEstado(cursoNiv, estadoEnum, ds);
+        service.changeEstado(cursoNiv, estadoEnum, ciclo, ds);
 
         JsonResponse json = new JsonResponse();
         json.setMessage("Se modificó el estado de la sección satisfactoriamente");

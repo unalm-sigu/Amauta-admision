@@ -19,7 +19,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaReincorporacionHtml;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -34,7 +34,7 @@ public class TramiteReincorporacionController {
     TramiteReincorporacionService reincorporacionService;
 
     @Autowired
-    PdfHtml reporteTramiteReincorporacion;
+    PdfPieDePaginaReincorporacionHtml reporteTramiteReincorporacion;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -65,6 +65,7 @@ public class TramiteReincorporacionController {
                     .join("tramite.persona")
                     .join("tramite.alumno")
                     .join("tramite.alumno.carrera")
+                    .join("tramite.alumno.cicloActivo", "id")
                     .join("tramite.alumno.carrera.facultad")
                     .join("tramite.cicloAcademico")
                     .join("tramite.estadoTramite", "id,nombre")

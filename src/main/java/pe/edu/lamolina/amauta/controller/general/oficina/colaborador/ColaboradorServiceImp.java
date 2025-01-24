@@ -602,6 +602,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             }
         }
 
+        log.info("[updateColaborador] colaborador.funcionesColborador.size={}", colaboradorForm.getFuncionColaborador().size());
         for (FuncionColaborador funcionColaborador : colaboradorForm.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             if (mapTengo.get(perfil.getId()) == null) {
@@ -627,10 +628,11 @@ public class ColaboradorServiceImp implements ColaboradorService {
             log.info("[updateColaborador] perfil-nuevo.id={}", perfil.getId());
         }
 
-        log.info("[updateColaborador] perfiles-nuevos.size={}", perfiles.size());
+        log.info("[updateColaborador] 1.perfiles-nuevos.size={}", perfiles.size());
         if (usuarioColaborador != null) {
             Oficina oficinaMain = oficinaDAO.find(colaboradorForm.getOficina().getId());
             perfiles.add(colaboradorForm.getCargo());
+            log.info("[updateColaborador] 2.perfiles-nuevos.size={}", perfiles.size());
             updateUserRol(usuarioColaborador, perfiles, oficinaMain, colaboradorForm, ds);
         }
     }
@@ -680,8 +682,16 @@ public class ColaboradorServiceImp implements ColaboradorService {
             Colaborador colaborador, DataSessionPivot ds) {
 
         log.info("[updateUserRol] Inicio");
+        log.info("[updateUserRol] perfilesNuevos.size={}", perfilesCompaniaNuevos.size());
+        for (PerfilCompania perfil : perfilesCompaniaNuevos) {
+            log.info("[updateUserRol] perfilNuevo.id={}", perfil.getId());
+        }
+
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfiles(perfilesCompaniaNuevos);
         log.info("[updateUserRol] funcionRolNuevos.size={}", funcionRolNuevos.size());
+        for (FuncionRol fr : funcionRolNuevos) {
+            log.info("[updateUserRol] funcionRolNuevo.id={} rol={} funcion={}", fr.getId(), fr.getRol().getId(), fr.getPerfilCompania().getId());
+        }
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
         List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allByUserOficina(usuarioColaborador, oficinaMain);

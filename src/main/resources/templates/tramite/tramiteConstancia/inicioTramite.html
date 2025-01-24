@@ -41,7 +41,7 @@
                     <label>¿Que documento necesita?</label>
                     <multiselect                                                   
                         v-model='solicitud.tipoDocumentoAcademico'
-                        v-bind:internal-search='false'
+                        v-bind:internal-search='true'
                         v-bind:limit='15'
                         v-bind:options='tiposDocumentoAcademico'
                         placeholder=" "
@@ -71,6 +71,20 @@
                         track-by="id"
                         v-on:select="costoDocumentoEvent"
                         > <!--v-bind:disabled='isUpdate'-->
+                    </multiselect>
+                </div>
+            </div>
+
+            <div class="col-md-6" v-if="solicitud.tipoDocumentoAcademico?.nombre === 'Constancia TPC'">
+                <div class="form-group">
+                    <label>¿15 o 16 semanas?</label>
+                    <multiselect
+                            v-model="solicitud.valido"
+                            :options="['15', '16']"
+                            placeholder="Seleccione una opción"
+                            :show-labels="false"
+                            :allow-empty="false"
+                    >
                     </multiselect>
                 </div>
             </div>

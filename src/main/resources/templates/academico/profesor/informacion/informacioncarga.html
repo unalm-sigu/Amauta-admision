@@ -36,9 +36,9 @@
                 </td>
             <template v-for="(seccion,idx) in item.secciones" v-if="idx==0">
                 <td class="v-middle text-center">
-                    <i v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"/>
-                    <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
-                    <i v-else="" class="fa fa-book fa-lg"/>
+                    <i v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"></i>
+                    <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"></i>
+                    <i v-else="" class="fa fa-book fa-lg"></i>
                 </td>
 
                 <td class="v-middle text-center">
@@ -100,9 +100,9 @@
             </tr>
             <tr v-for="(seccion,idx) in item.secciones" v-if="idx>0">
                 <td class="v-middle text-center">
-                    <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"/>
-                    <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"/>
-                    <i v-else="" class="fa fa-book fa-lg"/>
+                    <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"></i>
+                    <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"></i>
+                    <i v-else="" class="fa fa-book fa-lg"></i>
                 </td>
                 <td class="v-middle text-center">
                     <span class="block">{{seccion.codigo2}}</span>

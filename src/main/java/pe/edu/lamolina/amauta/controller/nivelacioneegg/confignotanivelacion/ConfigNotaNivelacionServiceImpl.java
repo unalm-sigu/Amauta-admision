@@ -634,13 +634,14 @@ public class ConfigNotaNivelacionServiceImpl implements ConfigNotaNivelacionServ
     @Override
     public List<ModalidadTemaCiclo> allConfiguracionsByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         List<ModalidadTemaCiclo> items = modalidadTemaCicloDAO.allByDynatable(filter, ciclo);
+        
         items.stream()
                 .filter(mtc -> mtc.getTemaCiclo() == null)
                 .forEach(mtc -> {
                     TemaExamen tema = mtc.getTemaExamen();
                     TemaCiclo temaPadre = this.crearTemaCiclo(tema, items, mtc.getModalidadIngreso(), ciclo);
                     mtc.setTemaCiclo(temaPadre);
-                });
+                }); 
         return items;
     }
 

@@ -80,6 +80,17 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
+    public List<Docente> allByCodeNN(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .leftJoin("persona per", "modalidadEstudio", "departamentoAcademico")
+                .like("doc.codigo", codigo);
+
+        return all(sql);
+    }
+
+    
+    @Override
     public List<Docente> allByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")

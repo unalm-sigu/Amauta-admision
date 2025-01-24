@@ -3,7 +3,7 @@
         <title th:inline="text"> Tramite Reincorporación</title>
         <style>
             body{
-                font-size: 14px !important;	
+                font-size: 14px !important;
             }
 
             .fecha {
@@ -60,6 +60,7 @@
 
     </head>
     <body>
+
         <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
 
         <div style="text-align: right; padding-top: 20px; padding-bottom: 20px;">
@@ -78,13 +79,12 @@
             </table>
         </div>
         <div style="text-align: center">
-            <b class="block" th:inline="text"> INFORME ACADÉMICO PARA REINCORPORACIÓN
-            </b>
+            <b class="block" th:inline="text"> INFORME ACADÉMICO PARA REINCORPORACIÓN </b>
         </div>
-        <div >            
+        <div>            
             <table class="tabled table-dirigido" align="center">
-                <tbody >
-                    <tr >
+                <tbody>
+                    <tr>
                         <td> 
                             <span >Informe N°: </span>
                         </td>
@@ -93,15 +93,15 @@
                         </td>
 
                     </tr>
-                    <tr >
-                        <td >
+                    <tr>
+                        <td>
                             <span >De: </span>
                         </td>
                         <td>
                             <span th:text="'Unidad de Registro'"></span>
                         </td>
                     </tr>
-                    <tr >
+                    <tr>
                         <td>
                             <span >Al </span>
                         </td>
@@ -109,7 +109,7 @@
                             <span th:text="'Decano de la facultad de '+${alumno.carrera.facultad.nombre}"></span>
                         </td>
                     </tr>
-                    <tr >
+                    <tr>
                         <td> 
                             <span >Asunto: </span>
                         </td>
@@ -118,12 +118,12 @@
                         </td>
 
                     </tr>
-                    <tr >
+                    <tr>
                         <td> 
-                            <span >Fecha: </span>
+                            <span>Fecha: </span>
                         </td>
                         <td>
-                            <span > La Molina,    <span th:text=" ${fecha}"></span> </span>
+                            <span> La Molina,    <span th:text=" ${fecha}"></span> </span>
                         </td>
 
                     </tr>
@@ -133,87 +133,105 @@
             </table>
         </div>
         <br/>
-        <div>
-            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
+        <div th:if="${alumnoCiclo}">
+            <span>Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
                 de matricula, quien ha realizado estudios hasta el <b th:text="${alumno.cicloActivo.descripcion}"></b> y ha obtenido el siguiente resultado:</span>
         </div>
-
-        <div >            
-            <table  align="center">
-                <thead >
-                    <tr  >
-                        <th colspan="2" style="text-align: center"><b>SITUACIÓN ACADEMICO CICLO <span th:text="${alumno.cicloActivo.descripcion}"></span></b></th>
-                    </tr>
-                </thead>
-                <tbody >
-                    <tr >
-                        <td >
-                            <span >PROMEDIO PONDERADO SEMESTRAL: </span>
-                        </td>
-                        <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >PROMEDIO PONDERADO ACUMULADO: </span>
-                        </td>
-                        <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TOTAL DE CRÉDITOS CURSADOS: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumno.creditosCursados}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TOTAL DE CREDITOS APROBADOS: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >SITUACIÓN ACADÉMICA: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumnoCiclo.situacionFinal.nombre}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TUTOR: </span>
-                        </td>
-                        <td th:if='${alumno.consejero != null  and alumno.consejero.colaborador != null}'>
-                            <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
-
-                        </td>
-                        <td th:else="">
-                            <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
-
-                        </td>
-                    </tr>
-
-                </tbody>
-            </table>
+        <div th:unless="${alumnoCiclo}">
+            <span>Adjunto al presente el informe académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
+                de matricula, sin información</span>
         </div>
 
-        <div style="text-align: center">
-            <!--            <pre >Atentamente,</pre>-->
+    </div>
+    <div>            
+        <table  align="center">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align: center"><b>SITUACIÓN ACADEMICO CICLO 
+                            <span th:if="${alumnoCiclo}" th:text="${alumno.cicloActivo.descripcion}"></span>
+                            <span th:unless="${alumnoCiclo}" th:text="${alumno.cicloIngreso.descripcion}"></span>
+                        </b></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <span>PROMEDIO PONDERADO SEMESTRAL: </span>
+                    </td>
+                    <td>
+                        <span th:if="${alumno.promedioUltimoCiclo}" th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
+                        <span th:unless="${alumno.promedioUltimoCiclo}">0</span> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>PROMEDIO PONDERADO ACUMULADO: </span>
+                    </td>
+                    <td>
+                        <span th:if="${alumno.promedioAcumulado}" th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
+                        <span th:unless="${alumno.promedioAcumulado}">0</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>TOTAL DE CRÉDITOS CURSADOS: </span>
+                    </td>
+                    <td>
+                        <span th:text="${alumno.creditosCursados}"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>TOTAL DE CREDITOS APROBADOS: </span>
+                    </td>
+                    <td th:if="${alumnoCiclo}">
+                        <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
+                    </td>
+                    <td th:unless="${alumnoCiclo}">
+                        <span>0</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>SITUACIÓN ACADÉMICA: </span>
+                    </td>
+                    <td th:if="${alumnoCiclo}">
+                        <span th:text="${alumnoCiclo.situacionFinal.nombre}"></span>
+                    </td>
+                    <td th:unless="${alumnoCiclo}">
+                        <span>Desertor</span><!--temporalmente por que lAs reincorporaciones solo lo pueden pedir los desertores y hay casos que no se ha registrado a los 
+                        alumnos ANTIGUOS del < 2000 y les pone como ingresante no matriculado-->
 
-            <br/>
-            <br/>
-            <br/>
-            <br/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>TUTOR: </span>
+                    </td>
+                    <td th:if='${alumno.consejero != null  and alumno.consejero.colaborador != null}'>
+                        <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
-            <img height= "100px" src="firmaSelloAlipio.png" />
+                    </td>
+                    <td th:unless="${alumno.consejero != null  and alumno.consejero.colaborador != null}">
+                        <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
-        </div>
-    </body>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center">
+        <pre >Atentamente,</pre>
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+
+        <img height= "100px" src="firmaSelloAlipio.png"></img>
+
+    </div>
+</body>
 </html>

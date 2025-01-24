@@ -446,6 +446,14 @@ new Vue({
             let $vue = this;
             $vue.$refs.modalLoadBoleta.open();
             $vue.tramiteDocumentoActivo = {...tramite};
+        },
+        urlReporteConstancia(item){
+            axios_blob.get(APP.url('tramite/solicitudconstancia/' + item.tramite.id + '/reporte'))
+                .then(response => {
+                    UTIL_BLOB.save(response);
+                }, (error) => {
+                    notify(error.response.data.message,'error')
+                })
         }
     }
 });

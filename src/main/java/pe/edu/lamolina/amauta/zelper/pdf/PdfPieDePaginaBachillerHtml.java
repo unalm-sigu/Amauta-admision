@@ -39,7 +39,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Component
-public class PdfPieDePaginaHtml extends AbstractPdfHtml {
+public class PdfPieDePaginaBachillerHtml extends AbstractPdfHtml {
 
     @Autowired
     private SpringTemplateEngine templateEngine;
@@ -114,7 +114,7 @@ public class PdfPieDePaginaHtml extends AbstractPdfHtml {
                 if (resultado != null) {
                     p.parse(new StringReader(resultado));
                 }
-                
+
                 // Verifica si es necesario agregar una nueva página
                 if (isFirstPage) {
                     documentPdf.newPage();
@@ -134,6 +134,7 @@ public class PdfPieDePaginaHtml extends AbstractPdfHtml {
     }
 
     private static class FooterPageEvent extends PdfPageEventHelper {
+
         @Override
         public void onEndPage(PdfWriter writer, Document document) {
             PdfContentByte canvas = writer.getDirectContent();

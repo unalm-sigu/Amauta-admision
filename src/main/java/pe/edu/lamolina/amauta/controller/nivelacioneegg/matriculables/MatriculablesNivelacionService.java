@@ -27,6 +27,6 @@ public interface MatriculablesNivelacionService {
 
     void matricularCurso(NotaAlumnoNivelacion alumnoCurso, CicloAcademico ciclo, DataSessionPivot ds);
 
-    void retirarCurso(NotaAlumnoNivelacion alumnoCurso, CicloAcademico ciclo, DataSessionPivot ds);
+    void retirarCurso(NotaAlumnoNivelacion alumnoCurso, CursoNivelacion seccion, CicloAcademico ciclo, DataSessionPivot ds);
 
 }

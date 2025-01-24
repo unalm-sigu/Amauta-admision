@@ -1,0 +1,87 @@
+<html>
+<head>
+    <title> Constancia TPC  </title>
+</head>
+<style>
+    body{
+        font-size: 8px;
+    }
+    .main-container {
+        border: 1px solid black;
+    }
+    .constancia-num {
+        text-align: center;
+    }
+    .constancia-num h2 {
+        margin: 0;
+    }
+    .table-dirigido {
+        width: 100%;
+    }
+    .tabled {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tabled th, .tabled td {
+        border: 1px solid black;
+        padding: 4px;
+        font-size: 12px;
+    }
+
+    .tabled td:nth-child(2) {
+        text-align: left;
+    }
+
+    .tabled thead th {
+        background-color: #D6D6D6;
+        font-weight: bold;
+    }
+    .tabled.no-center th,
+    .tabled.no-center td {
+        text-align: left;
+    }
+    .centered {
+        text-align: center;
+    }
+
+</style>
+<body>
+<div style="height: 200px;">
+    <p> <b th:text="${tramiteNumeroVisible}" >042-UR/2025</b></p>
+</div>
+
+<div>
+    <div >
+        <h3> <b>ALVA OBREGON, DENFIGER MANUEL</b></h3>
+
+    </div>
+    <span style="font-size: 12px;">Identificado con el codigo No <b>20150001</b> en el Registro de Matricula, es egresado de esta Universidad en el Ciclo <b> 2022-I</b> (13/08/2022).</span>
+    <br/>
+    <span style="font-size: 12px;">Al haber aprobado los creditos necesarios y cumplido con su plan de estudios se le ha otorgado del Grado Academico
+    de Bachiller en <b>CIENCIAS</b> - <b>AGRONOMIA</b> de acuerdo a la resolucion No <b>0230-2023-CU_UNALM</b> del 27/06/2023.</span>
+    <br/>
+    <span style="font-size: 12px;">Asimismo se le ha otorgado el Titulo Profesional de <b>INGENIERO AGRONOMO</b> de acuerdo a la Resolucion No. <b>0326-2024-CU_UNALM</b> del 08/08/2024</span>
+    <br/>
+    <div style="width: 100%; position: relative; font-family: Arial, sans-serif;">
+        <!-- Contenido de la izquierda -->
+        <div style="float: left; width: 50%; padding-left: 20px;">
+
+        </div>
+
+        <!-- Contenido de la derecha -->
+        <div style="float: right; width: 90%; text-align: left; padding-right: 20px;">
+            <br/><br/>
+            <span style="font-size: 12px;">La Molina, <span th:text="${fecha}"></span></span>
+            <br/><br/><br/><br/><br/>
+            <span style="font-size: 12px; display: block; font-weight: bold;">Alipio Ccorimanya Ccasani</span>
+            <br/>
+            <span style="font-size: 12px; display: block; font-weight: bold;">Jefe de la Unidad de Registro</span>
+            <!-- <img height="100px" src="firmaSelloAlipio.png" style="margin-top: 10px;" /> -->
+        </div>
+    </div>
+
+</div>
+<div></div>
+</body>
+</html>

@@ -48,6 +48,7 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
 @Slf4j
@@ -78,8 +79,8 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
     }
 
     @Override
-    public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        List<AlumnoNivelacion> alumnosNiv = alumnoNivelacionDAO.allByDynatable(filter, ciclo);
+    public List<AlumnoNivelacion> allAlumnosByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<Carrera> carreras, String todo) {
+        List<AlumnoNivelacion> alumnosNiv = alumnoNivelacionDAO.allByDynatable(filter, ciclo, carreras, todo);
         List<NotaAlumnoNivelacion> notasAlumnosAll = notaAlumnoNivelacionDAO.allByAlumnosNivelacion(alumnosNiv);
 
         List<TemaCiclo> temasCiclosAll = notasAlumnosAll.stream()
@@ -723,22 +724,31 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         }
 
         int preguntas = 0;
+        int existe = 0;
         BigDecimal puntaje = BigDecimal.ZERO;
         if (evaluado.getPuntajeAlgebra() != null) {
+            existe++;
             puntaje = puntaje.add(evaluado.getPuntajeAlgebra());
             preguntas += this.getPreguntaso("ALG", temasCiclo);
         }
         if (evaluado.getPuntajeAritmetica() != null) {
+            existe++;
             puntaje = puntaje.add(evaluado.getPuntajeAritmetica());
             preguntas += this.getPreguntaso("ARI", temasCiclo);
         }
         if (evaluado.getPuntajeGeometria() != null) {
+            existe++;
             puntaje = puntaje.add(evaluado.getPuntajeGeometria());
             preguntas += this.getPreguntaso("GEOM", temasCiclo);
         }
         if (evaluado.getPuntajeTrigonometria() != null) {
+            existe++;
             puntaje = puntaje.add(evaluado.getPuntajeTrigonometria());
             preguntas += this.getPreguntaso("TRI", temasCiclo);
+        }
+
+        if (existe == 0) {
+            return;
         }
 
         BigDecimal notaFinal = BigDecimal.ZERO;

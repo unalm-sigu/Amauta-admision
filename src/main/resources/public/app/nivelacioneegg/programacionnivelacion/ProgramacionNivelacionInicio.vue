@@ -45,7 +45,7 @@
                                         </td>
 
                                         <td class="v-middle">
-                                            <span v-if="item.docente.codigo == 'N.N.' " class="text-danger bold">
+                                            <span v-if="item.docente.codigo === 'N.N.' || item.docente.codigo.includes('N.N.')" class="text-danger bold">
                                                 Desconocido
                                             </span>
                                             <template v-else="">
@@ -117,6 +117,7 @@
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeAula(item)">Cambiar aula</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeGrupoHoras(item)">Cambiar grupo</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeVacantes(item)">Cambiar vacantes</a></li>
+                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="changeHorasDictado(item)">Cambiar Horas Dictado</a></li>
                                                     <li v-if="item.estadoNotas == 'CER' " class="pointer"><a v-on:click="reabrirNotas(item)">Reabrir notas</a></li>
                                                     <li class="divider"> </li>
                                                     <li class="pointer"><a v-on:click="cambios(item)">Historial de cambios</a></li>
@@ -142,6 +143,7 @@
         <modal-change-aula ref="modalChangeAula"></modal-change-aula>
         <modal-change-grupo ref="modalChangeGrupo"></modal-change-grupo>
         <modal-change-vacantes ref="modalChangeVacantes"></modal-change-vacantes>
+        <modal-change-horas-dictado ref="modalChangeHorasDictado"></modal-change-horas-dictado>
         <modal-cambios ref="modalCambios"></modal-cambios>
         <modal-cancelar ref="modalCancelar"></modal-cancelar>
         <modal-reactivar ref="modalReactivar"></modal-reactivar>
@@ -161,6 +163,7 @@
     const ModalChangeAula = httpVueLoader('./ModalChangeAula.vue');
     const ModalChangeGrupo = httpVueLoader('./ModalChangeGrupo.vue');
     const ModalChangeVacantes = httpVueLoader('./ModalChangeVacantes.vue');
+    const ModalChangeHorasDictado = httpVueLoader('./ModalChangeHorasDictado.vue');
     const ModalCambios = httpVueLoader('./ModalCambios.vue');
     const ModalCancelar = httpVueLoader('./ModalCancelar.vue');
     const ModalReactivar = httpVueLoader('./ModalReactivar.vue');
@@ -170,7 +173,7 @@
         components: {
             ModalConfirm, ModalInfo, ModalAddCurso, ModalAddHorario,
             ModalChangeDocente, ModalChangeAula, ModalChangeGrupo,
-            ModalChangeVacantes, ModalCambios, ModalCancelar,
+            ModalChangeVacantes, ModalChangeHorasDictado, ModalCambios, ModalCancelar,
             ModalReactivar, ModalReabrirNotas
         },
 
@@ -262,6 +265,9 @@
             },
             changeVacantes(item) {
                 this.$refs.modalChangeVacantes.open(item, this.$refs.raptorCursos);
+            },
+            changeHorasDictado(item) {
+                this.$refs.modalChangeHorasDictado.open(item, this.$refs.raptorCursos);
             },
             cambios(item) {
                 this.$refs.modalCambios.open(item);

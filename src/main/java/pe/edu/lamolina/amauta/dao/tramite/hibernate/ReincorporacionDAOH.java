@@ -193,7 +193,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
                 .join("tra.cicloAcademico ca", "tra.alumno al", "al.persona per")
-                .left("resolucion")
+                .left("resolucion","al.cicloActivo caa")
                 .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

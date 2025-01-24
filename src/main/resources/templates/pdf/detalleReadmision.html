@@ -194,7 +194,7 @@
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
                         </td>
-                        <td th:else="">
+                        <td th:unless="${alumno.consejero != null  and alumno.consejero.colaborador != null}">
                             <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
                         </td>

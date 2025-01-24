@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docentem
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.ui.Model;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -16,7 +17,7 @@ public interface EncuestaDocenteModalidadService {
 
     List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo, List<DepartamentoAcademico> departamentos, DataSessionPivot ds);
 
-    Context reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
+    void reporte(EncuestaDocenteModalidad encuestaDocenteModalidad, Model model);
 
     List<Context> reporteTodos(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos);
 

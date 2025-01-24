@@ -177,7 +177,6 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         Tramite tramite = this.findByTramite(idTramite);
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-        Context ctx = new Context();
 
         TipoCursoCurricula tipoCursoCurriculaCPRO = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.CPRO);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
@@ -240,9 +239,13 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         model.addAttribute("tramite", tramite);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-
         model.addAttribute("nombrePdf", "Informe Reincorporacion " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        model.addAttribute("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
+
+        if (alumno.getCicloActivo() != null) {
+            model.addAttribute("templatePdf", "detalleReincorporacion,historialAcademicoCurdir");
+        } else {
+            model.addAttribute("templatePdf", "detalleReincorporacion");
+        }
     }
 
     @Override

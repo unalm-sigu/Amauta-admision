@@ -50,7 +50,7 @@ public interface PromedioService {
 
     void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds);
 
-    void calulcarSituacionAcademicaNewSession(Alumno alumno, Egresado egresado, DataSessionPivot ds);
+    void calcularSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds);
 
     Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
 

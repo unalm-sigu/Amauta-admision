@@ -22,6 +22,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.MatriculablesNivelacionService;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoCicloGrupoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
@@ -38,6 +39,7 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTipoExamenDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -67,6 +69,7 @@ import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTipoExamen;
 import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
 @Service
@@ -87,8 +90,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
     private final HorarioCursoDAO horarioCursoDAO;
+    private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
+    private final MatriculablesNivelacionService matriculablesNivelacionService;
     private final VerificadorService verificadorService;
 
     private void verificarPermiso(DataSessionPivot ds) {
@@ -232,7 +237,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         docente.setCodigo(nombre.toUpperCase());
         if (docente.isCodigoNN()) {
             List<Docente> docentes = new ArrayList();
-            docentes.add(docenteDAO.findByCode(DOCENTE_INDETERMINADO));
+            docentes.addAll(docenteDAO.allByCodeNN(DOCENTE_INDETERMINADO));
             return docentes;
         }
 
@@ -674,6 +679,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
             cursoNiv.setCambios(cambios);
         }
+        cursoNiv.setDisponibles(cursoNiv.getDisponibles() + (form.getVacantes() - cursoNiv.getVacantes()));
 
         cursoNiv.setVacantes(form.getVacantes());
         cursoNiv.setUserModificacion(ds.getUsuario());
@@ -683,6 +689,40 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
         cursoNiv.setCambios(cambiosTwo);
         cursoNivelacionDAO.update(cursoNiv);
+    }
+
+    @Override
+    @Transactional
+    public void changeHorasDictado(CursoNivelacion form, DataSessionPivot ds) {
+        this.verificarPermiso(ds);
+        Assert.isNotNull(form.getHorasDictado(), "No ha indicado las horas dictado");
+
+        CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(cursoNiv, "No existe el registro que desea modificar");
+        Assert.isFalse(form.getHorasDictado() == cursoNiv.getHorasDictado().intValue(), "La cantidad de horas dictado debe ser distinta");
+        Assert.isFalse(form.getHorasDictado() == 0, "La cantidad de horas dictado debe ser mayor a CERO");
+
+        CursoCicloAcademico cursoCicloAcademico = cursoNiv.getCursoCiclo();
+
+        String datoAntes = cursoNiv.getHorasDictado() + "";
+        String datoNuevo = form.getHorasDictado() + "";
+
+        if (StringUtils.isBlank(cursoNiv.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
+            cursoNiv.setCambios(cambios);
+        }
+
+        cursoNiv.setHorasDictado(form.getHorasDictado());
+        cursoNiv.setUserModificacion(ds.getUsuario());
+        cursoNiv.setFechaModificacion(new Date());
+        String cambio = "Cambio de horas dictado de " + datoAntes + " a " + datoNuevo;
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
+        cursoNiv.setCambios(cambiosTwo);
+        cursoNivelacionDAO.update(cursoNiv);
+
+        cursoCicloAcademico.setHorasCiclo(form.getHorasDictado());
+        cursoCicloAcademicoDAO.updateColumns(cursoCicloAcademico, "horasCiclo");
+
     }
 
     @Override
@@ -846,7 +886,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     @Override
     @Transactional
-    public void changeEstado(CursoNivelacion form, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
+    public void changeEstado(CursoNivelacion form, SeccionEstadoEnum estadoEnum, CicloAcademico ciclo, DataSessionPivot ds) {
         this.verificarPermiso(ds);
 
         CursoNivelacion cursoNiv = cursoNivelacionDAO.find(form.getId());
@@ -884,6 +924,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             case CAN:
                 Assert.isFalse(cursoNiv.getEstadoEnum() == CAN, "Esta sección ya se encuentra cancelada");
                 Assert.isTrue(cursoNiv.getEstadoEnum() == ACT, "Solo se puede cancelar secciones activas");
+                this.retiroMasivo(cursoNiv, ciclo, ds);
                 Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
                 int edad = this.getEdadMinutos(cursoNiv);
@@ -896,6 +937,13 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
             default:
                 Assert.isTrue(false, "Tipo de cambio no considerado");
+        }
+    }
+
+    private void retiroMasivo(CursoNivelacion seccion, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<NotaAlumnoNivelacion> matriculados = notaAlumnoNivelacionDAO.allInscritosByCursoNivelacion(seccion);
+        for (NotaAlumnoNivelacion inscrito : matriculados) {
+            matriculablesNivelacionService.retirarCurso(inscrito, seccion, ciclo, ds);
         }
     }
 

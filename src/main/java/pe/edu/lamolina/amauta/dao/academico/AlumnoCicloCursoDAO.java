@@ -121,4 +121,5 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     List<AlumnoCicloCurso> cantidadCursoConvalidado(AlumnoCiclo alumnoCiclo);
 
     List<AlumnoCicloCurso> allMatriculadoByAlumnoCurso(Alumno alumno, Curso curso);
+    List<AlumnoCicloCurso> obtenerConstanciaCursos(String codigoAlumno);
 }

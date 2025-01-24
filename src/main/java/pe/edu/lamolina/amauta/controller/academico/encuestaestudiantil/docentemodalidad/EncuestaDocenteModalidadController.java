@@ -137,7 +137,7 @@ public class EncuestaDocenteModalidadController {
 
     @RequestMapping("{id}/reporte")
     public ModelAndView reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
-        model.addAttribute(new EncuestaDocenteModalidad(id));
+        service.reporte(new EncuestaDocenteModalidad(id), model);
         return new ModelAndView(pdfHtml);
 
     }

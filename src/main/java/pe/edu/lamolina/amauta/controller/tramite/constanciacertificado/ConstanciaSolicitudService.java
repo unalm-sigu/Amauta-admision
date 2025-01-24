@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.ui.Model;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -109,5 +111,7 @@ public interface ConstanciaSolicitudService {
     public void anularTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession httpSession);
 
     public void update(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
+    void generarConstancia(Long tramite, Model model, DataSessionPivot ds);
+    void generarConstanciaEgresado(Long tramite, Model model, DataSessionPivot ds);
 
 }

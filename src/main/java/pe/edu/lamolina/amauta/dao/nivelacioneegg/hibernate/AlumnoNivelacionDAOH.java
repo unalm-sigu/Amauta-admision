@@ -8,6 +8,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 
@@ -46,18 +47,23 @@ public class AlumnoNivelacionDAOH extends AbstractEasyDAO<AlumnoNivelacion> impl
     }
 
     @Override
-    public List<AlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<AlumnoNivelacion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<Carrera> carreras, String todo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoNivelacion.class, "aln")
                 .join("alumno alu", "alu.carrera car", "car.facultad fac")
                 .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("alu.postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico cai")
                 .join("cicloAcademico ci")
                 .leftJoin("prelamolina", "evaluado", "per.tipoDocumento")
                 .filter("ci.id", ciclo)
-                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo")
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cai.codigoAnterior", "mi.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("aln.id DESC");
+
+        if (!todo.equalsIgnoreCase("TODOS")) {
+            sql.in("car.id", carreras);
+        }
 
         return all(sql);
     }
