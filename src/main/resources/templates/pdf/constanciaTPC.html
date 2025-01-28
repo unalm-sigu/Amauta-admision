@@ -70,7 +70,7 @@
         <tr>
             <td>
                 El Jefe de la Unidad de Registro hace constar que  <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b>, <span th:text="${alumno.persona.sexo == 'M' ? 'identificado' : 'identificada'}"></span>  &nbsp;con el código de
-                Matrícula N° <b th:text="${alumno.codigo}"></b>, es <span th:text="${alumno.situacionAcademica.nombre == 'Egresado' ? (alumno.persona.sexo == 'M' ? 'egresado' : 'egresada') : (alumno.persona.sexo == 'M' ? 'alumno' : 'alumna')}"></span> &nbsp;de la Facultad de <b class="" th:text="${alumno.carrera.facultad.nombre.toUpperCase()}"></b><span th:if="${alumno.carrera.codigo != alumno.carrera.facultad.codigo}">
+                Matrícula N° <b th:text="${alumno.codigo}"></b>, es <span th:text="${alumno.situacionAcademica.nombre == 'Egresado' ? (alumno.persona.sexo == 'M' ? 'graduado' : 'graduada') : (alumno.persona.sexo == 'M' ? 'alumno' : 'alumna')}"></span> &nbsp;de la Facultad de <b class="" th:text="${alumno.carrera.facultad.nombre.toUpperCase()}"></b><span th:if="${alumno.carrera.codigo != alumno.carrera.facultad.codigo}">
                     - Esp. <b class="" th:text="${alumno.carrera.nombre.toUpperCase()}"></b></span>, habiendo aprobado los cursos siguientes:
             </td>
         </tr>
@@ -100,9 +100,9 @@
             <td class="centered" th:text="${cursox.curso.horasTeoria}"></td>
             <td class="centered" th:text="${cursox.curso.horasPractica}"></td>
             <td class="centered" th:text="${cursox.creditos}"></td>
-            <td class="centered" th:text="${cursox.curso.horasTeoria * 15}"></td>
-            <td class="centered" th:text="${cursox.curso.horasPractica * 15}"></td>
-            <td class="centered" th:text="${cursox.curso.horasTeoria * 15 + cursox.curso.horasPractica * 15}"></td>
+            <td class="centered" th:text="${cursox.curso.horasTeoria * semanaEquivalencia}"></td>
+            <td class="centered" th:text="${cursox.curso.horasPractica * semanaEquivalencia}"></td>
+            <td class="centered" th:text="${cursox.curso.horasTeoria * semanaEquivalencia + cursox.curso.horasPractica * semanaEquivalencia}"></td>
         </tr>
         </tbody>
         <tfoot>
@@ -127,7 +127,7 @@
 
         <!-- Contenido de la derecha -->
         <div style="float: right; width: 90%; text-align: center; padding-right: 20px;">
-            <span style="font-size: 12px;">Un semestre equivale a 15 semanas</span>
+            <span style="font-size: 12px;">Un semestre equivale <span th:text="${semanaEquivalencia}"> semanas</span>
             <br/><br/>
             <span style="font-size: 12px;">La Molina, <span th:text="${fecha}"></span></span>
             <br/><br/><br/><br/><br/>
