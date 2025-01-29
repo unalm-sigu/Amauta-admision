@@ -31,4 +31,6 @@ public interface EncuestaDocenteModalidadService {
 
     List<CicloAcademico> allCicloAcademico();
 
+    List<Context> reporteTodosSinCursoNoEncuestados(CicloAcademico get, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos);
+
 }
