@@ -624,7 +624,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         TramiteDocumentoAcademico tramiteDocumento = tramiteDocumentoAcademicoDAO.findTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-//        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCiclo(alumno.getCicloIngreso());
 
         int semanaEquivalencia = 0;

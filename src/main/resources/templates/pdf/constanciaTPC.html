@@ -44,6 +44,12 @@
     .centered {
         text-align: center;
     }
+    .curso-col {
+        width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
 </style>
 <body>
@@ -96,7 +102,7 @@
         <tbody>
         <tr th:each="cursox : ${cursos}">
             <td class="centered" th:text="${cursox.alumnoCiclo.cicloAcademico.codigoAnterior}"></td>
-            <td th:text="${cursox.curso.nombre}"></td>
+            <td class="curso-col" th:text="${cursox.curso.nombre}"></td>
             <td class="centered" th:text="${cursox.curso.horasTeoria}"></td>
             <td class="centered" th:text="${cursox.curso.horasPractica}"></td>
             <td class="centered" th:text="${cursox.creditos}"></td>
