@@ -82,6 +82,8 @@ public class PdfPieDePaginaReincorporacionHtml extends AbstractPdfHtml {
 
         writer.setPageEvent(new FooterPageEvent());
 
+        boolean isTwoPages = (plantillasArray.length >= 2) ? true : false;
+
         boolean isFirstPage = true;
 
         for (Context ctx : multipleContext) {
@@ -113,6 +115,13 @@ public class PdfPieDePaginaReincorporacionHtml extends AbstractPdfHtml {
 
                 if (resultado != null) {
                     p.parse(new StringReader(resultado));
+                }
+
+                if(isTwoPages) {
+                    if (isFirstPage) {
+                        documentPdf.newPage();
+                    }
+                    isFirstPage = false;
                 }
 
             }
