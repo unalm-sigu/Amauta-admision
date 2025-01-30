@@ -1,9 +1,10 @@
 package pe.edu.lamolina.amauta.controller.restcontroller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,24 +18,24 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.amauta.controller.academico.promedio.BeanPromedios;
+import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioLoadDataService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.amauta.zelper.bean.FormImport;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 
+@Slf4j
 @RestController
 @RequestMapping("amauta/rest")
+@AllArgsConstructor(onConstructor = @__(
+        @Autowired))
 public class RestPivotController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    RestPivotService service;
-
-    @Autowired
-    InfoAcademicoService infoAcademicoService;
-
-    @Autowired
-    PromedioService promedioService;
+    private final RestPivotService service;
+    private final InfoAcademicoService infoAcademicoService;
+    private final PromedioService promedioService;
+    private final PromedioLoadDataService promedioLoadDataService;
 
     @ResponseBody
     @RequestMapping(value = "cambioOrientacion", method = RequestMethod.POST)
@@ -92,6 +93,8 @@ public class RestPivotController {
     @RequestMapping(value = "calcularPromedioAlumnoByToken", method = RequestMethod.POST)
     public JsonResponse calcularPromedioAlumnoByToken(@RequestBody String node, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
         try {
             ObjectMapper mapper = new ObjectMapper();
             FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
@@ -100,12 +103,25 @@ public class RestPivotController {
             Alumno alumno = new Alumno(json.getIdAlumno());
             DataSessionPivot ds = new DataSessionPivot();
             ds.setUsuario(service.getUsuario(new Usuario(json.getIdUsuario())));
-            promedioService.calcularSituacionAcademica(alumno, ds);
+            List<CicloAcademico> ciclos = service.allCiclos();
+
+            BeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumno);
+            promedioService.promediarAllCicloSync(
+                    bean.getAlumno(),
+                    bean.getCicloActivo(),
+                    bean.getGraduado(),
+                    bean.getEgresado(),
+                    ciclos,
+                    bean.getAlumnoCiclos(),
+                    bean.getAlumnoCicloCursosOperativos(),
+                    bean.getAlumnoCicloCursosOperativos(),
+                    bean.getReincorporaciones(), ds, true, true);
+
             response.setSuccess(true);
 
         } catch (PhobosException e) {
-            response.setSuccess(false);
             ExceptionHandler.handlePhobosEx(e, response);
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

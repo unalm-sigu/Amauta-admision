@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.restcontroller;
 
+import java.util.List;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.amauta.zelper.bean.FormImport;
@@ -16,5 +17,7 @@ public interface RestPivotService {
     TokenIngresante findToken(String token, Long idUsuario);
 
     CicloAcademico findCicloActivoPregrado();
+
+    List<CicloAcademico> allCiclos();
 
 }
