@@ -92,4 +92,10 @@ public class RestPivotServiceImp implements RestPivotService {
         return cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
     }
 
+    @Override
+    public List<CicloAcademico> allCiclos() {
+        return cicloAcademicoDAO.all();
+    }
+    
+
 }
