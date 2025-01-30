@@ -38,6 +38,9 @@ new Vue({
         reporteGeneralShow() {
             this.$refs.reporteGeneralModal.open();
         },
+        reporteGeneralSinCursosNoEncuestadosShow() {
+            this.$refs.reporteGeneralSinCursosModal.open();
+        },
         downloadReporteTotal() {
             let vue = this;
             let data = {
@@ -54,6 +57,23 @@ new Vue({
                     }, () => {
                         vue.$refs.reporteGeneralModal.stop();
                         notify(Messages.errorComunicacion, 'error')
+                    });
+        },
+        downloadReporteSinCursoNoEncuestadosTotal() {
+            let vue = this;
+            let data = {
+                cicloAcademicos: vue.ciclo,
+                departamento: vue.departamento ? vue.departamento.id : '',
+                tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                facultad: vue.facultad ? vue.facultad.id : ''
+            };
+            axios_blob.post("/academico/encuestaestudiantil/docentemodalidad/reporte/sincursosnoencuestados", data)
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        vue.$refs.reporteGeneralSinCursosModal.close();
+                    }, () => {
+                        vue.$refs.reporteGeneralSinCursosModal.stop();
+                        notify(Messages.errorComunicacion, 'error');
                     });
         },
         changeFacultad() {

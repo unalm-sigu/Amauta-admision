@@ -403,7 +403,7 @@ $(function () {
             var cboSistemaAceptar = $this.val();
 
             $.ajax({
-                url: APP.url('docente/notasacademica/' + $("#txtGrupo").val() + '/ aceptarSistemaCalificacion'),
+                url: APP.url('docente/notasacademica/' + $("#txtGrupo").val() + '/aceptarSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 data: {planCalificacion: cboSistemaAceptar},

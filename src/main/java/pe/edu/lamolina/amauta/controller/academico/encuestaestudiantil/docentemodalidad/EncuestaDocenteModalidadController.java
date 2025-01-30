@@ -197,5 +197,62 @@ public class EncuestaDocenteModalidadController {
         return new ModelAndView(pdfHtmlEncuesta);
 
     }
+    
+    
+    @RequestMapping("reporte/sincursosnoencuestados")
+    public ModelAndView reporteSinCursosNoEncuestados(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
+
+        String codeRequest = verificadorService.generateCodeRequest();
+
+        ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(filtro.getTipoGrado());
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
+
+        if (filtro.getFacultad() != null) {
+
+            List<DepartamentoAcademico> departamentosXfacutad = departamentos
+                    .stream()
+                    .filter(x -> x.getFacultad().getId() == filtro.getFacultad())
+                    .collect(Collectors.toList());
+
+            if (!departamentosXfacutad.isEmpty()) {
+                departamentos = departamentosXfacutad;
+            }
+
+        }
+
+        if (filtro.getDepartamento() != null) {
+            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
+        }
+
+        List<CicloAcademico> ciclos = new ArrayList();
+
+        if (filtro.hasCiclo()) {
+            ciclos.addAll(filtro.getCicloAcademicos());
+        } else {
+            ciclos.add(ds.getCicloAcademico());
+        }
+
+//        if (filtro.getDocente() != null) {
+//
+//            List<Context> mulitpleContext = service.reporteUnicoDocenteMultipleCiclo(ciclos, modalidadEstudioEnum, departamentos, filtro.getDocente());
+//            model.addAttribute("multipleContext", mulitpleContext);
+//
+//        } else {
+
+            List<Context> mulitpleContext = service.reporteTodosSinCursoNoEncuestados(ciclos.get(0), modalidadEstudioEnum, departamentos);
+            model.addAttribute("multipleContext", mulitpleContext);
+
+//        }
+
+        model.addAttribute("templatePdf", "resultadoencuestasincursonoencuestado");
+        model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
+
+        return new ModelAndView(pdfHtmlEncuesta);
+
+    }
 
 }
