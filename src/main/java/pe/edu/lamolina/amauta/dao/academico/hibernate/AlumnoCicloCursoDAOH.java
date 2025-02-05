@@ -806,4 +806,22 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         return all(sql);
     }
 
+    @Override
+    public List<AlumnoCicloCurso> obtenerConstanciaCursosAlumnoIntercambio(String codigoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("acc.alumnoCiclo ac", "ac.alumno alu", "ac.cicloAcademico aca")
+                .join("acc.curso c")
+                .filter("alu.codigo",codigoAlumno)
+                .filter("acc.estado",EstadoMatriculaEnum.MAT)
+                .filter("acc.registroActivo",1)
+                .beginBlock()
+                .__().filter("acc.nota",">", BigDecimal.TEN)
+                .__().filter("acc.nota", "AP")
+                .endBlock();
+
+        return all(sql);
+    }
+
+
 }

@@ -454,6 +454,14 @@ new Vue({
                 }, (error) => {
                     notify(error.response.data.message,'error')
                 })
+        },
+        urlReporteIntercambio(item){
+            axios_blob.get(APP.url('tramite/solicitudconstancia/' + item.tramite.id + '/reporteAlumnoIntercambio'))
+                .then(response => {
+                    UTIL_BLOB.save(response);
+                }, (error) => {
+                    notify(error.response.data.message,'error')
+                })
         }
     }
 });

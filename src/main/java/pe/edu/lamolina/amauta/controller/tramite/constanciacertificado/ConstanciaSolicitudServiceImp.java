@@ -9,11 +9,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import static java.math.BigDecimal.ZERO;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -30,12 +26,7 @@ import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
@@ -109,7 +100,7 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.FECHAS_BACH;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -650,17 +641,46 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public void generarConstanciaEgresado(Long idTramite, Model model, DataSessionPivot ds) {
+    public void generarConstanciaAlumnoIntercambio(Long idTramite, Model model, DataSessionPivot ds) {
         Tramite tramite = this.findByTramite(idTramite);
         TramiteDocumentoAcademico tramiteDocumento = tramiteDocumentoAcademicoDAO.findTramite(tramite);
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
+        List<AlumnoCicloCurso> cursos = alumnoCicloCursoDAO.obtenerConstanciaCursosAlumnoIntercambio(alumno.getCodigo());
+//
+//        Map<String, List<AlumnoCicloCurso>> cursosPorCiclo = cursos.stream()
+//                .collect(Collectors.groupingBy(curso -> curso.getAlumnoCiclo().getCicloAcademico().getDescripcion()));
+
+        Map<String, List<AlumnoCicloCurso>> cursosPorCiclo = cursos.stream()
+                .collect(Collectors.groupingBy(
+                        curso -> curso.getAlumnoCiclo().getCicloAcademico().getDescripcion(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        Map<String, List<AlumnoCicloCurso>> cursosPorCicloOrdenado = cursosPorCiclo.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey()) // Ordena las entradas por la clave
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+
+        List<String> ciclos = new ArrayList<>(cursosPorCiclo.keySet());
+//        ciclos.sort(Comparator.naturalOrder());
+
+
         model.addAttribute("alumno", alumno);
+        model.addAttribute("cursos", cursos);
+        model.addAttribute("ciclos", ciclos);
         model.addAttribute("tramiteNumeroVisible",tramiteDocumento.getCorrelativoDocumento());
+        model.addAttribute("cursosPorCiclo", cursosPorCiclo);
         model.addAttribute("fecha", TypesUtil.getStringDate(new DateTime().toDate()," dd 'de' MMMM 'del' yyyy","es"));
-        model.addAttribute("nombrePdf", "Contancia Egresado " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
-        model.addAttribute("templatePdf", "constanciaTPC");
+        model.addAttribute("nombrePdf", "Contancia Alumno Intercambio " + tramite.getAlumno().getPersona().getPaterno() + " " + tramite.getNumero());
+        model.addAttribute("templatePdf", "constanciaIntercambio");
     }
 
     @Override
