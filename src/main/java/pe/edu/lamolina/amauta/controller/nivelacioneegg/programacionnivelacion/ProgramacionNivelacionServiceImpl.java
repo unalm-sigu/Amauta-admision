@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -1128,8 +1129,15 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 Dia dia = this.getDiaBD(horario.getDia());
                 Hora hora = this.getHoraBD(horario.getHora());
 
+                CursoCicloAcademico cursoCiclo = otroHorario.getCursoCiclo();
+                GrupoHorasNivelacion grupoHoras = otroHorario.getGrupoHoras();
+
+                Optional<CursoNivelacion>  cursoCruce = cursosNivDoc.stream().filter(x->x.getCursoCiclo().equals(cursoCiclo) && x.getGrupoHoras().equals(grupoHoras)).findFirst();
+                
                 return "Hay cruce de horario del docente " + docente.getCodigo()
-                        + " el " + dia.getSimboloAbr() + " a las " + hora.getDescripcion()
+                        + " con el curso "+ cursoCiclo.getCurso().getCodigo() + " " + cursoCiclo.getCurso().getNombre()
+                        + " con la sección "+ cursoCruce.get().getCodigo()
+                        + " el " + dia.getNombre() + " a las " + hora.getDescripcion()
                         + " de la semana del " + fechaSemana;
             }
         }
