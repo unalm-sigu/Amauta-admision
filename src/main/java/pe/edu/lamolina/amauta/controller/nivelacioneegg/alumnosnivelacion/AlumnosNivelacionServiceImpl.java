@@ -318,12 +318,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         Map<Long, ModalidadTemaCiclo> mapConfigCepre = configuraciones.stream()
                 .filter(mtc -> mtc.getModalidadIngreso() != null)
                 .filter(mtc -> mtc.getModalidadIngreso().getCodigo().equals(CEPRE.getCode()))
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         alumnoNiv = new AlumnoNivelacion();
         Postulante postulante = alumno.getPostulantePregrado();
