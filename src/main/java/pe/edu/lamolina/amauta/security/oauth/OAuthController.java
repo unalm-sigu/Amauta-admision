@@ -192,7 +192,7 @@ public class OAuthController {
         return "redirect:/route66";
     }
 
-    @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
+    @RequestMapping(value = "bunnies/{email:.*}", method = RequestMethod.GET)
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);

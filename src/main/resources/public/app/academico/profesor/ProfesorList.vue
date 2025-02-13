@@ -185,7 +185,7 @@
             },
             loginAmauta(item) {
                 let $vue = this;
-                location.href = `/lizard/${item.emailEmpresa}`
+                location.href = `/bunnies/${item.emailEmpresa}`
             }
         }
     };
