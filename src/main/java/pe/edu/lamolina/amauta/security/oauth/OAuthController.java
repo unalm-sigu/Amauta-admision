@@ -208,14 +208,18 @@ public class OAuthController {
                 }
 
                 boolean esIoera = false;
+                boolean esLogueoDocente = false;
                 List<Rol> roles = ds.getRoles();
                 for (Rol role : roles) {
                     if (role.getCodigoEnum() == RolEnum.IOREA) {
                         esIoera = true;
                     }
+                    if (role.getCodigoEnum() == RolEnum.LOGUEO_DOCENTE){
+                        esLogueoDocente = true;
+                    }
                 }
 
-                if (!esIoera) {
+                if (!esIoera && !esLogueoDocente) {
                     return "redirect:/";
                 }
             }
