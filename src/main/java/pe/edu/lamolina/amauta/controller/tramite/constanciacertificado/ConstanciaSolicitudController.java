@@ -39,6 +39,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.tramite.constanciacertificado.descargaWord.GeneradorWordSolicitudService;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfHtml;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlConstanciaTPC;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -70,6 +71,9 @@ public class ConstanciaSolicitudController {
 
     @Autowired
     PdfHtmlConstanciaTPC reporteTramiteConstancia;
+
+    @Autowired
+    PdfHtml reporteConstanciaIntercambio;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -744,11 +748,11 @@ public class ConstanciaSolicitudController {
         return new ModelAndView(reporteTramiteConstancia);
     }
 
-    @RequestMapping(value = "{idtramite}/rporteEgresado")
-    public ModelAndView constanciaEgresado(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idtramite) {
+    @RequestMapping(value = "{idtramite}/reporteAlumnoIntercambio")
+    public ModelAndView constanciaIntercambio(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long idtramite) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        service.generarConstanciaEgresado(idtramite,model,ds);
-        return new ModelAndView(reporteTramiteConstancia);
+        service.generarConstanciaAlumnoIntercambio(idtramite,model,ds);
+        return new ModelAndView(reporteConstanciaIntercambio);
     }
 
     private ArrayNode valores(VariablePlantilla plantilla, Alumno alumno) {
