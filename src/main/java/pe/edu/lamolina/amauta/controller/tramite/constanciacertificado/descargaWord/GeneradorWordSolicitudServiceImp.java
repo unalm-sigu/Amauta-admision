@@ -79,6 +79,8 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.enums.VariableGenericaEnum;
+
+import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CONS;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.INCRUSTACION;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.Oficina;
@@ -435,6 +437,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case CARRERA:
                             if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && isEspanol) {
+                                if(documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == CONS){
+                                    text = text.replace(enums.getValue(), alumno.getCarrera().getNombre().toUpperCase());
+                                }
                                 text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre().toUpperCase());
                                 System.out.println("////////////////////////////TEST");
                             } else if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && !isEspanol) {
@@ -560,6 +565,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case TITULO_PROFESIONAL:
                             if (obtencionGradoTitulo != null && obtencionGradoTitulo.getGradoAcademico() != null) {
+                                if(documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == CONS){
+                                    text = text.replace(enums.getValue(), obtencionGradoTitulo.getGradoAcademico().getNombre().toUpperCase());
+                                }
                                 if (isEspanol) {
                                     text = text.replace(enums.getValue(), obtencionGradoTitulo.getGradoAcademico().getNombre());
                                 } else {

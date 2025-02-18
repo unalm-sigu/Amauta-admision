@@ -481,11 +481,10 @@ module.exports={
 
     },
     refreshTable() {
-      this.$refs.becaLoad.loadRemoteData(); // Refresca la tabla
+      this.$refs.becaLoad.loadRemoteData();
     },
     verHistorial(item) {
       var vue = this;
-      console.log(item)
       $.ajax({
         method: 'POST',
         url: APP.url("academico/becaspronabec/historial"),

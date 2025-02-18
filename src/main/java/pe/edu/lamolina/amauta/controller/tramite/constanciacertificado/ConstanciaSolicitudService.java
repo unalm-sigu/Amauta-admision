@@ -112,6 +112,6 @@ public interface ConstanciaSolicitudService {
 
     public void update(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
     void generarConstancia(Long tramite, Model model, DataSessionPivot ds);
-    void generarConstanciaEgresado(Long tramite, Model model, DataSessionPivot ds);
+    void generarConstanciaAlumnoIntercambio(Long tramite, Model model, DataSessionPivot ds);
 
 }

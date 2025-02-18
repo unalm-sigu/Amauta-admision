@@ -126,7 +126,11 @@
                                                                 </li>
 
                                                                 <li>
-                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent=" urlReporteConstancia(item)">Reporte Constancia</a>
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent=" urlReporteConstancia(item)">Reporte TPC</a>
+                                                                </li>
+
+                                                                <li>
+                                                                    <a v-if="item.estadoTramite.codigo!='CRE'" v-on:click.prevent=" urlReporteIntercambio(item)">Reporte Intercambio</a>
                                                                 </li>
 
                                                                 <!--<li v-if="item.estadoTramite.codigo!='COMP'" class="divider"></li>-->
