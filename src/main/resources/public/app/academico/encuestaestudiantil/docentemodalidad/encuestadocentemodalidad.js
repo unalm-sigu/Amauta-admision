@@ -35,6 +35,26 @@ new Vue({
         verReporte(item) {
             location.href = `${this.url}/${item.id}/reporte`;
         },
+        verReporteSinCursos(item) {
+            var vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url("academico/encuestaestudiantil/docentemodalidad/sincursos"),
+                data: {id: item.nroDocumento},
+                success: function(response) {
+                    if (response.success) {
+                        vue.becadoHistorial = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
+            this.$refs.modalHistorial.open();
+
+        },
         reporteGeneralShow() {
             this.$refs.reporteGeneralModal.open();
         },
