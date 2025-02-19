@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +27,14 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlEncuesta;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -253,6 +258,34 @@ public class EncuestaDocenteModalidadController {
 
         return new ModelAndView(pdfHtmlEncuesta);
 
+    }
+
+    @RequestMapping( "{id}/sinEncuesta")
+    public JsonResponse obtenerSinEncuesta(@PathVariable Long id, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try{
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            List<EncuestaDocente> seccionesNoEncuestadas = service.cursosNoEncuestados(new EncuestaDocenteModalidad(id));
+            ObjectUtil.printAttr(seccionesNoEncuestadas);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for(EncuestaDocente x : seccionesNoEncuestadas ){
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("codigo", x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getCodigo());
+                node.put("seccion",x.getDocenteSeccion().getSeccion().getCodigo());
+                node.put("curso",x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getNombre());
+                node.put("comentario",x.getDescripcion());
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        }catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

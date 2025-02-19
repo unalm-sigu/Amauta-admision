@@ -17,10 +17,18 @@ new Vue({
         departamentosSelectos: [],
         facultad: null,
         departamento: null,
+        cursoSinEncuesta: null,
         tipoGrado: {id: 'PRE', nombre: 'Pregrado'},
         grados: [{id: 'PRE', nombre: 'Pregrado'}, {id: 'EPG', nombre: 'Posgrado'}],
         docente: null,
-        docentes: []
+        docentes: [],
+        modalCursoSinEncuesta: VUE_MODAL.structFormAjax({
+            id: 'modalCursoSinEncuesta',
+            header: true,
+            title: 'Historial Becado',
+            cancelbtn: 'Aceptar',
+            showaccept: false
+        }),
     },
     methods: {
         findTemas(item) {
@@ -35,26 +43,28 @@ new Vue({
         verReporte(item) {
             location.href = `${this.url}/${item.id}/reporte`;
         },
-        verReporteSinCursos(item) {
-            var vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url("academico/encuestaestudiantil/docentemodalidad/sincursos"),
-                data: {id: item.nroDocumento},
-                success: function(response) {
-                    if (response.success) {
-                        vue.becadoHistorial = response.data;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                },
-                error: function() {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
-            this.$refs.modalHistorial.open();
+        verReporteSinEncuesta(item) {
+            const fullUrl = `${this.url}/${item.id}/sinEncuesta`;
 
+            axios.post(fullUrl)
+                .then(response => {
+                    if (response.data.success) {
+                        this.cursoSinEncuesta = response.data.data;
+                        console.log(this.cursoSinEncuesta);
+                    } else {
+                        notify(response.data.message || 'Error al generar el reporte', 'error');
+                    }
+                })
+                .catch(error => {
+                    notify(Messages.errorComunicacion, 'error');
+                    // console.error(error); // Log para mayor detalle del error
+                })
+                .finally(() => {
+                    // Asegúrate de abrir el modal independientemente del resultado
+                    this.$refs.modalCursoSinEncuesta.open();
+                });
         },
+
         reporteGeneralShow() {
             this.$refs.reporteGeneralModal.open();
         },

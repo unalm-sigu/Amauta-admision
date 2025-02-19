@@ -8,6 +8,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -32,5 +33,6 @@ public interface EncuestaDocenteModalidadService {
     List<CicloAcademico> allCicloAcademico();
 
     List<Context> reporteTodosSinCursoNoEncuestados(CicloAcademico get, ModalidadEstudioEnum modalidadEstudioEnum, List<DepartamentoAcademico> departamentos);
+    List<EncuestaDocente> cursosNoEncuestados(EncuestaDocenteModalidad encuestaDocenteModalidad);
 
 }

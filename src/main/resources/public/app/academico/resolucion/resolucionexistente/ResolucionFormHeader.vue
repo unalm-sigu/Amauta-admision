@@ -73,9 +73,10 @@
                     <input type="text"
                            maxlength="10"
                            v-model="resolucion.numero"
-                           class="form-control numerico" 
+                           class="form-control"
                            required="true"> </input>
                 </div>
+<!--              class="form-control numerico"-->
             </div>
         </div>
         <div class="row">

@@ -609,6 +609,25 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     }
 
+    @Override
+    public List<EncuestaDocente> cursosNoEncuestados(EncuestaDocenteModalidad encuestaDocenteModalidad) {
+        if (encuestaDocenteDAO == null) {
+            throw new IllegalStateException("El bean encuestaDocenteDAO no está inicializado.");
+        }
+
+        if (encuestaDocenteModalidad == null) {
+            throw new IllegalArgumentException("El parámetro encuestaDocenteModalidad no puede ser nulo.");
+        }
+
+        EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
+        if (edm == null) {
+            throw new IllegalArgumentException("No se encontró EncuestaDocenteModalidad con el ID proporcionado.");
+        }
+
+        List<EncuestaDocente> result = encuestaDocenteDAO.allAnuladaByModalidadEstudioDocenteCicloAcademico(edm.getModalidadEstudio(), edm.getDocente(), edm.getCicloAcademico());
+        return result;
+    }
+
 
     private Context buildReport3(
             EncuestaDocenteModalidad edm,
