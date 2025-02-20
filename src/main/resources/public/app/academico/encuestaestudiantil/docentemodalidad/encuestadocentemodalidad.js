@@ -25,7 +25,8 @@ new Vue({
         modalCursoSinEncuesta: VUE_MODAL.structFormAjax({
             id: 'modalCursoSinEncuesta',
             header: true,
-            title: 'Historial Becado',
+            title: 'Cursos Sin Encuesta',
+            modalsize: 'modal-lg',
             cancelbtn: 'Aceptar',
             showaccept: false
         }),
@@ -46,24 +47,23 @@ new Vue({
         verReporteSinEncuesta(item) {
             const fullUrl = `${this.url}/${item.id}/sinEncuesta`;
 
-            axios.post(fullUrl)
+            axios.get(fullUrl)
                 .then(response => {
                     if (response.data.success) {
                         this.cursoSinEncuesta = response.data.data;
-                        console.log(this.cursoSinEncuesta);
+
+                        if (this.$refs.modalCursoSinEncuesta) {
+                            this.$refs.modalCursoSinEncuesta.open();
+                        }
                     } else {
-                        notify(response.data.message || 'Error al generar el reporte', 'error');
+                        notify(response.data.message || 'No hay datos disponibles', 'info');
                     }
                 })
                 .catch(error => {
                     notify(Messages.errorComunicacion, 'error');
-                    // console.error(error); // Log para mayor detalle del error
-                })
-                .finally(() => {
-                    // Asegúrate de abrir el modal independientemente del resultado
-                    this.$refs.modalCursoSinEncuesta.open();
                 });
         },
+
 
         reporteGeneralShow() {
             this.$refs.reporteGeneralModal.open();

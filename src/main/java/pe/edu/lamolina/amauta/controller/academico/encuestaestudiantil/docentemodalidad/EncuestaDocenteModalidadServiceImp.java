@@ -45,6 +45,7 @@ import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.amauta.dao.encuesta.hibernate.EncuestaDocenteDAOH;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -246,7 +247,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         logger.debug("imagenChart {}", imgBuilt);
 
         model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
-        model.addAttribute("templatePdf", "resultadoencuesta");
+        model.addAttribute("templatePdf", "resultadoencuestasincursonoencuestado");
 
     }
 
@@ -611,13 +612,6 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
     @Override
     public List<EncuestaDocente> cursosNoEncuestados(EncuestaDocenteModalidad encuestaDocenteModalidad) {
-        if (encuestaDocenteDAO == null) {
-            throw new IllegalStateException("El bean encuestaDocenteDAO no está inicializado.");
-        }
-
-        if (encuestaDocenteModalidad == null) {
-            throw new IllegalArgumentException("El parámetro encuestaDocenteModalidad no puede ser nulo.");
-        }
 
         EncuestaDocenteModalidad edm = encuestaDocenteModalidadDAO.find(encuestaDocenteModalidad.getId());
         if (edm == null) {

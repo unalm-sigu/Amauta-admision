@@ -261,12 +261,18 @@ public class EncuestaDocenteModalidadController {
     }
 
     @RequestMapping( "{id}/sinEncuesta")
+    @ResponseBody
     public JsonResponse obtenerSinEncuesta(@PathVariable Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try{
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<EncuestaDocente> seccionesNoEncuestadas = service.cursosNoEncuestados(new EncuestaDocenteModalidad(id));
+
+            if (seccionesNoEncuestadas.isEmpty()) {
+                response.setSuccess(Boolean.FALSE);
+                response.setMessage("No se encontraron cursos. Puede que aún no hayan sido encuestados o estén anulados.");
+                return response;
+            }
+
             ObjectUtil.printAttr(seccionesNoEncuestadas);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for(EncuestaDocente x : seccionesNoEncuestadas ){
@@ -275,6 +281,8 @@ public class EncuestaDocenteModalidadController {
                 node.put("seccion",x.getDocenteSeccion().getSeccion().getCodigo());
                 node.put("curso",x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getNombre());
                 node.put("comentario",x.getDescripcion());
+                node.put("tipoSecccion",x.getDocenteSeccion().getSeccion().getTipoSeccionEnum().getValue());
+                node.put("tpc",x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getTpc());
                 array.add(node);
             }
             response.setData(array);
