@@ -154,7 +154,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .join("resolucionFacultad")
-                .filter("tb.estadoFacultad", ACEP.name())
+                .filter("tb.estadofacultad", ACEP.name())
                 .filter("al.id", alumno.getId());
         return find(sql);
     }
