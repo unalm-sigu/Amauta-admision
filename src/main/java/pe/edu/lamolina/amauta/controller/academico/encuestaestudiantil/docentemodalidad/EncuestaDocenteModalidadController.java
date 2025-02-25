@@ -269,7 +269,7 @@ public class EncuestaDocenteModalidadController {
 
             if (seccionesNoEncuestadas.isEmpty()) {
                 response.setSuccess(Boolean.FALSE);
-                response.setMessage("No se encontraron cursos. Puede que aún no hayan sido encuestados o estén anulados.");
+                response.setMessage("No tiene secciones anulados en este ciclo");
                 return response;
             }
 
