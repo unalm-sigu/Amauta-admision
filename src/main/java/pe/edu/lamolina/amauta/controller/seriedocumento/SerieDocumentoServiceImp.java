@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -49,5 +53,37 @@ public class SerieDocumentoServiceImp implements SerieDocumentoService {
             return serie;
         }
     }
+
+//    @Override
+//    public SerieDocumento getCorrelativoConstanciaCertificado(TipoDocumentoCompania tipo, Long nroSerie, Usuario user, Oficina oficina) {
+//        SerieDocumento serie = serieDocumentoDAO.findCorrelativoOficina(tipo, nroSerie.toString(),oficina);
+//
+//        if (serie != null) {
+//            serie = serieDocumentoDAO.findLock(serie.getId());
+//
+//            if (serie.getEstado().equals("ACT")) {
+//                SerieDocumento serieDoc = new SerieDocumento(tipo, nroSerie.toString());
+//                serieDoc.setNumeroDocumento((Long.valueOf(serie.getNumeroDocumento()) + 1L) + "");
+//
+//                serie.setNumeroDocumento((Long.valueOf(serie.getNumeroDocumento()) + 1L) + "");
+//                serieDocumentoDAO.update(serie);
+//
+//                return serieDoc;
+//            }
+//
+//            return null;
+//
+//        } else {
+//            serie = new SerieDocumento(tipo, nroSerie.toString());
+//            serie.setNumeroDocumento("1");
+//            serie.setEstado("ACT");
+//            serie.setFechaRegistro(new Date());
+//            serie.setUserRegistro(user);
+//            serie.setOficina(oficina);
+//            serieDocumentoDAO.save(serie);
+//
+//            return serie;
+//        }
+//    }
 
 }

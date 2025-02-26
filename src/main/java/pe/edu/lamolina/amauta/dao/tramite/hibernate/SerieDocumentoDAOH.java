@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.amauta.dao.tramite.SerieDocumentoDAO;
@@ -28,6 +29,17 @@ public class SerieDocumentoDAOH extends AbstractEasyDAO<SerieDocumento> implemen
         return find(sql);
 
     }
+
+//    @Override
+//    public SerieDocumento findCorrelativoOficina(TipoDocumentoCompania tipo, String nroSerie, Oficina oficina) {
+//        Octavia sql = Octavia.query()
+//                .from(SerieDocumento.class, "sd")
+//                .join("tipoDocumentoCompania tdc")
+//                .filter("tdc.id", tipo)
+//                .filter("sd.numeroSerie", nroSerie)
+//                .filter("sd.oficina", oficina);
+//        return find(sql);
+//    }
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)

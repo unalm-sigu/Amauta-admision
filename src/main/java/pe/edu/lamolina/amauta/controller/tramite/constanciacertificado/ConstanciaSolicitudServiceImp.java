@@ -485,11 +485,13 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Compania compania = ds.getCompania();
+        Oficina oficinaUsuario = ds.getOficinaMain();
         DateTime today = new DateTime();
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.CRE);
         TipoDocumentoCompaniaEnum tipoConEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.TRAM_CONS : TipoDocumentoCompaniaEnum.TRAM_CERT;
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
+//        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativoConstanciaCertificado(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario, oficinaUsuario);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
