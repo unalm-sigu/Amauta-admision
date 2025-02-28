@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.BigDecimalType;
+import org.hibernate.type.StringType;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
@@ -12,9 +15,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoNotaSeccion;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
@@ -58,7 +64,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
                 .filter("ci.id", ciclo)
                 .filter("nan.esMatriculable", 1)
-                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo", "cai.codigoAnterior", "mi.nombre","nan.estado","an.estado")
+                .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo", "cai.codigoAnterior", "mi.nombre", "nan.estado", "an.estado")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("nan.id DESC");
@@ -354,6 +360,71 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         long t2 = System.currentTimeMillis();
         log.info("{} NotaAlumnoNivelacion's actualizados en {} mseg....", rows, (t2 - t1));
         return rows;
+    }
+
+    @Override
+    public List<ResultadoNotaSeccion> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT ");
+        sql.append("    cu.nombre curso, ");
+        sql.append("    CASE ");
+        sql.append("        WHEN doc.id_persona IS NULL THEN 'DESCONOCIDO' ");
+        sql.append("        ELSE CONCAT(IFNULL(per.paterno,''), ' ', IFNULL(per.materno,''), ', ', IFNULL(per.nombres,''))  ");
+        sql.append("    END AS docente, ");
+        sql.append("    cn.codigo AS seccion, ");
+        sql.append("    caa.descripcion AS ciclo, ");
+        sql.append("    a.codigo AS matricula, ");
+        sql.append("    CONCAT(IFNULL(pe.paterno,''), ' ', IFNULL(pe.materno,''), ', ', IFNULL(pe.nombres,'')) AS apellidosNombre, ");
+        sql.append("    MAX(CASE WHEN ten.codigo = 'EVA1' THEN round(ifnull(ean.nota_examen,'Sin Nota'),0) END) AS evaluacionParcial1, ");
+        sql.append("    MAX(CASE WHEN ten.codigo = 'EVA2' THEN round(ifnull(ean.nota_examen,'Sin Nota'),0) END) AS evaluacionParcial2, ");
+        sql.append("    MAX(CASE WHEN ten.codigo = 'EF' THEN round(ifnull(ean.nota_examen,'Sin Nota'),0) END) AS examenFinal, ");
+        sql.append("    nan.nota_curso AS promedioFinal, ");
+        sql.append("    CASE WHEN nan.aprobado THEN 'Aprobado' ELSE 'Desaprobado' END AS condicion ");
+        sql.append(" FROM eegg_nota_alumno_nivelacion nan ");
+        sql.append(" JOIN eegg_alumno_nivelacion an ON an.id = nan.id_alumno_nivelacion ");
+        sql.append(" JOIN aca_alumno a ON a.id = an.id_alumno ");
+        sql.append(" JOIN aca_carrera car ON a.id_carrera = car.id ");
+        sql.append(" JOIN gen_persona pe ON pe.id = a.id_persona ");
+        sql.append(" JOIN eegg_examen_alumno_nivelacion ean ON ean.id_nota_alumno_nivelacion = nan.id ");
+        sql.append(" JOIN eegg_examen_curso_nivelacion ecn ON ean.id_examen_curso_nivelacion = ecn.id ");
+        sql.append(" JOIN eegg_tipo_examen_nivelacion ten ON ecn.id_tipo_examen_nivelacion = ten.id ");
+        sql.append(" JOIN eegg_curso_nivelacion cn ON cn.id = nan.id_curso_nivelacion ");
+        sql.append(" LEFT JOIN aca_docente doc ON cn.id_docente = doc.id ");
+        sql.append(" LEFT JOIN gen_persona per ON doc.id_persona = per.id ");
+        sql.append(" JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico ");
+        sql.append(" JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id ");
+        sql.append(" JOIN aca_curso cu ON cu.id = cc.id_curso ");
+        sql.append(" WHERE caa.id = :CICLO ");
+        sql.append("    AND an.estado IN ('NMAT','MAT') ");
+        sql.append("    AND nan.estado IN ('NMAT','MAT') ");
+        if (seccion != null) {
+            sql.append("    AND cn.codigo = :SECCION ");
+        }
+        sql.append("    AND nan.tema_aprobado = false ");
+        sql.append(" GROUP BY ");
+        sql.append("   cu.nombre, cn.codigo, caa.descripcion, a.codigo, pe.paterno, pe.materno, pe.nombres, nan.nota_curso, nan.aprobado, doc.id_persona, per.paterno, per.materno, per.nombres ");
+        sql.append(" ORDER BY  4, 1, 3, 6; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("docente", StringType.INSTANCE)
+                .addScalar("seccion", StringType.INSTANCE)
+                .addScalar("ciclo", StringType.INSTANCE)
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("apellidosNombre", StringType.INSTANCE)
+                .addScalar("evaluacionParcial1", BigDecimalType.INSTANCE)
+                .addScalar("evaluacionParcial2", BigDecimalType.INSTANCE)
+                .addScalar("examenFinal", BigDecimalType.INSTANCE)
+                .addScalar("promedioFinal", BigDecimalType.INSTANCE)
+                .addScalar("condicion", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ResultadoNotaSeccion.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        if (seccion != null) {
+            query.setParameter("SECCION", seccion);
+        }
+        return (List<ResultadoNotaSeccion>) query.list();
+
     }
 
 }

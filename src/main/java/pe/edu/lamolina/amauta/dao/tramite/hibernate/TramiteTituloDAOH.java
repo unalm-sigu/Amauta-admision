@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -124,7 +125,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tt")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
-                .filter("tt.estadoTitulo","<>", TramiteEstadoEnum.ANU)
+                .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL.name())
                 .orderBy("per.paterno");
 
         return all(sql);
@@ -156,7 +157,6 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucion", resolucion)
-                .orderBy("per.paterno")
                 .orderBy("per.paterno");
         return all(sql);
     }
