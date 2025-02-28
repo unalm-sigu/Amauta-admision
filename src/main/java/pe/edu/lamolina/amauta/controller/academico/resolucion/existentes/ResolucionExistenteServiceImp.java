@@ -2062,7 +2062,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoSolFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
             }
