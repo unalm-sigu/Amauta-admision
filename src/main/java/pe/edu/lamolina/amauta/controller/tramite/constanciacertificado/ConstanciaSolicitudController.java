@@ -238,6 +238,7 @@ public class ConstanciaSolicitudController {
     public JsonResponse update(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
+        ObjectUtil.printAttr(documentoAcademico);
 
         try {
 

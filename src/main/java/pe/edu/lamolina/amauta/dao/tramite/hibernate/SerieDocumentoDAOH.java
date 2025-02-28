@@ -30,16 +30,16 @@ public class SerieDocumentoDAOH extends AbstractEasyDAO<SerieDocumento> implemen
 
     }
 
-//    @Override
-//    public SerieDocumento findCorrelativoOficina(TipoDocumentoCompania tipo, String nroSerie, Oficina oficina) {
-//        Octavia sql = Octavia.query()
-//                .from(SerieDocumento.class, "sd")
-//                .join("tipoDocumentoCompania tdc")
-//                .filter("tdc.id", tipo)
-//                .filter("sd.numeroSerie", nroSerie)
-//                .filter("sd.oficina", oficina);
-//        return find(sql);
-//    }
+    @Override
+    public SerieDocumento findCorrelativoOficina(TipoDocumentoCompania tipo, String nroSerie, Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(SerieDocumento.class, "sd")
+                .join("tipoDocumentoCompania tdc")
+                .filter("tdc.id", tipo)
+                .filter("sd.numeroSerie", nroSerie)
+                .filter("sd.oficina", oficina);
+        return find(sql);
+    }
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)

@@ -9,6 +9,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 public interface SerieDocumentoService {
 
     SerieDocumento getCorrelativo(TipoDocumentoCompania tipo, Long nroSerie, Usuario usuario);
-//    SerieDocumento getCorrelativoConstanciaCertificado(TipoDocumentoCompania tipo, Long nroSerie, Usuario usuario, Oficina oficina);
+    SerieDocumento getCorrelativoConstanciaCertificado(TipoDocumentoCompania tipo, Long nroSerie, Usuario usuario, Oficina oficina);
 
 }

@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 public interface SerieDocumentoDAO extends EasyDAO<SerieDocumento> {
 
     SerieDocumento findCorrelativo(TipoDocumentoCompania tipo, String nroSerie);
-//    SerieDocumento findCorrelativoOficina(TipoDocumentoCompania tipo, String nroSerie, Oficina oficina);
+    SerieDocumento findCorrelativoOficina(TipoDocumentoCompania tipo, String nroSerie, Oficina oficina);
 
     SerieDocumento findLock(Long id);
 
