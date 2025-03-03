@@ -176,6 +176,8 @@ public class AconsejadosTutorController {
                     .from(tutorado)
                     .join("alumno", "id,codigo,creditosCursados,creditosAprobados,promedioAcumulado")
                     .join("alumno.cicloIngreso", "descripcion")
+                    .join("alumno.postulantePregrado.modalidadIngreso", "nombre")
+                    .join("alumno.postulantePregrado.cicloPostula.cicloAcademico", "descripcion")
                     .join("alumno.situacionAcademica", "codigo,nombre,descripcion,nivelRiesgo")
                     .join("alumno.persona", "apellidosNombres,numeroDocIdentidad,emailCompania,sexo,tipoFoto,rutaFoto")
                     .join("alumno.persona.tipoDocumento", "simbolo")

@@ -72,14 +72,14 @@
                                         <div class="pull-left">
                                             <div v-if="alumnoConsejero.alumno.persona.tipoFoto=='POSTUL' "
                                                  class="img-responsive img-thumbnail img-circle div-foto-list">
-                                                <img class="img-foto-list" v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+                                                <img class="img-foto-list" v-bind:src="alumnoConsejero.alumno.persona.rutaFoto"></img>
                                             </div>
                                             <img v-else-if="alumnoConsejero.alumno.persona.tipoFoto=='COMUN' " 
                                                  class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                                 v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+                                                 v-bind:src="alumnoConsejero.alumno.persona.rutaFoto"></img>
                                             <img v-else="" 
                                                  class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                                 v-bind:src="alumnoConsejero.alumno.persona.rutaFoto" />
+                                                 v-bind:src="alumnoConsejero.alumno.persona.rutaFoto"></img>
                                         </div>                                
                                     </td>
                                     <td class="v-middle">
@@ -146,7 +146,7 @@
             <div class="form-group row">
                 <div class="col-md-12">                    
                     <label>Comentario</label>
-                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"/>
+                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"></textarea>
                 </div>
             </div>
             <div class="form-group row">
@@ -233,7 +233,7 @@
             <div class="form-group row">
                 <div class="col-md-12">                    
                     <label>Comentario</label>
-                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"/>
+                    <textarea class="form-control" v-model="reunionConsejero.comentario" required="" placeholder="Ingrese un comentario"></textarea>
                 </div>
             </div>
         </div>
