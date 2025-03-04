@@ -20,7 +20,7 @@ import pe.edu.lamolina.amauta.zelper.reportes.ExcelHelper;
 import pe.edu.lamolina.model.misc.Acumulador;
 
 @Component
-public class ExcelResultadosNotasSeccion extends AbstractView {
+public class ExcelNotasPorSeccion extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -44,12 +44,12 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
         Sheet sheetDetalle = workbook.createSheet("Data");
         ExcelHelper excelUtil = new ExcelHelper(sheetDetalle, workbook);
 
-        List<ResultadoNotaSeccion> resultado = (List<ResultadoNotaSeccion>) model.get("resultado");
+        List<ResultadoNotaSeccion> resultados = (List<ResultadoNotaSeccion>) model.get("resultado");
 
-        this.crearHeaderDetalle(excelUtil, rowCounterSheet);
+        this.crearHeaderDetalle(excelUtil, resultados, rowCounterSheet);
 
         rowCounterSheet.incrementar();
-        this.crearItemsDetalle(excelUtil, resultado, rowCounterSheet);
+        this.crearItemsDetalle(excelUtil, resultados, rowCounterSheet);
     }
 
     private void crearItemsDetalle(ExcelHelper excelUtil, List<ResultadoNotaSeccion> resultado, Acumulador rowCounter) {
@@ -60,27 +60,13 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
         {
 
             int col = 0;
-            excelUtil.setWidthColumn(col, 5000);
+
+            excelUtil.setWidthColumn(col, 1000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Ciclo de nivelación");
+            excelUtil.replaceVal(rowCounter.getValor(), col, "N°");
             col++;
 
-            excelUtil.setWidthColumn(col, 12000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Curso Nivelación");
-            col++;
-
-            excelUtil.setWidthColumn(col, 12000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Docente");
-            col++;
-
-            excelUtil.setWidthColumn(col, 3000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Sección");
-            col++;
-
-            excelUtil.setWidthColumn(col, 4000);
+            excelUtil.setWidthColumn(col, 6000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Matrícula");
             col++;
@@ -114,24 +100,14 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
             rowCounter.incrementar();
         }
 
+        Acumulador numeroAlumno = new Acumulador(1);
         resultado.forEach(data -> {
 
             int col = 0;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getCiclo());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getCurso());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getDocente());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getSeccion());
+            excelUtil.replaceVal(rowCounter.getValor(), col, numeroAlumno.getValor());
+            numeroAlumno.incrementar();
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
@@ -166,22 +142,48 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
         });
     }
 
-    private void crearHeaderDetalle(ExcelHelper excelUtil, Acumulador rowCounterSheet) {
+    private void crearHeaderDetalle(ExcelHelper excelUtil, List<ResultadoNotaSeccion> resultado, Acumulador rowCounterSheet) {
 
         DateTime today = new DateTime();
         ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 6);
         excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBoldSize14(HorizontalAlignment.CENTER));
-        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "INFORME GENERAL DE NOTAS DE NIVELACIÓN DE INGRESANTES");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "INFORME DE NOTAS DE NIVELACIÓN DE INGRESANTES");
         rowCounterSheet.incrementar();
 
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
+        excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Materia de Nivelación");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(resultado.get(0).getCurso()));
+        rowCounterSheet.incrementar();
+
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
+        excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Profesor");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(resultado.get(0).getDocente()));
+        rowCounterSheet.incrementar();
+
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
+        excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Ciclo");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(resultado.get(0).getCiclo()));
+        rowCounterSheet.incrementar();
+
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
+        excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Sección");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(resultado.get(0).getSeccion()));
+        rowCounterSheet.incrementar();
+
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Fecha reporte");
-        excelUtil.replaceVal(rowCounterSheet.getValor(), 1, capitaliza(TypesUtil.getStringDate(today.toDate(), "EEEE dd 'de' MMMM 'de' yyyy", "es")));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(TypesUtil.getStringDate(today.toDate(), "EEEE dd 'de' MMMM 'de' yyyy", "es")));
         rowCounterSheet.incrementar();
 
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
         excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBold(HorizontalAlignment.LEFT));
         excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "Hora reporte");
-        excelUtil.replaceVal(rowCounterSheet.getValor(), 1, capitaliza(TypesUtil.getStringDate(today.toDate(), "HH:mm")));
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 2, capitaliza(TypesUtil.getStringDate(today.toDate(), "HH:mm")));
         rowCounterSheet.incrementar();
     }
 
@@ -189,7 +191,7 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
 
         String fechaCreacion = new DateTime().toString("yyyMMdd_HHmm");
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "ReporteNotasSeccion_" + fechaCreacion + ".xlsx\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + "ReporteNotasPorSeccion_" + fechaCreacion + ".xlsx\"");
         response.setContentType(getContentType());
         ServletOutputStream out = response.getOutputStream();
         workbook.write(out);

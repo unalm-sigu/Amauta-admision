@@ -6,6 +6,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 
 public interface ReporteEGService {
 
-    List<ResultadoNotaSeccion> allResultadoNotaSeccionByCiclo(CicloAcademico cicloAcademico);
+    List<ResultadoNotaSeccion> allGeneralNotaSeccionByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoNotaSeccion> allBySeccionAndCiclo(CicloAcademico cicloAcademico, String idSeccion);
 
 }

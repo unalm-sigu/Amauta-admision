@@ -20,8 +20,15 @@ public class ReporteEGServiceImpl implements ReporteEGService {
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
     @Override
-    public List<ResultadoNotaSeccion> allResultadoNotaSeccionByCiclo(CicloAcademico cicloAcademico) {
+    public List<ResultadoNotaSeccion> allGeneralNotaSeccionByCiclo(CicloAcademico cicloAcademico) {
         return notaAlumnoNivelacionDAO.allResultadoNotaSeccionByCicloAndSeccion(cicloAcademico, null);
     }
+
+    @Override
+    public List<ResultadoNotaSeccion> allBySeccionAndCiclo(CicloAcademico cicloAcademico, String seccion) {
+        return notaAlumnoNivelacionDAO.allResultadoNotaSeccionByCicloAndSeccion(cicloAcademico, seccion);
+    }
+    
+    
 
 }
