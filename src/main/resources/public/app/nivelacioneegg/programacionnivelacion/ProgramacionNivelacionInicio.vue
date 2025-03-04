@@ -96,9 +96,24 @@
                                                 {{item.examenesConfigurados}}
                                             </span>
 
+
                                             <div v-bind:class="classEstadoNotas(item)" class="label">
                                                 {{item.estadoNotasEnum.value}}
+
                                             </div>
+                                            <span class="block pointer" v-if="item.examenesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarEvaluaciones(item,'SI')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-success"></i>
+                                                </a>
+                                            </span>
+                                            <span class="block pointer" v-else="item.examenesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarEvaluaciones(item,'NO')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-danger"></i>
+                                                </a>
+                                            </span>
+
+
+
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -265,6 +280,23 @@
                     this.processReporte = false;
                     notify(MESSAGES.errorComunicacion, "error");
                 });
+            },
+            descargarEvaluaciones(item, descargar) {
+                if (descargar === 'NO') {
+                    notify("Aun no han llenado las evaluaciones", "error");
+                } else {
+                    axios({
+                        url: APP.url(`nivelacioneegg/reporte/notaSeccion/${item.codigo}`),
+                        method: 'POST',
+                        responseType: 'blob'
+                    }).then((response) => {
+                        this.showReporte(response);
+                    }).catch(error => {
+                        console.log(error);
+                        this.processReporte = false;
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+                }
             },
             showReporte(response) {
                 let $vue = this;
