@@ -17,10 +17,12 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.zelper.reportes.ExcelHelper;
+import static pe.edu.lamolina.model.enums.dictadoclases.AsistenciaClasesEstadoEnum.ASISTIO;
 import pe.edu.lamolina.model.misc.Acumulador;
+import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
 
 @Component
-public class ExcelNotasPorSeccion extends AbstractView {
+public class ExcelAsistenciasPorSeccion extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -61,40 +63,45 @@ public class ExcelNotasPorSeccion extends AbstractView {
 
             int col = 0;
 
+//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
             excelUtil.setWidthColumn(col, 1000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "N°");
             col++;
 
+//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
             excelUtil.setWidthColumn(col, 6000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Matrícula");
             col++;
 
+//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
             excelUtil.setWidthColumn(col, 12000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Apellidos Nombres");
             col++;
+            
+//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), col, 14);
+//            excelUtil.setWidthColumn(col, 12000);
+//            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+//            excelUtil.replaceVal(rowCounter.getValor(), col, "Clases");
+//            col++;
+            
+            List<AsistenciaNivelacion> asistencias = resultado.get(col).getAsistencias();
+            Acumulador numeroAsistencia = new Acumulador(1);
 
-            excelUtil.setWidthColumn(col, 5500);
+            for (AsistenciaNivelacion asistencia : asistencias) {
+                excelUtil.setWidthColumn(col, 1000);
+                excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+                excelUtil.replaceVal(rowCounter.getValor(), col, numeroAsistencia.getValor());
+                numeroAsistencia.incrementar();
+                col++;
+            }
+
+//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
+            excelUtil.setWidthColumn(col, 7000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Evaluación parcial 1");
-            col++;
-            excelUtil.setWidthColumn(col, 5500);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Evaluación parcial 2");
-            col++;
-            excelUtil.setWidthColumn(col, 4000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Examen Final");
-            col++;
-            excelUtil.setWidthColumn(col, 4000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Promedio Final");
-            col++;
-            excelUtil.setWidthColumn(col, 4000);
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Condición");
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Porcentaje de Asistencia");
             col++;
 
             rowCounter.incrementar();
@@ -117,25 +124,15 @@ public class ExcelNotasPorSeccion extends AbstractView {
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getApellidosNombre());
             col++;
+            List<AsistenciaNivelacion> asistencias = data.getAsistencias();
+            for (AsistenciaNivelacion asistencia : asistencias) {
+                excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+                excelUtil.replaceVal(rowCounter.getValor(), col, asistencia.getEstadoEnum() == ASISTIO ? "x" : "");
+                col++;
+            }
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getEvaluacionParcial1());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getEvaluacionParcial2());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getExamenFinal());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getPromedioFinal());
-            col++;
-
-            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getCondicion());
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getPorcentajeAsistencia());
             col++;
 
             rowCounter.incrementar();
@@ -147,7 +144,7 @@ public class ExcelNotasPorSeccion extends AbstractView {
         DateTime today = new DateTime();
         ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 6);
         excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBoldSize14(HorizontalAlignment.CENTER));
-        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "INFORME DE NOTAS DE NIVELACIÓN DE INGRESANTES");
+        excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "LISTA DE ASISTENCIA DE NIVELACIÓN DE INGRESANTES");
         rowCounterSheet.incrementar();
 
         ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 1);
@@ -191,7 +188,7 @@ public class ExcelNotasPorSeccion extends AbstractView {
 
         String fechaCreacion = new DateTime().toString("yyyMMdd_HHmm");
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "ReporteNotasPorSeccion_" + fechaCreacion + ".xlsx\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + "ReporteAsistenciaPorSeccion_" + fechaCreacion + ".xlsx\"");
         response.setContentType(getContentType());
         ServletOutputStream out = response.getOutputStream();
         workbook.write(out);

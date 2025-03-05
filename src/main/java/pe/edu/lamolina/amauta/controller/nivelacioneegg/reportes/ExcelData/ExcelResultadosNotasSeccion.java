@@ -15,7 +15,7 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoNotaSeccion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.zelper.reportes.ExcelHelper;
 import pe.edu.lamolina.model.misc.Acumulador;
 
@@ -44,7 +44,7 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
         Sheet sheetDetalle = workbook.createSheet("Data");
         ExcelHelper excelUtil = new ExcelHelper(sheetDetalle, workbook);
 
-        List<ResultadoNotaSeccion> resultado = (List<ResultadoNotaSeccion>) model.get("resultado");
+        List<ResultadoReporteView> resultado = (List<ResultadoReporteView>) model.get("resultado");
 
         this.crearHeaderDetalle(excelUtil, rowCounterSheet);
 
@@ -52,7 +52,7 @@ public class ExcelResultadosNotasSeccion extends AbstractView {
         this.crearItemsDetalle(excelUtil, resultado, rowCounterSheet);
     }
 
-    private void crearItemsDetalle(ExcelHelper excelUtil, List<ResultadoNotaSeccion> resultado, Acumulador rowCounter) {
+    private void crearItemsDetalle(ExcelHelper excelUtil, List<ResultadoReporteView> resultado, Acumulador rowCounter) {
         CellStyle estiloCenter = excelUtil.getConBordes(HorizontalAlignment.CENTER);
         CellStyle estiloLeft = excelUtil.getConBordes(HorizontalAlignment.LEFT);
         CellStyle estiloHead = excelUtil.getBgGreenLetraBlanca(HorizontalAlignment.CENTER);

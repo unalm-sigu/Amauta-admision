@@ -15,7 +15,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoNotaSeccion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -363,7 +363,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
-    public List<ResultadoNotaSeccion> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion) {
+    public List<ResultadoReporteView> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion) {
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT ");
         sql.append("    cu.nombre curso, ");
@@ -417,13 +417,13 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .addScalar("examenFinal", BigDecimalType.INSTANCE)
                 .addScalar("promedioFinal", BigDecimalType.INSTANCE)
                 .addScalar("condicion", StringType.INSTANCE)
-                .setResultTransformer(Transformers.aliasToBean(ResultadoNotaSeccion.class));
+                .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));
 
         query.setParameter("CICLO", cicloAcademico.getId());
         if (seccion != null) {
             query.setParameter("SECCION", seccion);
         }
-        return (List<ResultadoNotaSeccion>) query.list();
+        return (List<ResultadoReporteView>) query.list();
 
     }
 

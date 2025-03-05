@@ -4,7 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoNotaSeccion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
@@ -45,6 +45,6 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     int updateList(List<NotaAlumnoNivelacion> notasAlumnos, String... columnas);
 
-    List<ResultadoNotaSeccion> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion);
+    List<ResultadoReporteView> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion);
 
 }
