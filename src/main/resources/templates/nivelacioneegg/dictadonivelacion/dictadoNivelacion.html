@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Programación Cursos Nivelación</title>
+        <title>Lecciones de Cursos de Nivelación</title>
         <style>
         </style>
     </head>
@@ -12,15 +12,16 @@
         <div layout:fragment="js" th:remove="tag">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var gruposHorasJson = /*[[${gruposHorasJson.toString()}]]*/ 'json';
+                var seccionJson = /*[[${seccionJson.toString()}]]*/ 'json';
                 var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
                 var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
-                var rutaModuloLeccion = /*[[${rutaModuloLeccion}]]*/ 'json';
+                var origen = /*[[${origen}]]*/ 'json';
+                var seccion = JSON.parse(seccionJson);
                 /*]]>*/
             </script>
             <div th:replace="_modules/vue-modal"></div>
             <div th:replace="_modules/vue-raptor-table"></div>
-            <script th:src="@{/app/nivelacioneegg/programacionnivelacion/programacionNivelacion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/nivelacioneegg/dictadonivelacion/dictadoNivelacion.js}" charset="utf-8"></script>
         </div>
     </body>
 </html>

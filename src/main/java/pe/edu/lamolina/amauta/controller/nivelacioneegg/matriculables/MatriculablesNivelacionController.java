@@ -19,6 +19,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.BuscarCruceDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -147,6 +148,7 @@ public class MatriculablesNivelacionController {
                 .join("temaExamen", "id,codigo,nombre")
                 .join("cursoNivelacion", "id")
                 .join("cursoNivelacion.grupoHoras", "id,codigo")
+                .join("alumnoNivelacion", "id")
                 .join("alumnoNivelacion.alumno", "id,codigo")
                 .join("alumnoNivelacion.alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
                 .join("alumnoNivelacion.alumno.persona.tipoDocumento", "simbolo,nombre")
@@ -155,6 +157,19 @@ public class MatriculablesNivelacionController {
         JsonResponse json = new JsonResponse();
         json.setData(node);
         json.setSuccess(Boolean.TRUE);
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarCruce")
+    public JsonResponse verificarCruce(@RequestBody BuscarCruceDTO form, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        String cruces = service.verificarCruce(form, ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setMessage(cruces);
+        json.setSuccess(cruces == null);
+
         return json;
     }
 

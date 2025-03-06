@@ -68,6 +68,17 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
     }
 
     @Override
+    public CursoNivelacion findSeccion(CursoNivelacion form, CicloAcademico cicloForm) {
+        CursoNivelacion seccion = cursoNivelacionDAO.find(form.getId());
+        Assert.isNotNull(seccion, "No existe la sección solicitada");
+
+        CicloAcademico ciclo = seccion.getCursoCiclo().getCicloAcademico();
+        Assert.isTrue(ciclo.getId().equals(cicloForm.getId()), "Esta sección no corresponde al ciclo actual");
+
+        return seccion;
+    }
+
+    @Override
     public List<TemaAsistencia> allLecciones(DynatableFilter filter, CursoNivelacion seccion) {
         return temaAsistenciaDAO.allSeccionByDynatable(filter, seccion);
     }

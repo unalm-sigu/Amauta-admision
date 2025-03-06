@@ -37,16 +37,11 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Grupo horario</label>
-                                        <template v-if="notaAlumno.grupoHorasConfig">
-                                            <span class="item-form-control item-form-gray text-primary">
-                                                {{notaAlumno.grupoHorasConfig.codigo}}
-                                            </span>
-                                        </template>
-                                        <template v-else="">
+                                        <template>
                                             <multiselect v-model="notaAlumno.grupoHoras"
                                                          v-bind:options="gruposHoras"
                                                          v-bind:allow-empty="false"
-                                                         v-on:input="selectGrupo"
+                                                         v-on:input="verificarCruce"
                                                          track-by="id"
                                                          placeholder="Seleccione un grupo"
                                                          v-bind:showNoOptions="true"
@@ -70,7 +65,18 @@
                                 </div>
 
                                 <div class="col-md-8">
-                                    <div class="form-group">
+                                    <div v-if="loadingSecciones"
+                                         class="alert alert-primary">
+                                        <h4>Cargando datos...</h4>
+                                    </div>
+                                    
+                                    <div v-else-if="hayCruce"
+                                         class="alert alert-danger">
+                                        <h4>{{detalleCruce}}</h4>
+                                    </div>
+
+                                    <div v-else="" 
+                                         class="form-group">
                                         <label>Sección:</label>
                                         <multiselect v-model="notaAlumno.cursoNivelacion"
                                                      v-bind:options="secciones"
@@ -154,6 +160,9 @@
                 notaAlumno: null,
                 raptor: null,
                 visible: false,
+                loadingSecciones: false,
+                hayCruce: false,
+                detalleCruce: '',
                 secciones: [],
                 ciclo: JSON.parse(cicloJson),
                 gruposHoras: JSON.parse(gruposHorasJson),
@@ -172,6 +181,7 @@
                 var form = $("#" + this.form);
                 form.parsley().destroy();
 
+                this.hayCruce = false;
                 this.secciones = [];
                 this.raptor = raptor;
                 this.infoAlumno(item);
@@ -197,6 +207,32 @@
 
                     if (this.notaAlumno.grupoHoras) {
                         this.selectGrupo(this.notaAlumno.grupoHoras);
+                    }
+                });
+            },
+            verificarCruce(item) {
+                this.notaAlumno.cursoNivelacion = null;
+                this.secciones = [];
+                this.hayCruce = false;
+                this.loadingSecciones = true;
+
+                let payload = {
+                    grupoHoras: item,
+                    cursoCiclo: {curso: {id: this.notaAlumno.curso.id}},
+                    alumnoNivelacion: {id: this.notaAlumno.alumnoNivelacion.id}
+                };
+
+                myUtils.axios(VUE_AXIOS.structGetData({
+                    url: `/${rutaModulo}/verificarCruce`,
+                    body: payload,
+                    rejectError: false
+                })).then((resp) => {
+                    this.loadingSecciones = false;
+                    if (resp.data.success) {
+                        this.selectGrupo(item);
+                    } else {
+                        this.hayCruce = true;
+                        this.detalleCruce = resp.data.message;
                     }
                 });
             },

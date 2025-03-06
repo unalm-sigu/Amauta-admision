@@ -22,6 +22,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnoNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnosNivelacionResumen;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
@@ -117,6 +118,18 @@ public class AlumnosNivelacionController {
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumen")
+    public JsonResponse resumen(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        AlumnosNivelacionResumen resumen = service.resumen(ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        json.setData(JaneHelper.from(resumen).json());
+        json.setSuccess(true);
         return json;
     }
 

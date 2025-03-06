@@ -50,10 +50,12 @@ public class AsistenciaNivelacionController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         Docente docente = ds.getDocente();
 
-        TemaAsistencia leccion = service.findLeccion(new TemaAsistencia(idLeccion), docente, ciclo);
+        TemaAsistencia leccion = docente == null ? service.findLeccion(new TemaAsistencia(idLeccion), ciclo)
+                : service.findLeccion(new TemaAsistencia(idLeccion), docente, ciclo);
 
         model.addAttribute("leccionJson", this.createLeccionJson(leccion));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
+        model.addAttribute("esDocente", docente != null);
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/nivelacioneegg/carganivelacion"));
 
@@ -70,7 +72,8 @@ public class AsistenciaNivelacionController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         Docente docente = ds.getDocente();
 
-        TemaAsistencia leccion = service.findLeccion(new TemaAsistencia(idLeccion), docente, ciclo);
+        TemaAsistencia leccion = docente == null ? service.findLeccion(new TemaAsistencia(idLeccion), ciclo)
+                : service.findLeccion(new TemaAsistencia(idLeccion), docente, ciclo);
         List<AsistenciaNivelacion> asistentes = service.allInscritos(filter, leccion);
 
         ArrayNode array = this.createAsistentesJson(asistentes);
@@ -79,6 +82,7 @@ public class AsistenciaNivelacionController {
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
+
         return json;
     }
 

@@ -48,6 +48,20 @@ public class AsistenciaNivelacionServiceImpl implements AsistenciaNivelacionServ
     }
 
     @Override
+    public TemaAsistencia findLeccion(TemaAsistencia form, CicloAcademico cicloForm) {
+        TemaAsistencia leccion = temaAsistenciaDAO.find(form.getId());
+        Assert.isNotNull(leccion, "No existe la lección solicitada");
+
+        CursoNivelacion seccion = leccion.getCursoNivelacion();
+        Assert.isNotNull(seccion, "No existe la sección solicitada");
+
+        CicloAcademico ciclo = seccion.getCursoCiclo().getCicloAcademico();
+        Assert.isTrue(ciclo.getId().equals(cicloForm.getId()), "Esta sección no corresponde al ciclo actual");
+
+        return leccion;
+    }
+
+    @Override
     public List<AsistenciaNivelacion> allInscritos(DynatableFilter filter, TemaAsistencia leccion) {
         return asistenciaNivelacionDAO.allLeccionByDynatable(filter, leccion);
     }
