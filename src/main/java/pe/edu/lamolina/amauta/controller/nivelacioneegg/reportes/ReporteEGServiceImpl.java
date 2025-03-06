@@ -44,11 +44,6 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         asistenciaSeccion.forEach(x -> {
             List<AsistenciaNivelacion> asistenciaAlumno = alumnosAsistencias.get(x.getMatricula());
             x.setAsistencias(asistenciaAlumno);
-
-            System.out.println("alumno::: " + x.getMatricula());
-            for (AsistenciaNivelacion asistenciaNivelacion : asistenciaAlumno) {
-                System.out.println("asistencia::: " + asistenciaNivelacion.getTemaAsistencia().getTemaClase() + " - " + asistenciaNivelacion.getEstado());
-            }
         });
 
         return asistenciaSeccion;
