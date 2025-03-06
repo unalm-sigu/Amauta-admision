@@ -49,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**").permitAll()//
                 .and()
                 .oauth2Login()
+                .loginPage("/")
                 .authorizationEndpoint()
                 .authorizationRequestResolver(
                         new CustomAuthorizationRequestResolver(

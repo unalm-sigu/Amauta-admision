@@ -207,10 +207,11 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     public List<Reincorporacion> allPendientesByCicloReincorporacion() {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
-                .join("tramite tr", "cicloReincorporacion cr", "rei.alumno al", "al.persona")
+                .join("tramite tr", "cicloReincorporacion cr", "rei.alumno al", "al.persona per")
                 .join("al.cicloActivoRegular ", "al.modalidadEstudio me")
                 .filter("me.codigo", PRE)
-                .filter("rei.aceptado", 0);
+                .filter("rei.aceptado", 0)
+                .orderBy("per.paterno");
         return all(sql);
     }
 

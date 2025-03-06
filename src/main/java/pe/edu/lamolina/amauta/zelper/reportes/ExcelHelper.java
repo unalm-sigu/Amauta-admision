@@ -39,10 +39,12 @@ public class ExcelHelper {
         BORDES_BgGREEN_LETRABLANCA,
         LETRABOLD_SIZE14,
         LETRABOLD,
-        BORDES_LETRABOLD,
-        MONTO_BORDES_LETRAROJA,
         BORDES,
+        BORDES_LETRABOLD,
+        NUMERICO_SOLO,
+        MONTO_SOLO,
         MONTO_BORDES,
+        MONTO_BORDES_LETRAROJA,
         FECHA_BORDES
     }
 
@@ -580,8 +582,32 @@ public class ExcelHelper {
         return cellStyle;
     }
 
+    public CellStyle getNumerico(HorizontalAlignment posicion) {
+        String tipo = StyleEnum.NUMERICO_SOLO.name();
+        tipo += "_" + posicion.name();
+
+        CellStyle cellStyle = this.createMapStyle().get(tipo);
+        if (cellStyle != null) {
+            return cellStyle;
+        }
+
+        Font font = this.workBook.createFont();
+        font.setFontName("Arial");
+
+        DataFormat format = this.createDataFormat(StyleEnum.DATA_FORMAT_IMPORTE.name());
+
+        cellStyle = this.workBook.createCellStyle();
+        cellStyle.setAlignment(posicion);
+        cellStyle.setFont(font);
+        cellStyle.setDataFormat(format.getFormat("#,##0"));
+
+        this.mapCellStyle.put(tipo, cellStyle);
+
+        return cellStyle;
+    }
+
     public CellStyle getImporte(HorizontalAlignment posicion) {
-        String tipo = StyleEnum.MONTO_BORDES.name();
+        String tipo = StyleEnum.MONTO_SOLO.name();
         tipo += "_" + posicion.name();
 
         CellStyle cellStyle = this.createMapStyle().get(tipo);

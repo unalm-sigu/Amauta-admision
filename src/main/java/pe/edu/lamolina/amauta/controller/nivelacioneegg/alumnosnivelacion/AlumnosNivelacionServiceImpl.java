@@ -21,6 +21,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.dto.AlumnosNivelacionResumen;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helperalumnoniv.ChangeAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.PrelamolinaDAO;
@@ -120,6 +121,21 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
         }
 
         return alumnosNiv;
+    }
+
+    @Override
+    public AlumnosNivelacionResumen resumen(CicloAcademico ciclo, DataSessionPivot ds) {
+        AlumnosNivelacionResumen resumen = alumnoNivelacionDAO.findResumen(ciclo);
+        if (resumen.getNoMatriculados() == null) {
+            resumen.setNoMatriculados(0L);
+        }
+        if (resumen.getInhabilitados() == null) {
+            resumen.setInhabilitados(0L);
+        }
+        if (resumen.getMatriculados() == null) {
+            resumen.setMatriculados(0L);
+        }
+        return resumen;
     }
 
     @Override
@@ -318,12 +334,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         Map<Long, ModalidadTemaCiclo> mapConfigCepre = configuraciones.stream()
                 .filter(mtc -> mtc.getModalidadIngreso() != null)
                 .filter(mtc -> mtc.getModalidadIngreso().getCodigo().equals(CEPRE.getCode()))
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         alumnoNiv = new AlumnoNivelacion();
         Postulante postulante = alumno.getPostulantePregrado();

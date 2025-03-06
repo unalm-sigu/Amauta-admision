@@ -485,12 +485,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Compania compania = ds.getCompania();
+        Oficina oficinaUsuario = ds.getOficinaMain();
         DateTime today = new DateTime();
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.CRE);
         TipoDocumentoCompaniaEnum tipoConEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.TRAM_CONS : TipoDocumentoCompaniaEnum.TRAM_CERT;
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
-        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativoConstanciaCertificado(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario, oficinaUsuario);
+//        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
         Persona persona = alumno.getPersona();
@@ -615,14 +617,25 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         TramiteDocumentoAcademico tramiteDocumento = tramiteDocumentoAcademicoDAO.findTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCiclo(alumno.getCicloIngreso());
+
+        int semanaEquivalencia = 0;
+        if(cicloAcademico.getYear() < 2017){
+            semanaEquivalencia = 15;
+        }else{
+            semanaEquivalencia = 16;
+        }
+
         List<AlumnoCicloCurso> cursos = alumnoCicloCursoDAO.obtenerConstanciaCursos(alumno.getCodigo());
         int totalHorasTeoria = cursos.stream().mapToInt(c -> c.getCurso().getHorasTeoria()).sum();
         int totalHorasPractica = cursos.stream().mapToInt(c -> c.getCurso().getHorasPractica()).sum();
         int totalCreditos = cursos.stream().mapToInt(AlumnoCicloCurso::getCreditos).sum();
-        int totalHorasTeoriaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasTeoria() * 15).sum();
-        int totalHorasPracticaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasPractica() * 15).sum();
+        int finalSemanaEquivalencia = semanaEquivalencia;
+        int totalHorasTeoriaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasTeoria() * finalSemanaEquivalencia).sum();
+        int totalHorasPracticaSemestrales = cursos.stream().mapToInt(c -> c.getCurso().getHorasPractica() * finalSemanaEquivalencia).sum();
         int totalHorasSemestrales = totalHorasTeoriaSemestrales + totalHorasPracticaSemestrales;
+
+
 
         model.addAttribute("alumno", alumno);
         model.addAttribute("tramiteNumeroVisible",tramiteDocumento.getCorrelativoDocumento());
@@ -637,6 +650,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         model.addAttribute("totalHorasTeoriaSemestrales", totalHorasTeoriaSemestrales);
         model.addAttribute("totalHorasPracticaSemestrales", totalHorasPracticaSemestrales);
         model.addAttribute("totalHorasSemestrales", totalHorasSemestrales);
+        model.addAttribute("semanaEquivalencia", semanaEquivalencia);
 
     }
 

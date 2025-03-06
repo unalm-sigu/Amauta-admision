@@ -1263,7 +1263,11 @@ public class PromedioServiceImp implements PromedioService {
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
                 this.printLogger("Caso 42", showLog);
 
-            } else {
+            }  else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.ANRES) {
+                this.printLogger("Caso 43-1", showLog);
+                situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
+                return situacionAcademicaFinal;
+            }else {
                 this.printLogger("Caso 43", showLog);
                 situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(
                         alumnoCiclo,

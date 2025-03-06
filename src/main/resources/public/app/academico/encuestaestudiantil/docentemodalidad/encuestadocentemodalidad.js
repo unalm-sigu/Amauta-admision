@@ -17,10 +17,19 @@ new Vue({
         departamentosSelectos: [],
         facultad: null,
         departamento: null,
+        cursoSinEncuesta: null,
         tipoGrado: {id: 'PRE', nombre: 'Pregrado'},
         grados: [{id: 'PRE', nombre: 'Pregrado'}, {id: 'EPG', nombre: 'Posgrado'}],
         docente: null,
-        docentes: []
+        docentes: [],
+        modalCursoSinEncuesta: VUE_MODAL.structFormAjax({
+            id: 'modalCursoSinEncuesta',
+            header: true,
+            title: 'Cursos Sin Encuesta',
+            modalsize: 'modal-lg',
+            cancelbtn: 'Aceptar',
+            showaccept: false
+        }),
     },
     methods: {
         findTemas(item) {
@@ -35,8 +44,32 @@ new Vue({
         verReporte(item) {
             location.href = `${this.url}/${item.id}/reporte`;
         },
+        verReporteSinEncuesta(item) {
+            const fullUrl = `${this.url}/${item.id}/sinEncuesta`;
+
+            axios.get(fullUrl)
+                .then(response => {
+                    if (response.data.success) {
+                        this.cursoSinEncuesta = response.data.data;
+
+                        if (this.$refs.modalCursoSinEncuesta) {
+                            this.$refs.modalCursoSinEncuesta.open();
+                        }
+                    } else {
+                        notify(response.data.message || 'No hay datos disponibles', 'info');
+                    }
+                })
+                .catch(error => {
+                    notify(Messages.errorComunicacion, 'error');
+                });
+        },
+
+
         reporteGeneralShow() {
             this.$refs.reporteGeneralModal.open();
+        },
+        reporteGeneralSinCursosNoEncuestadosShow() {
+            this.$refs.reporteGeneralSinCursosModal.open();
         },
         downloadReporteTotal() {
             let vue = this;
@@ -54,6 +87,23 @@ new Vue({
                     }, () => {
                         vue.$refs.reporteGeneralModal.stop();
                         notify(Messages.errorComunicacion, 'error')
+                    });
+        },
+        downloadReporteSinCursoNoEncuestadosTotal() {
+            let vue = this;
+            let data = {
+                cicloAcademicos: vue.ciclo,
+                departamento: vue.departamento ? vue.departamento.id : '',
+                tipoGrado: vue.tipoGrado ? vue.tipoGrado.id : '',
+                facultad: vue.facultad ? vue.facultad.id : ''
+            };
+            axios_blob.post("/academico/encuestaestudiantil/docentemodalidad/reporte/sincursosnoencuestados", data)
+                    .then(response => {
+                        UTIL_BLOB.save(response);
+                        vue.$refs.reporteGeneralSinCursosModal.close();
+                    }, () => {
+                        vue.$refs.reporteGeneralSinCursosModal.stop();
+                        notify(Messages.errorComunicacion, 'error');
                     });
         },
         changeFacultad() {

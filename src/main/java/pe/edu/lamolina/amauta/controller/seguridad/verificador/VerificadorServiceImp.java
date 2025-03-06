@@ -380,9 +380,9 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean puedeEditarOficinas(DataSessionPivot ds) {
-        boolean puedeEditar = this.esTrabajadorOeraConRol(RolEnum.IOREA, ds);
-        if (puedeEditar) {
-            return puedeEditar;
+
+        if (this.esTrabajadorOeraConRol(RolEnum.IOREA, ds) || this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds)) {
+            return true;
         }
 
         Oficina areaSistemasOERA = oficinaDAO.findByCode(ASOERA.name());

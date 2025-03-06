@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface ProgramacionNivelacionService {
 
@@ -48,6 +49,8 @@ public interface ProgramacionNivelacionService {
 
     void changeVacantes(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 
+    void changeHorasDictado(CursoNivelacion cursoNiv, DataSessionPivot ds);
+
     void changeAula(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 
     void changeDocente(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
@@ -64,6 +67,6 @@ public interface ProgramacionNivelacionService {
 
     List<PeriodoDTO> addSemana(List<PeriodoDTO> semanasForm, String direccion);
 
-    public void changeHorasDictado(CursoNivelacion cursoNiv, DataSessionPivot ds);
+    List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion);
 
 }

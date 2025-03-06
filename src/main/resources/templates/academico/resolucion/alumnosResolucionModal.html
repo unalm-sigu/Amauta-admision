@@ -3,13 +3,13 @@
     <div slot="body">
         <div id="divDynatable">
             <table class="table table-condensed">
-                {{tipo}}
+                <caption style="font-size: 20px"> <b>{{ tipoMap[tipo] || tipo }}</b> </caption>
                 <thead>
                     <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th></th>
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
-                        <th v-if="tipo != 'TITULBAC'">Resolución</th>
+                        <th>Resolución</th>
                     </tr>
                     <tr v-else-if="tipo == 'BACHI'">
                         <th></th>
@@ -179,6 +179,9 @@
                         <td v-if="codigoOficina=='UNA'" class="v-middle text-center" style="width: 100px;">
                             <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
+                        <td v-if="codigoOficina!=='UNA'" class="v-middle">
+                            <strong>{{item.resolucionFacultad.descripcionFacultad }}</strong>
+                        </td>
                     </tr>
 
                     <tr v-if="tipo === 'BACHIFAC'" v-for="(item, index)  in alumnoTramiteBachiller" >
@@ -190,7 +193,7 @@
                             <strong>{{item.tramite.persona.paterno }} {{item.tramite.persona.materno }} {{item.tramite.persona.nombres }}</strong> 
                         </td>
                         <td>   
-                            <strong></strong> 
+                            <strong>{{item.resolucionFacultad.descripcionFacultad }}</strong>
                         </td>                        
                     </tr>
 

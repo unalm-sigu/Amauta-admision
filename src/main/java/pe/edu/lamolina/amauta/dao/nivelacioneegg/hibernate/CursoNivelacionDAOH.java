@@ -10,7 +10,6 @@ import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.enums.EstadoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
@@ -44,7 +43,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)
-                .searchFields("doc.codigo", "cn.codigo", "per.numeroDocIdentidad")
+                .searchFields("doc.codigo", "cn.codigo", "per.numeroDocIdentidad", "cu.codigo", "cu.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cn.id DESC");

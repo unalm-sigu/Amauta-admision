@@ -139,9 +139,9 @@ public class TramiteAulaController {
 
         ArrayNode array2 = new ArrayNode(jFactory);
         for (TipoReservaAmbienteEnum tipo : TipoReservaAmbienteEnum.values()) {
-//            ObjectNode node = new ObjectNode(jFactory);
-//            node.put("id", tipo.name());
-//            node.put("nombre", tipo.getValue());
+            ObjectNode node = new ObjectNode(jFactory);
+            node.put("id", tipo.name());
+            node.put("nombre", tipo.getValue());
             array2.add(tipo.getValue());
         }
 

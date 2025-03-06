@@ -694,7 +694,7 @@ public class AlumnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getCicloAcademico(), ds);
             avanceCurricularService.generarAvanceCurricularByAlumno(trasladoBean.getAlumno(), ds);
-            promedioService.calcularSituacionAcademica(trasladoBean.getAlumno(), ds);
+            promedioService.calcularSituacionAcademicaNewSession(trasladoBean.getAlumno(), ds);
 
             response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);

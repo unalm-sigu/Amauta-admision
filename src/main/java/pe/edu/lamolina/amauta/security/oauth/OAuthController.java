@@ -26,6 +26,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -192,7 +193,7 @@ public class OAuthController {
         return "redirect:/route66";
     }
 
-    @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
+    @GetMapping("bunnies/{email:.*}")
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -208,14 +209,18 @@ public class OAuthController {
                 }
 
                 boolean esIoera = false;
+                boolean esLogueoDocente = false;
                 List<Rol> roles = ds.getRoles();
                 for (Rol role : roles) {
                     if (role.getCodigoEnum() == RolEnum.IOREA) {
                         esIoera = true;
                     }
+                    if (role.getCodigoEnum() == RolEnum.LOGUEO_DOCENTE) {
+                        esLogueoDocente = true;
+                    }
                 }
 
-                if (!esIoera) {
+                if (!esIoera && !esLogueoDocente) {
                     return "redirect:/";
                 }
             }
@@ -360,7 +365,7 @@ public class OAuthController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "cicloland", method = RequestMethod.POST)
+    @PostMapping("cicloland")
     public void cicloland(HttpSession session, @RequestParam("ciclo") Long idCiclo) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -369,8 +374,12 @@ public class OAuthController {
         EventoCicloAcademico eventoEncuesta = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.ENCU_GEN);
         Date today = LocalDate.now().toDate();
 
-        if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoEncuesta != null && today.compareTo(eventoEncuesta.getFechaInicio()) >= 0
+        if (ds.getRolActivo() != null
+                && ds.getRolActivo().getCodigoEnum() == RolEnum.DOC
+                && eventoEncuesta != null
+                && today.compareTo(eventoEncuesta.getFechaInicio()) >= 0
                 && eventoEncuesta.getFechaFin().compareTo(today) >= 0) {
+
             AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
 
             Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,6 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.Alumno;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import pe.edu.lamolina.model.seguridad.Menu;
 
 @Slf4j
 @Controller
@@ -282,6 +280,7 @@ public class CicloAcademicoController extends VerificarUrlControServiceImp {
     @RequestMapping("changeVisiblelogin")
     public JsonResponse changeVisiblelogin(@RequestBody CicloAcademico cicloAcademico) {
         JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
         try {
             service.changeVisiblelogin(cicloAcademico);
             response.setMessage("Se actualizó el ciclo satisfactoriamente.");

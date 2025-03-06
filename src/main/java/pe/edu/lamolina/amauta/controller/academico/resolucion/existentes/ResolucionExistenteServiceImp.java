@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -1922,7 +1923,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //                log.debug("Solo esta permitido agregar alumnos en modo edición");
 //                continue;
 //            }
-
             tramiteBachiller.setResolucionFacultad(resolucion);
             tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
             tramiteBachiller.setFechaResolucion(new Date());
@@ -2038,7 +2038,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoSolFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 return "El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo";
             }
@@ -2062,7 +2062,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 .collect(Collectors.toList());
         for (TramiteTitulo titulo : tramiteTitulos) {
 
-            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoActFacultad(titulo.getAlumno());
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoSolFacultad(titulo.getAlumno());
             if (tramiteTitulo == null) {
                 throw new PhobosException("El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
             }
@@ -2197,6 +2197,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             tramiteDAO.save(tramite);
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
+            Assert.isTrue(alumnoCursoCurricula != null, "El alumno con codigo " + alumno.getCodigo() + " no tiene el curso de Prácticas Prepofesionales en su avance curricular.");
 
             log.debug("alumnoCursoCurricula {}", alumnoCursoCurricula.getId());
 

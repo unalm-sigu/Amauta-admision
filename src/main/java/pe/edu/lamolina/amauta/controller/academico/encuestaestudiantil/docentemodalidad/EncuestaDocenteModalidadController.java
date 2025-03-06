@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +27,14 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfHtmlEncuesta;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -196,6 +201,99 @@ public class EncuestaDocenteModalidadController {
 
         return new ModelAndView(pdfHtmlEncuesta);
 
+    }
+    
+    
+    @RequestMapping("reporte/sincursosnoencuestados")
+    public ModelAndView reporteSinCursosNoEncuestados(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
+
+        String codeRequest = verificadorService.generateCodeRequest();
+
+        ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(filtro.getTipoGrado());
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds, codeRequest);
+
+        if (filtro.getFacultad() != null) {
+
+            List<DepartamentoAcademico> departamentosXfacutad = departamentos
+                    .stream()
+                    .filter(x -> x.getFacultad().getId() == filtro.getFacultad())
+                    .collect(Collectors.toList());
+
+            if (!departamentosXfacutad.isEmpty()) {
+                departamentos = departamentosXfacutad;
+            }
+
+        }
+
+        if (filtro.getDepartamento() != null) {
+            departamentos.removeIf(x -> !x.equals(new DepartamentoAcademico(filtro.getDepartamento())));
+        }
+
+        List<CicloAcademico> ciclos = new ArrayList();
+
+        if (filtro.hasCiclo()) {
+            ciclos.addAll(filtro.getCicloAcademicos());
+        } else {
+            ciclos.add(ds.getCicloAcademico());
+        }
+
+//        if (filtro.getDocente() != null) {
+//
+//            List<Context> mulitpleContext = service.reporteUnicoDocenteMultipleCiclo(ciclos, modalidadEstudioEnum, departamentos, filtro.getDocente());
+//            model.addAttribute("multipleContext", mulitpleContext);
+//
+//        } else {
+
+            List<Context> mulitpleContext = service.reporteTodosSinCursoNoEncuestados(ciclos.get(0), modalidadEstudioEnum, departamentos);
+            model.addAttribute("multipleContext", mulitpleContext);
+
+//        }
+
+        model.addAttribute("templatePdf", "resultadoencuestasincursonoencuestado");
+        model.addAttribute("nombrePdf", System.currentTimeMillis() + "_ResultadoEncuesta");
+
+        return new ModelAndView(pdfHtmlEncuesta);
+
+    }
+
+    @RequestMapping( "{id}/sinEncuesta")
+    @ResponseBody
+    public JsonResponse obtenerSinEncuesta(@PathVariable Long id, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try{
+            List<EncuestaDocente> seccionesNoEncuestadas = service.cursosNoEncuestados(new EncuestaDocenteModalidad(id));
+
+            if (seccionesNoEncuestadas.isEmpty()) {
+                response.setSuccess(Boolean.FALSE);
+                response.setMessage("No tiene secciones anulados en este ciclo");
+                return response;
+            }
+
+            ObjectUtil.printAttr(seccionesNoEncuestadas);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for(EncuestaDocente x : seccionesNoEncuestadas ){
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("codigo", x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getCodigo());
+                node.put("seccion",x.getDocenteSeccion().getSeccion().getCodigo());
+                node.put("curso",x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getNombre());
+                node.put("comentario",x.getDescripcion());
+                node.put("tipoSecccion",x.getDocenteSeccion().getSeccion().getTipoSeccionEnum().getValue());
+                node.put("tpc",x.getDocenteSeccion().getSeccion().getGrupoSeccion().getCurso().getTpc());
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        }catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title> Resultado de las encuestas  </title>
@@ -389,7 +390,10 @@
         </tr>
     </thead>
     <tbody>
-        <tr th:each="anulada : ${anuladas}">
+        <tr th:if="${anuladas.empty}">
+            <td colspan="4">Sin secciones anuladas este ciclo</td>
+        </tr>
+        <tr th:unless="${anuladas.empty}" th:each="anulada : ${anuladas}" >
             <td>
                 <span th:text="${anulada.docenteSeccion.seccion.codigo2}"> seccion </span>
             </td>

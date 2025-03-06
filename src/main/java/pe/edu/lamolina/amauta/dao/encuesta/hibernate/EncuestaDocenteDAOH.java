@@ -44,6 +44,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("me.id", modalidadEstudio)
+                .filter("ciclo.id", cicloAcademico)
                 .filter("ed.estado", ANU);
         return all(sql);
     }
@@ -59,6 +60,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("doc.id", docente)
                 .filter("me.id", modalidadEstudio)
+                .filter("ciclo.id", cicloAcademico)
                 .filter("ed.estado", ANU);
         return all(sql);
     }

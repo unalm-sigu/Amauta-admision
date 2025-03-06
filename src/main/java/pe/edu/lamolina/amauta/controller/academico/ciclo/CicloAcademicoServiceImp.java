@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -294,7 +295,11 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Transactional
     public void changeVisiblelogin(CicloAcademico cicloAcademico) {
         CicloAcademico academico = cicloAcademicoDAO.find(cicloAcademico);
-        academico.setVisibleLogin(academico.getVisibleLogin() ? false : true);
+        if (Objects.isNull(academico.getVisibleLogin()) || !academico.getVisibleLogin()) {
+            academico.setVisibleLogin(Boolean.TRUE);
+        } else {
+            academico.setVisibleLogin(Boolean.FALSE);
+        }
         cicloAcademicoDAO.update(academico);
     }
 
@@ -306,7 +311,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 //        CicloAcademico academico = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
 //        List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCiclo(academico);
         List<TramiteTraslado> tramiteTraslados = tramiteTrasladoDAO.findByCicloAplica(cicloAcademico);
-        
+
         List<Alumno> alumnos = new ArrayList<>();
         for (TramiteTraslado tramiteTraslado : tramiteTraslados) {
             Alumno alumno = tramiteTraslado.getTramite().getAlumno();

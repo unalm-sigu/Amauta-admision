@@ -566,7 +566,7 @@ public class ResolucionExistenteController {
             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {
                 List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
                 return JaneHelper.from(graduados)
-                        .join("cicloAcademico", "id,descripcion,nombre")
+                        .join("cicloAcademico", "id,descripcion")
                         .join("gradoAcademico", "nombre")
                         .join("alumno", "codigo")
                         .join("alumno.persona", "id,numeroDocIdentidad,nombreCompleto,apellidosNombres")
@@ -590,7 +590,7 @@ public class ResolucionExistenteController {
                     .join("tramite.cicloAcademico", "descripcion")
                     .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
                     .join("resolucion.oficina", "codigo,id")
-                    .join("resolucion")
+                    .join("resolucionFacultad")
                     .array();
         } else if (tipoResolucionEnum == TITUL) {
             List<TramiteTitulo> tramiteTitulo = service.allResulucionTituloFacultadRes(resolucion);
@@ -609,7 +609,7 @@ public class ResolucionExistenteController {
                     .join("tramite.cicloAcademico", "descripcion")
                     .join("tramite.persona", "paterno,materno,nombres")
                     .join("resolucion.oficina", "codigo,id")
-                    .join("resolucion")
+                    .join("resolucionFacultad")
                     //                        .join("cicloAcademico", "id,descripcion,nombre")
                     .array();
         } else if (tipoResolucionEnum == ALUMRENUNCIA) {

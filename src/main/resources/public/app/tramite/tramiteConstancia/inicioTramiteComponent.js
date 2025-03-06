@@ -136,8 +136,12 @@ Vue.component("inicio-tram-component", {
                 }
             });
         },
+
         updateFormDocumento() {
             let $vue = this;
+
+            $vue.solicitud.tramite = $vue.tramite;
+            $vue.solicitud.valorParametro = $vue.ciclo.descripcion;
 
             var valid = $('#formSolicitudConstancia').parsley().validate();
             if (valid != true) {

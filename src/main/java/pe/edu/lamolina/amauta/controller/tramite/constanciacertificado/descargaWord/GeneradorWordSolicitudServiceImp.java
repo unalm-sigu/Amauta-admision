@@ -441,13 +441,16 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                     text = text.replace(enums.getValue(), alumno.getCarrera().getNombre().toUpperCase());
                                 }
                                 text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre().toUpperCase());
+                                System.out.println("////////////////////////////TEST");
                             } else if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && !isEspanol) {
                                 if (nombresCarrera == null) {
                                     throw new PhobosException("No se ha encontrado el nombre de la especialidad");
                                 }
                                 text = text.replace(enums.getValue(), " - Career of " + nombresCarrera.getNombre().toUpperCase());
+                                System.out.println("Ingreso en el segundo");
                             } else {
                                 text = text.replace(enums.getValue(), "");
+                                System.out.println("ingreso en else");
                             }
                             break;
                         case APELLIDO_PERSONA:

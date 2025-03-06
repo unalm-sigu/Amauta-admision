@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -62,7 +63,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .join("resolucion ")
-                .filter("tb.estado", TramiteEstadoEnum.ACEP)
+                .filter("tb.estado", TramiteEstadoEnum.ACEP.name())
                 .filter("al.id", alumno);
 
         return find(sql);
@@ -74,7 +75,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .join("resolucionFacultad")
-                .filter("tb.estadoTitulo", TramiteEstadoEnum.ACEP)
+                .filter("tb.estadoTitulo", TramiteEstadoEnum.ACEP.name())
                 .filter("al.id", alumno);
         return find(sql);
     }
@@ -112,7 +113,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tt")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
-                .filter("tt.estado", TramiteEstadoEnum.SOL)
+                .filter("tt.estado", TramiteEstadoEnum.SOL.name())
                 .orderBy("per.paterno");
 
         return all(sql);
@@ -124,7 +125,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tt")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
-                .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL)
+                .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL.name())
                 .orderBy("per.paterno");
 
         return all(sql);
@@ -135,7 +136,8 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
-                .filter("tb.resolucionFacultad", resolucion);
+                .filter("tb.resolucionFacultad", resolucion)
+                .orderBy("per.paterno");
         return all(sql);
     }
 
@@ -144,7 +146,8 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
-                .filter("tb.resolucionFacultad", resolucion);
+                .filter("tb.resolucionFacultad", resolucion)
+                .orderBy("per.paterno");
         return all(sql);
     }
 
@@ -154,7 +157,6 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucion", resolucion)
-                .orderBy("per.paterno")
                 .orderBy("per.paterno");
         return all(sql);
     }
@@ -165,7 +167,19 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
                 .join("car.facultad")
-                //.filter("tb.estadoTitulo", SOL)
+                .filter("tb.estadoTitulo", TramiteEstadoEnum.ACEP.name())
+                .filter("al.id", alumno);
+
+        return find(sql);
+    }
+
+    @Override
+    public TramiteTitulo findByAlumnoSolFacultad(Alumno alumno) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
+                .join("car.facultad")
+                .filter("tb.estadoTitulo", TramiteEstadoEnum.SOL.name())
                 .filter("al.id", alumno);
 
         return find(sql);

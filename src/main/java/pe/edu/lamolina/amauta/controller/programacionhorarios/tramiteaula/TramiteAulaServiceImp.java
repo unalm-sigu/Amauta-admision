@@ -295,8 +295,6 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Transactional
     public void save(ReservaAula reservaAula, DataSessionPivot ds) {
 
-        ObjectUtil.printAttr(reservaAula);
-
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
         TipoTramite tipoTramite = new TipoTramite(TipoTramiteEnum.RSVAULA.getId());
@@ -350,16 +348,23 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         tramite.setTipoTramite(tipoTramite);
         tramiteDAO.save(tramite);
 
-        if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Libre")){
-            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.LIB.name());
-        }else if(reservaAula.getTipoReservaAmbiente().equalsIgnoreCase("Pregrado")){
-            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.PRE.name());
-        }else {
-            reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.EPG.name());
+        TipoReservaAmbienteEnum tipoEnum;
+
+        switch (reservaAula.getTipoReservaAmbiente().trim()) {
+            case "Pregrado":
+                tipoEnum = TipoReservaAmbienteEnum.PRE;
+                break;
+            case "Posgrado":
+                tipoEnum = TipoReservaAmbienteEnum.EPG;
+                break;
+            default:
+                tipoEnum = TipoReservaAmbienteEnum.LIB;
+                break;
         }
 
+        reservaAula.setTipoReservaAmbiente(tipoEnum.getId());
+
         reservaAula.setTipoReserva("PUNT");
-        //reservaAula.setTipoReservaAmbiente(TipoReservaAmbienteEnum.EPG.name());
         reservaAula.setTipoSolicitud("1");
         reservaAula.setTramite(tramite);
         reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);

@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnado.reporte.ExcelMatriculadosNivelacion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.LeccionNivelacionController;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CambioCursoNivevalacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
@@ -37,6 +40,7 @@ import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 @Slf4j
 @Controller
@@ -49,6 +53,8 @@ public class ProgramacionNivelacionController {
 
     private final ProgramacionNivelacionService service;
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
+    private final ExcelMatriculadosNivelacion excelMatriculadosNivelacion;
+    private final LeccionNivelacionController leccionNivelacionController;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -60,6 +66,7 @@ public class ProgramacionNivelacionController {
         model.addAttribute("gruposHorasJson", this.createGruposJson(gruposHoras));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("rutaModuloLeccion", leccionNivelacionController.rutaModulo);
 
         return "nivelacioneegg/programacionnivelacion/programacionNivelacion";
     }
@@ -423,6 +430,24 @@ public class ProgramacionNivelacionController {
         json.setSuccess(Boolean.TRUE);
 
         return json;
+    }
+
+    @RequestMapping("{seccion}/reporteAlumnosSeccion")
+    public ModelAndView reporteRecargasComedor(
+            @PathVariable("seccion") Long idSeccion,
+            HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        CursoNivelacion seccion = service.findCursoNivelacion(new CursoNivelacion(idSeccion));
+        List<NotaAlumnoNivelacion> alumnado = service.allAlumnadoBySeccion(seccion);
+
+        model.addAttribute("alumnado", alumnado);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("ciclo", ciclo);
+
+        return new ModelAndView(excelMatriculadosNivelacion);
     }
 
     private ArrayNode createGruposJson(List<GrupoHorasNivelacion> grupos) {

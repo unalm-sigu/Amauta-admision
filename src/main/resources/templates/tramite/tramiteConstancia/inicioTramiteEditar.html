@@ -7,13 +7,13 @@
                     <label>Alumno</label>
                     <multiselect                                                   
                         v-model='tramite.alumno'
-                        :searchable="false"
+                        v-bind:internal-search='false'
                         v-bind:limit='15'
                         v-on:search-change="searchAlumnos"
                         v-bind:options='alumnos'
                         placeholder=" "
                         v-bind:show-labels="false"
-                        v-bind:allow-empty="false"
+                        v-bind:allow-empty="true"
                         track-by="id"
                         v-on:input="clearOption"
                         > <!--v-bind:disabled='isUpdate'-->
@@ -165,7 +165,6 @@
                 <div class="panel-footer col-xs-12 text-center">
                     <button  type="button"
                              class="btn btn-success"
-                             v-if="isEdit"
                              v-on:click.prevent="updateFormDocumento"
                              > <!--v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 -->
                         Actualizar

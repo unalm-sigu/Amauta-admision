@@ -32,6 +32,7 @@
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Vac / Mat</th>
                                         <th class="v-middle text-center">Evaluaciones</th>
+                                        <th class="v-middle text-center">Control<br>Asistencia</th>
                                         <th class="v-middle text-center">Estado</th>
                                         <th class=""></th>
                                     </tr>
@@ -81,6 +82,12 @@
                                                     {{item.matriculados}}
                                                 </span>
                                             </span>
+
+                                            <span class="block pointer" v-if="item.matriculados > 0">
+                                                <a v-on:click.prevent="descargar(item)">
+                                                    <i class="fa fa-file-excel-o fa-lg text-success"></i>
+                                                </a>
+                                            </span>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -90,9 +97,33 @@
                                                 {{item.examenesConfigurados}}
                                             </span>
 
+
                                             <div v-bind:class="classEstadoNotas(item)" class="label">
                                                 {{item.estadoNotasEnum.value}}
+
                                             </div>
+                                            <span class="block pointer" v-if="item.examenesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarEvaluaciones(item,'SI')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-success"></i>
+                                                </a>
+                                            </span>
+                                            <span class="block pointer" v-else="item.examenesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarEvaluaciones(item,'NO')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-danger"></i>
+                                                </a>
+                                            </span>
+
+
+
+                                        </td>
+                                        
+                                        <td class="v-middle text-center">
+                                            <span class="block bold pointer"
+                                                  v-on:click="verLecciones(item)"
+                                                  v-bind:class="classAsistencia(item)">
+                                                {{item.controlesEjecutados}} / 
+                                                {{item.controlesConfigurados}}
+                                            </span>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -108,6 +139,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="bloquear(item)">Bloquear</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="cancelar(item)">Cancelar</a></li>
                                                     <li v-if="item.estado == 'CAN' " class="pointer"><a v-on:click="reactivar(item)">Reactivar</a></li>
@@ -211,6 +243,24 @@
 
                 this.$refs.modalConfirm.open(config);
             },
+            eliminar(item) {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirm,
+                    message: `¿Seguro que desea eliminar la sección ${item.codigo}?`,
+                    okbtn: "Si, eliminar",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/changeEstado/ANU`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCursos,
+                            body: {id: item.id}
+                        }));
+                    }
+                });
+
+                this.$refs.modalConfirm.open(config);
+            },
             bloquear(item) {
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirm,
@@ -247,6 +297,53 @@
 
                 this.$refs.modalConfirm.open(config);
             },
+            descargar(item) {
+                axios({
+                    url: APP.url(`${rutaModulo}/${item.id}/reporteAlumnosSeccion`),
+                    method: 'POST',
+                    responseType: 'blob'
+                }).then((response) => {
+                    this.showReporte(response);
+                }).catch(error => {
+                    console.log(error);
+                    this.processReporte = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            },
+            descargarEvaluaciones(item, descargar) {
+                if (descargar === 'NO') {
+                    notify("Aun no han llenado las evaluaciones", "error");
+                } else {
+                    axios({
+                        url: APP.url(`nivelacioneegg/reporte/notaSeccion/${item.codigo}`),
+                        method: 'POST',
+                        responseType: 'blob'
+                    }).then((response) => {
+                        this.showReporte(response);
+                    }).catch(error => {
+                        console.log(error);
+                        this.processReporte = false;
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+                }
+            },
+            showReporte(response) {
+                let $vue = this;
+                let fileName = response
+                        .headers["content-disposition"]
+                        .replace("attachment; filename=", "")
+                        .replace(/"/g, '');
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                this.processReporte = false;
+            },
+
             reactivar(item) {
                 this.$refs.modalReactivar.open(item, this.$refs.raptorCursos);
             },
@@ -316,12 +413,25 @@
                 }
                 return "";
             },
+            classAsistencia(item) {
+                if (item.controlesEjecutados === 0) {
+                    return "text-danger";
+                } else if (item.controlesEjecutados >= item.controlesConfigurados) {
+                    return "text-success";
+                }
+                return "text-warning";
+            },
 
             addCurso() {
                 this.$refs.modalAddCurso.open(this.$refs.raptorCursos);
             },
             setHorario(item) {
                 this.$refs.modalAddHorario.open(item, this.$refs.raptorCursos);
+            },
+            
+            verLecciones(item) {
+                const url = APP.url(`${rutaModuloLeccion}/${item.id}/dictados${myUtils.getOrigenURL()}`);
+                location.href = url;
             },
 
             // metodos genericos

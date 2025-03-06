@@ -75,20 +75,6 @@
                 </div>
             </div>
 
-            <div class="col-md-6" v-if="solicitud.tipoDocumentoAcademico?.nombre === 'Constancia TPC'">
-                <div class="form-group">
-                    <label>¿15 o 16 semanas?</label>
-                    <multiselect
-                            v-model="solicitud.valido"
-                            :options="['15', '16']"
-                            placeholder="Seleccione una opción"
-                            :show-labels="false"
-                            :allow-empty="false"
-                    >
-                    </multiselect>
-                </div>
-            </div>
-
             <div  class="col-xs-12">
                 <p class="text-white">.</p>
             </div>
@@ -180,7 +166,6 @@
                 <div class="panel-footer col-xs-12 text-center">
                     <button  type="button"
                              class="btn btn-success"
-                             v-if="!isEdit"
                              v-on:click.prevent="submitForm"
                              > <!--  v-bind:disabled="guardando"  Object.entries(solicitud).length === 0 -->
                         Guardar

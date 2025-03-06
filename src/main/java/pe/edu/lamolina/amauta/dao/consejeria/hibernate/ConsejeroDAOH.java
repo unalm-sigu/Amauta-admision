@@ -58,21 +58,23 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .leftJoin("per.tipoDocumento")
                 .searchFields("per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
-                Map<String, Object> queries = filter.getQueries();
-                for (String key : queries.keySet()) {
-                    if (key.equals("search")) {
-                        continue;
-                    }
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("car.id", carrera)
 
-                    if (filter.getQueries().size() == 1 && key.equals("carrera")) {
-
-                        sql.filter("estado", ACT);
-
-                    }
-                }
-
-                sql.filter("car.id", carrera)
+//                Map<String, Object> queries = filter.getQueries();
+//                for (String key : queries.keySet()) {
+//                    if (key.equals("search")) {
+//                        continue;
+//                    }
+//
+//                    if (filter.getQueries().size() == 1 && key.equals("carrera")) {
+//
+//                        sql.filter("estado", ACT);
+//
+//                    }
+//                }
+//
+//                sql.filter("car.id", carrera)
                 .orderBy("con.id desc");
         if (filter.getQueries() != null && filter.getQueries().get("consjeroPrm") != null) {
             sql.filter("con.id", filter.getQueries().get("consjeroPrm"));

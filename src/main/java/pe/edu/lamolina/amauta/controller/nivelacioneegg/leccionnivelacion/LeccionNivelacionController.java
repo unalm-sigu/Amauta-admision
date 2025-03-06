@@ -61,6 +61,25 @@ public class LeccionNivelacionController {
         return "nivelacioneegg/leccionnivelacion/leccionNivelacion";
     }
 
+    @RequestMapping("{seccion}/dictados")
+    public String dictados(
+            @PathVariable("seccion") Long idSeccion,
+            @RequestParam("origen") String origen,
+            Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), ciclo);
+
+        model.addAttribute("seccionJson", this.createSeccionJson(seccion));
+        model.addAttribute("cicloJson", this.createCicloJson(ciclo));
+        model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/nivelacioneegg/programacionnivelacion"));
+
+        return "nivelacioneegg/dictadonivelacion/dictadoNivelacion";
+    }
+
     @ResponseBody
     @RequestMapping("{seccion}/listLecciones")
     public DynatableResponse listLecciones(
@@ -71,7 +90,8 @@ public class LeccionNivelacionController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         Docente docente = ds.getDocente();
 
-        CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), docente, ciclo);
+        CursoNivelacion seccion = docente == null ? service.findSeccion(new CursoNivelacion(idSeccion), ciclo)
+                : service.findSeccion(new CursoNivelacion(idSeccion), docente, ciclo);
         List<TemaAsistencia> lecciones = service.allLecciones(filter, seccion);
 
         ArrayNode array = this.createLeccionesJson(lecciones);
@@ -80,6 +100,29 @@ public class LeccionNivelacionController {
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("{seccion}/listDictados")
+    public DynatableResponse listDictados(
+            @PathVariable("seccion") Long idSeccion,
+            DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        CursoNivelacion seccion = service.findSeccion(new CursoNivelacion(idSeccion), ciclo);
+        List<TemaAsistencia> lecciones = service.allLecciones(filter, seccion);
+
+        ArrayNode array = this.createLeccionesJson(lecciones);
+
+        DynatableResponse json = new DynatableResponse();
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
         return json;
     }
 

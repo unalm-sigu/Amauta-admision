@@ -291,7 +291,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>            
             <artifactId>model</artifactId>
-            <version>1.2.46</version>
+            <version>1.2.47</version>
         </dependency>
         
         <dependency>
@@ -334,6 +334,14 @@
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
                 <version>1.18.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <debug>true</debug>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -51,7 +51,22 @@ var app = new Vue({
         alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
         alumnoTramiteRenuncia: [],
-        tipo: ""
+        tipo: "",
+        tipoMap: {
+            BACHI: 'Bachiller',
+            BACHIFAC: 'Bachiller Facultad',
+            TITUL: 'Titulo',
+            TITULBAC: 'Titulo Facultad',
+            ALUMRENUNCIA: 'Renuncia de Alumno',
+            RENUNCIA_CAR: 'Renuncia de Carrera',
+            PRACTICAS: 'Prácticas Profesionales',
+            TRAS: 'Traslado',
+            CAM_NOTA: 'Cambio de Nota',
+            CURDIR: 'Curso Dirigido',
+            TRAS_INT: 'Traslado Interno',
+            RCI: 'Reincorporación',
+            INTES: 'Intercambio Estudiantil'
+        },
     },
     mounted: function () {
         let $vue = this;
@@ -309,8 +324,9 @@ var app = new Vue({
         allAlumnos(item) {
             let $vue = this;
             $vue.tipo = item.tipoResolucion.codigo;
+            $vue.tipoNombre = item.tipoResolucion.nombre;
             $vue.codigoOficina = item.oficina.codigo;
-            console.log(item.tipoResolucion.codigo);
+            console.log(item.tipoResolucion);
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
