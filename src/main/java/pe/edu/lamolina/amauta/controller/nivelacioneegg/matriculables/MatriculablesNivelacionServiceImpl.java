@@ -1,10 +1,11 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.BuscarCruceDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.horario.GrupoHorasNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -32,7 +36,10 @@ import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
@@ -49,6 +56,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final CursoTemaExamenDAO cursoTemaExamenDAO;
     private final GrupoHorasNivelacionDAO grupoHorasNivelacionDAO;
+    private final HorarioCursoDAO horarioCursoDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
     private final VerificadorService verificadorService;
@@ -162,12 +170,23 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
             return nuevosMtbles.size();
         }
 
+        List<NotaAlumnoNivelacion> matriculados = notaAlumnoNivelacionDAO.allMatriculadosByCiclo(ciclo);
+        Map<Long, List<GrupoHorasNivelacion>> mapaAlumnoGrupo = matriculados.stream()
+                .collect(Collectors.groupingBy(
+                        mat -> mat.getAlumnoNivelacion().getId(),
+                        Collectors.mapping(
+                                mat -> mat.getCursoNivelacion().getGrupoHoras(),
+                                Collectors.collectingAndThen(Collectors.toSet(), ArrayList::new)
+                        )
+                ));
+
         List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allActivosByCiclo(ciclo);
 
         Map<Long, List<CursoNivelacion>> mapCursoNiv = cursosNiv.stream()
                 .collect(Collectors.groupingBy(cn -> cn.getCursoCiclo().getCurso().getId()));
 
         int nuevos = 0;
+        List<NotaAlumnoNivelacion> faltantes = new ArrayList();
         for (NotaAlumnoNivelacion mtble : nuevosMtbles) {
             if (mtble.getTemaAprobado()) {
                 continue;
@@ -179,8 +198,86 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                 continue;
             }
 
+            AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
+            List<GrupoHorasNivelacion> gpoHoras = mapaAlumnoGrupo.get(alumnoNiv.getId());
+            boolean procesar = gpoHoras == null ? true : gpoHoras.size() == 1;
+            if (!procesar) {
+                faltantes.add(mtble);
+                continue;
+            }
+
+            GrupoHorasNivelacion gpoAlumno = null;
+            if (gpoHoras != null) {
+                gpoAlumno = gpoHoras.get(0);
+            }
+
+            boolean registrado = false;
+            for (CursoNivelacion cursoNiv : cursosMtbles) {
+                GrupoHorasNivelacion gpoCurso = cursoNiv.getGrupoHoras();
+                boolean registrar = gpoHoras == null || (gpoAlumno != null && gpoCurso.equals(gpoAlumno));
+
+                if (cursoNiv.getDisponibles() > 0 && registrar) {
+                    cursoNiv.setDisponibles(cursoNiv.getDisponibles() - 1);
+                    cursoNiv.setMatriculados(cursoNiv.getMatriculados() + 1);
+                    cursoNivelacionDAO.update(cursoNiv);
+
+                    mtble.setCursoNivelacion(cursoNiv);
+                    mtble.setEstadoEnum(MAT);
+                    mtble.setUserModificacion(ds.getUsuario());
+                    mtble.setFechaModificacion(new Date());
+                    notaAlumnoNivelacionDAO.update(mtble);
+                    registrado = true;
+                    nuevos++;
+
+                    if (alumnoNiv.getEstadoEnum() != MAT) {
+                        alumnoNiv.setEstadoEnum(MAT);
+                        alumnoNiv.setFechaModificacion(new Date());
+                        alumnoNiv.setUserModificacion(ds.getUsuario());
+                        alumnoNivelacionDAO.update(alumnoNiv);
+                    }
+
+                    if (gpoHoras == null) {
+                        gpoHoras = new ArrayList();
+                        gpoHoras.add(gpoCurso);
+                        mapaAlumnoGrupo.put(alumnoNiv.getId(), gpoHoras);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!registrado) {
+                faltantes.add(mtble);
+            }
+        }
+
+        Map<Long, List<HorarioCurso>> mapHorario = new HashMap();
+
+        for (NotaAlumnoNivelacion mtble : faltantes) {
+            if (mtble.getTemaAprobado()) {
+                continue;
+            }
+
+            Curso curso = mtble.getCurso();
+            List<CursoNivelacion> cursosMtbles = mapCursoNiv.get(curso.getId());
+            if (cursosMtbles == null) {
+                continue;
+            }
+
+            AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
+            List<HorarioCurso> horariosExistentes = this.getHorariosCurso(mapHorario, alumnoNiv);
+
             for (CursoNivelacion cursoNiv : cursosMtbles) {
                 if (cursoNiv.getDisponibles() > 0) {
+                    GrupoHorasNivelacion gpoCurso = cursoNiv.getGrupoHoras();
+                    CursoCicloAcademico cursoCiclo = cursoNiv.getCursoCiclo();
+                    List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoCurso);
+
+                    boolean hayCruce = this.buscandoCruces(horariosExistentes, horariosNuevos);
+                    if (hayCruce) {
+                        continue;
+                    }
+
                     cursoNiv.setDisponibles(cursoNiv.getDisponibles() - 1);
                     cursoNiv.setMatriculados(cursoNiv.getMatriculados() + 1);
                     cursoNivelacionDAO.update(cursoNiv);
@@ -192,13 +289,13 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                     notaAlumnoNivelacionDAO.update(mtble);
                     nuevos++;
 
-                    AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
                     if (alumnoNiv.getEstadoEnum() != MAT) {
                         alumnoNiv.setEstadoEnum(MAT);
                         alumnoNiv.setFechaModificacion(new Date());
                         alumnoNiv.setUserModificacion(ds.getUsuario());
                         alumnoNivelacionDAO.update(alumnoNiv);
                     }
+
                     break;
                 }
             }
@@ -206,6 +303,67 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         }
 
         return nuevos;
+    }
+
+    private boolean buscandoCruces(List<HorarioCurso> horariosOtros, List<HorarioCurso> horariosNuevos) {
+
+        if (horariosOtros.isEmpty()) {
+            horariosOtros.addAll(horariosNuevos);
+            return false;
+        }
+
+        if (horariosNuevos.isEmpty()) {
+            return false;
+        }
+
+        Map<String, HorarioCurso> mapHorarioCurso = horariosNuevos.stream()
+                .collect(Collectors.toMap(hor -> hor.getKey(), Function.identity()));
+
+        for (HorarioCurso hor : horariosOtros) {
+            String key = hor.getKey();
+            HorarioCurso hc = mapHorarioCurso.get(key);
+            if (hc != null) {
+                return true;
+            }
+        }
+
+        horariosOtros.addAll(horariosNuevos);
+        return false;
+    }
+
+    private List<HorarioCurso> getHorariosCurso(Map<Long, List<HorarioCurso>> mapHorario, AlumnoNivelacion alumnoNiv) {
+        List<HorarioCurso> horarios = mapHorario.get(alumnoNiv.getId());
+        if (horarios != null) {
+            return horarios;
+        }
+
+        List<HorarioCurso> horariosOtros = new ArrayList();
+        mapHorario.put(alumnoNiv.getId(), horariosOtros);
+
+        List<NotaAlumnoNivelacion> notasAll = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(alumnoNiv);
+        if (notasAll.isEmpty()) {
+            return horariosOtros;
+        }
+
+        List<NotaAlumnoNivelacion> notas = notasAll.stream()
+                .filter(nan -> nan.getEstadoEnum() == MAT)
+                .filter(nan -> nan.getAlumnoNivelacion().getEstadoEnum() == MAT)
+                .filter(nan -> nan.getEsMatriculable())
+                .filter(nan -> nan.getCursoNivelacion() != null)
+                .collect(Collectors.toList());
+        if (notas.isEmpty()) {
+            return horariosOtros;
+        }
+
+        for (NotaAlumnoNivelacion nota : notas) {
+            CursoCicloAcademico cursoCiclo = nota.getCursoNivelacion().getCursoCiclo();
+            GrupoHorasNivelacion gpoHoras = nota.getCursoNivelacion().getGrupoHoras();
+            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoHoras);
+
+            horariosOtros.addAll(horariosCurso);
+        }
+
+        return horariosOtros;
     }
 
     @Override
@@ -221,18 +379,89 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CursoNivelacion cursoNiv = new CursoNivelacion();
 
         List<NotaAlumnoNivelacion> notas = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(info.getAlumnoNivelacion());
-        Optional<NotaAlumnoNivelacion> notaOpt = notas.stream()
+        List<GrupoHorasNivelacion> grupos = notas.stream()
                 .filter(nan -> nan.getEstadoEnum() == MAT)
                 .filter(nan -> nan.getEsMatriculable())
                 .filter(nan -> nan.getCursoNivelacion() != null)
-                .findFirst();
-        if (notaOpt.isPresent()) {
-            GrupoHorasNivelacion grupoHoras = notaOpt.get().getCursoNivelacion().getGrupoHoras();
-            cursoNiv.setGrupoHoras(grupoHoras);
+                .map(nan -> nan.getCursoNivelacion().getGrupoHoras())
+                .distinct()
+                .collect(Collectors.toList());
+        if (grupos.size() == 1) {
+            cursoNiv.setGrupoHoras(grupos.get(0));
         }
 
         info.setCursoNivelacion(cursoNiv);
         return info;
+    }
+
+    @Override
+    public String verificarCruce(BuscarCruceDTO form, CicloAcademico ciclo, DataSessionPivot ds) {
+        Assert.isNotNull(form.getGrupoHoras(), "No ha indicado el grupo horario");
+        Assert.isNotNull(form.getGrupoHoras().getId(), "No ha indicado el grupo horario");
+
+        GrupoHorasNivelacion gpoHoras = grupoHorasNivelacionDAO.find(form.getGrupoHoras().getId());
+        Assert.isNotNull(gpoHoras, "El grupo horario que ha seleccionado no existe en el sistema");
+
+        Assert.isNotNull(form.getCursoCiclo(), "No ha indicado el curso");
+        Assert.isNotNull(form.getCursoCiclo().getCurso(), "No ha indicado el curso");
+        Assert.isNotNull(form.getCursoCiclo().getCurso().getId(), "No ha indicado el curso");
+
+        CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(form.getCursoCiclo().getCurso(), ciclo);
+        Assert.isNotNull(cursoCiclo, "Este curso programado no está programado en este ciclo");
+
+        Assert.isNotNull(form.getAlumnoNivelacion(), "No ha indicado el alumno");
+        Assert.isNotNull(form.getAlumnoNivelacion().getId(), "No ha indicado el alumno");
+
+        AlumnoNivelacion alumnoNiv = alumnoNivelacionDAO.find(form.getAlumnoNivelacion().getId());
+        Assert.isNotNull(alumnoNiv, "El alumno que ha seleccionado no existe en el sistema");
+        CicloAcademico cicloNiv = alumnoNiv.getCicloAcademico();
+        Assert.isTrue(cicloNiv.getId().equals(ciclo.getId()), "El ciclo del alumno no corresponde al ciclo actual");
+
+        List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoHoras);
+        if (horariosNuevos.isEmpty()) {
+            return null;
+        }
+
+        List<NotaAlumnoNivelacion> notasAll = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(alumnoNiv);
+        if (notasAll.isEmpty()) {
+            return null;
+        }
+
+        List<NotaAlumnoNivelacion> notas = notasAll.stream()
+                .filter(nan -> nan.getEstadoEnum() == MAT)
+                .filter(nan -> nan.getAlumnoNivelacion().getEstadoEnum() == MAT)
+                .filter(nan -> nan.getEsMatriculable())
+                .filter(nan -> nan.getCursoNivelacion() != null)
+                .collect(Collectors.toList());
+        if (notas.isEmpty()) {
+            return null;
+        }
+
+        List<HorarioCurso> horariosOtros = new ArrayList();
+        for (NotaAlumnoNivelacion nota : notas) {
+            CursoCicloAcademico otroCursoCiclo = nota.getCursoNivelacion().getCursoCiclo();
+            GrupoHorasNivelacion otroGpoHoras = nota.getCursoNivelacion().getGrupoHoras();
+            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloHorario(otroCursoCiclo, otroGpoHoras);
+
+            horariosOtros.addAll(horariosCurso);
+        }
+
+        Map<String, HorarioCurso> mapHorarioCurso = horariosNuevos.stream()
+                .collect(Collectors.toMap(hor -> hor.getKey(), Function.identity()));
+
+        for (HorarioCurso hor : horariosOtros) {
+            Dia dia = hor.getDia();
+            Hora hora = hor.getHora();
+            String key = hor.getKey();
+            String fecha = TypesUtil.getStringDate(hor.getSemana(), "dd 'de' MMM", "es");
+
+            HorarioCurso hc = mapHorarioCurso.get(key);
+            if (hc != null) {
+                return "Hay cruce de horario el " + dia.getSimboloAbr() + " a las " + hora.getDescripcion() + " de la semana del " + fecha;
+            }
+        }
+
+        return null;
     }
 
     @Override

@@ -19,10 +19,40 @@
         </header>
 
         <section class="wrapper-lg">
-            <section class="panel m-b-md">
+            <section class="panel m-b-xs">
+                <section class="panel-body">
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3 text-center" v-bind:class="bgColorClass['noMatriculados']">
+                                <a v-on:click="verInscritos('noMatriculados')" class="text-primary pointer" >
+                                    <span class="h1 block bold" > {{resumen.noMatriculados}} </span>
+                                    <small class="block m-b-xs">No matriculados</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center" v-bind:class="bgColorClass['matriculados']">
+                                <a v-on:click="verInscritos('matriculados')" class="text-success pointer" >
+                                    <span class="h1 block bold" > {{resumen.matriculados}} </span>
+                                    <small class="block m-b-xs">Matriculados</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center" v-bind:class="bgColorClass['inhabilitados']">
+                                <a v-on:click="verInscritos('inhabilitados')" class="text-danger pointer" >
+                                    <span class="h1 block bold" > {{resumen.inhabilitados}} </span>
+                                    <small class="block m-b-xs">Deshabilitados</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </section>
+
+            <section class="panel m-b-md m-t-xs">
                 <section class="panel-body">
 
                     <raptor-table v-bind:url="alumnosURL"
+                                  v-bind:preload="false"
                                   ref="raptorAlumnos">
                         <template scope="props" >
                             <table class="table table-striped">
@@ -134,6 +164,8 @@
                 idModalConfirm: "id-modal-confirm-alumnos-nivelacion",
                 ciclo: JSON.parse(cicloJson),
                 alumnosURL: `/${rutaModulo}/list`,
+                bgColorClass: {noMatriculados: '', matriculados: '', inhabilitados: ''},
+                resumen: {noMatriculados: 0, matriculados: 0, inhabilitados: 0},
                 configDate: {
                     format: 'DD/MM/YYYY',
                     locale: 'es'
@@ -142,11 +174,53 @@
         },
 
         mounted() {
+            let $vue = this;
+            let tipo = $vue.$refs.raptorAlumnos.getParameterByName('queries[situacion]');
+            tipo = (tipo === null) ? '' : tipo;
+            if (tipo !== '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+                $vue.$refs.raptorAlumnos.querie.push({name: 'situacion', value: tipo});
+            }
+            $vue.$refs.raptorAlumnos.repreload();
+            this.loadResumen();
         },
         computed: {
         },
 
         methods: {
+            loadResumen() {
+                myUtils.axios(VUE_AXIOS.structGetData({
+                    url: `/${rutaModulo}/resumen`
+                })).then((resp) => this.resumen = resp.data.data);
+            },
+            verInscritos(tipo) {
+                let $vue = this;
+                if ($vue.seleccionado === '') {
+                    $vue.bgColorClass[tipo] = 'bg-light';
+                    $vue.seleccionado = tipo;
+
+                    $vue.$refs.raptorAlumnos.querie.push({name: 'situacion', value: tipo});
+                    $vue.$refs.raptorAlumnos.loadRemoteData();
+
+                } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                    $vue.bgColorClass[$vue.seleccionado] = '';
+                    $vue.bgColorClass[tipo] = 'bg-light';
+                    $vue.seleccionado = tipo;
+
+                    $vue.$refs.raptorAlumnos.querie.push({name: 'situacion', value: tipo});
+                    $vue.$refs.raptorAlumnos.loadRemoteData();
+
+                } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                    $vue.bgColorClass[$vue.seleccionado] = '';
+                    $vue.seleccionado = '';
+
+                    $vue.$refs.raptorAlumnos.querie = [];
+                    $vue.$refs.raptorAlumnos.changeUrl('queries[situacion]', null);
+                    $vue.$refs.raptorAlumnos.loadRemoteData();
+                }
+            },
+
             classAprobado(item) {
                 if (item.temaAprobado) {
                     return "bgr-success";
@@ -161,6 +235,7 @@
                 }
                 return "label-danger";
             },
+
             crearAlumnos() {
                 let config = VUE_MODAL.structConfirm({
                     id: this.idModalConfirm,
@@ -172,7 +247,7 @@
                             url: `/${rutaModulo}/createAlumnos`,
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptorAlumnos
-                        }));
+                        })).then(() => this.loadResumen());
                     }
                 });
 
@@ -189,7 +264,7 @@
                             url: `/${rutaModulo}/revisarTodosAlumnos`,
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptorAlumnos
-                        }));
+                        })).then(() => this.loadResumen());
                     }
                 });
 
@@ -207,7 +282,7 @@
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptorAlumnos,
                             body: {id: item.id}
-                        }));
+                        })).then(() => this.loadResumen());
                     }
                 });
 
@@ -234,7 +309,7 @@
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptorAlumnos,
                             body: {id: item.id}
-                        }));
+                        })).then(() => this.loadResumen());
                     }
                 });
 

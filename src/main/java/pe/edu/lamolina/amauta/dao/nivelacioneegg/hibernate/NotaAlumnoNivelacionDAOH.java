@@ -16,12 +16,11 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
-import pe.edu.lamolina.amauta.controller.programacionhorarios.reporte.MatriculaPreBean;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -63,6 +62,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("an.cicloAcademico ci")
                 .leftJoin("per.tipoDocumento", "cursoNivelacion cn", "temaCiclo teci", "cn.aula", "cn.grupoHoras")
                 .filter("ci.id", ciclo)
+                .filter("an.estado", "<>", INH)
                 .filter("nan.esMatriculable", 1)
                 .searchFields("car.nombre", "fac.nombre", "per.numeroDocIdentidad", "alu.codigo", "cur.codigo", "cur.nombre", "cn.codigo", "cai.codigoAnterior", "mi.nombre", "nan.estado", "an.estado")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -227,6 +227,23 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     }
 
     @Override
+    public List<NotaAlumnoNivelacion> allMatriculadosByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(NotaAlumnoNivelacion.class, "nan")
+                .join("alumnoNivelacion an", "temaExamen te", "curso")
+                .join("an.alumno alu", "alu.carrera car", "car.facultad fac")
+                .join("alu.situacionAcademica", "alu.modalidadEstudio", "alu.persona per")
+                .join("an.cicloAcademico ci", "cursoNivelacion cn")
+                .leftJoin("per.tipoDocumento", "temaCiclo teci")
+                .filter("nan.esMatriculable", 1)
+                .filter("an.estado", MAT)
+                .filter("nan.estado", MAT)
+                .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<NotaAlumnoNivelacion> allConNotaByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(NotaAlumnoNivelacion.class, "nan")
@@ -284,7 +301,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
                 .join("temaExamen")
                 .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
-                .leftJoin("an.prelamolina", "an.evaluado", "cursoNivelacion cn")
+                .leftJoin("an.prelamolina", "an.evaluado", "cursoNivelacion cn", "cn.cursoCiclo")
                 .filter("an.id", alumnoNiv);
 
         return all(sql);

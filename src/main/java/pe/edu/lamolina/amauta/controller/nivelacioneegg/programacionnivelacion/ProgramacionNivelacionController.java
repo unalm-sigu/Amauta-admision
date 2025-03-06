@@ -23,6 +23,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnado.reporte.ExcelMatriculadosNivelacion;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.LeccionNivelacionController;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CambioCursoNivevalacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
@@ -53,6 +54,7 @@ public class ProgramacionNivelacionController {
     private final ProgramacionNivelacionService service;
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
     private final ExcelMatriculadosNivelacion excelMatriculadosNivelacion;
+    private final LeccionNivelacionController leccionNivelacionController;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -64,6 +66,7 @@ public class ProgramacionNivelacionController {
         model.addAttribute("gruposHorasJson", this.createGruposJson(gruposHoras));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("rutaModuloLeccion", leccionNivelacionController.rutaModulo);
 
         return "nivelacioneegg/programacionnivelacion/programacionNivelacion";
     }

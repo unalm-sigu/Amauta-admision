@@ -32,6 +32,7 @@
                                         <th class="v-middle text-center">Horario</th>
                                         <th class="v-middle text-center">Vac / Mat</th>
                                         <th class="v-middle text-center">Evaluaciones</th>
+                                        <th class="v-middle text-center">Control<br>Asistencia</th>
                                         <th class="v-middle text-center">Estado</th>
                                         <th class=""></th>
                                     </tr>
@@ -115,6 +116,15 @@
 
 
                                         </td>
+                                        
+                                        <td class="v-middle text-center">
+                                            <span class="block bold pointer"
+                                                  v-on:click="verLecciones(item)"
+                                                  v-bind:class="classAsistencia(item)">
+                                                {{item.controlesEjecutados}} / 
+                                                {{item.controlesConfigurados}}
+                                            </span>
+                                        </td>
 
                                         <td class="v-middle text-center">
                                             <div v-bind:class="classEstado(item)" class="label">
@@ -129,6 +139,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="bloquear(item)">Bloquear</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="cancelar(item)">Cancelar</a></li>
                                                     <li v-if="item.estado == 'CAN' " class="pointer"><a v-on:click="reactivar(item)">Reactivar</a></li>
@@ -223,6 +234,24 @@
                     okaction: () => {
                         myUtils.axios(VUE_AXIOS.structModalClose({
                             url: `/${rutaModulo}/changeEstado/ACT`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCursos,
+                            body: {id: item.id}
+                        }));
+                    }
+                });
+
+                this.$refs.modalConfirm.open(config);
+            },
+            eliminar(item) {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirm,
+                    message: `¿Seguro que desea eliminar la sección ${item.codigo}?`,
+                    okbtn: "Si, eliminar",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/changeEstado/ANU`,
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptorCursos,
                             body: {id: item.id}
@@ -384,12 +413,25 @@
                 }
                 return "";
             },
+            classAsistencia(item) {
+                if (item.controlesEjecutados === 0) {
+                    return "text-danger";
+                } else if (item.controlesEjecutados >= item.controlesConfigurados) {
+                    return "text-success";
+                }
+                return "text-warning";
+            },
 
             addCurso() {
                 this.$refs.modalAddCurso.open(this.$refs.raptorCursos);
             },
             setHorario(item) {
                 this.$refs.modalAddHorario.open(item, this.$refs.raptorCursos);
+            },
+            
+            verLecciones(item) {
+                const url = APP.url(`${rutaModuloLeccion}/${item.id}/dictados${myUtils.getOrigenURL()}`);
+                location.href = url;
             },
 
             // metodos genericos

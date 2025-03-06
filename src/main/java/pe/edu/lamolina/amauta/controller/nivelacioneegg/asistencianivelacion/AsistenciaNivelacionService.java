@@ -12,6 +12,8 @@ public interface AsistenciaNivelacionService {
 
     TemaAsistencia findLeccion(TemaAsistencia temaAsistencia, Docente docente, CicloAcademico ciclo);
 
+    TemaAsistencia findLeccion(TemaAsistencia temaAsistencia, CicloAcademico ciclo);
+
     List<AsistenciaNivelacion> allInscritos(DynatableFilter filter, TemaAsistencia leccion);
 
     void marcarAsistencia(AsistenciaNivelacion asistencia, Docente docente, CicloAcademico ciclo, DataSessionPivot ds);

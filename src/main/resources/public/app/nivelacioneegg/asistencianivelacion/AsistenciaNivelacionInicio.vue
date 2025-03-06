@@ -47,12 +47,18 @@
                                             {{(idx+1)}}
                                         </td>
                                         <td class="v-middle text-center">
-                                            <label class="switch">
+                                            <label v-if="esDocente" class="switch">
                                                 <input type="checkbox"
                                                        v-bind:checked="item.estado == 'ASISTIO' "
                                                        v-on:change="changeAsiste(item)" />
                                                 <span></span>
                                             </label>
+                                            <template v-else="">
+                                                <i v-if="item.estado == 'ASISTIO' "
+                                                   class="fa fa-check-square-o text-success fa-2x" aria-hidden="true"></i>
+                                                <i v-else=""
+                                                   class="fa fa-times-circle text-danger fa-2x" aria-hidden="true"></i>
+                                            </template>
                                         </td>
                                         <td class="v-middle text-center">
                                             {{item.alumnoNivelacion.alumno.codigo}}
@@ -98,6 +104,7 @@
                 idModalConfirm: "id-modal-confirm-asistencia-nivelacion",
                 pagination: {'total-items': 0, 'items-per-page': 1000, 'max-size': 3, 'boundary-link-numbers': true},
                 origen: origen,
+                esDocente: esDocente,
                 ciclo: JSON.parse(cicloJson),
                 leccion: JSON.parse(leccionJson),
                 seccion: leccion.cursoNivelacion,

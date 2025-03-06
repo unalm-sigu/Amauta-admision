@@ -13,6 +13,8 @@ public interface LeccionNivelacionService {
 
     CursoNivelacion findSeccion(CursoNivelacion cursoNivelacion, Docente docente, CicloAcademico ciclo);
 
+    CursoNivelacion findSeccion(CursoNivelacion cursoNivelacion, CicloAcademico ciclo);
+
     List<TemaAsistencia> allLecciones(DynatableFilter filter, CursoNivelacion cursoNivelacion);
 
     List<ControlAsistenciaDTO> allFechasLecciones(CursoNivelacion seccion);
