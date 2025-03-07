@@ -381,7 +381,9 @@ public class VerificadorServiceImp implements VerificadorService {
     @Override
     public boolean puedeEditarOficinas(DataSessionPivot ds) {
 
-        if (this.esTrabajadorOeraConRol(RolEnum.IOREA, ds) || this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds)) {
+        if (this.esTrabajadorOeraConRol(RolEnum.IOREA, ds)
+                || this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds)
+                || this.esTrabajadorEpgConRol(RolEnum.INF_EPG, ds)) {
             return true;
         }
 
