@@ -231,7 +231,14 @@ public class ReporteAlumnosExcel extends AbstractView {
             excelUtil.replaceVal(irow, column++, num++, estiloNumero);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, alumno.getPersona().getEmailCompania(), estiloGeneral);
+//            excelUtil.replaceVal(irow, column++, alumno.getPersona().getEmailCompania(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++,
+                    alumno.getCicloIngreso().getYear() < 2025 ?
+                            alumno.getPersona().getEmailCompania() :
+                            alumno.getPersona().getEmailCorporativo(),
+                    estiloGeneral);
+
+
             String prioridad = "";
             if (matriculasSeccion.getMatriculaResumen().getPrioridad() != null) {
                 prioridad = matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
