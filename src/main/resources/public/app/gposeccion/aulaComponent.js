@@ -165,43 +165,49 @@ Vue.component("aula-component", {
                 });
                 return;
             }
-            if (!aulaSeleccionada.isDisponible && aulaSeleccionada.permiteCruce === 0) {
+            console.log('aulaSeleccionada.isDisponible:::' + aulaSeleccionada.isDisponible);
+            console.log('aulaSeleccionada.permiteCruce:::' + aulaSeleccionada.permiteCruce);
+            if (aulaSeleccionada.permiteCruce === 1) {
+                console.log("AULA CON CRUCEEE")
+                bootbox.confirm({
+                    message: aulaSeleccionada.isDisponible ? "¿Está seguro que desea grabar?":"¿Se encuentra ocupado el aula, pero permite cruce desea seguir?",
+                    buttons: {
+                        confirm: {label: 'Si', className: "btn-warning"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+
+                        if (result) {
+                            MODAL.showWait("Espere un momento por favor");
+                            $.ajax({
+                                url: APP.url('academico/gposeccion/saveAula'),
+                                type: 'POST',
+                                async: true,
+                                data: {
+                                    seccion: $vue.seccionModal.id,
+                                    aula: aulaSeleccionada.id
+                                },
+                                success: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                },
+                                error: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                    notify(Messages.errorComunicacion, "error");
+                                }
+                            });
+                        } else {
+
+                        }
+                    }
+                });
+//                return;
+            } else if (!aulaSeleccionada.isDisponible && aulaSeleccionada.permiteCruce === 0) {
                 notify("El aula no esta disponible", "error");
                 return;
             }
-            bootbox.confirm({
-                message: "¿Está seguro que desea grabar?",
-                buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
 
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url('academico/gposeccion/saveAula'),
-                            type: 'POST',
-                            async: true,
-                            data: {
-                                seccion: $vue.seccionModal.id,
-                                aula: aulaSeleccionada.id
-                            },
-                            success: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveAula", response);
-                            },
-                            error: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveAula", response);
-                                notify(Messages.errorComunicacion, "error");
-                            }
-                        });
-                    } else {
-
-                    }
-                }
-            });
         },
         closeAula($vue) {
             $vue.tabAulas.aulaSel.tabAula = "zzz";
