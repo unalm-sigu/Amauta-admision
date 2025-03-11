@@ -12,4 +12,6 @@ public interface ReporteEGService {
 
     List<ResultadoReporteView> allAsistenciaBySeccionAndCiclo(CicloAcademico cicloAcademico, String codSeccion);
 
+    List<ResultadoReporteView> allIngresantesDesaprobadosByCiclo(CicloAcademico cicloAcademico);
+
 }
