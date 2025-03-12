@@ -10,6 +10,8 @@ import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
 @Getter
 public class ResultadoReporteView {
 
+    private String correlativo;
+    private String dni;
     private String codCurso;
     private String curso;
     private String docente;
@@ -22,7 +24,21 @@ public class ResultadoReporteView {
     private BigDecimal examenFinal;
     private BigDecimal promedioFinal;
     private String condicion;
+    private String modalidadIngreso;
+    private String carrera;
+    private String facultad;
+    private String correoPersonal;
+    private String correoOutlook;
+    private String correoGmail;
+    private String correoDocente;
+    private String celular;
+    private String telefono;
+    private String temaCurso;
+    private String moduloAula;
+    private String aula;
+    private String usuario;
     private BigDecimal porcentajeAsistencia;
+    private BigDecimal puntajeCurso;
     private List<AsistenciaNivelacion> asistencias;
 
 }

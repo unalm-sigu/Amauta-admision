@@ -590,4 +590,14 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
     }
 
+    @Override
+    public List<Curso> allByModalidadEstudioAndEstado(ModalidadEstudioEnum modalidadEstudioEnum, EstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .join("modalidadEstudio me")
+                .filter("cur.estado", estadoEnum.CRE.name())
+                .filter("me.codigo", modalidadEstudioEnum.NIV_ING.name());
+        return all(sql);
+    }
+
 }
