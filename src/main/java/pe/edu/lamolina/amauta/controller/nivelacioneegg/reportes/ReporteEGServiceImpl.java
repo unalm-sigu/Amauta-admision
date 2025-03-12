@@ -54,4 +54,9 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         return notaAlumnoNivelacionDAO.allIngresantesDesaprobadosByCiclo(cicloAcademico);
     }
 
+    @Override
+    public List<ResultadoReporteView> ingresantesDesaprobadosMoodleByCiclo(CicloAcademico cicloAcademico) {
+       return notaAlumnoNivelacionDAO.ingresantesDesaprobadosMoodleByCiclo(cicloAcademico);
+    }
+
 }

@@ -14,6 +14,7 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelAsistenciasPorSeccion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelNotasPorSeccion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosIngresantesDesaprobados;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosIngresantesDesaprobadosMoodle;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosNotasSeccion;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -30,6 +31,7 @@ public class ReporteEGController {
     private final ExcelNotasPorSeccion excelNotasPorSeccion;
     private final ExcelAsistenciasPorSeccion excelAsistenciasPorSeccion;
     private final ExcelResultadosIngresantesDesaprobados excelResultadosIngresantesDesaprobados;
+    private final ExcelResultadosIngresantesDesaprobadosMoodle excelResultadosIngresantesDesaprobadosMoodle;
 
     @RequestMapping("generalNotaSeccion")
     public ModelAndView generalNotaSeccion(
@@ -80,6 +82,18 @@ public class ReporteEGController {
         model.addAttribute("resultado", resultados);
 
         return new ModelAndView(excelResultadosIngresantesDesaprobados);
+    }
+
+    @RequestMapping("ingresantesDesaprobadosMoodle")
+    public ModelAndView ingresantesDesaprobadosMoodle(HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<ResultadoReporteView> resultados = service.ingresantesDesaprobadosMoodleByCiclo(ds.getCicloAcademico());
+
+        model.addAttribute("resultado", resultados);
+
+        return new ModelAndView(excelResultadosIngresantesDesaprobadosMoodle);
     }
 
 }
