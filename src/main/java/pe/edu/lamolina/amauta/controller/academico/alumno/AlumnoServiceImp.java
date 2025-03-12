@@ -363,16 +363,23 @@ public class AlumnoServiceImp implements AlumnoService {
         personaBD.setCelular(personaForm.getCelular());
         personaBD.setTelefono(personaForm.getTelefono());
         personaBD.setEmail(personaForm.getEmail());
-        personaBD.setEmailCompania(personaForm.getEmailCompania());
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
         personaBD.setEnviarRecauda(1);
 
         this.validarEmailConPersona(personaForm.getEmail(), personaBD);
-        this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
+//        this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
+
+        personaBD.setEmailCompania(normalizarEmail(personaForm.getEmailCompania()));
+
+        personaBD.setEmailCorporativo(normalizarEmail(personaForm.getEmailCorporativo()));
 
         personaBD.setUserModificacion(ds.getUsuario());
         personaDAO.update(personaBD);
         return personaBD;
+    }
+
+    private String normalizarEmail(String email) {
+        return (email == null || email.trim().isEmpty()) ? null : email.trim();
     }
 
     private String generateCodigo(CicloAcademico ciclo) {
@@ -547,34 +554,55 @@ public class AlumnoServiceImp implements AlumnoService {
 
         } else {
             boolean modificar = true;
-            Usuario user = usuarioDAO.findByGoogleEmail(personaForm.getEmailCompania());
-            if (user != null) {
-                Persona persona = user.getPersona();
+
+            String emailCompania = Optional.ofNullable(personaForm.getEmailCompania()).orElse("").trim();
+            String emailCorporativo = Optional.ofNullable(personaForm.getEmailCorporativo()).orElse("").trim();
+
+            Usuario user = (!emailCompania.isEmpty())
+                    ? usuarioDAO.findByGoogleEmail(emailCompania)
+                    : null;
+
+            Usuario userOutlook = (!emailCorporativo.isEmpty())
+                    ? usuarioDAO.findByOutlookEmail(emailCorporativo)
+                    : null;
+
+
+            // Validación si alguno de los usuarios existe
+            if (user != null || userOutlook != null) {
+                Usuario existingUser = (user != null) ? user : userOutlook;
+                Persona persona = existingUser.getPersona();
+
                 String msg = "Este email ya pertenece a " + persona.getNombreCompleto() + " (" + persona.getId() + ")";
-                Assert.isTrue(persona.getId() == personaDB.getId().longValue(), msg);
-                if (user.getId() != usuario.getId().longValue()) {
+                Assert.isTrue(persona.getId().equals(personaDB.getId()), msg);
+
+                if (!existingUser.getId().equals(usuario.getId())) {
                     modificar = false;
                 }
             }
 
-            logger.debug("{} =? {}", personaDB.getEmailCompania(), personaForm.getEmailCompania());
-            if (personaDB.getEmailCompania() == null) {
-                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
-                usuario.setGoogle(personaForm.getEmailCompania());
-                usuario.setFechaModifica(new Date());
-                usuario.setUserModifica(ds.getUsuario());
-                usuarioDAO.update(usuario);
+            logger.debug("{} =? {}", personaDB.getEmailCompania(), emailCompania);
 
-            } else if (!personaDB.getEmailCompania().equals(personaForm.getEmailCompania())) {
-                this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaDB);
-                logger.debug("not eq");
-                if (modificar) {
-                    usuario.setGoogle(personaForm.getEmailCompania());
-                    usuario.setFechaModifica(new Date());
-                    usuario.setUserModifica(ds.getUsuario());
-                    usuarioDAO.update(usuario);
+            // 🛠 Manejo de actualización o eliminación del email de la empresa
+            if (!Objects.equals(personaDB.getEmailCompania(), emailCompania)) {
+                if (emailCompania.isEmpty()) {
+                    usuario.setGoogle(null); // Se elimina el email
+                } else {
+                    this.validarEmailEmpresaConPersona(emailCompania, personaDB);
+                    if (modificar) {
+                        actualizarUsuario(usuario, emailCompania, "google",ds);
+                    }
                 }
-                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+            }
+
+            // 🛠 Manejo de actualización o eliminación del email corporativo
+            if (!Objects.equals(personaDB.getEmailCorporativo(), emailCorporativo)) {
+                if (emailCorporativo.isEmpty()) {
+                    usuario.setOutlook(null); // Se elimina el email
+                } else {
+                    if (modificar) {
+                        actualizarUsuario(usuario, emailCorporativo, "outlook",ds);
+                    }
+                }
             }
 
             Rol rol = rolDAO.findByCode(RolEnum.ALU);
@@ -1217,6 +1245,18 @@ public class AlumnoServiceImp implements AlumnoService {
                 .sorted(Comparator.comparing(MatriculaResumen::getId).reversed())
                 .collect(Collectors.toList());
         return TypesUtil.extractListByAttr("cicloAcademico", matriculasResumen);
+    }
+
+    private void actualizarUsuario(Usuario usuario, String email, String tipo, DataSessionPivot ds) {
+        this.validarEmailEmpresaSinPersona(email);
+        if ("google".equals(tipo)) {
+            usuario.setGoogle(email);
+        } else if ("outlook".equals(tipo)) {
+            usuario.setOutlook(email);
+        }
+        usuario.setFechaModifica(new Date());
+        usuario.setUserModifica(ds.getUsuario());
+        usuarioDAO.update(usuario);
     }
 
 }

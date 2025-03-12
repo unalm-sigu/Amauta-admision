@@ -165,14 +165,27 @@
                                 </div>
 
                                 <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label for="emailEmpresa" >Correo  Institucional</label>
-                                        <input  class="inline form-control validar-email-empresa"
-                                                data-trigger="change" required="true" type="email"
-                                                data-trim-value="true"
-                                                name="persona.emailCompania" id="emailCompania"
-                                                th:value=" ${alumno.persona.emailCompania}"
-                                                ></input>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="emailEmpresa" >Correo  Gmail</label>
+                                            <input  class="inline form-control validar-email-empresa"
+                                                    data-trigger="change" type="email"
+                                                    data-trim-value="true"
+                                                    name="persona.emailCompania" id="emailCompania"
+                                                    th:value=" ${alumno.persona.emailCompania}"
+                                                    ></input>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="emailCorporativo" >Correo  Outlook</label>
+                                            <input  class="inline form-control validar-email-empresa"
+                                                    data-trigger="change" type="email"
+                                                    data-trim-value="true"
+                                                    name="persona.emailCorporativo" id="emailCorporativo"
+                                                    th:value=" ${alumno.persona.emailCorporativo}"
+                                            ></input>
+                                        </div>
                                     </div>
                                 </div>
 
