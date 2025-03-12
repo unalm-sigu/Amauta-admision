@@ -14,4 +14,6 @@ public interface ReporteEGService {
 
     List<ResultadoReporteView> allIngresantesDesaprobadosByCiclo(CicloAcademico cicloAcademico);
 
+    List<ResultadoReporteView> ingresantesDesaprobadosMoodleByCiclo(CicloAcademico cicloAcademico);
+
 }

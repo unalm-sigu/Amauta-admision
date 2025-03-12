@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
@@ -71,10 +72,12 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allProgramadosByCiclo(CicloAcademico ciclo);
 
-    public List<Curso> allByDynatableNombreCurso(DynatableFilter filter);
+    List<Curso> allByDynatableNombreCurso(DynatableFilter filter);
 
     List<CursoDirigidoDTO> allCursosDirigidosByCiclo(CicloAcademico cicloAcademico);
 
     List<Curso> allByDynatableModalidad(DynatableFilter filter, ModalidadEstudioEnum modalidadEstudioEnum);
+
+    List<Curso> allByModalidadEstudioAndEstado(ModalidadEstudioEnum modalidadEstudioEnum, EstadoEnum estadoEnum);
 
 }

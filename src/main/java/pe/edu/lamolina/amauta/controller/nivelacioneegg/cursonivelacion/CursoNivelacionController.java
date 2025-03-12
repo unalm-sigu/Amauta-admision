@@ -179,4 +179,23 @@ public class CursoNivelacionController {
 
         return json;
     }
+
+    @ResponseBody
+    @RequestMapping("activarMasivamente")
+    public JsonResponse activarMasivamente(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<Curso> cursosNivelacion = service.saveActivacionMasiva(ds);
+
+        JsonResponse json = new JsonResponse();
+        if (!cursosNivelacion.isEmpty()) {
+            json.setMessage(cursosNivelacion.size() == 1 ? "Se activo 1 curso nivelación." : "Se activaron " + cursosNivelacion.size() + " cursos nivelación.");
+            json.setSuccess(Boolean.TRUE);
+        } else {
+            json.setMessage("No se encontraron cursos para activar.");
+            json.setSuccess(Boolean.FALSE);
+
+        }
+
+        return json;
+    }
 }

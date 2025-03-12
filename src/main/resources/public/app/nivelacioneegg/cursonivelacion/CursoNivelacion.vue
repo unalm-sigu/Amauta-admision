@@ -8,8 +8,14 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a v-on:click.prevent="nuevoCurso" href="#" class="dropdown-item">
+                        <li>
+                            <a v-on:click.prevent="nuevoCurso" href="#" class="dropdown-item">
                                 Nuevo Curso
+                            </a>
+                        </li>
+                        <li>
+                            <a v-on:click.prevent="activarMasivamente" href="#" class="dropdown-item">
+                                Activar Masivamente
                             </a>
                         </li>
                     </ul>
@@ -72,9 +78,9 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li class="pointer"><a v-on:click="editar(item)">Editar</a></li>
-                                                    <li v-if="item.estado == 'PEN' || item.estado == 'ANU' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
+                                                    <li v-if="item.estado == 'CRE' || item.estado == 'ANU' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="anular(item)">Anular</a></li>
-                                                    <li v-if="item.estado == 'PEN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
+                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="relacionarConTemas(item)">Relacionar con Temas</a></li>
                                                 </ul>
                                             </div>
@@ -130,7 +136,7 @@
                 if (item.estado === 'ACT') {
                     return "label label-success";
                 }
-                if (item.estado === 'PEN') {
+                if (item.estado === 'CRE') {
                     return "label label-default";
                 }
                 if (item.estado === 'ANU') {
@@ -196,7 +202,23 @@
             relacionarConTemas(item) {
                 this.$refs.modalRelacionCursoConTema.abrirModalRelacion(item, this.$refs.raptorCurso);
 
-            }
+            },
+            activarMasivamente() {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirmacion,
+                    message: "¿Seguro que desea activar de forma masiva?",
+                    okbtn: "Si, activar",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/activarMasivamente`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptorCurso
+                        }));
+                    }
+                });
+                this.$refs.modalConfirm.open(config);
+            },
         }
     };
 
