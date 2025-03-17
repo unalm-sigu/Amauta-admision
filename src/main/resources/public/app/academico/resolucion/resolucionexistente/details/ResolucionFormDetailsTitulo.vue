@@ -3,7 +3,7 @@
 
         <h4 class="text-primary m-b-lg"> Trámites {{resolucion.tipoResolucion.nombre}}</h4>
 
-        <resolucion-form-filter v-bind:callfilter="applyFilter"  v-if="!isEdicion"></resolucion-form-filter>
+<!--        <resolucion-form-filter v-bind:callfilter="applyFilter"  v-if="!isEdicion"></resolucion-form-filter>-->
 
         <table class="table table-striped">
             <thead>
@@ -27,7 +27,7 @@
                                              deselect-label="No se puede eliminar este valor"
                                              v-bind:internal-search='false'
                                              placeholder=" " 
-                                             v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
+                                             v-bind:disabled="isEdicion &amp;&amp; titulo.id">
                                     <template slot="singleLabel" slot-scope="props">
                                         <span class="">{{props.option.codigo}} - {{ props.option.persona.apellidosNombres }}</span>
                                     </template>
@@ -88,7 +88,8 @@
             return {
                 alumnos: [],
                 isEdicion: IS_EDICION,
-                isAnular: IS_ANULAR
+                isAnular: IS_ANULAR,
+                oficinaCodigo: ''
             };
         },
         mounted: function () {
@@ -167,7 +168,8 @@
             allTitulos() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allTitulo"))
+                axios_.get(APP.url("academico/resolucion/existentes/allTitulo"),
+                        {params: {oficinaCodigo: $vue.resolucion.oficina.codigo}})
                         .then(({data}) => {
                             $vue.resolucion.tramiteTitulos = data;
                             console.log("alltitulo js")
@@ -178,10 +180,12 @@
                             $vue.hideLoader();
                         });
             },
-            allTitulosFacultad() {
+            allTitulosFacultad2() {
                 let $vue = this;
                 $vue.showLoader("Espere un momento por favor");
-                axios_.get(APP.url("academico/resolucion/existentes/allTituloFacultad"))
+
+                axios_.get(APP.url("academico/resolucion/existentes/allTituloFacultad"),
+                        {params: {oficinaCodigo: $vue.resolucion.oficina.codigo}})
                         .then(({data}) => {
                             $vue.resolucion.tramiteTitulos = data;
                             $vue.hideLoader();
@@ -190,6 +194,26 @@
                             $vue.hideLoader();
                         });
             },
+          allTitulosFacultad() {
+              let $vue = this;
+              console.log($vue.resolucion.oficina.codigo)
+              $vue.showLoader("Espere un momento por favor");
+              axios_.get(APP.url("academico/resolucion/existentes/allTituloFacultad"), {
+                params: { facultad: $vue.resolucion.oficina.codigo }
+              })
+                  .then(({ data }) => {
+                    $vue.resolucion.tramiteTitulos = data;
+                    console.log("alltitulo js");
+                    console.log(data);
+                    console.log(facultad)
+                    $vue.hideLoader();
+                    $vue.$forceUpdate();
+                  })
+                  .catch(() => {
+                    $vue.hideLoader();
+                  });
+            },
+
         }
     };
 </script>

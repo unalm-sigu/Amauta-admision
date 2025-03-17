@@ -911,7 +911,7 @@ public class ResolucionExistenteController {
         return JaneHelper.from(tramiteTitulos)
                 .join("alumno")
                 .join("alumno.carrera")
-                .join("alumno.carrera.facultad")
+                .join("alumno.carrera.facultad","id,codigo,nombre,simbolo")
                 .join("alumno.persona")
                 .join("alumno.persona.tipoDocumento")
                 .array();
@@ -959,20 +959,20 @@ public class ResolucionExistenteController {
 
     @ResponseBody
     @RequestMapping("allTituloFacultad")
-    public ArrayNode allTituloFacultad(HttpSession session) {
+    public ArrayNode allTituloFacultad(@RequestParam(value = "facultad", required = false) String facultad, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-        List<TramiteTitulo> tramiteTitulosFacultad = service.allTitulosFacultad(ds);
+        List<TramiteTitulo> tramiteTitulosFacultad = service.allTitulosFacultad(ds, facultad);
 
         for (TramiteTitulo tramiteTitulo : tramiteTitulosFacultad) {
             tramiteTitulo.setAlumno(tramiteTitulo.getTramite().getAlumno());
             tramiteTitulo.setSeleccionado(Boolean.FALSE);
         }
         return JaneHelper.from(tramiteTitulosFacultad)
-                .join("alumno")
-                .join("alumno.carrera")
-                .join("alumno.carrera.facultad")
-                .join("alumno.persona")
+                .join("alumno","id,codigo")
+                .join("alumno.carrera","id,codigo,nombre")
+                .join("alumno.carrera.facultad","id,codigo,nombre,simbolo")
+                .join("alumno.persona","id,apellidosNombres")
                 .join("alumno.persona.tipoDocumento")
                 .array();
     }

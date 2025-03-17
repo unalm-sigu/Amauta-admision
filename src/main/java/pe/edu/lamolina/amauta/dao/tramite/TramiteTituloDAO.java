@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
@@ -29,7 +30,7 @@ public interface TramiteTituloDAO extends EasyDAO<TramiteTitulo> {
 
     public List<TramiteTitulo> allBySolicitados();
 
-    public List<TramiteTitulo> allBySolicitadosFacultad();
+    public List<TramiteTitulo> allBySolicitadosFacultad(Facultad facultad);
 
     public List<TramiteTitulo> allByResolucionFacultad(Resolucion resolucionDB);
 

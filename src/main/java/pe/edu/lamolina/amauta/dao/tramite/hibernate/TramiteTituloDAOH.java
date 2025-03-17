@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -120,11 +121,13 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
-    public List<TramiteTitulo> allBySolicitadosFacultad() {
+    public List<TramiteTitulo> allBySolicitadosFacultad(Facultad facultad) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class, "tt")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
-                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad", "al.cicloActivoRegular ci")
+                .filter("ci.codigoAnterior",">=","20171")
+                .filter("car.facultad",facultad)
                 .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL.name())
                 .orderBy("per.paterno");
 

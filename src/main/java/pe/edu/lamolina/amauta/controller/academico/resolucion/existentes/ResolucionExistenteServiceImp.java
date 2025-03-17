@@ -175,6 +175,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final TramiteTrasladoDAO tramiteTrasladoDAO;
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final FacultadDAO facultadDAO;
 
     private final GrupoSeccionDAO grupoSeccionDAO;
 
@@ -370,8 +371,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
-    public List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds) {
-        return tramiteTituloDAO.allBySolicitadosFacultad();
+    public List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds, String facultad) {
+        String codigoFacultad = facultad.startsWith("F") ? facultad.substring(1) : facultad;
+        Facultad codigo = facultadDAO.findByCodigo(codigoFacultad);
+        return tramiteTituloDAO.allBySolicitadosFacultad(codigo);
     }
 
     @Override
