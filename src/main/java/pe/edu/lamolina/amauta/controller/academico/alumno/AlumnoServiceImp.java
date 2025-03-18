@@ -566,8 +566,6 @@ public class AlumnoServiceImp implements AlumnoService {
                     ? usuarioDAO.findByOutlookEmail(emailCorporativo)
                     : null;
 
-
-            // Validación si alguno de los usuarios existe
             if (user != null || userOutlook != null) {
                 Usuario existingUser = (user != null) ? user : userOutlook;
                 Persona persona = existingUser.getPersona();
@@ -582,10 +580,9 @@ public class AlumnoServiceImp implements AlumnoService {
 
             logger.debug("{} =? {}", personaDB.getEmailCompania(), emailCompania);
 
-            // 🛠 Manejo de actualización o eliminación del email de la empresa
             if (!Objects.equals(personaDB.getEmailCompania(), emailCompania)) {
                 if (emailCompania.isEmpty()) {
-                    usuario.setGoogle(null); // Se elimina el email
+                    usuario.setGoogle(null);
                 } else {
                     this.validarEmailEmpresaConPersona(emailCompania, personaDB);
                     if (modificar) {
@@ -594,10 +591,9 @@ public class AlumnoServiceImp implements AlumnoService {
                 }
             }
 
-            // 🛠 Manejo de actualización o eliminación del email corporativo
             if (!Objects.equals(personaDB.getEmailCorporativo(), emailCorporativo)) {
                 if (emailCorporativo.isEmpty()) {
-                    usuario.setOutlook(null); // Se elimina el email
+                    usuario.setOutlook(null);
                 } else {
                     if (modificar) {
                         actualizarUsuario(usuario, emailCorporativo, "outlook",ds);
