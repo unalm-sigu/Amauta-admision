@@ -1903,43 +1903,47 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //        if (eventoCicloAcademico == null) {
 //            return "No se ha configurado las fechas de inicio y fin del  ciclo " + ds.getCicloAcademico().getDescripcion();
 //        }
-        List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
-                .collect(Collectors.toList());
+        if(resolucion.getTramiteBachiller() != null){
 
-        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+            List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
+                    .collect(Collectors.toList());
 
-        List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
-                .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
-                .collect(Collectors.toList());
+            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
-        for (TramiteBachiller bachiller : tramiteBachillers) {
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
 
-            TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
+            List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
+                    .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
+                    .collect(Collectors.toList());
 
-            if (tramiteBachiller == null) {
-                throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
+            for (TramiteBachiller bachiller : tramiteBachillers) {
+
+                TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
+
+                if (tramiteBachiller == null) {
+                    throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
+                }
+
+    //            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+    //                log.debug("Solo esta permitido agregar alumnos en modo edición");
+    //                continue;
+    //            }
+                tramiteBachiller.setResolucionFacultad(resolucion);
+                tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
+                tramiteBachiller.setFechaResolucion(new Date());
+                tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
+                tramiteBachillerDAO.update(tramiteBachiller);
+
+                Tramite tramite = tramiteBachiller.getTramite();
+    //            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                tramite.setFechaRespuesta(new Date());
+                tramite.setUserRespuesta(ds.getUsuario());
+                tramite.setFinalizado(Boolean.TRUE);
+    //            tramite.setEstadoTramite(estadoTramite);
+                tramiteDAO.update(tramite);
+
             }
-
-//            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-//                log.debug("Solo esta permitido agregar alumnos en modo edición");
-//                continue;
-//            }
-            tramiteBachiller.setResolucionFacultad(resolucion);
-            tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
-            tramiteBachiller.setFechaResolucion(new Date());
-            tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
-            tramiteBachillerDAO.update(tramiteBachiller);
-
-            Tramite tramite = tramiteBachiller.getTramite();
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setFechaRespuesta(new Date());
-            tramite.setUserRespuesta(ds.getUsuario());
-            tramite.setFinalizado(Boolean.TRUE);
-//            tramite.setEstadoTramite(estadoTramite);
-            tramiteDAO.update(tramite);
-
         }
     }
 
