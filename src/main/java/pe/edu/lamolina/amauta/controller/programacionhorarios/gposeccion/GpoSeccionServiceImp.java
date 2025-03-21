@@ -1321,7 +1321,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
-        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
+        this.deleteHorarioSeccion(seccionBD);
 
         {
             Seccion seccionUpd = new Seccion(seccionBD.getId());
