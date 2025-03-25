@@ -8,6 +8,7 @@ import static java.lang.Boolean.TRUE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import pe.edu.lamolina.amauta.zelper.model.TramitesAcademicos;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -584,8 +586,10 @@ public class ResolucionExistenteController {
                         .array();
             }
         } else if (tipoResolucionEnum == BACHIFAC) {
-            List<TramiteBachiller> tramiteBachiller = service.allResulucionFacultad(resolucion);
-            return JaneHelper.from(tramiteBachiller)
+            List<TramiteBachiller> tramiteBachillerx = service.allResulucionFacultad(resolucion);
+            List<TramiteBachiller> tramiteBachillers = tramiteBachillerx.stream().filter(x ->!x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())
+                    && !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())).collect(Collectors.toList());
+            return JaneHelper.from(tramiteBachillers)
                     .join("tramite.alumno", "codigo")
                     .join("tramite.cicloAcademico", "descripcion")
                     .join("tramite.persona", "paterno,materno,nombres,apellidosNombres")
@@ -673,7 +677,8 @@ public class ResolucionExistenteController {
 
         if (resolucion.getTipoResolucion().getCodigo().equals(BACHI.name())) {
 
-            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucion);
+            List<TramiteBachiller> bachillersCUTotal = service.allTramiteBachiller(resolucion);
+            List<TramiteBachiller> bachillers = bachillersCUTotal.stream().filter(x ->!x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name()) && !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())).collect(Collectors.toList());
 
             for (TramiteBachiller bachiller : bachillers) {
                 bachiller.setAlumno(bachiller.getTramite().getAlumno());
@@ -690,7 +695,15 @@ public class ResolucionExistenteController {
             objectNode.set("tramiteBachiller", array);
 
         } else if (resolucion.getTipoResolucion().getCodigo().equals(BACHIFAC.name())) {
-            List<TramiteBachiller> bachillers = service.allTramiteBachillerFacultad(resolucion);
+            List<TramiteBachiller> bachillersFAC = service.allTramiteBachillerFacultad(resolucion);
+
+            List<TramiteBachiller> bachillers = bachillersFAC.stream().filter(x ->!x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name()) && !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())).collect(Collectors.toList());
+
+//            List<TramiteBachiller> bachillers = bachillersFAC.stream()
+//                    .filter(x -> !TramiteEstadoEnum.ANU.equals(x.getEstado()) &&
+//                            !TramiteEstadoEnum.ANU.equals(x.getEstadofacultad()))
+//                    .collect(Collectors.toList());
+
 
             for (TramiteBachiller bachiller : bachillers) {
                 bachiller.setAlumno(bachiller.getTramite().getAlumno());

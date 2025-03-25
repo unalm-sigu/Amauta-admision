@@ -973,6 +973,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         resolucionBD.setOficina(resolucionForm.getOficina());
         resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionBD.setTipoResolucion(resolucionForm.getTipoResolucion());
+        resolucionBD.setFecha(resolucionForm.getFecha());
 //        resolucionBD.setNumeroVisible(resolucionForm.getNumeroVisible());
 
         resolucionBD.setUserActualizacion(usuario);
