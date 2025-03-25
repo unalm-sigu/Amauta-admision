@@ -49,7 +49,7 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .searchFields("al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("per.paterno");
+                .orderBy("tra.id desc");
         sql.beginRelativeFilters();
         this.setFacultad(filters, sql);
         return all(sql);
