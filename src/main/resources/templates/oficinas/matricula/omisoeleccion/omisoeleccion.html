@@ -95,7 +95,7 @@
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right">
 
-                                                        <li v-if="deudas.estadoEnum.name !== 'PAG'  &amp;&amp; deudas.estadoEnum.name !== 'ANU'">
+                                                        <li v-if="item.alumnoOmisoEleccions.some(deuda => deuda.estadoEnum.name === 'DEU')">
                                                             <a href="#" v-on:click.prevent="openAnular(item)">Anular Deuda</a>
                                                         </li>
                                                         <li><a href="#" v-on:click.prevent="verAportes(item)">Ver aportes</a></li>

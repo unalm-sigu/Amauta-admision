@@ -65,6 +65,7 @@ var app = new Vue({
             CURDIR: 'Curso Dirigido',
             TRAS_INT: 'Traslado Interno',
             RCI: 'Reincorporación',
+            REIC: 'Reincorporación',
             INTES: 'Intercambio Estudiantil'
         },
     },
