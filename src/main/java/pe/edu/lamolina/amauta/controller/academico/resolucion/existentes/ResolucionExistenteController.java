@@ -678,7 +678,11 @@ public class ResolucionExistenteController {
         if (resolucion.getTipoResolucion().getCodigo().equals(BACHI.name())) {
 
             List<TramiteBachiller> bachillersCUTotal = service.allTramiteBachiller(resolucion);
-            List<TramiteBachiller> bachillers = bachillersCUTotal.stream().filter(x ->!x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name()) && !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())).collect(Collectors.toList());
+//            List<TramiteBachiller> bachillers = bachillersCUTotal.stream().filter(x ->!x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name()) && !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())).collect(Collectors.toList());
+            List<TramiteBachiller> bachillers = bachillersCUTotal.stream()
+                    .filter(x -> (x.getEstado() == null || !x.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())) &&
+                            (x.getEstadofacultad() == null || !x.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())))
+                    .collect(Collectors.toList());
 
             for (TramiteBachiller bachiller : bachillers) {
                 bachiller.setAlumno(bachiller.getTramite().getAlumno());
