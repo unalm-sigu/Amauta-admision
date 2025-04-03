@@ -13,7 +13,7 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfName;
+import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -27,30 +27,19 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.PDF_LOGO_UNALM;
-import pe.edu.lamolina.model.general.Persona;
 
 @Component
-public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
+public class AlumnosPersonalizadoPDF extends AbstractOnlyPdfView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String SUBJT_PREGRADO = "DIRECCIÓN DE ESTUDIOS Y REGISTROS ACADÉMICOS";
-    private final String title = "REPORTE DE ALUMNOS MATRICULADOS ";
+    private final String title = "REPORTE DE ALUMNOS MATRICULADOS AMNISTÍA 2025-I";
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
@@ -68,16 +57,15 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        List<MatriculaSeccion> matriculaSeccions = (List<MatriculaSeccion>) model.get("matriculaSeccion");
-        CicloAcademico ciclo = matriculaSeccions.get(0).getMatriculaResumen().getCicloAcademico();
+        List<AlumnoPersonalizadoDTO> lista = (List<AlumnoPersonalizadoDTO>) model.get("alumnoDTO");
 
         buildHeaderPaginaPrincipal(document);
-        createAnexos(matriculaSeccions, document);
-
+        createBody(lista, document);
+        this.onEndPage(writer, document);
         document.newPage();
         DateTime today = new DateTime();
 
-        String nombre = "Alumno Matriculados " + ciclo.getDescripcion() + "_" + today.toString("yyyyMMdd_HHmm");
+        String nombre = "Alumno Matriculados imnastiado" + lista.get(0).getCiclo() + "_" + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
@@ -146,7 +134,7 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void createAnexos(List<MatriculaSeccion> matriculaSeccions, Document document) throws DocumentException, Exception {
+    private void createBody(List<AlumnoPersonalizadoDTO> lista, Document document) throws DocumentException, Exception {
         Font font = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
         Font fontAnexo = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.BLACK);
 
@@ -157,77 +145,51 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         document.add(paragraph);
 
         PdfPTable table = new PdfPTable(2);
-        float[] medidaCeldas = {2.20f, 8f};// tamañan por columna
+        float[] medidaCeldas = {1.55f, 8f};// tamañan por columna
 
-        Map<Long, List<MatriculaSeccion>> mapReporte = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matriculaSeccions);
+        PdfPTable tableTitulo = new PdfPTable(6);
+        tableTitulo.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
+        tableTitulo.setTotalWidth(220);
+        tableTitulo.setLockedWidth(true);
 
-        for (Long idCurso : mapReporte.keySet()) {
-            List<MatriculaSeccion> matSecciones = mapReporte.get(idCurso);
-            Curso curso = matSecciones.get(0).getSeccion().getGrupoSeccion().getCurso();
+        int i = 1;
+        tableTitulo.setSpacingBefore(2f);
+        tableTitulo.setSpacingAfter(2f);
+        document.add(tableTitulo);
+        document.add(new Chunk(".", new Font(Font.FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
 
-            PdfPTable tableTitulo = new PdfPTable(6);
-            tableTitulo.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
-            tableTitulo.setTotalWidth(220);
-            tableTitulo.setLockedWidth(true);
-            this.tituloData(PdfPCell.ALIGN_CENTER, "Curso:", 2, tableTitulo, font);
-            this.tituloData(PdfPCell.ALIGN_LEFT, curso.getNombre(), 4, tableTitulo, font);
+        table.setWidths(medidaCeldas);
+        table.setWidthPercentage(80.00f);//todo el ancho de la pagina
+        table.setSpacingBefore(2f);
+        table.setSpacingAfter(2f);
+        table.addCell(getStyleTitulo("FOTO", 8, "C"));
+//        table.addCell(getStyleTitulo("CÓDIGO", 8, "C"));
+        table.addCell(getStyleTitulo("ESTUDIANTE", 8, "C"));
+        table.setHeaderRows(1);
 
-            Seccion seccion = matSecciones.get(0).getSeccion();
-
-            this.tituloData(PdfPCell.ALIGN_CENTER, "Sección:", 2, tableTitulo, font);
-            this.tituloData(PdfPCell.ALIGN_LEFT, seccion.getCodigo2(), 4, tableTitulo, font);
-
-            int i = 1;
-            for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
-
-                this.tituloData(PdfPCell.ALIGN_CENTER, "Docente " + i + " :", 2, tableTitulo, font);
-                if (docenteSeccion.getDocente().getPersona() != null) {
-                    this.tituloData(PdfPCell.ALIGN_LEFT, docenteSeccion.getDocente().getPersona().getApellidosNombres(), 4, tableTitulo, font);
-                } else {
-                    this.tituloData(PdfPCell.ALIGN_LEFT, docenteSeccion.getDocente().getCodigo(), 4, tableTitulo, font);
-                }
-                i++;
+        for (AlumnoPersonalizadoDTO data : lista) {
+            String url = "";
+            if (!Strings.isNullOrEmpty(data.getFoto())) {
+                url = data.getFoto();
+                table.addCell(getImagenUrl(25, 20, url));
+            } else {
+                table.addCell(getImagenUrl(25, 20, url));
             }
-            tableTitulo.setSpacingBefore(2f);
-            tableTitulo.setSpacingAfter(2f);
-            document.add(tableTitulo);
-            document.add(new Chunk(".", new Font(Font.FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
-
-            table.setWidths(medidaCeldas);
-            table.setWidthPercentage(80.00f);//todo el ancho de la pagina
-            table.setSpacingBefore(2f);
-            table.setSpacingAfter(2f);
-            table.addCell(getStyleTitulo("FOTO", 8, "C"));
-//            table.addCell(getStyleTitulo("CÓDIGO", 8, "C"));
-            table.addCell(getStyleTitulo("ESTUDIANTE", 8, "C"));
-            table.setHeaderRows(1);
-
-            for (MatriculaSeccion matriculaSeccion : matSecciones) {
-                Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
-                String url = "";
-                if (!Strings.isNullOrEmpty(alumno.getPersona().getFoto())) {
-                    url = alumno.getPersona().getFoto();
-                    table.addCell(getImagenUrl(25, 20, url));
-                } else {
-                    table.addCell(getImagenUrl(25, 20, url));
-                }
-//                addCelda(alumno.getCodigo(), "C", table, fontAnexo, 1);
-                StringBuilder st = new StringBuilder();
-                st.append(" Alumno: " + alumno.getPersona().getApellidosNombres() + "\n");
-                st.append(" \n");
-                st.append(" Matricula: " + alumno.getCodigo() + "\n");
-                st.append(" \n");
-                st.append(" Carrera: " + alumno.getCarrera().getNombre() + "\n");
-                st.append(" \n");
-                st.append(" Correo Microsoft: " + (!ObjectUtils.isEmpty(alumno.getPersona().getEmailCorporativo()) ? alumno.getPersona().getEmailCorporativo() : "") + "\n");
-                st.append(" \n");
-//                if (!alumno.getCarrera().getCodigo().equalsIgnoreCase(alumno.getCarrera().getFacultad().getCodigo())) {
-//                }
-                st.append(" Correo Gmail: " + alumno.getPersona().getEmailCompania() + "\n");
-                st.append(" \n");
-                addCelda(st.toString(), "L", table, fontAnexo, 1);
-            }
+//            addCelda(data.getMatricula(), "C", table, fontAnexo, 1);
+            StringBuilder st = new StringBuilder();
+            st.append(" Alumno: " + data.getAlumno() + "\n");
+            st.append(" \n");
+            st.append(" Dni: " + data.getDni() + "\n");
+            st.append(" \n");
+            st.append(" Matricula: " + data.getMatricula() + "\n");
+            st.append(" \n");
+            st.append(" Carrera: " + data.getCarrera() + "\n");
+            st.append(" \n");
+            st.append(" Situación Académica: " + data.getSituacion() + "\n");
+            st.append(" \n");
+            addCelda(st.toString(), "L", table, fontAnexo, 1);
         }
+//        }
         document.add(table);
 
     }
@@ -291,12 +253,6 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         }
         cell.setVerticalAlignment(Element.ALIGN_CENTER);
         cell.setMinimumHeight(75);
-//        cell.setPaddingLeft(2f);
-//        cell.setPaddingRight(0f);
-//        cell.setPaddingTop(10f);
-//        cell.setPaddingBottom(0f);
-//        cell.setColspan(colspan);
-//        cell.setRowspan(rolSpan);
         table.addCell(cell);
     }
 
@@ -310,9 +266,6 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         cell.setMinimumHeight(numero);
         cell.setBackgroundColor(BaseColor.DARK_GRAY);
         cell.getEffectivePaddingRight();
-        //cell.setPaddingBottom(6.0f);
-        //cell.setPaddingTop(6.0f);
-        //cell.setBorder(1);
         if (posicion.equals("C")) {
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         }
@@ -324,6 +277,28 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         }
 
         return cell;
+    }
+
+    public void onEndPage(PdfWriter writer, Document document) {
+        // Obtener el área de la página
+        Rectangle pageSize = document.getPageSize();
+
+        // Texto del pie de página
+        Phrase footer = new Phrase(
+                "© DERA - Rogelio Orihuela C.",
+                new Font(Font.FontFamily.HELVETICA, 5, Font.NORMAL)
+        );
+
+        // Posicionar el texto en la parte inferior centrada
+        ColumnText.showTextAligned(
+                writer.getDirectContent(),
+                Element.ALIGN_CENTER,
+                footer,
+                pageSize.getWidth() / 2,
+                pageSize.getBottom(30), // Ajusta el margen inferior (30 unidades)
+                0
+        );
+
     }
 
 }

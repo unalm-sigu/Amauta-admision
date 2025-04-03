@@ -114,7 +114,7 @@
                                             </span>
 
                                         </td>
-                                        
+
                                         <td class="v-middle text-center">
                                             <span class="block bold pointer"
                                                   v-on:click="verLecciones(item)"
@@ -122,7 +122,7 @@
                                                 {{item.controlesEjecutados}} / 
                                                 {{item.controlesConfigurados}}
                                             </span>
-<!--                                            <span class="block pointer" v-if="item.controlesEjecutados > 0">
+                                            <span class="block pointer" v-if="item.controlesEjecutados > 0">
                                                 <a v-on:click.prevent="descargarAsistencias(item,'SI')">
                                                     <i class="fa fa-file-excel-o fa-lg text-success"></i>
                                                 </a>
@@ -131,7 +131,7 @@
                                                 <a v-on:click.prevent="descargarAsistencias(item,'NO')">
                                                     <i class="fa fa-file-excel-o fa-lg text-danger"></i>
                                                 </a>
-                                            </span>-->
+                                            </span>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -453,7 +453,7 @@
             setHorario(item) {
                 this.$refs.modalAddHorario.open(item, this.$refs.raptorCursos);
             },
-            
+
             verLecciones(item) {
                 const url = APP.url(`${rutaModuloLeccion}/${item.id}/dictados${myUtils.getOrigenURL()}`);
                 location.href = url;

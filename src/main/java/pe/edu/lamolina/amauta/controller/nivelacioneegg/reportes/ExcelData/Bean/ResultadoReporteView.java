@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,5 +41,9 @@ public class ResultadoReporteView {
     private BigDecimal porcentajeAsistencia;
     private BigDecimal puntajeCurso;
     private List<AsistenciaNivelacion> asistencias;
+    private List<IngresantesExamenAdmisionDTO> ingresantesExamene = new ArrayList<>();
+    private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();
+    private List<IngresantesMateriasNivelacionDTO> ingresantesMateria = new ArrayList<>();
+    private List<IngresantesInscritosNivelacionDTO> ingresantesInscritos = new ArrayList<>();
 
 }

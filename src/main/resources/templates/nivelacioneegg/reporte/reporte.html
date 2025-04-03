@@ -1,0 +1,67 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Reportes Nivelación</title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <header class="header b-b padder-lg">        
+                <h2>Reportes Nivelación - <span th:text="${ciclo.descripcion}">2020-I</span></h2>
+            </header>
+            <section class="wrapper-md">
+                <section class="panel">
+                    <section class="panel-body">
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3" 
+                             th:data-url="@{/nivelacioneegg/reporte/generalNotaSeccion}" 
+                             onclick="window.location.href = this.getAttribute('data-url')">
+                            <div class="col-sm-10 col-sm-offset-1 panel qard qard-info depart-academico">
+
+                                <span class="fa-stack fa-lg text-success"><i class="fa fa-circle fa-stack-2x fa-5x"></i> <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i></span> <!----> <!----> &nbsp;
+                                <h4 class="text-primary">General Nota Sección</h4>
+                                <hr>
+
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3" 
+                             th:data-url="@{/nivelacioneegg/reporte/ingresantesDesaprobados}" 
+                             onclick="window.location.href = this.getAttribute('data-url')">
+
+                            <div class="col-sm-10 col-sm-offset-1 panel qard qard-info depart-academico">
+
+                                <span class="fa-stack fa-lg text-success"><i class="fa fa-circle fa-stack-2x fa-5x"></i> <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i></span> <!----> <!----> &nbsp;
+                                <h4 class="text-primary">Ingresantes Desaprobados</h4>
+                                <hr>
+
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3" 
+                             th:data-url="@{/nivelacioneegg/reporte/ingresantesDesaprobadosMoodle}" 
+                             onclick="window.location.href = this.getAttribute('data-url')">
+
+                            <div class="col-sm-10 col-sm-offset-1 panel qard qard-info depart-academico">
+
+                                <span class="fa-stack fa-lg text-success"><i class="fa fa-circle fa-stack-2x fa-5x"></i> <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i></span> <!----> <!----> &nbsp;
+                                <h4 class="text-primary">Ingresantes Desaprobados Moodle</h4>
+                                <hr>
+
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3" 
+                             th:data-url="@{/nivelacioneegg/reporte/informeNivelacionGeneral}" 
+                             onclick="window.location.href = this.getAttribute('data-url')">
+
+                            <div class="col-sm-10 col-sm-offset-1 panel qard qard-info depart-academico">
+
+                                <span class="fa-stack fa-lg text-success"><i class="fa fa-circle fa-stack-2x fa-5x"></i> <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i></span> <!----> <!----> &nbsp;
+                                <h4 class="text-primary">Informe Nivelación General</h4>
+                                <hr>
+
+                            </div>
+                        </div>
+
+                    </section>
+                </section>
+            </section>
+        </section>
+
+    </body>
+</html>

@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
@@ -56,7 +60,24 @@ public class ReporteEGServiceImpl implements ReporteEGService {
 
     @Override
     public List<ResultadoReporteView> ingresantesDesaprobadosMoodleByCiclo(CicloAcademico cicloAcademico) {
-       return notaAlumnoNivelacionDAO.ingresantesDesaprobadosMoodleByCiclo(cicloAcademico);
+        return notaAlumnoNivelacionDAO.ingresantesDesaprobadosMoodleByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public ResultadoReporteView allDataProcesada(CicloAcademico cicloAcademico) {
+        List<IngresantesExamenAdmisionDTO> examenesAdmision = notaAlumnoNivelacionDAO.allExamenAdmisionByCiclo(cicloAcademico);
+        List<IngresantesInscritosNivelacionDTO> inscritosNivelacion = notaAlumnoNivelacionDAO.allInscritosNivelacionByCiclo(cicloAcademico);
+        List<IngresantesMateriasNivelacionDTO> materiasNivelacion = notaAlumnoNivelacionDAO.allMateriasNivelacion(cicloAcademico);
+        List<IngresantesAsistenciaInscritosDTO> asistencias = notaAlumnoNivelacionDAO.allAsistenciasByCiclo(cicloAcademico);
+
+        ResultadoReporteView reporteView = new ResultadoReporteView();
+        reporteView.setIngresantesExamene(examenesAdmision);
+        reporteView.setIngresantesInscritos(inscritosNivelacion);
+        reporteView.setIngresantesMateria(materiasNivelacion);
+        reporteView.setIngresantesAsistencia(asistencias);
+
+        return reporteView;
+
     }
 
 }

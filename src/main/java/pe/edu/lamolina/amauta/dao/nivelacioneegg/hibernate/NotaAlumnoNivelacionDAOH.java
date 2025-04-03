@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.BigDecimalType;
+import org.hibernate.type.IntegerType;
 import org.hibernate.type.StringType;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
@@ -16,6 +17,10 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -561,6 +566,296 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
 
         query.setParameter("CICLO", cicloAcademico.getId());
         return (List<ResultadoReporteView>) query.list();
+    }
+
+    @Override
+    public List<IngresantesExamenAdmisionDTO> allExamenAdmisionByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" WITH datos AS ( ");
+        sql.append("    SELECT ");
+        sql.append("        ifnull(pre.puntaje_rm,e.puntaje_rm) puntaje_rm, ");
+        sql.append("        ifnull(pre.puntaje_matematicas,(e.puntaje_algebra + e.puntaje_aritmetica + e.puntaje_geometria + e.puntaje_trignometria)) puntaje_matematicas, ");
+        sql.append("        ifnull(pre.puntaje_fisica,e.puntaje_fisica) puntaje_fisica, ");
+        sql.append("        ifnull(pre.puntaje_quimica,e.puntaje_quimica) puntaje_quimica, ");
+        sql.append("        ifnull(pre.puntaje_biologia,e.puntaje_biologia) puntaje_biologia, ");
+        sql.append("        ifnull(pre.puntaje_economia,e.puntaje_economia) puntaje_economia, ");
+        sql.append("        ifnull(pre.puntaje_historia,e.puntaje_historia) puntaje_historia, ");
+        sql.append("        ifnull(pre.puntaje_geografia,e.puntaje_geografia) puntaje_geografia, ");
+        sql.append("        ifnull(pre.puntaje_rv,e.puntaje_rv) puntaje_rv ");
+        sql.append("    FROM aca_alumno a ");
+        sql.append("    JOIN aca_ciclo_academico cai ON a.id_ciclo_ingreso = cai.id ");
+        sql.append("    JOIN sip_postulante po ON a.id_postulante_pregrado = po.id ");
+        sql.append("    JOIN sip_ingresante i ON i.id_postulante = po.id ");
+        sql.append("    LEFT JOIN sip_prelamolina pre ON i.id_prelamolina = pre.id ");
+        sql.append("    LEFT JOIN sip_evaluado e ON i.id_evaluado = e.id ");
+        sql.append("    WHERE cai.id = :CICLO AND po.estado = 'ING' ");
+        sql.append(" ) ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_rm' AS materia, ");
+        sql.append("    13.125 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_rm >= 13.125 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_rm >= 13.125 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_rm < 13.125 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_rm < 13.125 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_matematicas' AS materia, ");
+        sql.append("    9.4 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_matematicas >= 9.4 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_matematicas >= 9.4 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_matematicas < 9.4 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_matematicas < 9.4 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_fisica' AS materia, ");
+        sql.append("    3.15 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_fisica >= 3.15 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_fisica >= 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_fisica < 3.15 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_fisica < 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_quimica' AS materia, ");
+        sql.append("    3.15 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_quimica >= 3.15 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_quimica >= 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_quimica < 3.15 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_quimica < 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_biologia' AS materia, ");
+        sql.append("    3.15 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_biologia >= 3.15 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_biologia >= 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_biologia < 3.15 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_biologia < 3.15 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_economia' AS materia, ");
+        sql.append("    2.10 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_economia >= 2.10 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_economia >= 2.10 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_economia < 2.10 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_economia < 2.10 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_historia' AS materia, ");
+        sql.append("    2.625 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_historia >= 2.625 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_historia >= 2.625 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_historia < 2.625 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_historia < 2.625 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_geografia' AS materia, ");
+        sql.append("    2.625 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_geografia >= 2.625 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_geografia >= 2.625 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_geografia < 2.625 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_geografia < 2.625 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" UNION ALL ");
+        sql.append("  ");
+        sql.append(" SELECT ");
+        sql.append("    'puntaje_rv' AS materia, ");
+        sql.append("    13.125 AS puntaje_minimo, ");
+        sql.append("    SUM(CASE WHEN puntaje_rv >= 13.125 THEN 1 ELSE 0 END) AS aprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_rv >= 13.125 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcAprobados, ");
+        sql.append("    SUM(CASE WHEN puntaje_rv < 13.125 THEN 1 ELSE 0 END) AS desaprobados, ");
+        sql.append("    ROUND(SUM(CASE WHEN puntaje_rv < 13.125 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS porcDesaprobados ");
+        sql.append(" FROM datos ");
+        sql.append("  ");
+        sql.append(" ORDER BY materia; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("materia", StringType.INSTANCE)
+                .addScalar("aprobados", IntegerType.INSTANCE)
+                .addScalar("porcAprobados", BigDecimalType.INSTANCE)
+                .addScalar("desaprobados", IntegerType.INSTANCE)
+                .addScalar("porcDesaprobados", BigDecimalType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesExamenAdmisionDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<IngresantesExamenAdmisionDTO>) query.list();
+
+    }
+
+    @Override
+    public List<IngresantesInscritosNivelacionDTO> allInscritosNivelacionByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT  ");
+        sql.append(" caa.descripcion ciclo,   ");
+        sql.append(" car.nombre carrera,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 1 THEN 1 END) AS aprobados,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 0 THEN 1 END) AS desaprobados,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado is null THEN 1 END) AS sinNota,  ");
+        sql.append(" count(nan.id) total  ");
+        sql.append(" FROM eegg_nota_alumno_nivelacion nan  ");
+        sql.append(" JOIN eegg_alumno_nivelacion an ON an.id = nan.id_alumno_nivelacion  ");
+        sql.append(" JOIN aca_alumno a ON a.id = an.id_alumno  ");
+        sql.append(" JOIN aca_carrera car ON a.id_carrera = car.id  ");
+        sql.append(" JOIN gen_persona pe ON pe.id = a.id_persona  ");
+        sql.append(" JOIN eegg_curso_nivelacion cn ON cn.id = nan.id_curso_nivelacion  ");
+        sql.append(" LEFT JOIN aca_docente doc ON cn.id_docente = doc.id  ");
+        sql.append(" LEFT JOIN gen_persona per ON doc.id_persona = per.id  ");
+        sql.append(" JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico  ");
+        sql.append(" JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id  ");
+        sql.append(" JOIN aca_curso cu ON cu.id = cc.id_curso  ");
+        sql.append(" WHERE caa.id = :CICLO  ");
+        sql.append("  AND an.estado IN ('MAT')  ");
+        sql.append("  AND nan.estado IN ('MAT')  ");
+        sql.append("  AND nan.tema_aprobado = false  ");
+        sql.append("  and cn.estado = 'ACT'  ");
+        sql.append(" GROUP BY  ");
+        sql.append("  caa.descripcion,  ");
+        sql.append("  car.nombre  ");
+        sql.append("  ORDER BY car.nombre;  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("carrera", StringType.INSTANCE)
+                .addScalar("aprobados", IntegerType.INSTANCE)
+                .addScalar("desaprobados", IntegerType.INSTANCE)
+                .addScalar("sinNota", IntegerType.INSTANCE)
+                .addScalar("total", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesInscritosNivelacionDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<IngresantesInscritosNivelacionDTO>) query.list();
+
+    }
+
+    @Override
+    public List<IngresantesMateriasNivelacionDTO> allMateriasNivelacion(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT  ");
+        sql.append(" REPLACE(cu.nombre, 'Nivelación en ', '') curso,  ");
+        sql.append(" count(nan.id) inscritos,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 1 THEN 1 END) AS aprobados,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 0 THEN 1 END) AS desaprobados,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado is null THEN 1 END) AS sinNota  ");
+        sql.append(" FROM eegg_nota_alumno_nivelacion nan  ");
+        sql.append(" JOIN eegg_alumno_nivelacion an ON an.id = nan.id_alumno_nivelacion  ");
+        sql.append(" JOIN aca_alumno a ON a.id = an.id_alumno  ");
+        sql.append(" JOIN aca_carrera car ON a.id_carrera = car.id  ");
+        sql.append(" JOIN gen_persona pe ON pe.id = a.id_persona  ");
+        sql.append(" JOIN eegg_curso_nivelacion cn ON cn.id = nan.id_curso_nivelacion  ");
+        sql.append(" LEFT JOIN aca_docente doc ON cn.id_docente = doc.id  ");
+        sql.append(" LEFT JOIN gen_persona per ON doc.id_persona = per.id  ");
+        sql.append(" JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico  ");
+        sql.append(" JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id  ");
+        sql.append(" JOIN aca_curso cu ON cu.id = cc.id_curso  ");
+        sql.append(" WHERE caa.id = :CICLO  ");
+        sql.append("  AND an.estado IN ('MAT')  ");
+        sql.append("  AND nan.estado IN ('MAT')  ");
+        sql.append("  AND nan.tema_aprobado = false  ");
+        sql.append("  and cn.estado = 'ACT'  ");
+        sql.append(" GROUP BY  ");
+        sql.append("  cu.nombre  ");
+        sql.append("  ORDER BY cu.nombre;  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("inscritos", IntegerType.INSTANCE)
+                .addScalar("aprobados", IntegerType.INSTANCE)
+                .addScalar("desaprobados", IntegerType.INSTANCE)
+                .addScalar("sinNota", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesMateriasNivelacionDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<IngresantesMateriasNivelacionDTO>) query.list();
+
+    }
+
+    @Override
+    public List<IngresantesAsistenciaInscritosDTO> allAsistenciasByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select t.ciclo,REPLACE(t.curso, 'Nivelación en ', '') curso,sum(t.total) total, sum(t.mayorIgual50Asistencia) mayorIgual50Asistencia, sum(t.menora50Asistencia) menora50Asistencia, sum(t.zeroAsistencia) zeroAsistencia ");
+        sql.append(" from ( ");
+        sql.append("           WITH asistencias_alumno AS ( ");
+        sql.append("            SELECT ");
+        sql.append("                caa.descripcion AS ciclo, ");
+        sql.append("                cu.codigo AS cod_curso, ");
+        sql.append("                cu.nombre AS curso, ");
+        sql.append("                cn.codigo AS seccion, ");
+        sql.append("                a.codigo AS matricula, ");
+        sql.append("                COUNT(CASE WHEN asn.estado = 'ASISTIO' THEN 1 END) AS clases_asistidas, ");
+        sql.append("                COUNT(asn.id) AS clases_totales, ");
+        sql.append("                cn.horas_dictado ");
+        sql.append("            FROM eegg_alumno_nivelacion an ");
+        sql.append("            JOIN aca_alumno a ON a.id = an.id_alumno ");
+        sql.append("            JOIN eegg_asistencia_nivelacion asn ON asn.id_alumno_nivelacion = an.id ");
+        sql.append("            JOIN eegg_tema_asistencia ta ON asn.id_tema_asistencia = ta.id ");
+        sql.append("            JOIN eegg_curso_nivelacion cn ON cn.id = ta.id_curso_nivelacion ");
+        sql.append("            JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico ");
+        sql.append("            JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id ");
+        sql.append("            JOIN aca_curso cu ON cu.id = cc.id_curso ");
+        sql.append("            WHERE caa.id = :CICLO ");
+        sql.append("              AND an.estado IN ('MAT') ");
+        sql.append("              AND cn.estado = 'ACT' ");
+        sql.append("            GROUP BY caa.descripcion, cu.codigo, cu.nombre, cn.codigo, a.codigo, cn.horas_dictado ");
+        sql.append("        ), ");
+        sql.append("        porcentajes AS ( ");
+        sql.append("            SELECT ");
+        sql.append("                ciclo, ");
+        sql.append("                cod_curso, ");
+        sql.append("                curso, ");
+        sql.append("                seccion, ");
+        sql.append("                matricula,  ");
+        sql.append("                horas_dictado, ");
+        sql.append("                clases_asistidas, ");
+        sql.append("                clases_totales, ");
+        sql.append("                CASE WHEN clases_totales > 0 THEN (clases_asistidas * 100.0 / clases_totales) ELSE 0 END AS porcentaje_asistencia ");
+        sql.append("            FROM asistencias_alumno ");
+        sql.append("        ) ");
+        sql.append("        SELECT ");
+        sql.append("            ciclo, ");
+        sql.append("            cod_curso, ");
+        sql.append("            curso, ");
+        sql.append("            seccion, ");
+        sql.append("            COUNT(matricula) AS total, ");
+        sql.append("            COUNT(CASE WHEN porcentaje_asistencia >= 50 THEN 1 END) AS mayorIgual50Asistencia, ");
+        sql.append("            COUNT(CASE WHEN porcentaje_asistencia < 50 AND porcentaje_asistencia > 0 THEN 1 END) AS menora50Asistencia, ");
+        sql.append("            COUNT(CASE WHEN porcentaje_asistencia = 0 THEN 1 END) AS zeroAsistencia ");
+        sql.append("        FROM porcentajes ");
+        sql.append("        GROUP BY ciclo, cod_curso, curso, seccion ");
+        sql.append("        )t ");
+        sql.append(" group by  t.ciclo,t.curso ");
+        sql.append(" order by  curso; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("total", IntegerType.INSTANCE)
+                .addScalar("mayorIgual50Asistencia", IntegerType.INSTANCE)
+                .addScalar("menora50Asistencia", IntegerType.INSTANCE)
+                .addScalar("zeroAsistencia", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesAsistenciaInscritosDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<IngresantesAsistenciaInscritosDTO>) query.list();
+
     }
 
 }

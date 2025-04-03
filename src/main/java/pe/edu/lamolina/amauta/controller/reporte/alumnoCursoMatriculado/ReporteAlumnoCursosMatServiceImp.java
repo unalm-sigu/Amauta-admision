@@ -15,7 +15,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,6 +45,12 @@ public class ReporteAlumnoCursosMatServiceImp implements ReporteAlumnoCursosMatS
             matriculaSeccion.getSeccion().setDocenteSeccion(mapDocente.get(matriculaSeccion.getSeccion().getId()));
         }
         return lista;
+    }
+
+    @Override
+    public List<AlumnoPersonalizadoDTO> downloadReporteAlumnoPersonalizado() {
+        return matriculaSeccionDAO.listaPersonalizadoReporte();
+
     }
 
 }
