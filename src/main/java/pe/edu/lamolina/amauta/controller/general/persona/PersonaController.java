@@ -3,12 +3,7 @@ package pe.edu.lamolina.amauta.controller.general.persona;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.beans.PropertyEditorSupport;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
@@ -16,8 +11,6 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,32 +45,6 @@ public class PersonaController {
     PersonaService service;
     @Autowired
     VerificadorService verificadorService;
-
-    @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
-
-        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
-                } catch (ParseException e) {
-                    setValue(null);
-                }
-            }
-        });
-
-        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String value) {
-                try {
-                    setValue(new BigDecimal(value.replaceAll(",", "")));
-                } catch (Exception e) {
-                    setValue(null);
-                }
-            }
-        });
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
