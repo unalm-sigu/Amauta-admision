@@ -5,8 +5,13 @@
             <table class="table table-condensed">
                 <caption style="font-size: 20px"> <b>{{ tipoMap[tipo] || tipo }}</b> </caption>
                 <thead>
-                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
+                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' ">
                         <th></th>
+                        <th>Código</th>
+                        <th>Apellidos y Nombres</th>
+                        <th>Resolución</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th>Resolución</th>
