@@ -91,7 +91,7 @@ new Vue({
 
             if (item.porcentajeCarga > 0) {
                 if (item.porcentajeCarga == 100) {
-                    return item.creditosCarga * 0.33;
+                    return (item.creditosCarga * 0.3325).toFixed(2);
                 }
             }
         },
@@ -101,7 +101,7 @@ new Vue({
                 for (let seccion of el.secciones) {
                     for (let docenteSeccion of seccion.docenteSeccion) {
                         if (el.cursoDirigido) {
-                            sumCreditosPRE += docenteSeccion.creditosCarga * 0.33;
+                            sumCreditosPRE += docenteSeccion.creditosCarga * 0.3325;
                         } else {
                             sumCreditosPRE += docenteSeccion.creditosCarga;
                         }
