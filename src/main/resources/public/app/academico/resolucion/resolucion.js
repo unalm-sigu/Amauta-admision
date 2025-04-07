@@ -425,6 +425,12 @@ var app = new Vue({
                                 } else {
                                     notify(response.data.message, "error");
                                 }
+                                MODAL.hideWait();
+                            })
+                            .catch(error => {
+                                MODAL.hideWait();
+                                let mensaje = error.response?.data?.message || "Ocurrió un error inesperado al eliminar la resolución.";
+                                notify(mensaje, "error");
                             });
                     }
                 }
