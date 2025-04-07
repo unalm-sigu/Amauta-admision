@@ -403,6 +403,32 @@ var app = new Vue({
                     }
                 }
             });
+        },
+        eliminarResolucion(item){
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la resolución?",
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        axios_.post(APP.url('academico/resolucion/eliminar') + '?id=' + item.id)
+                            .then(response => {
+                                if (response.data.success) {
+                                    notify(response.data.message, "info");
+                                    $vue.$refs.tblResoluciones.loadRemoteData();
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.data.message, "error");
+                                }
+                            });
+                    }
+                }
+            });
         }
     }
 })

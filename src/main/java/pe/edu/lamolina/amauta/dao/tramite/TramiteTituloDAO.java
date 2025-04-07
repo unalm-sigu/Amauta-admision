@@ -12,6 +12,8 @@ import pe.edu.lamolina.model.tramite.TramiteTitulo;
 public interface TramiteTituloDAO extends EasyDAO<TramiteTitulo> {
 
     public TramiteTitulo findByTramite(Tramite tramite);
+    public TramiteTitulo findByResolucionCU(Resolucion resolucion);
+    public TramiteTitulo findByResolucionFacultad(Resolucion resolucion);
 
     public List<TramiteTitulo> allByTramites(List<Tramite> tramites);
 
