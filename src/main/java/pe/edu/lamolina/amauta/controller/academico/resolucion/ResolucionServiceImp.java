@@ -18,11 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.academico.historico.AlumnoHistoricoService;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.amauta.dao.tramite.*;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -41,15 +43,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
-import pe.edu.lamolina.model.tramite.CursoDirigido;
-import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.ReunionConsejo;
-import pe.edu.lamolina.model.tramite.TipoResolucion;
-import pe.edu.lamolina.model.tramite.TipoTramite;
-import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.*;
 import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAcademicosService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
@@ -67,27 +61,16 @@ import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReunionConsejoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoResolucionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteReunionConsejoDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoConvalidadoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 @Slf4j
 @Service
@@ -114,7 +97,9 @@ public class ResolucionServiceImp implements ResolucionService {
     private final TipoResolucionDAO tipoResolucionDAO;
     private final TipoTramiteDAO tipoTramiteDAO;
     private final TramiteDAO tramiteDAO;
+    private final TramiteBachillerDAO tramiteBachillerDAO;
     private final TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
+    private final TramiteTituloDAO tramiteTituloDAO;
     private final TramiteTrasladoDAO tramiteTrasladoDAO;
     private final CursoConvalidadoDAO cursoConvalidadoDAO;
     private final AlumnoCicloCursoDAO alumnoCicloCursoDAO;
@@ -676,6 +661,48 @@ public class ResolucionServiceImp implements ResolucionService {
 
         alumnoHistoricoService.calcularPromedio(alumnoCiclo.getAlumno(), ds);
         infoAcademicoService.generarAvance(alumnoCiclo.getAlumno(), ds);
+
+    }
+
+    @Override
+    @Transactional
+    public void eliminarResolucion(Long id) {
+        Resolucion resolucionBD = resolucionDAO.findById(id);
+        if (resolucionBD == null) {
+            throw new IllegalArgumentException("La resolución no existe.");
+        }
+
+        TipoResolucion tipoResolucion = resolucionBD.getTipoResolucion();
+
+        if (tipoResolucion.isTramiteTitulo()) {
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByResolucionCU(resolucionBD);
+            if (tramiteTitulo != null) {
+                throw new IllegalStateException("La resolución ya está vinculada con un trámite de título (CU).");
+            }
+        }
+
+        if (tipoResolucion.isTramiteTituloFacultad()) {
+            TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByResolucionFacultad(resolucionBD);
+            if (tramiteTitulo != null) {
+                throw new IllegalStateException("La resolución ya está vinculada con un trámite de título (Facultad).");
+            }
+        }
+
+        if (tipoResolucion.isTramiteBachiller()) {
+            TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByResolucionCU(resolucionBD);
+            if (tramiteBachiller != null) {
+                throw new IllegalStateException("La resolución ya está vinculada con un trámite de bachiller (CU).");
+            }
+        }
+
+        if (tipoResolucion.isTramiteBachillerFacultad()) {
+            TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByResolucionFacultad(resolucionBD);
+            if (tramiteBachiller != null) {
+                throw new IllegalStateException("La resolución ya está vinculada con un trámite de bachiller (Facultad).");
+            }
+        }
+
+        resolucionDAO.delete(resolucionBD);
 
     }
 

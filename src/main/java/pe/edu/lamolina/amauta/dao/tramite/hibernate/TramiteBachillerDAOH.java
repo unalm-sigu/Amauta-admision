@@ -38,6 +38,26 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
     }
 
     @Override
+    public TramiteBachiller findByResolucionCU(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class,"tb")
+                .join("tramite tr")
+                .filter("tb.resolucion", resolucion);
+
+        return find(sql);
+    }
+
+    @Override
+    public TramiteBachiller findByResolucionFacultad(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class,"tb")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tb.resolucionFacultad", resolucion);
+
+        return find(sql);
+    }
+
+    @Override
     public List<TramiteBachiller> allByTramites(List<Tramite> tramites) {
         Octavia sql = new Octavia();
         sql.from(TramiteBachiller.class)

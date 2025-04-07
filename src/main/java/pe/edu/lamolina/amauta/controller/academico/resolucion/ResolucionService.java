@@ -53,4 +53,6 @@ public interface ResolucionService {
 
     void anularResolucionIntercambioEstudiantil(Resolucion resolucion, DataSessionPivot ds);
 
+    void eliminarResolucion(Long id);
+
 }

@@ -37,6 +37,24 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
+    public TramiteTitulo findByResolucionCU(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class,"tt")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tt.resolucion", resolucion);
+        return find(sql);
+    }
+
+    @Override
+    public TramiteTitulo findByResolucionFacultad(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class,"tt")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tt.resolucionFacultad", resolucion);
+        return find(sql);
+    }
+
+    @Override
     public List<TramiteTitulo> allByTramites(List<Tramite> tramites) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class)

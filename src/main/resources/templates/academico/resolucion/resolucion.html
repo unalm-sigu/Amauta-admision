@@ -104,6 +104,11 @@
                                                             <a class="aceptar-expandir-sistema" 
                                                                v-on:click="anularAlumnoEnResolucion(item,$event)" href="#"
                                                                v-if="item.isTipoIntercambioEstudiantil">Anular</a>
+                                                            <a v-on:click="eliminarResolucion(item,$event)"
+                                                               v-if="item.isTipoTramiteBachiller ||
+                                                               item.isTipoTramiteTitulo || item.isTipoTramiteTituloFacultad ||
+                                                               item.isTipoTramiteBachillerFacultad "
+                                                            >Eliminar</a>
                                                         </li>
                                                     </ul>
                                                 </td>
