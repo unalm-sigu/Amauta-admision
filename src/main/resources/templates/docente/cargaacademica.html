@@ -195,7 +195,7 @@
                                         <span v-if="profeSecc.porcentajeCarga != '' "> {{profeSecc.porcentajeCarga.toFixed(2)}} </span>
                                     </td>
                                     <td class="text-right v-middle text-primary">
-                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
+                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc) }} </span>
                                         <span v-else-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
                                     </td>
                                     <!--<td class="text-right v-middle text-primary">                                        
