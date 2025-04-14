@@ -2145,9 +2145,11 @@ button.btn.btn-submit { background: #f35b3f; color: #fff;}
 
 
 @media (max-width: 415px) {
-    h1, h2 { font-size: 32px; }
+    .h1, h1 { font-size: 18px; }
+    .h2, h2 { font-size: 16px}
     .f1 { padding-bottom: 20px; }
     .f1-buttons button { margin-bottom: 5px; }
+    .h3, h3{ font-size: 14px}
 }
 
 

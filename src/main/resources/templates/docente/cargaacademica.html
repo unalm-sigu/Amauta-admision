@@ -73,76 +73,142 @@
                             </div>
                             <h3 v-if="index==1" class="m-t-xs">Cursos de Posgrado</h3>
 
-                            <table class="table table-striped tableqq-bordered">
-                                <thead>
-                                    <tr>
-                                        <th class="col-md-4 v-middle">Curso</th>
-                                        <!--<th class="text-center v-middle"></th>-->
-                                        <th class="col-md-1 text-center v-middle" colspan="2">Sección</th>
-                                        <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
-                                        <th class="col-md-2 text-center v-middle">Horario</th>
-                                        <th class="text-center v-middle"><i class="fa fa-users"></i></th>
-                                        <th class="col-md-1 text-center v-middle">% Carga</th>
-                                        <th class="text-center v-middle">Créditos<br/>Carga</th>
-                                        <th class="col-md-2 text-center v-middle">Periodo Clases</th>
-                                        <th class="col-md-1 text-center v-middle">Listado Alumnos</th>
-                                        <th class="col-md-1 text-center v-middle">Listado con Foto</th>
-                                    </tr>
-                                </thead>
-                                <!--<pre>{{ cm.cursosModalidad }}</pre>-->
-                                <tbody v-for="item in cm.cursosModalidad">
-                                    <tr> 
-                                        <td class="v-middle padder-v" v-bind:style="item.styleHijo"
-                                            v-bind:rowspan="item.secciones.length">
-                                            <div class="h4 text-primary m-t-xs m-b-xs">{{item.curso.nombre}}</div>
-                                            <span class="block m-b-xs">
-                                                {{item.curso.codigo}} &nbsp;<i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
-                                            </span>
-                                            <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'" class="label label-primary">Curso Dirigido</span>
+                            <div class="table-responsive">
+                                <table class="table table-striped tableqq-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-4 v-middle">Curso</th>
+                                            <!--<th class="text-center v-middle"></th>-->
+                                            <th class="col-md-1 text-center v-middle" colspan="2">Sección</th>
+                                            <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
+                                            <th class="col-md-2 text-center v-middle">Horario</th>
+                                            <th class="text-center v-middle"><i class="fa fa-users"></i></th>
+                                            <th class="col-md-1 text-center v-middle">% Carga</th>
+                                            <th class="text-center v-middle">Créditos<br/>Carga</th>
+                                            <th class="col-md-2 text-center v-middle">Periodo Clases</th>
+                                            <th class="col-md-1 text-center v-middle">Listado Alumnos</th>
+                                            <th class="col-md-1 text-center v-middle">Listado con Foto</th>
+                                        </tr>
+                                    </thead>
+                                    <!--<pre>{{ cm.cursosModalidad }}</pre>-->
+                                    <tbody v-for="item in cm.cursosModalidad">
+                                        <tr>
+                                            <td class="v-middle padder-v" v-bind:style="item.styleHijo"
+                                                v-bind:rowspan="item.secciones.length">
+                                                <div class="h4 text-primary m-t-xs m-b-xs">{{item.curso.nombre}}</div>
+                                                <span class="block m-b-xs">
+                                                    {{item.curso.codigo}} &nbsp;<i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
+                                                </span>
+                                                <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'" class="label label-primary">Curso Dirigido</span>
+                                            </td>
+                                    <template v-for="(seccion,idx) in item.secciones" v-if="idx==0">
+                                        <td class="v-middle text-center">
+                                            <i v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"></i>
+                                            <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"></i>
+                                            <i v-else="" class="fa fa-book fa-lg"></i>
                                         </td>
-                                <template v-for="(seccion,idx) in item.secciones" v-if="idx==0">
-                                    <td class="v-middle text-center">
-                                        <i v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"></i>
-                                        <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"></i>
-                                        <i v-else="" class="fa fa-book fa-lg"></i>
-                                    </td>
-                                    <td class="v-middle text-center">
-                                        <span class="block">{{seccion.codigo2}}</span>
-                                        <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
-                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
-                                    </td>
-                                    <td class="v-middle text-center">
-                                        <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
-                                        <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
-                                        <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp;
-                                              seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')"
-                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
-                                    </td>
-                                    <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
-                                    <td class="v-middle text-center">
-                                        <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
-                                            {{seccion.matriculados}}
-                                        </span>
-                                        <span v-else="" class="circle-recorrido bgr-default">
-                                            {{seccion.matriculados}}
-                                        </span>
-                                    </td>
+                                        <td class="v-middle text-center">
+                                            <span class="block">{{seccion.codigo2}}</span>
+                                            <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                            <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                            <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
+                                            <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                            <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp;
+                                                  seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')"
+                                                  class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
+                                        </td>
+                                        <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
+                                        <td class="v-middle text-center">
+                                            <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
+                                                {{seccion.matriculados}}
+                                            </span>
+                                            <span v-else="" class="circle-recorrido bgr-default">
+                                                {{seccion.matriculados}}
+                                            </span>
+                                        </td>
+                                        <template v-for="profeSecc in seccion.docenteSeccion">
+                                            <td class="v-middle text-center">
+                                                <span v-if="profeSecc.porcentajeCarga != '' ">{{ profeSecc.porcentajeCarga.toFixed(2) }} </span>
+                                            </td>
+                                            <td class="text-right v-middle text-primary">
+                                                <!--<span v-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>-->
+                                                <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
+                                                <span v-else-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
+                                                <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
+                                            </td>
+                                            <td class="text-center v-middle">
+                                                <div class="pointer " v-on:click="download(seccion)">
+                                                    <span class="fa-stack fa-2x text-success">
+                                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                                        <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center v-middle">
+                                                <div class="pointer " v-on:click="downloadOfFoto(seccion)">
+                                                    <span class="fa-stack fa-2x text-danger">
+                                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                                        <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </template>
+                                    </template>
+                                    </tr>
+
+                                    <tr v-for="(seccion,idx) in item.secciones"
+                                        v-if="idx>0">
+                                        <td class="v-middle text-center">
+                                            <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"></i>
+                                            <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"></i>
+                                            <i v-else="" class="fa fa-book fa-lg"></i>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span class="block">{{seccion.codigo2}}</span>
+                                            <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                            <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                            <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
+                                            <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                            <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp;
+                                                  seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')"
+                                                  class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
+                                        </td>
+                                        <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
+                                        <td class="v-middle text-center">
+                                            <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
+                                                {{seccion.matriculados}}
+                                            </span>
+                                            <span v-else="" class="circle-recorrido bgr-default">
+                                                {{seccion.matriculados}}
+                                            </span>
+                                        </td>
                                     <template v-for="profeSecc in seccion.docenteSeccion">
                                         <td class="v-middle text-center">
-                                            <span v-if="profeSecc.porcentajeCarga != '' ">{{ profeSecc.porcentajeCarga.toFixed(2) }} </span>
+                                            <span v-if="profeSecc.porcentajeCarga != '' "> {{profeSecc.porcentajeCarga.toFixed(2)}} </span>
                                         </td>
                                         <td class="text-right v-middle text-primary">
-                                            <!--<span v-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>-->
+                                            <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc) }} </span>
+                                            <span v-else-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
+                                        </td>
+                                        <!--<td class="text-right v-middle text-primary">
                                             <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
                                             <span v-else-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>
-                                        </td>
+                                        </td>-->
                                         <td class="v-middle text-center">
                                             <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                             <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
                                         </td>
                                         <td class="text-center v-middle">
-                                            <div class="pointer " v-on:click="download(seccion)">
+                                            <div class="pointer" v-on:click="download(seccion)">
                                                 <span class="fa-stack fa-2x text-success">
                                                     <i class="fa fa-circle fa-stack-2x"></i>
                                                     <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
@@ -158,95 +224,31 @@
                                             </div>
                                         </td>
                                     </template>
-                                </template>
-                                </tr>
-
-                                <tr v-for="(seccion,idx) in item.secciones"
-                                    v-if="idx>0"> 
-                                    <td class="v-middle text-center">
-                                        <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"></i>
-                                        <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"></i>
-                                        <i v-else="" class="fa fa-book fa-lg"></i>
-                                    </td>
-                                    <td class="v-middle text-center">
-                                        <span class="block">{{seccion.codigo2}}</span>
-                                        <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
-                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; seccion.linkZoom != null" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
-                                    </td>
-                                    <td class="v-middle text-center">
-                                        <span class="block" v-if="Object.keys(seccion).includes('aula') === true"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
-                                        <span class="block" v-else-if="Object.keys(seccion).includes('aula') === false"><i class="fa fa-home text-primary"></i> Sin Aula </span>
-                                        <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="(seccion.modoDictado == 'VIRTUAL' || seccion.modoDictado == 'SEMI') &amp;&amp; 
-                                              seccion.linkZoom != null &amp;&amp; Object.keys(seccion).includes('aula')" 
-                                              class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion)">Data Zoom</span>
-                                    </td>
-                                    <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
-                                    <td class="v-middle text-center">
-                                        <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
-                                            {{seccion.matriculados}}
-                                        </span>
-                                        <span v-else="" class="circle-recorrido bgr-default">
-                                            {{seccion.matriculados}}
-                                        </span>
-                                    </td>
-                                <template v-for="profeSecc in seccion.docenteSeccion">
-                                    <td class="v-middle text-center">
-                                        <span v-if="profeSecc.porcentajeCarga != '' "> {{profeSecc.porcentajeCarga.toFixed(2)}} </span>
-                                    </td>
-                                    <td class="text-right v-middle text-primary">
-                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc) }} </span>
-                                        <span v-else-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
-                                    </td>
-                                    <!--<td class="text-right v-middle text-primary">                                        
-                                        <span v-if="item.cursoDirigido &amp;&amp; item.curso.modalidadEstudio.codigo == 'PRE'"> {{ calcularCreditoCarga(profeSecc, cm.cursosModalidad[index].secciones) }} </span>
-                                        <span v-else-if="profeSecc.creditosCarga != '' "> {{ profeSecc.creditosCarga.toFixed(2) }} </span>
-                                    </td>-->
-                                    <td class="v-middle text-center">
-                                        <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
-                                        <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
-                                    </td>
-                                    <td class="text-center v-middle">
-                                        <div class="pointer" v-on:click="download(seccion)">
-                                            <span class="fa-stack fa-2x text-success">
-                                                <i class="fa fa-circle fa-stack-2x"></i>
-                                                <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="text-center v-middle">
-                                        <div class="pointer " v-on:click="downloadOfFoto(seccion)">
-                                            <span class="fa-stack fa-2x text-danger">
-                                                <i class="fa fa-circle fa-stack-2x"></i>
-                                                <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
-                                            </span>
-                                        </div>
-                                    </td>
-                                </template>
-                                </tr>
-                                </tbody>
-                                <tbody>
-                                    <!--<tr>
-                                        <td colspan="7" class="text-right bold h4">Total créditos carga</td>
-                                        <td class="text-right bold text-primary h4">
-                                            {{cm.creditos.toFixed(2)}}
-                                        </td>
-                                        <td></td>
-                                    </tr>-->
-                                    <tr>
-                                        <td colspan="7" class="text-right bold h4">Total créditos carga</td>
-                                        <td class="text-right bold text-primary h4" v-if="index == 0">
-                                            <!--{{cm.creditos.toFixed(2)}}-->
-                                            {{ totalCreditos(cm.cursosModalidad).toFixed(2) }}
-                                        </td>
-                                        <td class="text-right bold text-primary h4" v-if="index == 1">
-                                            <!--{{cm.creditos.toFixed(2)}}-->
-                                            {{ cm.creditos.toFixed(2) }}
-                                        </td>
-                                        <td></td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                    <tbody>
+                                        <!--<tr>
+                                            <td colspan="7" class="text-right bold h4">Total créditos carga</td>
+                                            <td class="text-right bold text-primary h4">
+                                                {{cm.creditos.toFixed(2)}}
+                                            </td>
+                                            <td></td>
+                                        </tr>-->
+                                        <tr>
+                                            <td colspan="7" class="text-right bold h4">Total créditos carga</td>
+                                            <td class="text-right bold text-primary h4" v-if="index == 0">
+                                                <!--{{cm.creditos.toFixed(2)}}-->
+                                                {{ totalCreditos(cm.cursosModalidad).toFixed(2) }}
+                                            </td>
+                                            <td class="text-right bold text-primary h4" v-if="index == 1">
+                                                <!--{{cm.creditos.toFixed(2)}}-->
+                                                {{ cm.creditos.toFixed(2) }}
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
                         </section>
                     </section>

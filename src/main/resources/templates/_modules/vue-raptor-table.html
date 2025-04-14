@@ -42,7 +42,9 @@
 
 
             <div class="col-md-12 m-t-sm">
-                <slot v-bind:data="data"></slot>
+                <div class="table-responsive">
+                    <slot v-bind:data="data"></slot>
+                </div>
             </div>
 
             <div class="wrapper">
