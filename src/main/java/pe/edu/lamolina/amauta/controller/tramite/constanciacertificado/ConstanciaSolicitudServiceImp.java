@@ -308,9 +308,13 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
+        Alumno alumno = alumnoDAO.find(tramiteDocumentoAcademico.getTramite().getAlumno());
+        Persona persona = alumno.getPersona();
         Tramite tramite = tda.getTramite();
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(new Date());
+        tramite.setAlumno(alumno);
+        tramite.setPersona(persona);
         tramiteDAO.update(tramite);
 
         tda.setPersonaContacto(tramiteDocumentoAcademico.getPersonaContacto());
