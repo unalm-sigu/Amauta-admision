@@ -238,7 +238,8 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .filter("tipo", TipoRetiroCicloEnum.EXCEP)
                 .beginBlock()
                 .in("rc.estado", Arrays.asList(PEND, SOL))
-                .endBlock();
+                .endBlock()
+                .orderBy("per.paterno asc");
 
         return all(sql);
     }
