@@ -1,0 +1,713 @@
+<html layout:decorator="_layout/layout">
+<head>
+    <title>Programacion Cursos</title>
+    <style>
+
+        .department-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            background-color: #fff;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            width: 100%; /* Asegura que el card ocupe el ancho completo de su contenedor */
+            min-width: 250px; /* Establece un ancho mínimo para el card */
+        }
+
+        /* Encabezado del departamento - altura fija */
+        .department-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            min-height: 90px; /* Altura mínima para el encabezado */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Nombre del departamento con tooltip para ver nombre completo */
+        .department-name {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+            position: relative;
+            /* Para nombres largos que necesiten más de una línea */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limitar a 2 líneas */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            /* Cursor indicando que hay tooltip */
+
+        }
+
+        /* Contenedor para los contadores de resumen */
+        .summary-counts {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .total-count {
+            font-size: 13px;
+            color: #555;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .total-count i {
+            margin-right: 4px;
+            color: #007bff;
+        }
+
+        /* Cuadrícula de estados */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 10px;
+            gap: 10px;
+        }
+
+        /* Elementos de estado individuales */
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .status-count {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* Status-specific colors */
+        .status-scheduled {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-blocked {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .status-canceled {
+            background-color: #fce4ec;
+            color: #c2185b;
+        }
+
+        .status-annulled {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .status-merged {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-active {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        /* Sección de alertas */
+        .alerts-section {
+            padding: 10px 15px;
+            background-color: #fafafa;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto; /* Empuja la sección de alertas hacia abajo */
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            width: 48%;
+        }
+
+        .alert-item i {
+            margin-right: 5px;
+            font-size: 14px;
+        }
+
+        .alert-count {
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .alert-label {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        /* Estilos específicos para las alertas */
+        .low-enrollment {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .no-teacher {
+            background-color: #fbe9e7;
+            color: #d32f2f;
+        }
+
+        /* Asegurar que los cards en la misma fila tengan la misma altura y ancho */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-xs-12,
+        .col-sm-4,
+        .col-md-4,
+        .col-lg-3 {
+            display: flex;
+            margin-bottom: 20px;
+            flex: 0 0 auto; /* No crecer ni contraerse automáticamente */
+        }
+
+        .stats-overview {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .stats-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #212121;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background-color: #e8eaf6;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3f51b5;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+
+        /* Ancho fijo para las columnas en diferentes tamaños de pantalla */
+        @media (min-width: 1200px) {
+            .col-lg-3 {
+                width: 25%; /* 4 cards por fila en pantallas grandes */
+            }
+        }
+
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .col-md-4 {
+                width: 33.333%; /* 3 cards por fila en pantallas medianas */
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .col-sm-4 {
+                width: 33.333%; /* 3 cards por fila en pantallas pequeñas */
+            }
+        }
+
+        @media (max-width: 767px) {
+            .col-xs-12 {
+                width: 100%; /* 1 card por fila en móviles */
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .department-header {
+                height: auto;
+                max-height: 100px;
+            }
+
+            .alerts-section {
+                flex-direction: column;
+            }
+
+            .alert-item {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* Additional enhanced styles */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .page-title {
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .ciclo-badge {
+            display: inline-block;
+            background-color: #e8eaf6;
+            color: #3f51b5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refreshBtn {
+            padding: 6px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refreshBtn:hover {
+            background-color: #e9ecef;
+        }
+
+        .loading-indicator {
+            display: none;
+            margin-left: 8px;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-overview {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background-color: #e8eaf6;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stats-footer {
+            margin-top: 16px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #757575;
+        }
+
+        .department-card {
+            transition: all 0.3s ease;
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .department-name {
+            color: #3f51b5;
+        }
+
+        .pagination-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #757575;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #e0e0e0;
+        }
+
+        .controls-wrapper {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-reports {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-reports:hover {
+            background-color: #0b5ed7;
+        }
+
+        .dropdown-menu {
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 8px 0;
+        }
+
+        .dropdown-menu li a {
+            padding: 8px 16px;
+            color: #212529;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu li a:hover {
+            background-color: #f1f3f5;
+        }
+
+        .btn-refresh {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background-color: #5a6268;
+        }
+
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .loading-indicator.active {
+            display: flex;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .section-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .controls-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group, .form-control, .btn-reports, .btn-refresh {
+                width: 100%;
+            }
+        }
+
+    </style>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+<div layout:fragment="main">
+
+    <header class="page-header">
+        <h2 class="page-title">Programación de cursos: <span class="ciclo-badge" th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+
+        <div class="controls-wrapper">
+<!--            <div class="filter-group">-->
+<!--                <span class="section-label">Filtrar:</span>-->
+<!--                <select id="filterSelect" class="form-control">-->
+<!--                    <option value="all">Todos</option>-->
+<!--                    <option value="especialidad">Solo activos</option>-->
+<!--                    <option value="blocked">Solo bloqueados</option>-->
+<!--                    <option value="lowEnrollment">Baja matrícula</option>-->
+<!--                    <option value="noTeacher">Sin docente</option>-->
+<!--                </select>-->
+<!--            </div>-->
+
+            <div class="filter-group">
+                <span class="section-label">Departamento:</span>
+                <select id="departamentoSuperiorSelect" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="1">Estudios Generales</option>
+                    <option value="2">Pre Grado</option>
+                    <option value="3">Actv. Culturales</option>
+                    <option value="4">EPG</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for Reports -->
+            <div class="dropdown">
+                <button class="btn-reports dropdown-toggle" type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-file-alt"></i>
+                    Reportes
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <li><a th:href="@{'/academico/acta/exportExcel/recordActas'}">Record Actas Pre Grado</a></li>
+                    <li th:if="${esOperadorEditor}"><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
+                    <li><a href="#">Estadísticas por Departamento</a></li>
+                    <li><a href="#">Cursos sin Docente</a></li>
+                </ul>
+            </div>
+
+            <!-- Refresh button -->
+            <button id="refreshData" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                Actualizar
+            </button>
+
+            <!-- Loading indicator -->
+            <div id="loadingIndicator" class="loading-indicator">
+                <i class="fas fa-circle-notch fa-spin spinner"></i>
+                Cargando...
+            </div>
+        </div>
+    </header>
+
+    <!-- Enhanced statistics overview with refresh button -->
+    <div class="stats-overview">
+        <div class="stats-header">
+            <div class="stats-actions">
+                <button id="refreshStats" class="btn btn-sm btn-default">
+                    <i class="fa fa-refresh"></i> Actualizar Estadísticas
+                </button>
+                <div id="statsLoadingIndicator" class="loading-indicator">
+                    <i class="fa fa-circle-o-notch spinner"></i> Actualizando...
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span id="totalCursosValue" class="stat-value">{{:activos}}</span>
+                <span class="stat-label">Activos</span>
+            </div>
+            <div class="stat-card">
+                <span id="cursosActivosValue" class="stat-value">{{:cancelados}}</span>
+                <span class="stat-label">Cancelados</span>
+            </div>
+            <div class="stat-card">
+                <span id="cursosBloqueadosValue" class="stat-value">{{:bloqueados}}</span>
+                <span class="stat-label">Bloqueados</span>
+            </div>
+            <div class="stat-card">
+                <span id="otrosEstadosValue" class="stat-value">{{:anulados}}</span>
+                <span class="stat-label">Anulados</span>
+            </div>
+        </div>
+
+        <div class="stats-footer">
+            <small class="text-muted">Última actualización: <span id="lastUpdated">--/--/---- --:--</span></small>
+        </div>
+    </div>
+
+    <!-- Empty state for when no data is available -->
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fa fa-folder-open-o"></i>
+        <h3>No hay departamentos disponibles</h3>
+        <p>No se encontraron departamentos que coincidan con los criterios de búsqueda.</p>
+    </div>
+
+    <!-- Dynamic table container -->
+    <div id="dynaTable" class="row footer"></div>
+
+    <!-- Pagination info -->
+    <div class="pagination-info">
+        Mostrando <span id="recordsFrom">1</span> - <span id="recordsTo">12</span> de <span id="totalRecords">0</span> departamentos
+    </div>
+
+    <!-- Department card template -->
+    <script id="templateResumx" type="text/x-template" class="hide">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3">
+            <div class="department-card" rel="{{:idDep}}">
+                <div class="department-header">
+                    <h4 class="department-name" title="{{:nombreDep}}">{{:nombreDep}}</h4>
+                    <div class="summary-counts">
+                        <span class="total-count"><i class="fa fa-book"></i> {{:cantidadCursos}} Cursos</span>
+                        <span class="total-count"><i class="fa fa-users"></i> {{:cantidadGrupos}} Grupos</span>
+                    </div>
+                </div>
+
+                <div class="status-grid">
+                    <!-- Primera fila: Estados principales -->
+                    <div class="status-item status-scheduled">
+                        <span class="status-count">{{:cantidadTotal}}</span>
+                        <span class="status-label">Programados</span>
+                    </div>
+                    <div class="status-item status-active">
+                        <span class="status-count">{{:cantidadActivos}}</span>
+                        <span class="status-label">Activos</span>
+                    </div>
+                    <div class="status-item status-blocked">
+                        <span class="status-count">{{:cantidadBloqueados}}</span>
+                        <span class="status-label">Bloqueados</span>
+                    </div>
+
+                    <!-- Segunda fila: Estados secundarios -->
+                    <div class="status-item status-canceled">
+                        <span class="status-count">{{:cantidadCancelados}}</span>
+                        <span class="status-label">Cancelados</span>
+                    </div>
+                    <div class="status-item status-annulled">
+                        <span class="status-count">{{:cantidadAnulados}}</span>
+                        <span class="status-label">Anulados</span>
+                    </div>
+                    <div class="status-item status-merged">
+                        <span class="status-count">{{:cantidadFusionados}}</span>
+                        <span class="status-label">Fusionados</span>
+                    </div>
+                </div>
+
+                <!-- Sección para alertas/indicadores especiales -->
+                <div class="alerts-section">
+                    <div class="alert-item low-enrollment" title="Cursos con menos de 6 alumnos">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span class="alert-count">{{:cursosMenosAlumnos}}</span>
+                        <span class="alert-label">Baja matrícula</span>
+                    </div>
+                    <div class="alert-item no-teacher" title="Cursos sin docente asignado">
+                        <i class="fa fa-user-times"></i>
+                        <span class="alert-count">{{:cursosSinDocente}}</span>
+                        <span class="alert-label">Sin docente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>
+
+<div class="footer"></div>
+
+<div layout:fragment="js">
+    <div th:replace="_layout/includes :: javascript-dynatable"></div>
+    <script th:src="@{/app/academico/programacion/resumenProgramacion.js}" charset="utf-8"></script>
+</div>
+</body>
+
+</html>
