@@ -71,7 +71,7 @@ public class ResumenProgramacionServiceImp implements ResumenProgramacionService
     @Override
     public List<GrupoSeccion> allGrupoSeccionByFilterDyna(CicloAcademico cicloAcademico, AnexoBoletin anexoBoletin, DynatableFilter dynatableFilter) {
         List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allByDynatableCicloAnexo(cicloAcademico, anexoBoletin, dynatableFilter);
-        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gpoSecciones);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecciones);
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);

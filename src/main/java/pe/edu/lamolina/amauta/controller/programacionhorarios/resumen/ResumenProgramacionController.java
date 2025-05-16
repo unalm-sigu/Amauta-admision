@@ -227,16 +227,8 @@ public class ResumenProgramacionController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-//            DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
             AnexoBoletin anexo = new AnexoBoletin(idDepartamento);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
-//            List<Long> anexos = new ArrayList<>();
-//            anexos.add(idDepartamento);
-//
-//            List<DepartamentoCursosProgramadosDTO> counts = new ArrayList<>();
-//            counts = service.countGroupsByFilter( anexos, ds.getCicloAcademico(),null);
-
 
             List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilterDyna(ciclo, anexo, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
