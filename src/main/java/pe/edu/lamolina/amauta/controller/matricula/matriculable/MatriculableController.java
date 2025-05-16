@@ -189,7 +189,7 @@ public class MatriculableController {
                             "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "motivoTurnoAtencion",
                             "aporteCarnet", "boletaPendiente", "aporteDuplicadoCarnet",
                             "prioridadAnterior",
-                            "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania","alumno.persona.emailCorporativo", "alumno.persona.numeroDocIdentidad",
                                 "alumno.persona.foto","alumno.persona.sexo",
                             "alumno.persona.tipoDocumento.simbolo",
                             "alumno.modalidadEstudio.nombre",
