@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -240,85 +241,40 @@ public class ResumenProgramacionController {
             List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilterDyna(ciclo, anexo, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (GrupoSeccion grupo : allGruposSeccion) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            for (GrupoSeccion gpoSeccion : allGruposSeccion) {
+                ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
+                        "id", "estado", "estadoEnum", "codigo2", "cursoDirigido", "tipoDictadoEnum",
+                        "curso.codigo",
+                        "curso.nombre",
+                        "curso.tpc",
+                        "curso.tipoCurso",
+                        "curso.precioFormato",
+                        "curso.precioTpcFormato",
+                        "curso.departamentoAcademico.nombre",
+                        "anexoBoletin.nombre",
+                        "anexoBoletin.anexoSuperior.nombre",
+                        "secciones.id",
+                        "secciones.codigo2",
+                        "secciones.vacantes",
+                        "secciones.matriculados",
+                        "secciones.restriccionCapa",
+                        "secciones.horasSemanales",
+                        "secciones.estadoEnum",
+                        "secciones.estadoOperativo",
+                        "secciones.estadoCancelado",
+                        "secciones.grupoHoras.codigo",
+                        "secciones.aula.codigo",
+                        "secciones.aula.nombre",
+                        "secciones.docenteSeccion.estadoEnum",
+                        "secciones.docenteSeccion.principal",
+                        "secciones.docenteSeccion.docente.codigo",
+                        "secciones.docenteSeccion.docente.persona.apellidosNombres",
+                        "secciones.docenteSeccion.docente.persona.emailCompania"
+                });
 
-                node.put("idGrupo", grupo.getId());
-                node.put("codigoGrupo", grupo.getCodigo());
-
-                node.put("idCurso", grupo.getCurso().getId());
-                node.put("nombreCurso", grupo.getCurso().getNombre());
-                node.put("codigo", grupo.getCurso().getCodigo());
-                node.put("estructura", grupo.getCurso().getTpc());
-
-                node.put("estado", grupo.getEstado());
-                node.put("estadoValue", "");
-                if (!StringUtils.isEmpty(grupo.getEstado())) {
-                    node.put("estadoValue", EstadoEnum.valueOf(grupo.getEstado()).getValue());
-                }
-                //    node.put("version", grupo.getVersion());
-
-                node.put("version", grupo.getVersion());
-                node.put("estadoPlan", "");
-                node.put("estadoPlanValue", "");
-                if (grupo.getEstadoPlanEnum() != null) {
-                    node.put("estadoPlan", grupo.getEstadoPlanEnum().name());
-                    node.put("estadoPlanValue", grupo.getEstadoPlanEnum().getValue());
-                }
-                node.put("estadoGrupo", "");
-                node.put("estadoGrupoValue", "");
-                if (grupo.getEstadoGrupoEnum() != null) {
-                    node.put("estadoGrupo", grupo.getEstadoGrupoEnum().name());
-                    node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
-                }
-
-                node.put("fechaCierreActa", TypesUtil.getStringDate(grupo.getFechaCierreActa(), "dd/MM/yyyy"));
-                node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
-                node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
-
-                Long idSeccion = 0L;
-                String secciones = "";
-                String grupoHoras = "";
-                List<DocenteSeccion> docentesSeccion = null;
-                List<Docente> docentesPrincipal = new ArrayList();
-                List<String> seccionesList = new ArrayList<>();
-                List<String> grupoHorasList = new ArrayList<>();
-
-                for (Seccion sec : grupo.getSecciones()) {
-                    if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
-                        idSeccion = sec.getId();
-                        seccionesList.add(sec.getId() + "|" + sec.getCodigo2());
-
-                        if (sec.getGrupoHoras() != null) {
-                            grupoHorasList.add(sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo());
-                        }
-
-                        docentesSeccion = sec.getDocenteSeccion();
-                        for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
-                            if (docentesSeccionEach.getEstadoEnum() == SeccionEstadoEnum.ACT &&
-                                    docentesSeccionEach.esDocentePrincipal()) {
-                                docentesPrincipal.add(docentesSeccionEach.getDocente());
-                            }
-                        }
-                    }
-                }
-
-                node.put("seccion", idSeccion);
-                node.put("secciones", String.join(",", seccionesList));
-                node.put("grupoHoras", String.join(",", grupoHorasList));
-
-                node.put("docenteNombre", "");
-                node.put("emailDocente", "");
-                //    node.put("idDocente", "");
-                if (!docentesPrincipal.isEmpty()) {
-                    Docente doc = docentesPrincipal.get(0);
-                    node.put("docenteNombre", doc.getPersona().getApellidosNombres());
-                    node.put("emailDocente", doc.getPersona().getEmailCompania());
-                    //    node.put("idDocente", docentePrincipal.getId());
-                }
-                array.add(node);
-
+                array.add(nodeGpoSecc);
             }
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
