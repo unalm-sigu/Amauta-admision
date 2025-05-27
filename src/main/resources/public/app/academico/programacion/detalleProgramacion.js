@@ -1,11 +1,9 @@
 new Vue({
     el: '#gpoSeccionesVUE',
     data: {
-        // URLs y configuración
         baseURL: typeof APP !== 'undefined' ? APP.url(rutaModulo + '/listGrupo') : '/listGrupo',
         idDepartamento: window.location.pathname.split("/")[4] || '1',
 
-        // Estados de carga y paginación
         isLoading: false,
         cursos: [],
         cursosFiltrados: [],
@@ -13,25 +11,25 @@ new Vue({
         currentPage: 1,
         perPage: 10,
         totalPaginas: 1,
-        paginasMostradas: 5, // Controla cuántas páginas mostrar en la paginación
-
-        // Filtros
+        paginasMostradas: 5,
         seleccionado: '',
-        estadoSeleccionada: '',
+        filtroEstadoSeccion:'',
         dictadoSeleccionado: '',
         searchTerm: '',
-        filtrosAvanzados: false, // Para mostrar/ocultar filtros avanzados
+        filtrosAvanzados: false,
 
-        // Ordenamiento
+        // 👇 NUEVO: Para el debounce
+        searchTimeout: null,
+        searchDelay: 500, // 500ms de espera después de dejar de escribir
+
         ordenActual: '',
         direccionOrden: 'asc',
+        nombreDepartamento: '',
 
-        // Estilos y clases
         bgColorClass: {ingresantes: '', departamentos: '', postgrados: '', actividades: ''},
         bgColorEstadoClass: {activos: '', inactivos: ''},
         bgColorDictadoClass: {modulares: '', semestrales: ''},
 
-        // Datos para filtros y contadores
         anexosSup: {ingresantes: 1, departamentos: 2, postgrados: 4, actividades: 3},
         resumen: {
             ingresantes: 0,
@@ -43,306 +41,220 @@ new Vue({
             semestrales: 0,
             modulares: 0
         },
-
-        // Datos para edición
-        seccionSelect: {},
-        anexoSelect: null,
     },
 
     mounted: function() {
         this.cargarDatos();
-
-        // Agregar evento para detectar tecla "Escape" y limpiar filtros
-        document.addEventListener('keydown', this.handleKeyDown);
-    },
-
-    beforeDestroy: function() {
-        // Eliminar event listener cuando el componente se destruye
-        document.removeEventListener('keydown', this.handleKeyDown);
+        console.log('Estado de las secciones:',
+            this.cursos.map(curso => ({
+                nombre: curso.curso.nombre,
+                estados: curso.secciones?.map(s => s.estadoEnum?.name)
+            }))
+        );
     },
 
     computed: {
-        // Calcula si hay algún filtro activo
-        hayFiltrosActivos: function() {
-            return this.seleccionado !== '' ||
-                this.estadoSeleccionada !== '' ||
-                this.dictadoSeleccionado !== '' ||
-                this.searchTerm !== '';
+        cursosPaginados: function() {
+            const inicio = (this.currentPage - 1) * this.perPage;
+            const fin = inicio + this.perPage;
+            return this.cursosFiltrados.slice(inicio, fin);
         },
 
-        // Calcula las páginas visibles para la paginación
         paginasVisibles: function() {
             if (this.totalPaginas <= this.paginasMostradas) {
-                // Si hay menos páginas que el número a mostrar, devuelve todas
                 return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
             }
-
-            // Calcular el rango de páginas a mostrar
             let start = Math.max(1, this.currentPage - Math.floor(this.paginasMostradas / 2));
             let end = start + this.paginasMostradas - 1;
 
-            // Ajustar si el final se pasa del total
             if (end > this.totalPaginas) {
                 end = this.totalPaginas;
                 start = Math.max(1, end - this.paginasMostradas + 1);
             }
 
-            // Crear array con las páginas a mostrar
             return Array.from({ length: end - start + 1 }, (_, i) => start + i);
         },
     },
 
     methods: {
-        // Métodos de carga de datos
+        goBack() {
+            window.history.back();
+        },
+
+
         cargarDatos: function() {
             this.isLoading = true;
 
-            // Construir parámetros para el filtro
             const params = {
                 departamento: this.idDepartamento,
-                page: this.currentPage,
-                perPage: this.perPage,
-                offset: (this.currentPage - 1) * this.perPage
             };
 
-            // Añadir filtros si están activos
-            if (this.seleccionado) {
-                params['anexoSuperior'] = this.seleccionado;
+            if (!this.searchTerm) {
+                params.page = this.currentPage;
+                params.perPage = this.perPage;
+                params.offset = (this.currentPage - 1) * this.perPage;
             }
-
-            if (this.estadoSeleccionada) {
-                params['estado'] = this.estadoSeleccionada === 'activos' ? 'ACT' : 'INA';
-            }
-
-            if (this.dictadoSeleccionado) {
-                params['tipoDictado'] = this.dictadoSeleccionado === 'modulares' ? 'MOD' : 'SEM';
-            }
-
-            if (this.searchTerm) {
-                params['query'] = this.searchTerm;
-            }
-
-            if (this.ordenActual) {
-                params['sortFields'] = [{
-                    name: this.ordenActual,
-                    dir: this.direccionOrden
-                }];
-            }
-
-            // Mostrar mensaje de carga después de 300ms si la carga tarda
-            const loadingTimeout = setTimeout(() => {
-                this.isLoading = true;
-            }, 300);
 
             axios.get(this.baseURL, { params: params })
                 .then(response => {
-                    clearTimeout(loadingTimeout);
-
                     if (response.data && Array.isArray(response.data.data)) {
                         this.cursos = response.data.data;
-                        this.actualizarListaFiltrada();
-                        this.totalCursos = response.data.total || this.cursos.length;
-                        this.totalPaginas = Math.ceil(this.totalCursos / this.perPage);
-                        this.calcularResumen();
 
-                        // Si la página actual es mayor que el total de páginas y no es la primera página
+                        if (this.searchTerm) {
+                            this.aplicarFiltrosBusqueda();
+                        } else {
+                            this.cursosFiltrados = [...this.cursos];
+                            this.totalCursos = response.data.total || this.cursos.length;
+                        }
+
+                        this.totalPaginas = Math.ceil(this.totalCursos / this.perPage);
+
+                        if (this.cursos.length > 0 && this.cursos[0].anexoBoletin && this.cursos[0].anexoBoletin.nombre) {
+                            this.nombreDepartamento = this.cursos[0].anexoBoletin.nombre;
+                        } else if (this.cursos.length > 0 && this.cursos[0].curso && this.cursos[0].curso.departamentoAcademico) {
+                            this.nombreDepartamento = this.cursos[0].curso.departamentoAcademico.nombre;
+                        } else {
+                            this.nombreDepartamento = 'Departamento ' + this.idDepartamento;
+                        }
+
                         if (this.currentPage > this.totalPaginas && this.totalPaginas > 0) {
                             this.irAPagina(this.totalPaginas);
-                            return; // Evita continuar para no mostrar datos incorrectos
+                            return;
                         }
                     } else {
                         this.cursos = [];
-                        this.actualizarListaFiltrada();
+                        this.cursosFiltrados = [];
+                        this.totalCursos = 0;
+                        this.totalPaginas = 0;
+                        this.nombreDepartamento = 'Sin datos';
                     }
-
                     this.isLoading = false;
                 })
                 .catch(error => {
-                    clearTimeout(loadingTimeout);
                     console.error('Error al obtener datos:', error);
                     this.isLoading = false;
-
-                    // Mostrar mensaje de error más informativo
-                    let mensajeError = 'Error al cargar los datos de cursos.';
-                    if (error.response) {
-                        // Error de respuesta del servidor
-                        mensajeError += ` El servidor respondió con código ${error.response.status}.`;
-                    } else if (error.request) {
-                        // No se recibió respuesta
-                        mensajeError += ' No se recibió respuesta del servidor.';
-                    }
-
-                    this.$bvToast ?
-                        this.$bvToast.toast(mensajeError, {
-                            title: 'Error',
-                            variant: 'danger',
-                            solid: true
-                        }) :
-                        alert(mensajeError + ' Por favor, inténtelo de nuevo más tarde.');
+                    this.cursos = [];
+                    this.cursosFiltrados = [];
+                    this.totalCursos = 0;
+                    this.totalPaginas = 0;
+                    this.nombreDepartamento = 'Error al cargar';
                 });
         },
 
-        // Cálculo de estadísticas para los filtros
-        calcularResumen: function() {
-            // Reiniciar contadores
-            const resumen = {
-                ingresantes: 0,
-                departamentos: 0,
-                postgrados: 0,
-                actividades: 0,
-                activos: 0,
-                inactivos: 0,
-                semestrales: 0,
-                modulares: 0
-            };
-
-            // Calcular valores para cada curso
-            this.cursos.forEach(curso => {
-                // Anexo superior
-                if (curso.anexoBoletin && curso.anexoBoletin.anexoSuperior) {
-                    const anexoSup = curso.anexoBoletin.anexoSuperior.nombre || '';
-                    if (anexoSup.toLowerCase().includes('ingresante')) resumen.ingresantes++;
-                    else if (anexoSup.toLowerCase().includes('departamento')) resumen.departamentos++;
-                    else if (anexoSup.toLowerCase().includes('postgrado')) resumen.postgrados++;
-                    else if (anexoSup.toLowerCase().includes('actividad')) resumen.actividades++;
-                }
-
-                // Estado
-                if (curso.estado === 'ACT') resumen.activos++;
-                else resumen.inactivos++;
-
-                // Tipo dictado
-                if (curso.tipoDictadoEnum && curso.tipoDictadoEnum.name === 'MOD') resumen.modulares++;
-                else resumen.semestrales++;
-            });
-
-            this.resumen = resumen;
-        },
-
-        // Métodos de filtrado
-        filtrarPorAnexoSuperior: function(anexo) {
-            if (this.seleccionado === anexo) {
-                // Si ya está seleccionado, quitar filtro
-                this.seleccionado = '';
-                this.bgColorClass = {ingresantes: '', departamentos: '', postgrados: '', actividades: ''};
-            } else {
-                this.seleccionado = anexo;
-                this.bgColorClass = {ingresantes: '', departamentos: '', postgrados: '', actividades: ''};
-                this.bgColorClass[anexo] = 'bg-light';
-            }
-
-            this.cargarDatos();
-        },
-
-        filtrarPorEstado: function(estado) {
-            if (this.estadoSeleccionada === estado) {
-                // Si ya está seleccionado, quitar filtro
-                this.estadoSeleccionada = '';
-                this.bgColorEstadoClass = {activos: '', inactivos: ''};
-            } else {
-                this.estadoSeleccionada = estado;
-                this.bgColorEstadoClass = {activos: '', inactivos: ''};
-                this.bgColorEstadoClass[estado] = 'bg-light';
-            }
-
-            this.cargarDatos();
-        },
-
-        filtrarPorDictado: function(dictado) {
-            if (this.dictadoSeleccionado === dictado) {
-                // Si ya está seleccionado, quitar filtro
-                this.dictadoSeleccionado = '';
-                this.bgColorDictadoClass = {modulares: '', semestrales: ''};
-            } else {
-                this.dictadoSeleccionado = dictado;
-                this.bgColorDictadoClass = {modulares: '', semestrales: ''};
-                this.bgColorDictadoClass[dictado] = 'bg-light';
-            }
-
-            this.cargarDatos();
-        },
-
         buscarCursos: function() {
-            clearTimeout(this._timeoutSearch);
-            this._timeoutSearch = setTimeout(() => {
-                this.currentPage = 1; // Resetear a primera página al buscar
-                this.cargarDatos();
-            }, 500);
-        },
-
-        limpiarFiltros: function() {
-            this.seleccionado = '';
-            this.estadoSeleccionada = '';
-            this.dictadoSeleccionado = '';
-            this.searchTerm = '';
-            this.bgColorClass = {ingresantes: '', departamentos: '', postgrados: '', actividades: ''};
-            this.bgColorEstadoClass = {activos: '', inactivos: ''};
-            this.bgColorDictadoClass = {modulares: '', semestrales: ''};
-            this.currentPage = 1; // Resetear a primera página
-            this.cargarDatos();
-        },
-
-        limpiarFiltroEspecifico: function(filtro) {
-            // Limpiar solo un filtro específico
-            this[filtro] = '';
-
-            // Resetear clase de fondo si es necesario
-            if (filtro === 'seleccionado') {
-                this.bgColorClass = {ingresantes: '', departamentos: '', postgrados: '', actividades: ''};
-            } else if (filtro === 'estadoSeleccionada') {
-                this.bgColorEstadoClass = {activos: '', inactivos: ''};
-            } else if (filtro === 'dictadoSeleccionado') {
-                this.bgColorDictadoClass = {modulares: '', semestrales: ''};
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
             }
 
-            this.currentPage = 1; // Resetear a primera página
-            this.cargarDatos();
+            this.searchTimeout = setTimeout(() => {
+                console.log('🔍 Ejecutando búsqueda para:', this.searchTerm);
+                this.currentPage = 1;
+
+                if (this.searchTerm) {
+                    this.cargarDatos();
+                } else {
+                    this.cargarDatos();
+                }
+            }, this.searchDelay);
         },
 
-        // Método para detectar tecla Escape
-        handleKeyDown: function(event) {
-            if (event.key === 'Escape') {
-                this.limpiarFiltros();
+        normalizarTexto: function(texto) {
+            if (!texto) return '';
+
+            return texto
+                .toString()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        },
+
+        aplicarFiltros: function() {
+            this.currentPage = 1;
+            this.filtrarCursos();
+        },
+
+        filtrarCursos() {
+            let filtrado = this.cursos;
+
+            if (this.searchTerm) {
+                const termino = this.searchTerm.toLowerCase();
+                filtrado = filtrado.filter(curso =>
+                    curso.curso.nombre.toLowerCase().includes(termino) ||
+                    curso.curso.codigo.toLowerCase().includes(termino) ||
+                    (curso.docente?.persona?.apellidosNombres?.toLowerCase().includes(termino))
+                );
+            }
+
+            if (this.filtroEstadoSeccion) {
+                filtrado = filtrado.filter(curso =>
+                    curso.secciones?.some(seccion =>
+                        seccion.estadoEnum?.name === this.filtroEstadoSeccion
+                    )
+                );
+            }
+
+            this.cursosFiltrados = filtrado;
+            this.totalCursos = this.cursosFiltrados.length;
+            this.totalPaginas = Math.ceil(this.totalCursos / this.perPage);
+        },
+
+        aplicarFiltrosBusqueda: function() {
+            let filtered = this.filtroEstadoSeccion
+                ? this.cursos.filter(curso => {
+
+                    return curso.secciones && curso.secciones.some(
+                        seccion => seccion.estadoEnum && seccion.estadoEnum.name === this.filtroEstadoSeccion
+                    );
+                })
+                : [...this.cursos];
+
+            if (this.searchTerm) {
+                const termNormalizado = this.normalizarTexto(this.searchTerm);
+                filtered = filtered.filter(curso => {
+                    const nombreCurso = this.normalizarTexto(curso.curso.nombre);
+                    if (nombreCurso.includes(termNormalizado)) return true;
+
+                    const codigoCurso = this.normalizarTexto(curso.curso.codigo);
+                    if (codigoCurso.includes(termNormalizado)) return true;
+
+                    if (curso.secciones && curso.secciones.length > 0) {
+                        for (const seccion of curso.secciones) {
+                            if (seccion.docenteSeccion && seccion.docenteSeccion.length > 0) {
+                                for (const docenteSeccion of seccion.docenteSeccion) {
+                                    if (docenteSeccion.docente && docenteSeccion.docente.persona) {
+                                        const nombreDocente = this.normalizarTexto(docenteSeccion.docente.persona.apellidosNombres);
+                                        if (nombreDocente.includes(termNormalizado)) return true;
+
+                                        const codigoDocente = this.normalizarTexto(docenteSeccion.docente.codigo);
+                                        if (codigoDocente.includes(termNormalizado)) return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            this.cursosFiltrados = filtered;
+            this.totalCursos = this.cursosFiltrados.length;
+            this.totalPaginas = Math.ceil(this.totalCursos / this.perPage);
+
+            if (this.currentPage > this.totalPaginas && this.totalPaginas > 0) {
+                this.currentPage = 1;
             }
         },
 
-        // Obtener nombre legible para los filtros activos
-        obtenerNombreFiltro: function(tipo, valor) {
-            if (tipo === 'programa') {
-                const programas = {
-                    'ingresantes': 'Ingresantes',
-                    'departamentos': 'Departamentos',
-                    'postgrados': 'Postgrados',
-                    'actividades': 'Actividades'
-                };
-                return programas[valor] || valor;
-            } else if (tipo === 'estado') {
-                const estados = {
-                    'activos': 'Activos',
-                    'inactivos': 'Inactivos'
-                };
-                return estados[valor] || valor;
-            } else if (tipo === 'dictado') {
-                const dictado = {
-                    'modulares': 'Modulares',
-                    'semestrales': 'Semestrales'
-                };
-                return dictado[valor] || valor;
-            }
-            return valor;
-        },
-
-        actualizarListaFiltrada: function() {
-            this.cursosFiltrados = [...this.cursos];
-        },
-
-        // Métodos de paginación
         irAPagina: function(pagina) {
             if (pagina < 1 || pagina > this.totalPaginas) return;
-            this.currentPage = pagina;
-            this.cargarDatos();
 
-            // Scroll al inicio de la tabla
+            this.currentPage = pagina;
+
+            if (!this.searchTerm && !this.filtroEstadoSeccion) {
+                this.cargarDatos();
+            }
+
             setTimeout(() => {
                 const tabla = document.querySelector('.table-responsive');
                 if (tabla) {
@@ -356,25 +268,6 @@ new Vue({
             this.cargarDatos();
         },
 
-        // Métodos de ordenamiento
-        ordenarPor: function(campo) {
-            if (this.ordenActual === campo) {
-                // Invertir dirección si el campo ya está seleccionado
-                this.direccionOrden = this.direccionOrden === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.ordenActual = campo;
-                this.direccionOrden = 'asc';
-            }
-
-            this.cargarDatos();
-        },
-
-        getOrdenIcon: function(campo) {
-            if (this.ordenActual !== campo) return 'fa-sort';
-            return this.direccionOrden === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
-        },
-
-        // Métodos auxiliares para renderizar la tabla con estructura compleja
         getCursoRowspan: function(item) {
             let totalFilas = 0;
 
@@ -386,7 +279,7 @@ new Vue({
                 if (seccion.docenteSeccion && Array.isArray(seccion.docenteSeccion) && seccion.docenteSeccion.length > 0) {
                     totalFilas += seccion.docenteSeccion.length;
                 } else {
-                    totalFilas += 1; // Al menos una fila por sección aunque no tenga docentes
+                    totalFilas += 1;
                 }
             });
 
@@ -394,7 +287,6 @@ new Vue({
         },
 
         getCursoFilas: function(item) {
-            // Devuelve un array con elementos dummy para facilitar el v-for que crea las filas del curso
             const filasTotal = this.getCursoRowspan(item);
             return Array(filasTotal).fill(null);
         },
@@ -433,7 +325,6 @@ new Vue({
                 const s = item.secciones[i];
 
                 if (s === seccion) {
-                    // Encontramos la sección, ahora calculamos qué docente corresponde a esta fila
                     const indiceRelativo = rowIndex - filaActual;
 
                     if (indiceRelativo < seccion.docenteSeccion.length) {
@@ -454,7 +345,7 @@ new Vue({
             return seccion && seccion.tipoSeccionEnum ? seccion.tipoSeccionEnum.value : '';
         },
 
-        editarCurso: function(item) {
+        redireccionCurso: function(item) {
             if (typeof APP !== 'undefined' && APP.url) {
                 const url = APP.url('academico/gposeccion/' + item.id + '/editar');
                 window.location.href = url;

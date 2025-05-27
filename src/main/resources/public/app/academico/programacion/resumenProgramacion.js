@@ -1,31 +1,41 @@
 $(function() {
-    // Configuration options
     const CONFIG = {
         perPage: 12,
-        lowEnrollmentThreshold: 6, // Define what counts as "low enrollment"
+        lowEnrollmentThreshold: 6,
         ajaxEndpoint: 'academico/programacion/resumen/list',
-        statsEndpoint: 'academico/programacion/resumen/stats' // Nuevo endpoint para estadísticas
+        statsEndpoint: 'academico/programacion/resumen/stats'
     };
 
-    // Cargar estadísticas generales al inicio
+    function getCurrentFilters() {
+        const departamentoSuperior = $("#departamentoSuperiorSelect").val();
+        const filters = {};
+
+        if (departamentoSuperior) {
+            filters.departamentoSuperior = departamentoSuperior;
+        }
+
+        return filters;
+    }
+
     loadGeneralStats();
 
-    // Función para cargar las estadísticas generales
     function loadGeneralStats() {
+        const filters = getCurrentFilters(); // ✅ obtener filtros actuales
+
         $.ajax({
             url: APP.url(CONFIG.statsEndpoint),
             type: 'GET',
+            data: filters, // ✅ enviar los filtros como parámetros GET
             dataType: 'json',
-            beforeSend: function() {
+            beforeSend: function () {
                 $("#statsLoadingIndicator").show();
             },
-            success: function(response) {
+            success: function (response) {
                 updateStatsOverview(response);
                 console.log(response);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error al cargar estadísticas:", error);
-                // Mostrar mensaje de error en las estadísticas
                 $(".stats-overview").html(
                     '<div class="alert alert-danger">' +
                     '<i class="fa fa-exclamation-circle"></i> ' +
@@ -33,25 +43,26 @@ $(function() {
                     '</div>'
                 );
             },
-            complete: function() {
+            complete: function () {
                 $("#statsLoadingIndicator").hide();
             }
         });
     }
 
-    // Función para actualizar el panel de estadísticas
-    function updateStatsOverview(data) {
-        // Actualizar los valores de las estadísticas con animación
-        animateCounter("#totalCursosValue", data.activos || 0);
-        animateCounter("#cursosActivosValue", data.cancelados || 0);
-        animateCounter("#cursosBloqueadosValue", data.bloqueados || 0);
-        animateCounter("#otrosEstadosValue", data.anulados || 0);
 
-        // Actualizar fecha de última actualización
+    function updateStatsOverview(data) {
+        console.log(data);
+        animateCounter("#totalCursosValue", data.total || 0);
+        animateCounter("#cursosActivosValue", data.activos || 0);
+        animateCounter("#cursosBloqueadosValue", data.bloqueados || 0);
+        animateCounter("#cursosAnuladosValue", data.anulados || 0);
+        animateCounter("#cursosSinDocenteValue", data.cursosSinDocente || 0);
+        animateCounter("#cursosFusionadosValue",data.fusionados || 0);
+        animateCounter("#cursosMenosAlumnosValue",data.cursosMenosAlumnos || 0);
+
         $("#lastUpdated").text(formatDateTime(new Date()));
     }
 
-    // Animación para contadores
     function animateCounter(selector, targetValue) {
         const $element = $(selector);
         const startValue = parseInt($element.text()) || 0;
@@ -70,7 +81,6 @@ $(function() {
         });
     }
 
-    // Formato de fecha y hora
     function formatDateTime(date) {
         return date.toLocaleString('es-ES', {
             day: '2-digit',
@@ -81,7 +91,6 @@ $(function() {
         });
     }
 
-    // Initialize the dynatable with improved settings
     const dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url(CONFIG.ajaxEndpoint),
@@ -101,12 +110,9 @@ $(function() {
         }
     }).data('dynatable');
 
-    // Template renderer with better formatting and data transformation
     function renderDepartmentCard(rowIndex, record, columns, cellWriter) {
-        // Apply any data transformations here
         record.nombreDep = record.nombreDep || 'Departamento sin nombre';
 
-        // Ensure all counters are numbers to prevent NaN issues
         const numericFields = [
             'cantidadCursos', 'cantidadGrupos', 'cantidadTotal',
             'cantidadActivos', 'cantidadBloqueados', 'cantidadCancelados',
@@ -118,11 +124,9 @@ $(function() {
             record[field] = parseInt(record[field] || 0);
         });
 
-        // Render the template with the transformed data
         return $.templates("#templateResumx").render(record);
     }
 
-    // Event delegation with more specific selector and improved interaction
     $(document).on("click", ".department-card", function() {
         const id = $(this).attr("rel");
         if (id) {
@@ -130,7 +134,6 @@ $(function() {
         }
     });
 
-    // Add hover effects for better UX
     $(document).on("mouseenter", ".department-card", function() {
         $(this).css("box-shadow", "0 5px 15px rgba(0,0,0,0.2)");
         $(this).css("cursor", "pointer");
@@ -138,18 +141,14 @@ $(function() {
         $(this).css("box-shadow", "0 2px 5px rgba(0,0,0,0.1)");
     });
 
-    // Add refresh button functionality
     $("#refreshData").on("click", function() {
-        // Recargar tanto las estadísticas como los datos de la tabla
         loadGeneralStats();
 
         dynatable.settings.dataset.ajaxData = {};
         dynatable.process();
 
-        // Show loading indicator
         $("#loadingIndicator").show();
 
-        // Hide loading indicator after data loads
         $(document).ajaxComplete(function(event, xhr, settings) {
             if (settings.url.includes(CONFIG.ajaxEndpoint)) {
                 $("#loadingIndicator").hide();
@@ -157,12 +156,10 @@ $(function() {
         });
     });
 
-    // Refresh solo para estadísticas
     $("#refreshStats").on("click", function() {
         loadGeneralStats();
     });
 
-    // Filter functionality (if needed)
     $("#filterSelect").on("change", function() {
         const filterValue = $(this).val();
 
@@ -190,6 +187,8 @@ $(function() {
 
         dynatable.settings.dataset.queries = queries;
         dynatable.process();
+
+        loadGeneralStats();
     });
 
 });

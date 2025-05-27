@@ -13,12 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.resumen.reporte.ResumenProgramacionExcelView;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
@@ -39,19 +42,18 @@ public class ResumenProgramacionController {
     @Autowired
     ResumenProgramacionService service;
 
+    @Autowired
+    ResumenProgramacionExcelView resumenProgramacionExcelView;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-//   model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "academico/programacion/resumenProgramacion";
     }
-
-
 
     @ResponseBody
     @RequestMapping("list")
@@ -104,7 +106,7 @@ public class ResumenProgramacionController {
                     node.put("cantidadTotal", countAnexos.getTotalSecciones());
                     node.put("cursosMenosAlumnos",countAnexos.getCursosMenos6Alumnos());
                     node.put("cursosSinDocente", countAnexos.getCursosSinDocente());
-                    node.put("cursosTotal", 124);
+                    node.put("cursosTotal", 1234);
                 } else {
 
                     node.put("cantidadActivos", 0);
@@ -136,9 +138,8 @@ public class ResumenProgramacionController {
 
     @ResponseBody
     @RequestMapping("stats")
-    public Map<String, Object> getEstadisticasProgramacion(HttpSession session) {
-
-
+    public Map<String, Object> getEstadisticasProgramacion(HttpSession session,
+                                                           @RequestParam Map<String, String> allParams) {
         Map<String, Object> respuesta = new HashMap<>();
 
         try {
@@ -146,20 +147,18 @@ public class ResumenProgramacionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             DynatableFilter filter = new DynatableFilter();
+            filter.setQueries(new HashMap<>(allParams));
 
-            // Traer todos los anexos activos
-            List<AnexoBoletin> anexos = service.allActiveAnexos(filter, ciclo); // puedes pasar null si no necesitas filtro
+            List<AnexoBoletin> anexos = service.allActiveAnexos(filter, ciclo);
 
             List<Long> ids = anexos.stream()
                     .map(AnexoBoletin::getId)
                     .collect(Collectors.toList());
 
-            // Obtener conteos por cada anexo
             List<DepartamentoCursosProgramadosDTO> counts = service.countGroupsByFilter(ids, ciclo, null);
 
-            // Acumular totales
             int activos = 0, bloqueados = 0, anulados = 0, cancelados = 0, fusionados = 0;
-            int inactivos = 0, total = 0, cursosSinDocente = 0, cursosMenos6Alumnos = 0;
+            int inactivos = 0, total = 0, cursosSinDocente = 0, cursosMenosAlumnos = 0;
 
             for (DepartamentoCursosProgramadosDTO dto : counts) {
                 activos += dto.getActivos();
@@ -170,10 +169,9 @@ public class ResumenProgramacionController {
                 inactivos += dto.getInactivos();
                 total += dto.getTotalSecciones();
                 cursosSinDocente += dto.getCursosSinDocente();
-                cursosMenos6Alumnos += dto.getCursosMenos6Alumnos();
+                cursosMenosAlumnos += dto.getCursosMenos6Alumnos();
             }
 
-            // Poner en respuesta
             respuesta.put("activos", activos);
             respuesta.put("bloqueados", bloqueados);
             respuesta.put("anulados", anulados);
@@ -182,7 +180,7 @@ public class ResumenProgramacionController {
             respuesta.put("inactivos", inactivos);
             respuesta.put("total", total);
             respuesta.put("cursosSinDocente", cursosSinDocente);
-            respuesta.put("cursosMenos6Alumnos", cursosMenos6Alumnos);
+            respuesta.put("cursosMenosAlumnos", cursosMenosAlumnos);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -192,28 +190,15 @@ public class ResumenProgramacionController {
         return respuesta;
     }
 
+
     @RequestMapping("{departamento}/departamento")
     public String departamento(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session, RedirectAttributes redirect) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        DepartamentoAcademico depAcademico = service.findDepartamento(idDepartamento);
         AnexoBoletin anexoBoletin = service.findAnexoBoletin(idDepartamento);
 
-//        List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
-//        ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
-//
-//        Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
-//        logger.debug("esOperadorEditor {}", esOperadorEditor);
-//
-//        Boolean isRevisorActaNotas = verificadorService.isRevisorActaNotasDepartamento(ds);
-//        logger.debug("isRevisorActaNotas {}", isRevisorActaNotas);
-
-//        model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", anexoBoletin);
-//        model.addAttribute("gruposSecciones", allGruposSeccion);
-//        model.addAttribute("esOperadorEditor", esOperadorEditor);
-//        model.addAttribute("isRevisorActaNotas", isRevisorActaNotas);
         return "academico/programacion/detallesProgramacion";
 
     }
@@ -276,6 +261,51 @@ public class ResumenProgramacionController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @RequestMapping("exportExcel")
+    public ModelAndView recordProgramados(HttpSession session, Model model) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            DynatableFilter filter = new DynatableFilter();
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<AnexoBoletin> allAnexosActivosHijos = service.allActiveAnexos(filter, ciclo);
+
+            List<Long> anexos = new ArrayList<>();
+            Map<Long, String> nombresDepartamentos = new HashMap<>();
+            Map<Long, String> nombresAnexosSuperiores = new HashMap<>();
+
+            for (AnexoBoletin departamento : allAnexosActivosHijos) {
+                anexos.add(departamento.getId());
+                nombresDepartamentos.put(departamento.getId(), departamento.getNombre());
+
+                if (departamento.getAnexoSuperior() != null) {
+                    nombresAnexosSuperiores.put(departamento.getId(),
+                            departamento.getAnexoSuperior().getNombre());
+                } else {
+                    nombresAnexosSuperiores.put(departamento.getId(), "Sin anexo superior");
+                }
+
+            }
+
+            List<DepartamentoCursosProgramadosDTO> counts = new ArrayList<>();
+            if (!anexos.isEmpty()) {
+                counts = service.countGroupsByFilter(anexos, ds.getCicloAcademico(), null);
+
+            }
+            model.addAttribute("counts", counts);
+            model.addAttribute("nombresDepartamentos", nombresDepartamentos);
+            model.addAttribute("nombresAnexosSuperiores", nombresAnexosSuperiores);
+
+        }catch (PhobosException e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }
+
+        return new ModelAndView(resumenProgramacionExcelView);
     }
 
 }

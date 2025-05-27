@@ -3,53 +3,10 @@
 <head>
     <title>Detalles Programación</title>
     <style>
-        /* Estilos generales mejorados */
         .card {
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid rgba(0,0,0,0.125);
-            padding: 0.75rem 1.25rem;
-        }
-
-        .curso-nombre {
-            color: #0d6efd;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .curso-nombre:hover {
-            color: #0a58ca;
-            cursor: pointer;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .filtros-container {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .search-bar {
-            position: relative;
         }
 
         .search-bar .search-icon {
@@ -61,21 +18,6 @@
 
         .search-bar input {
             padding-left: 35px;
-        }
-
-        .filter-badge {
-            display: inline-block;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            padding: 5px 10px;
-            background-color: #e9ecef;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-
-        .filter-badge .close-btn {
-            margin-left: 5px;
-            cursor: pointer;
         }
 
         .table {
@@ -95,18 +37,15 @@
             vertical-align: middle !important;
         }
 
-        /* Estilos para estados */
         .badge {
             padding: 6px 10px;
             border-radius: 20px;
             font-weight: 500;
-            font-size: 0.85rem;
             display: inline-block;
         }
 
         .badge-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
+            background-color: #5cb85c;;
         }
 
         .badge-danger {
@@ -124,15 +63,6 @@
             color: #664d03;
         }
 
-        /* Animaciones */
-        .fade-enter-active, .fade-leave-active {
-            transition: opacity 0.5s;
-        }
-
-        .fade-enter, .fade-leave-to {
-            opacity: 0;
-        }
-
         /* Estilos para paginación */
         .pagination-container {
             display: flex;
@@ -147,182 +77,394 @@
         .page-info {
             color: #6c757d;
         }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .modern-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loading-text {
+            font-weight: 500;
+            opacity: 0.9;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Header Mejorado */
+        .page-header {
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .page-header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title-icon {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button {
+            background: rgba(14, 85, 156, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            margin-top: 1.5rem;
+            font-weight: 500;
+        }
+
+
+        /* Filtros Container Mejorado */
+        .filters-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filters-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .filters-title {
+            color: #334155;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filters-title-icon {
+            color: #667eea;
+        }
+
+        /* Search Bar Mejorado */
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 1rem;
+            z-index: 2;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-input:focus + .search-icon {
+            color: #667eea;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-help {
+            color: #6c757d;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Filter Select Mejorado */
+        .filter-container {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+
+            .filters-container {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .filters-container {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 
 <body>
 <div layout:fragment="main">
     <div class="container-fluid" id="gpoSeccionesVUE">
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" v-if="isLoading">
-            <div class="spinner-border text-light" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-        </div>
+        <div class="container-fluid p-4">
 
-        <!-- Titular y descripción -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2 class="text-primary mb-2">Programación Académica</h2>
-                <p class="text-muted">Administra cursos, secciones y docentes del departamento.</p>
+            <div class="loading-overlay" v-if="isLoading">
+                <div class="loading-content">
+                    <div class="modern-spinner"></div>
+                    <div class="loading-text">
+                        Cargando información<span class="loading-dots"></span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Filtros mejorados -->
-        <div class="card filtros-container">
-            <div class="card-body">
-                <div class="row mb-3">
-                    <!-- Buscador mejorado con icono -->
-                    <div class="col-md-4">
-                        <label for="searchInput" class="form-label">Buscar cursos o docentes</label>
-                        <div class="search-bar">
-                            <i class="fa fa-search search-icon"></i>
-                            <input
-                                    type="text"
-                                    id="searchInput"
-                                    class="form-control"
-                                    placeholder="Nombre del curso, código, docente..."
-                                    v-model="searchTerm"
-                                    @input="buscarCursos"
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">
+                        <div class="page-title-icon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <span>Programación {{ nombreDepartamento }}</span>
+                    </h1>
+                    <a href="#" @click.prevent="goBack" class="back-button">
+                        <i class="fa fa-arrow-left"></i>
+                        Regresar
+                    </a>
+                </div>
+            </div>
+
+            <div class="filters-container">
+                <h4 class="filters-title">
+                    <i class="fa fa-filter filters-title-icon"></i>
+                    Filtros de Búsqueda
+                </h4>
+
+                <div class="row g-4">
+                    <div class="col-lg-8 col-md-7">
+                        <div class="search-container">
+                            <label for="searchInput" class="search-label">
+                                <i class="fa fa-search"></i>
+                                Buscar cursos o docentes
+                            </label>
+                            <div class="search-input-wrapper">
+                                <input
+                                        type="text"
+                                        id="searchInput"
+                                        class="search-input"
+                                        placeholder="Nombre del curso, código, docente..."
+                                        v-model="searchTerm"
+                                        @input="buscarCursos"
+                                >
+                                <i class="fa fa-search search-icon"></i>
+                            </div>
+                            <div class="search-help">
+                                <i class="fa fa-info-circle"></i>
+                                Busca por nombre, código de curso o nombre del docente
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-5">
+                        <div class="filter-container">
+                            <label for="filter-status" class="filter-label">
+                                <i class="fa fa-toggle-on"></i>
+                                Filtrar por estado
+                            </label>
+                            <select
+                                    id="filter-status"
+                                    class="filter-select"
+                                    v-model="filtroEstadoSeccion"
+                                    @change="aplicarFiltros"
                             >
-                        </div>
-                    </div>
-
-                    <!-- Filtros específicos -->
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="anexoSelect" class="form-label">Tipo de programa</label>
-                                <select id="anexoSelect" class="form-select" v-model="seleccionado" @change="cargarDatos">
-                                    <option value="">Todos los programas</option>
-                                    <option value="ingresantes">Ingresantes</option>
-                                    <option value="departamentos">Departamentos</option>
-                                    <option value="postgrados">Postgrados</option>
-                                    <option value="actividades">Actividades</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="estadoSelect" class="form-label">Estado</label>
-                                <select id="estadoSelect" class="form-select" v-model="estadoSeleccionada" @change="cargarDatos">
-                                    <option value="">Todos los estados</option>
-                                    <option value="activos">Activos</option>
-                                    <option value="inactivos">Inactivos</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="dictadoSelect" class="form-label">Tipo de dictado</label>
-                                <select id="dictadoSelect" class="form-select" v-model="dictadoSeleccionado" @change="cargarDatos">
-                                    <option value="">Todos los tipos</option>
-                                    <option value="semestrales">Semestrales</option>
-                                    <option value="modulares">Modulares</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chips de filtros activos -->
-                <div class="row mt-3" v-if="hayFiltrosActivos">
-                    <div class="col-12">
-                        <label class="form-label text-muted">Filtros activos:</label>
-                        <div>
-                            <span v-if="seleccionado" class="filter-badge">
-                                {{ obtenerNombreFiltro('programa', seleccionado) }}
-                                <i class="fa fa-times close-btn" @click="limpiarFiltroEspecifico('seleccionado')"></i>
-                            </span>
-                            <span v-if="estadoSeleccionada" class="filter-badge">
-                                {{ obtenerNombreFiltro('estado', estadoSeleccionada) }}
-                                <i class="fa fa-times close-btn" @click="limpiarFiltroEspecifico('estadoSeleccionada')"></i>
-                            </span>
-                            <span v-if="dictadoSeleccionado" class="filter-badge">
-                                {{ obtenerNombreFiltro('dictado', dictadoSeleccionado) }}
-                                <i class="fa fa-times close-btn" @click="limpiarFiltroEspecifico('dictadoSeleccionado')"></i>
-                            </span>
-                            <span v-if="searchTerm" class="filter-badge">
-                                "{{ searchTerm }}"
-                                <i class="fa fa-times close-btn" @click="limpiarFiltroEspecifico('searchTerm')"></i>
-                            </span>
-                            <button class="btn btn-sm btn-outline-secondary ms-2" @click="limpiarFiltros">
-                                <i class="fa fa-eraser"></i> Limpiar todos
-                            </button>
+                                <option value="">Todos los estados</option>
+                                <option value="ACT">✅ Activo</option>
+                                <option value="INA">❌ Inactivo</option>
+                                <option value="FUS">🔗 Fusionado</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Contadores y resumen -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-3">Estado</h6>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span><i class="fa fa-check-circle text-success"></i> Activos</span>
-                            <span class="badge badge-success">{{ resumen.activos }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span><i class="fa fa-times-circle text-danger"></i> Inactivos</span>
-                            <span class="badge badge-danger">{{ resumen.inactivos }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-3">Tipo de dictado</h6>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span><i class="fa fa-calendar"></i> Semestrales</span>
-                            <span class="badge badge-primary">{{ resumen.semestrales }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span><i class="fa fa-calendar-alt"></i> Modulares</span>
-                            <span class="badge badge-warning">{{ resumen.modulares }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted mb-3">Programas</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span><i class="fa fa-user-graduate"></i> Ingresantes</span>
-                                    <span class="badge badge-primary">{{ resumen.ingresantes }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fa fa-university"></i> Departamentos</span>
-                                    <span class="badge badge-primary">{{ resumen.departamentos }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span><i class="fa fa-graduation-cap"></i> Postgrados</span>
-                                    <span class="badge badge-primary">{{ resumen.postgrados }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fa fa-chalkboard-teacher"></i> Actividades</span>
-                                    <span class="badge badge-primary">{{ resumen.actividades }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabla de Cursos y Secciones mejorada -->
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                         <tr>
-                            <th class="col-md-4" @click="ordenarPor('curso.nombre')">
-                                Curso <i class="fa" :class="getOrdenIcon('curso.nombre')"></i>
+                            <th class="col-md-4">
+                                Curso
                             </th>
                             <th class="col-md-1 text-center v-middle">
                                 <span>Sección</span>
@@ -330,27 +472,25 @@
                             <th class="col-md-1 text-center v-middle">
                                 <span>Aula / Grupo</span>
                             </th>
-                            <th class="col-md-1 text-center v-middle" @click="ordenarPor('docente.codigo')">
-                                Código <i class="fa" :class="getOrdenIcon('docente.codigo')"></i>
+                            <th class="col-md-1 text-center v-middle" >
+                                Código
                             </th>
-                            <th class="col-md-3 text-center v-middle" @click="ordenarPor('docente.persona.apellidosNombres')">
-                                Docente <i class="fa" :class="getOrdenIcon('docente.persona.apellidosNombres')"></i>
+                            <th class="col-md-3 text-center v-middle">
+                                Docente
                             </th>
-                            <th class="col-md-1 text-center v-middle" @click="ordenarPor('seccion.estadoEnum.name')">
-                                Estado <i class="fa" :class="getOrdenIcon('seccion.estadoEnum.name')"></i>
+                            <th class="col-md-1 text-center v-middle">
+                                Estado
                             </th>
                         </tr>
                         </thead>
                         <tbody>
-                        <template v-if="cursosFiltrados.length > 0">
-                            <template v-for="(item, cursoIndex) in cursosFiltrados" :key="'curso-' + item.id">
-                                <!-- Filas para cursos con sus secciones -->
+                        <template v-if="cursosPaginados.length > 0">
+                            <template v-for="(item, cursoIndex) in cursosPaginados" :key="'curso-' + item.id">
                                 <tr v-for="(dummy, rowIndex) in getCursoFilas(item)" :key="'curso-' + item.id + '-fila-' + rowIndex">
-                                    <!-- Curso info (solo en la primera fila) -->
                                     <td class="v-middle" v-if="rowIndex === 0" :rowspan="getCursoRowspan(item)">
                                         <div class="d-flex align-items-center">
                                             <div>
-                                                    <span class="curso-nombre d-block" @click="editarCurso(item)">
+                                                    <span class="text-primary bold h5 pointer d-block" @click="redireccionCurso(item)">
                                                         {{ item.curso.nombre }}
                                                     </span>
                                                 <div class="d-flex align-items-center mt-1">
@@ -376,7 +516,6 @@
                                         </div>
                                     </td>
 
-                                    <!-- Datos de la sección correspondiente a esta fila -->
                                     <template v-if="getSeccionParaFila(item, rowIndex)">
                                         <td class="v-middle text-center">
                                             <span class="d-block fw-bold text-primary">{{ getSeccionParaFila(item, rowIndex).codigo2 }}</span>
@@ -396,7 +535,6 @@
                                             </div>
                                         </td>
 
-                                        <!-- Datos del docente para esta sección y fila -->
                                         <td class="v-middle text-center" v-if="getDocenteParaFila(item, rowIndex)">
                                                 <span class="badge" :class="getDocenteParaFila(item, rowIndex).docente.codigo !== 'N.N.' ? 'bg-secondary' : 'bg-light text-secondary'">
                                                     {{ getDocenteParaFila(item, rowIndex).docente.codigo }}
@@ -447,11 +585,10 @@
                 </div>
             </div>
 
-            <!-- Paginación mejorada -->
             <div class="card-footer bg-white">
                 <div class="pagination-container">
                     <div class="page-info">
-                        <span>Mostrando {{ cursosFiltrados.length > 0 ? (currentPage - 1) * perPage + 1 : 0 }} -
+                        <span>Mostrando {{ cursosPaginados.length > 0 ? (currentPage - 1) * perPage + 1 : 0 }} -
                             {{ Math.min(currentPage * perPage, totalCursos) }} de {{ totalCursos }} cursos</span>
                     </div>
                     <nav aria-label="Navegación de páginas">
@@ -466,8 +603,11 @@
                                     <i class="fa fa-angle-left"></i>
                                 </a>
                             </li>
-                            <li class="page-item" v-for="page in paginasVisibles" :key="page" :class="{ active: currentPage === page }">
-                                <a class="page-link" href="#" @click.prevent="irAPagina(page)">{{ page }}</a>
+                            <li class="page-item" v-for="page in paginasVisibles" :key="page"
+                                :class="{ active: currentPage === page }">
+                                <a class="page-link" href="#" @click.prevent="irAPagina(page)">
+                                    {{ page }}
+                                </a>
                             </li>
                             <li class="page-item" :class="{ disabled: currentPage === totalPaginas }">
                                 <a class="page-link" href="#" @click.prevent="irAPagina(currentPage + 1)">

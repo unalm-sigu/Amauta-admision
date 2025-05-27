@@ -13,38 +13,35 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            width: 100%; /* Asegura que el card ocupe el ancho completo de su contenedor */
-            min-width: 250px; /* Establece un ancho mínimo para el card */
+            width: 100%;
+            min-width: 250px;
+            transition: all 0.3s ease;
         }
 
-        /* Encabezado del departamento - altura fija */
         .department-header {
             background-color: #f8f9fa;
             padding: 15px;
             border-bottom: 1px solid #e0e0e0;
-            min-height: 90px; /* Altura mínima para el encabezado */
+            min-height: 90px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        /* Nombre del departamento con tooltip para ver nombre completo */
         .department-name {
             margin: 0 0 8px 0;
             font-size: 16px;
             font-weight: 600;
             line-height: 1.3;
             position: relative;
-            /* Para nombres largos que necesiten más de una línea */
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limitar a 2 líneas */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            /* Cursor indicando que hay tooltip */
+            color: #3f51b5;
 
         }
 
-        /* Contenedor para los contadores de resumen */
         .summary-counts {
             display: flex;
             justify-content: space-between;
@@ -63,7 +60,6 @@
             color: #007bff;
         }
 
-        /* Cuadrícula de estados */
         .status-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -71,7 +67,6 @@
             gap: 10px;
         }
 
-        /* Elementos de estado individuales */
         .status-item {
             display: flex;
             flex-direction: column;
@@ -92,7 +87,6 @@
             color: #555;
         }
 
-        /* Status-specific colors */
         .status-scheduled {
             background-color: #e3f2fd;
             color: #1976d2;
@@ -123,12 +117,11 @@
             color: #388e3c;
         }
 
-        /* Sección de alertas */
         .alerts-section {
             padding: 10px 15px;
             background-color: #fafafa;
             border-top: 1px solid #e0e0e0;
-            margin-top: auto; /* Empuja la sección de alertas hacia abajo */
+            margin-top: auto;
             display: flex;
             justify-content: space-between;
         }
@@ -156,7 +149,6 @@
             white-space: nowrap;
         }
 
-        /* Estilos específicos para las alertas */
         .low-enrollment {
             background-color: #fff8e1;
             color: #ff8f00;
@@ -167,7 +159,6 @@
             color: #d32f2f;
         }
 
-        /* Asegurar que los cards en la misma fila tengan la misma altura y ancho */
         .row {
             display: flex;
             flex-wrap: wrap;
@@ -179,78 +170,77 @@
         .col-lg-3 {
             display: flex;
             margin-bottom: 20px;
-            flex: 0 0 auto; /* No crecer ni contraerse automáticamente */
+            flex: 0 0 auto;
         }
 
-        .stats-overview {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-
-        .stats-title {
-            font-size: 1.25rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: #212121;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background-color: #e8eaf6;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
+        .stats-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #3f51b5;
-            line-height: 1.2;
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            counter-reset: num var(--num);
+            animation: countUp 2s ease-out forwards;
         }
 
         .stat-label {
-            font-size: 0.875rem;
-            color: #757575;
+            font-size: 0.95rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        stat-trend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .trend-up {
+            color: #48bb78;
+        }
+
+        .trend-down {
+            color: #0c0505;
         }
 
 
-        /* Ancho fijo para las columnas en diferentes tamaños de pantalla */
         @media (min-width: 1200px) {
             .col-lg-3 {
-                width: 25%; /* 4 cards por fila en pantallas grandes */
+                width: 25%;
             }
         }
 
         @media (min-width: 992px) and (max-width: 1199px) {
             .col-md-4 {
-                width: 33.333%; /* 3 cards por fila en pantallas medianas */
+                width: 33.333%;
             }
         }
 
         @media (min-width: 768px) and (max-width: 991px) {
             .col-sm-4 {
-                width: 33.333%; /* 3 cards por fila en pantallas pequeñas */
+                width: 33.333%;
             }
         }
 
         @media (max-width: 767px) {
             .col-xs-12 {
-                width: 100%; /* 1 card por fila en móviles */
+                width: 100%;
             }
         }
 
-        /* Responsive adjustments */
         @media (max-width: 767px) {
             .department-header {
                 height: auto;
@@ -267,12 +257,11 @@
             }
         }
 
-        /* Additional enhanced styles */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 10px;
             padding-bottom: 16px;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -293,35 +282,6 @@
             margin-left: 8px;
         }
 
-        .controls-wrapper {
-            display: flex;
-            gap: 12px;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .refreshBtn {
-            padding: 6px 12px;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .refreshBtn:hover {
-            background-color: #e9ecef;
-        }
-
-        .loading-indicator {
-            display: none;
-            margin-left: 8px;
-        }
-
         .spinner {
             animation: spin 1s linear infinite;
             display: inline-block;
@@ -335,55 +295,140 @@
         }
 
         .stats-overview {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow:
+                    0 20px 40px rgba(0, 0, 0, 0.1),
+                    0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            justify-items: center;
             gap: 16px;
         }
 
         .stat-card {
-            background-color: #e8eaf6;
-            border-radius: 12px;
-            padding: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 28px 24px;
             text-align: center;
-            transition: transform 0.2s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow:
+                    0 8px 32px rgba(0, 0, 0, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s;
         }
 
         .stat-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow:
+                    0 20px 40px rgba(0, 0, 0, 0.15),
+                    0 0 0 1px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-card.total {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .stat-card.active {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .stat-card.blocked {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
+            color: white;
+        }
+
+        .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 16px;
+            font-size: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .last-updated {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
         }
 
         .stats-footer {
-            margin-top: 16px;
-            text-align: right;
-            font-size: 0.8rem;
-            color: #757575;
-        }
-
-        .department-card {
-            transition: all 0.3s ease;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: #718096;
+            font-size: 1.3rem;
         }
 
         .department-card:hover {
             transform: translateY(-5px);
         }
 
-        .department-name {
-            color: #3f51b5;
-        }
-
-        .pagination-controls {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
 
         .pagination-info {
             text-align: center;
@@ -474,42 +519,41 @@
         }
 
         .btn-refresh {
-            background-color: #6c757d;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
+            border-radius: 12px;
+            padding: 10px 20px;
             font-size: 14px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .btn-refresh:hover {
-            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-refresh:active {
+            transform: translateY(0);
         }
 
         .loading-indicator {
             display: none;
             align-items: center;
             gap: 8px;
-            color: #6c757d;
+            color: #667eea;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .loading-indicator.active {
             display: flex;
-        }
-
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .section-label {
@@ -518,7 +562,60 @@
             margin-right: 8px;
         }
 
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:nth-child(6) { animation-delay: 0.6s; }
+        .stat-card:nth-child(7) { animation-delay: 0.7s; }
+
         @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .stat-card {
+                padding: 20px 16px;
+            }
+
+            .stat-value {
+                font-size: 2.5rem;
+            }
+
+            .stats-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
             .controls-wrapper {
                 flex-direction: column;
                 align-items: flex-start;
@@ -526,6 +623,24 @@
 
             .filter-group, .form-control, .btn-reports, .btn-refresh {
                 width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-overview {
+                padding: 20px;
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
             }
         }
 
@@ -540,16 +655,6 @@
         <h2 class="page-title">Programación de cursos: <span class="ciclo-badge" th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
 
         <div class="controls-wrapper">
-<!--            <div class="filter-group">-->
-<!--                <span class="section-label">Filtrar:</span>-->
-<!--                <select id="filterSelect" class="form-control">-->
-<!--                    <option value="all">Todos</option>-->
-<!--                    <option value="especialidad">Solo activos</option>-->
-<!--                    <option value="blocked">Solo bloqueados</option>-->
-<!--                    <option value="lowEnrollment">Baja matrícula</option>-->
-<!--                    <option value="noTeacher">Sin docente</option>-->
-<!--                </select>-->
-<!--            </div>-->
 
             <div class="filter-group">
                 <span class="section-label">Departamento:</span>
@@ -564,25 +669,22 @@
 
             <!-- Dropdown for Reports -->
             <div class="dropdown">
-                <button class="btn-reports dropdown-toggle" type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-file-alt"></i>
+                <button class="btn-reports dropdown-toggle" type="button" id="reportsDropdown" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-file"></i>
                     Reportes
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
-                    <li><a th:href="@{'/academico/acta/exportExcel/recordActas'}">Record Actas Pre Grado</a></li>
-                    <li th:if="${esOperadorEditor}"><a th:href="@{'/academico/acta/exportExcel/raPostGrado'}">Record Actas Post Grado</a></li>
+                    <li><a th:href="@{'/academico/programacion/resumen/exportExcel'}">Record Programacion</a></li>
                     <li><a href="#">Estadísticas por Departamento</a></li>
                     <li><a href="#">Cursos sin Docente</a></li>
                 </ul>
             </div>
 
-            <!-- Refresh button -->
-            <button id="refreshData" class="btn-refresh">
-                <i class="fas fa-sync-alt"></i>
-                Actualizar
+            <button class="btn-reports" onclick="window.history.back()">
+                <i class="fa fa-backward"></i>
+                Regresar
             </button>
 
-            <!-- Loading indicator -->
             <div id="loadingIndicator" class="loading-indicator">
                 <i class="fas fa-circle-notch fa-spin spinner"></i>
                 Cargando...
@@ -590,59 +692,126 @@
         </div>
     </header>
 
-    <!-- Enhanced statistics overview with refresh button -->
     <div class="stats-overview">
         <div class="stats-header">
             <div class="stats-actions">
-                <button id="refreshStats" class="btn btn-sm btn-default">
-                    <i class="fa fa-refresh"></i> Actualizar Estadísticas
+                <button id="refreshStats" class="btn-reports">
+                    <i class="fa fa-spinner"></i>
+                    Actualizar
                 </button>
                 <div id="statsLoadingIndicator" class="loading-indicator">
-                    <i class="fa fa-circle-o-notch spinner"></i> Actualizando...
+                    <i class="fa fa-circle-notch spinner"></i>
+                    Actualizando...
                 </div>
             </div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <span id="totalCursosValue" class="stat-value">{{:activos}}</span>
-                <span class="stat-label">Activos</span>
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fa fa-pie-chart"></i>
+                </div>
+                <div id="totalCursosValue" class="stat-value">1,248</div>
+                <div class="stat-label">Total Programados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+12% vs mes anterior</span>
+                </div>
             </div>
-            <div class="stat-card">
-                <span id="cursosActivosValue" class="stat-value">{{:cancelados}}</span>
-                <span class="stat-label">Cancelados</span>
+
+            <div class="stat-card active">
+                <div class="stat-icon">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <div id="cursosActivosValue" class="stat-value">987</div>
+                <div class="stat-label">Activos</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+8% vs mes anterior</span>
+                </div>
             </div>
-            <div class="stat-card">
-                <span id="cursosBloqueadosValue" class="stat-value">{{:bloqueados}}</span>
-                <span class="stat-label">Bloqueados</span>
+
+            <div class="stat-card blocked">
+                <div class="stat-icon">
+                    <i class="fa fa-ban"></i>
+                </div>
+                <div id="cursosBloqueadosValue" class="stat-value">45</div>
+                <div class="stat-label">Bloqueados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-15% vs mes anterior</span>
+                </div>
             </div>
-            <div class="stat-card">
-                <span id="otrosEstadosValue" class="stat-value">{{:anulados}}</span>
-                <span class="stat-label">Anulados</span>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
+                <div id="cursosAnuladosValue" class="stat-value">23</div>
+                <div class="stat-label">Anulados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-5% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fa fa-user-secret"></i>
+                </div>
+                <div id="cursosSinDocenteValue" class="stat-value">18</div>
+                <div class="stat-label">Sin Docente</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+3% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-icon">
+                    <i class="fa fa-compress"></i>
+                </div>
+                <div id="cursosFusionadosValue" class="stat-value">34</div>
+                <div class="stat-label">Cursos Fusionados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+7% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card secondary">
+                <div class="stat-icon">
+                    <i class="fa fa-user-circle"></i>
+                </div>
+                <div id="cursosMenosAlumnosValue" class="stat-value">67</div>
+                <div class="stat-label">Menos 6 Alumnos</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-10% vs mes anterior</span>
+                </div>
             </div>
         </div>
 
         <div class="stats-footer">
-            <small class="text-muted">Última actualización: <span id="lastUpdated">--/--/---- --:--</span></small>
+            <div class="last-updated">
+                <i class="fa fa-clock-o"></i>
+                <span>Última actualización: <span id="lastUpdated">23/05/2025 14:30</span></span>
+            </div>
         </div>
     </div>
 
-    <!-- Empty state for when no data is available -->
     <div id="emptyState" class="empty-state" style="display: none;">
         <i class="fa fa-folder-open-o"></i>
         <h3>No hay departamentos disponibles</h3>
         <p>No se encontraron departamentos que coincidan con los criterios de búsqueda.</p>
     </div>
 
-    <!-- Dynamic table container -->
     <div id="dynaTable" class="row footer"></div>
 
-    <!-- Pagination info -->
     <div class="pagination-info">
         Mostrando <span id="recordsFrom">1</span> - <span id="recordsTo">12</span> de <span id="totalRecords">0</span> departamentos
     </div>
 
-    <!-- Department card template -->
     <script id="templateResumx" type="text/x-template" class="hide">
         <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3">
             <div class="department-card" rel="{{:idDep}}">
