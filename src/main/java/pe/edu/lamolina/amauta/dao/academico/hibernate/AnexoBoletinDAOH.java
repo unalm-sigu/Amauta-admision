@@ -159,7 +159,7 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
         strb.append("     sum(if(sec.estado='BLO',1,0)) as bloqueados, ");
         strb.append("     count(*) as totalSecciones, ");
         strb.append("     SUM(CASE ");
-        strb.append("       WHEN sec.tipo_seccion = 'TCUR' AND sec.matriculados < 6 THEN 1 ");
+        strb.append("       WHEN sec.matriculados < 6 THEN 1 ");
         strb.append("       ELSE 0 ") ;
         strb.append("     END) AS cursosMenos6Alumnos, ");
         strb.append("     SUM(CASE ");
