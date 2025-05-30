@@ -24,6 +24,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum);
 
     List<GrupoSeccion> allByDynatableCicloDpto(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter);
+    List<GrupoSeccion> allByDynatableCicloAnexo(CicloAcademico cicloAcademico, AnexoBoletin anexoBoletin, DynatableFilter filter);
 
     List<GrupoSeccion> allByPlan(PlanCalificacion plan);
 

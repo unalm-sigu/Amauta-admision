@@ -1,0 +1,311 @@
+package pe.edu.lamolina.amauta.controller.programacionhorarios.resumen;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.resumen.reporte.ResumenProgramacionExcelView;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.*;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+
+import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Controller
+@RequestMapping("academico/programacion/resumen")
+public class ResumenProgramacionController {
+
+    @Autowired
+    ResumenProgramacionService service;
+
+    @Autowired
+    ResumenProgramacionExcelView resumenProgramacionExcelView;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        return "academico/programacion/resumenProgramacion";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            List<AnexoBoletin> allAnexosActivosHijos = service.allActiveAnexos(filter, ciclo);
+
+            List<Long> anexos = new ArrayList<>();
+            for (AnexoBoletin departamento : allAnexosActivosHijos) {
+                anexos.add(departamento.getId());
+            }
+
+            List<DepartamentoCursosProgramadosDTO> counts = new ArrayList<>();
+            if (!anexos.isEmpty()) {
+                counts = service.countGroupsByFilter( anexos, ds.getCicloAcademico(),null);
+
+            }
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for (AnexoBoletin dep : allAnexosActivosHijos) {
+
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("idDep", dep.getId());
+                node.put("nombreDep", dep.getNombre());
+
+                Optional<DepartamentoCursosProgramadosDTO> optCount = counts.stream()
+                        .filter(x -> x.getIdDepartamento().equals(dep.getId()))
+                        .findFirst();
+
+                if (optCount.isPresent()) {
+
+                    DepartamentoCursosProgramadosDTO countAnexos = optCount.get();
+
+                    node.put("cantidadActivos", countAnexos.getActivos());
+                    node.put("cantidadCursos",countAnexos.getCantidadCursos());
+                    node.put("cantidadGrupos", countAnexos.getCantidadGrupos());
+                    node.put("cantidadAnulados", countAnexos.getAnulados());
+                    node.put("cantidadCancelados", countAnexos.getCancelados());
+                    node.put("cantidadFusionados", countAnexos.getFusionados());
+                    node.put("cantidadInactivos", countAnexos.getInactivos());
+                    node.put("cantidadBloqueados", countAnexos.getBloqueados());
+                    node.put("cantidadTotal", countAnexos.getTotalSecciones());
+                    node.put("cursosMenosAlumnos",countAnexos.getCursosMenos6Alumnos());
+                    node.put("cursosSinDocente", countAnexos.getCursosSinDocente());
+                    node.put("cursosTotal", 1234);
+                } else {
+
+                    node.put("cantidadActivos", 0);
+                    node.put("cantidadCursos", 0);
+                    node.put("cantidadGrupos", 0);
+                    node.put("cantidadAnulados", 0);
+                    node.put("cantidadCancelados", 0);
+                    node.put("cantidadFusionados", 0);
+                    node.put("cantidadInactivos", 0);
+                    node.put("cantidadBloqueados", 0);
+                    node.put("cantidadTotal", 0);
+                    node.put("cursosMenosAlumnos", 0);
+                    node.put("cursosSinDocente", 0);
+                }
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("stats")
+    public Map<String, Object> getEstadisticasProgramacion(HttpSession session,
+                                                           @RequestParam Map<String, String> allParams) {
+        Map<String, Object> respuesta = new HashMap<>();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            DynatableFilter filter = new DynatableFilter();
+            filter.setQueries(new HashMap<>(allParams));
+
+            List<AnexoBoletin> anexos = service.allActiveAnexos(filter, ciclo);
+
+            List<Long> ids = anexos.stream()
+                    .map(AnexoBoletin::getId)
+                    .collect(Collectors.toList());
+
+            List<DepartamentoCursosProgramadosDTO> counts = service.countGroupsByFilter(ids, ciclo, null);
+
+            int activos = 0, bloqueados = 0, anulados = 0, cancelados = 0, fusionados = 0;
+            int inactivos = 0, total = 0, cursosSinDocente = 0, cursosMenosAlumnos = 0;
+
+            for (DepartamentoCursosProgramadosDTO dto : counts) {
+                activos += dto.getActivos();
+                bloqueados += dto.getBloqueados();
+                anulados += dto.getAnulados();
+                cancelados += dto.getCancelados();
+                fusionados += dto.getFusionados();
+                inactivos += dto.getInactivos();
+                total += dto.getTotalSecciones();
+                cursosSinDocente += dto.getCursosSinDocente();
+                cursosMenosAlumnos += dto.getCursosMenos6Alumnos();
+            }
+
+            respuesta.put("activos", activos);
+            respuesta.put("bloqueados", bloqueados);
+            respuesta.put("anulados", anulados);
+            respuesta.put("cancelados", cancelados);
+            respuesta.put("fusionados", fusionados);
+            respuesta.put("inactivos", inactivos);
+            respuesta.put("total", total);
+            respuesta.put("cursosSinDocente", cursosSinDocente);
+            respuesta.put("cursosMenosAlumnos", cursosMenosAlumnos);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            respuesta.put("error", "Error al obtener estadísticas");
+        }
+
+        return respuesta;
+    }
+
+
+    @RequestMapping("{departamento}/departamento")
+    public String departamento(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session, RedirectAttributes redirect) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        AnexoBoletin anexoBoletin = service.findAnexoBoletin(idDepartamento);
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("departamentoAcademico", anexoBoletin);
+        return "academico/programacion/detallesProgramacion";
+
+    }
+
+    @ResponseBody
+    @RequestMapping("listGrupo")
+    public DynatableResponse listGrupo(DynatableFilter filter, @RequestParam("departamento") Long idDepartamento, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            AnexoBoletin anexo = new AnexoBoletin(idDepartamento);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilterDyna(ciclo, anexo, filter);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (GrupoSeccion gpoSeccion : allGruposSeccion) {
+                ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
+                        "id", "estado", "estadoEnum", "codigo2", "cursoDirigido", "tipoDictadoEnum",
+                        "curso.codigo",
+                        "curso.nombre",
+                        "curso.tpc",
+                        "curso.tipoCurso",
+                        "curso.precioFormato",
+                        "curso.precioTpcFormato",
+                        "curso.departamentoAcademico.nombre",
+                        "anexoBoletin.nombre",
+                        "anexoBoletin.anexoSuperior.nombre",
+                        "secciones.id",
+                        "secciones.codigo2",
+                        "secciones.vacantes",
+                        "secciones.matriculados",
+                        "secciones.restriccionCapa",
+                        "secciones.horasSemanales",
+                        "secciones.estadoEnum",
+                        "secciones.estadoOperativo",
+                        "secciones.estadoCancelado",
+                        "secciones.grupoHoras.codigo",
+                        "secciones.aula.codigo",
+                        "secciones.aula.nombre",
+                        "secciones.docenteSeccion.estadoEnum",
+                        "secciones.docenteSeccion.principal",
+                        "secciones.docenteSeccion.docente.codigo",
+                        "secciones.docenteSeccion.docente.persona.apellidosNombres",
+                        "secciones.docenteSeccion.docente.persona.emailCompania"
+                });
+
+                array.add(nodeGpoSecc);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("exportExcel")
+    public ModelAndView recordProgramados(HttpSession session, Model model) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            DynatableFilter filter = new DynatableFilter();
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<AnexoBoletin> allAnexosActivosHijos = service.allActiveAnexos(filter, ciclo);
+
+            List<Long> anexos = new ArrayList<>();
+            Map<Long, String> nombresDepartamentos = new HashMap<>();
+            Map<Long, String> nombresAnexosSuperiores = new HashMap<>();
+
+            for (AnexoBoletin departamento : allAnexosActivosHijos) {
+                anexos.add(departamento.getId());
+                nombresDepartamentos.put(departamento.getId(), departamento.getNombre());
+
+                if (departamento.getAnexoSuperior() != null) {
+                    nombresAnexosSuperiores.put(departamento.getId(),
+                            departamento.getAnexoSuperior().getNombre());
+                } else {
+                    nombresAnexosSuperiores.put(departamento.getId(), "Sin anexo superior");
+                }
+
+            }
+
+            List<DepartamentoCursosProgramadosDTO> counts = new ArrayList<>();
+            if (!anexos.isEmpty()) {
+                counts = service.countGroupsByFilter(anexos, ds.getCicloAcademico(), null);
+
+            }
+            model.addAttribute("counts", counts);
+            model.addAttribute("nombresDepartamentos", nombresDepartamentos);
+            model.addAttribute("nombresAnexosSuperiores", nombresAnexosSuperiores);
+
+        }catch (PhobosException e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+        }
+
+        return new ModelAndView(resumenProgramacionExcelView);
+    }
+
+}

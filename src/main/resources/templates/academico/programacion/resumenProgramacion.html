@@ -1,0 +1,882 @@
+<html layout:decorator="_layout/layout">
+<head>
+    <title>Programacion Cursos</title>
+    <style>
+
+        .department-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            background-color: #fff;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .department-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .department-name {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+            position: relative;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #3f51b5;
+
+        }
+
+        .summary-counts {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .total-count {
+            font-size: 13px;
+            color: #555;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .total-count i {
+            margin-right: 4px;
+            color: #007bff;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .status-count {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .status-scheduled {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-blocked {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .status-canceled {
+            background-color: #fce4ec;
+            color: #c2185b;
+        }
+
+        .status-annulled {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .status-merged {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-active {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .alerts-section {
+            padding: 10px 15px;
+            background-color: #fafafa;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            width: 48%;
+        }
+
+        .alert-item i {
+            margin-right: 5px;
+            font-size: 14px;
+        }
+
+        .alert-count {
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .alert-label {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .low-enrollment {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .no-teacher {
+            background-color: #fbe9e7;
+            color: #d32f2f;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-xs-12,
+        .col-sm-4,
+        .col-md-4,
+        .col-lg-3 {
+            display: flex;
+            margin-bottom: 20px;
+            flex: 0 0 auto;
+        }
+
+        .stats-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            counter-reset: num var(--num);
+            animation: countUp 2s ease-out forwards;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        stat-trend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .trend-up {
+            color: #48bb78;
+        }
+
+        .trend-down {
+            color: #0c0505;
+        }
+
+
+        @media (min-width: 1200px) {
+            .col-lg-3 {
+                width: 25%;
+            }
+        }
+
+        @media (min-width: 992px) and (max-width: 1199px) {
+            .col-md-4 {
+                width: 33.333%;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .col-sm-4 {
+                width: 33.333%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .col-xs-12 {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .department-header {
+                height: auto;
+                max-height: 100px;
+            }
+
+            .alerts-section {
+                flex-direction: column;
+            }
+
+            .alert-item {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .page-title {
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .ciclo-badge {
+            display: inline-block;
+            background-color: #e8eaf6;
+            color: #3f51b5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-overview {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            margin-bottom: 24px;
+            box-shadow:
+                    0 20px 40px rgba(0, 0, 0, 0.1),
+                    0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            justify-items: center;
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow:
+                    0 8px 32px rgba(0, 0, 0, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow:
+                    0 20px 40px rgba(0, 0, 0, 0.15),
+                    0 0 0 1px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-card.total {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .stat-card.active {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .stat-card.blocked {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
+            color: white;
+        }
+
+        .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 16px;
+            font-size: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .last-updated {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .stats-footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: #718096;
+            font-size: 1.3rem;
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+        }
+
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #757575;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #e0e0e0;
+        }
+
+        .controls-wrapper {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-reports {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-reports:hover {
+            background-color: #0b5ed7;
+        }
+
+        .dropdown-menu {
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 8px 0;
+        }
+
+        .dropdown-menu li a {
+            padding: 8px 16px;
+            color: #212529;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu li a:hover {
+            background-color: #f1f3f5;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-refresh:active {
+            transform: translateY(0);
+        }
+
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .loading-indicator.active {
+            display: flex;
+        }
+
+        .section-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 8px;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:nth-child(6) { animation-delay: 0.6s; }
+        .stat-card:nth-child(7) { animation-delay: 0.7s; }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .stat-card {
+                padding: 20px 16px;
+            }
+
+            .stat-value {
+                font-size: 2.5rem;
+            }
+
+            .stats-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .controls-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group, .form-control, .btn-reports, .btn-refresh {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-overview {
+                padding: 20px;
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+
+    </style>
+    <div th:replace="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+<div layout:fragment="main">
+
+    <header class="page-header">
+        <h2 class="page-title">Programación de cursos: <span class="ciclo-badge" th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+
+        <div class="controls-wrapper">
+
+            <div class="filter-group">
+                <span class="section-label">Departamento:</span>
+                <select id="departamentoSuperiorSelect" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="1">Estudios Generales</option>
+                    <option value="2">Pre Grado</option>
+                    <option value="3">Actv. Culturales</option>
+                    <option value="4">EPG</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for Reports -->
+            <div class="dropdown">
+                <button class="btn-reports dropdown-toggle" type="button" id="reportsDropdown" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-file"></i>
+                    Reportes
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <li><a th:href="@{'/academico/programacion/resumen/exportExcel'}">Record Programacion</a></li>
+                    <li><a href="#">Estadísticas por Departamento</a></li>
+                    <li><a href="#">Cursos sin Docente</a></li>
+                </ul>
+            </div>
+
+            <button class="btn-reports" onclick="window.history.back()">
+                <i class="fa fa-backward"></i>
+                Regresar
+            </button>
+
+            <div id="loadingIndicator" class="loading-indicator">
+                <i class="fas fa-circle-notch fa-spin spinner"></i>
+                Cargando...
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-overview">
+        <div class="stats-header">
+            <div class="stats-actions">
+                <button id="refreshStats" class="btn-reports">
+                    <i class="fa fa-spinner"></i>
+                    Actualizar
+                </button>
+                <div id="statsLoadingIndicator" class="loading-indicator">
+                    <i class="fa fa-circle-notch spinner"></i>
+                    Actualizando...
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fa fa-pie-chart"></i>
+                </div>
+                <div id="totalCursosValue" class="stat-value">1,248</div>
+                <div class="stat-label">Total Programados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+12% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card active">
+                <div class="stat-icon">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <div id="cursosActivosValue" class="stat-value">987</div>
+                <div class="stat-label">Activos</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+8% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card blocked">
+                <div class="stat-icon">
+                    <i class="fa fa-ban"></i>
+                </div>
+                <div id="cursosBloqueadosValue" class="stat-value">45</div>
+                <div class="stat-label">Bloqueados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-15% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
+                <div id="cursosAnuladosValue" class="stat-value">23</div>
+                <div class="stat-label">Anulados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-5% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fa fa-user-secret"></i>
+                </div>
+                <div id="cursosSinDocenteValue" class="stat-value">18</div>
+                <div class="stat-label">Sin Docente</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+3% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-icon">
+                    <i class="fa fa-compress"></i>
+                </div>
+                <div id="cursosFusionadosValue" class="stat-value">34</div>
+                <div class="stat-label">Cursos Fusionados</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-up trend-up"></i>
+                    <span>+7% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="stat-card secondary">
+                <div class="stat-icon">
+                    <i class="fa fa-user-circle"></i>
+                </div>
+                <div id="cursosMenosAlumnosValue" class="stat-value">67</div>
+                <div class="stat-label">Menos 6 Alumnos</div>
+                <div class="stat-trend">
+                    <i class="fa fa-arrow-down trend-down"></i>
+                    <span>-10% vs mes anterior</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-footer">
+            <div class="last-updated">
+                <i class="fa fa-clock-o"></i>
+                <span>Última actualización: <span id="lastUpdated">23/05/2025 14:30</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fa fa-folder-open-o"></i>
+        <h3>No hay departamentos disponibles</h3>
+        <p>No se encontraron departamentos que coincidan con los criterios de búsqueda.</p>
+    </div>
+
+    <div id="dynaTable" class="row footer"></div>
+
+    <div class="pagination-info">
+        Mostrando <span id="recordsFrom">1</span> - <span id="recordsTo">12</span> de <span id="totalRecords">0</span> departamentos
+    </div>
+
+    <script id="templateResumx" type="text/x-template" class="hide">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3">
+            <div class="department-card" rel="{{:idDep}}">
+                <div class="department-header">
+                    <h4 class="department-name" title="{{:nombreDep}}">{{:nombreDep}}</h4>
+                    <div class="summary-counts">
+                        <span class="total-count"><i class="fa fa-book"></i> {{:cantidadCursos}} Cursos</span>
+                        <span class="total-count"><i class="fa fa-users"></i> {{:cantidadGrupos}} Grupos</span>
+                    </div>
+                </div>
+
+                <div class="status-grid">
+                    <!-- Primera fila: Estados principales -->
+                    <div class="status-item status-scheduled">
+                        <span class="status-count">{{:cantidadTotal}}</span>
+                        <span class="status-label">Programados</span>
+                    </div>
+                    <div class="status-item status-active">
+                        <span class="status-count">{{:cantidadActivos}}</span>
+                        <span class="status-label">Activos</span>
+                    </div>
+                    <div class="status-item status-blocked">
+                        <span class="status-count">{{:cantidadBloqueados}}</span>
+                        <span class="status-label">Bloqueados</span>
+                    </div>
+
+                    <!-- Segunda fila: Estados secundarios -->
+                    <div class="status-item status-canceled">
+                        <span class="status-count">{{:cantidadCancelados}}</span>
+                        <span class="status-label">Cancelados</span>
+                    </div>
+                    <div class="status-item status-annulled">
+                        <span class="status-count">{{:cantidadAnulados}}</span>
+                        <span class="status-label">Anulados</span>
+                    </div>
+                    <div class="status-item status-merged">
+                        <span class="status-count">{{:cantidadFusionados}}</span>
+                        <span class="status-label">Fusionados</span>
+                    </div>
+                </div>
+
+                <!-- Sección para alertas/indicadores especiales -->
+                <div class="alerts-section">
+                    <div class="alert-item low-enrollment" title="Cursos con menos de 6 alumnos">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span class="alert-count">{{:cursosMenosAlumnos}}</span>
+                        <span class="alert-label">Baja matrícula</span>
+                    </div>
+                    <div class="alert-item no-teacher" title="Cursos sin docente asignado">
+                        <i class="fa fa-user-times"></i>
+                        <span class="alert-count">{{:cursosSinDocente}}</span>
+                        <span class="alert-label">Sin docente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>
+
+<div class="footer"></div>
+
+<div layout:fragment="js">
+    <div th:replace="_layout/includes :: javascript-dynatable"></div>
+    <script th:src="@{/app/academico/programacion/resumenProgramacion.js}" charset="utf-8"></script>
+</div>
+</body>
+
+</html>

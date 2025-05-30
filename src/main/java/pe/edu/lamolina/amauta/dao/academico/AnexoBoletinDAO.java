@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.resumen.DepartamentoCursosProgramadosDTO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -15,6 +16,8 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
     AnexoResumen resumen();
 
     List<AnexoBoletin> allByDynatable(DynatableFilter filter);
+    List<AnexoBoletin> allHijosByDynatable(DynatableFilter filter,CicloAcademico ciclo);
+    List<DepartamentoCursosProgramadosDTO> allCursosProgramadosByAnexo(List<Long> ids, CicloAcademico cicloAcademico, AnexoBoletin departamentoAcademico);
 
     List<AnexoBoletin> allAnexosSuperiores();
 

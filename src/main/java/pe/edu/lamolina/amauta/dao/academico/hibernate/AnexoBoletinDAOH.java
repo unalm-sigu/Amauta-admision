@@ -1,12 +1,18 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.resumen.DepartamentoCursosProgramadosDTO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -105,6 +111,112 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
         return all(sql);
+    }
+
+    @Override
+    public List<AnexoBoletin> allHijosByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+
+        Long idSuperior = null;
+        if (filter.getQueries() != null && filter.getQueries().get("departamentoSuperior") != null) {
+            Object val = filter.getQueries().get("departamentoSuperior");
+            try {
+                idSuperior = val instanceof Number
+                        ? ((Number) val).longValue()
+                        : Long.parseLong(val.toString());
+            } catch (NumberFormatException e) {
+                System.out.printf("ERROR: %s\n", e.getMessage());
+            }
+        }
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AnexoBoletin.class, "ab")
+                .leftJoin("departamentoAcademico da", "anexoSuperior abs")
+                .isNotNull("abs.id")
+                .filter("ab.estado", EstadoEnum.ACT)
+                .searchFields("ab.nombre", "da.nombre","da.codigo")
+                .orderBy("abs.orden", "ab.estado", "ab.orden");
+
+        if (idSuperior != null) {
+            sql.filter("abs.id", idSuperior);
+        }
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<DepartamentoCursosProgramadosDTO> allCursosProgramadosByAnexo(List<Long> ids, CicloAcademico cicloAcademico, AnexoBoletin anexo) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" SELECT ");
+        strb.append("     bol.id as idAnexo, ");
+//        strb.append("     da.nombre as nombreDepartamento, ");
+        strb.append("     count(distinct ags.id_curso) as cantidadCursos, ");
+        strb.append("     count(distinct ags.id) as cantidadGrupos, ");
+        strb.append("     sum(if(sec.estado='ACT',1,0)) as activos, ");
+        strb.append("     sum(if(sec.estado='ANU',1,0)) as anulados, ");
+        strb.append("     sum(if(sec.estado='CAN',1,0)) as cancelados, ");
+        strb.append("     sum(if(sec.estado='FUS',1,0)) as fusionados, ");
+        strb.append("     sum(if(sec.estado='INA',1,0)) as inactivos, ");
+        strb.append("     sum(if(sec.estado='BLO',1,0)) as bloqueados, ");
+        strb.append("     count(*) as totalSecciones, ");
+        strb.append("     SUM(CASE ");
+        strb.append("       WHEN sec.matriculados < 6 THEN 1 ");
+        strb.append("       ELSE 0 ") ;
+        strb.append("     END) AS cursosMenos6Alumnos, ");
+        strb.append("     SUM(CASE ");
+        strb.append("       WHEN sec.estado = 'ACT' AND ( ");
+        strb.append("               SELECT COUNT(*) ");
+        strb.append("       FROM aca_docente_seccion dsec ");
+        strb.append("        LEFT JOIN aca_docente doc ON dsec.id_docente = doc.id ");
+        strb.append("       WHERE dsec.id_seccion = sec.id AND doc.id_persona IS NULL ");
+        strb.append("       ) > 0 THEN 1 ");
+        strb.append("       ELSE 0 ");
+        strb.append("       END) AS cursosSinDocente ");
+        strb.append(" FROM aca_anexo_boletin bol ");
+        strb.append(" join aca_grupo_seccion ags on bol.id = ags.id_anexo_boletin");
+        strb.append(" join aca_seccion sec on ags.id = sec.id_grupo_seccion ");
+        strb.append(" join aca_ciclo_academico aca on ags.id_ciclo = aca.id ");
+        strb.append(" join aca_curso cur on ags.id_curso = cur.id ");
+        strb.append(" left join aca_departamento_academico ada on cur.id_departamento_academico = ada.id ");
+        strb.append(" where aca.id = :prm_ciclo ");
+        strb.append(" and bol.id in (:prm_departamentos) ");
+
+        if (anexo != null) {
+            strb.append(" and bol.id = :prm_departamento ");
+        }
+        strb.append(" and sec.tipo_seccion <> 'TCUR' ");
+
+        strb.append(" GROUP BY bol.id ");
+
+        SQLQuery query = getCurrentSession().createSQLQuery(strb.toString());
+        query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+        if (anexo != null) {
+            query.setParameter("prm_departamento", anexo.getId());
+        }
+        query.setParameterList("prm_departamentos", ids);
+
+        List<DepartamentoCursosProgramadosDTO> result = new ArrayList<>();
+        List<Map> lstData = query.list();
+
+        for (Map map : lstData) {
+            result.add(new DepartamentoCursosProgramadosDTO(
+                    ((Number) map.get("idAnexo")).longValue(),
+                    ((Number) map.get("cantidadCursos")).longValue(),
+                    ((Number) map.get("cantidadGrupos")).longValue(),
+                    ((Number) map.get("activos")).longValue(),
+                    ((Number) map.get("anulados")).longValue(),
+                    ((Number) map.get("cancelados")).longValue(),
+                    ((Number) map.get("fusionados")).longValue(),
+                    ((Number) map.get("inactivos")).longValue(),
+                    ((Number) map.get("bloqueados")).longValue(),
+                    ((Number) map.get("totalSecciones")).longValue(),
+                    ((Number) map.get("cursosMenos6Alumnos")).longValue(),
+                    ((Number) map.get("cursosSinDocente")).longValue()
+            ));
+        }
+
+        return result;
     }
 
     @Override
