@@ -185,7 +185,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona per", "tr.cicloAcademico")
                 .filter("tb.resolucionFacultad", resolucion)
-                .orderBy("per.paterno");
+                .orderBy("per.paterno","per.materno","per.nombres");
         return all(sql);
     }
 
@@ -197,7 +197,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .join("al.carrera car", "per.tipoDocumento", "car.facultad")
                 .left("al.situacionAcademica")
                 .filter("tb.estadofacultad", TramiteEstadoEnum.SOL)
-                .orderBy("per.paterno");
+                .orderBy("per.paterno","per.materno","per.nombres");
 
         return all(sql);
     }
