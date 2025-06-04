@@ -1310,6 +1310,9 @@ public class VerificadorServiceImp implements VerificadorService {
             if (rol.getCodigoEnum() == RolEnum.TRAM_DOCUM_OERA) {
                 return true;
             }
+            if (rol.getCodigoEnum() == RolEnum.ADMIN_NETWORKING){
+                return true;
+            }
         }
         return false;
     }
@@ -1353,6 +1356,16 @@ public class VerificadorServiceImp implements VerificadorService {
         }
         if (oficina.getJefeEncargado() != null && oficina.getJefeEncargado().equals(ds.getPersona())) {
             return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdminNetworking(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.ADMIN_NETWORKING) {
+                return true;
+            }
         }
         return false;
     }
