@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +100,7 @@ public class PromedioServiceImp implements PromedioService {
     private final Integer VECES_TRIKA = 3;
     private final Integer CICLO_INICIA_TRIKA = 200320;
     private final Integer CICLO_INICIA_SUSPENCION_TRIKA = 201810;
+    private static final Pattern SOLO_LETRAS = Pattern.compile("^\\p{L}+$");
 
     @Async
     @Override
@@ -1229,12 +1231,11 @@ public class PromedioServiceImp implements PromedioService {
                 //                    this.printLogger("Caso 36", showLog);
                 //
                 //                }
-                else if(alumnoCiclo.isAprobado() && alumnoCiclo.isGenerarTrika() && !alumnoCiclo.isTrikaSeparado() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA){
+                else if (alumnoCiclo.isAprobado() && alumnoCiclo.isGenerarTrika() && !alumnoCiclo.isTrikaSeparado() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
                     alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
                     this.printLogger("Caso 37", showLog);
-                }
-                else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
+                } else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
                     this.printLogger("Caso 38", showLog);
 
@@ -1263,11 +1264,11 @@ public class PromedioServiceImp implements PromedioService {
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
                 this.printLogger("Caso 42", showLog);
 
-            }  else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.ANRES) {
+            } else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.ANRES) {
                 this.printLogger("Caso 43-1", showLog);
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
                 return situacionAcademicaFinal;
-            }else {
+            } else {
                 this.printLogger("Caso 43", showLog);
                 situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(
                         alumnoCiclo,
@@ -1891,11 +1892,20 @@ public class PromedioServiceImp implements PromedioService {
             traza += " - alternos=" + ObjectUtil.getParentTree(alumnoCiclo, "ciclosAlternosSinEstudiar") + "}";
             this.printSystem(traza, showError);
 
-            if (cicloEgreso != null && cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt()) {
-                alumnoCiclo.setSituacionInicio(new SituacionAcademica(S_E));
-                this.printSystem("egresado", showError);
+            log.debug("cicloEgreso != null {}", cicloEgreso != null);
+            log.debug("cicloAcademico.getCodigoInt() {}", cicloAcademico.getCodigoInt());
+            log.debug("cicloEgreso.getCodigoInt() {}", cicloEgreso.getCodigoInt());
+            log.debug("cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt() {}", cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt());
 
-            } else if (alumnoCicloAnterior.getSituacionFinal().isDesertor()) {
+//          LA SITUACIÓN ACADEMICA DE EGRESADO SE PONE EN ACA_ALUMNO CUANDO SALE SU BACHILLER Y EN ACA_ALUMNO_CICLO va su situación academica final como acabo en su 
+//          en su ultimo ciclo
+
+//            if (cicloEgreso != null && cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt()) {
+//                alumnoCiclo.setSituacionInicio(new SituacionAcademica(S_E));
+//                this.printSystem("egresado", showError);
+//
+//            } else 
+            if (alumnoCicloAnterior.getSituacionFinal().isDesertor()) {
                 this.printSystem("desertor", showError);
                 if (alumnoCiclo.getEstadoEnum() == MAT) {
                     alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
@@ -1953,30 +1963,52 @@ public class PromedioServiceImp implements PromedioService {
         boolean separadoTrika = alumnoCiclo.isTrikaSeparado();
 
         SituacionAcademica situacionAcademicaFinal = null;
-        if (cicloEgreso != null && cicloAcademico.getCodigoInt() >= cicloEgreso.getCodigoInt()) {
-            situacionAcademicaFinal = new SituacionAcademica(S_E);
-        }
+
+//          LA SITUACIÓN ACADEMICA DE EGRESADO SE PONE EN ACA_ALUMNO CUANDO SALE SU BACHILLER Y EN ACA_ALUMNO_CICLO va su situación academica final como acabo en su 
+//          en su ultimo ciclo
+
+//        if (cicloEgreso != null && cicloAcademico.getCodigoInt() >= cicloEgreso.getCodigoInt()) {
+//            situacionAcademicaFinal = new SituacionAcademica(S_E);
+//        }
         if (situacionAcademicaFinal == null) {
-            situacionAcademicaFinal = this.calculateSitutacionAcadFinal(
-                    alumno,
-                    cicloAcademico,
-                    alumnoCiclo,
-                    alumnoCicloAnterior,
-                    alumnoCiclo.getSituacionInicio(),
-                    ciclosEstudiados,
-                    alumnoCicloAnteriorInha, showError);
+            List<AlumnoCicloCurso> soloNotaLetras = alumnosCiclosCursoActual.stream()
+                    .filter(x -> notaEsSoloLetras(x.getNota()))
+                    .collect(Collectors.toList());
+
+            if (alumno.isPregrado() && !soloNotaLetras.isEmpty() && !alumnoCiclo.isAprobado() && alumnoCiclo.getCreditosAprobadosCiclo() > 0
+                    && (!alumnoCiclo.getSituacionFinal().isEgresado() || !alumnoCiclo.getSituacionFinal().isGraduado())) {
+                situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
+                log.debug("situacionAcademicaFinal igual que su situación inicial :::: {}", situacionAcademicaFinal.getNombre());
+                log.debug("soloNotaLetras:::: {}", !soloNotaLetras.isEmpty());
+                log.debug("Desaprobado:::: {}", !alumnoCiclo.isAprobado());
+            } else {
+
+                situacionAcademicaFinal = this.calculateSitutacionAcadFinal(
+                        alumno,
+                        cicloAcademico,
+                        alumnoCiclo,
+                        alumnoCicloAnterior,
+                        alumnoCiclo.getSituacionInicio(),
+                        ciclosEstudiados,
+                        alumnoCicloAnteriorInha, showError);
+            }
+            alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
+
+            String sitFinal = situacionAcademicaFinal == null ? "" : situacionAcademicaFinal.getCodigo();
+            this.printSystem("generarTrika=" + generarTrika + " - separadoTrika=" + separadoTrika + " - sitFinal=" + sitFinal, showError);
+
+            alumno.setCicloActivo(alumnoCiclo.getCicloAcademico());
+            alumno.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
+            alumno.setCreditosConvalidados(alumnoCiclo.getCreditosConvalidadosAcumulados());
+            alumno.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
+            alumno.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
+            alumno.setPuntaje(alumnoCiclo.getPuntajeAcumulado());
         }
-        alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
 
-        String sitFinal = situacionAcademicaFinal == null ? "" : situacionAcademicaFinal.getCodigo();
-        this.printSystem("generarTrika=" + generarTrika + " - separadoTrika=" + separadoTrika + " - sitFinal=" + sitFinal, showError);
+    }
 
-        alumno.setCicloActivo(alumnoCiclo.getCicloAcademico());
-        alumno.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
-        alumno.setCreditosConvalidados(alumnoCiclo.getCreditosConvalidadosAcumulados());
-        alumno.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
-        alumno.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
-        alumno.setPuntaje(alumnoCiclo.getPuntajeAcumulado());
+    private boolean notaEsSoloLetras(String nota) {
+        return nota != null && SOLO_LETRAS.matcher(nota).matches();
     }
 
     private void procesarInformacionAlumnoCiclo(
