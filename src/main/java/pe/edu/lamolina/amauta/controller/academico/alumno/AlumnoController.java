@@ -399,6 +399,9 @@ public class AlumnoController {
             @RequestParam("origen") String origen,
             Model model, HttpSession session) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Boolean isAdminNetworking = verificadorService.isAdminNetworking(ds);
+
         List<String> codigos = new ArrayList();
         codigos.add(PRE.name());
         codigos.add(EPG.name());
@@ -415,6 +418,7 @@ public class AlumnoController {
         model.addAttribute("alumno", alumno);
         model.addAttribute("alumnoJson", createAlumnoFotoJson(alumno));
         model.addAttribute("helper", new AlumnoHelper());
+        model.addAttribute("isAdminNetworking", isAdminNetworking);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
 
         return "academico/alumno/fisico/alumnoFisico";

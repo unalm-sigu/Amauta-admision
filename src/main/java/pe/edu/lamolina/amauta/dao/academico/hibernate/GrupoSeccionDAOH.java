@@ -1,10 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -199,6 +195,28 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
+        return all(sql);
+    }
+
+    @Override
+    public List<GrupoSeccion> allByDynatableCicloAnexo(CicloAcademico ciclo, AnexoBoletin anexo, DynatableFilter filter) {
+        Octavia sqlSub = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gssub", "docente doc")
+                .join("doc.persona per")
+                .filter("ds.principal", 1)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.PCUR);
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu", "anexoBoletin bol")
+                .leftJoin("planCalificacion pc", "cu.planCalificacion pcc")
+                .filter("ca.id", ciclo)
+                .filter("bol.id", anexo)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .searchFields("gs.codigo2", "cu.nombre", "cu.codigo")
+                .orderBy("cu.nombre", "gs.id desc");
+
         return all(sql);
     }
 

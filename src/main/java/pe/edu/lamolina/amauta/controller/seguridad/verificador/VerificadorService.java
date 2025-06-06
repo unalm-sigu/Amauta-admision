@@ -107,4 +107,6 @@ public interface VerificadorService {
 
     boolean esJefeCarrera(DataSessionPivot ds, Carrera carrera);
 
+    boolean isAdminNetworking(DataSessionPivot ds);
+
 }

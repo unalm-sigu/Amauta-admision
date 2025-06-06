@@ -46,7 +46,8 @@
                                                 chunk-enabled="true"
                                                 v-on:input-filter="inputFilter"
                                                 v-on:input-file="inputFile"
-                                                ref="upload">
+                                                ref="upload"
+                                                th:disabled="${isAdminNetworking}">
                                                 <span class="btn btn-primary m-b-md m-t-md"
                                                       v-if="!$refs.upload || !$refs.upload.active"
                                                       v-on:click="$refs.upload.active = true">
@@ -105,7 +106,7 @@
                                             <option th:each="tipo : ${documentos}"
                                                     th:value="${tipo.id}"
                                                     th:selected="${alumno.persona.tipoDocumento!=null?alumno.persona.tipoDocumento.id==tipo.id:0}"
-                                                    th:text="${tipo.nombre}"></option>
+                                                    th:text="${tipo.nombre}" ></option>
                                         </select>
 
                                     </div>
@@ -119,7 +120,9 @@
                                         <input type="text"
                                                name="persona.numeroDocIdentidad"
                                                th:value="${alumno.persona.numeroDocIdentidad}"
-                                               class="form-control" required="true"></input>
+                                               class="form-control" required="true"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
 
                                     </div>
                                 </div>
@@ -132,7 +135,9 @@
                                         <input type="text"
                                                name="persona.paterno"
                                                th:value="${alumno.persona.paterno}"
-                                               class="form-control"></input>
+                                               class="form-control"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
 
                                     </div>
                                 </div>
@@ -145,7 +150,9 @@
                                         <input type="text"
                                                name="persona.materno"
                                                th:value="${alumno.persona.materno}"
-                                               class="form-control"></input>
+                                               class="form-control"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
                                     </div>
                                 </div>
 
@@ -157,7 +164,9 @@
                                                name="persona.nombres"
                                                required="true"
                                                th:value="${alumno.persona.nombres}"
-                                               class="form-control"></input>
+                                               class="form-control"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
                                     </div>
                                 </div>
 
@@ -170,6 +179,7 @@
                                                     data-trim-value="true"
                                                     name="persona.emailCompania" id="emailCompania"
                                                     th:value=" ${alumno.persona.emailCompania}"
+                                                    th:readonly="${isAdminNetworking}"
                                                     ></input>
                                         </div>
                                     </div>
@@ -181,6 +191,7 @@
                                                     data-trim-value="true"
                                                     name="persona.emailCorporativo" id="emailCorporativo"
                                                     th:value=" ${alumno.persona.emailCorporativo}"
+                                                    th:readonly="${isAdminNetworking}"
                                             ></input>
                                         </div>
                                     </div>
@@ -201,7 +212,7 @@
                                                                 name="persona.sexo"
                                                                 id="inlineCheckbox1"
                                                                 value="M"
-                                                                th:checked="${alumno.persona.sexo=='M'}" > Masculino</input>                                                    </label>
+                                                                th:checked="${alumno.persona.sexo=='M'}"> Masculino</input>                                                    </label>
 
                                                 </div>
                                                 <div class="col-sm-5">
@@ -212,7 +223,7 @@
                                                                 name="persona.sexo"
                                                                 id="inlineCheckbox2"
                                                                 value="F"
-                                                                th:checked="${alumno.persona.sexo=='F'}" > Femenino</input>
+                                                                th:checked="${alumno.persona.sexo=='F'}">Femenino</input>
                                                     </label>
 
                                                 </div>
@@ -236,7 +247,9 @@
                                                th:attr="codigo=${helper.showCodigoPais(alumno.persona.paisNacer)}"
                                                th:rel="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.nombre}"
                                                th:value="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.id}"
-                                               required="true"></input>
+                                               required="true"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
                                     </div>
                                 </div>
 
@@ -250,8 +263,9 @@
                                                class="form-control input-s-full buscar-distrito"
                                                name="persona.ubicacionNacer.id"
                                                data-trigger="change"
+                                               th:readonly="${isAdminNetworking}"
                                                th:rel="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.distrito}"
-                                               th:value="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.id}"></input>
+                                               th:value="${alumno.persona.ubicacionNacer != null}? ${alumno.persona.ubicacionNacer.id}" ></input>
                                         <span id="mensaje"></span>
 
                                     </div>
@@ -267,10 +281,10 @@
                                                    data-parsley-errors-container="#errorfechaNacer"
                                                    th:value="${alumno.persona.fechaNacer}? ${#dates.format(alumno.persona.fechaNacer,'dd/MM/yyyy')}"
                                                    class="form-control"
-                                                   name="persona.fechaNacer" required="true" ></input>
+                                                   name="persona.fechaNacer" required="true" th:readonly="${isAdminNetworking}" ></input>
 
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            <span class="input-group-addon" >
+                                                <i class="fa fa-calendar" aria-hidden="true" ></i>
                                             </span>
 
                                         </div>
@@ -290,7 +304,9 @@
                                                data-trigger="change"
                                                th:rel="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.nombre}"
                                                th:value="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.id}"
-                                               required="true"></input>
+                                               required="true"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
 
                                     </div>
                                 </div>
@@ -353,7 +369,9 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.paisDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.paisDomicilio.id')}"
-                                               required="true"></input>
+                                               required="true"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
 
                                     </div>
                                 </div>
@@ -370,7 +388,9 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.id')}"
-                                               required="true"></input>
+                                               required="true"
+                                               th:readonly="${isAdminNetworking}"
+                                        ></input>
 
                                     </div>
                                 </div>
@@ -384,7 +404,7 @@
                                                class="form-control"
                                                name="persona.direccion"
                                                th:value="${alumno.persona.direccion}"
-                                               data-trigger="change" required="true" ></input>
+                                               data-trigger="change" required="true" th:readonly="${isAdminNetworking}"></input>
 
                                     </div>
                                 </div>
