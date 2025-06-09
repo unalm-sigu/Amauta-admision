@@ -237,6 +237,51 @@ new Vue({
             //     cambioCarrera: false
             // };
         },
+        eliminarTodos() {
+            let $vue = this;
+
+            let modal = bootbox.confirm({
+                message: "¿Está seguro que desea eliminar todos los registros?",
+                buttons: {
+                    confirm: { label: 'Sí, eliminar', className: "btn-danger btn-modal btn-procesar" },
+                    cancel: { label: 'Cancelar', className: "btn-link btn-modal" }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Eliminando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        AXIOS.post(APP.url(`academico/becaspronabec/eliminarTodos`))
+                            .then(response => {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Sí, eliminar');
+
+                                if (response.data.success) {
+                                    notify(response.data.message, "success");
+                                    modal.modal("hide");
+
+                                    setTimeout(() => {
+                                        location.reload();
+                                    }, 2500);
+
+                                } else {
+                                    notify(response.data.message || "Ocurrió un error", "error");
+                                }
+                            })
+                            .catch(() => {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Sí, eliminar');
+                                notify(Messages.errorComunicacion, "error");
+                            });
+
+                        return false;
+                    }
+                }
+            });
+        }
+
+
+
 
 
     }

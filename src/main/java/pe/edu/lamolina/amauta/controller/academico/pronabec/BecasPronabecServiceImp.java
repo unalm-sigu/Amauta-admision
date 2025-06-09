@@ -227,6 +227,12 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         becasPronabecDAO.updateResolucionFile(informacionBecaDB);
     }
 
+    @Override
+    @Transactional
+    public void eliminarTodosLosBecados() {
+        becasPronabecDAO.deleteAll();
+    }
+
     private void procesarArchivo(MultipartFile file, List<String> observados, List<InformacionBeca> pronabec, DataSessionPivot ds) {
         List<InformacionBeca> becadosPronabec = becasPronabecDAO.all();
         Map<String, InformacionBeca> mapBecadosPronabec = TypesUtil.convertListToMap("key", becadosPronabec);

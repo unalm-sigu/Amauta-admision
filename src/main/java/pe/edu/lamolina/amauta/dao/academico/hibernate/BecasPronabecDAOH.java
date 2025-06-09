@@ -390,5 +390,12 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
         return (List<BecadosFilterBean>) query.list();
     }
 
+    @Override
+    public void deleteAll() {
+        String sql = "TRUNCATE TABLE pronabec_informacion";
+        Query query = getCurrentSession().createNativeQuery(sql);
+        query.executeUpdate();
+    }
+
 
 }
