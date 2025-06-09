@@ -1860,15 +1860,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
                     alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
                     alumnoDAO.updateColumns(alumno, "situacionAcademica");
-
-                    AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
-
-                    if (alumnoCicloDb.getSituacionFinal() == null
-                            || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
-
-                        alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                        alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
-                    }
+                    
+//                    Se comenta por que su situación academica final tiene que ser diferente a egresado o graduado para saber como quedo
+//                    AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
+//
+//                    if (alumnoCicloDb.getSituacionFinal() == null
+//                            || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
+//
+//                        alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+//                        alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
+//                    }
                 }
             }
         }
