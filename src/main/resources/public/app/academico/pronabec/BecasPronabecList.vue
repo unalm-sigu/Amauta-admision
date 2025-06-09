@@ -87,7 +87,7 @@
                         <li><a href="#" v-on:click.prevent="openEliminar(item)" class="text-danger"><i class="fa fa-trash" style="color: #ff0000;"></i> Eliminar Becado</a></li>
                         <li class="divider"></li>
                         <li><a href="#" v-on:click.prevent="openEditar(item)"><i class="fa fa-pencil text-warning"></i> Editar Becario</a></li>
-                        <li v-if="item.estado !== 'INACTIVO'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Desactivar Beca</a></li>
+<!--                        <li v-if="item.estado !== 'INACTIVO'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Desactivar Beca</a></li>-->
                         <li><a href="#" v-on:click.prevent="loadModalCondicion(item)" > <i class="fa fa-chain-broken text-warning"></i> Cambiar condicion beca</a></li>
                         <li><a href="#" v-on:click.prevent="verHistorial(item)"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
                       </ul>

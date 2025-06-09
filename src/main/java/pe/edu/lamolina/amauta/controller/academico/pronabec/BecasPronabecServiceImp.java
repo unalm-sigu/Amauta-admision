@@ -191,6 +191,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     }
 
     @Override
+    @Transactional
     public void uploadResolucionFile(InformacionBeca informacionBeca, MultipartFile file, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
