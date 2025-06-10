@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ import pe.edu.lamolina.model.pronabec.TipoBeca;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -64,8 +67,6 @@ public class BecasPronabecController {
     public DynatableResponse allBecasPronabec(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        log.debug("Iniciando controlador: allBecasPronabec");
 
         try {
 
@@ -400,4 +401,27 @@ public class BecasPronabecController {
         return response;
 
     }
+
+    @ResponseBody
+    @RequestMapping(value = "eliminarTodos", method = RequestMethod.POST)
+    public JsonResponse eliminarTodos(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            serviceBecasPronabec.eliminarTodosLosBecados();
+            response.setMessage("Todos los registros fueron eliminados correctamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
 }

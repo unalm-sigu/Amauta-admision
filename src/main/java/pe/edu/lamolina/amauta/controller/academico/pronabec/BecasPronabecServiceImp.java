@@ -191,6 +191,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     }
 
     @Override
+    @Transactional
     public void uploadResolucionFile(InformacionBeca informacionBeca, MultipartFile file, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
@@ -224,6 +225,12 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         informacionBecaDB.setEstado("INACTIVO");
         informacionBecaDB.setCondicion("PÉRDIDA DE BECA");
         becasPronabecDAO.updateResolucionFile(informacionBecaDB);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTodosLosBecados() {
+        becasPronabecDAO.deleteAll();
     }
 
     private void procesarArchivo(MultipartFile file, List<String> observados, List<InformacionBeca> pronabec, DataSessionPivot ds) {

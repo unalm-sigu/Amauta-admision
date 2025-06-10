@@ -25,5 +25,6 @@ public interface BecasPronabecService {
     List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean);
     List<BecadosFilterBean> filterAnteriorBecados(CicloAcademico cicloAcademico, BecadosFilterBean becadosFilterBean);
     void uploadResolucionFile(InformacionBeca informacionBeca, MultipartFile file, DataSessionPivot ds);
+    void eliminarTodosLosBecados();
 
 }
