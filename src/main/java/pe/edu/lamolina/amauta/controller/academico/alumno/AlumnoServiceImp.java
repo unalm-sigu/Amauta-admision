@@ -586,7 +586,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 } else {
                     this.validarEmailEmpresaConPersona(emailCompania, personaDB);
                     if (modificar) {
-                        actualizarUsuario(usuario, emailCompania, "google",ds);
+                        actualizarUsuario(usuario, emailCompania, "google", ds);
                     }
                 }
             }
@@ -596,7 +596,7 @@ public class AlumnoServiceImp implements AlumnoService {
                     usuario.setOutlook(null);
                 } else {
                     if (modificar) {
-                        actualizarUsuario(usuario, emailCorporativo, "outlook",ds);
+                        actualizarUsuario(usuario, emailCorporativo, "outlook", ds);
                     }
                 }
             }
@@ -886,6 +886,8 @@ public class AlumnoServiceImp implements AlumnoService {
             if (alumnoCiclo == null) {
                 log.debug("alumnoCicloDespues {}", trasladoBean.getCicloAcademico().getCodigo());
                 alumnoCiclo = this.saveAlumnoCiclo(alumno, tramiteTraslado.getCicloAcademico(), total, ds);
+            } else {
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.MAT);
             }
 
             if (listCursoConvalidadoNew.isEmpty() && !listCursoConvalidadoOld.isEmpty()) {

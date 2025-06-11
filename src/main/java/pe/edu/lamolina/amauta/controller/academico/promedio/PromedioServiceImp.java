@@ -1892,10 +1892,6 @@ public class PromedioServiceImp implements PromedioService {
             traza += " - alternos=" + ObjectUtil.getParentTree(alumnoCiclo, "ciclosAlternosSinEstudiar") + "}";
             this.printSystem(traza, showError);
 
-            log.debug("cicloEgreso != null {}", cicloEgreso != null);
-            log.debug("cicloAcademico.getCodigoInt() {}", cicloAcademico.getCodigoInt());
-            log.debug("cicloEgreso.getCodigoInt() {}", cicloEgreso.getCodigoInt());
-            log.debug("cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt() {}", cicloAcademico.getCodigoInt() > cicloEgreso.getCodigoInt());
 
 //          LA SITUACIÓN ACADEMICA DE EGRESADO SE PONE EN ACA_ALUMNO CUANDO SALE SU BACHILLER Y EN ACA_ALUMNO_CICLO va su situación academica final como acabo en su 
 //          en su ultimo ciclo
