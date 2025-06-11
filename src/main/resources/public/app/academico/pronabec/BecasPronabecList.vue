@@ -244,20 +244,20 @@
           </div>
         </modal-vik>
         <modal-vik ref="modalCondicion" v-bind="modalCondicion" v-bind:okaction="saveCondicion" v-bind:showaccept="false"
-                   modalsize="modal-md">
+                   modalsize="modal-lg">
           <div slot="body">
             <form id="frmResolucion">
               <div class="row">
                 <div class="col-lg-6">
                   <label>Condicion</label>
                   <div class="form-group">
-                    <span class="form-control" v-text="becadoCondicion.condicion"/>
+                    <textarea class="form-control" rows="4" readonly style="resize: none; background-color: #f8f9fa; word-wrap: break-word;">{{ becadoCondicion.condicion }}</textarea>
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <label>Situacion</label>
                   <div class="form-group">
-                    <span class="form-control" v-text="becadoCondicion.situacion"/>
+                    <textarea class="form-control" rows="4" readonly style="resize: none; background-color: #f8f9fa; word-wrap: break-word;">{{ becadoCondicion.situacion }}</textarea>
                   </div>
                 </div>
               </div>
@@ -265,13 +265,13 @@
                 <div class="col-lg-6">
                   <label>Becario</label>
                   <div class="form-group">
-                    <span class="form-control" v-text="becadoCondicion.nombre"/>
+                    <span class="form-control block" v-text="becadoCondicion.nombre" style="word-wrap: break-word; white-space: normal; height: auto; min-height: 34px;"/>
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <label>Tipo Beca</label>
                   <div class="form-group">
-                    <textarea class="form-control" rows="3" v-text="becadoCondicion.tipoBeca"></textarea>
+                    <span class="form-control block" v-text="becadoCondicion.tipoBeca" style="resize: none;"></span>
                   </div>
                 </div>
               </div>
@@ -279,7 +279,6 @@
                 <div class="col-lg-12">
                   <label>Archivo</label>
                   <div class="form-group">
-
                     <file-upload
                         extensions="gif,jpg,jpeg,png,pdf"
                         accept="image/png,image/gif,image/jpeg,application/pdf"
@@ -291,17 +290,16 @@
                         v-on:input-file="inputFile"
                         required="true"
                         ref="upload">
-                          <span class="btn btn-primary m-b-md"
+                        <button type="button"
+                                class="btn btn-primary m-b-md"
                                 v-if="!$refs.upload || !$refs.upload.active"
                                 v-on:click="$refs.upload.active = true">
-                                <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
-                          </span>
+                          <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
+                        </button>
                     </file-upload>
-
                   </div>
                 </div>
               </div>
-
             </form>
           </div>
         </modal-vik>
