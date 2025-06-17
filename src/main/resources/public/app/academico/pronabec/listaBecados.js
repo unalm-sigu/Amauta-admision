@@ -39,6 +39,7 @@ new Vue({
             electivo_matriculado: false,
             se_matriculo:'no',
         },
+        cicloAcademicoError: false,
     },
     components: {
         becasList: BecasList,
@@ -179,6 +180,14 @@ new Vue({
             if (!form.parsley().validate()) {
                 return;
             }
+
+            this.cicloAcademicoError = false;
+
+            if (this.filtroExcel.cicloActual === 'no' && !this.filtroExcel.ciclo_academico) {
+                this.cicloAcademicoError = true;
+                return;
+            }
+
             let urll = '';
             $vue.processreporte = true;
 
