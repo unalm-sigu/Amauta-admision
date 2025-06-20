@@ -22,6 +22,7 @@ import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosCiclo
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.BecadosFilterExcelView;
 import pe.edu.lamolina.amauta.controller.academico.pronabec.reporte.RecordNotasBecadosExcelView;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.general.Persona;
@@ -30,6 +31,7 @@ import pe.edu.lamolina.model.pronabec.TipoBeca;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +140,63 @@ public class BecasPronabecController {
                 node.put("fechaFin", TypesUtil.getStringDate(informacionBeca.getFechaFin(), "dd/MM/yyyy"));
                 array.add(node);
             }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "histoAlumno")
+    public JsonResponse historialAlumnos(@RequestParam("dni") String dni, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+//            ObjectUtil.printAttr(infoBeca);
+////            Long dni = infoBeca.getId();
+////            String dniStr = String.format("%08d", dni);
+//            String dni = infoBeca.getPersona().getNumeroDocIdentidad();
+            List<Alumno> alumnos = serviceBecasPronabec.getHistorialAlumnos(dni);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for (Alumno alumn : alumnos) {
+                ObjectNode node = JsonHelper.createJson(alumn, JsonNodeFactory.instance, true,
+                        new String[]{
+                                "id", "codigo", "estado", "estadoEnum",
+                                "promedioAcumulado", "creditosCursados", "creditosAprobados",
+                                "persona.id",
+                                "persona.apellidosNombres",
+                                "persona.rutaFoto",
+                                "persona.foto",
+                                "persona.sexo",
+                                "persona.tipoFoto",
+                                "persona.tipoDocumento.simbolo",
+                                "persona.numeroDocIdentidad",
+                                "persona.telefono",
+                                "persona.celular",
+                                "persona.email",
+                                "persona.emailCompania",
+                                "carrera.nombre",
+                                "carrera.codigo",
+                                "carrera.tipoEnum",
+                                "carrera.tipo",
+                                "carrera.facultad.codigo",
+                                "carrera.facultad.nombre",
+                                "modalidadEstudio.codigo",
+                                "situacionAcademica.codigo",
+                                "situacionAcademica.nombre",
+                                "modalidadEstudio.nombre",
+                                "cicloIngreso.descripcion",
+                                "cicloActivo.descripcion"
+                        });
+
+                array.add(node);
+            }
+
             response.setData(array);
             response.setSuccess(Boolean.TRUE);
 

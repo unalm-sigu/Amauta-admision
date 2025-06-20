@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.pronabec.TipoBeca;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.*;
@@ -77,6 +78,18 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> historialAlumno(String dni) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "al")
+                .join("persona per", "carrera ca", "modalidadEstudio moe", "ca.facultad fac", "ca.modalidadEstudio")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .filter("per.numeroDocIdentidad", "like", dni)
+                .orderBy("al.id desc");
+
         return sql.all(getCurrentSession());
     }
 

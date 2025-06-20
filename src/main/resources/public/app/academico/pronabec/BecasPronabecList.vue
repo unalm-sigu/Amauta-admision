@@ -90,6 +90,7 @@
 <!--                        <li v-if="item.estado !== 'INACTIVO'"><a href="#" v-on:click.prevent="anular(item)"><i class="fa fa-ban text-secondary"></i> Desactivar Beca</a></li>-->
                         <li><a href="#" v-on:click.prevent="loadModalCondicion(item)" > <i class="fa fa-chain-broken text-warning"></i> Cambiar condicion beca</a></li>
                         <li><a href="#" v-on:click.prevent="verHistorial(item)"><i class="fa fa-history text-info"></i> Historial Becas</a></li>
+                        <li><a href="#" v-on:click.prevent="verHistoAlumno(item)"><i class="fa fa-user text-warning"></i>Historial Alumno</a></li>
                       </ul>
                     </div>
                   </td>
@@ -243,6 +244,96 @@
             </div>
           </div>
         </modal-vik>
+        <modal-vik ref="modalAlumno"
+                   v-bind="modalAlumno" modalsize="modal-lg" >
+
+          <div slot="body">
+            <div class="panel padder-v">
+              <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                  <th class="col-md-4" colspan="2"></th>
+                  <th class="col-md-3 text-center">Programa</th>
+                  <th class="col-md-3 text-center v-middle">Situación Académica</th>
+                  <th class="col-md-1 text-center v-middle">Promedios</th>
+                  <th class="col-md-1 text-center v-middle">Estado</th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in alumnoHistorial">
+                  <td class="v-middle">
+                    <div class="pull-left">
+                      <div v-if="item.persona.foto">
+                        <img class="img-foto-tempo img-responsive img-thumbnail  img-circle" v-bind:src="item.persona.foto" />
+                      </div>
+
+                      <div v-else="">
+                        <img v-if="item.persona.sexo == 'M'" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/male.png}" />
+                        <img v-else-if="item.persona.sexo == 'F'" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/female.png}" />
+                        <img v-else="" class="img-foto-tempo img-responsive img-thumbnail img-circle" th:src="@{/phobos/images/unalm/unknown-person.gif}" />
+                      </div>
+
+                    </div>
+                  </td>
+                  <td class="v-middle">
+                    <a class="block text-primary bold h5 m-b-xs m-t-xs" >
+                      {{item.persona.apellidosNombres}}
+                    </a>
+                    <span class="block">
+                                                        Matrícula: {{item.codigo}}
+                                                    </span>
+                    <small v-if="item.persona.numeroDocIdentidad != '' " class="block bold">
+                      {{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}}
+                    </small>
+                  </td>
+
+                  <td class="v-middle text-center">
+                                                    <span v-if="verTipoCarrera(item)"
+                                                          class="block text-info bold">{{item.carrera.tipoEnum.value}} en</span>
+                    <span class="block text-success">{{item.carrera.nombre}}</span>
+
+                    <span v-if="verFacultad(item)" class="block">Facultad de {{item.carrera.facultad.nombre}}</span>
+                    <small class="block bold">{{item.modalidadEstudio.nombre}}</small>
+                  </td>
+
+                  <td class="v-middle text-center">
+                    <span class="block h5 text-primary m-t-xs m-b-xs">{{item.situacionAcademica.nombre}}</span>
+                    <span class="block"><b>Ingresó:</b> {{item.cicloIngreso.descripcion}}</span>
+                    <span v-if="item.cicloActivo.descripcion != '' "
+                          class="block"><b>Último ciclo:</b> {{item.cicloActivo.descripcion}}</span>
+                  </td>
+
+                  <td class="v-middle text-center">
+                    <span class="block"><b>ppa:</b> {{item.promedioAcumulado}}</span>
+                    <span class="block"><b>cca:</b> {{item.creditosCursados}}</span>
+                    <span class="block"><b>capa:</b> {{item.creditosAprobados}}</span>
+                  </td>
+
+                  <td class="text-center v-middle">
+                                                    <span class="clear" v-if="item.estadoEnum">
+                                                        <a v-if="item.estado == 'ANU' "
+                                                           href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='item.motivo'>
+                                                            <span class="label label-danger" >{{item.estadoEnum.value}} </span>
+                                                        </a>
+                                                        <span v-else="" class="label label-success">{{item.estadoEnum.value}} </span>
+                                                    </span>
+                  </td>
+
+                  <td class="v-middle">
+                    <div class="actions">
+                      <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                      <ul class="dropdown-menu pull-right">
+                        <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </modal-vik>
         <modal-vik ref="modalCondicion" v-bind="modalCondicion" v-bind:okaction="saveCondicion" v-bind:showaccept="false"
                    modalsize="modal-lg">
           <div slot="body">
@@ -341,13 +432,21 @@ module.exports={
       modalHistorial: VUE_MODAL.structFormAjax({
         id: 'modalHistorial',
         header: true,
-        title: 'Historial Becado',
+        title: 'Historial Becado PRONABEC',
+        cancelbtn: 'Aceptar',
+        showaccept: false
+      }),
+      modalAlumno: VUE_MODAL.structFormAjax({
+        id: 'modalAlumno',
+        header: true,
+        title: 'Historial Alumno UNALM',
         cancelbtn: 'Aceptar',
         showaccept: false
       }),
       becadoEditar:{},
       becadoAnular:{},
       becadoHistorial:{},
+      alumnoHistorial: {},
       becadoCondicion: {},
       configDate: {
         format: 'DD/MM/YYYY',
@@ -358,6 +457,20 @@ module.exports={
   mounted() {
   },
   methods: {
+    verTipoCarrera(item) {
+      return (item.carrera.tipo == "MAE" || item.carrera.tipo == "DOC");
+    },
+    verFacultad(item) {
+      return (item.modalidadEstudio.codigo == "PRE" && item.carrera.codigo != item.carrera.facultad.codigo);
+    },
+    urlAcademico(item) {
+      let $vue = this;
+      return APP.url('pronabec/alumno/' + item.id + '/infoacademico') + $vue.getOrigenURL();
+    },
+    getOrigenURL() {
+      var url = window.location.href;
+      return "?origen=" + Base64.encode(url);
+    },
     openEliminar(item) {
       let $vue = this;
       $vue.becadoAnular = JSON.parse(JSON.stringify(item));
@@ -500,6 +613,25 @@ module.exports={
       });
       this.$refs.modalHistorial.open();
 
+    },
+    verHistoAlumno(item){
+      var vue = this;
+      $.ajax({
+        method: 'POST',
+        url: APP.url("academico/becaspronabec/histoAlumno"),
+        data: {dni: item.nroDocumento},
+        success: function(response) {
+          if (response.success) {
+            vue.alumnoHistorial = response.data;
+          } else {
+            notify(response.message, 'error');
+          }
+        },
+        error: function() {
+          notify(Messages.errorComunicacion, "error");
+        }
+      });
+      this.$refs.modalAlumno.open();
     },
     loadModalCondicion(item){
       let $vue = this;
