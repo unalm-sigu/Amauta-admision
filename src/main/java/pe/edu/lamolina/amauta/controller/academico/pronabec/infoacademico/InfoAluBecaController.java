@@ -103,6 +103,7 @@ public class InfoAluBecaController {
         model.addAttribute("cicloJson", cicloJson);
         model.addAttribute("planes", planesJson);
         model.addAttribute("puedeCalcular", puedeCalcular);
+        model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("horasJson", horasJson);
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
         model.addAttribute("rutaModulo", rutaModulo);

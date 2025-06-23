@@ -115,25 +115,26 @@
                                 </td>
                             </tr>
 
-                            <tr v-if='alumno.carrera.orientacionCarrera.length > 0 '>
-                                <td>
-                                    <strong> Orientación  </strong>
-                                </td>
-                                <td >
-                                    <form>
-                                        <multiselect 
-                                            v-model="alumno.orientacionCarrera" 
-                                            v-bind:options='alumno.carrera.orientacionCarrera'
-                                            v-bind:disabled="!showactions"
-                                            label='nombre'
-                                            track-by='id'
-                                            placeholder="Seleccione una orientación"
-                                            v-on:input="changeOrientacion(alumno.orientacionCarrera)">
-                                        </multiselect>
-                                    </form>
-                                </td>
-
+                            <tr v-if="alumno.carrera.orientacionCarrera.length > 0">
+                              <td><strong> Orientación </strong></td>
+                              <td>
+                                <form v-if="puedeMatricular">
+                                  <multiselect
+                                      v-model="alumno.orientacionCarrera"
+                                      :options="alumno.carrera.orientacionCarrera"
+                                      :disabled="!showactions"
+                                      label="nombre"
+                                      track-by="id"
+                                      placeholder="Seleccione una orientación"
+                                      @input="changeOrientacion(alumno.orientacionCarrera)">
+                                  </multiselect>
+                                </form>
+                                <div v-else>
+                                  <span>{{ alumno.orientacionCarrera?.nombre || 'Sin orientación asignada' }}</span>
+                                </div>
+                              </td>
                             </tr>
+
                             <tr>
                                 <td>
                                     <strong> Situación académica  </strong>
@@ -387,7 +388,8 @@
         data() {
             return {
                 idModalConfirm: "id-modal-confirm-inicio-info",
-                orientacionTmp: null
+                orientacionTmp: null,
+                puedeMatricular: JSON.parse(puedeMatricularJSON),
             };
         },
 

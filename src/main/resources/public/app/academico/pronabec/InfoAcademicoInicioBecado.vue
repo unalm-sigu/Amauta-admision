@@ -78,7 +78,6 @@ module.exports = {
     };
   },
   mounted() {
-    // Puedes cargar una por defecto si deseas
     this.updateTabs({ id: this.tabId });
   },
   methods: {
