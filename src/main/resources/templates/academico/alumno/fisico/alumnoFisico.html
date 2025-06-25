@@ -135,7 +135,7 @@
                                         <input type="text"
                                                name="persona.paterno"
                                                th:value="${alumno.persona.paterno}"
-                                               class="form-control"
+                                               class="form-control" required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
 
@@ -151,6 +151,7 @@
                                                name="persona.materno"
                                                th:value="${alumno.persona.materno}"
                                                class="form-control"
+                                               required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
                                     </div>
