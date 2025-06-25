@@ -247,7 +247,6 @@
                                                th:attr="codigo=${helper.showCodigoPais(alumno.persona.paisNacer)}"
                                                th:rel="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.nombre}"
                                                th:value="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.id}"
-                                               required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
                                     </div>
@@ -281,7 +280,7 @@
                                                    data-parsley-errors-container="#errorfechaNacer"
                                                    th:value="${alumno.persona.fechaNacer}? ${#dates.format(alumno.persona.fechaNacer,'dd/MM/yyyy')}"
                                                    class="form-control"
-                                                   name="persona.fechaNacer" required="true" th:readonly="${isAdminNetworking}" ></input>
+                                                   name="persona.fechaNacer" th:readonly="${isAdminNetworking}" ></input>
 
                                             <span class="input-group-addon" >
                                                 <i class="fa fa-calendar" aria-hidden="true" ></i>
@@ -304,7 +303,6 @@
                                                data-trigger="change"
                                                th:rel="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.nombre}"
                                                th:value="${alumno.persona.nacionalidad != null}? ${alumno.persona.nacionalidad.id}"
-                                               required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
 
@@ -369,7 +367,6 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.paisDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.paisDomicilio.id')}"
-                                               required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
 
@@ -388,7 +385,6 @@
                                                data-trigger="change"
                                                th:rel="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.nombre')}"
                                                th:value="${helper.getParentTree(alumno,'persona.ubicacionDomicilio.id')}"
-                                               required="true"
                                                th:readonly="${isAdminNetworking}"
                                         ></input>
 
@@ -401,10 +397,12 @@
                                         <label>Dirección</label>
 
                                         <input type="text"
+                                               id="direccionDomicilio"
                                                class="form-control"
                                                name="persona.direccion"
+                                               data-trigger="change"
                                                th:value="${alumno.persona.direccion}"
-                                               data-trigger="change" required="true" th:readonly="${isAdminNetworking}"></input>
+                                               th:readonly="${isAdminNetworking}"></input>
 
                                     </div>
                                 </div>
