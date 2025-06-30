@@ -435,6 +435,24 @@ var app = new Vue({
                     }
                 }
             });
+        },
+        estadoNombre(estado) {
+            switch (estado) {
+                case 'ACEP': return 'Aceptado';
+                case 'RCHZ': return 'Rechazado';
+                case 'SOL':  return 'Solicitado';
+                case 'ANU':  return 'Anulado';
+                default:     return estado;
+            }
+        },
+        estadoColor(estado) {
+            switch (estado) {
+                case 'ACEP': return 'text-success';
+                case 'RCHZ': return 'text-danger';
+                case 'SOL':  return 'text-warning';
+                case 'ANU':  return 'text-muted';
+                default:     return '';
+            }
         }
     }
 })
