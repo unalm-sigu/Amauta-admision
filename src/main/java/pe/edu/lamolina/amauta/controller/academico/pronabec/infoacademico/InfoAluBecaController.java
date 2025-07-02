@@ -1,66 +1,51 @@
-package pe.edu.lamolina.amauta.controller.academico.infoacademico;
+package pe.edu.lamolina.amauta.controller.academico.pronabec.infoacademico;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.*;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.amauta.controller.academico.infoacademico.dto.AlumnoCursoCicloDTO;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.CursoCurricula;
-import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.amauta.controller.academico.plancurricular.PlanCurricularService;
+import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import pe.edu.lamolina.model.calificacion.TemaCiclo;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
-import pe.edu.lamolina.model.seguridad.TokenIngresante;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.RetiroCurso;
-import pe.edu.lamolina.amauta.controller.academico.plancurricular.PlanCurricularService;
-import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
-import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.calificacion.TemaCiclo;
 import pe.edu.lamolina.model.inscripcion.Evaluado;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
+
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+
+import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 
 @Slf4j
 @Controller
 @AllArgsConstructor(onConstructor = @__(
         @Autowired))
-@RequestMapping("academico/alumno")
-public class InfoAcademicoController {
+@RequestMapping("pronabec/alumno")
+public class InfoAluBecaController {
 
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
@@ -123,7 +108,7 @@ public class InfoAcademicoController {
         model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
         model.addAttribute("rutaModulo", rutaModulo);
 
-        return "academico/alumno/infoAcademico";
+        return "academico/pronabec/alumno/infoAlumnoBecado";
     }
 
     @ResponseBody

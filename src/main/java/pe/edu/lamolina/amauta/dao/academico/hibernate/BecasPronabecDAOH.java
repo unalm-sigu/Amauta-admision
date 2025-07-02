@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.pronabec.TipoBeca;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.*;
@@ -77,6 +78,18 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> historialAlumno(String dni) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "al")
+                .join("persona per", "carrera ca", "modalidadEstudio moe", "ca.facultad fac", "ca.modalidadEstudio")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .filter("per.numeroDocIdentidad", "like", dni)
+                .orderBy("al.id desc");
+
         return sql.all(getCurrentSession());
     }
 
@@ -225,74 +238,103 @@ public class BecasPronabecDAOH extends AbstractEasyDAO<InformacionBeca> implemen
     public List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, BecadosFilterBean becadosFilterBean) {
         ObjectUtil.printAttr(becadosFilterBean);
         StringBuilder sql = new StringBuilder();
-        sql.append(" select distinct a.numero_doc_identidad as dni, concat(ifnull(a.paterno,''),' ',ifnull(a.materno,''),', ',ifnull(a.nombres,'')) apellidos_nombres,  ");
-        sql.append("         'Universidad Agraria La Molina' nombre_institucion,  ");
-        sql.append("         e.nombre as carrera, IF(c.estado = 'MAT', 'Si', 'No') as se_matriculo,  ");
-        sql.append(" case when x.num_ciclo =1  then concat(x.descripcion,'  - ','Primer ciclo')  ");
-        sql.append(" when x.num_ciclo =2  then concat(x.descripcion,'  - ','Segundo ciclo')  ");
-        sql.append(" when x.num_ciclo =3  then concat(x.descripcion,'  - ','Tercer ciclo')  ");
-        sql.append(" when x.num_ciclo =4  then concat(x.descripcion,'  - ','Cuarto ciclo')  ");
-        sql.append(" when x.num_ciclo =5  then concat(x.descripcion,'  - ','Quinto ciclo')  ");
-        sql.append(" when x.num_ciclo =6  then concat(x.descripcion,'  - ','Sexto ciclo')  ");
-        sql.append(" when x.num_ciclo =7  then concat(x.descripcion,'  - ','Septimo ciclo')  ");
-        sql.append(" when x.num_ciclo =8  then concat(x.descripcion,'  - ','Octavo ciclo')  ");
-        sql.append(" when x.num_ciclo =9  then concat(x.descripcion,'  - ','Noveno ciclo')  ");
-        sql.append(" when x.num_ciclo =10 then concat(x.descripcion,' - ','Decimo ciclo')  ");
-        sql.append(" when x.num_ciclo =11 then concat(x.descripcion,' - ','Onceavo ciclo')  ");
-        sql.append(" when x.num_ciclo =12 then concat(x.descripcion,' - ','Doceavo ciclo')  ");
-	    sql.append(" else concat('Matriculado',' - ',x.num_ciclo,' Ciclo') end as periodo_academico,  ");
-        sql.append("         c.cursos_matriculados as curso_matriculado, c.creditos_matriculados as creditos,z.item2 as electivo_matriculado,  ");
-        sql.append(" IF(t1.tipo_traslado = 'TRAS_INT', 'Si', 'No') as cambio_carrera,  ");
-        sql.append(" IF(h.item2 = '3', 'Si', 'No') as tercera_vez  ");
-        sql.append(" from gen_persona a  ");
-        sql.append(" join aca_alumno b on b.id_persona =a.id  ");
-        sql.append(" join aca_matricula_resumen c on c.id_alumno =b.id  ");
-        sql.append(" join aca_ciclo_academico d on d.id =c.id_ciclo_academico  ");
-        sql.append(" join aca_carrera e on e.id =b.id_carrera  ");
-        sql.append(" join pronabec_informacion pi on pi.id_persona= a.id  ");
+        sql.append(" select p.numero_doc_identidad dni, concat(ifnull(p.paterno,''),' ',ifnull(p.materno,''),', ', ifnull(p.nombres,'')) apellidos_nombres, ");
+        sql.append("        'Universidad Agraria La Molina' nombre_institucion,car.nombre carrera, ");
+        sql.append(" case mr.estado when 'MAT' then 'Si' else 'No' end se_matriculo, ");
+        sql.append(" (select count(z.id) num_ciclo ");
+        sql.append("  from aca_matricula_resumen z ");
+        sql.append("  join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("  where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) numero_ciclos, ");
+        sql.append(" case when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("            join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("            where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) =1 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Primer ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 2 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Segundo ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 3 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Tercer ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 4 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Cuarto ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 5 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Quinto ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 6 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Sexto ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 7 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Septimo ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 8 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Octavo ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 9 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Noveno ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 10 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Decimo ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 11 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Onceavo ciclo') ");
+        sql.append(" when (select count(z.id) from aca_matricula_resumen z ");
+        sql.append("       join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("       where z.estado ='MAT' and z.id_alumno = a.id group by z.id_alumno) = 12 ");
+        sql.append("      then concat(case when mr.estado = 'MAT' then ca.descripcion else caa.descripcion end,'  - ','Doceavo ciclo') ");
+        sql.append(" else concat('Matriculado',' - ',(select count(z.id) ");
+        sql.append("                                   from aca_matricula_resumen z ");
+        sql.append("                                   join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG' ");
+        sql.append("                                   where z.estado ='MAT' and z.id_alumno = a.id ");
+        sql.append("                                   group by z.id_alumno ),' Ciclo') end as periodo_academico, ");
+        sql.append(" mr.cursos_matriculados curso_matriculado, mr.creditos_matriculados as creditos, ");
+        sql.append(" (select count(distinct ac.id) as item2 ");
+        sql.append("  from aca_matricula_curso amc ");
+        sql.append("  join aca_curso ac on ac.id =amc.id_curso ");
+        sql.append("  join aca_tipo_curso_curricula x on x.id =amc.id_tipo_curso_curricula ");
+        sql.append("  where amc.id_matricula_resumen = mr.id ");
+        sql.append("  and amc.id_tipo_curso_curricula ='3' ");
+        sql.append("  and ac.nivel <>'7' and amc.estado ='MAT') as electivo_matriculado, ");
+        sql.append(" case when exists (select 1 ");
+        sql.append("                   from tram_tramite p ");
+        sql.append("                   join tram_tramite_traslado p2 ON p2.id_tramite = p.id ");
+        sql.append("                   where p2.estado = 'ACEP' and p.estado = 'ACEP' ");
+        sql.append("                   and p2.tipo_traslado = 'TRAS_INT' and p.id_alumno = a.id) then 'Si' else 'No' end as cambio_carrera, ");
+        sql.append(" (select distinct case when exists (select 1 ");
+        sql.append("                                from aca_alumno_ciclo_curso acc2 ");
+        sql.append("                                join aca_alumno_ciclo ac2 on acc2.id_alumno_ciclo = ac2.id ");
+        sql.append("                                where mr3.id_alumno = ac2.id_alumno ");
+        sql.append("                                and acc2.veces_cursado_regular >= 3 ");
+        sql.append("                                and acc2.esta_aprobado = false ");
+        sql.append("                                and acc2.registro_activo = true) then 'Si' else 'No' end as tercera_vez ");
+        sql.append("  from aca_matricula_curso mc3 ");
+        sql.append("  join aca_matricula_resumen mr3 on mc3.id_matricula_resumen = mr3.id ");
+        sql.append("  where mc3.id_matricula_resumen = mr.id and mc3.estado = 'MAT') tercera_vez ");
+        sql.append(" from aca_matricula_resumen mr ");
+        sql.append(" join aca_alumno a on mr.id_alumno = a.id ");
+        sql.append(" left join aca_ciclo_academico caa on a.id_ciclo_activo_regular = caa.id ");
+        sql.append(" join aca_carrera car on a.id_carrera = car.id ");
+        sql.append(" join gen_persona p on a.id_persona = p.id ");
+        sql.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+        sql.append(" join pronabec_informacion pi on pi.id_persona= p.id ");
         sql.append(" join pronabec_tipo_beca tb on pi.id_tipo_beca = tb.id ");
-        sql.append(" left join(select p4.codigo,p.id_alumno AS alu,p3.nombre as itemca ,p1.id ,p1.codigo_anterior ,p2.estado as estado1 ,p.estado as estado2,p2.tipo_traslado,p1.descripcion  ");
-        sql.append(" from tram_tramite p  ");
-        sql.append(" join aca_ciclo_academico p1 on p1.id =p.id_ciclo_academico  ");
-        sql.append(" join tram_tramite_traslado p2 ON p2.id_tramite =p.id  ");
-        sql.append(" join aca_carrera p3 on p3.id =p2.id_carrera  ");
-        sql.append(" join aca_alumno p4 on p4.id =p.id_alumno  ");
-        sql.append(" where p2.estado= 'ACEP' AND p.estado='ACEP') t1 on t1.alu= b.id and  t1.id=b.id_ciclo_activo_regular  ");
-        sql.append(" left join (select ROW_NUMBER() over(PARTITION by z2.codigo order by z3.codigo_anterior)  as num_ciclo,z2.codigo  ");
-        sql.append(" as matricula,gp3.numero_doc_identidad  as DNI,z2.id,z.id_alumno,z3.id as item ,z3.codigo_anterior,z.estado,z3.descripcion,z2.id_carrera item2  ");
-        sql.append(" from aca_matricula_resumen z  ");
-        sql.append(" join aca_alumno z2 on z2.id =z.id_alumno  ");
-        sql.append(" join aca_ciclo_academico z3 on z3.id = z.id_ciclo_academico and z3.tipo ='REG'  ");
-        sql.append(" join gen_persona gp3 on gp3.id =z2.id_persona  ");
-        sql.append(" where z.estado ='MAT' ) x on x.id_alumno=b.id and x.id_alumno=c.id_alumno and x.item=d.id and x.item2=e.id  ");
-        sql.append(" left join (select amr.id_alumno,x.codigo,aca.id  as item,count(distinct ac.id) as item2  ");
-        sql.append(" from aca_matricula_curso amc  ");
-        sql.append(" join aca_matricula_resumen amr on amr.id =amc.id_matricula_resumen  ");
-        sql.append(" join aca_ciclo_academico aca on aca.id =amr.id_ciclo_academico  ");
-        sql.append(" join aca_curso ac on ac.id =amc.id_curso  ");
-        sql.append(" join aca_tipo_curso_curricula x on x.id =amc.id_tipo_curso_curricula  ");
-        sql.append(" join aca_alumno aa on aa.id =amr.id_alumno  ");
-        sql.append(" where  amc.id_tipo_curso_curricula ='3'  ");
-        sql.append(" and ac.nivel <>'7' and amc.estado ='MAT'  ");
-        sql.append(" group by amr.id_alumno,x.codigo,aca.id ) z on z.id_alumno=b.id and z.item=d.id  ");
-        sql.append(" left join (select distinct y1.id_alumno,y.id_curso,ac.codigo,ac.nombre,(y.veces_cursado_regular + y5.item1) as  item2,y5.ciclo  ");
-        sql.append(" from aca_alumno_ciclo_curso y  ");
-        sql.append(" join aca_alumno_ciclo y1 on y1.id =y.id_alumno_ciclo  ");
-        sql.append(" join aca_ciclo_academico y3 on y3.id =y1.id_ciclo_academico  and y3.tipo ='REG'  ");
-        sql.append(" join aca_alumno y4 on y4.id =y1.id_alumno and y4.id_modalidad_estudio ='1'  ");
-        sql.append(" join aca_curso ac on ac.id =y.id_curso  ");
-        sql.append(" inner join (select a1.id_alumno ,amc.id_curso,aca.codigo_anterior as ciclo,count(*) item1  ");
-        sql.append(" from aca_matricula_resumen a1  ");
-        sql.append(" join aca_ciclo_academico aca on aca.id =a1.id_ciclo_academico and aca.tipo ='REG' and aca.codigo_anterior = :CICLO_ACTUAL   ");
-        sql.append(" join aca_matricula_curso amc on amc.id_matricula_resumen =a1.id WHERE a1.estado ='MAT' and amc.estado ='MAT'  ");
-        sql.append(" group by a1.id_alumno ,amc.id_curso ) y5 on y5.id_curso =y.id_curso and y5.id_alumno =y4.id  ");
-        sql.append(" where y.veces_cursado_regular ='2') h on h.id_alumno =c.id_alumno and h.id_alumno=b.id  ");
-        sql.append(" where d.codigo_anterior = :CICLO_ACTUAL  ");
+        sql.append(" where ca.codigo_anterior = :CICLO_ACTUAL and a.id_modalidad_estudio = 1");
         if(becadosFilterBean.getTipo_beca() != null){
             sql.append(" and tb.id =:TIPOBECA ");
         }
         if(becadosFilterBean.getSe_matriculo().equalsIgnoreCase("si")){
-            sql.append(" and c.estado='MAT' ");
+            sql.append(" and mr.estado='MAT' ");
             sql.append(" and pi.estado='ACTIVO' ");
         }
         sql.append(" order by 2,6  ");

@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.pronabec;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.pronabec.InformacionBeca;
@@ -14,6 +15,7 @@ public interface BecasPronabecService {
     List<InformacionBeca> allByDynatable(DynatableFilter filter);
     List<String> cargarBecados(MultipartFile file, DataSessionPivot ds);
     List<InformacionBeca> getHistorialBecas(InformacionBeca infoBeca);
+    List<Alumno> getHistorialAlumnos(String dni);
     void saveBecado(InformacionBeca informacionBeca, DataSessionPivot ds);
     List<Persona>  allPersonaAlumno(String nombre, DataSessionPivot ds);
     void eliminarBecado(Long id);
