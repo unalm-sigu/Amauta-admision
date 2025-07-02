@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -1264,6 +1265,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
                     matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
                     matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
+                    List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByAlumnoCicloEstados(alumnoDB,cicloAplica,Arrays.asList(EstadoMatriculaEnum.MAT.name()));
+                    for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
+                        matriculaSeccion.setFechaAnula(new Date());
+                        matriculaSeccion.setUserAnula(ds.getUsuario());
+                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                        matriculaSeccionDAO.update(matriculaSeccion);
+                    }
 
                     List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumnoDB, cicloAplica);
                     for (MatriculaCurso matriculaCurso : matriculaCursos) {
