@@ -85,7 +85,11 @@ new Vue({
             // }
             axios.post(APP.url('academico/tipoevaluacion/update'), $vue.tiposEditar)
                 .then(({data}) => {
-                    notify(data.message, "info");
+                    if(data.success) {
+                        notify(data.message, "info");
+                    } else {
+                        notify(data.message, "warning");
+                    }
                     $vue.$refs.modalEditar.close();
                     $vue.$refs.raptorTiposEvaluacion.loadRemoteData();
                 }, () => {
@@ -95,7 +99,6 @@ new Vue({
         },
         getLastItemId(data) {
             if (data.length > 0) {
-                // Solo calcula el maxIdFirstPage una vez
                 this.maxIdFirstPage = Math.max(...data.map(item => item.id));
             }
             return this.maxIdFirstPage;

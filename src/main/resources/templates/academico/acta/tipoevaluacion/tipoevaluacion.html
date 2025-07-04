@@ -48,7 +48,7 @@
                                             <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
 
                                             <ul class="dropdown-menu pull-right" >
-<!--                                                <li role="presentation"><a class="btn-link" v-on:click="openEditar(item)">Editar</a></li>-->
+                                                <li role="presentation"><a class="btn-link" v-on:click="openEditar(item)">Editar</a></li>
 <!--                                                <li role="presentation"><a class="btn-link" v-on:click="">Eliminar</a></li>-->
                                             </ul>
 
@@ -85,7 +85,7 @@
                    v-bind:okaction="editar">
 
             <div slot="body">
-                <form id="formNuevo" data-parsley-validate="true">
+                <form id="formEditar" data-parsley-validate="true">
                     <div class="form-group">
                         <label> Nombre </label>
                         <input class="form-control col-md-4 m-b-xs"  v-model="tiposEditar.nombre" required=""/>

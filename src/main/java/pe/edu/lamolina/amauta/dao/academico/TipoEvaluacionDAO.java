@@ -14,4 +14,8 @@ public interface TipoEvaluacionDAO extends EasyDAO<TipoEvaluacion> {
     boolean existsByCodigo(String codigo);
 
     boolean existsByNombre(String nombre);
+
+    boolean existsByNombreAndIdNot(String nombre, Long idExcluir);
+
+    boolean existsByCodigoAndIdNot(String codigo, Long idExcluir);
 }
