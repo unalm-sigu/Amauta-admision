@@ -1370,4 +1370,12 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
+    @Override
+    public boolean esMigradorHistorial(DataSessionPivot ds) {
+        Optional<Rol> rol = ds.getRoles().stream()
+                .filter(x-> (x.getCodigoEnum() == RolEnum.MIGRADOR_HISTORIAL) ||
+                        x.getCodigoEnum() == RolEnum.IOREA).findFirst();
+    return rol.isPresent();
+    }
+
 }

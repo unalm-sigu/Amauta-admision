@@ -109,4 +109,5 @@ public interface VerificadorService {
 
     boolean isAdminNetworking(DataSessionPivot ds);
 
+    boolean esMigradorHistorial(DataSessionPivot ds);
 }
