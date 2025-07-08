@@ -180,15 +180,15 @@ public class ReporteHistoricoCargaAcademicoView extends AbstractOnlyPdfView {
         List<String> ciclos = ciclosTotal.stream()
                 .sorted((c1, c2) -> {
                     // Extraer año y semestre de cada string
-                    int año1 = Integer.parseInt(c1.split("-")[0]);
+                    int anio = Integer.parseInt(c1.split("-")[0]);
                     int semestre1 = c1.split("-")[1].equals("I") ? 2 : 1; // Invertir: II = 1, I = 2
 
-                    int año2 = Integer.parseInt(c2.split("-")[0]);
+                    int anio2 = Integer.parseInt(c2.split("-")[0]);
                     int semestre2 = c2.split("-")[1].equals("I") ? 2 : 1; // Invertir: II = 1, I = 2
 
                     // Primero comparamos por año (en orden descendente)
-                    if (año1 != año2) {
-                        return Integer.compare(año2, año1); // Orden descendente por año
+                    if (anio != anio2) {
+                        return Integer.compare(anio2, anio); // Orden descendente por año
                     }
 
                     // Si los años son iguales, comparamos por semestre (II antes de I)

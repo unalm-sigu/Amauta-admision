@@ -57,17 +57,22 @@ public class TipoEvaluacionServiceImp implements TipoEvalucionService{
     @Transactional
     public void actualizarTipoEvaluacion(TipoEvaluacion tipo) {
         TipoEvaluacion tipoDB = tipoEvaluacionDAO.find(tipo.getId());
-        boolean nombre = tipoEvaluacionDAO.existsByNombre(tipo.getNombre());
-        boolean codigo = tipoEvaluacionDAO.existsByCodigo(tipo.getCodigo());
+
         if (tipoDB == null) {
-            throw new PhobosException("No tiene un informacion");
+            throw new PhobosException("Tipo de evaluación no encontrado");
         }
-        if(nombre){
-            throw new PhobosException("Ya existe un nombre igual");
+
+        String codigoMayuscula = tipo.getCodigo() != null ? tipo.getCodigo().toUpperCase() : null;
+        tipo.setCodigo(codigoMayuscula);
+
+        if (tipoEvaluacionDAO.existsByNombreAndIdNot(tipo.getNombre(), tipo.getId())) {
+            throw new PhobosException("Ya existe otro evaluación con ese nombre");
         }
-        if(codigo){
-            throw new PhobosException("Ya existe un codigo igual");
+
+        if (tipoEvaluacionDAO.existsByCodigoAndIdNot(tipo.getCodigo(), tipo.getId())) {
+            throw new PhobosException("Ya existe otro evaluación con ese código");
         }
+
         tipoDB.setNombre(tipo.getNombre());
         tipoDB.setCodigo(tipo.getCodigo());
         tipoEvaluacionDAO.update(tipoDB);
