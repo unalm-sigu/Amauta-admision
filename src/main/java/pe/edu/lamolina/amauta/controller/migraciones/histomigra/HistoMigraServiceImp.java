@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,14 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.croacia.HistoGradMy;
 import pe.edu.lamolina.model.croacia.HistoMy;
+
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
+
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoMigracionEnum;
@@ -122,11 +127,12 @@ public class HistoMigraServiceImp implements HistoMigraService {
             acc.setCreditos(modalidaEnum == EPG ? histoPosgrado.getCurCredit() : histoPregrado.getCurCredit());
             acc.setNota(modalidaEnum == EPG ? histoPosgrado.getNota() : histoPregrado.getNota());
             acc.setEstaAprobado(promedioService.evaluateEstaAprobado(acc, alumno));
-            acc.setRegistroActivo(1);
 
             if (Arrays.asList("1", "3").contains(histo.getMov())) {
                 acc.setEstadoEnum(MAT);
+                acc.setRegistroActivo(1);
             } else {
+                acc.setRegistroActivo(0);
                 acc.setEstadoEnum(RET);
             }
 
@@ -143,8 +149,10 @@ public class HistoMigraServiceImp implements HistoMigraService {
             acc.setCreditos(modalidaEnum == EPG ? histoPosgrado.getCurCredit() : histoPregrado.getCurCredit());
             acc.setNota(modalidaEnum == EPG ? histoPosgrado.getNota() : histoPregrado.getNota());
             if (Arrays.asList("1", "3").contains(histo.getMov())) {
+                acc.setRegistroActivo(1);
                 acc.setEstadoEnum(MAT);
             } else {
+                acc.setRegistroActivo(0);
                 acc.setEstadoEnum(RET);
             }
             acc.setEstaAprobado(promedioService.evaluateEstaAprobado(acc, alumno));

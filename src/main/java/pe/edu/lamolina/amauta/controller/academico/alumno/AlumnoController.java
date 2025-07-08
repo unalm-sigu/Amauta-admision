@@ -102,6 +102,7 @@ public class AlumnoController {
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
         model.addAttribute("soloEditarDatosAlumno", verificadorService.soloEditarDatosAlumno(ds));
         model.addAttribute("puedeVerHead", verificadorService.puedeVerHeadAlumno(ds));//no ven los de ROL REVISOR_FAC_ECONOMIA
+        model.addAttribute("esMigradorHistorial", verificadorService.esMigradorHistorial(ds));
 
         return "academico/alumno/alumno";
     }
