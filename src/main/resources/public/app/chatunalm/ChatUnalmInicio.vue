@@ -1,9 +1,9 @@
 <template>
     <div>
 
-        <div class="navbar navbar-expand-lg" :style="esTest ? { backgroundColor: '#b53346' } : {}">
+        <div class="navbar navbar-expand-lg">
 
-            <div class="navbar-text-chat flex text-right" :style="esTest ? { backgroundColor: '#b53346' } : {}" id="pageTitle">
+            <div class="navbar-text-chat flex text-right" id="pageTitle">
                 &nbsp;&nbsp;
             </div>
 
