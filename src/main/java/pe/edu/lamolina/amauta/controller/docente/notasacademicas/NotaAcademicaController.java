@@ -429,7 +429,7 @@ public class NotaAcademicaController {
                 .max(Comparator.comparingLong(p -> p.getPlanCalificacion().getId()))
                 .orElse(null);
 
-        PlanCalificacion planCalifica = planesCalificacionCursoDB.get(0).getPlanCalificacion();
+        PlanCalificacion planCalifica = ultimoPlanCalificacionCurso.getPlanCalificacion();
         if (planCalificacion != null) {
             logger.debug("buscara el sistema calificacion");
             planCalifica = service.findPlanCalificacion(planCalificacion);
