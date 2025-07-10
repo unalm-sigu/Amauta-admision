@@ -422,9 +422,14 @@ public class NotaAcademicaController {
         logger.debug("planCalificacion {}", planCalificacion);
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
 
-        List<PlanCalificacionCurso> planesCalificacionCurso = service.allActivosPlanCalificacionCurso(grupoSeccion.getCurso(),
+        List<PlanCalificacionCurso> planesCalificacionCursoDB = service.allActivosPlanCalificacionCurso(grupoSeccion.getCurso(),
                 ds.getCicloAcademico().getTipoEnum());
-        PlanCalificacion planCalifica = planesCalificacionCurso.get(0).getPlanCalificacion();
+
+        PlanCalificacionCurso ultimoPlanCalificacionCurso = planesCalificacionCursoDB.stream()
+                .max(Comparator.comparingLong(p -> p.getPlanCalificacion().getId()))
+                .orElse(null);
+
+        PlanCalificacion planCalifica = planesCalificacionCursoDB.get(0).getPlanCalificacion();
         if (planCalificacion != null) {
             logger.debug("buscara el sistema calificacion");
             planCalifica = service.findPlanCalificacion(planCalificacion);
@@ -433,7 +438,7 @@ public class NotaAcademicaController {
         model.addAttribute("planCalificacion", planCalifica);
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("planesCalificacionCurso", planesCalificacionCurso);
+        model.addAttribute("planesCalificacionCurso", ultimoPlanCalificacionCurso);
         model.addAttribute("tieneCursos", false);
 
         return "docente/notaacademica/aceptarSistemaCalificacion";
