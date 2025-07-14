@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.BigDecimalType;
+import org.hibernate.type.DateType;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.StringType;
 import org.springframework.stereotype.Repository;
@@ -26,9 +28,11 @@ import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
@@ -856,6 +860,74 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         query.setParameter("CICLO", cicloAcademico.getId());
         return (List<IngresantesAsistenciaInscritosDTO>) query.list();
 
+    }
+
+    @Override
+    public List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select a.codigo matricula,p.numero_doc_identidad dni,concat(ifnull(p.paterno,''),' ',ifnull(p.materno,''),', ',ifnull(p.nombres,'')) apellidosNombre, ");
+        sql.append(" mi.nombre modalidadIngreso,car.nombre carrera, fa.nombre facultad,p.email correoPersonal, p.email_corporativo correoOutlook,p.telefono,p.celular, ");
+        sql.append(" ifnull(pre.puntaje_algebra,e.puntaje_algebra) puntajeAlgebra, ");
+        sql.append(" ifnull(pre.puntaje_aritmetica,e.puntaje_aritmetica) puntajeAritmetica, ");
+        sql.append(" ifnull(pre.puntaje_geometria,e.puntaje_geometria) puntajeGeometrica, ");
+        sql.append(" ifnull(pre.puntaje_trigonometria,e.puntaje_trignometria) puntajeTrigonometria, ");
+        sql.append(" ifnull(pre.puntaje_matematicas,e.puntaje_matematicas) puntajeMatematica, ");
+        sql.append(" ifnull(pre.puntaje_quimica,e.puntaje_quimica) puntajeQuimica, ");
+        sql.append(" ifnull(pre.puntaje_rm,e.puntaje_rm) puntajeRm, ");
+        sql.append(" ifnull(pre.puntaje_rv,e.puntaje_rv) puntajeRv, ");
+        sql.append(" ifnull(pre.puntaje_biologia,e.puntaje_biologia) puntajeBiologia, ");
+        sql.append(" ifnull(pre.puntaje_economia,e.puntaje_economia) puntajeEconomia, ");
+        sql.append(" ifnull(pre.puntaje_fisica,e.puntaje_fisica) puntajeFisica, ");
+        sql.append(" ifnull(pre.puntaje_historia,e.puntaje_historia) puntajeHistoria, ");
+        sql.append(" ifnull(pre.puntaje_geografia,e.puntaje_geografia) puntajeGeografia, ");
+        sql.append(" ifnull(pre.puntaje_final,e.puntaje_final) puntajeFinal, ");
+        sql.append(" i.fecha_registro fechaIngreso, ");
+        sql.append(" ca.descripcion cicloIngresoAdmision ");
+        sql.append(" from aca_alumno a ");
+        sql.append(" join aca_ciclo_academico cai on a.id_ciclo_ingreso = cai.id ");
+        sql.append(" join sip_postulante po on a.id_postulante_pregrado = po.id ");
+        sql.append(" join sip_ingresante i on i.id_postulante = po.id ");
+        sql.append(" join sip_modalidad_ingreso mi on po.id_modalidad_ingreso = mi.id ");
+        sql.append(" join aca_carrera car on a.id_carrera = car.id ");
+        sql.append(" join aca_facultad fa on car.id_facultad = fa.id ");
+        sql.append(" join gen_persona p on a.id_persona = p.id ");
+        sql.append(" join sip_ciclo_postula cp on po.id_ciclo_postula = cp.id ");
+        sql.append(" join aca_ciclo_academico ca on cp.id_ciclo_academico = ca.id ");
+        sql.append(" left join sip_prelamolina pre on i.id_prelamolina = pre.id ");
+        sql.append(" left join sip_evaluado e on i.id_evaluado = e.id ");
+        sql.append(" where cai.id = :CICLO and po.estado = 'ING'; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("dni", StringType.INSTANCE)
+                .addScalar("apellidosNombre", StringType.INSTANCE)
+                .addScalar("modalidadIngreso", StringType.INSTANCE)
+                .addScalar("carrera", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("correoPersonal", StringType.INSTANCE)
+                .addScalar("correoOutlook", StringType.INSTANCE)
+                .addScalar("telefono", StringType.INSTANCE)
+                .addScalar("celular", StringType.INSTANCE)
+                .addScalar("puntajeAlgebra", BigDecimalType.INSTANCE)
+                .addScalar("puntajeAritmetica", BigDecimalType.INSTANCE)
+                .addScalar("puntajeGeometrica", BigDecimalType.INSTANCE)
+                .addScalar("puntajeTrigonometria", BigDecimalType.INSTANCE)
+                .addScalar("puntajeMatematica", BigDecimalType.INSTANCE)
+                .addScalar("puntajeQuimica", BigDecimalType.INSTANCE)
+                .addScalar("puntajeRm", BigDecimalType.INSTANCE)
+                .addScalar("puntajeRv", BigDecimalType.INSTANCE)
+                .addScalar("puntajeBiologia", BigDecimalType.INSTANCE)
+                .addScalar("puntajeEconomia", BigDecimalType.INSTANCE)
+                .addScalar("puntajeFisica", BigDecimalType.INSTANCE)
+                .addScalar("puntajeHistoria", BigDecimalType.INSTANCE)
+                .addScalar("puntajeGeografia", BigDecimalType.INSTANCE)
+                .addScalar("puntajeFinal", BigDecimalType.INSTANCE)
+                .addScalar("fechaIngreso", DateType.INSTANCE)
+                .addScalar("cicloIngresoAdmision", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<ResultadoReporteView>) query.list();
     }
 
 }

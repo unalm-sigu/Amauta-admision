@@ -65,4 +65,5 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<IngresantesAsistenciaInscritosDTO> allAsistenciasByCiclo(CicloAcademico cicloAcademico);
 
+    List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico);
 }

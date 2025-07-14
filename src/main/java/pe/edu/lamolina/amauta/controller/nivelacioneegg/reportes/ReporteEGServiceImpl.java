@@ -80,4 +80,9 @@ public class ReporteEGServiceImpl implements ReporteEGService {
 
     }
 
+    @Override
+    public List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.resultadoAdmisionByCiclo(cicloAcademico);
+    }
+
 }
