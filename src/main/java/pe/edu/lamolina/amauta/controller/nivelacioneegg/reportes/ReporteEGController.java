@@ -18,7 +18,6 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 
 @Slf4j
 @Controller
@@ -35,6 +34,7 @@ public class ReporteEGController {
     private final ExcelResultadosIngresantesDesaprobadosMoodle excelResultadosIngresantesDesaprobadosMoodle;
     private final ExcelReporteGeneralNivelacion excelReporteGeneralNivelacion;
     private final ExcelResultadosPuntajeAdmision excelResultadosPuntajeAdmision;
+    private final ExcelResultadosIngresantesGeneral  excelResultadosIngresantesGeneral;
 
 
     @RequestMapping(method = RequestMethod.GET)
@@ -137,6 +137,18 @@ public class ReporteEGController {
         model.addAttribute("resultado", resultados);
 
         return new ModelAndView(excelResultadosPuntajeAdmision);
+    }
+
+    @RequestMapping("ingresantesGeneral")
+    public ModelAndView ingresantesGeneral(HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<ResultadoReporteView> resultados = service.ingresantesGeneraByCiclol(ds.getCicloAcademico());
+
+        model.addAttribute("resultado", resultados);
+
+        return new ModelAndView(excelResultadosIngresantesGeneral);
     }
 
 

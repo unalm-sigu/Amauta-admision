@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -928,6 +929,72 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
 
         query.setParameter("CICLO", cicloAcademico.getId());
         return (List<ResultadoReporteView>) query.list();
+    }
+
+    @Override
+    public List<ResultadoReporteView> ingresantesGeneraByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select  ");
+        sql.append(" ROW_NUMBER() OVER (PARTITION BY cu.nombre, te.nombre ORDER BY cu.nombre, te.nombre, pe.id) AS correlativo, ");
+        sql.append(" a.codigo matricula, pe.numero_doc_identidad dni,concat(ifnull(pe.paterno,''), ' ',ifnull(pe.materno,''),', ', ifnull(pe.nombres,'')) apellidosNombre, mi.nombre modalidadIngreso, car.nombre carrera, fa.nombre facultad, ");
+        sql.append(" pe.email correoPersonal, pe.email_corporativo correoOutlook, pe.telefono, pe.celular, cu.nombre curso, te.nombre temaCurso, nan.puntaje_examen puntajeCurso,  ");
+        sql.append(" case nan.estado ");
+        sql.append(" when 'MAT' then 'Matriculado' ");
+        sql.append(" when 'NMAT' then 'No Matriculado' ");
+        sql.append(" when 'INH' then 'Inhabilitado' ");
+        sql.append(" else 'VALIDAR ESTADO' end estado, ");
+        sql.append(" case ");
+        sql.append(" when uu.id is null then 'NO TIENE USUARIO' ");
+        sql.append(" else 'SI TIENE USUARIO' end usuario ");
+        sql.append(" from eegg_nota_alumno_nivelacion nan ");
+        sql.append(" join eegg_alumno_nivelacion an on an.id = nan.id_alumno_nivelacion ");
+        sql.append(" join aca_alumno a on a.id = an.id_alumno ");
+        sql.append(" join aca_carrera car on a.id_carrera = car.id ");
+        sql.append(" join aca_facultad fa on car.id_facultad = fa.id ");
+        sql.append(" join gen_persona pe on pe.id = a.id_persona ");
+        sql.append(" left join seg_usuario uu on uu.id_persona = pe.id and uu.estado = 'ACT' ");
+        sql.append(" join sip_postulante po on po.id = a.id_postulante_pregrado ");
+        sql.append(" join sip_modalidad_ingreso mi on mi.id = po.id_modalidad_ingreso ");
+        sql.append(" join aca_ciclo_academico ci on ci.id = an.id_ciclo_academico ");
+        sql.append(" join sce_tema_examen te on te.id = nan.id_tema_examen ");
+        sql.append(" left join eegg_curso_nivelacion cn on cn.id = nan.id_curso_nivelacion ");
+        sql.append(" left join gen_aula au on cn.id_aula = au.id ");
+        sql.append(" left join gen_aula aus on au.id_aula_superior = aus.id ");
+        sql.append(" left join aca_docente doc on cn.id_docente = doc.id ");
+        sql.append(" left join gen_persona per on doc.id_persona = per.id ");
+        sql.append(" left join aca_curso_ciclo_academico cc on cc.id = cn.id_curso_ciclo_academico ");
+        sql.append(" left join aca_curso cu on cu.id = cc.id_curso ");
+        sql.append(" join eegg_modalidad_tema_ciclo mtc ");
+        sql.append("    on mtc.id_ciclo_academico = an.id_ciclo_academico ");
+        sql.append("    and mtc.id_tema_examen = nan.id_tema_examen ");
+        sql.append("    and mtc.otras_modalidades = case po.id_modalidad_ingreso when 16 then 0 else 1 end ");
+        sql.append(" where ci.id = :CICLO ");
+        sql.append(" and te.id_tema_superior is null; ");
+//        sql.append(" and nan.tema_aprobado = false; ");
+
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("correlativo", StringType.INSTANCE)
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("dni", StringType.INSTANCE)
+                .addScalar("apellidosNombre", StringType.INSTANCE)
+                .addScalar("modalidadIngreso", StringType.INSTANCE)
+                .addScalar("carrera", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("correoPersonal", StringType.INSTANCE)
+                .addScalar("correoOutlook", StringType.INSTANCE)
+                .addScalar("telefono", StringType.INSTANCE)
+                .addScalar("celular", StringType.INSTANCE)
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("temaCurso", StringType.INSTANCE)
+                .addScalar("puntajeCurso", BigDecimalType.INSTANCE)
+                .addScalar("estado", StringType.INSTANCE)
+                .addScalar("usuario", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<ResultadoReporteView>) query.list();
+
     }
 
 }

@@ -58,7 +58,7 @@ public class ResultadoReporteView {
     private BigDecimal puntajeFinal;
     private Date fechaIngreso;
     private String cicloIngresoAdmision;
-
+    private String estado;
     private List<AsistenciaNivelacion> asistencias;
     private List<IngresantesExamenAdmisionDTO> ingresantesExamene = new ArrayList<>();
     private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();

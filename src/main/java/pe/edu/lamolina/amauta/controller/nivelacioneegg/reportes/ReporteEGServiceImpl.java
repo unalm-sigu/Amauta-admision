@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -83,6 +84,11 @@ public class ReporteEGServiceImpl implements ReporteEGService {
     @Override
     public List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico) {
         return notaAlumnoNivelacionDAO.resultadoAdmisionByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public List<ResultadoReporteView> ingresantesGeneraByCiclol(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.ingresantesGeneraByCiclo(cicloAcademico);
     }
 
 }
