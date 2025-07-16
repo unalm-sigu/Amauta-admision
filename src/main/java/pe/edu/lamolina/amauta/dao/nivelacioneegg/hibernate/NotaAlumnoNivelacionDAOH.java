@@ -942,6 +942,14 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         sql.append(" when 'MAT' then 'Matriculado' ");
         sql.append(" when 'NMAT' then 'No Matriculado' ");
         sql.append(" when 'INH' then 'Inhabilitado' ");
+        sql.append(" else 'VALIDAR ESTADO' end estadoCursoNivelacion, ");
+        sql.append(" case nan.tema_aprobado  ");
+        sql.append(" when true then 'Si'  ");
+        sql.append(" else 'No' end temaAprobado, ");
+        sql.append(" case an.estado ");
+        sql.append(" when 'MAT' then 'Matriculado' ");
+        sql.append(" when 'NMAT' then 'No Matriculado' ");
+        sql.append(" when 'INH' then 'Inhabilitado' ");
         sql.append(" else 'VALIDAR ESTADO' end estado, ");
         sql.append(" case ");
         sql.append(" when uu.id is null then 'NO TIENE USUARIO' ");
@@ -988,6 +996,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .addScalar("curso", StringType.INSTANCE)
                 .addScalar("temaCurso", StringType.INSTANCE)
                 .addScalar("puntajeCurso", BigDecimalType.INSTANCE)
+                .addScalar("estadoCursoNivelacion", StringType.INSTANCE)
+                .addScalar("temaAprobado", StringType.INSTANCE)
                 .addScalar("estado", StringType.INSTANCE)
                 .addScalar("usuario", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));

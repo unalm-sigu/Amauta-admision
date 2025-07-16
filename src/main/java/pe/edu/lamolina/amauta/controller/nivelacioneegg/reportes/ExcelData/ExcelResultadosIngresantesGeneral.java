@@ -30,10 +30,7 @@ public class ExcelResultadosIngresantesGeneral extends AbstractView {
         this.buildExcelDocument(map, workbook, response);
     }
 
-    protected void buildExcelDocument(
-            Map<String, Object> model,
-            Workbook workbook,
-            HttpServletResponse response) throws Exception {
+    protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletResponse response) throws Exception {
 
         this.crearDetalle(workbook, model);
         this.publicarExcel(workbook, response);
@@ -130,9 +127,19 @@ public class ExcelResultadosIngresantesGeneral extends AbstractView {
             excelUtil.replaceVal(rowCounter.getValor(), col, "Puntaje Materia");
             col++;
 
-            excelUtil.setWidthColumn(col, 4000);
+            excelUtil.setWidthColumn(col, 6500);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Estado");
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Estado Curso Nivelación");
+            col++;
+
+            excelUtil.setWidthColumn(col, 5000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Tema Aprobado");
+            col++;
+
+            excelUtil.setWidthColumn(col, 6500);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Estado Alumno Nivelación");
             col++;
 
             excelUtil.setWidthColumn(col, 6000);
@@ -202,6 +209,14 @@ public class ExcelResultadosIngresantesGeneral extends AbstractView {
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getPuntajeCurso());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getEstadoCursoNivelacion());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getTemaAprobado());
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
