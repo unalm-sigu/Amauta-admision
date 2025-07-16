@@ -107,6 +107,9 @@
                                             <div v-bind:class="classEstado(item)" class="label">
                                                 {{item.estadoEnum.value}}
                                             </div>
+                                            <div v-bind:class="classCiclo(item.alumno.cicloIngreso)" class="block bold">
+                                                {{item.alumno.cicloIngreso.descripcion}}
+                                            </div>
                                         </td>
 
                                         <td class="v-middle text-center">
@@ -234,6 +237,12 @@
                     return "label-success";
                 }
                 return "label-danger";
+            },
+            classCiclo(ciclo) {
+                if (ciclo.descripcion === this.ciclo.descripcion) {
+                    return "text-primary";
+                }
+                return "text-danger";
             },
 
             crearAlumnos() {
