@@ -161,7 +161,7 @@
                 <td colspan="7" class="text-right bold h4">Total créditos carga</td>
                 <td class="text-right bold text-primary h4" v-if="cm.isPregrado">
                     <!--{{cm.creditos.toFixed(2)}}-->
-                    {{ totalCreditos(cm.cursosModalidad) }}
+                    {{ totalCreditos(cm.cursosModalidad).toFixed(2) }}
                 </td>
                 <td class="text-right bold text-primary h4" v-if="cm.isPosgrado">
                     <!--{{cm.creditos.toFixed(2)}}-->

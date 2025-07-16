@@ -32,7 +32,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -47,15 +49,15 @@ import pe.edu.lamolina.model.general.Persona;
 public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final String SUBJT_PREGRADO = "OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS";
-    private final String title = "REPORTE DE ALUMNO MATRICULADOS ";
+    private final String SUBJT_PREGRADO = "DIRECCIÓN DE ESTUDIOS Y REGISTROS ACADÉMICOS";
+    private final String title = "REPORTE DE ALUMNOS MATRICULADOS ";
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
 
-        document.addAuthor("AlbatrossCloud");
+        document.addAuthor("Rogelio Orihuela C.");
         document.addCreationDate();
-        document.addCreator("AlbatrossCloud");
+        document.addCreator("Rogelio Orihuela C.");
         document.addTitle(this.title);
         document.addSubject(this.title);
         document.setPageSize(PageSize.A4);
@@ -111,6 +113,7 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         parrafo.setFont(new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
         parrafo.add(this.title);
         parrafo.add(Chunk.NEWLINE);
+        parrafo.add(Chunk.NEWLINE);
         parrafo.setFont(new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL));
         parrafo.add(this.SUBJT_PREGRADO);
 
@@ -153,8 +156,8 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         paragraph.setAlignment(Element.ALIGN_CENTER);
         document.add(paragraph);
 
-        PdfPTable table = new PdfPTable(3);
-        float[] medidaCeldas = {1.55f, 1.70f, 8f};// tamañan por columna
+        PdfPTable table = new PdfPTable(2);
+        float[] medidaCeldas = {2.20f, 8f};// tamañan por columna
 
         Map<Long, List<MatriculaSeccion>> mapReporte = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matriculaSeccions);
 
@@ -195,8 +198,8 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
             table.setSpacingBefore(2f);
             table.setSpacingAfter(2f);
             table.addCell(getStyleTitulo("FOTO", 8, "C"));
-            table.addCell(getStyleTitulo("CÓDIGO", 8, "C"));
-            table.addCell(getStyleTitulo("NOMBRE ALUMNO", 8, "C"));
+//            table.addCell(getStyleTitulo("CÓDIGO", 8, "C"));
+            table.addCell(getStyleTitulo("ESTUDIANTE", 8, "C"));
             table.setHeaderRows(1);
 
             for (MatriculaSeccion matriculaSeccion : matSecciones) {
@@ -208,14 +211,20 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
                 } else {
                     table.addCell(getImagenUrl(25, 20, url));
                 }
-                addCelda(alumno.getCodigo(), "C", table, fontAnexo, 1);
+//                addCelda(alumno.getCodigo(), "C", table, fontAnexo, 1);
                 StringBuilder st = new StringBuilder();
-                st.append(alumno.getPersona().getApellidosNombres() + "\n");
-                st.append(alumno.getCarrera().getNombre() + "\n");
-                st.append(alumno.getCarrera().getFacultad().getNombre() + "\n");
-//                if (!alumno.getCarrera().getCodigo().equals(alumno.getCarrera().getFacultad().getCodigo())) {
+                st.append(" Alumno: " + alumno.getPersona().getApellidosNombres() + "\n");
+                st.append(" \n");
+                st.append(" Matricula: " + alumno.getCodigo() + "\n");
+                st.append(" \n");
+                st.append(" Carrera: " + alumno.getCarrera().getNombre() + "\n");
+                st.append(" \n");
+                st.append(" Correo Microsoft: " + (!ObjectUtils.isEmpty(alumno.getPersona().getEmailCorporativo()) ? alumno.getPersona().getEmailCorporativo() : "") + "\n");
+                st.append(" \n");
+//                if (!alumno.getCarrera().getCodigo().equalsIgnoreCase(alumno.getCarrera().getFacultad().getCodigo())) {
 //                }
-                st.append(alumno.getPersona().getEmailCompania() + "\n");
+                st.append(" Correo Gmail: " + alumno.getPersona().getEmailCompania() + "\n");
+                st.append(" \n");
                 addCelda(st.toString(), "L", table, fontAnexo, 1);
             }
         }
@@ -249,7 +258,7 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
             e.printStackTrace();
             logger.debug("error 1");
         }
-        
+
         PdfPCell pdfPCell = new PdfPCell();
         if (!url.equals("")) {
             Image image = Image.getInstance(new URL(url));

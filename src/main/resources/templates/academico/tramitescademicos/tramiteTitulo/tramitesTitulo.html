@@ -77,7 +77,9 @@
                                                 </td>
 
                                                 <td class="v-middle text-left">
-                                                    <span v-bind:class="labelColor(item.tramite.estado)">{{ item.tramite.estadoEnum.value}}</span>
+<!--                                                    <span v-bind:class="labelColor(item.tramite.estado)">Tramite: {{ item.tramite.estadoEnum.value}}</span>-->
+                                                    <span v-bind:class="labelColor(item.estado)">C.U.:  {{ getEstadoNombre(item.estado) }}</span>
+                                                    <span v-bind:class="labelColor(item.estadoTitulo)">Facultad: {{ getEstadoNombre(item.estadoTitulo) }}</span>
                                                 </td>
 
                                                 <td class="v-middle">

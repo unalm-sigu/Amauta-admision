@@ -410,7 +410,7 @@
                 </h4>
 
                 <div class="row g-4">
-                    <div class="col-lg-8 col-md-7">
+                    <div class="col-lg-6 col-md-12">
                         <div class="search-container">
                             <label for="searchInput" class="search-label">
                                 <i class="fa fa-search"></i>
@@ -434,7 +434,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-5">
+                    <div class="col-lg-3 col-md-6">
                         <div class="filter-container">
                             <label for="filter-status" class="filter-label">
                                 <i class="fa fa-toggle-on"></i>
@@ -453,6 +453,48 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="filter-checkbox-container">
+                            <label class="filter-label">
+                                <i class="fa fa-filter"></i>
+                                Filtros especiales
+                            </label>
+
+                            <div class="filter-checkbox">
+                                <input
+                                        type="checkbox"
+                                        id="filtroDocentesNN"
+                                        v-model="filtroDocentesNN"
+                                        @change="aplicarFiltros"
+                                >
+                                <label for="filtroDocentesNN">
+                                    <i class="fa fa-user-slash text-danger"></i>
+                                    Solo docentes N.N.
+                                </label>
+                            </div>
+                            <div class="filter-count" v-if="filtroDocentesNN">
+                                {{ contarDocentesNN() }} secciones sin docente
+                            </div>
+
+                            <div class="filter-checkbox">
+                                <input
+                                        type="checkbox"
+                                        id="filtroPocoMatriculados"
+                                        v-model="filtroPocoMatriculados"
+                                        @change="aplicarFiltros"
+                                >
+                                <label for="filtroPocoMatriculados">
+                                    <i class="fa fa-user-minus text-warning"></i>
+                                    Menos de 6 matriculados
+                                </label>
+                            </div>
+                            <div class="filter-count" v-if="filtroPocoMatriculados">
+                                {{ contarPocoMatriculados() }} secciones con pocos estudiantes
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -471,6 +513,9 @@
                             </th>
                             <th class="col-md-1 text-center v-middle">
                                 <span>Aula / Grupo</span>
+                            </th>
+                            <th class="col-md-1 text-center v-middle">
+                                <span>Matri/Vacantes</span>
                             </th>
                             <th class="col-md-1 text-center v-middle" >
                                 Código
@@ -532,6 +577,19 @@
                                             <div v-if="getSeccionParaFila(item, rowIndex).grupoHoras && getSeccionParaFila(item, rowIndex).grupoHoras.codigo">
                                                 <i class="fa fa-clock text-secondary"></i>
                                                 <span>{{ getSeccionParaFila(item, rowIndex).grupoHoras.codigo }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <div class="matricula-info">
+                                                <div>
+                                                    <i class="fa fa-user-secret text-success me-1"></i>
+                                                    <span class="fw-bold text-success">{{ getMatriculados(getSeccionParaFila(item, rowIndex)) }}</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fa fa-user-plus text-info me-1"></i>
+                                                    <span class="fw-bold text-info">{{ getVacantes(getSeccionParaFila(item, rowIndex)) }}</span>
+                                                </div>
                                             </div>
                                         </td>
 

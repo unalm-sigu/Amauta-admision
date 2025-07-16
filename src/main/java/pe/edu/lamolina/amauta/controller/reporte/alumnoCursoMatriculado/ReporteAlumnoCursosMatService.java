@@ -6,6 +6,8 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 
 public interface ReporteAlumnoCursosMatService {
 
-    public List<MatriculaSeccion>  downloadReporte(String seccion, DataSessionPivot ds);
+    List<MatriculaSeccion> downloadReporte(String seccion, DataSessionPivot ds);
+
+    List<AlumnoPersonalizadoDTO> downloadReporteAlumnoPersonalizado();
 
 }

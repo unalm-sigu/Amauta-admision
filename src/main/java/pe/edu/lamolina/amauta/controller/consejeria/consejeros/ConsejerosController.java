@@ -433,7 +433,10 @@ public class ConsejerosController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
+        List<Consejero> consejerosTotal = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
+        List<Consejero> consejeros = consejerosTotal.stream()
+                .filter(x -> "ACT".equals(x.getEstado()))
+                .collect(Collectors.toList());
         model.addAttribute("consejeros", consejeros);
         return new ModelAndView(consejerosPorCarreraExcelView);
     }

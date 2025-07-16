@@ -1321,7 +1321,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
-        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
+        this.deleteHorarioSeccion(seccionBD);
 
         {
             Seccion seccionUpd = new Seccion(seccionBD.getId());
@@ -2268,33 +2268,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         LOOP_HORARIO_SECCION:
         for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
-            if (aula.getPermiteCruce() == 0) {
-                horarioSeccionEach.setAula(aula);
-            } else {
-                horarioSeccionEach.setAula(null);
-            }
+//            if (aula.getPermiteCruce() == 0) {
+            horarioSeccionEach.setAula(aula);
+//            } else {
+//                horarioSeccionEach.setAula(null);
+//            }
             horarioSeccionDAO.update(horarioSeccionEach);
 
-            if (aula.getPermiteCruce() == 0) {
-                for (HorarioAula horarioAulaEach : horariosAulas) {
-                    if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
-                        continue LOOP_HORARIO_SECCION;
-                    }
+//            if (aula.getPermiteCruce() == 0) {
+            for (HorarioAula horarioAulaEach : horariosAulas) {
+                if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
+                    continue LOOP_HORARIO_SECCION;
                 }
-
-                HorarioAula horarioAula = new HorarioAula();
-                horarioAula.setAula(aula);
-                horarioAula.setDia(horarioSeccionEach.getDia());
-                horarioAula.setHora(horarioSeccionEach.getHora());
-                horarioAula.setSeccion(seccion);
-                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
-
-                horarioAula.setFechaInicio(fechaInicioClases);
-                horarioAula.setFechaFin(eventoAcademico.getFechaFin());
-
-                horarioAulaDAO.save(horarioAula);
             }
+
+            HorarioAula horarioAula = new HorarioAula();
+            horarioAula.setAula(aula);
+            horarioAula.setDia(horarioSeccionEach.getDia());
+            horarioAula.setHora(horarioSeccionEach.getHora());
+            horarioAula.setSeccion(seccion);
+            horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+            horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
+
+            horarioAula.setFechaInicio(fechaInicioClases);
+            horarioAula.setFechaFin(eventoAcademico.getFechaFin());
+
+            horarioAulaDAO.save(horarioAula);
+//            }
         }
 
         Seccion seccionUpd = new Seccion(seccion.getId());
@@ -2705,6 +2705,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    @Transactional
     public List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico) {
 //        List<String> diaHoras = new ArrayList();
         List<HorarioSeccion> horarioSeccion = horarioSeccionDAO.allBySeccion(seccion);

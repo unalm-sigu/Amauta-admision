@@ -65,6 +65,7 @@ var app = new Vue({
             CURDIR: 'Curso Dirigido',
             TRAS_INT: 'Traslado Interno',
             RCI: 'Reincorporación',
+            REIC: 'Reincorporación',
             INTES: 'Intercambio Estudiantil'
         },
     },
@@ -402,6 +403,56 @@ var app = new Vue({
                     }
                 }
             });
+        },
+        eliminarResolucion(item){
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la resolución?",
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        axios_.post(APP.url('academico/resolucion/eliminar') + '?id=' + item.id)
+                            .then(response => {
+                                if (response.data.success) {
+                                    notify(response.data.message, "info");
+                                    $vue.$refs.tblResoluciones.loadRemoteData();
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.data.message, "error");
+                                }
+                                MODAL.hideWait();
+                            })
+                            .catch(error => {
+                                MODAL.hideWait();
+                                let mensaje = error.response?.data?.message || "Ocurrió un error inesperado al eliminar la resolución.";
+                                notify(mensaje, "error");
+                            });
+                    }
+                }
+            });
+        },
+        estadoNombre(estado) {
+            switch (estado) {
+                case 'ACEP': return 'Aceptado';
+                case 'RCHZ': return 'Rechazado';
+                case 'SOL':  return 'Solicitado';
+                case 'ANU':  return 'Anulado';
+                default:     return estado;
+            }
+        },
+        estadoColor(estado) {
+            switch (estado) {
+                case 'ACEP': return 'text-success';
+                case 'RCHZ': return 'text-danger';
+                case 'SOL':  return 'text-warning';
+                case 'ANU':  return 'text-muted';
+                default:     return '';
+            }
         }
     }
 })

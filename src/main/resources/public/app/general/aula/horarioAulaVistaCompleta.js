@@ -61,6 +61,12 @@ new Vue({
                         $vue.dias = response.data.dias;
                         $vue.horas = response.data.horas;
                         $vue.aula = response.data.aula;
+                        console.log("DATAAAAA HORA");
+                        console.dir($vue.horas);
+                        console.log("DATAAAAA DIA");
+                        console.dir($vue.dias);
+                        console.log("DATAAAAA AULA");
+                        console.dir($vue.aula);
                     } else {
                         notify(Messages.errorComunicacion, "error");
                     }

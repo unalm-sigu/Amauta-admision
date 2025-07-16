@@ -238,6 +238,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
+    @Transactional
     public void deleteCursoEquivalenteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso) {
         cursoEquivalenteDAO.deleteByGrupoCursoCurricula(grupo, curso);
     }

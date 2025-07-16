@@ -169,7 +169,9 @@ new Vue({
 
             if ($vue.reservaaula.fechaInicio === $vue.reservaaula.fechaFin) {
 
-                let diaDateJs = $vue.jsonaulahorario[0].dia.id + 1;// se sumas +1 por el date del JS
+                // let diaDateJs = $vue.jsonaulahorario[0].dia.id + 1;// se sumas +1 por el date del JS
+                let diaDateJs = ($vue.jsonaulahorario[0].dia.id === 7) ? 1 : $vue.jsonaulahorario[0].dia.id + 1;
+
                 let diaSeleccionado = this.validarDiaSeleccionado($vue.reservaaula);
 
                 let diaTmp = $vue.jsonaulahorario[0].dia.id;

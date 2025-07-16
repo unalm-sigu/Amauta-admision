@@ -51,16 +51,16 @@ Vue.component("inicio-tram-component", {
             $vue.findAlumno(item.id);
         },
         clearOption(data) {
-            let $vue = this;
-            $vue.solicitudUpd = {... $vue.solicitud};
-            $vue.solicitud = {};
-            $vue.ciclo = {};
-            $vue.costoDocumento = "";
-            $vue.showCostoDocumento = false;
-            Vue.set($vue.solicitud, "personaContacto", data.persona.nombreCompleto);
-            Vue.set($vue.solicitud, "telefono", data.persona.telefono);
-            Vue.set($vue.solicitud, "celular", data.persona.celular);
-            Vue.set($vue.solicitud, "email", data.persona.email);
+            Object.assign(this.solicitud, {
+                personaContacto: data.persona.nombreCompleto,
+                telefono:        data.persona.telefono,
+                celular:         data.persona.celular,
+                email:           data.persona.email
+            });
+
+            this.ciclo           = {};
+            this.costoDocumento  = "";
+            this.showCostoDocumento = false;
         },
         idiomaDocumento(value) {
             let $vue = this;

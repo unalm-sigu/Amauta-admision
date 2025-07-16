@@ -63,48 +63,48 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
 
             int col = 0;
 
-//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
+            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor() + 1, col, col);
             excelUtil.setWidthColumn(col, 1000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "N°");
             col++;
 
-//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
+            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor() + 1, col, col);
             excelUtil.setWidthColumn(col, 6000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Matrícula");
             col++;
 
-//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
+            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor() + 1, col, col);
             excelUtil.setWidthColumn(col, 12000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Apellidos Nombres");
             col++;
-            
-//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), col, 14);
-//            excelUtil.setWidthColumn(col, 12000);
-//            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-//            excelUtil.replaceVal(rowCounter.getValor(), col, "Clases");
-//            col++;
-            
+
             List<AsistenciaNivelacion> asistencias = resultado.get(col).getAsistencias();
+
+            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), col, (col + asistencias.size() - 1));
+            excelUtil.setWidthColumn(col, 12000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Clases");
+
             Acumulador numeroAsistencia = new Acumulador(1);
 
             for (AsistenciaNivelacion asistencia : asistencias) {
                 excelUtil.setWidthColumn(col, 1000);
-                excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-                excelUtil.replaceVal(rowCounter.getValor(), col, numeroAsistencia.getValor());
+                excelUtil.replaceStyle(rowCounter.getValor() + 1, col, estiloHead);
+                excelUtil.replaceVal(rowCounter.getValor() + 1, col, numeroAsistencia.getValor());
                 numeroAsistencia.incrementar();
                 col++;
             }
 
-//            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), 2, col, col);
-            excelUtil.setWidthColumn(col, 7000);
+            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor() + 1, col, col);
+            excelUtil.setWidthColumn(col, 3500);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Porcentaje de Asistencia");
+            excelUtil.replaceVal(rowCounter.getValor(), col, "% Asistencia");
             col++;
 
-            rowCounter.incrementar();
+            rowCounter.incrementar(2);
         }
 
         Acumulador numeroAlumno = new Acumulador(1);
@@ -127,7 +127,7 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
             List<AsistenciaNivelacion> asistencias = data.getAsistencias();
             for (AsistenciaNivelacion asistencia : asistencias) {
                 excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-                excelUtil.replaceVal(rowCounter.getValor(), col, asistencia.getEstadoEnum() == ASISTIO ? "x" : "");
+                excelUtil.replaceVal(rowCounter.getValor(), col, asistencia.getEstadoEnum() == ASISTIO ? "✓" : "");
                 col++;
             }
 
@@ -142,7 +142,7 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
     private void crearHeaderDetalle(ExcelHelper excelUtil, List<ResultadoReporteView> resultado, Acumulador rowCounterSheet) {
 
         DateTime today = new DateTime();
-        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 6);
+        ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounterSheet.getValor(), rowCounterSheet.getValor(), 0, 14);
         excelUtil.replaceStyle(rowCounterSheet.getValor(), 0, excelUtil.getConLetraBoldSize14(HorizontalAlignment.CENTER));
         excelUtil.replaceVal(rowCounterSheet.getValor(), 0, "LISTA DE ASISTENCIA DE NIVELACIÓN DE INGRESANTES");
         rowCounterSheet.incrementar();

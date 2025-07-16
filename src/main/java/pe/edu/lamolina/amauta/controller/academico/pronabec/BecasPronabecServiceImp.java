@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.*;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -85,6 +86,12 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     }
 
     @Override
+    public List<Alumno> getHistorialAlumnos(String dni) {
+        return becasPronabecDAO.historialAlumno(dni);
+    }
+
+    @Override
+    @Transactional
     public void saveBecado(InformacionBeca informacionBeca, DataSessionPivot ds) {
 //        informacionBeca.setPersona(informacionBeca.getPersona());
         informacionBeca.setFechaRegistro(new Date());
@@ -191,6 +198,7 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
     }
 
     @Override
+    @Transactional
     public void uploadResolucionFile(InformacionBeca informacionBeca, MultipartFile file, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
@@ -224,6 +232,12 @@ public class BecasPronabecServiceImp implements BecasPronabecService {
         informacionBecaDB.setEstado("INACTIVO");
         informacionBecaDB.setCondicion("PÉRDIDA DE BECA");
         becasPronabecDAO.updateResolucionFile(informacionBecaDB);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTodosLosBecados() {
+        becasPronabecDAO.deleteAll();
     }
 
     private void procesarArchivo(MultipartFile file, List<String> observados, List<InformacionBeca> pronabec, DataSessionPivot ds) {

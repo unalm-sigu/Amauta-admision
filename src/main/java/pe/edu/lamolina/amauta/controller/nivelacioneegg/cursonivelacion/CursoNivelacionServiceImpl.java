@@ -91,7 +91,7 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
             cursoNew.setDepartamentoAcademico(new DepartamentoAcademico(ID_DPTO_ESTUDIOS_GENERALES));
             cursoNew.setUserRegsitro(ds.getUsuario());
             cursoNew.setFechaRegistro(new Date());
-            cursoNew.setEstadoEnum(EstadoEnum.PEN);
+            cursoNew.setEstadoEnum(EstadoEnum.CRE);
             cursoDAO.save(cursoNew);
         } else {
             Curso cursoBD = cursoDAO.find(curso.getId());
@@ -137,7 +137,7 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
         this.verificarPermiso(ds);
 
         Curso cursoBD = cursoDAO.find(curso.getId());
-        if (cursoBD.getEstadoEnum() == EstadoEnum.PEN || cursoBD.getEstadoEnum() == EstadoEnum.ANU) {
+        if (cursoBD.getEstadoEnum() == EstadoEnum.CRE || cursoBD.getEstadoEnum() == EstadoEnum.ANU) {
             cursoBD.setEstadoEnum(EstadoEnum.ACT);
         } else {
             cursoBD.setEstadoEnum(EstadoEnum.ANU);
@@ -203,6 +203,20 @@ public class CursoNivelacionServiceImpl implements CursoNivelacionService {
     @Override
     public List<CursoTemaExamen> allByCurso(Curso curso) {
         return cursoTemaExamenDAO.allByCurso(curso);
+    }
+
+    @Override
+    @Transactional
+    public List<Curso> saveActivacionMasiva(DataSessionPivot ds) {
+        List<Curso> cursosNivelacion = cursoDAO.allByModalidadEstudioAndEstado(ModalidadEstudioEnum.NIV_ING, EstadoEnum.CRE);
+        if (!cursosNivelacion.isEmpty()) {
+            cursosNivelacion.stream().forEach(curso -> {
+                curso.setEstadoEnum(EstadoEnum.ACT);
+                cursoDAO.update(curso);
+            });
+        }
+
+        return cursosNivelacion;
     }
 
 }

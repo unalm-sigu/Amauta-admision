@@ -12,6 +12,15 @@ var app = new Vue({
         isLoading: false
     },
     methods: {
+        getEstadoNombre(codigo) {
+            const estados = {
+                ACEP: 'Aceptado',
+                ANU: 'Anulado',
+                SOL: 'Solicitado',
+                RCHZ: 'Rechazado'
+            };
+            return estados[codigo] || codigo;
+        },
         nuevo() {
             let $vue = this;
             $vue.tramiteTitulo = {};

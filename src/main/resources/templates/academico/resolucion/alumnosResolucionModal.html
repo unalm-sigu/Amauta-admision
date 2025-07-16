@@ -5,8 +5,13 @@
             <table class="table table-condensed">
                 <caption style="font-size: 20px"> <b>{{ tipoMap[tipo] || tipo }}</b> </caption>
                 <thead>
-                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' || tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
+                    <tr v-if="tipo == 'BACHIFAC' || tipo == 'TITUL' || tipo == 'TITULBAC' ">
                         <th></th>
+                        <th>Código</th>
+                        <th>Apellidos y Nombres</th>
+                        <th>Resolución</th>
+                    </tr>
+                    <tr v-else-if="tipo == 'ALUMRENUNCIA' || tipo == 'RENUNCIA_CAR' ">
                         <th>Código</th>
                         <th>Apellidos y Nombres</th>
                         <th>Resolución</th>
@@ -32,9 +37,11 @@
                         <th v-if="tipo == 'CAM_NOTA'">Nota</th>
                     </tr>
                     <tr v-else-if="tipo == 'TRAS_INT'">
+                        <th></th>
                         <th>Apellidos y Nombres</th>
                         <th>Carrera Origen</th>
                         <th>Carrera Destino</th>
+                        <th>Estado</th>
                     </tr>
                     <tr v-else-if="tipo == 'RCI' || tipo =='INTES'">
                         <th>Apellidos y Nombres</th>
@@ -140,7 +147,8 @@
                             <span class="block" v-text="alumnoTramiteTraslado.tramite.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
-                    <tr v-if="tipo == 'TRAS_INT' "  v-for="item in alumnoTramiteTraslado">
+                    <tr v-if="tipo == 'TRAS_INT' "  v-for="(item, index) in alumnoTramiteTraslado">
+                        <td style="width: 10px;">{{ index + 1 }}</td>
                         <td>
                             <a class="block" v-text="item.tramite.alumno.persona.apellidosNombres30"></a>
                             <span class="block">Código: {{item.tramite.alumno.codigo}}</span>
@@ -152,6 +160,11 @@
                         </td>
                         <td>
                             <span class="block" v-text="item.carrera.nombre"></span>
+                        </td>
+                        <td>
+                            <span class="block" :class="estadoColor(item.estado)">
+                              {{ estadoNombre(item.estado) }}
+                            </span>
                         </td>
                     </tr>
                     <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="(item, index) in alumnoTramiteBachiller" >

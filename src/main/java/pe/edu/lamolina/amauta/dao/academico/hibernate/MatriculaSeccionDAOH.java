@@ -4,10 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.StringType;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -20,6 +24,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.amauta.controller.reporte.alumnoCursoMatriculado.AlumnoPersonalizadoDTO;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RHZ;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.SOL;
@@ -611,7 +616,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         query.setParameter("CICLO", ciclo);
         return (List<MatriculaSeccion>) query.list();
     }
-    
+
     @Override
     public List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -626,7 +631,6 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         return all(sql);
     }
 
-    
     @Override
     public void updateEstadoPersonalizado(MatriculaSeccion matriculaSeccion) {
         StringBuilder strb = new StringBuilder();
@@ -637,5 +641,99 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         query.setParameter("prm_fecha_anula", matriculaSeccion.getFechaAnula());
         query.setParameter("prm_user_anula", matriculaSeccion.getUserAnula().getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<AlumnoPersonalizadoDTO> listaPersonalizadoReporte() {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select a.codigo matricula, p.numero_doc_identidad dni, concat(ifnull(p.paterno,''),' ',ifnull(p.materno,''),' ',ifnull(p.nombres,'')) alumno, ");
+        sql.append(" car.nombre carrera, 'Separado' situacion, '20251' ciclo,p.foto ");
+        sql.append(" from aca_alumno a ");
+        sql.append(" join gen_persona p on a.id_persona = p.id ");
+        sql.append(" join aca_carrera car on a.id_carrera = car.id ");
+        sql.append(" join aca_situacion_academica sa on a.id_situacion_academica = sa.id ");
+        sql.append(" where a.codigo in ('20091130', ");
+        sql.append(" '20110436', ");
+        sql.append(" '20110446', ");
+        sql.append(" '20110464', ");
+        sql.append(" '20111043', ");
+        sql.append(" '20121119', ");
+        sql.append(" '20121151', ");
+        sql.append(" '20121173', ");
+        sql.append(" '20130048', ");
+        sql.append(" '20130160', ");
+        sql.append(" '20130428', ");
+        sql.append(" '20131230', ");
+        sql.append(" '20140351', ");
+        sql.append(" '20140923', ");
+        sql.append(" '20140971', ");
+        sql.append(" '20141036', ");
+        sql.append(" '20141040', ");
+        sql.append(" '20141258', ");
+        sql.append(" '20141261', ");
+        sql.append(" '20141268', ");
+        sql.append(" '20141296', ");
+        sql.append(" '20150292', ");
+        sql.append(" '20150342', ");
+        sql.append(" '20150351', ");
+        sql.append(" '20150352', ");
+        sql.append(" '20151067', ");
+        sql.append(" '20151188', ");
+        sql.append(" '20151227', ");
+        sql.append(" '20151229', ");
+        sql.append(" '20151330', ");
+        sql.append(" '20160216', ");
+        sql.append(" '20160232', ");
+        sql.append(" '20160344', ");
+        sql.append(" '20160382', ");
+        sql.append(" '20161062', ");
+        sql.append(" '20161084', ");
+        sql.append(" '20161127', ");
+        sql.append(" '20161175', ");
+        sql.append(" '20161237', ");
+        sql.append(" '20161392', ");
+        sql.append(" '20170005', ");
+        sql.append(" '20170283', ");
+        sql.append(" '20170406', ");
+        sql.append(" '20170411', ");
+        sql.append(" '20170441', ");
+        sql.append(" '20170477', ");
+        sql.append(" '20180072', ");
+        sql.append(" '20180239', ");
+        sql.append(" '20180263', ");
+        sql.append(" '20180367', ");
+        sql.append(" '20180957', ");
+        sql.append(" '20181055', ");
+        sql.append(" '20181119', ");
+        sql.append(" '20190059', ");
+        sql.append(" '20190119', ");
+        sql.append(" '20190390', ");
+        sql.append(" '20190451', ");
+        sql.append(" '20190478', ");
+        sql.append(" '20190508', ");
+        sql.append(" '20191374', ");
+        sql.append(" '20191452', ");
+        sql.append(" '20191526', ");
+        sql.append(" '20201404', ");
+        sql.append(" '20210511', ");
+        sql.append(" '20210665', ");
+        sql.append(" '20210734', ");
+        sql.append(" '20210984', ");
+        sql.append(" '20210985', ");
+        sql.append(" '20211610', ");
+        sql.append(" '20211701') ");
+        sql.append(" order by 3; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("dni", StringType.INSTANCE)
+                .addScalar("alumno", StringType.INSTANCE)
+                .addScalar("carrera", StringType.INSTANCE)
+                .addScalar("situacion", StringType.INSTANCE)
+                .addScalar("ciclo", StringType.INSTANCE)
+                .addScalar("foto", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(AlumnoPersonalizadoDTO.class));
+
+        return (List<AlumnoPersonalizadoDTO>) query.list();
     }
 }

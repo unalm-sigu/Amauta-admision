@@ -60,6 +60,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("car.id", carrera)
+                .filter("con.estado","<>", ANU)
 
 //                Map<String, Object> queries = filter.getQueries();
 //                for (String key : queries.keySet()) {

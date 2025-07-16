@@ -23,4 +23,6 @@ public interface CursoNivelacionService {
 
     List<CursoTemaExamen> allByCurso(Curso curso);
 
+    public List<Curso> saveActivacionMasiva(DataSessionPivot ds);
+
 }

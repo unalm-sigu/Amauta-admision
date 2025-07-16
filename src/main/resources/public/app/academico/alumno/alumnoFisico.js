@@ -70,6 +70,8 @@ new Vue({
         },
         buscarPais: function () {
             return {
+                placeholder: "  ",
+                allowClear: true,
                 minimumInputLength: 2,
                 ajax: {
                     url: APP.url("comun/buscar/allPaises"),

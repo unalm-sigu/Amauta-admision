@@ -2,10 +2,10 @@
     <transition>
         <div class="row m-t-md m-b-md" style="position: relative;">
 
-            <div v-if="processing" 
+            <div v-if="processing"
                  class="raptor-table-process-main">
                 <span class="raptor-table-process-box">
-                    <span v-html="processtext" 
+                    <span v-html="processtext"
                           class="raptor-table-process-text">
                     </span>
                 </span>
@@ -19,7 +19,7 @@
                 <div class="col-md-2">
                     <label v-if="labelsearch">&nbsp;</label>
                     <input v-on:change="executeSearch"
-                           v-model="search" 
+                           v-model="search"
                            placeholder="Buscar"
                            type="text"
                            class="form-control input-sm"/>
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="col-md-6 text-right">
-                    <uib-pagination v-model="page" 
+                    <uib-pagination v-model="page"
                                     v-bind="pagination"
                                     v-on:change="loadRemoteData"
                                     class="pagination"

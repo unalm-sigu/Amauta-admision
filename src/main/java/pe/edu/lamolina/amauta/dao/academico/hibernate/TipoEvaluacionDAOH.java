@@ -48,7 +48,7 @@ public class TipoEvaluacionDAOH extends AbstractEasyDAO<TipoEvaluacion> implemen
     public boolean existsByCodigo(String codigo) {
         Octavia sql = Octavia.query()
                 .from(TipoEvaluacion.class, "te")
-                .filter("te.codigo" ,codigo);
+                .filter("te.codigo",codigo);
 
         return !all(sql).isEmpty();
     }
@@ -58,6 +58,26 @@ public class TipoEvaluacionDAOH extends AbstractEasyDAO<TipoEvaluacion> implemen
         Octavia sql = Octavia.query()
                 .from(TipoEvaluacion.class, "te")
                 .filter("te.nombre" ,nombre);
+
+        return !all(sql).isEmpty();
+    }
+
+    @Override
+    public boolean existsByNombreAndIdNot(String nombre, Long idExcluir) {
+        Octavia sql = Octavia.query()
+                .from(TipoEvaluacion.class, "te")
+                .filter("te.nombre", nombre)
+                .filter("te.id", "!=", idExcluir);
+
+        return !all(sql).isEmpty();
+    }
+
+    @Override
+    public boolean existsByCodigoAndIdNot(String codigo, Long idExcluir) {
+        Octavia sql = Octavia.query()
+                .from(TipoEvaluacion.class, "te")
+                .filter("te.codigo", codigo)
+                .filter("te.id", "!=", idExcluir);
 
         return !all(sql).isEmpty();
     }

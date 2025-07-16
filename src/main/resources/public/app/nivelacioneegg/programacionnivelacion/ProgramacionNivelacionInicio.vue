@@ -113,16 +113,24 @@
                                                 </a>
                                             </span>
 
-
-
                                         </td>
-                                        
+
                                         <td class="v-middle text-center">
                                             <span class="block bold pointer"
                                                   v-on:click="verLecciones(item)"
                                                   v-bind:class="classAsistencia(item)">
                                                 {{item.controlesEjecutados}} / 
                                                 {{item.controlesConfigurados}}
+                                            </span>
+                                            <span class="block pointer" v-if="item.controlesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarAsistencias(item,'SI')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-success"></i>
+                                                </a>
+                                            </span>
+                                            <span class="block pointer" v-else="item.controlesEjecutados > 0">
+                                                <a v-on:click.prevent="descargarAsistencias(item,'NO')">
+                                                    <i class="fa fa-file-excel-o fa-lg text-danger"></i>
+                                                </a>
                                             </span>
                                         </td>
 
@@ -327,6 +335,23 @@
                     });
                 }
             },
+            descargarAsistencias(item, descargar) {
+                if (descargar === 'NO') {
+                    notify("Aun no han llenado las asistencias", "error");
+                } else {
+                    axios({
+                        url: APP.url(`nivelacioneegg/reporte/asistenciaSeccion/${item.codigo}`),
+                        method: 'POST',
+                        responseType: 'blob'
+                    }).then((response) => {
+                        this.showReporte(response);
+                    }).catch(error => {
+                        console.log(error);
+                        this.processReporte = false;
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+                }
+            },
             showReporte(response) {
                 let $vue = this;
                 let fileName = response
@@ -428,7 +453,7 @@
             setHorario(item) {
                 this.$refs.modalAddHorario.open(item, this.$refs.raptorCursos);
             },
-            
+
             verLecciones(item) {
                 const url = APP.url(`${rutaModuloLeccion}/${item.id}/dictados${myUtils.getOrigenURL()}`);
                 location.href = url;

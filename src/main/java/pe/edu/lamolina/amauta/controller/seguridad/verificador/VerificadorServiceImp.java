@@ -381,7 +381,9 @@ public class VerificadorServiceImp implements VerificadorService {
     @Override
     public boolean puedeEditarOficinas(DataSessionPivot ds) {
 
-        if (this.esTrabajadorOeraConRol(RolEnum.IOREA, ds) || this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds)) {
+        if (this.esTrabajadorOeraConRol(RolEnum.IOREA, ds)
+                || this.esTrabajadorObuaeConRol(RolEnum.INF_OBUAE, ds)
+                || this.esTrabajadorEpgConRol(RolEnum.INF_EPG, ds)) {
             return true;
         }
 
@@ -1308,6 +1310,9 @@ public class VerificadorServiceImp implements VerificadorService {
             if (rol.getCodigoEnum() == RolEnum.TRAM_DOCUM_OERA) {
                 return true;
             }
+            if (rol.getCodigoEnum() == RolEnum.ADMIN_NETWORKING){
+                return true;
+            }
         }
         return false;
     }
@@ -1353,6 +1358,24 @@ public class VerificadorServiceImp implements VerificadorService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean isAdminNetworking(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.ADMIN_NETWORKING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean esMigradorHistorial(DataSessionPivot ds) {
+        Optional<Rol> rol = ds.getRoles().stream()
+                .filter(x-> (x.getCodigoEnum() == RolEnum.MIGRADOR_HISTORIAL) ||
+                        x.getCodigoEnum() == RolEnum.IOREA).findFirst();
+    return rol.isPresent();
     }
 
 }

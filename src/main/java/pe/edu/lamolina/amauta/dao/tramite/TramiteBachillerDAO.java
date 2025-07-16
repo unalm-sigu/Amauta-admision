@@ -11,6 +11,8 @@ import pe.edu.lamolina.model.tramite.TramiteBachiller;
 public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
 
     TramiteBachiller findByTramite(Tramite tramite);
+    TramiteBachiller findByResolucionCU(Resolucion resolucion);
+    TramiteBachiller findByResolucionFacultad(Resolucion resolucion);
 
     List<TramiteBachiller> allByTramites(List<Tramite> tramites);
 

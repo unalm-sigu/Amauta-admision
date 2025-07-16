@@ -231,6 +231,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     }
 
     @Override
+    @Transactional
     public void anularTitulo(TramiteTitulo tramiteTitulo, DataSessionPivot ds) {
         tramiteTitulo = tramiteTituloDAO.find(tramiteTitulo.getId());
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);

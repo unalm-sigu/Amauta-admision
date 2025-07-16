@@ -1,12 +1,12 @@
 <aside th:fragment="sideBarFlat" class="aside-md">
     <section class="vbox">
-        <div class="sidebar-flat sidebar-blue fix-scroll">
+        <div class="sidebar-flat sidebar-blue fix-scroll" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
 
-            <div class="logo">
+            <div class="logo" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
                 <a href="#" class="nav-brand" data-toggle="fullscreen"></a>
             </div>
 
-            <div class="current-user">
+            <div class="current-user" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
                 <a href="#" class="name">
                     <div class="avatar-text" th:inline="text">
                         [[ ${session.SESSION_USUARIO.persona.avatar} ]]
@@ -30,13 +30,13 @@
                 </ul>
             </div>
 
-            <div class="current-user" th:if="${ambiente != 'prod'}">
+            <div class="current-user" th:if="${ambiente != 'prod'}" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
                 <button class="btn btn-warning" disabled="" 
                         style="font-weight: bold; color: black !important; cursor: default; opacity: 100;">
                     SERVIDOR DE PRUEBAS
                 </button>
             </div>
-            <div class="current-user" th:if="${session.SESSION_USUARIO.encuestaSunedu}">
+            <div class="current-user" th:if="${session.SESSION_USUARIO.encuestaSunedu}" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
                 <a th:href="${session.SESSION_USUARIO.rutaEncuentaSunedu}" 
                    class="btn btn-sm btn-default  btn-block  " target="_blank">
                     <i class="fa fa-cubes  text-black"></i>
@@ -44,7 +44,7 @@
                 </a>
             </div>
 
-            <div class="section-container">
+            <div class="section-container" th:style="${ambiente != 'prod'} ? 'background-color: #b53346;' : ''">
 
                 <div class="menu-section">
                     <h3>Académico</h3>
@@ -52,8 +52,8 @@
                         <li class="option" 
                             th:each='menu : ${session.SESSION_USUARIO.menu}' >
                             <a href="#" data-toggle="sidebar">
-                                <i class="fa fa-th-list"></i>
-                                <!--<i th:class="${menu.getIconoClass('fa')}"></i>-->
+<!--                                <i class="fa fa-th-list"></i>-->
+                                <i th:class="${menu.getIconoClass('fa')}"></i>
                                 <span th:text="${menu.nombre}">Call Center</span>
                                 <i class="fa fa-chevron-down"></i>
                             </a>

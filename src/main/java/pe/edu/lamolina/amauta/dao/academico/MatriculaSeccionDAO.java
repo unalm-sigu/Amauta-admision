@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.amauta.controller.reporte.alumnoCursoMatriculado.AlumnoPersonalizadoDTO;
 
 public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
@@ -92,11 +93,13 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccionesMat(List<Seccion> secciones);
 
-    public List<MatriculaSeccion> allByReporte(String seccion, CicloAcademico cicloAcademico);
+    List<MatriculaSeccion> allByReporte(String seccion, CicloAcademico cicloAcademico);
 
     List<MatriculaSeccion> allDataByReporte(String ciclo);
 
     List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public void updateEstadoPersonalizado(MatriculaSeccion matriculaSeccionUpdEstado);
+    void updateEstadoPersonalizado(MatriculaSeccion matriculaSeccionUpdEstado);
+
+    List<AlumnoPersonalizadoDTO> listaPersonalizadoReporte();
 }

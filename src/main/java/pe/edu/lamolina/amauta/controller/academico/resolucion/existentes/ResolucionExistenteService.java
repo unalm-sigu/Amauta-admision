@@ -72,7 +72,7 @@ public interface ResolucionExistenteService {
 
     List<TramiteTitulo> allTitulos(DataSessionPivot ds);
 
-    List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds);
+    List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds, String facultad);
 
     List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 

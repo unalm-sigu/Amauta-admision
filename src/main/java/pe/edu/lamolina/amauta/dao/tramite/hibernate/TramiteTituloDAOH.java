@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -36,6 +37,24 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
+    public TramiteTitulo findByResolucionCU(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class,"tt")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tt.resolucion", resolucion);
+        return find(sql);
+    }
+
+    @Override
+    public TramiteTitulo findByResolucionFacultad(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteTitulo.class,"tt")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tt.resolucionFacultad", resolucion);
+        return find(sql);
+    }
+
+    @Override
     public List<TramiteTitulo> allByTramites(List<Tramite> tramites) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class)
@@ -51,7 +70,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         sql.from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.alumno al", "al.persona", "al.carrera car")
                 .join("car.facultad")
-                .filter("tb.estado", SOL)
+                .filter("tb.estado", TramiteEstadoEnum.SOL.name())
                 .filter("al.id", alumno);
 
         return find(sql);
@@ -120,11 +139,13 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
     }
 
     @Override
-    public List<TramiteTitulo> allBySolicitadosFacultad() {
+    public List<TramiteTitulo> allBySolicitadosFacultad(Facultad facultad) {
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class, "tt")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
-                .join("al.carrera car", "per.tipoDocumento", "car.facultad")
+                .join("al.carrera car", "per.tipoDocumento", "car.facultad", "al.cicloActivoRegular ci")
+                .filter("ci.codigoAnterior",">=","20171")
+                .filter("car.facultad",facultad)
                 .filter("tt.estadoTitulo", TramiteEstadoEnum.SOL.name())
                 .orderBy("per.paterno");
 

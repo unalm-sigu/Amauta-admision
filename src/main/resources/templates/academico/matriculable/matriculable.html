@@ -248,7 +248,7 @@ s
                                                             {{item.alumno.modalidadEstudio.nombre}}
                                                         </span>
                                                         <small class="block">
-                                                            {{item.alumno.persona.emailCompania}}
+                                                            {{ item.alumno.persona.emailCorporativo ? item.alumno.persona.emailCorporativo : item.alumno.persona.emailCompania }}
                                                         </small>
                                                         <small class="block" v-if="item.esBeneficiadoUltimoCiclo">
                                                             <smal class="label label-success">Beneficiado Ult. Ciclo </smal>

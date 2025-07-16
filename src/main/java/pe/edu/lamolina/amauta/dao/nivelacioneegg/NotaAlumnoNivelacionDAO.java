@@ -1,9 +1,14 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg;
 
 import java.util.List;
+
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -49,4 +54,19 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<ResultadoReporteView> allResultadoNotaSeccionByCicloAndSeccion(CicloAcademico cicloAcademico, String seccion);
 
+    List<ResultadoReporteView> allIngresantesDesaprobadosByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> ingresantesDesaprobadosMoodleByCiclo(CicloAcademico cicloAcademico);
+
+    List<IngresantesExamenAdmisionDTO> allExamenAdmisionByCiclo(CicloAcademico cicloAcademico);
+
+    List<IngresantesInscritosNivelacionDTO> allInscritosNivelacionByCiclo(CicloAcademico cicloAcademico);
+
+    List<IngresantesMateriasNivelacionDTO> allMateriasNivelacion(CicloAcademico cicloAcademico);
+
+    List<IngresantesAsistenciaInscritosDTO> allAsistenciasByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> ingresantesGeneraByCiclo(CicloAcademico cicloAcademico);
 }

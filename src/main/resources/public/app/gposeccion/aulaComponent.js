@@ -130,6 +130,7 @@ Vue.component("aula-component", {
             }
 
             if (!aulaSeleccionada.id) {
+                console.log("AULA EN BLANCOOOOOOO")
                 bootbox.confirm({
                     message: "¿Está seguro que desea eliminar el aula?",
                     buttons: {
@@ -165,43 +166,84 @@ Vue.component("aula-component", {
                 });
                 return;
             }
-            if (!aulaSeleccionada.isDisponible && aulaSeleccionada.permiteCruce === 0) {
-                notify("El aula no esta disponible", "error");
-                return;
-            }
-            bootbox.confirm({
-                message: "¿Está seguro que desea grabar?",
-                buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
 
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url('academico/gposeccion/saveAula'),
-                            type: 'POST',
-                            async: true,
-                            data: {
-                                seccion: $vue.seccionModal.id,
-                                aula: aulaSeleccionada.id
-                            },
-                            success: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveAula", response);
-                            },
-                            error: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveAula", response);
-                                notify(Messages.errorComunicacion, "error");
-                            }
-                        });
-                    } else {
 
+            if (aulaSeleccionada.permiteCruce === 1 && aulaSeleccionada.id) {
+                console.log("AULA CON CRUCEEE")
+                bootbox.confirm({
+                    message: aulaSeleccionada.isDisponible ? "¿Está seguro que desea grabar?" : "¿Se encuentra ocupado el aula, pero permite cruce desea seguir?",
+                    buttons: {
+                        confirm: {label: 'Si', className: "btn-warning"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+
+                        if (result) {
+                            MODAL.showWait("Espere un momento por favor");
+                            $.ajax({
+                                url: APP.url('academico/gposeccion/saveAula'),
+                                type: 'POST',
+                                async: true,
+                                data: {
+                                    seccion: $vue.seccionModal.id,
+                                    aula: aulaSeleccionada.id
+                                },
+                                success: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                },
+                                error: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                    notify(Messages.errorComunicacion, "error");
+                                }
+                            });
+                        } else {
+
+                        }
                     }
-                }
-            });
+                });
+//                return;
+            } else if (aulaSeleccionada.permiteCruce === 0 && aulaSeleccionada.id && aulaSeleccionada.isDisponible) {
+                console.log("AULA SIN CRUCEEE");
+                bootbox.confirm({
+                    message: "¿Está seguro que desea grabar?",
+                    buttons: {
+                        confirm: {label: 'Si', className: "btn-warning"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+
+                        if (result) {
+                            MODAL.showWait("Espere un momento por favor");
+                            $.ajax({
+                                url: APP.url('academico/gposeccion/saveAula'),
+                                type: 'POST',
+                                async: true,
+                                data: {
+                                    seccion: $vue.seccionModal.id,
+                                    aula: aulaSeleccionada.id
+                                },
+                                success: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                },
+                                error: function (response) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveAula", response);
+                                    notify(Messages.errorComunicacion, "error");
+                                }
+                            });
+                        } else {
+
+                        }
+                    }
+                });
+            } else if (!aulaSeleccionada.isDisponible && aulaSeleccionada.permiteCruce === 0) {
+                notify("El aula no esta disponible y no permite cruce.", "error");
+//                return;
+            }
+
         },
         closeAula($vue) {
             $vue.tabAulas.aulaSel.tabAula = "zzz";

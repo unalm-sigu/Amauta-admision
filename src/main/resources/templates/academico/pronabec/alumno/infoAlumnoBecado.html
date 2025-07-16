@@ -1,0 +1,47 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Información Académica</title>
+        <style>
+            .header-ciclo {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }
+            .footer-ciclo {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                border-bottom-left-radius: 11px;
+                border-bottom-right-radius: 11px;
+            }
+            .td-pad {
+                padding: 0 !important;
+            }
+            .malla {
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="firstVue"  v-cloak=""></div>
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
+                var alumnoJson = /*[[${alumnoJson.toString()}]]*/ 'json';
+                var horasJson = /*[[${horasJson.toString()}]]*/ 'json';
+                var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+                var origen = /*[[${origen}]]*/ 'json';
+                var puedeCalcularJSON = /*[[${puedeCalcular}]]*/ 'json';
+                var puedeMatricularJSON = /*[[${puedeMatricular}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:replace="_modules/vue-modal"></div>
+            <!--<div th:replace="_modules/vue-raptor-table"></div>-->
+            <script th:src="@{/app/academico/pronabec/infoAcademicoBecado.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

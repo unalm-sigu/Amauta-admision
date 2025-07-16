@@ -9,7 +9,7 @@
     <body class="login-bg">
         <div layout:fragment="BODY">
             <div class="login-header">
-                <button th:if="${ambiente != 'prod'}" class="btn btn-warning btn-sm pull-right" disabled="" 
+                <button th:if="${ambiente != 'prod'}" class="btn btn-warning btn-sm pull-right" disabled=""
                         style="font-weight: bold; cursor: default; margin-top: -8px; opacity: 100;">
                     SERVIDOR DE PRUEBAS
                 </button>
@@ -18,7 +18,7 @@
 
             <div class="row">
 
-                <div id="main" class="col-md-4  col-sm-4 col-sm-offset-4" v-cloak="">
+                <div id="main" class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-12" v-cloak="">
                     <section class="login-wrapper text-center ">
                         <div class="box">
 
@@ -39,8 +39,8 @@
                                         <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-default btn-rounded btn-sm pull-right"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
                                     </div>
 
-                                    <div class="col-md-12 m-t-md" >
-                                        <button v-on:click.prevent="activarCiclo(ciclo)" v-for="ciclo in ciclosVisibles" class="col-md-12 btn btn-success m-b-md block" v-text="ciclo.descripcion2"></button>
+                                    <div class="col-xs-12 m-t-md" >
+                                        <button v-on:click.prevent="activarCiclo(ciclo)" v-for="ciclo in ciclosVisibles" class="btn btn-success m-b-md btn-block" v-text="ciclo.descripcion2"></button>
                                     </div>
 
                                 </div>

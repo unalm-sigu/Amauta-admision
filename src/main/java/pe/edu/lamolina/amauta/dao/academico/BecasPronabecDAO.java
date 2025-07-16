@@ -17,11 +17,14 @@ public interface BecasPronabecDAO extends EasyDAO<InformacionBeca> {
     List<InformacionBeca> allByFilter(DynatableFilter filter);
     List<InformacionBeca> finByPersonaIds(InformacionBeca infoBeca);
     List<Persona> allByName(String nombre);
+    List<Alumno> historialAlumno(String dni);
     void updateEstado(InformacionBeca informacionBeca);
     void updateResolucionFile(InformacionBeca informacionBeca);
     List<MatriculadosBecadosBean> allMatriculadosBecadosPregrado(CicloAcademico cicloAcademico);
     List<BecadosFilterBean> allBecadosFilterExcel(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio,BecadosFilterBean becadosFilterBean);
     List<BecadosFilterBean> filterActualBecados(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, BecadosFilterBean becadosFilterBean);
     List<BecadosFilterBean> filterAnteriorBecados(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio, BecadosFilterBean becadosFilterBean);
+    void deleteAll();
+
 
 }

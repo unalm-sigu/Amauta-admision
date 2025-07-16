@@ -48,6 +48,7 @@ import pe.edu.lamolina.model.nivelacioneegg.ModalidadTemaCiclo;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnosnivelacion.helpernotaalumno.ChangeNotaAlumnoNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
@@ -61,6 +62,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
     private final AlumnoDAO alumnoDAO;
     private final AlumnoNivelacionDAO alumnoNivelacionDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
     private final EvaluadoDAO evaluadoDAO;
     private final ModalidadTemaCicloDAO modalidadTemaCicloDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
@@ -206,6 +208,59 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
             this.saveNotas(notasSave, true);
             this.updateNotas(notasUpdate, true);
+
+            mapNivelados.put(alumno.getCodigo(), alumnoNiv);
+        }
+
+        CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorRegular(ciclo).get(0);
+        List<AlumnoNivelacion> niveladosOld = alumnoNivelacionDAO.allByCiclo(cicloAntes);
+        List<Alumno> inhabilitados = niveladosOld.stream()
+                .filter(niv -> niv.getEstadoEnum() == INH)
+                .filter(niv -> mapNivelados.get(niv.getAlumno().getCodigo()) == null)
+                .map(niv -> niv.getAlumno())
+                .collect(Collectors.toList());
+        
+        for (Alumno alumno : inhabilitados) {
+            AlumnoNivelacion alumnoNiv = mapNivelados.get(alumno.getCodigo());
+            log.info("[createAlumnos] alumno={} no-existe={}", alumno.getCodigo(), alumnoNiv == null);
+            if (alumnoNiv == null) {
+                alumnoNiv = new AlumnoNivelacion();
+                Postulante postulante = alumno.getPostulantePregrado();
+                Evaluado evaluado = evaluadoDAO.findByPostulante(postulante);
+                Prelamolina cepre = prelamolinaDAO.findIngresanteByPostulante(postulante);
+
+                if (evaluado != null) {
+                    alumnoNiv.setPuntajeFinal(this.fixPuntaje(evaluado.getPuntajeFinal()));
+                    alumnoNiv.setNotaFinal(this.fixPuntaje(evaluado.getNotaFinal()));
+                } else if (cepre != null) {
+                    alumnoNiv.setPuntajeFinal(this.fixPuntaje(cepre.getPuntajeFinal()));
+                } else {
+                    Assert.isTrue(false, "No se puede determinar la notas de su examen de admisión");
+                }
+
+                alumnoNiv.setAlumno(alumno);
+                alumnoNiv.setEvaluado(evaluado);
+                alumnoNiv.setPrelamolina(cepre);
+                alumnoNiv.setCicloAcademico(ciclo);
+                alumnoNiv.setEstadoEnum(NMAT);
+                alumnoNiv.setUserRegistro(ds.getUsuario());
+                alumnoNiv.setFechaRegistro(new Date());
+                alumnoNivelacionDAO.save(alumnoNiv);
+                nuevos++;
+
+                Map<Long, NotaAlumnoNivelacion> mapNotasAlumnos = new HashMap();
+
+                if (evaluado != null) {
+                    this.crearNotaEvaluado(alumnoNiv, mapNotasAlumnos, evaluado, temasCiclo, mapConfigOtro, notasSave, notasUpdate, ds);
+                } else if (cepre != null) {
+                    this.crearNotaPrelamolina(alumnoNiv, mapNotasAlumnos, cepre, temasCiclo, mapConfigCepre, notasSave, notasUpdate, ds);
+                }
+            }
+
+            this.saveNotas(notasSave, true);
+            this.updateNotas(notasUpdate, true);
+
+            mapNivelados.put(alumno.getCodigo(), alumnoNiv);
         }
 
         this.saveNotas(notasSave, false);

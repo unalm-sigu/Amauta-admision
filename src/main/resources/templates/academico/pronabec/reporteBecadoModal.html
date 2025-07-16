@@ -4,7 +4,6 @@
     <div slot="body">
         <form id="formReporte" data-parsley-validate="true" class="form-horizontal">
 
-            <!-- Pregunta si es en el ciclo actual -->
             <div class="form-group">
                 <label class="control-label col-md-4">¿Sacar reporte del ciclo actual?</label>
                 <div class="col-md-8">
@@ -25,15 +24,17 @@
                 <label class="control-label col-md-4"> Ciclo Académico</label>
                 <div class="col-md-8">
                     <multiselect v-model="filtroExcel.ciclo_academico"
-                                 v-bind:options='ciclos'
-                                 v-bind:internal-search="true"
-                                 label='descripcion'
-                                 track-by='codigo'
+                                 :options="ciclos"
+                                 :internal-search="true"
+                                 label="descripcion"
+                                 track-by="codigo"
                                  placeholder="Seleccione un ciclo"
-                                 :disabled="filtroExcel.cicloActual === 'si'">
+                                 :class="{'parsley-error': cicloAcademicoError}">
                     </multiselect>
-                    <input type="hidden" v-model="filtroExcel.ciclo_academico" required=""/>
-                    <span class="help-block">Por favor, seleccione un ciclo académico.</span>
+                    <span class="help-block text-danger" v-if="cicloAcademicoError">
+                        Por favor, seleccione un ciclo académico.
+                    </span>
+
                 </div>
             </div>
 

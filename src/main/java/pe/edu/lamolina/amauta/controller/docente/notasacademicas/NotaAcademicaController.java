@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -197,14 +194,16 @@ public class NotaAcademicaController {
                         node.put("estadoEnum", EstadoPlanCalificaEnum.PEND.getValue());
                     } else {
                         logger.debug("con planes asociados al curso, quedara como propuesto");
-                        for (PlanCalificacionCurso planesCalificacionesCurso : planesCalificacionesCursos) {
-                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getId());
+                        PlanCalificacionCurso ultimoPlan = planesCalificacionesCursos.stream()
+                                .max(Comparator.comparingLong(p -> p.getPlanCalificacion().getId()))
+                                .orElse(null);
+
+                        if (ultimoPlan != null) {
+                            strbSistemas.append(ultimoPlan.getPlanCalificacion().getId());
                             strbSistemas.append(",");
-                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getCodigo());
-                            strbSistemas.append("-");
-                        }
-                        if (strbSistemas.length() != 0) {
-                            node.put("sistemas", strbSistemas.substring(0, strbSistemas.length() - 1));
+                            strbSistemas.append(ultimoPlan.getPlanCalificacion().getCodigo());
+
+                            node.put("sistemas", strbSistemas.toString());
                         }
 
                         node.put("estado", EstadoPlanCalificaEnum.PRO.name());
@@ -423,9 +422,11 @@ public class NotaAcademicaController {
         logger.debug("planCalificacion {}", planCalificacion);
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
 
-        List<PlanCalificacionCurso> planesCalificacionCurso = service.allActivosPlanCalificacionCurso(grupoSeccion.getCurso(),
+        List<PlanCalificacionCurso> planesCalificacionesCurso = service.allActivosPlanCalificacionCurso(grupoSeccion.getCurso(),
                 ds.getCicloAcademico().getTipoEnum());
-        PlanCalificacion planCalifica = planesCalificacionCurso.get(0).getPlanCalificacion();
+        planesCalificacionesCurso.sort(Comparator.comparingLong(PlanCalificacionCurso::getId).reversed());
+
+        PlanCalificacion planCalifica = planesCalificacionesCurso.get(0).getPlanCalificacion();
         if (planCalificacion != null) {
             logger.debug("buscara el sistema calificacion");
             planCalifica = service.findPlanCalificacion(planCalificacion);
@@ -434,7 +435,7 @@ public class NotaAcademicaController {
         model.addAttribute("planCalificacion", planCalifica);
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("planesCalificacionCurso", planesCalificacionCurso);
+        model.addAttribute("planesCalificacionCurso", planesCalificacionesCurso);
         model.addAttribute("tieneCursos", false);
 
         return "docente/notaacademica/aceptarSistemaCalificacion";

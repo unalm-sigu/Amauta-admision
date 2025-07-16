@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.function.IOConsumer;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -175,6 +176,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final TramiteTrasladoDAO tramiteTrasladoDAO;
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
+    private final FacultadDAO facultadDAO;
 
     private final GrupoSeccionDAO grupoSeccionDAO;
 
@@ -370,8 +372,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
-    public List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds) {
-        return tramiteTituloDAO.allBySolicitadosFacultad();
+    public List<TramiteTitulo> allTitulosFacultad(DataSessionPivot ds, String facultad) {
+        String codigoFacultad = facultad.startsWith("F") ? facultad.substring(1) : facultad;
+        Facultad codigo = facultadDAO.findByCodigo(codigoFacultad);
+        return tramiteTituloDAO.allBySolicitadosFacultad(codigo);
     }
 
     @Override
@@ -1262,6 +1266,14 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                     matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
                     matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
 
+                    List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByAlumnoCicloEstados(alumnoDB,cicloAplica,Arrays.asList(EstadoMatriculaEnum.MAT.name()));
+                    for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
+                        matriculaSeccion.setFechaAnula(new Date());
+                        matriculaSeccion.setUserAnula(ds.getUsuario());
+                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                        matriculaSeccionDAO.update(matriculaSeccion);
+                    }
+
                     List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumnoDB, cicloAplica);
                     for (MatriculaCurso matriculaCurso : matriculaCursos) {
                         matriculaCurso.setFechaAnula(new Date());
@@ -1857,15 +1869,16 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
                     alumno.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
                     alumnoDAO.updateColumns(alumno, "situacionAcademica");
-
-                    AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
-
-                    if (alumnoCicloDb.getSituacionFinal() == null
-                            || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
-
-                        alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
-                        alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
-                    }
+                    
+//                    Se comenta por que su situación academica final tiene que ser diferente a egresado o graduado para saber como quedo
+//                    AlumnoCiclo alumnoCicloDb = alumnoCicloDAO.findLastActiveEstudiadoByAlumno(alumno);
+//
+//                    if (alumnoCicloDb.getSituacionFinal() == null
+//                            || !alumnoCicloDb.getSituacionFinal().isEgresado()) {
+//
+//                        alumnoCicloDb.setSituacionFinal(new SituacionAcademica(SituacionAcademicaEnum.S_E.getId()));
+//                        alumnoCicloDAO.updateColumns(alumnoCicloDb, "situacionFinal");
+//                    }
                 }
             }
         }
@@ -1901,43 +1914,47 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //        if (eventoCicloAcademico == null) {
 //            return "No se ha configurado las fechas de inicio y fin del  ciclo " + ds.getCicloAcademico().getDescripcion();
 //        }
-        List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
-                .collect(Collectors.toList());
+        if(resolucion.getTramiteBachiller() != null){
 
-        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+            List<Alumno> alumnos = resolucion.getTramiteBachiller().stream().map(x -> x.getAlumno())
+                    .collect(Collectors.toList());
 
-        List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
-                .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
-                .collect(Collectors.toList());
+            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
 
-        for (TramiteBachiller bachiller : tramiteBachillers) {
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
 
-            TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
+            List<TramiteBachiller> tramiteBachillers = resolucion.getTramiteBachiller()
+                    .stream().filter(x -> x.getSeleccionado() != null && x.getSeleccionado() == true)
+                    .collect(Collectors.toList());
 
-            if (tramiteBachiller == null) {
-                throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
+            for (TramiteBachiller bachiller : tramiteBachillers) {
+
+                TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoActFacultad(bachiller.getAlumno());
+
+                if (tramiteBachiller == null) {
+                    throw new PhobosException("El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
+                }
+
+    //            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
+    //                log.debug("Solo esta permitido agregar alumnos en modo edición");
+    //                continue;
+    //            }
+                tramiteBachiller.setResolucionFacultad(resolucion);
+                tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
+                tramiteBachiller.setFechaResolucion(new Date());
+                tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
+                tramiteBachillerDAO.update(tramiteBachiller);
+
+                Tramite tramite = tramiteBachiller.getTramite();
+    //            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                tramite.setFechaRespuesta(new Date());
+                tramite.setUserRespuesta(ds.getUsuario());
+                tramite.setFinalizado(Boolean.TRUE);
+    //            tramite.setEstadoTramite(estadoTramite);
+                tramiteDAO.update(tramite);
+
             }
-
-//            if (!tramiteBachiller.getEstadofacultad().equalsIgnoreCase(TramiteEstadoEnum.SOL.name())) {
-//                log.debug("Solo esta permitido agregar alumnos en modo edición");
-//                continue;
-//            }
-            tramiteBachiller.setResolucionFacultad(resolucion);
-            tramiteBachiller.setEstadofacultad(TramiteEstadoEnum.ACEP.name());
-            tramiteBachiller.setFechaResolucion(new Date());
-            tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
-            tramiteBachillerDAO.update(tramiteBachiller);
-
-            Tramite tramite = tramiteBachiller.getTramite();
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setFechaRespuesta(new Date());
-            tramite.setUserRespuesta(ds.getUsuario());
-            tramite.setFinalizado(Boolean.TRUE);
-//            tramite.setEstadoTramite(estadoTramite);
-            tramiteDAO.update(tramite);
-
         }
     }
 

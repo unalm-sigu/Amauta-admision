@@ -769,6 +769,28 @@ body.container {
     padding-bottom: 20px;
   }
 }
+
+@media (max-width: 767px){
+  .hbox {
+    display: table;
+    table-layout: fixed;
+    border-spacing: 0;
+    width: 100%;
+  }
+  .hbox > aside,
+  .hbox > section {
+    display: table-cell;
+    vertical-align: top;
+    height: 100%;
+    float: none;
+  }
+  .hbox > aside.show, .hbox > aside.hidden-sm,
+  .hbox > section.show,
+  .hbox > section.hidden-sm {
+    display: table-cell !important;
+  }
+}
+
 @media (min-width: 768px) {
   body.container {
     -webkit-box-shadow: 0 3px 60px rgba(0, 0, 0, 0.3);

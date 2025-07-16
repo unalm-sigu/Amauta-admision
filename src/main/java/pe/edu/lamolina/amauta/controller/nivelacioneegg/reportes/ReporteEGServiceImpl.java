@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
@@ -44,14 +49,46 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         asistenciaSeccion.forEach(x -> {
             List<AsistenciaNivelacion> asistenciaAlumno = alumnosAsistencias.get(x.getMatricula());
             x.setAsistencias(asistenciaAlumno);
-
-            System.out.println("alumno::: " + x.getMatricula());
-            for (AsistenciaNivelacion asistenciaNivelacion : asistenciaAlumno) {
-                System.out.println("asistencia::: " + asistenciaNivelacion.getTemaAsistencia().getTemaClase() + " - " + asistenciaNivelacion.getEstado());
-            }
         });
 
         return asistenciaSeccion;
+    }
+
+    @Override
+    public List<ResultadoReporteView> allIngresantesDesaprobadosByCiclo(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.allIngresantesDesaprobadosByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public List<ResultadoReporteView> ingresantesDesaprobadosMoodleByCiclo(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.ingresantesDesaprobadosMoodleByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public ResultadoReporteView allDataProcesada(CicloAcademico cicloAcademico) {
+        List<IngresantesExamenAdmisionDTO> examenesAdmision = notaAlumnoNivelacionDAO.allExamenAdmisionByCiclo(cicloAcademico);
+        List<IngresantesInscritosNivelacionDTO> inscritosNivelacion = notaAlumnoNivelacionDAO.allInscritosNivelacionByCiclo(cicloAcademico);
+        List<IngresantesMateriasNivelacionDTO> materiasNivelacion = notaAlumnoNivelacionDAO.allMateriasNivelacion(cicloAcademico);
+        List<IngresantesAsistenciaInscritosDTO> asistencias = notaAlumnoNivelacionDAO.allAsistenciasByCiclo(cicloAcademico);
+
+        ResultadoReporteView reporteView = new ResultadoReporteView();
+        reporteView.setIngresantesExamene(examenesAdmision);
+        reporteView.setIngresantesInscritos(inscritosNivelacion);
+        reporteView.setIngresantesMateria(materiasNivelacion);
+        reporteView.setIngresantesAsistencia(asistencias);
+
+        return reporteView;
+
+    }
+
+    @Override
+    public List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.resultadoAdmisionByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public List<ResultadoReporteView> ingresantesGeneraByCiclol(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.ingresantesGeneraByCiclo(cicloAcademico);
     }
 
 }
