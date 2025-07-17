@@ -534,7 +534,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 BigDecimal peso = BigDecimal.ZERO;
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
-                    evaluacion.setAlumnoEvaluacion(null);
+                    //evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i, fechaRegistro, usuarioRegistro);
                     evaluacion.setTipoSeccionEvalEnum(grupoSeccion.getCurso().getTipoCursoEnum().getTipoSeccionEvalEnum());
                     evaluacion.setNivel(BigDecimal.ONE.intValue());
@@ -1882,7 +1882,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         evaluacionDAO.deleteByEvaluacionExpandida(evaluacionExpandida.getId());
 
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
-        evaluacionExpandida.setTipoSeccionEnum(tipoSeccionEvalEnum);
+        evaluacionExpandida.setTipoSeccionEvalEnum(tipoSeccionEvalEnum);
         evaluacionExpandidaDAO.update(evaluacionExpandida);
         log.debug("Evaluacion expandida {}", evaluacionExpandida.getId());
 
