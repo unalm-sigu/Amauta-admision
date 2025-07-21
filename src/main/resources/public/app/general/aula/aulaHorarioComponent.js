@@ -1,8 +1,6 @@
 var AulaHorarioVue = Vue.component("aula-horario-component", {
     template: "#modalAulaHorarioComp",
-    props: {
-
-    },
+    props: {},
     data: function () {
         return {
             aula: null,
@@ -73,9 +71,13 @@ var AulaHorarioVue = Vue.component("aula-horario-component", {
             $vue.fechaFin = fin;
             $vue.loadComponent();
         },
-        classByTipo(tipo) {
-            if (tipo == 'DICT') {
+        classByTipo(tipo, nivelacion) {
+
+            if (tipo == 'DICT' && (nivelacion.codigo === null || nivelacion.codigo === '' || nivelacion.codigo === undefined)) {
                 return 'text-primary';
+            }
+            if (tipo == 'DICT' && (nivelacion.codigo !== null || nivelacion.codigo !== '' || nivelacion.codigo !== undefined)) {
+                return 'text-dark';
             }
             if (tipo == 'RESERV') {
                 return 'text-warning';
