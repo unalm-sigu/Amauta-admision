@@ -59,6 +59,8 @@ public class ResultadoReporteView {
     private Date fechaIngreso;
     private String cicloIngresoAdmision;
     private String estado;
+    private String estadoCursoNivelacion;
+    private String temaAprobado;
     private List<AsistenciaNivelacion> asistencias;
     private List<IngresantesExamenAdmisionDTO> ingresantesExamene = new ArrayList<>();
     private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();
