@@ -36,10 +36,16 @@
                         <th>Carrera Origen</th>
                         <th>Carrera Destino</th>
                     </tr>
-                    <tr v-else-if="tipo == 'RCI' || tipo =='INTES'">
+                    <tr v-else-if="tipo == 'RCI' || tipo == 'REIC' || tipo =='INTES'">
                         <th>Apellidos y Nombres</th>
                         <th>Ciclo Académico</th>
                     </tr>
+                    <tr v-else-if="tipo === 'SUSP_DISCIPLI'">
+                        <th></th>
+                        <th>Apellidos y Nombres</th>
+                        <th>Ciclos Sancionados</th>
+                    </tr>
+
                 </thead>
                 <tbody>
                     <tr v-for="item in alumnosReincorporacion" v-if="tipo == 'REIC'"
@@ -234,7 +240,20 @@
                         <td>
                             <span class="block" >{{item.resolucion.descripcionFacultad }}  </span>
                         </td>
-                    </tr> 
+                    </tr>
+                    <tr v-if="tipo === 'SUSP_DISCIPLI'" v-for="(alumno, index) in agrupadosPorAlumno" :key="alumno.codigo">
+                        <td style="width: 10px;">{{ index + 1 }}</td>
+                        <td>
+                            <a class="block" v-text="alumno.nombreCompleto"></a>
+                            <span class="block" >Código - {{alumno.codigo}}</span>
+                            <span>DNI - {{ alumno.numeroDocIdentidad }}</span>
+                        </td>
+                        <td>
+                            <small v-for="ciclo in alumno.ciclos" :key="ciclo.codigo">
+                                Ciclo: {{ ciclo.descripcion }}<br>
+                            </small>
+                        </td>
+                    </tr>
 
                 </tbody>
             </table>

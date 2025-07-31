@@ -51,6 +51,7 @@ var app = new Vue({
         alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
         alumnoTramiteRenuncia: [],
+        alumnoTramiteSancion: [],
         tipo: "",
         tipoMap: {
             BACHI: 'Bachiller',
@@ -64,13 +65,41 @@ var app = new Vue({
             CAM_NOTA: 'Cambio de Nota',
             CURDIR: 'Curso Dirigido',
             TRAS_INT: 'Traslado Interno',
-            RCI: 'Reincorporación',
-            INTES: 'Intercambio Estudiantil'
+            RCI: 'Retiro de Ciclo',
+            REIC: 'Reincorporación',
+            INTES: 'Intercambio Estudiantil',
+            SUSP_DISCIPLI: 'Sancion Disciplinaria',
         },
     },
     mounted: function () {
         let $vue = this;
 
+    },
+    computed: {
+        agrupadosPorAlumno() {
+            const agrupados = {};
+
+            this.alumnoTramiteSancion.forEach(item => {
+                const alumnoData = item.sancionDisciplina.alumno;
+                const codigoAlumno = alumnoData.codigo;
+
+                if (!agrupados[codigoAlumno]) {
+                    agrupados[codigoAlumno] = {
+                        codigo: codigoAlumno,
+                        nombreCompleto: alumnoData.persona.nombreCompleto,
+                        numeroDocIdentidad: alumnoData.persona.numeroDocIdentidad,
+                        ciclos: []
+                    };
+                }
+
+                agrupados[codigoAlumno].ciclos.push({
+                    codigo: item.ciclo.codigo,
+                    descripcion: item.ciclo.descripcion
+                });
+            });
+
+            return Object.values(agrupados);
+        }
     },
     methods: {
         cambiarEstadoReincorporacion(tramite, estadoDestino, event) {
@@ -326,7 +355,6 @@ var app = new Vue({
             $vue.tipo = item.tipoResolucion.codigo;
             $vue.tipoNombre = item.tipoResolucion.nombre;
             $vue.codigoOficina = item.oficina.codigo;
-            console.log(item.tipoResolucion);
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
@@ -334,7 +362,6 @@ var app = new Vue({
                             notify("No contiene información de alumnos", "error");
                             return;
                         }
-                        console.log(data)
                         if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = data;
                         } else if ($vue.tipo == "RCI") {
@@ -365,6 +392,9 @@ var app = new Vue({
                             $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
                             $vue.alumnoTramiteCambioPlanCurricular = data;
+                        } else if ($vue.tipo == "SUSP_DISCIPLI") {
+                            $vue.alumnoTramiteSancion = data;
+                            console.log(data);
                         }
 
                         $vue.$refs.modalAlumnos.open();

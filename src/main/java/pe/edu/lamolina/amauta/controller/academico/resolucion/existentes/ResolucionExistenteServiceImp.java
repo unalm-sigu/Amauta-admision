@@ -2,13 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.resolucion.existentes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.dao.academico.*;
+import pe.edu.lamolina.amauta.dao.tramite.*;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -61,17 +56,7 @@ import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.CambioNota;
-import pe.edu.lamolina.model.tramite.CambioNotaMasBaja;
-import pe.edu.lamolina.model.tramite.CursoDirigido;
-import pe.edu.lamolina.model.tramite.EstadoTramite;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.TipoResolucion;
-import pe.edu.lamolina.model.tramite.TipoTramite;
-import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TramiteTraslado;
+import pe.edu.lamolina.model.tramite.*;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.general.oficina.util.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
@@ -84,24 +69,6 @@ import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PRO
 
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CambioNotaMasBajaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CambioNotaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CambioPlanCurricularDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReadmisionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoResolucionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramitePracticaPreProfesionalesDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteRenunciaAlumnoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -122,13 +89,6 @@ import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.general.TipoOficina;
-import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
-import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
-import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
-import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
-import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Slf4j
 @Service
@@ -160,6 +120,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final OficinaDAO oficinaDAO;
     private final ReadmisionDAO readmisionDAO;
     private final ReincorporacionDAO reincorporacionDAO;
+    private final SancionDisciplinaDAO sancionDisciplinaDAO;
+    private final SancionDisciplinaCicloDAO sancionDisciplinaCicloDAO;
     private final ResolucionDAO resolucionDAO;
     private final RetiroCicloDAO retiroCicloDAO;
     private final SeccionDAO seccionDAO;
@@ -385,6 +347,21 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<SancionDisciplina> allSancionDisciplina() {
+        return sancionDisciplinaDAO.allSancionDisciplina();
+    }
+
+    @Override
+    public List<SancionDisciplina> allSancionDisciplinaByResolucion(Resolucion resolucion) {
+        return sancionDisciplinaDAO.allSancionDisciplinaByResolucion(resolucion);
+    }
+
+    @Override
+    public List<SancionDisciplinaCiclo> allSancioCicloAlumnoByResolucion(Resolucion resolucion) {
+        return sancionDisciplinaCicloDAO.allSancionDisciplinaByResolucion(resolucion);
+    }
+
+    @Override
     public List<Reincorporacion> allReincorporacion() {
         return reincorporacionDAO.allPendientesByCicloReincorporacion();
     }
@@ -543,6 +520,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 //                this.requiereCicloAplica(resolucion.getCicloAplica());
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
+            case SUSP_DISCIPLI:
+                resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
+                break;
 
             default:
                 break;
@@ -607,6 +587,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case PRACTICAS:
                 this.saveTramitePracticas(resolucion, ds);
                 //respuesta = Arrays.asList(this.saveTramitePracticas(resolucion, ds));
+                break;
+            case SUSP_DISCIPLI:
+                this.saveTramiteSancionDisciplina(resolucion, ds);
                 break;
             default:
                 break;
@@ -1870,6 +1853,40 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             }
         }
     }
+
+    private void saveTramiteSancionDisciplina(Resolucion resolucion, DataSessionPivot ds) {
+
+        List<SancionDisciplina> sancionDisciplinaForm = resolucion.getSancionDisciplina()
+                .stream()
+                .filter(x -> x.isSeleccionado() || x.isRechazado())
+                .collect(Collectors.toList());
+
+        if (sancionDisciplinaForm.isEmpty()) {
+            throw new PhobosException("Debe seleccionar al menos un alumno.");
+        }
+
+        EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
+        Date now = new Date();
+        ObjectUtil.printAttr(sancionDisciplinaForm);
+
+        for (SancionDisciplina sancionDisciplinaX : sancionDisciplinaForm) {
+            ObjectUtil.printAttr(sancionDisciplinaX);
+            SancionDisciplina sancionDisciplina = sancionDisciplinaDAO.findByAlumnoAct(sancionDisciplinaX.getAlumno());
+            Tramite tramite = sancionDisciplina.getTramite();
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramiteAcep);
+            tramite.setFechaModificacion(now);
+            tramite.setUserModificacion(ds.getUsuario());
+            tramiteDAO.update(tramite);
+
+            sancionDisciplina.setTramite(tramite);
+            sancionDisciplina.setResolucion(resolucion);
+            sancionDisciplina.setFechaRegistro(now);
+            sancionDisciplina.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            sancionDisciplinaDAO.save(sancionDisciplina);
+        }
+    }
+
 
     private String validarTramiteBachillerFacultad(Resolucion resolucion, DataSessionPivot ds) {
         if (resolucion.getTramiteBachiller().isEmpty()) {
