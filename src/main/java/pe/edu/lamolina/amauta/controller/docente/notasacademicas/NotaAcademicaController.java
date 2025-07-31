@@ -36,6 +36,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaBachillerHtml;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaReincorporacionHtml;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -83,7 +85,7 @@ public class NotaAcademicaController {
     ReporteActaNotasService pdfService;
 
     @Autowired
-    PdfHtml pdfHtml;
+    PdfPieDePaginaReincorporacionHtml pdfHtml;
 
     @Autowired
     ReporteActasView reporteActasView;
