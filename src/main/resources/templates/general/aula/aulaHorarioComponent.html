@@ -60,9 +60,7 @@
                                             dia.mainHorarioAula.reservaAula.tramite.numero
                                         }}/{{ dia.mainHorarioAula.reservaAula.tramite.serie }}</strong>
                                     <strong v-else-if="dia.mainHorarioAula.cursoNivelacion.codigo">
-                                        {{
-                                            dia.mainHorarioAula.cursoNivelacion.codigo
-                                        }}/{{ dia.mainHorarioAula.cursoNivelacion.codigo }}</strong>
+                                        {{ dia.mainHorarioAula.cursoNivelacion.codigo }}</strong>
                                     <b class="caret"></b>
                                 </a>
 
@@ -108,7 +106,7 @@
                                                         dia.mainHorarioAula.cursoNivelacion.cursoCiclo.curso.departamentoAcademico.nombre
                                                     }}
                                                 </p>
-                                            </span>
+                                        </span>
 
                                         <span v-if="dia.mainHorarioAula.cursoNivelacion.cursoCiclo.curso.codigo"
                                               class="disabled block docente-uno">
@@ -175,7 +173,7 @@
                                                 <strong> Grupo </strong>  {{
                                                 dia.mainHorarioAula.cursoNivelacion.grupoHoras.codigo
                                             }}
-                                            </span>
+                                        </span>
 
 
                                         <span v-if="dia.mainHorarioAula.seccion.codigo2" class="block">
