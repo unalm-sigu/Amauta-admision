@@ -436,6 +436,7 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Override
+    @Transactional
     public void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds) { // USO COMO REST
         BeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumno);
         this.promediarAllCicloSync(

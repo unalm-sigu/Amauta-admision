@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg;
 
 import java.util.List;
+
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
@@ -65,4 +66,7 @@ public interface NotaAlumnoNivelacionDAO extends EasyDAO<NotaAlumnoNivelacion> {
 
     List<IngresantesAsistenciaInscritosDTO> allAsistenciasByCiclo(CicloAcademico cicloAcademico);
 
+    List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> ingresantesGeneraByCiclo(CicloAcademico cicloAcademico);
 }

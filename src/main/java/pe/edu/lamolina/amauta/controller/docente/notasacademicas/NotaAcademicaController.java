@@ -3,14 +3,17 @@ package pe.edu.lamolina.amauta.controller.docente.notasacademicas;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -553,8 +556,8 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("saveAsignarDocente")
     public JsonResponse saveAsignarDocente(Model model,
-            @ModelAttribute EvaluacionExpandida evaluacionExpandida,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                           @ModelAttribute EvaluacionExpandida evaluacionExpandida,
+                                           RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -579,8 +582,8 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("saveSistema")
     public JsonResponse saveSistema(@RequestParam("grupoSeccionId") Long grupoSeccionId,
-            @ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                    @ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
+                                    RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -668,9 +671,9 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("cambiarTipoSecEval")
     public JsonResponse cambiarTipoSecEval(Model model,
-            @RequestParam(value = "tipoSeccionEval", required = true) String tipoSeccionEval,
-            @RequestParam(value = "evaluacionExp", required = true) Long evaluacionExp,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                           @RequestParam(value = "tipoSeccionEval", required = true) String tipoSeccionEval,
+                                           @RequestParam(value = "evaluacionExp", required = true) Long evaluacionExp,
+                                           RedirectAttributes redirectAttr, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             service.cambiarTipoSeccionEvaluacion(new EvaluacionExpandida(evaluacionExp), TipoSeccionEvalEnum.valueOf(tipoSeccionEval));
@@ -689,9 +692,9 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("cambiarAnularNotaMinima")
     public JsonResponse cambiarAnularNotaMinima(Model model,
-            @RequestParam(value = "notaMinimaAnulable", required = true) Integer notaMinimaAnulable,
-            @RequestParam(value = "evaluacionExp", required = true) Long evaluacionExp,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                                @RequestParam(value = "notaMinimaAnulable", required = true) Integer notaMinimaAnulable,
+                                                @RequestParam(value = "evaluacionExp", required = true) Long evaluacionExp,
+                                                RedirectAttributes redirectAttr, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("Anular nota minima {}, Evaluacion Exp {}", notaMinimaAnulable, evaluacionExp);
@@ -712,7 +715,7 @@ public class NotaAcademicaController {
 
     @RequestMapping("detalleExpandirEvaluacion")
     public String detalleExapandirEva(Model model, HttpSession session,
-            @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
+                                      @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("la evaluacion expandida es {}", evaluacionId);
         EvaluacionExpandida evaluacionExp = service.findEvaluacionExpandida(evaluacionId);
@@ -728,7 +731,7 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("anularEvaluacionExp")
     public JsonResponse anularEvaluacionExp(@RequestParam("evaluacion") Long evaluacionExp,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                            RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -750,8 +753,8 @@ public class NotaAcademicaController {
 
     @RequestMapping("detalleAsignarDocente")
     public String detalleAsignarDocente(Model model, HttpSession session,
-            @RequestParam(value = "evaluacion", required = false) Long evaluacionId,
-            @RequestParam(value = "grupoSeccionId", required = false) Long grupoSeccionId) {
+                                        @RequestParam(value = "evaluacion", required = false) Long evaluacionId,
+                                        @RequestParam(value = "grupoSeccionId", required = false) Long grupoSeccionId) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("detalleAsignarDocente, evaluacion expandida es {}", evaluacionId);
@@ -811,7 +814,7 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("deleteExpansionHija")
     public JsonResponse deleteExpansionHija(@RequestParam("evaluacion") Long evaluacion,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                            RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -881,7 +884,7 @@ public class NotaAcademicaController {
 
         ObjectNode jCurso = JsonHelper.createJson(curso, JsonNodeFactory.instance, false,
                 new String[]{
-                    "*"
+                        "*"
                 });
 
         ObjectNode jMapAlumno = new ObjectNode(JsonNodeFactory.instance);
@@ -889,9 +892,9 @@ public class NotaAcademicaController {
             Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
             ObjectNode jAlumno = JsonHelper.createJson(alumno, JsonNodeFactory.instance, false,
                     new String[]{
-                        "*",
-                        "modalidadEstudio.operativePRE",
-                        "modalidadEstudio.operativeEPG"
+                            "*",
+                            "modalidadEstudio.operativePRE",
+                            "modalidadEstudio.operativeEPG"
                     });
             jMapAlumno.set(alumno.getCodigo(), jAlumno);
         }
@@ -984,9 +987,9 @@ public class NotaAcademicaController {
 
     @RequestMapping("reporteDeActas")
     public ModelAndView reporteDeActas(HttpServletResponse response,
-            @RequestParam("seccion") Long idSeccion,
-            Model model,
-            HttpSession session) throws IOException {
+                                       @RequestParam("seccion") Long idSeccion,
+                                       Model model,
+                                       HttpSession session) throws IOException {
 
         logger.debug("docente seccion {}", idSeccion);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -1007,8 +1010,8 @@ public class NotaAcademicaController {
 
     @RequestMapping("reporteDeActasExcel")
     public ModelAndView reporteDeActasExcel(Model model,
-            @RequestParam("seccion") Long idSeccion,
-            HttpSession session) {
+                                            @RequestParam("seccion") Long idSeccion,
+                                            HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion secc = service.findSeccion(idSeccion);
@@ -1033,8 +1036,8 @@ public class NotaAcademicaController {
 
     @RequestMapping("detalleCambioNota")
     public String detalleCambioNota(Model model, HttpSession session,
-            @RequestParam(name = "matriculaSeccion") Long matriculaSeccionId,
-            @RequestParam(name = "nsp") boolean nsp) {
+                                    @RequestParam(name = "matriculaSeccion") Long matriculaSeccionId,
+                                    @RequestParam(name = "nsp") boolean nsp) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -1088,8 +1091,8 @@ public class NotaAcademicaController {
 
     @RequestMapping("detalleNotasAcademicas")
     public String detalleNotasAcademicas(Model model,
-            @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
-            HttpSession session) {
+                                         @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
+                                         HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("evaluacion {}", evaluacionId);
 
@@ -1099,7 +1102,7 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("aceptarExpansion")
     public JsonResponse aceptarExpansion(@ModelAttribute("evaluacionSeccionId") Long evaluacionSeccionId,
-            RedirectAttributes redirectAttr, HttpSession session) {
+                                         RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -1483,10 +1486,45 @@ public class NotaAcademicaController {
     }
 
     @ResponseBody
+    @RequestMapping("reenviarNotasMasivo")
+    public JsonResponse reenviarNotas(
+            @RequestParam(name = "grupos", required = true) String idGrupoSeccion,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+
+        List<Long> ids = Arrays.stream(idGrupoSeccion.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        logger.debug("Inicio de reenvio de actas masivamente cantidad {}", ids.size());
+        String message = "";
+        for (Long gpoSeccionId : ids) {
+
+            logger.debug("Acta grupoSeccion inicio {}",gpoSeccionId);
+            String token = service.reenviarNotas(new GrupoSeccion(gpoSeccionId), ds);
+            service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
+            service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
+            service.revisarMatriculables(new GrupoSeccion(gpoSeccionId), ds, token);
+            logger.debug("Acta grupoSeccion fin {}",gpoSeccionId);
+
+            message = "Acta cerrada correctamente";
+        }
+
+
+        response.setMessage(message);
+        response.setSuccess(true);
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("desvincularPlanCalificacion")
     public JsonResponse desvincularPlanCalificacion(@RequestParam(name = "grupo", required = true) Long grupoId,
-            HttpSession session, Model model,
-            RedirectAttributes redirectAttr) {
+                                                    HttpSession session, Model model,
+                                                    RedirectAttributes redirectAttr) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
@@ -1501,8 +1539,8 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("validarEvaluacionesIngresadas")
     public JsonResponse validarEvaluacionesIngresadas(@RequestParam(name = "evalExp", required = true) Long evalExpandidaId,
-            HttpSession session, Model model,
-            RedirectAttributes redirectAttr) {
+                                                      HttpSession session, Model model,
+                                                      RedirectAttributes redirectAttr) {
         JsonResponse response = new JsonResponse();
 
         logger.debug("Evaluacion expandida " + evalExpandidaId);

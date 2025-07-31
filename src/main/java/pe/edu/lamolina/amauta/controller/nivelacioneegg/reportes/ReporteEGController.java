@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes;
 import java.io.InputStream;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.*;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelAsistenciasPorSeccion;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelNotasPorSeccion;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelReporteGeneralNivelacion;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosIngresantesDesaprobados;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosIngresantesDesaprobadosMoodle;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.ExcelResultadosNotasSeccion;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 
 @Slf4j
 @Controller
@@ -38,9 +33,11 @@ public class ReporteEGController {
     private final ExcelResultadosIngresantesDesaprobados excelResultadosIngresantesDesaprobados;
     private final ExcelResultadosIngresantesDesaprobadosMoodle excelResultadosIngresantesDesaprobadosMoodle;
     private final ExcelReporteGeneralNivelacion excelReporteGeneralNivelacion;
+    private final ExcelResultadosPuntajeAdmision excelResultadosPuntajeAdmision;
+    private final ExcelResultadosIngresantesGeneral  excelResultadosIngresantesGeneral;
 
-    
-   @RequestMapping(method = RequestMethod.GET)
+
+    @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -50,8 +47,8 @@ public class ReporteEGController {
 
         return "nivelacioneegg/reporte/reporte";
     }
-    
-    
+
+
     @RequestMapping("generalNotaSeccion")
     public ModelAndView generalNotaSeccion(
             HttpSession session, Model model) {
@@ -67,7 +64,7 @@ public class ReporteEGController {
 
     @RequestMapping("notaSeccion/{codSeccion}")
     public ModelAndView notaSeccion(@PathVariable("codSeccion") String codSeccion,
-            HttpSession session, Model model) {
+                                    HttpSession session, Model model) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
@@ -80,7 +77,7 @@ public class ReporteEGController {
 
     @RequestMapping("asistenciaSeccion/{codSeccion}")
     public ModelAndView asistenciaSeccion(@PathVariable("codSeccion") String codSeccion,
-            HttpSession session, Model model) {
+                                          HttpSession session, Model model) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
@@ -129,5 +126,30 @@ public class ReporteEGController {
 
         return new ModelAndView(excelReporteGeneralNivelacion);
     }
+
+    @RequestMapping("informacionAdmision")
+    public ModelAndView informacionAdmision(HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<ResultadoReporteView> resultados = service.resultadoAdmisionByCiclo(ds.getCicloAcademico());
+
+        model.addAttribute("resultado", resultados);
+
+        return new ModelAndView(excelResultadosPuntajeAdmision);
+    }
+
+    @RequestMapping("ingresantesGeneral")
+    public ModelAndView ingresantesGeneral(HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<ResultadoReporteView> resultados = service.ingresantesGeneraByCiclol(ds.getCicloAcademico());
+
+        model.addAttribute("resultado", resultados);
+
+        return new ModelAndView(excelResultadosIngresantesGeneral);
+    }
+
 
 }

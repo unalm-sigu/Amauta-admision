@@ -61,12 +61,7 @@ new Vue({
                         $vue.dias = response.data.dias;
                         $vue.horas = response.data.horas;
                         $vue.aula = response.data.aula;
-                        console.log("DATAAAAA HORA");
-                        console.dir($vue.horas);
-                        console.log("DATAAAAA DIA");
-                        console.dir($vue.dias);
-                        console.log("DATAAAAA AULA");
-                        console.dir($vue.aula);
+
                     } else {
                         notify(Messages.errorComunicacion, "error");
                     }
@@ -141,9 +136,13 @@ new Vue({
                 }
             }
         },
-        classByTipo(tipo) {
-            if (tipo == 'DICT') {
+        classByTipo(tipo, nivelacion) {
+
+            if (tipo == 'DICT' && (nivelacion.codigo === null || nivelacion.codigo === '' || nivelacion.codigo === undefined)) {
                 return 'text-primary';
+            }
+            if (tipo == 'DICT' && (nivelacion.codigo !== null || nivelacion.codigo !== '' || nivelacion.codigo !== undefined)) {
+                return 'text-dark';
             }
             if (tipo == 'RESERV') {
                 return 'text-warning';

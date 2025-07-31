@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
 import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
+
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.APR;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
@@ -43,11 +45,17 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.EQUIV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.PEND;
+
 import pe.edu.lamolina.model.enums.EstadoEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EAD;
@@ -56,6 +64,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
+
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
@@ -68,6 +77,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CPRO;
 
@@ -151,7 +161,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             visorCalculoNotas.incrementarToken(token);
 
         } catch (Exception e) {
-            log.error("Error en revision avance curricular del alumno {}", alumno.getCodigo());
+            log.error("Error en revision avance curricular del alumno {}", alumno.getCodigo(), e);
             visorCalculoNotas.incrementarToken(token);
         }
 
@@ -540,9 +550,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
             this.printLogger(
                     "alumno: " + alumno.getCodigo()
-                    + " :::: cursoAprobado:" + cursoAprobado.getCurso().getCodigo()
-                    + " :::: creditos:" + cursoAprobado.getCreditos()
-                    + " - aprobado:" + cursoAprobado.isAprobado(), showLogger);
+                            + " :::: cursoAprobado:" + cursoAprobado.getCurso().getCodigo()
+                            + " :::: creditos:" + cursoAprobado.getCreditos()
+                            + " - aprobado:" + cursoAprobado.isAprobado(), showLogger);
 
             AlumnoCursoCurricula alumnoCursoCurricula = mapAlumCursoCurrByCurso.get(cursoAprobado.getCurso().getId());
 
@@ -1473,8 +1483,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void addCursosLibresCurriculaEpg(Alumno alumno, AlumnoCicloCurso cursosAprobado,
-            List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew, Map<Long, CursoOpcionalCurricula> mapCursosOpcional,
-            Map<String, TipoCursoCurricula> mapTipoCursoCurricula, Map<Long, CursoHabilEscuela> mapCursoHabil) {
+                                             List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew, Map<Long, CursoOpcionalCurricula> mapCursosOpcional,
+                                             Map<String, TipoCursoCurricula> mapTipoCursoCurricula, Map<Long, CursoHabilEscuela> mapCursoHabil) {
 
         CursoOpcionalCurricula cursoOpcionalCurricula = mapCursosOpcional.get(cursosAprobado.getId());
         if (cursoOpcionalCurricula != null) {
@@ -1499,7 +1509,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void addAlumnoCursoCurriculaEpg(Alumno alumno, AlumnoCicloCurso alumnoCicloCurso, CursoOpcionalCurricula opcionalCurricula, CursoCurricula cursoCurricula,
-            List<AlumnoCursoCurricula> alumnoCursoElecCarreraNew, TipoCursoCurricula tipoCursoCurricula) {
+                                            List<AlumnoCursoCurricula> alumnoCursoElecCarreraNew, TipoCursoCurricula tipoCursoCurricula) {
 
         AlumnoCursoCurricula cursosOpcionalesNew = new AlumnoCursoCurricula();
         if (alumnoCicloCurso.getEstaAprobado() == 1) {

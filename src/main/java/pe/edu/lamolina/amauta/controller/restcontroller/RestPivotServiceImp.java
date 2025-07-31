@@ -3,12 +3,15 @@ package pe.edu.lamolina.amauta.controller.restcontroller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
@@ -55,6 +58,9 @@ public class RestPivotServiceImp implements RestPivotService {
     @Transactional
     public Boolean consumirToken(FormImport formImport) {
         logger.debug("consumir.token={}", formImport.getToken());
+        logger.debug("HoraActual={}", new DateTime());
+        ObjectUtil.printAttr(formImport);
+        
 
         TokenIngresante token = tokenIngresanteDAO.findByToken(formImport.getToken());
         System.out.println("token=" + token);

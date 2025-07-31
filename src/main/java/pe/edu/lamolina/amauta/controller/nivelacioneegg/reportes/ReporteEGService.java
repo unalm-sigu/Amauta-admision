@@ -18,4 +18,7 @@ public interface ReporteEGService {
 
     ResultadoReporteView allDataProcesada(CicloAcademico cicloAcademico);
 
+    List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> ingresantesGeneraByCiclol(CicloAcademico cicloAcademico);
 }
