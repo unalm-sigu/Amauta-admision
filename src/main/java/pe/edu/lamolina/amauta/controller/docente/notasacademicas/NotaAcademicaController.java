@@ -1503,7 +1503,7 @@ public class NotaAcademicaController {
             service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
             service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
             service.revisarMatriculables(new GrupoSeccion(gpoSeccionId), ds, token);
-            TypesUtil.delay(5000);
+            TypesUtil.delay(10000);
             logger.debug("Acta grupoSeccion fin {}",gpoSeccionId);
 
             message = "Acta cerrada correctamente";
