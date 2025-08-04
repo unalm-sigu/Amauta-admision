@@ -1497,8 +1497,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public void verificarAlumnosNmat(DataSessionPivot ds, List<Alumno> alumnoCiclosForm) {
 
-        List<Alumno> alumnos = alumnoCiclosForm;
-        alumnos = alumnoDAO.allInfoByAlumnos(alumnos);
+        List<Alumno> alumnos = alumnoDAO.allInfoByAlumnos(alumnoCiclosForm);
         TypesUtil.delay(2000);
 
         String token = RandomStringUtils.randomAlphanumeric(34);
@@ -1550,25 +1549,42 @@ public class MatriculableServiceImp implements MatriculableService {
 
         }
 
-        for (;;) {
-            for (;;) {
-                if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
-                    System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
-                    respositorVisor.incrementar();
-                    log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
-                } else {
-                    log.info("CONTADOR");
-                    break;
-                }
-
-            }
-
-            if (visorCalculoNotas.estaCompletoToken(token)) {
-                log.info("TOKEN COMPLETO");
+//        for (;;) {
+//            for (;;) {
+//                if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
+//                    System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
+//                    respositorVisor.incrementar();
+//                    log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+//                } else {
+//                    log.info("CONTADOR");
+//                    break;
+//                }
+//
+//            }
+//
+//            if (visorCalculoNotas.estaCompletoToken(token)) {
+//                log.info("TOKEN COMPLETO");
+//                break;
+//            }
+//        }
+//
+//        promedioService.verificarAlumnosNmat(ciclo);
+        log.info("Esperando finalización del procesamiento asíncrono de promedios para {} alumnos.", alumnos.size());
+        while (!visorCalculoNotas.estaCompletoToken(token)) {
+            try {
+                int procesados = visorCalculoNotas.getCantidadByToken(token);
+                log.info("Alumnos procesados: {} de {}", procesados, alumnos.size());
+                // Pausa el hilo actual para no consumir CPU innecesariamente.
+                Thread.sleep(500); // 500 ms de espera entre verificaciones
+            } catch (InterruptedException e) {
+                log.error("El hilo fue interrumpido mientras esperaba la finalización de los promedios.", e);
+                // Restablece el estado de interrupción para que el código superior pueda manejarlo.
+                Thread.currentThread().interrupt();
                 break;
             }
         }
 
+        log.info("Procesamiento de promedios completado. Verificando alumnos NMAT.");
         promedioService.verificarAlumnosNmat(ciclo);
 
     }
