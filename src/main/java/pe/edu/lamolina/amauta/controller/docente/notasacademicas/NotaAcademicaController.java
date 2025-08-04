@@ -33,12 +33,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.*;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaBachillerHtml;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfPieDePaginaReincorporacionHtml;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -1476,7 +1471,7 @@ public class NotaAcademicaController {
         service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
         service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
         service.revisarMatriculables(new GrupoSeccion(gpoSeccionId), ds, token);
-
+        TypesUtil.delay(2000);
         String message = "Acta cerrada correctamente";
 
         response.setMessage(message);
@@ -1508,6 +1503,7 @@ public class NotaAcademicaController {
             service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
             service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
             service.revisarMatriculables(new GrupoSeccion(gpoSeccionId), ds, token);
+            TypesUtil.delay(5000);
             logger.debug("Acta grupoSeccion fin {}",gpoSeccionId);
 
             message = "Acta cerrada correctamente";
