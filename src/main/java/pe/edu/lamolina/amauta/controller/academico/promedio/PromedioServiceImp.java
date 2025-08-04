@@ -1976,13 +1976,13 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCicloCurso> soloNotaNumeros = alumnosCiclosCursoActual.stream()
                     .filter(x -> !notaEsSoloLetras(x.getNota()))
                     .collect(Collectors.toList());
-            log.debug("ciclo=  alumno=  soloNotaLetras=  soloNotaNumeros=  :::: {} {} {} {} ",
-                    alumnoCiclo.getCicloAcademico().getDescripcion(),
-                    alumno.getCodigo(),
-                    !soloNotaLetras.isEmpty(),
-                    !soloNotaNumeros.isEmpty());
-            log.debug("soloNotaLetras.isEmpty() {} ",soloNotaLetras.isEmpty());
-            log.debug("soloNotaNumeros.isEmpty() {} ",soloNotaNumeros.isEmpty());
+//            log.debug("ciclo=  alumno=  soloNotaLetras=  soloNotaNumeros=  :::: {} {} {} {} ",
+//                    alumnoCiclo.getCicloAcademico().getDescripcion(),
+//                    alumno.getCodigo(),
+//                    !soloNotaLetras.isEmpty(),
+//                    !soloNotaNumeros.isEmpty());
+//            log.debug("soloNotaLetras.isEmpty() {} ",soloNotaLetras.isEmpty());
+//            log.debug("soloNotaNumeros.isEmpty() {} ",soloNotaNumeros.isEmpty());
 
             if (alumno.isPregrado() && !soloNotaLetras.isEmpty() && soloNotaNumeros.isEmpty() && !alumnoCiclo.isAprobado() && alumnoCiclo.getCreditosAprobadosCiclo() > 0
                     && (!alumnoCiclo.getSituacionFinal().isEgresado() || !alumnoCiclo.getSituacionFinal().isGraduado())) {
