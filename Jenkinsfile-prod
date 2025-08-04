@@ -82,7 +82,7 @@ pipeline{
                                         export USERDB=${DELFIN_USR}
                                         export PASSWORD='${DELFIN_PSW}'
 
-                                        nohup java -jar /lost+found/amauta.jar --spring.profiles.active=${PROFILE} > /dev/null 2>&1 &
+                                        nohup java -Xms512m -Xmx9g -jar /lost+found/amauta.jar --spring.profiles.active=${PROFILE} > /dev/null 2>&1 &
                                         wait-for-it -h localhost -p ${PORT} -t 60
                                     """
                                 )
