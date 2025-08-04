@@ -41,7 +41,8 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class,"tt")
                 .join("tramite tr", "tr.alumno al", "al.persona")
-                .filter("tt.resolucion", resolucion);
+                .filter("tt.resolucion", resolucion)
+                .filter("tt.estado", TramiteEstadoEnum.ACEP.name());
         return find(sql);
     }
 
@@ -50,7 +51,8 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
         Octavia sql = new Octavia();
         sql.from(TramiteTitulo.class,"tt")
                 .join("tramite tr", "tr.alumno al", "al.persona")
-                .filter("tt.resolucionFacultad", resolucion);
+                .filter("tt.resolucionFacultad", resolucion)
+                .filter("tt.estadoTitulo", TramiteEstadoEnum.ACEP.name());
         return find(sql);
     }
 
