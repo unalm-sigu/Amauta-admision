@@ -67,25 +67,6 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_Q;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
@@ -133,7 +114,8 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.*;
+
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 //import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
@@ -350,7 +332,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
                         S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(),
-                        S_6.getValue(), S_T.getValue(), S_RA.getValue());
+                        S_6.getValue(), S_T.getValue(), S_RA.getValue(), S_Y.getValue());
 
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
