@@ -655,6 +655,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
+    @Transactional
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
@@ -1525,6 +1526,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         log.info("[allNotasHistorial] historial.size={}", historial.size());
         return historial;
+    }
+
+    @Override
+    public List<Alumno> allAlumnosTmp() {
+        return alumnoDAO.allAlumnosTmp();
     }
 
 }

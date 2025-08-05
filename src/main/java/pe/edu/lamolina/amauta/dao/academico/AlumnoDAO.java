@@ -171,4 +171,5 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allIngresantePregradoByCicloIngreso(CicloAcademico ciclo);
 
+    List<Alumno> allAlumnosTmp();
 }

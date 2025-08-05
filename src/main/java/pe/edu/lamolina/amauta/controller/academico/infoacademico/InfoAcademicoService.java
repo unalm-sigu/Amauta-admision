@@ -89,4 +89,5 @@ public interface InfoAcademicoService {
 
     List<AlumnoCursoCicloDTO> allNotasHistorial(Alumno alumno);
 
+    List<Alumno> allAlumnosTmp();
 }

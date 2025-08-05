@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -1458,6 +1459,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("ci.id", ciclo);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosTmp() {
+StringBuilder sb = new StringBuilder();
+        sb.append("  select a.* ");
+        sb.append("  from aca_matricula_resumen mr ");
+        sb.append("  join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+        sb.append("  join aca_alumno a on mr.id_alumno = a.id ");
+        sb.append("  join aca_situacion_academica sa on a.id_situacion_academica = sa.id ");
+        sb.append("  join aca_alumno_ciclo ac on ac.id_alumno = a.id and mr.id_ciclo_academico = ac.id_ciclo_academico ");
+        sb.append("  join aca_ciclo_academico caa on caa.id = ca.id ");
+        sb.append("  left join aca_ciclo_academico cax on a.id_ciclo_activo = cax.id ");
+        sb.append("  where ca.codigo = '202510' and mr.estado = 'RCI'; ");
+
+
+Query query = getCurrentSession().createSQLQuery(sb.toString()).addEntity(Alumno.class);
+return query.list();
+
     }
 
 }
