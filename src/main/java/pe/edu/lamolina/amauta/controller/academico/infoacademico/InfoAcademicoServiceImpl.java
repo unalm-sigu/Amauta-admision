@@ -815,6 +815,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
+    @Transactional
     public void calcularPromedios(DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         if (!puedeCalcular) {
@@ -825,6 +826,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         log.debug("alumnos:::: {}", alumnos.size());
         for (Alumno alumno : alumnos) {
             promedioService.calcularSituacionAcademica(alumno, ds);
+            TypesUtil.delay(3000);
         }
 
     }
