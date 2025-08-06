@@ -822,11 +822,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (!puedeCalcular) {
             throw new PhobosException("Usted no estÃ¡ autorizado para ejecutar esta acciÃ³n");
         }
-        List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
+//        List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
+        
+        List<Alumno> alumnos = this.allAlumnosTmp();
 
         log.debug("alumnos:::: {}", alumnos.size());
         for (Alumno alumno : alumnos) {
-            promedioService.calcularSituacionAcademica(alumno, ds);
+            promedioService.calcularSituacionAcademicaNewSession(alumno, ds);
             TypesUtil.delay(3000);
         }
 
