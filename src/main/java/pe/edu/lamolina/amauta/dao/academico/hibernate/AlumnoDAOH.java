@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -1184,42 +1185,31 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> pendientesHistorial(CicloAcademico cicloAcademico) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" select alu.id ");
-        sb.append(" from aca_alumno_ciclo ac ");
-        sb.append(" join aca_alumno alu on ac.id_alumno = alu.id ");
-        sb.append(" join aca_modalidad_estudio me on alu.id_modalidad_estudio =  me.id ");
-        sb.append(" join aca_ciclo_academico ca on ac.id_ciclo_academico = ca.id ");
-        sb.append(" join ( ");
-        sb.append("        select acc2.id_alumno_ciclo id_alu_ciclo, sum(acc2.creditos) creditos  ");
-        sb.append("        from aca_alumno_ciclo_curso acc2  ");
-        sb.append("        join aca_alumno_ciclo ac2 on acc2.id_alumno_ciclo = ac2.id  ");
-        sb.append("        join aca_alumno alu2 on ac2.id_alumno = alu2.id  ");
-        sb.append("        join aca_modalidad_estudio me2 on alu2.id_modalidad_estudio = me2.id  ");
-        sb.append("        join aca_ciclo_academico ca2 on ac2.id_ciclo_academico = ca2.id ");
-        sb.append("        where  acc2.esta_aprobado = true  and ");
-        sb.append("        acc2.registro_activo = true and  ");
-        sb.append("        ca2.id = :CICLO_SESSION  ");
-        sb.append("        and ac2.estado = :ESTADO_MAT  ");//MAT
-        sb.append("        and acc2.estado = :ESTADO_MAT  ");//MAT
-        sb.append("        and acc2.nota <> 'TE' ");//TRASLADO EXTERNO
-        sb.append("        and me2.codigo  = :MODALIDAD ");//PRE
-        sb.append("        group by acc2.id_alumno_ciclo ");
-        sb.append("      ) xx on xx.id_alu_ciclo = ac.id ");
-        sb.append("  where  ca.id = :CICLO_SESSION ");
-        sb.append("  and ac.estado = :ESTADO_MAT ");//MAT
-        sb.append("  and me.codigo = :MODALIDAD ");//MAT
-        sb.append("  and xx.creditos <> creditos_aprobados_ciclo ");
 
-        Query query = getCurrentSession().createSQLQuery(sb.toString())
-                //                .addEntity("alu",Alumno.class)
-                //                .addJoin("me", "alu.id_modalidad_estudio")
-                .addScalar("id", LongType.INSTANCE)
-                .setResultTransformer(Transformers.aliasToBean(Alumno.class));//falto hacer el join con modalidad de estudio
-        query.setParameter("CICLO_SESSION", cicloAcademico.getId());
-        query.setParameter("ESTADO_MAT", EstadoMatriculaEnum.MAT.name());
-        query.setParameter("MODALIDAD", ModalidadEstudioEnum.PRE.name());
-        return query.list();
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "al")
+                .in("codigo", Arrays.asList("20221251", "20221286", "20221289", "20221326", "20221388", "20221477", "20221489", "20221501", "20230271", "20230217", "20230275", "20230099", "20240363", "20230154", "20230192", "20230214", "20230219", "20230226", "20230264", "20240575", "20230328", "20230503", "20230516", "20240843", "20230564", "20230585", "20230595", "20240899", "20230624", "20230632", "20230694", "20230713", "20230991", "20231290", "20231257", "20231282", "20231315", "20231317", "20231318", "20231364", "20240572", "20231393", "20231421", "20231448", "20231590", "20231598", "20231622", "20240895", "20231689", "20231718", "20240517", "20240824", "20240729", "20240838", "20240715", "20240596", "20240696", "20240387", "20240931", "20240327", "20250120", "20240493", "20240520", "20240602", "20240644", "20240681", "20240704", "20240795", "20240799", "20240802", "20240874", "20240878", "20240919", "20240934", "20240957", "20241503", "20241126", "20241217", "20241287", "20241288", "20241292", "20241304", "20241406", "20241413", "20241466", "20250530", "20241483", "20241494", "20241616", "20250496", "20250016", "20250078", "20250225", "20250680", "20250541", "20250544", "20250664", "20250526", "20250100", "20250108", "20250132", "20250686", "20250242", "20250043", "20250537", "20250049", "20250374", "20250018", "20250019", "20250069", "20250103", "20250246", "20250357", "20250691", "20250699"));
+        return sql.all(getCurrentSession());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("  select t.id  ");
+//        sb.append("  from aca_alumno t ");
+//        sb.append("  where t.codigo in  ");
+//        sb.append("  ('20250496', ");
+//        sb.append("  '20250016', ");
+//        sb.append("  '20250078', ");
+//        sb.append("  '20250225', ");
+//        sb.append("  '20250680'); ");
+//
+//
+//        Query query = getCurrentSession().createSQLQuery(sb.toString());
+//                //                .addEntity("alu",Alumno.class)
+//                //                .addJoin("me", "alu.id_modalidad_estudio")
+//                .addScalar("id", LongType.INSTANCE)
+//                .setResultTransformer(Transformers.aliasToBean(Alumno.class));//falto hacer el join con modalidad de estudio
+////        query.setParameter("CICLO_SESSION", cicloAcademico.getId());
+////        query.setParameter("ESTADO_MAT", EstadoMatriculaEnum.MAT.name());
+////        query.setParameter("MODALIDAD", ModalidadEstudioEnum.PRE.name());
+//        return query.list();
     }
 
     @Override
@@ -1469,6 +1459,33 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("ci.id", ciclo);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosTmp() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  select alu.* ");
+        sb.append("  from aca_alumno alu ");
+        sb.append("  where alu.codigo in ( ");
+        sb.append("              select t.matricula ");
+        sb.append("              from ( ");
+        sb.append("                      select ca.descripcion,a.codigo matricula,ac.puntaje_ciclo,sum(acc.creditos * acc.nota) puntaje ");
+        sb.append("                      from aca_alumno_ciclo_curso acc ");
+        sb.append("                      join aca_curso cu on acc.id_curso = cu.id ");
+        sb.append("                      join aca_alumno_ciclo ac on acc.id_alumno_ciclo = ac.id ");
+        sb.append("                      join aca_alumno a on ac.id_alumno = a.id ");
+        sb.append("                      join aca_ciclo_academico ca on ac.id_ciclo_academico = ca.id ");
+        sb.append("                      where ");
+        sb.append("                      ca.codigo = '202510'  ");
+        sb.append("                      and a.id_modalidad_estudio = 1 ");
+        sb.append("                      and acc.registro_activo = 1 ");
+        sb.append("                      group by ca.descripcion,a.codigo, ac.puntaje_ciclo     ");
+        sb.append("                   ) t  ");
+        sb.append("              where t.puntaje_ciclo <>  t.puntaje ");
+        sb.append("                      ); ");
+        Query query = getCurrentSession().createSQLQuery(sb.toString()).addEntity(Alumno.class);
+        return query.list();
+
     }
 
 }

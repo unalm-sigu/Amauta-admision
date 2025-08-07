@@ -3,6 +3,8 @@ package pe.edu.lamolina.amauta.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -227,6 +229,29 @@ public class InfoAcademicoController {
         try {
             service.generarAvance(new Alumno(idAlumno), ds);
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("generaravanceMasivo")
+    public JsonResponse generaravanceMasivo(Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {//de emergencia noma
+            List<Alumno> alumnosTmp = service.allAlumnosTmp();
+
+            for (Alumno alumno : alumnosTmp) {
+                service.generarAvance(new Alumno(alumno.getId()), ds);
+                TypesUtil.delay(2000);
+                response.setSuccess(true);
+            }
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 

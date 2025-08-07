@@ -596,6 +596,7 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             this.printSystem("Fin ciclo=" + ciclo.getCodigo()
+                    + ", alumno-codigo=" + alumnoCicloEach.getAlumno().getCodigo()
                     + ", estado-ciclo=" + alumnoCicloEach.getEstado()
                     + ", sit-final-desertor=" + alumnoCicloEach.getSituacionFinal().isDesertor()
                     + ", sit-final-ingseparado=" + alumnoCicloEach.getSituacionFinal().isIngresanteSeparado()
@@ -1972,12 +1973,25 @@ public class PromedioServiceImp implements PromedioService {
                     .filter(x -> notaEsSoloLetras(x.getNota()))
                     .collect(Collectors.toList());
 
-            if (alumno.isPregrado() && !soloNotaLetras.isEmpty() && !alumnoCiclo.isAprobado() && alumnoCiclo.getCreditosAprobadosCiclo() > 0
+            List<AlumnoCicloCurso> soloNotaNumeros = alumnosCiclosCursoActual.stream()
+                    .filter(x -> !notaEsSoloLetras(x.getNota()))
+                    .collect(Collectors.toList());
+//            log.debug("ciclo=  alumno=  soloNotaLetras=  soloNotaNumeros=  :::: {} {} {} {} ",
+//                    alumnoCiclo.getCicloAcademico().getDescripcion(),
+//                    alumno.getCodigo(),
+//                    !soloNotaLetras.isEmpty(),
+//                    !soloNotaNumeros.isEmpty());
+//            log.debug("soloNotaLetras.isEmpty() {} ",soloNotaLetras.isEmpty());
+//            log.debug("soloNotaNumeros.isEmpty() {} ",soloNotaNumeros.isEmpty());
+
+            if (alumno.isPregrado() && !soloNotaLetras.isEmpty() && soloNotaNumeros.isEmpty() && !alumnoCiclo.isAprobado() && alumnoCiclo.getCreditosAprobadosCiclo() > 0
                     && (!alumnoCiclo.getSituacionFinal().isEgresado() || !alumnoCiclo.getSituacionFinal().isGraduado())) {
                 situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
-                log.debug("situacionAcademicaFinal igual que su situación inicial :::: {}", situacionAcademicaFinal.getNombre());
-                log.debug("soloNotaLetras:::: {}", !soloNotaLetras.isEmpty());
-                log.debug("Desaprobado:::: {}", !alumnoCiclo.isAprobado());
+//                log.debug("ciclo alumno  :::: {} {}", alumnoCiclo.getCicloAcademico().getDescripcion(),alumno.getCodigo());
+//                log.debug("situacionAcademicaInicial  situacionAcademicafinal:::: {} {}", alumnoCiclo.getSituacionInicio().getNombre(),situacionAcademicaFinal.getNombre());
+//                log.debug("situacionAcademicaFinal igual que su situación inicial :::: {}", situacionAcademicaFinal.getNombre());
+//                log.debug("soloNotaLetras:::: {}", !soloNotaLetras.isEmpty());
+//                log.debug("Desaprobado:::: {}", !alumnoCiclo.isAprobado());
             } else {
 
                 situacionAcademicaFinal = this.calculateSitutacionAcadFinal(
