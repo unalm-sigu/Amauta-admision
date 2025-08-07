@@ -6,15 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +33,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.tramite.*;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -91,9 +84,7 @@ import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.CambioNota;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.*;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.promedio.ListBeanPromedios;
@@ -124,9 +115,7 @@ import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.CambioNotaDAO;
-import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
-import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
+
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -135,7 +124,6 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.tramite.ObtencionGrado;
 //import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 //import pe.edu.lamolina.model.academico.Facultad;
 
@@ -175,6 +163,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
     private final CarreraDAO carreraDAO;
+    private final SancionDisciplinaCicloDAO sancionDisciplinaCicloDAO;
 //    private final FacultadDAO facultadDAO;
 
     @Override
@@ -203,6 +192,16 @@ public class MatriculableServiceImp implements MatriculableService {
         log.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
 
+        List<SancionDisciplinaCiclo> alumnosSancionados = sancionDisciplinaCicloDAO.findAlumnosSancionadosPorCiclo(cicloAcademico);
+        Set<Long> idsAlumnosSancionados = alumnosSancionados.stream()
+                .map(sdc -> sdc.getSancionDisciplina().getAlumno().getId())
+                .collect(Collectors.toSet());
+
+        List<MatriculaResumen> sinSancion = matriculaResumens.stream()
+                .filter(mr -> !idsAlumnosSancionados.contains(mr.getAlumno().getId()))
+                .collect(Collectors.toList());
+
+
         List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         t1 = System.currentTimeMillis();
         List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
@@ -222,7 +221,7 @@ public class MatriculableServiceImp implements MatriculableService {
         log.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteDuplicadoCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesDuplicadoCarnetAlumnos);
 
-        for (MatriculaResumen matriculaResumen : matriculaResumens) {
+        for (MatriculaResumen matriculaResumen : sinSancion) {
 
             matriculaResumen.setAporteCarnet(Boolean.FALSE);
             if (mapAporteCarnet.get(matriculaResumen.getId()) != null) {

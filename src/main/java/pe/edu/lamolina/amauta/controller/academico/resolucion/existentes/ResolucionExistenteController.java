@@ -827,7 +827,13 @@ public class ResolucionExistenteController {
             objectNode.set("cursoDirigido", array);
 
         } else if (resolucion.getTipoResolucion().getCodigo().equals(SUSP_DISCIPLI.name())) {
-            List<SancionDisciplina> sancionados = service.allSancionDisciplina();
+            List<SancionDisciplina> sancionados = service.allSancionDisciplinaByResolucion(resolucion);
+
+            for (SancionDisciplina sancion : sancionados) {
+                sancion.setAlumno(sancion.getTramite().getAlumno());
+                sancion.setSeleccionado(true);
+            }
+
             ArrayNode array = JaneHelper.from(sancionados)
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")

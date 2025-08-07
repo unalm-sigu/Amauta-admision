@@ -16,5 +16,6 @@ public interface SancionDisciplinaDAO extends EasyDAO<SancionDisciplina> {
     List<SancionDisciplina> allSancionDisciplinaByResolucion(Resolucion resolucion);
     SancionDisciplina findBySancion(Alumno alumno);
     SancionDisciplina findByAlumnoAct(Alumno alumno);
+    List<SancionDisciplina> findAlumnosSancionadosPorCiclo(CicloAcademico cicloAcademico);
 
 }

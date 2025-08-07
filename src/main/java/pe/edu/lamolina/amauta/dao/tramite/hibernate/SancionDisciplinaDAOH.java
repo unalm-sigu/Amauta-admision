@@ -92,4 +92,10 @@ public class SancionDisciplinaDAOH extends AbstractEasyDAO<SancionDisciplina> im
 
         return find(sql);
     }
+
+    @Override
+    public List<SancionDisciplina> findAlumnosSancionadosPorCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia();
+        return null;
+    }
 }

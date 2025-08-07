@@ -9,8 +9,7 @@
       <thead>
       <tr>
         <th class="col-sm-9 text-center" >Persona</th>
-        <th class="col-sm-1 text-center" >Aprobado</th>
-        <th class="col-sm-1 text-center" >Rechazado</th>
+        <th class="col-sm-1 text-center" >Seleccionado</th>
         <th class="col-sm-1 text-center"></th>
       </tr>
       </thead>
@@ -50,17 +49,7 @@
           <label class="switch">
             <input type="checkbox"
                    v-model="sancionDsc.seleccionado"
-                   v-on:change="cambioSeleccionado(sancionDsc)"
-                   v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id != null"/>
-            <span class="slider round"></span>
-          </label>
-        </td>
-        <td class="v-middle">
-          <label class="switch">
-            <input type="checkbox"
-                   v-model="sancionDsc.rechazado"
-                   v-on:change="cambioRechazado(sancionDsc)"
-                   v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id != null"/>
+                   v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id !=null"/>
             <span class="slider round"></span>
           </label>
         </td>
@@ -99,6 +88,7 @@ module.exports = {
     return {
       alumnos: [],
       isEdicion: IS_EDICION,
+      isAnular: IS_ANULAR,
       visualizarSoloSeleccionados:true,
       filterFacultad:true,
     };
@@ -106,18 +96,18 @@ module.exports = {
   mounted: function () {
     let $vue = this;
     if (!$vue.isEdicion) {
-      $vue.allRetiroCiclo();
+      $vue.allSancionDisciplina();
     }
   },
   methods: {
     add() {
       let $vue = this;
-      $vue.resolucion.retiroCiclo.push({seleccionado: true});
+      $vue.resolucion.sancionDisciplina.push({seleccionado: true});
       $vue.$forceUpdate();
     },
     del(index) {
       let $vue = this;
-      $vue.resolucion.retiroCiclo.splice(index, 1);
+      $vue.resolucion.sancionDisciplina.splice(index, 1);
       $vue.$forceUpdate();
     },
     searchAlumno(nombre) {
@@ -137,7 +127,7 @@ module.exports = {
           });
 
     },
-    allRetiroCiclo() {
+    allSancionDisciplina() {
       let $vue = this;
       $vue.showLoader("Espere un momento por favor");
       axios_.get(APP.url("academico/resolucion/existentes/allSancion"))

@@ -6,6 +6,7 @@ import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.SancionDisciplinaCicloDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.SancionDisciplina;
@@ -59,5 +60,14 @@ public class SancionDisciplinaCicloDAOH extends AbstractEasyDAO<SancionDisciplin
                 .orderBy("per.paterno");
         return all(sql);
 
+    }
+
+    @Override
+    public List<SancionDisciplinaCiclo> findAlumnosSancionadosPorCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .from(SancionDisciplinaCiclo.class, "sdc")
+                .join("sancionDisciplina sd","ciclo cl")
+                .filter("cl.id", cicloAcademico.getId());
+        return all(sql);
     }
 }
