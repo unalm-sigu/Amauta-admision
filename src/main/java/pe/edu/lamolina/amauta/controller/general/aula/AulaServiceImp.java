@@ -260,6 +260,7 @@ public class AulaServiceImp implements AulaService {
     @Transactional
     public void update(Aula aula, DataSessionPivot ds) {
         boolean esInformativo = verificadorService.esInformaticoOERA(ds);
+        boolean esProgramacionAula = verificadorService.isEditorProgramacionOera(ds);
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaBD = aulaDAO.findByCode(aula.getCodigo());
         if (aulaBD != null) {
@@ -294,7 +295,7 @@ public class AulaServiceImp implements AulaService {
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
         }
 
-        if (aula.getOficinaSupervisora() != null && !esInformativo) {
+        if (aula.getOficinaSupervisora() != null && !esInformativo && !esProgramacionAula ) {
             Oficina supervisora = oficinaDAO.find(aula.getOficinaSupervisora());
             Assert.isNotNull(supervisora, "No se pudo ubicar a la oficina supervisora");
             Assert.isNotNull(supervisora.getOficinaPrincipal(), "No se pudo ubicar a la oficina principal");
