@@ -128,7 +128,6 @@ public class TramiteSancionDisciplinaController {
         JsonResponse json = new JsonResponse();
         json.setSuccess(Boolean.FALSE);
 
-        ObjectUtil.printAttr(sancionForm);
         try {
 
             List<CicloAcademico> listCiclos = sancionForm.getCicloAcademico();

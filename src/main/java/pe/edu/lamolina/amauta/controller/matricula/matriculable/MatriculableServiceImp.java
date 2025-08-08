@@ -250,7 +250,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         long t20 = System.currentTimeMillis();
         log.debug("Query de {} matriculables ejecutado en {} mseg", matriculaResumens.size(), (t20 - t10));
-        return matriculaResumens;
+        return sinSancion;
     }
 
     @Override
