@@ -215,6 +215,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         generarHorarioIngresanteService.generarHorario(ds.getCicloAcademico(), modalidad, ds, alumnos);
+        
+//        Ver como llevar eso al componente de matricula 
+//        TokenIngresante token = responseRestService.createToken(ds);
+//        JsonResponse json = responseRestService.limpiarCache(ds, token);
+//        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
 
     }
 
@@ -255,9 +260,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             seccionDAO.update(seccion);
 //            vacanteAlumnoDAO.update(seccionHorario);
         }
-        TokenIngresante token = responseRestService.createToken(ds);
-        JsonResponse json = responseRestService.limpiarCache(ds, token);
-        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
+        
+//        Comentado por que limpia el cache de matricula         
+//        TokenIngresante token = responseRestService.createToken(ds);
+//        JsonResponse json = responseRestService.limpiarCache(ds, token);
+//        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
 
     }
 
@@ -508,11 +515,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                         continue;
                     }
                 }
-
-                if (verificarDeudas(alumno, cicloAcademico, aluHorario, erroresAlu, ds)) {
-
-                    continue;
-                }
+//              SE QUITA LA VALIDACIÓN DE APORTES DESDE EL CICLO 2025-II                    
+//                if (verificarDeudas(alumno, cicloAcademico, aluHorario, erroresAlu, ds)) {
+//
+//                    continue;
+//                }
 
                 int errores = 0;
                 List<AlumnoCursoCurricula> cursosHabiles = alumnoCursoCurriculaDAO.allByAlumno(alumno);
@@ -535,6 +542,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 }
 
                 matriculaIngresanteService.matricularAlumno(aluHorario, mapSeccion, cursos, erroresAlu, horario, cicloAcademico, ds);
+                TypesUtil.delay(2000);
             }
             // helperMatriculaIngresanteService.registrarIncrementoHorario(horario, ds);
         }

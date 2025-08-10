@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -70,6 +72,7 @@ import pe.edu.lamolina.amauta.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 
 @Service
 @Transactional(readOnly = true)
@@ -608,7 +611,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 System.out.println(" Falla=" + entry.getValue() + " :::: " + entry.getKey());
             }
         }
-
+       
     }
 
     private boolean getHorarioExitoso(Carrera carrera, List<Seccion> horario, Map<Long, Map<String, HorarioExitoso>> mapExitososCarreras, Map<String, String> mapFallidos) {

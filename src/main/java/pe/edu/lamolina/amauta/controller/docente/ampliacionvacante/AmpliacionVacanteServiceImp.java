@@ -483,8 +483,10 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             if (cicloAcademico.isTipoRegular()) {
                 this.validarTopeCreditosMatricular(alumno, matriculaResumen, creditosAmatricular);
-                this.validarDeudaMaterial(alumno);
-                this.validarAportes(alumno, cicloAcademico);
+//                SE COMENTA PARA QUE NO VALIDE NI UN APORTE SEMESTRAL NI MATERIAL DESDE EL CICLO 2025-II                  
+//                this.validarDeudaMaterial(alumno);
+//                this.validarAportes(alumno, cicloAcademico);
+
                 this.validarCursoDirigido(matriculaResumen, curso);
                 this.validadarRestriccionCarrera(matriculaResumen.getAlumno(), seccion);
                 this.validadarRestriccionFacultad(matriculaResumen.getAlumno(), seccion);
@@ -737,7 +739,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
         }
 
-        if (matriculaResumen.getCreditosTrikaPagados() == 0
+//        SE CAMBIO DE matriculaResumen.getCreditosTrikaPagados() A matriculaResumen.getCreditosTrikaSeparados() DESDE EL CICLO 2025-II
+        if (matriculaResumen.getCreditosTrikaSeparados() == 0
                 && matriculaResumen.getCicloAcademico().equals(cicloAcademico)) {
             throw new PhobosException(String.format("Alumno %s debe generar un aporte trika", alumno.getPersona().getApellidosNombres()));
         }
