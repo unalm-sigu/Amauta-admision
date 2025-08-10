@@ -1464,25 +1464,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     @Override
     public List<Alumno> allAlumnosTmp() {
         StringBuilder sb = new StringBuilder();
-        sb.append("  select alu.* ");
-        sb.append("  from aca_alumno alu ");
-        sb.append("  where alu.codigo in ( ");
-        sb.append("              select t.matricula ");
-        sb.append("              from ( ");
-        sb.append("                      select ca.descripcion,a.codigo matricula,ac.puntaje_ciclo,sum(acc.creditos * acc.nota) puntaje ");
-        sb.append("                      from aca_alumno_ciclo_curso acc ");
-        sb.append("                      join aca_curso cu on acc.id_curso = cu.id ");
-        sb.append("                      join aca_alumno_ciclo ac on acc.id_alumno_ciclo = ac.id ");
-        sb.append("                      join aca_alumno a on ac.id_alumno = a.id ");
-        sb.append("                      join aca_ciclo_academico ca on ac.id_ciclo_academico = ca.id ");
-        sb.append("                      where ");
-        sb.append("                      ca.codigo = '202510'  ");
-        sb.append("                      and a.id_modalidad_estudio = 1 ");
-        sb.append("                      and acc.registro_activo = 1 ");
-        sb.append("                      group by ca.descripcion,a.codigo, ac.puntaje_ciclo     ");
-        sb.append("                   ) t  ");
-        sb.append("              where t.puntaje_ciclo <>  t.puntaje ");
-        sb.append("                      ); ");
+        sb.append(" select distinct a.* ");
+        sb.append(" from aca_matricula_resumen mr ");
+        sb.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
+        sb.append(" join aca_alumno a on mr.id_alumno = a.id ");
+        sb.append(" join aca_alumno_curso_curricula acc on a.id = acc.id_alumno and acc.estado_registro = 'ACT' and acc.estado_matricula = 'MAT' ");
+        sb.append(" join aca_curso cu on acc.id_curso = cu.id ");
+        sb.append(" where ca.codigo = '202510' and mr.estado in ('MAT','RCI')  ");
+        sb.append(" and a.id_modalidad_estudio = 1 and cu.codigo not in ('AG4034'); ");
         Query query = getCurrentSession().createSQLQuery(sb.toString()).addEntity(Alumno.class);
         return query.list();
 
