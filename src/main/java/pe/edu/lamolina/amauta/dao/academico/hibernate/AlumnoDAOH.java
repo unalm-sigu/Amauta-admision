@@ -1468,11 +1468,12 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         sb.append(" from aca_matricula_resumen mr ");
         sb.append(" join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id ");
         sb.append(" join aca_alumno a on mr.id_alumno = a.id ");
-        sb.append(" join aca_alumno_curso_curricula acc on a.id = acc.id_alumno and acc.estado_registro = 'ACT'-- and acc.estado_matricula = 'MAT' ");
+        sb.append(" join aca_alumno_curso_curricula acc on a.id = acc.id_alumno and acc.estado_registro = 'ACT' ");
         sb.append(" join aca_curso cu on acc.id_curso = cu.id ");
         sb.append(" join aca_alumno_ciclo ac on ac.id_alumno = a.id and ac.id_ciclo_academico = ca.id ");
         sb.append(" join aca_alumno_ciclo_curso cc on cc.id_alumno_ciclo = ac.id and cc.id_curso = cu.id and cc.registro_activo = 1  ");
         sb.append(" where ca.codigo = '202510' and mr.estado in ('MAT','RCI')  ");
+        sb.append(" and a.codigo = '20250426'  ");
         sb.append(" and a.id_modalidad_estudio = 1 and cu.codigo not in ('AG4034') ");
         sb.append(" and ac.estado = 'MAT' and cc.nota > 10 and acc.estado = 'HAB'; ");
 
