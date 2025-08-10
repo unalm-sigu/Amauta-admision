@@ -215,11 +215,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         generarHorarioIngresanteService.generarHorario(ds.getCicloAcademico(), modalidad, ds, alumnos);
-        
+
 //        Ver como llevar eso al componente de matricula 
-//        TokenIngresante token = responseRestService.createToken(ds);
-//        JsonResponse json = responseRestService.limpiarCache(ds, token);
-//        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse json = responseRestService.limpiarCache(ds, token);
+        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
 
     }
 
@@ -260,11 +260,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             seccionDAO.update(seccion);
 //            vacanteAlumnoDAO.update(seccionHorario);
         }
-        
+
 //        Comentado por que limpia el cache de matricula         
-//        TokenIngresante token = responseRestService.createToken(ds);
-//        JsonResponse json = responseRestService.limpiarCache(ds, token);
-//        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse json = responseRestService.limpiarCache(ds, token);
+        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
 
     }
 
@@ -361,7 +361,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Override
     @Transactional
-    public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user) {
+    public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user, DataSessionPivot ds) {
         seccionDAO.allRegenerateReservadoByCiclo(cicloAcademico);
         seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         alumnoHorarioDAO.allSetHorarioNullByCiclo(cicloAcademico);
@@ -369,6 +369,10 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         horarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         carreraCachimbosDAO.allRegenerateByCiclo(cicloAcademico);
         horarioFallidoDAO.deleteAllByCiclo(cicloAcademico);
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse json = responseRestService.limpiarCache(ds, token);
+        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
     }
 
     @Override
