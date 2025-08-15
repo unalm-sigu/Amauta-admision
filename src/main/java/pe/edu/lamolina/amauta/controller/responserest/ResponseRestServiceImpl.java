@@ -96,7 +96,8 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Transactional
     public TokenIngresante createTokenForAlumno(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
+//        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
+        TokenIngresante token = tokenIngresanteDAO.findUltimoVigenteTmp(alumno.getPersona());
 
         if (token == null) {
             String valor = RandomStringUtils.randomAlphanumeric(45);

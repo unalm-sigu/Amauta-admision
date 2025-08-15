@@ -55,4 +55,18 @@ public class TokenIngresanteDAOH extends AbstractEasyDAO<TokenIngresante> implem
 
         return find(sql);
     }
+
+    @Override
+    public TokenIngresante findUltimoVigenteTmp(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(TokenIngresante.class, "ti")
+                .join("persona per")
+                .isNull("ti.fechaUso")
+                .filter("fechaVencimiento", ">", new Date())
+                .filter("ti.estado", "ACT")
+                .filter("per.id", persona)
+                .limit(1);
+
+        return find(sql);
+    }
 }
