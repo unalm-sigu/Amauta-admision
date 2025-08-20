@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 
 public interface ResponseRestService {
 
@@ -52,6 +53,8 @@ public interface ResponseRestService {
     JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
 
     JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, TokenIngresante token);
+
+    JsonResponse anularOmisoVotar(MatriculaResumen matriculable, List<AporteAlumnoCiclo> aportesAlumno, DataSessionPivot ds, TokenIngresante token);
 
     JsonResponse recrearDeudas(Alumno alumno, DataSessionPivot ds, TokenIngresante token);
 

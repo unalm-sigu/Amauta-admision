@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.oficinas.matricula.omisoeleccion;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +36,11 @@ public class NoVotaronServiceImp implements NoVotaronService {
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void anularOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<AporteAlumnoCiclo> anularOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
         if (omisosElecciones.isEmpty()) {
             log.info("No se enviaron registros para anular alumnos omisos votantes");
-            return;
+            return new ArrayList();
         }
 
         List<AlumnoOmisoEleccion> omisionesBD = alumnoOmisoEleccionDAO.allByAlumnosOmisos(omisosElecciones);
@@ -51,6 +52,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
         String motivoAnula = omisosElecciones.get(0).getMotivoAnulacion();
         int loop = 0;
 
+        List<AporteAlumnoCiclo> afectados = new ArrayList();
         for (AlumnoOmisoEleccion omiso : omisosElecciones) {
             if (omiso.getSeleccionado()) {
                 AlumnoOmisoEleccion omisoBD = mapOmisiones.get(omiso.getId());
@@ -64,8 +66,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
                 AporteAlumnoCiclo aporteAlumno = omisoBD.getAporteAlumnoCiclo();
                 if (aporteAlumno != null) {
                     Assert.isFalse(registroPagado(aporteAlumno), "Este registro está relacionado a un aporte pagado");
-                    aporteAlumno.setEstadoEnum(EstadoAporteEnum.ANU);
-                    aporteAlumnoCicloDAO.update(aporteAlumno);
+                    afectados.add(aporteAlumno);
                     log.info("[anularOmisosSeleccionados] registro.id={} anulado", aporteAlumno.getId());
                 }
 
@@ -73,10 +74,22 @@ public class NoVotaronServiceImp implements NoVotaronService {
             }
         }
         log.info("Se anularon {} omisiones votantes del alumno {}", loop, alumnoBD.getCodigo());
+        return afectados.stream().distinct().collect(Collectors.toList());
     }
 
     private boolean registroPagado(AporteAlumnoCiclo aporteAlumno) {
         return (aporteAlumno.getEstadoRegistroEnum() == EstadoEnum.ACT && aporteAlumno.getEstadoEnum() == EstadoAporteEnum.PAGO);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void anularAportesAfectados(List<AporteAlumnoCiclo> forms, DataSessionPivot ds) {
+        List<Long> list = forms.stream().map(aac -> aac.getId()).collect(Collectors.toList());
+        List<AporteAlumnoCiclo> afectados = aporteAlumnoCicloDAO.all(list);
+        for (AporteAlumnoCiclo afectado : afectados) {
+            afectado.setEstadoEnum(EstadoAporteEnum.ANU);
+            aporteAlumnoCicloDAO.update(afectado);
+        }
     }
 
     @Override

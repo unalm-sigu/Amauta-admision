@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte;
 
 import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,6 +27,7 @@ import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 
 @Service
 @Transactional(readOnly = true)
@@ -203,6 +205,18 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
 
         TokenIngresante token = responseRestService.createToken(ds);
         return responseRestService.eliminarAporte(matriculable, ds, aporte, token);
+    }
+
+    @Override
+    public JsonResponse getAnularOmisoVotar(List<AporteAlumnoCiclo> aportesAlumno, MatriculaResumen matriculable, CicloAcademico ciclo, DataSessionPivot ds) {
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
+        Assert.isNotNull(generador, "No está configurado los aportes del ciclo");
+
+        List<GeneracionAportesEstadoEnum> aceptables = Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN);
+        Assert.isTrue(aceptables.contains(generador.getEstadoEnum()), "Falta configuraciones de la Oficina de Bienestar");
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        return responseRestService.anularOmisoVotar(matriculable, aportesAlumno, ds, token);
     }
 
     @Override
