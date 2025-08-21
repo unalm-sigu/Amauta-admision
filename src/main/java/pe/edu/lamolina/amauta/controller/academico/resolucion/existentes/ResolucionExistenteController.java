@@ -29,43 +29,17 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.tramite.CambioNota;
-import pe.edu.lamolina.model.tramite.CursoDirigido;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.TramiteTraslado;
+import pe.edu.lamolina.model.tramite.*;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ALUMRENUNCIA;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHIFAC;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAMBIO_PLAN_CURRICULAR;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.OBTE_GRADO;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.READMISION;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RENUNCIA_CAR;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITULBAC;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.*;
 import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum.INTES;
-import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
-import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
-import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
-import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
-import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Slf4j
 @Controller
@@ -95,7 +69,8 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.BACHIFAC,
             TipoResolucionEnum.TITULBAC,
             TipoResolucionEnum.ALUMRENUNCIA,
-            TipoResolucionEnum.RENUNCIA_CAR
+            TipoResolucionEnum.RENUNCIA_CAR,
+            TipoResolucionEnum.SUSP_DISCIPLI
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -341,6 +316,13 @@ public class ResolucionExistenteController {
                 }
                 break;
             case RENUNCIA_CAR:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
+            case SUSP_DISCIPLI:
                 if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
@@ -662,6 +644,15 @@ public class ResolucionExistenteController {
                     .join("alumno.persona.tipoDocumento")
                     .join("cicloAcademico")
                     .array();
+        } else if (tipoResolucionEnum == SUSP_DISCIPLI){
+//            List<SancionDisciplina> sancionDisciplinas = service.allSancionDisciplinaByResolucion(resolucion);
+            List<SancionDisciplinaCiclo> sancionDisciplinaCiclos = service.allSancioCicloAlumnoByResolucion(resolucion);
+            return JaneHelper.from(sancionDisciplinaCiclos)
+                    .join("ciclo")
+                    .join("sancionDisciplina.alumno")
+                    .join("sancionDisciplina.alumno.persona")
+                    .join("sancionDisciplina. alumno.persona.tipoDocumento")
+                    .array();
         }
 
         return new ArrayNode(JsonNodeFactory.instance);
@@ -839,6 +830,24 @@ public class ResolucionExistenteController {
 
             objectNode.set("cursoDirigido", array);
 
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(SUSP_DISCIPLI.name())) {
+            List<SancionDisciplina> sancionados = service.allSancionDisciplinaByResolucion(resolucion);
+
+            for (SancionDisciplina sancion : sancionados) {
+                sancion.setAlumno(sancion.getTramite().getAlumno());
+                sancion.setSeleccionado(true);
+            }
+
+            ArrayNode array = JaneHelper.from(sancionados).only("id")
+                    .join("alumno", "id,codigo")
+                    .join("alumno.carrera", "id,nombre")
+                    .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
+                    .join("alumno.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    //.join("cicloAcademico", "id,descripcion,codigo")
+                    .array();
+
+            objectNode.set("sancionDisciplina", array);
         }
 
         return objectNode;
@@ -1030,6 +1039,28 @@ public class ResolucionExistenteController {
         }
 
         return JaneHelper.from(retiroCiclos)
+                .join("alumno")
+                .join("alumno.carrera")
+                .join("alumno.carrera.facultad")
+                .join("alumno.persona")
+                .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allSancion")
+    public ArrayNode allSancionDisc(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<SancionDisciplina> sancionados = service.allSancionDisciplina();
+
+        for (SancionDisciplina sancionDisc : sancionados) {
+            sancionDisc.setAlumno(sancionDisc.getTramite().getAlumno());
+            sancionDisc.setSeleccionado(Boolean.FALSE);
+        }
+
+        return JaneHelper.from(sancionados)
                 .join("alumno")
                 .join("alumno.carrera")
                 .join("alumno.carrera.facultad")

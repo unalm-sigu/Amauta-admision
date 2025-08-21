@@ -17,7 +17,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li class="pointer " v-if="ciclo.fechaVerificaNmat == ''  &amp;&amp; ciclo.tipo != 'NIV'"><a v-on:click="revisar" >Verificar alumnos NMAT</a></li>
-                            <li class="pointer " v-if="ciclo.fechaVerificaNmat != '' &amp;&amp; ciclo.fechaMatriculables == '' &amp;&amp; ciclo.tipo != 'NIV'" ><a  v-on:click="generarMatriculables" >Generar</a></li>
+                            <li class="pointer "  ><a  v-on:click="generarMatriculables" >Generar</a></li>
                             <li class="pointer " v-if="ciclo.fechaMatriculables != '' &amp;&amp; ciclo.fechaCierreMatriculable == ''"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
                             <li class="pointer " v-if="ciclo.fechaMatriculables != '' &amp;&amp; ciclo.fechaCierreMatriculable == ''"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li class="pointer "><a  v-on:click="verAddMatriculable">Agregar Matriculable</a></li>

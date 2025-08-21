@@ -82,7 +82,11 @@
 
                         <div v-if="resolucion.tipoResolucion.isAlumRenuncianteCarrera">
                             <resolucion-form-details-renuncia-carrera v-model="resolucion"></resolucion-form-details-renuncia-carrera>
-                        </div> 
+                        </div>
+
+                        <div v-if="resolucion.tipoResolucion.isTramiteSancionDisciplina">
+                          <resolucion-form-details-sancion-disciplina v-model="resolucion"></resolucion-form-details-sancion-disciplina>
+                        </div>
 
                     </div>
                     <button v-if="resolucion.id && visible == false" type="button" v-on:click="update" class="btn btn-primary pull-left m-t-md">
@@ -139,6 +143,7 @@
     const ResolucionFormDetailsTrasladoInterno = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsTrasladoInterno.vue');
     const ResolucionFormDetailsRenuncia = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenuncia.vue');
     const ResolucionFormDetailsRenunciaCarrera = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenunciaCarrera.vue');
+    const ResolucionFormDetailsSancionDisciplina = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsSancionDisciplina.vue');
 
     const ModalSimple = use("/_vue/modules/ModalSimple.vue");
     module.exports = {
@@ -158,6 +163,7 @@
             resolucionFormDetailsTrasladoInterno: ResolucionFormDetailsTrasladoInterno,
             resolucionFormDetailsRenuncia: ResolucionFormDetailsRenuncia,
             resolucionFormDetailsRenunciaCarrera: ResolucionFormDetailsRenunciaCarrera,
+            resolucionFormDetailsSancionDisciplina: ResolucionFormDetailsSancionDisciplina,
             modalSimple: ModalSimple,
         },
         mixins: [VueLoader],
@@ -180,6 +186,8 @@
                     cambioPlanCurriculares: [],
                     tramiteRenunciaAlumno: [],
                     tramiteRenunciaAlumnoCarrera: [],
+                    sancionDisciplina: [],
+
                 }
             };
         },
@@ -199,6 +207,8 @@
                 if (!valid) {
                     return;
                 }
+
+                console.log($vue.resolucion);
 
                 if ($vue.resolucion.tipoResolucion.codigo === 'TRAS') {
 

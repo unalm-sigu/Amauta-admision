@@ -112,7 +112,8 @@
                      resolucion.tipoResolucion.isAlumRenunciante||
                      resolucion.tipoResolucion.isAlumRenuncianteCarrera||
                      resolucion.tipoResolucion.isTramiteBachillerFacultad||
-                     resolucion.tipoResolucion.isTramiteTituloFacultad)">
+                     resolucion.tipoResolucion.isTramiteTituloFacultad||
+                     resolucion.tipoResolucion.isTramiteSancionDisciplina)">
                     <label>
                         Ciclo Aplica
                     </label>

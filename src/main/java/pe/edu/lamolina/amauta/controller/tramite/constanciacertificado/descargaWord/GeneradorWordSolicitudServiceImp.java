@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.config.DespliegueConfig;
@@ -819,6 +820,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
                             break;
                         case TABLA_CURSO:
+                            ObjectUtil.printAttr(alumnoCicloCurso);
                             if (alumnoCicloCurso != null) {
                                 if (isEspanol) {
                                     text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre().toUpperCase());
