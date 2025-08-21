@@ -18,14 +18,14 @@ var app = new Vue({
             return "label " + APP.getEstadoClass(estado);
         },
         urlAcademico(item) {
-            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
+            return APP.url('academico/alumno/' + item.tramite.alumno.idAlumno + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
         urlReporte(item) {
             return APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/' + item.tramite.id + '/reporte');
         },
         nuevo() {
             let $vue = this;
-            $vue.retiroExcepcional = {};
+            $vue.sancionDisciplina = {};
             $vue.$refs.modalNuevo.open();
         },
         customLabel( {persona, codigo}){
@@ -58,10 +58,8 @@ var app = new Vue({
         },
         saveSancion() {
             let $vue = this;
-            console.log($vue.sancionDisciplina);
             axios_.post("/academico/tramiteacademico/suspendidoDisciplina/save", $vue.sancionDisciplina)
                 .then(response => {
-                    console.log(response.data);
                     if (response.data.success) {
                         notify(response.data.message, "success");
                     } else {
@@ -88,6 +86,25 @@ var app = new Vue({
                     return "label label-primary"
                     break;
             }
+        },
+        anularSancion(item) {
+            let $vue = this;
+            console.log(item);
+            swal({
+                text: "Seguro que desea anular el registro",
+                icon: "warning",
+                buttons: ["Cancelar", "Anular"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    axios_.get(APP.url('academico/tramiteacademico/suspendidoDisciplina/anular/' + item.tramite.id)).
+                    then(({data}) => {
+                        notify(data, 'info');
+                        $vue.$refs.load.loadRemoteData();
+                    }, () => {
+                    });
+                }
+            });
         },
         anular(item) {
             let $vue = this;

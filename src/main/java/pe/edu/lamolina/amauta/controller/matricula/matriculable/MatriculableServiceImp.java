@@ -192,14 +192,14 @@ public class MatriculableServiceImp implements MatriculableService {
         log.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
 
-        List<SancionDisciplinaCiclo> alumnosSancionados = sancionDisciplinaCicloDAO.findAlumnosSancionadosPorCiclo(cicloAcademico);
-        Set<Long> idsAlumnosSancionados = alumnosSancionados.stream()
-                .map(sdc -> sdc.getSancionDisciplina().getAlumno().getId())
-                .collect(Collectors.toSet());
-
-        List<MatriculaResumen> sinSancion = matriculaResumens.stream()
-                .filter(mr -> !idsAlumnosSancionados.contains(mr.getAlumno().getId()))
-                .collect(Collectors.toList());
+//        List<SancionDisciplinaCiclo> alumnosSancionados = sancionDisciplinaCicloDAO.findAlumnosSancionadosPorCiclo(cicloAcademico);
+//        Set<Long> idsAlumnosSancionados = alumnosSancionados.stream()
+//                .map(sdc -> sdc.getSancionDisciplina().getAlumno().getId())
+//                .collect(Collectors.toSet());
+//
+//        List<MatriculaResumen> sinSancion = matriculaResumens.stream()
+//                .filter(mr -> !idsAlumnosSancionados.contains(mr.getAlumno().getId()))
+//                .collect(Collectors.toList());
 
 
         List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
@@ -221,7 +221,7 @@ public class MatriculableServiceImp implements MatriculableService {
         log.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteDuplicadoCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesDuplicadoCarnetAlumnos);
 
-        for (MatriculaResumen matriculaResumen : sinSancion) {
+        for (MatriculaResumen matriculaResumen : matriculaResumens) {
 
             matriculaResumen.setAporteCarnet(Boolean.FALSE);
             if (mapAporteCarnet.get(matriculaResumen.getId()) != null) {
@@ -250,7 +250,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         long t20 = System.currentTimeMillis();
         log.debug("Query de {} matriculables ejecutado en {} mseg", matriculaResumens.size(), (t20 - t10));
-        return sinSancion;
+        return matriculaResumens;
     }
 
     @Override
@@ -353,7 +353,22 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnosPregrado);
+        List<SancionDisciplinaCiclo> alumnosSancionados = sancionDisciplinaCicloDAO.findAlumnosSancionadosPorCiclo(ds.getCicloAcademico());
+
+        Set<Long> idsAlumnosSancionados = alumnosSancionados.stream()
+                .map(sancionCiclo -> sancionCiclo.getSancionDisciplina().getAlumno().getId())
+                .collect(Collectors.toSet());
+
+
+        List<Alumno> alumnosSinSancion = alumnosPregrado.stream()
+                .filter(alumno -> !idsAlumnosSancionados.contains(alumno.getId()))
+                .collect(Collectors.toList());
+
+        System.out.println("PREGRADO " + alumnosPregrado.size());
+        System.out.println("SANCION " + alumnosSinSancion.size());
+
+
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnosSinSancion);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
@@ -376,7 +391,7 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
 
-        for (Alumno alumno : alumnosPregrado) {
+        for (Alumno alumno : alumnosSinSancion) {
 
             if (mapEgresado.get(alumno.getId()) != null) {
                 continue;
@@ -408,6 +423,12 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoCondicional : alumosConTramite) {
+
+            if (idsAlumnosSancionados.contains(alumnoCondicional.getId())) {
+                System.out.println("Omitido por sanción: " + alumnoCondicional.getId());
+                continue;
+            }
+
             if (alumnoCondicional.getModalidadEstudio().isPostgrado()) {
                 continue;
             }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -22,12 +23,15 @@ import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.*;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 
 @Service
 @Transactional(readOnly = true)
@@ -129,5 +133,38 @@ public class TramiteSancionDisciplinaServiceImpl implements TramiteSancionDiscip
         sancionCicloDAO.saveAll(ciclos);
 
         return mensajeJson;
+    }
+
+    @Override
+    @Transactional
+    public void anular(Long idSancion, Usuario usuario) {
+        SancionDisciplina sancionDisciplina = sancionDisciplinaDAO.find(idSancion);
+
+        if (sancionDisciplina == null) {
+            throw new PhobosException("El trámite no fue encontrado");
+        }
+
+        if (sancionDisciplina.getEstado().equalsIgnoreCase(ACEP.name())) {
+            throw new PhobosException("El trámite ya fue aceptado");
+        }
+
+        if (sancionDisciplina.getEstado().equalsIgnoreCase(TramiteEstadoEnum.ANU.name())) {
+            throw new PhobosException("El trámite ya fue anulado");
+        }
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+
+        Tramite tramite = sancionDisciplina.getTramite();
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(usuario);
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setEstadoTramite(estadoTramite);
+        tramiteDAO.updateEstado(tramite);
+
+        sancionDisciplina.setEstado(TramiteEstadoEnum.ANU.name());
+        sancionDisciplina.setUsuarioActualizacion(usuario);
+        sancionDisciplina.setFechaActualizacion(new Date());
+        sancionDisciplinaDAO.updateColumns(sancionDisciplina, "estado");
+
     }
 }

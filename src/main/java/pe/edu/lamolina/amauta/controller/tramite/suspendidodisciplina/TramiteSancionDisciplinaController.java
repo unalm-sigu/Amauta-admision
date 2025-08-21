@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
@@ -27,6 +25,8 @@ import pe.edu.lamolina.model.tramite.SancionDisciplinaCiclo;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @Controller
 @RequestMapping("academico/tramiteacademico/suspendidoDisciplina")
@@ -76,6 +76,7 @@ public class TramiteSancionDisciplinaController {
                 if (sancion.getAlumno() != null) {
                     ObjectNode alumno = new ObjectNode(JsonNodeFactory.instance);
                     alumno.put("codigo", sancion.getAlumno().getCodigo());
+                    alumno.put("idAlumno", sancion.getAlumno().getId());
 
                     if (sancion.getAlumno().getCarrera() != null && sancion.getAlumno().getCarrera().getFacultad() != null) {
                         ObjectNode carrera = new ObjectNode(JsonNodeFactory.instance);
@@ -139,6 +140,16 @@ public class TramiteSancionDisciplinaController {
             e.printStackTrace();
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "anular/{idSancion}", method = RequestMethod.GET)
+    public ResponseEntity anular(@PathVariable Long idSancion, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        service.anular(idSancion, ds.getUsuario());
+        return new ResponseEntity(GlobalMessages.ANNULL, OK);
+
     }
 
 

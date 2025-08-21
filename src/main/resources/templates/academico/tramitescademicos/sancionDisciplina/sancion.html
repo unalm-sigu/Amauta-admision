@@ -82,10 +82,10 @@
                                                 <i class="fa fa-cog"></i>
                                             </a>
                                             <ul class="dropdown-menu pull-right" >
-                                                <li><a>Información académica</a></li>
-                                                <li ><a target="_blank" >Reporte</a></li>
-                                                <li role="separator" class="divider"></li>
-                                                <li class="pointer"><a>Anular</a></li>
+                                                <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+<!--                                                <li ><a target="_blank" >Reporte</a></li>-->
+<!--                                                <li role="separator" class="divider"></li>-->
+                                                <li><a href="#" v-on:click.prevent="anularSancion(item)">Anular</a></li>
                                             </ul>
 
                                         </div>

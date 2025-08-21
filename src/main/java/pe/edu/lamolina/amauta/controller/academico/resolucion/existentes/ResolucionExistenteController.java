@@ -834,7 +834,7 @@ public class ResolucionExistenteController {
                 sancion.setSeleccionado(true);
             }
 
-            ArrayNode array = JaneHelper.from(sancionados)
+            ArrayNode array = JaneHelper.from(sancionados).only("id")
                     .join("alumno", "id,codigo")
                     .join("alumno.carrera", "id,nombre")
                     .join("alumno.persona", "id,apellidosNombres,numeroDocIdentidad")

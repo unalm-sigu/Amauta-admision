@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.SancionDisciplina;
 import pe.edu.lamolina.model.tramite.SancionDisciplinaCiclo;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +68,8 @@ public class SancionDisciplinaCicloDAOH extends AbstractEasyDAO<SancionDisciplin
         Octavia sql = new Octavia()
                 .from(SancionDisciplinaCiclo.class, "sdc")
                 .join("sancionDisciplina sd","ciclo cl")
-                .filter("cl.id", cicloAcademico.getId());
+                .filter("cl.id", cicloAcademico.getId())
+                .filter("sd.estado", ACEP);
         return all(sql);
     }
 }

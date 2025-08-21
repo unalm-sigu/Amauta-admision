@@ -1856,9 +1856,11 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private void saveTramiteSancionDisciplina(Resolucion resolucion, DataSessionPivot ds) {
 
+        ObjectUtil.printAttr(resolucion.getSancionDisciplina());
+
         List<SancionDisciplina> sancionDisciplinaForm = resolucion.getSancionDisciplina()
                 .stream()
-                .filter(x -> x.isSeleccionado() || x.isRechazado())
+                .filter(x -> x.isSeleccionado())
                 .collect(Collectors.toList());
 
         if (sancionDisciplinaForm.isEmpty()) {

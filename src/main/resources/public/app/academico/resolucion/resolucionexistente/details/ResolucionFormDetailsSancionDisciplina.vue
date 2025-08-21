@@ -9,8 +9,8 @@
       <thead>
       <tr>
         <th class="col-sm-9 text-center" >Persona</th>
-        <th class="col-sm-1 text-center" >Seleccionado</th>
-        <th class="col-sm-1 text-center"></th>
+<!--        <th class="col-sm-1 text-center" >Seleccionado</th>-->
+<!--        <th class="col-sm-1 text-center"></th>-->
       </tr>
       </thead>
       <tbody>
@@ -45,19 +45,19 @@
             </div>
           </div>
         </td>
-        <td class="v-middle">
-          <label class="switch">
-            <input type="checkbox"
-                   v-model="sancionDsc.seleccionado"
-                   v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id !=null"/>
-            <span class="slider round"></span>
-          </label>
-        </td>
-        <td class="v-middle">
-          <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id != null">
-            <i class="fa fa-trash-o " aria-hidden="true"></i>
-          </button>
-        </td>
+<!--        <td class="v-middle">-->
+<!--          <label class="switch">-->
+<!--            <input type="checkbox"-->
+<!--                   v-model="sancionDsc.seleccionado"-->
+<!--                   v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id !=null"/>-->
+<!--            <span class="slider round"></span>-->
+<!--          </label>-->
+<!--        </td>-->
+<!--        <td class="v-middle">-->
+<!--          <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id != null">-->
+<!--            <i class="fa fa-trash-o " aria-hidden="true"></i>-->
+<!--          </button>-->
+<!--        </td>-->
       </tr>
 
 
@@ -132,20 +132,21 @@ module.exports = {
       $vue.showLoader("Espere un momento por favor");
       axios_.get(APP.url("academico/resolucion/existentes/allSancion"))
           .then(({data}) => {
-            console.log(data);
             $vue.resolucion.sancionDisciplina = data;
+            console.log(data);
+            console.log("sanciondasasa");
             $vue.hideLoader();
             $vue.$forceUpdate();
           }, () => {
             $vue.hideLoader();
           });
     },
-    cambioRechazado(readmision) {
-      readmision.seleccionado = false;
-    },
-    cambioSeleccionado(readmision) {
-      readmision.rechazado = false;
-    }
+    // cambioRechazado(readmision) {
+    //   readmision.seleccionado = false;
+    // },
+    // cambioSeleccionado(readmision) {
+    //   readmision.rechazado = false;
+    // }
   }
 };
 </script>
