@@ -6,23 +6,10 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.CambioNota;
-import pe.edu.lamolina.model.tramite.CursoDirigido;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.TipoResolucion;
-import pe.edu.lamolina.model.tramite.TramiteTraslado;
+import pe.edu.lamolina.model.tramite.*;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.tramite.CambioPlanCurricular;
-import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
-import pe.edu.lamolina.model.tramite.Readmision;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
-import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
-import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 public interface ResolucionExistenteService {
 
@@ -77,6 +64,10 @@ public interface ResolucionExistenteService {
     List<PracticasPreProfesional> allPracticas(DataSessionPivot ds);
 
     List<RetiroCiclo> allRetiroCiclo(DataSessionPivot ds);
+
+    List<SancionDisciplina> allSancionDisciplina();
+    List<SancionDisciplina> allSancionDisciplinaByResolucion(Resolucion resolucion);
+    List<SancionDisciplinaCiclo> allSancioCicloAlumnoByResolucion(Resolucion resolucion);
 
     List<Reincorporacion> allReincorporacion();
 
