@@ -51,6 +51,8 @@ var app = new Vue({
         alumnoTramiteReadmision: [],
         alumnoTramiteCambioPlanCurricular: [],
         alumnoTramiteRenuncia: [],
+        alumnoTramiteSancion: [],
+
         tipo: "",
         tipoMap: {
             BACHI: 'Bachiller',
@@ -66,12 +68,39 @@ var app = new Vue({
             TRAS_INT: 'Traslado Interno',
             RCI: 'Reincorporación',
             REIC: 'Reincorporación',
-            INTES: 'Intercambio Estudiantil'
+            INTES: 'Intercambio Estudiantil',
+            SUSP_DISCIPLI: 'Sancion Disciplinaria',
         },
     },
     mounted: function () {
         let $vue = this;
 
+    },
+    computed: {
+        agrupadosPorAlumno() {
+            const agrupados = {};
+
+            this.alumnoTramiteSancion.forEach(item => {
+                const alumnoData = item.sancionDisciplina.alumno;
+                const codigoAlumno = alumnoData.codigo;
+
+                if (!agrupados[codigoAlumno]) {
+                    agrupados[codigoAlumno] = {
+                        codigo: codigoAlumno,
+                        nombreCompleto: alumnoData.persona.nombreCompleto,
+                        numeroDocIdentidad: alumnoData.persona.numeroDocIdentidad,
+                        ciclos: []
+                    };
+                }
+
+                agrupados[codigoAlumno].ciclos.push({
+                    codigo: item.ciclo.codigo,
+                    descripcion: item.ciclo.descripcion
+                });
+            });
+
+            return Object.values(agrupados);
+        }
     },
     methods: {
         cambiarEstadoReincorporacion(tramite, estadoDestino, event) {
@@ -366,6 +395,10 @@ var app = new Vue({
                             $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
                             $vue.alumnoTramiteCambioPlanCurricular = data;
+
+                        } else if ($vue.tipo == "SUSP_DISCIPLI") {
+                            $vue.alumnoTramiteSancion = data;
+                            console.log(data);
                         }
 
                         $vue.$refs.modalAlumnos.open();
