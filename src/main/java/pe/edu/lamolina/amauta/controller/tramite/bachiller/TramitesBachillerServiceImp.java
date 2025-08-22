@@ -33,14 +33,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.CursoCurricula;
-import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -186,6 +179,14 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
         historialSorted.putAll(historial);
 
+        boolean existTrabajoInvestigacion = historialSorted.values().stream()
+                .flatMap(List::stream)
+                .map(AlumnoCicloCurso::getCurso)
+                .filter(Objects::nonNull)
+                .map(Curso::getNombre)
+                .anyMatch(nombre -> "Trabajo de investigación".equalsIgnoreCase(nombre.trim()));
+
+
         List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
 
         Map<Long, AlumnoCiclo> alumnosCiclosFiltrados = alumnosCiclos.stream()
@@ -258,6 +259,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         model.addAttribute("oficinaColaborador", oficinaColaborador);
         model.addAttribute("ciclo", cicloAcademico);
         model.addAttribute("historial", historialSorted);
+        model.addAttribute("existTrabajoInvestigacion", existTrabajoInvestigacion);
         model.addAttribute("alumnoCiclo", alumnoCiclo);
         model.addAttribute("bachiller", tramiteBachiller);
         model.addAttribute("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));

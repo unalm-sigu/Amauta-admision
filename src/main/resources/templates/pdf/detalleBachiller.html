@@ -198,6 +198,14 @@
                             <span th:text="${planCurricular}"></span>
                         </td>
                     </tr>
+                    <tr th:if="${existTrabajoInvestigacion}">
+                        <td>
+                            <span>Trabajo de Investigación: </span>
+                        </td>
+                        <td>
+                            <span th:text="'Ciclo ' + ${ciclosRegularesEstudiados}">0</span>
+                        </td>
+                    </tr>
                     <tr >
                         <td >
                             <span >Se Adjunta: </span>
