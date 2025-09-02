@@ -253,6 +253,7 @@ public class AulaServiceImp implements AulaService {
         aula.setUserRegistro(ds.getUsuario());
         aula.setTipoCarpeta(tipocarpeta);
         aula.setFechaRegistro(new Date());
+        aula.setCodigoPronabec(aula.getCodigoPronabec());
         aulaDAO.save(aula);
     }
 
@@ -319,6 +320,7 @@ public class AulaServiceImp implements AulaService {
         aulaBD.setCapacidadAula(aula.getCapacidadAula());
         aulaBD.setCapacidadExtra(aula.getCapacidadExtra());
         aulaBD.setCodigo(aula.getCodigo());
+        aulaBD.setCodigoPronabec(aula.getCodigoPronabec());
         aulaBD.setNombre(aula.getNombre());
         aulaBD.setPermiteCruce(aula.getPermiteCruce());
         aulaBD.setPiso(aula.getPiso());
