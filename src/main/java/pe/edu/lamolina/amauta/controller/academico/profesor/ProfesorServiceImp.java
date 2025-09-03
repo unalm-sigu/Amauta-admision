@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.profesor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -325,8 +327,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
         Assert.isTrue(personaBD.getId().equals(personaForm.getId()),
                 "El " + tipoDocBD.getSimbolo()
-                + " ingresado ya se encuentra relacionado con otra persona: "
-                + personaBD.getApellidosNombres() + " (" + personaBD.getIdentificacion() + ")");
+                        + " ingresado ya se encuentra relacionado con otra persona: "
+                        + personaBD.getApellidosNombres() + " (" + personaBD.getIdentificacion() + ")");
     }
 
     private void validarEmailsinPersona(String email) {
@@ -405,19 +407,24 @@ public class ProfesorServiceImp implements ProfesorService {
 
         } else {
             log.debug("actualizando usuario");
-            if (!usuario.getGoogle().equalsIgnoreCase(persona.getEmailCompania())) {
-                String emailCompaniaBaja = usuario.getGoogle();
+            if (usuario.getGoogle() != null) {
+                if (!usuario.getGoogle().equalsIgnoreCase(persona.getEmailCompania())) {
+                    String emailCompaniaBaja = usuario.getGoogle();
+                    usuario.setGoogle(persona.getEmailCompania());
+                    usuarioDAO.updateColumns(usuario, "google");
+
+                    Usuario usuarioNew = new Usuario();
+                    usuarioNew.setEstadoEnum(UserEstadoEnum.INA);
+                    usuarioNew.setFechaRegistro(new Date());
+                    usuarioNew.setUserRegistro(ds.getUsuario());
+                    usuarioNew.setPersona(persona);
+                    usuarioNew.setGoogle(emailCompaniaBaja);
+                    usuarioNew.setUserActivo(usuario);
+                    usuarioDAO.save(usuarioNew);
+                }
+            } else {
                 usuario.setGoogle(persona.getEmailCompania());
                 usuarioDAO.updateColumns(usuario, "google");
-
-                Usuario usuarioNew = new Usuario();
-                usuarioNew.setEstadoEnum(UserEstadoEnum.INA);
-                usuarioNew.setFechaRegistro(new Date());
-                usuarioNew.setUserRegistro(ds.getUsuario());
-                usuarioNew.setPersona(persona);
-                usuarioNew.setGoogle(emailCompaniaBaja);
-                usuarioNew.setUserActivo(usuario);
-                usuarioDAO.save(usuarioNew);
             }
 
         }
@@ -724,7 +731,7 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<HistoricoCargaAcademicoBean> allHistoricoCargaAcademico(FiltroHistoricoCargaAcademicaDTO filtro, DataSessionPivot ds) {
         log.info("Usuario descarga {}", ds.getUsuario().getGoogle());
-        
+
         return docenteDAO.allHistoricoCargaAcademica(filtro);
     }
 
