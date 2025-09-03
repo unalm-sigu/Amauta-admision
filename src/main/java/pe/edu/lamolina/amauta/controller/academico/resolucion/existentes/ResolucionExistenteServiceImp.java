@@ -1011,6 +1011,9 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 this.saveTramitePracticas(resolucionForm, ds);
                 //respuesta = Arrays.asList(this.saveTramitePracticas(resolucionForm, ds));
                 break;
+            case SUSP_DISCIPLI:
+                this.saveTramiteSancionDisciplina(resolucionForm, ds);
+                break;
             default:
                 break;
         }
@@ -1869,8 +1872,6 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
     private void saveTramiteSancionDisciplina(Resolucion resolucion, DataSessionPivot ds) {
 
-        ObjectUtil.printAttr(resolucion.getSancionDisciplina());
-
         List<SancionDisciplina> sancionDisciplinaForm = resolucion.getSancionDisciplina()
                 .stream()
                 .filter(x -> x.isSeleccionado())
@@ -1882,10 +1883,8 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
 
         EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         Date now = new Date();
-        ObjectUtil.printAttr(sancionDisciplinaForm);
 
         for (SancionDisciplina sancionDisciplinaX : sancionDisciplinaForm) {
-            ObjectUtil.printAttr(sancionDisciplinaX);
             SancionDisciplina sancionDisciplina = sancionDisciplinaDAO.findByAlumnoAct(sancionDisciplinaX.getAlumno());
             Tramite tramite = sancionDisciplina.getTramite();
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
@@ -3063,6 +3062,50 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     @Override
     public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds) {
         return tramiteRenunciaAlumnoDAO.allBySolicitadosCarrera();
+    }
+
+    @Override
+    @Transactional
+    public void anularSancionDisciplina(Long sancionId) {
+        SancionDisciplina sancion = sancionDisciplinaDAO.find(sancionId);
+
+        sancion.setEstado(TramiteEstadoEnum.ANU.name());
+        sancion.setFechaActualizacion(new Date());
+
+        sancionDisciplinaDAO.save(sancion);
+
+        Tramite tramite = sancion.getTramite();
+        Resolucion resolucion = sancion.getResolucion();
+
+        tramite.setEstado(TramiteEstadoEnum.ANU.name());
+        tramite.setFechaModificacion(new Date());
+        tramiteDAO.save(tramite);
+
+        if (resolucion != null) {
+            // 5. Verificar si quedan otras sanciones activas en la resolución
+            List<SancionDisciplina> sancionesActivasResolucion = sancionDisciplinaDAO
+                    .findByResolucionAndEstadoACEP(resolucion);
+
+            if (sancionesActivasResolucion.isEmpty()) {
+                // Solo anular la resolución si NO quedan sanciones activas de NINGÚN alumno
+                resolucion.setEstado(ResolucionEstadoEnum.ANU.name());
+                resolucion.setFechaActualizacion(new Date());
+                resolucionDAO.save(resolucion);
+            }
+        }
+
+
+    }
+
+    @Override
+    public List<Alumno> findAlumnosSancionados(String nombre, Long instanciaOficina) {
+        Oficina oficina = instanciaOficina == null ? null : oficinaDAO.find(instanciaOficina);
+
+        if (oficina == null || oficina.getCodigoEnum() == OficinaEnum.UNA) {
+            return alumnoDAO.allAlumnosSancionados(nombre);
+        }
+
+        return new ArrayList();
     }
 
     public boolean contieneMensaje(List<String> respuesta) {

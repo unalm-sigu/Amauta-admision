@@ -54,7 +54,7 @@
           </label>
         </td>
         <td class="v-middle">
-          <button type="button"  v-on:click.prevent="del(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; sancionDsc.id != null">
+          <button type="button"  v-on:click.prevent="anularSancion(index)" class="btn btn-danger" v-bind:disabled="isEdicion && sancionDsc.id != null && !resolucion.tipoResolucion.isTramiteSancionDisciplina">
             <i class="fa fa-trash-o " aria-hidden="true"></i>
           </button>
         </td>
@@ -105,10 +105,49 @@ module.exports = {
       $vue.resolucion.sancionDisciplina.push({seleccionado: true});
       $vue.$forceUpdate();
     },
-    del(index) {
+
+    anularSancion(index) {
       let $vue = this;
-      $vue.resolucion.sancionDisciplina.splice(index, 1);
-      $vue.$forceUpdate();
+      let sancionDsc = $vue.resolucion.sancionDisciplina[index];
+
+      if (sancionDsc.id != null) {
+
+        bootbox.confirm({
+          message: "¿Está seguro de que desea anular esta sanción disciplinaria? Esta acción no se puede deshacer.",
+          buttons: {
+            confirm: {label: 'Sí, anular', className: "btn-danger"},
+            cancel: {label: 'Cancelar', className: "btn-link"}
+          },
+          callback: function (result) {
+
+            if (result) {
+              $vue.showLoader("Anulando sanción...");
+
+              AXIOS.delete(APP.url(`academico/resolucion/existentes/anularSancion/${sancionDsc.id}`))
+                  .then(({data}) => {
+                    $vue.hideLoader();
+
+                    if (data.success) {
+                      $vue.resolucion.sancionDisciplina.splice(index, 1);
+                      $vue.$forceUpdate();
+
+                      notify(data.message, "success");
+
+
+                    } else {
+                      notify("Error al anular la sanción: " + data.message, "error");
+                    }
+                  })
+                  .catch((error) => {
+                    $vue.hideLoader();
+                    console.error('Error al anular sanción:', error);
+                    notify("Error al anular la sanción. Por favor, inténtelo nuevamente.", "error");
+                  });
+            }
+          }
+        });
+
+      }
     },
     searchAlumno(nombre) {
 
@@ -118,7 +157,7 @@ module.exports = {
         return;
       }
 
-      AXIOS.get(APP.url("academico/resolucion/existentes/findAlumno"),
+      AXIOS.get(APP.url("academico/resolucion/existentes/findAlumnoSancionados"),
           {params: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}})
           .then(({data}) => {
             if (data.success) {
@@ -133,20 +172,12 @@ module.exports = {
       axios_.get(APP.url("academico/resolucion/existentes/allSancion"))
           .then(({data}) => {
             $vue.resolucion.sancionDisciplina = data;
-            console.log(data);
-            console.log("sanciondasasa");
             $vue.hideLoader();
             $vue.$forceUpdate();
           }, () => {
             $vue.hideLoader();
           });
     },
-    // cambioRechazado(readmision) {
-    //   readmision.seleccionado = false;
-    // },
-    // cambioSeleccionado(readmision) {
-    //   readmision.rechazado = false;
-    // }
   }
 };
 </script>

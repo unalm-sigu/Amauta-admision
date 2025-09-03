@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.TramitesAcademicos;
@@ -209,6 +210,32 @@ public class ResolucionExistenteController {
     }
 
     @ResponseBody
+    @RequestMapping("findAlumnoSancionados")
+    public JsonResponse findAlumnoSancionados(
+            @RequestParam("nombre") String nombre,
+            @RequestParam(name = "instanciaOficina", required = false) Long instanciaOficina,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<Alumno> alumnosSancionados = service.findAlumnosSancionados(nombre, instanciaOficina);
+
+        ArrayNode data = JaneHelper.from(alumnosSancionados).only("id,codigo")
+                .join("persona", "nombreCompleto,apellidosNombres,numeroDocIdentidad")
+                .join("persona.tipoDocumento")
+                .join("carrera")
+                .join("carrera.facultad")
+                .array();
+
+        response.setSuccess(Boolean.TRUE);
+        response.setData(data);
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
 
@@ -356,7 +383,8 @@ public class ResolucionExistenteController {
                 || resolucion.isTipoTrasladoInterno()
                 || resolucion.isTipoRetiroCiclo()
                 || resolucion.isTipoTramiteBachillerFacultad()
-                || resolucion.isTipoCursoDirigido())) {
+                || resolucion.isTipoCursoDirigido()
+                || resolucion.isTipoSancionDisciplina())) {
             throw new PhobosException("Solo se permite editar la resolución de bachiller, título, prácticas y retiro de ciclo");
         }
 
@@ -396,6 +424,7 @@ public class ResolucionExistenteController {
             case TITUL:
             case TITULBAC:
             case CAMBIO_PLAN_CURRICULAR:
+            case SUSP_DISCIPLI:
                 break;
             case CURDIR:
                 msg = respuestas;
@@ -649,6 +678,7 @@ public class ResolucionExistenteController {
             List<SancionDisciplinaCiclo> sancionDisciplinaCiclos = service.allSancioCicloAlumnoByResolucion(resolucion);
             return JaneHelper.from(sancionDisciplinaCiclos)
                     .join("ciclo")
+                    .join("sancionDisciplina")
                     .join("sancionDisciplina.alumno")
                     .join("sancionDisciplina.alumno.persona")
                     .join("sancionDisciplina. alumno.persona.tipoDocumento")
@@ -1140,6 +1170,27 @@ public class ResolucionExistenteController {
                 .join("alumno.persona.tipoDocumento")
                 .array();
 
+    }
+
+    @ResponseBody
+    @RequestMapping("/anularSancion/{sancionId}")
+    public JsonResponse anularSancionDisciplina(@PathVariable(value = "sancionId") Long sancionId) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            service.anularSancionDisciplina(sancionId);
+
+            response.setMessage("Sancion anulada correctamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

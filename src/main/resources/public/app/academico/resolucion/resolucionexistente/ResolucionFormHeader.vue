@@ -13,6 +13,7 @@
                         v-bind:allow-empty="false"
                         track-by="id" 
                         required="true"
+                        v-bind:disabled="isEdicion && resolucion.tipoResolucion?.isTramiteSancionDisciplina"
                         v-bind:showNoOptions="true"
                         v-bind:show-labels="false" 
                         @select="tipoResolucionSelect">
@@ -93,6 +94,7 @@
                         deselect-label="No se puede eliminar este valor"
                         track-by="id" 
                         required="true"
+                        v-bind:disabled="isEdicion && resolucion.tipoResolucion?.isTramiteSancionDisciplina"
                         >
                     </multiselect>
                     <!--                                            v-bind:disabled="isEdicion"-->

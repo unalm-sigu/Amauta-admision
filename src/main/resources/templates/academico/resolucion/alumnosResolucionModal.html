@@ -51,6 +51,7 @@
                         <th></th>
                         <th>Apellidos y Nombres</th>
                         <th>Ciclos Sancionados</th>
+                        <th>Estado Sancion</th>
                     </tr>
 
                 </thead>
@@ -265,6 +266,9 @@
                             <small v-for="ciclo in alumno.ciclos" :key="ciclo.codigo">
                                 Ciclo: {{ ciclo.descripcion }}<br>
                             </small>
+                        </td>
+                        <td>
+                            <span class="label" v-bind:class="getEstadoClass(alumno.estadoEnum)">{{alumno.estado}}</span>
                         </td>
                     </tr>
 
