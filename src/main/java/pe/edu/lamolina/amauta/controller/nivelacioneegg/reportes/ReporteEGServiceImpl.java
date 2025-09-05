@@ -91,4 +91,8 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         return notaAlumnoNivelacionDAO.ingresantesGeneraByCiclo(cicloAcademico);
     }
 
+    @Override
+    public List<ResultadoReporteView> cursoNivelacionFormadoByCiclo(CicloAcademico cicloAcademico) {
+        return notaAlumnoNivelacionDAO.cursoNivelacionFormadoByCiclo(cicloAcademico);
+    }
 }
