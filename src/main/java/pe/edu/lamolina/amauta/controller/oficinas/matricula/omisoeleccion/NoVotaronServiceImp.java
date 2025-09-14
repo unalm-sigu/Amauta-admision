@@ -1,12 +1,12 @@
 package pe.edu.lamolina.amauta.controller.oficinas.matricula.omisoeleccion;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class NoVotaronServiceImp implements NoVotaronService {
@@ -34,14 +35,12 @@ public class NoVotaronServiceImp implements NoVotaronService {
     @Autowired
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void anularOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<AporteAlumnoCiclo> anularOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
         if (omisosElecciones.isEmpty()) {
-            logger.info("No se enviaron registros para anular alumnos omisos votantes");
-            return;
+            log.info("No se enviaron registros para anular alumnos omisos votantes");
+            return new ArrayList();
         }
 
         List<AlumnoOmisoEleccion> omisionesBD = alumnoOmisoEleccionDAO.allByAlumnosOmisos(omisosElecciones);
@@ -53,6 +52,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
         String motivoAnula = omisosElecciones.get(0).getMotivoAnulacion();
         int loop = 0;
 
+        List<AporteAlumnoCiclo> afectados = new ArrayList();
         for (AlumnoOmisoEleccion omiso : omisosElecciones) {
             if (omiso.getSeleccionado()) {
                 AlumnoOmisoEleccion omisoBD = mapOmisiones.get(omiso.getId());
@@ -66,14 +66,15 @@ public class NoVotaronServiceImp implements NoVotaronService {
                 AporteAlumnoCiclo aporteAlumno = omisoBD.getAporteAlumnoCiclo();
                 if (aporteAlumno != null) {
                     Assert.isFalse(registroPagado(aporteAlumno), "Este registro está relacionado a un aporte pagado");
-                    aporteAlumno.setEstadoEnum(EstadoAporteEnum.ANU);
-                    aporteAlumnoCicloDAO.update(aporteAlumno);
+                    afectados.add(aporteAlumno);
+                    log.info("[anularOmisosSeleccionados] registro.id={} anulado", aporteAlumno.getId());
                 }
 
                 loop++;
             }
         }
-        logger.info("Se anularon {} omisiones votantes del alumno {}", loop, alumnoBD.getCodigo());
+        log.info("Se anularon {} omisiones votantes del alumno {}", loop, alumnoBD.getCodigo());
+        return afectados.stream().distinct().collect(Collectors.toList());
     }
 
     private boolean registroPagado(AporteAlumnoCiclo aporteAlumno) {
@@ -82,9 +83,20 @@ public class NoVotaronServiceImp implements NoVotaronService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void anularAportesAfectados(List<AporteAlumnoCiclo> forms, DataSessionPivot ds) {
+        List<Long> list = forms.stream().map(aac -> aac.getId()).collect(Collectors.toList());
+        List<AporteAlumnoCiclo> afectados = aporteAlumnoCicloDAO.all(list);
+        for (AporteAlumnoCiclo afectado : afectados) {
+            afectado.setEstadoEnum(EstadoAporteEnum.ANU);
+            aporteAlumnoCicloDAO.update(afectado);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deshacerAnuladosOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
         if (omisosElecciones.isEmpty()) {
-            logger.info("No se enviaron registros para deshacer la anulación de alumnos omisos votantes");
+            log.info("No se enviaron registros para deshacer la anulación de alumnos omisos votantes");
             return;
         }
 
@@ -103,7 +115,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
             }
         }
 
-        logger.info("Se deshicieron {} omisiones votantes del alumno {}", loop, alumnoBD.getCodigo());
+        log.info("Se deshicieron {} omisiones votantes del alumno {}", loop, alumnoBD.getCodigo());
     }
 
 }

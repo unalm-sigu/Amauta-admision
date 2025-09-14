@@ -191,7 +191,7 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
                 .collect(Collectors.toList());
         Assert.isFalse(horas.isEmpty(), "No existe horas programadas para esta fecha");
 
-        Collections.sort(horas, (h1, h2) -> h1.getHora().compareTo(h2.getHora()));
+        Collections.sort(horas, (h1, h2) -> h1.getNumero().compareTo(h2.getNumero()));
         if (hoy.equals(fecha) && noEsModoPruebas(form)) {
             int horaMin = horas.get(0).getNumero();
             int horaHoy = new DateTime().getHourOfDay();

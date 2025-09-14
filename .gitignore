@@ -19,3 +19,4 @@ lamolina-pivot.log.*
 ./vscode/
 /nbproject/
 nb-configuration.xml
+.java-version

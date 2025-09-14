@@ -60,25 +60,6 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_Q;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
@@ -122,7 +103,8 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.*;
+
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 //import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 //import pe.edu.lamolina.model.academico.Facultad;
@@ -349,7 +331,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
                         S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(),
-                        S_6.getValue(), S_T.getValue(), S_RA.getValue());
+                        S_6.getValue(), S_T.getValue(), S_RA.getValue(), S_Y.getValue());
 
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
@@ -1517,8 +1499,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public void verificarAlumnosNmat(DataSessionPivot ds, List<Alumno> alumnoCiclosForm) {
 
-        List<Alumno> alumnos = alumnoCiclosForm;
-        alumnos = alumnoDAO.allInfoByAlumnos(alumnos);
+        List<Alumno> alumnos = alumnoDAO.allInfoByAlumnos(alumnoCiclosForm);
         TypesUtil.delay(2000);
 
         String token = RandomStringUtils.randomAlphanumeric(34);
@@ -1570,25 +1551,42 @@ public class MatriculableServiceImp implements MatriculableService {
 
         }
 
-        for (;;) {
-            for (;;) {
-                if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
-                    System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
-                    respositorVisor.incrementar();
-                    log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
-                } else {
-                    log.info("CONTADOR");
-                    break;
-                }
-
-            }
-
-            if (visorCalculoNotas.estaCompletoToken(token)) {
-                log.info("TOKEN COMPLETO");
+//        for (;;) {
+//            for (;;) {
+//                if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
+//                    System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
+//                    respositorVisor.incrementar();
+//                    log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+//                } else {
+//                    log.info("CONTADOR");
+//                    break;
+//                }
+//
+//            }
+//
+//            if (visorCalculoNotas.estaCompletoToken(token)) {
+//                log.info("TOKEN COMPLETO");
+//                break;
+//            }
+//        }
+//
+//        promedioService.verificarAlumnosNmat(ciclo);
+        log.info("Esperando finalización del procesamiento asíncrono de promedios para {} alumnos.", alumnos.size());
+        while (!visorCalculoNotas.estaCompletoToken(token)) {
+            try {
+                int procesados = visorCalculoNotas.getCantidadByToken(token);
+                log.info("Alumnos procesados: {} de {}", procesados, alumnos.size());
+                // Pausa el hilo actual para no consumir CPU innecesariamente.
+                Thread.sleep(500); // 500 ms de espera entre verificaciones
+            } catch (InterruptedException e) {
+                log.error("El hilo fue interrumpido mientras esperaba la finalización de los promedios.", e);
+                // Restablece el estado de interrupción para que el código superior pueda manejarlo.
+                Thread.currentThread().interrupt();
                 break;
             }
         }
 
+        log.info("Procesamiento de promedios completado. Verificando alumnos NMAT.");
         promedioService.verificarAlumnosNmat(ciclo);
 
     }

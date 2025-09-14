@@ -302,6 +302,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
                 .left("gs.cicloAcademico ca")
                 .left("reservaAula ra", "ra.tramite tra")
+                .left("cursoNivelacion cn", "cn.cursoCiclo cc","cc.curso cu","cu.departamentoAcademico", "cn.grupoHoras ghh")
+                .left("cn.docente doc", "doc.persona")
                 .left("tra.docente do", "do.persona")
                 .left("tra.alumno al", "al.persona")
                 .left("tra.oficina ofi", "tra.empresa emp")

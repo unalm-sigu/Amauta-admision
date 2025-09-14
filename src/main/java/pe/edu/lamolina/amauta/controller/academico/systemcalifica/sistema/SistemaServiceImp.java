@@ -316,7 +316,7 @@ public class SistemaServiceImp implements SistemaService {
                 BigDecimal peso = BigDecimal.ZERO;
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
-                    evaluacion.setAlumnoEvaluacion(null);
+                    //evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i, fechaRegistro, usuarioRegistro);
 
                     if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {

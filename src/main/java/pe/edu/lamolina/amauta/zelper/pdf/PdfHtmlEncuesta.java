@@ -77,18 +77,16 @@ public class PdfHtmlEncuesta extends AbstractPdfHtml{
         documentPdf.addTitle(nombre);
         documentPdf.addSubject(nombre);
 
-        for (Context ctx : multipleContext) {
+        for (int i = 0; i < multipleContext.size(); i++) {
+            Context ctx = multipleContext.get(i);
 
             for (String plantilla : plantillasArray) {
-
                 logger.debug("plantilla {}", plantilla);
 
                 String htmlContent = this.templateEngine.process(templateResolver(plantilla), ctx);
 
                 HtmlCleaner cleaner = new HtmlCleaner();
-
                 TagNode node = cleaner.clean(htmlContent);
-
                 String resultado = cleaner.getInnerHtml(node);
 
                 HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
@@ -100,18 +98,21 @@ public class PdfHtmlEncuesta extends AbstractPdfHtml{
 
                 CssFile cssfiletest = XMLWorkerHelper.getCSS(csspathtest);
                 cssResolver.addCss(cssfiletest);
-                Pipeline<?> pipeline = new CssResolverPipeline(cssResolver, new HtmlPipeline(htmlContext, new PdfWriterPipeline(documentPdf, writer)));
+
+                Pipeline<?> pipeline = new CssResolverPipeline(cssResolver,
+                        new HtmlPipeline(htmlContext, new PdfWriterPipeline(documentPdf, writer)));
                 XMLWorker worker = new XMLWorker(pipeline, true);
                 XMLParser p = new XMLParser(worker);
 
                 if (resultado != null) {
                     p.parse(new StringReader(resultado));
                 }
-
             }
 
-            documentPdf.newPage();
-
+            // Si hay más de un contexto y no es el último, añade nueva página
+            if (multipleContext.size() > 1 && i < multipleContext.size() - 1) {
+                documentPdf.newPage();
+            }
         }
 
         response.setHeader("content-disposition", "attachment; filename=\"" + nombre + ".pdf\"");

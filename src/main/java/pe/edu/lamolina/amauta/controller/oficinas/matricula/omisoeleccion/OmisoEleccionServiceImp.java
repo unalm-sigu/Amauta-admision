@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -266,22 +265,21 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     @Override
     public void anularOmision(Alumno alumnoForm, DataSessionPivot ds) {
         List<AlumnoOmisoEleccion> omisionesForm = alumnoForm.getAlumnoOmisoEleccions();
-        noVotaronService.anularOmisosSeleccionados(omisionesForm, ds);
+        List<AporteAlumnoCiclo> afectados = noVotaronService.anularOmisosSeleccionados(omisionesForm, ds);
 
         Alumno alumnoBD = alumnoDAO.find(alumnoForm);
         ModalidadEstudioEnum modalidadEnum = alumnoBD.getModalidadEstudio().getOperativeModalidadEnum();
         CicloAcademico ciclo = cicloAcademicoDAO.findActivo(modalidadEnum);
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoBD, ciclo);
-        if (matriculaResumen == null) {
+        MatriculaResumen matriculable = matriculaResumenDAO.findByAlumnoCiclo(alumnoBD, ciclo);
+        if (matriculable == null) {
+            noVotaronService.anularAportesAfectados(afectados, ds);
             return;
         }
 
-        CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
-
         JsonResponse json;
         try {
-            json = aporteAlumnoService.getRecrearDeudas(cicloModalidad, alumnoBD, ds);
+            json = aporteAlumnoService.getAnularOmisoVotar(afectados, matriculable, ciclo, ds);
 
         } catch (Exception e) {
             noVotaronService.deshacerAnuladosOmisosSeleccionados(omisionesForm, ds);

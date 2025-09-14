@@ -328,7 +328,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             Collections.sort(codigosCiclosPlanes);
             Collections.reverse(codigosCiclosPlanes);
 
-            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+//            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+            String codigoCicloPlan = codigosCiclosPlanes.get(0);
             List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
             PlanCurricular planCurricularBD = null;
             for (PlanCurricular planCurricular : planesBD) {

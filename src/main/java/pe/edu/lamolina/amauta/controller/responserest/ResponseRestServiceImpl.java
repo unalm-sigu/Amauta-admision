@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -37,9 +39,11 @@ import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.medico.dto.PacienteDTO;
 
+@Slf4j
 @Service
 public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> implements ResponseRestService {
 
@@ -57,8 +61,6 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ObjectNode createFormJson(DataSessionPivot ds, TokenIngresante token) {
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
@@ -96,7 +98,8 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Transactional
     public TokenIngresante createTokenForAlumno(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
+//        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
+        TokenIngresante token = tokenIngresanteDAO.findUltimoVigenteTmp(alumno.getPersona());
 
         if (token == null) {
             String valor = RandomStringUtils.randomAlphanumeric(45);
@@ -305,14 +308,29 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
-    public JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, TokenIngresante token) {
+    public JsonResponse eliminarAporte(MatriculaResumen matriculable, DataSessionPivot ds, Aporte aporte, TokenIngresante token) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
 
         ObjectNode json = createFormJson(ds, token);
-        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idMatricula", matriculable.getId());
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/quitarAporte", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse anularOmisoVotar(MatriculaResumen matriculable, List<AporteAlumnoCiclo> aportesAlumno, DataSessionPivot ds, TokenIngresante token) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+
+        ObjectNode json = createFormJson(ds, token);
+        json.put("idMatricula", matriculable.getId());
+
+        String ids = aportesAlumno.stream()
+                .map(aporte -> String.valueOf(aporte.getId()))
+                .collect(Collectors.joining(","));
+
+        String url = String.format("%s/aportesRest/anularOmisosVotar/%s", parametro.getValor(), ids);
         return this.postToBackEnd(url, json);
     }
 

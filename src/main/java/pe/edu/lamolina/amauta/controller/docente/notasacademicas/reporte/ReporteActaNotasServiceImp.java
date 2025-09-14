@@ -103,7 +103,7 @@ public class ReporteActaNotasServiceImp implements ReporteActaNotasService {
         List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
         Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
 
-        int cantReg = 38;
+        int cantReg = 150;
         int ind = 0;
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
 

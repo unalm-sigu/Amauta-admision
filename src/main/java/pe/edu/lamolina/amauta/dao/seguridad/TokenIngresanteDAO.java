@@ -14,4 +14,6 @@ public interface TokenIngresanteDAO extends EasyDAO<TokenIngresante> {
 
     TokenIngresante findByToken(String token);
 
+    TokenIngresante findUltimoVigenteTmp(Persona persona);
+
 }

@@ -33,7 +33,7 @@ public interface HorarioCachimboIngresanteService {
 
     List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico);
 
-    void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user);
+    void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user, DataSessionPivot ds);
 
     List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico);
 

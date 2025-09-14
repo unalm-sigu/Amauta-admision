@@ -496,7 +496,19 @@ public class AulaController {
                             "dias.mainHorarioAula.reservaAula.tramite.alumno.codigo",
                             "dias.mainHorarioAula.reservaAula.tramite.alumno.persona.nombreCompleto",
                             "dias.mainHorarioAula.reservaAula.tramite.oficina.nombre",
-                            "dias.mainHorarioAula.reservaAula.tramite.oficina.codigo",});
+                            "dias.mainHorarioAula.reservaAula.tramite.oficina.codigo",
+                            "dias.mainHorarioAula.reservaAula.tramite.oficina.codigo",
+                            "dias.mainHorarioAula.cursoNivelacion.cursoCiclo.curso.departamentoAcademico.nombre",
+                            "dias.mainHorarioAula.cursoNivelacion.cursoCiclo.curso.codigo",
+                            "dias.mainHorarioAula.cursoNivelacion.cursoCiclo.curso.nombre",
+                            "dias.mainHorarioAula.cursoNivelacion.id",
+                            "dias.mainHorarioAula.cursoNivelacion.codigo",
+                            "dias.mainHorarioAula.cursoNivelacion.docente.codigo",
+                            "dias.mainHorarioAula.cursoNivelacion.docente.persona.nomPaternoMat",
+                            "dias.mainHorarioAula.cursoNivelacion.grupoHoras.codigo",
+                            "dias.mainHorarioAula.cursoNivelacion.fechaInicio",
+                            "dias.mainHorarioAula.cursoNivelacion.fechaFin",
+                        });
                 horasJson.add(jhora);
             }
 

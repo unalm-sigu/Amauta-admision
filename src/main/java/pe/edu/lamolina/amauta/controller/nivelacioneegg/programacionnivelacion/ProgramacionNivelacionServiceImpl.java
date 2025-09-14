@@ -997,12 +997,12 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 this.retiroMasivo(cursoNiv, ciclo, ds);
                 Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
-                int edad = this.getEdadMinutos(cursoNiv);
-                if (edad < 30) {
+//                int edad = this.getEdadMinutos(cursoNiv);
+//                if (edad < 30) {
                     this.eliminarCursoNivelacion(cursoNiv, ds);
-                } else {
+//                } else {
                     this.registrarCambio(cursoNiv, estadoEnum, ds);
-                }
+//                }
                 break;
 
             default:
