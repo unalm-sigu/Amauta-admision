@@ -21,4 +21,6 @@ public interface ReporteEGService {
     List<ResultadoReporteView> resultadoAdmisionByCiclo(CicloAcademico cicloAcademico);
 
     List<ResultadoReporteView> ingresantesGeneraByCiclol(CicloAcademico cicloAcademico);
+
+    List<ResultadoReporteView> cursoNivelacionFormadoByCiclo(CicloAcademico cicloAcademico);
 }

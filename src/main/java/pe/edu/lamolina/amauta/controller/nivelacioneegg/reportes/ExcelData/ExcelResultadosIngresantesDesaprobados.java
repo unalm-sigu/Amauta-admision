@@ -145,6 +145,14 @@ public class ExcelResultadosIngresantesDesaprobados extends AbstractView {
             col++;
             excelUtil.setWidthColumn(col, 6000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Estado Curso Nivelación");
+            col++;
+            excelUtil.setWidthColumn(col, 6000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Estado Alumno");
+            col++;
+            excelUtil.setWidthColumn(col, 6000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Si tiene usuario");
             col++;
 
@@ -222,6 +230,12 @@ public class ExcelResultadosIngresantesDesaprobados extends AbstractView {
             col++;
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getCorreoDocente());
+            col++;
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getEstadoCursoNivelacion());
+            col++;
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getEstado());
             col++;
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getUsuario());

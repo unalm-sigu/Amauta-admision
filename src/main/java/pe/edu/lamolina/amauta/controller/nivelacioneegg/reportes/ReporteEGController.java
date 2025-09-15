@@ -35,6 +35,7 @@ public class ReporteEGController {
     private final ExcelReporteGeneralNivelacion excelReporteGeneralNivelacion;
     private final ExcelResultadosPuntajeAdmision excelResultadosPuntajeAdmision;
     private final ExcelResultadosIngresantesGeneral  excelResultadosIngresantesGeneral;
+    private final ExcelResultadosCursosNivelacionFormados  excelResultadosCursosNivelacionFormados;
 
 
     @RequestMapping(method = RequestMethod.GET)
@@ -149,6 +150,18 @@ public class ReporteEGController {
         model.addAttribute("resultado", resultados);
 
         return new ModelAndView(excelResultadosIngresantesGeneral);
+    }
+
+    @RequestMapping("cursoNivelacionFormado")
+    public ModelAndView cursoNivelacionFormado(HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<ResultadoReporteView> resultados = service.cursoNivelacionFormadoByCiclo(ds.getCicloAcademico());
+
+        model.addAttribute("resultado", resultados);
+
+        return new ModelAndView(excelResultadosCursosNivelacionFormados);
     }
 
 

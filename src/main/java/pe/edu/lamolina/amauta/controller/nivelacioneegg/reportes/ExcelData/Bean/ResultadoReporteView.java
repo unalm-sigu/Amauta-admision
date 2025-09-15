@@ -16,8 +16,13 @@ public class ResultadoReporteView {
     private String dni;
     private String codCurso;
     private String curso;
+    private String codDocente;
     private String docente;
     private String seccion;
+    private String grupo;
+    private Date semana;
+    private String dia;
+    private String horaDictado;
     private String ciclo;
     private String matricula;
     private String apellidosNombre;
@@ -39,6 +44,8 @@ public class ResultadoReporteView {
     private String moduloAula;
     private String aula;
     private String usuario;
+    private String controlAsistencia;
+    private String actasEntregadas;
     private BigDecimal porcentajeAsistencia;
     private BigDecimal puntajeCurso;
 

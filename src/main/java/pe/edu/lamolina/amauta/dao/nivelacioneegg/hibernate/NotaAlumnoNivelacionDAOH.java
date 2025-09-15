@@ -458,42 +458,60 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
     @Override
     public List<ResultadoReporteView> allIngresantesDesaprobadosByCiclo(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" select ROW_NUMBER() OVER (PARTITION BY cu.nombre, cn.codigo ORDER BY cu.nombre, cn.codigo, pe.id) AS correlativo,a.codigo matricula,pe.numero_doc_identidad dni, ");
-        sql.append(" concat(ifnull(pe.paterno,''), ' ',ifnull(pe.materno,''),', ', ifnull(pe.nombres,''))apellidosNombre, ");
-        sql.append(" mi.nombre modalidadIngreso,car.nombre carrera,fa.nombre facultad,pe.email correoPersonal,pe.email_corporativo correoOutlook,pe.email_compania correoGmail,pe.celular,pe.telefono, ");
-        sql.append(" cu.nombre curso,te.nombre temaCurso,nan.puntaje_examen puntajeCurso,cn.codigo seccion,aus.nombre moduloAula, au.codigo aula, ");
-        sql.append(" concat(ifnull(per.paterno,''), ' ',ifnull(per.materno,''),', ', ifnull(per.nombres,'')) docente,per.email_compania correoDocente, ");
-        sql.append(" case ");
-        sql.append(" when uu.id is null then 'NO TIENE USUARIO' ");
-        sql.append(" else 'SI TIENE USUARIO' ");
-        sql.append(" end usuario ");
-        sql.append(" from eegg_nota_alumno_nivelacion nan ");
-        sql.append(" join eegg_alumno_nivelacion an on an.id = nan.id_alumno_nivelacion ");
-        sql.append(" join aca_alumno a on a.id = an.id_alumno ");
-        sql.append(" join aca_carrera car on a.id_carrera = car.id ");
-        sql.append(" join aca_facultad fa on car.id_facultad = fa.id ");
-        sql.append(" join gen_persona pe on pe.id = a.id_persona ");
-        sql.append(" left join seg_usuario uu on uu.id_persona = pe.id and uu.estado = 'ACT' ");
-        sql.append(" join sip_postulante po on po.id = a.id_postulante_pregrado ");
-        sql.append(" join sip_modalidad_ingreso mi on mi.id = po.id_modalidad_ingreso ");
-        sql.append(" join aca_ciclo_academico ci on ci.id = an.id_ciclo_academico ");
-        sql.append(" join sce_tema_examen te on te.id = nan.id_tema_examen ");
-        sql.append(" join eegg_curso_nivelacion cn on cn.id = nan.id_curso_nivelacion ");
-        sql.append(" left join gen_aula au on cn.id_aula = au.id ");
-        sql.append(" left join gen_aula aus on au.id_aula_superior = aus.id ");
-        sql.append(" left join aca_docente doc on cn.id_docente = doc.id ");
-        sql.append(" left join gen_persona per on doc.id_persona = per.id ");
-        sql.append(" left join aca_curso_ciclo_academico cc on cc.id = cn.id_curso_ciclo_academico ");
-        sql.append(" left join aca_curso cu on cu.id = cc.id_curso ");
-        sql.append(" join eegg_modalidad_tema_ciclo mtc ");
-        sql.append("    on mtc.id_ciclo_academico = an.id_ciclo_academico ");
-        sql.append("    and mtc.id_tema_examen = nan.id_tema_examen ");
-        sql.append("    and mtc.otras_modalidades = case po.id_modalidad_ingreso when 16 then 0 else 1 end ");
-        sql.append(" where ci.id = :CICLO ");
-        sql.append(" and an.estado in ('NMAT','MAT') ");
-        sql.append(" and nan.estado in ('NMAT','MAT') ");
-        sql.append(" and te.id_tema_superior is null ");
-        sql.append(" and nan.tema_aprobado = false; ");
+        sql.append("  select ROW_NUMBER() OVER (PARTITION BY cu.nombre, cn.codigo ORDER BY cu.nombre, cn.codigo, pe.id) AS correlativo,a.codigo matricula,pe.numero_doc_identidad dni,   ");
+        sql.append("  concat(ifnull(pe.paterno,''), ' ',ifnull(pe.materno,''),', ', ifnull(pe.nombres,''))apellidosNombre,   ");
+        sql.append("  mi.nombre modalidadIngreso,car.nombre carrera,fa.nombre facultad,pe.email correoPersonal,pe.email_corporativo correoOutlook,pe.email_compania correoGmail,pe.celular,pe.telefono,   ");
+        sql.append("  cu.nombre curso,te.nombre temaCurso,nan.puntaje_examen puntajeCurso,cn.codigo seccion,aus.nombre moduloAula, au.codigo aula,   ");
+        sql.append("  COALESCE(  ");
+        sql.append("    NULLIF(  ");
+        sql.append("      CONCAT_WS(', ',  ");
+        sql.append("        NULLIF(TRIM(CONCAT_WS(' ', per.paterno, per.materno)), ''),   ");
+        sql.append("        NULLIF(TRIM(per.nombres), '')                                ");
+        sql.append("      ),   ");
+        sql.append("      ''  ");
+        sql.append("    ),   ");
+        sql.append("    ''  ");
+        sql.append("  ) docente,per.email_compania correoDocente,   ");
+        sql.append("  case nan.estado  ");
+        sql.append("  when 'MAT' then 'Matriculado'  ");
+        sql.append("  when 'NMAT' then 'No Matriculado'  ");
+        sql.append("  else 'Sin estado'   ");
+        sql.append("  end estadoCursoNivelacion,  ");
+        sql.append("  case an.estado  ");
+        sql.append("  when 'MAT' then 'Matriculado'  ");
+        sql.append("  when 'NMAT' then 'No Matriculado'  ");
+        sql.append("  when 'INH' then 'Inhabilitado'  ");
+        sql.append("  else 'Sin estado'   ");
+        sql.append("  end estado,         ");
+        sql.append("  case   ");
+        sql.append("  when uu.id is null then 'NO TIENE USUARIO'   ");
+        sql.append("  else 'SI TIENE USUARIO'   ");
+        sql.append("  end usuario  ");
+        sql.append("  from eegg_nota_alumno_nivelacion nan   ");
+        sql.append("  join eegg_alumno_nivelacion an on an.id = nan.id_alumno_nivelacion   ");
+        sql.append("  join aca_alumno a on a.id = an.id_alumno   ");
+        sql.append("  join aca_carrera car on a.id_carrera = car.id   ");
+        sql.append("  join aca_facultad fa on car.id_facultad = fa.id   ");
+        sql.append("  join gen_persona pe on pe.id = a.id_persona   ");
+        sql.append("  left join seg_usuario uu on uu.id_persona = pe.id and uu.estado = 'ACT'   ");
+        sql.append("  join sip_postulante po on po.id = a.id_postulante_pregrado   ");
+        sql.append("  join sip_modalidad_ingreso mi on mi.id = po.id_modalidad_ingreso   ");
+        sql.append("  join aca_ciclo_academico ci on ci.id = an.id_ciclo_academico   ");
+        sql.append("  join sce_tema_examen te on te.id = nan.id_tema_examen   ");
+        sql.append("  left join eegg_curso_nivelacion cn on cn.id = nan.id_curso_nivelacion  ");
+        sql.append("  left join gen_aula au on cn.id_aula = au.id   ");
+        sql.append("  left join gen_aula aus on au.id_aula_superior = aus.id   ");
+        sql.append("  left join aca_docente doc on cn.id_docente = doc.id   ");
+        sql.append("  left join gen_persona per on doc.id_persona = per.id   ");
+        sql.append("  left join aca_curso_ciclo_academico cc on cc.id = cn.id_curso_ciclo_academico   ");
+        sql.append("  left join aca_curso cu on cu.id = cc.id_curso   ");
+        sql.append("  join eegg_modalidad_tema_ciclo mtc   ");
+        sql.append("     on mtc.id_ciclo_academico = an.id_ciclo_academico   ");
+        sql.append("     and mtc.id_tema_examen = nan.id_tema_examen   ");
+        sql.append("     and mtc.otras_modalidades = case po.id_modalidad_ingreso when 16 then 0 else 1 end   ");
+        sql.append("  where ci.id = :CICLO  ");
+        sql.append("  and te.id_tema_superior is null   ");
+        sql.append("  and nan.tema_aprobado = false;   ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("correlativo", StringType.INSTANCE)
@@ -515,6 +533,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .addScalar("aula", StringType.INSTANCE)
                 .addScalar("docente", StringType.INSTANCE)
                 .addScalar("correoDocente", StringType.INSTANCE)
+                .addScalar("estadoCursoNivelacion", StringType.INSTANCE)
+                .addScalar("estado", StringType.INSTANCE)
                 .addScalar("usuario", StringType.INSTANCE)
                 .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));
 
@@ -1007,4 +1027,85 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
 
     }
 
+    @Override
+    public List<ResultadoReporteView> cursoNivelacionFormadoByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  select   ");
+        sql.append("    ca.descripcion ciclo,  ");
+        sql.append("    cu.nombre curso,  ");
+        sql.append("    cn.codigo seccion,  ");
+        sql.append("    COALESCE(  ");
+        sql.append("      NULLIF(  ");
+        sql.append("        CONCAT_WS(', ',  ");
+        sql.append("          NULLIF(TRIM(CONCAT_WS(' ', per.paterno, per.materno)), ''),   ");
+        sql.append("          NULLIF(TRIM(per.nombres), '')                                ");
+        sql.append("        ),   ");
+        sql.append("        ''  ");
+        sql.append("      ),   ");
+        sql.append("      ''  ");
+        sql.append("    ) docente,   ");
+        sql.append("    per.email_compania correoDocente,  ");
+        sql.append("    doc.codigo codDocente,   ");
+        sql.append("    au.codigo aula,   ");
+        sql.append("    aus.nombre moduloAula,  ");
+        sql.append("    hn.codigo grupo,  ");
+        sql.append("    hc.semana,  ");
+        sql.append("    d.nombre dia,  ");
+        sql.append("    CONCAT(  ");
+        sql.append("      DATE_FORMAT(MIN(STR_TO_DATE(h.descripcion, '%h:%i %p')), '%h:%i %p'),  ");
+        sql.append("      ' a ',  ");
+        sql.append("      DATE_FORMAT(MAX(STR_TO_DATE(h.descripcion_fin, '%h:%i %p')), '%h:%i %p')  ");
+        sql.append("    ) AS horaDictado,  ");
+        sql.append("    concat((select count(*) from eegg_tema_asistencia ta where ta.id_curso_nivelacion = cn.id),' / ',  ");
+        sql.append("    ((select count(distinct haa.fecha_ini,haa.id_dia) from hor_horario_aula haa where haa.id_curso_nivelacion = cn.id) - 1)) controlAsistencia,  ");
+        sql.append("    concat((select count(*) from eegg_examen_curso_nivelacion ecn where ecn.id_curso_nivelacion = cn.id),' / ',  ");
+        sql.append("    (select count(*) from eegg_examen_curso_nivelacion ecn where ecn.id_curso_nivelacion = cn.id and ecn.estado = 'CER')) actasEntregadas,  ");
+        sql.append("    case cn.estado  ");
+        sql.append("    when 'ACT' then 'Activo'  ");
+        sql.append("    when 'R_ACT' then 'Reactivado'  ");
+        sql.append("    when 'INA' then 'Inactivo'  ");
+        sql.append("    when 'CRE' then 'Creado'  ");
+        sql.append("    when 'ANU' then 'Anulado'  ");
+        sql.append("    when 'BLO' then 'Bloqueado'  ");
+        sql.append("    when 'D_BLO' then 'Desbloqueado'  ");
+        sql.append("    when 'CAN' then 'Cancelada'  ");
+        sql.append("    else 'SIN_ESTADO' end estado    ");
+        sql.append("  from eegg_curso_nivelacion cn   ");
+        sql.append("  join aca_curso_ciclo_academico cc on cc.id = cn.id_curso_ciclo_academico  ");
+        sql.append("  join aca_ciclo_academico ca on cc.id_ciclo_academico = ca.id  ");
+        sql.append("  join hor_grupo_horas_nivelacion hn on cn.id_grupo_horas = hn.id  ");
+        sql.append("  join hor_horario_curso hc on hc.id_curso_ciclo = cc.id and hc.id_grupo_horas = hn.id  ");
+        sql.append("  join gen_dia d on hc.id_dia = d.id  ");
+        sql.append("  join hor_hora h on hc.id_hora = h.id  ");
+        sql.append("  left join gen_aula au on cn.id_aula = au.id   ");
+        sql.append("  left join gen_aula aus on au.id_aula_superior = aus.id   ");
+        sql.append("  left join aca_docente doc on cn.id_docente = doc.id   ");
+        sql.append("  left join gen_persona per on doc.id_persona = per.id   ");
+        sql.append("  left join aca_curso cu on cu.id = cc.id_curso  ");
+        sql.append("  where ca.id = :CICLO  ");
+        sql.append("  group by ca.descripcion,cu.nombre,cn.codigo,cn.id,docente,  ");
+        sql.append("  per.email_compania,  ");
+        sql.append("  doc.codigo, au.codigo, aus.nombre,hn.codigo,hc.semana,d.nombre,cn.estado;  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("ciclo", StringType.INSTANCE)
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("seccion", StringType.INSTANCE)
+                .addScalar("docente", StringType.INSTANCE)
+                .addScalar("correoDocente", StringType.INSTANCE)
+                .addScalar("codDocente", StringType.INSTANCE)
+                .addScalar("aula", StringType.INSTANCE)
+                .addScalar("moduloAula", StringType.INSTANCE)
+                .addScalar("grupo", StringType.INSTANCE)
+                .addScalar("semana", DateType.INSTANCE)
+                .addScalar("dia", StringType.INSTANCE)
+                .addScalar("horaDictado", StringType.INSTANCE)
+                .addScalar("controlAsistencia", StringType.INSTANCE)
+                .addScalar("actasEntregadas", StringType.INSTANCE)
+                .addScalar("estado", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ResultadoReporteView.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        return (List<ResultadoReporteView>) query.list();
+    }
 }
