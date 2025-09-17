@@ -12,6 +12,8 @@ import java.util.List;
 public interface TramiteSancionDisciplinaService {
     List<CicloAcademico> getCiclos(DataSessionPivot ds);
     List<SancionDisciplina> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds);
-    String saveSancionByCiclos( SancionDTO sancionDisciplina, DataSessionPivot ds, List<CicloAcademico> idsCiclos);
+    String saveSancionByCiclos( SancionDTO sancionDisciplina, DataSessionPivot ds, List<CicloAcademicoDTO> idsCiclos);
+    String updateSancionByCiclos(SancionDTO sancionForm, DataSessionPivot ds, List<CicloAcademicoDTO> idsCiclos);
     void anular(Long idSancion, Usuario usuarioAnulacion);
+    SancionDTO getSancionDTOById(Long sancionId);
 }

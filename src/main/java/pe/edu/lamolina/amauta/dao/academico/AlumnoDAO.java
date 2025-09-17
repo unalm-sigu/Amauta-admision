@@ -62,6 +62,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
     List<Alumno> allByName(String nombre);
+    List<Alumno> allAlumnosSancionados(String nombre);
 
     List<Alumno> allByNameFacultad(String nombre, Facultad facultad);
 

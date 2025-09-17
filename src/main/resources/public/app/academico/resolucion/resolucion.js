@@ -6,7 +6,7 @@ var app = new Vue({
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
         URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success", VB_RES: "primary"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success", VB_RES: "primary", ACEP: "success"},
         resolucionModal: {
             id: 'modalResolucion',
             header: true,
@@ -83,10 +83,14 @@ var app = new Vue({
             this.alumnoTramiteSancion.forEach(item => {
                 const alumnoData = item.sancionDisciplina.alumno;
                 const codigoAlumno = alumnoData.codigo;
+                const estadoSancion = item.sancionDisciplina.estadoEnum.value;
+                const estadoSancionEnum = item.sancionDisciplina.estadoEnum.name;
 
                 if (!agrupados[codigoAlumno]) {
                     agrupados[codigoAlumno] = {
                         codigo: codigoAlumno,
+                        estado: estadoSancion,
+                        estadoEnum: estadoSancionEnum,
                         nombreCompleto: alumnoData.persona.nombreCompleto,
                         numeroDocIdentidad: alumnoData.persona.numeroDocIdentidad,
                         ciclos: []
@@ -356,7 +360,6 @@ var app = new Vue({
             $vue.tipo = item.tipoResolucion.codigo;
             $vue.tipoNombre = item.tipoResolucion.nombre;
             $vue.codigoOficina = item.oficina.codigo;
-            console.log(item.tipoResolucion);
             axios_.post(APP.url('academico/resolucion/existentes/alumnos/'), item)
                     .then(({data}) => {
 
@@ -364,7 +367,6 @@ var app = new Vue({
                             notify("No contiene información de alumnos", "error");
                             return;
                         }
-                        console.log(data)
                         if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = data;
                         } else if ($vue.tipo == "RCI") {
@@ -398,7 +400,6 @@ var app = new Vue({
 
                         } else if ($vue.tipo == "SUSP_DISCIPLI") {
                             $vue.alumnoTramiteSancion = data;
-                            console.log(data);
                         }
 
                         $vue.$refs.modalAlumnos.open();

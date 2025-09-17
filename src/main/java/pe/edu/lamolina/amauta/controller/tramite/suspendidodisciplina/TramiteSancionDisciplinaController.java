@@ -90,7 +90,6 @@ public class TramiteSancionDisciplinaController {
                 }
 
                 List<SancionDisciplinaCiclo> ciclosRelacionados = sancionDisciplinaCicloDAO.findBySancionDisciplina(sancion);
-                System.out.println(ciclosRelacionados.size());
 
                 ArrayNode ciclosArray = new ArrayNode(JsonNodeFactory.instance);
                 for (SancionDisciplinaCiclo rel : ciclosRelacionados) {
@@ -131,13 +130,62 @@ public class TramiteSancionDisciplinaController {
 
         try {
 
-            List<CicloAcademico> listCiclos = sancionForm.getCicloAcademico();
+            List<CicloAcademicoDTO> listCiclos = sancionForm.getCicloAcademico();
 
             String MSG = service.saveSancionByCiclos(sancionForm,ds,listCiclos);
             json.setSuccess(MSG.equalsIgnoreCase("OK") ? Boolean.TRUE : Boolean.FALSE);
             json.setMessage(MSG.equalsIgnoreCase("OK") ? GlobalMessages.CREATED : MSG);
         } catch (PhobosException e) {
+            json.setSuccess(Boolean.FALSE);
+            json.setMessage(e.getMessage());
             e.printStackTrace();
+
+        } catch (Exception e) {
+            json.setSuccess(Boolean.FALSE);
+            json.setMessage("Error interno del servidor");
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(@RequestBody SancionDTO sancionForm, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.FALSE);
+
+        try {
+            List<CicloAcademicoDTO> listCiclos = sancionForm.getCicloAcademico();
+
+            String MSG = service.updateSancionByCiclos(sancionForm, ds, listCiclos);
+            json.setSuccess(MSG.equalsIgnoreCase("OK") ? Boolean.TRUE : Boolean.FALSE);
+            json.setMessage(MSG.equalsIgnoreCase("OK") ? GlobalMessages.UPDATED : MSG);
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            json.setMessage("Error al actualizar la sanción: " + e.getMessage());
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("get/{id}")
+    public JsonResponse getSancionById(@PathVariable Long id, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(Boolean.FALSE);
+
+        try {
+            SancionDTO sancionDTO = service.getSancionDTOById(id);
+            if (sancionDTO != null) {
+                json.setData(sancionDTO);
+                json.setSuccess(Boolean.TRUE);
+            } else {
+                json.setMessage("Sanción no encontrada");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setMessage("Error al obtener la sanción: " + e.getMessage());
         }
         return json;
     }

@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.SUNDAY;
 import org.joda.time.LocalDate;
 import org.joda.time.Minutes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +126,12 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         long t2 = System.currentTimeMillis();
         log.info("[allDynatable] cursoNivelacionDAO.allByDynatable {} mseg", (t2 - t1));
 
-        List<HorarioAula> horariosAll = horarioAulaDAO.allByCursosNivelacion(cursosNiv);
+        List<CursoCicloAcademico> cursosCiclo = cursosNiv.stream()
+                .map(cniv -> cniv.getCursoCiclo())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<HorarioCurso> horariosAll = horarioCursoDAO.allByCursosCiclo(cursosCiclo);
         List<TemaAsistencia> leccionesAll = temaAsistenciaDAO.allByCursosNivelaciones(cursosNiv);
 
         List<CursoCicloGrupoDTO> cursosGrupos = cursosNiv.stream()
@@ -155,8 +162,13 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             String key = cn.getCursoCiclo().getId() + "-" + cn.getGrupoHoras().getId();
             cn.setHorariosCurso(mapHorarios.get(key));
 
-            List<HorarioAula> horarios = horariosAll.stream()
-                    .filter(hor -> hor.getCursoNivelacion().equals(cn))
+            CursoCicloAcademico cursoCiclo = cn.getCursoCiclo();
+            GrupoHorasNivelacion gpoHoras = cn.getGrupoHoras();
+
+            List<HorarioCurso> horarios = horariosAll.stream()
+                    .filter(hor -> hor.getCursoCiclo().getId().equals(cursoCiclo.getId()))
+                    .filter(hor -> gpoHoras != null)
+                    .filter(hor -> hor.getGrupoHoras().getId().equals(gpoHoras.getId()))
                     .collect(Collectors.toList());
 
             List<TemaAsistencia> lecciones = leccionesAll.stream()
@@ -179,7 +191,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         return cursosNiv;
     }
 
-    private int getCantidadDias(List<HorarioAula> horarios) {
+    private int getCantidadDias(List<HorarioCurso> horarios) {
         if (horarios.isEmpty()) {
             return 0;
         }
@@ -187,14 +199,18 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Map<String, PeriodoDiaDTO> mapPeriodoDias = new HashMap();
         List<PeriodoDiaDTO> periodosDias = new ArrayList();
 
-        for (HorarioAula ha : horarios) {
-            PeriodoDiaDTO item = new PeriodoDiaDTO(ha.getFechaInicio(), ha.getFechaFin(), ha.getDia(), ha.getHora());
+        for (HorarioCurso ha : horarios) {
+            DateTime semana = new DateTime(ha.getSemana());
+            Date lunes = semana.withDayOfWeek(MONDAY).withTimeAtStartOfDay().toDate();
+            Date domingo = semana.withDayOfWeek(SUNDAY).withTimeAtStartOfDay().toDate();
+
+            PeriodoDiaDTO item = new PeriodoDiaDTO(lunes, domingo, ha.getDia(), ha.getHora());
             String key = item.getKey();
             PeriodoDiaDTO previo = mapPeriodoDias.get(key);
 
             if (previo == null) {
-                LocalDate fechaPivote = new LocalDate(ha.getFechaInicio());
-                LocalDate fechaFin = new LocalDate(ha.getFechaFin());
+                LocalDate fechaPivote = new LocalDate(lunes);
+                LocalDate fechaFin = new LocalDate(domingo);
 
                 while (!fechaPivote.isAfter(fechaFin)) {
                     int diaSemana = fechaPivote.getDayOfWeek();
@@ -292,7 +308,6 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     @Override
     public List<Aula> allAulas(String nombre) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return aulaDAO.searchByNombreFilter(nombre, 15);
     }
 
@@ -631,6 +646,9 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 if (aula == null) {
                     continue;
                 }
+                if (aula.isSinAula()) {
+                    continue;
+                }
 
                 this.verificarCruceAula(mapHorarioAula, fecha, aula, dia, hora);
 
@@ -690,7 +708,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, grupoHoras);
 
         Aula aula = cursoNiv.getAula();
-        if (horarios.isEmpty() || aula == null) {
+        if (horarios.isEmpty() || aula == null || aula.isSinAula()) {
             return;
         }
 
@@ -801,7 +819,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
         Aula aulaBD = cursoNiv.getAula();
         Aula aula = this.getAula(form);
-        if (aula != null) {
+        if (aula != null && !aula.isSinAula()) {
             Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurada su capacidad");
             Assert.isTrue(cursoNiv.getVacantes() <= aula.getCapacidadAula(), "La cantidad de vacantes no puede ser mayor que la capacidad del aula");
         }
@@ -824,6 +842,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         cursoNivelacionDAO.update(cursoNiv);
 
         List<HorarioAula> horariosAntes = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
+        log.info("[changeAula] horariosAntes.size={}", horariosAntes.size());
         if (aula == null && horariosAntes.isEmpty()) {
             return;
         }
@@ -832,7 +851,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             horarioAulaDAO.delete(horario);
         }
 
-        if (aula == null) {
+        if (aula == null || aula.isSinAula()) {
             return;
         }
 
@@ -999,9 +1018,9 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
 //                int edad = this.getEdadMinutos(cursoNiv);
 //                if (edad < 30) {
-                    this.eliminarCursoNivelacion(cursoNiv, ds);
+                this.eliminarCursoNivelacion(cursoNiv, ds);
 //                } else {
-                    this.registrarCambio(cursoNiv, estadoEnum, ds);
+                this.registrarCambio(cursoNiv, estadoEnum, ds);
 //                }
                 break;
 

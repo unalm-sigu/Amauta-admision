@@ -23,6 +23,7 @@ import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
@@ -39,6 +40,8 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+
+import static pe.edu.lamolina.model.enums.PerfilColaboradorEnum.COORDTUTOR;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
@@ -46,9 +49,7 @@ import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
-import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.SerieDocumento;
-import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.general.*;
 import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -121,6 +122,11 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     PostulanteDAO postulanteDAO;
+
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
+
+    private final String CODIGO_OFICINA_TUTORIA = "CT-";
 
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter) {
@@ -241,22 +247,26 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
             throw new PhobosException(String.format("No se ha configurado el evento fecha primera matricula y egreso para el ciclo %s", cicloInicio.getDescripcion()));
         }
 
-        Oficina oficinaColaborador = null;
-
         alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
-        if (alumnoConsejero != null) {
-            alumno.setConsejero(alumnoConsejero.getConsejero());
-        }
+        String tutorOcoordinador = "NN";
 
-        if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
-            oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
+        if (alumnoConsejero != null) {
+            tutorOcoordinador = alumnoConsejero.getConsejero().getColaborador().getPersona().getApellidosNombres();
+        }else {
+            List<Colaborador> coordinadores = colaboradorDAO.allCoordinatorCodeCareerOfStudent(CODIGO_OFICINA_TUTORIA.concat(alumno.getCarrera().getCodigo()));
+            Optional<Persona> coordinadorCarrera = coordinadores.stream()
+                    .filter(x -> x.getCargo().getCodigoEnum().equals(COORDTUTOR) && x.getOficina().getPersonaJefe() != null)
+                    .map(Colaborador::getOficina).map(Oficina::getPersonaJefe).distinct().findAny();
+
+            tutorOcoordinador = coordinadorCarrera.isPresent() ? coordinadorCarrera.get().getApellidosNombres() : "NN";
         }
+        alumno.setTutorOcoordinador(tutorOcoordinador);
 
         Postulante postulante = postulanteDAO.findByPersonaCicloAcademico(alumno.getPersona(), alumno.getCicloIngreso());
 
         model.addAttribute("alumno", alumno);
-        model.addAttribute("oficinaColaborador", oficinaColaborador);
+//        model.addAttribute("oficinaColaborador", oficinaColaborador);
         model.addAttribute("ciclo", cicloAcademico);
         model.addAttribute("historial", historialSorted);
         model.addAttribute("existTrabajoInvestigacion", existTrabajoInvestigacion);

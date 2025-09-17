@@ -11,7 +11,9 @@ var app = new Vue({
         retiroExcepcional: {},
         sancionDisciplina: {},
         alumnos: [],
-        isLoading: false
+        isLoading: false,
+        isEditing: false,
+        editingItemId: null
     },
     methods: {
         getEstadoClass(estado) {
@@ -25,14 +27,22 @@ var app = new Vue({
         },
         nuevo() {
             let $vue = this;
+            $vue.isEditing = false;
+            $vue.editingItemId = null;
             $vue.sancionDisciplina = {};
+            $vue.alumnos = [];
             $vue.$refs.modalNuevo.open();
         },
-        customLabel( {persona, codigo}){
-            if (persona != null) {
-                return  codigo + " - " + persona.nombreCompleto;
-            }
-            return "";
+
+        customLabel(option) {
+            // if (option) {
+            //     return option.nombreCompleto + " - " + option.numeroDocumento;
+            // }
+            // return "";
+            if (!option) return ''
+            const nombre = option.nombreCompleto || option.persona?.nombreCompleto || ''
+            const doc = option.numeroDocumento || option.persona?.numeroDocIdentidad || ''
+            return `${nombre} (${doc})`
         },
         loadAlumno(nombre) {
             let $vue = this;
@@ -58,19 +68,77 @@ var app = new Vue({
         },
         saveSancion() {
             let $vue = this;
-            axios_.post("/academico/tramiteacademico/suspendidoDisciplina/save", $vue.sancionDisciplina)
+
+            const url = $vue.isEditing
+                ? "/academico/tramiteacademico/suspendidoDisciplina/update"
+                : "/academico/tramiteacademico/suspendidoDisciplina/save";
+
+            axios_.post(url, $vue.sancionDisciplina)
                 .then(response => {
                     if (response.data.success) {
                         notify(response.data.message, "success");
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalNuevo.close();
+
+                        $vue.isEditing = false;
+                        $vue.editingItemId = null;
                     } else {
                         notify(response.data.message, "error");
+                        $vue.$refs.modalNuevo.stop();
+
                     }
-                    $vue.$refs.load.loadRemoteData();
-                    $vue.$refs.modalNuevo.close();
-                }, () => {
+                }, (error) => {
+                    console.error('Error al guardar:', error);
                     $vue.$refs.modalNuevo.stop();
+
                 });
         },
+
+        editar(item) {
+            console.log('Item completo:', item);
+            console.log('¿Hay sancionDisciplina?:', item.sancionDisciplina);
+            console.log('ID del trámite:', item.tramite.id);
+            let $vue = this;
+            $vue.isEditing = true;
+
+            const sancionId = item.tramite.id;
+            $vue.editingItemId = sancionId;
+
+            axios_.get(APP.url('academico/tramiteacademico/suspendidoDisciplina/get/' + sancionId))
+                .then(response => {
+                    if (response.data.success) {
+                        const sancionData = response.data.data;
+
+                        if (!['SOL', 'ACEP'].includes(item.tramite.estadoSancion)) {
+                            notify('No se puede editar una sanción que no está en estado "Solicitado" o "Aceptado"', 'error');
+                            $vue.isEditing = false;
+                            return;
+                        }
+
+                        $vue.sancionDisciplina = {
+                            id: sancionData.id,
+                            alumno: sancionData.alumno,
+                            cicloAcademico: sancionData.cicloAcademico || [],
+                            motivo: sancionData.motivo || ''
+                        };
+
+                        if (sancionData.alumno) {
+                            $vue.alumnos = [sancionData.alumno];
+                        }
+
+                        $vue.$refs.modalNuevo.open();
+                    } else {
+                        notify('Error al cargar los datos de la sanción', 'error');
+                        $vue.isEditing = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
+                    notify('Error al cargar los datos de la sanción', 'error');
+                    $vue.isEditing = false;
+                });
+        },
+
         labelColor(item) {
             switch (item) {
                 case  "SOL":
@@ -89,7 +157,6 @@ var app = new Vue({
         },
         anularSancion(item) {
             let $vue = this;
-            console.log(item);
             swal({
                 text: "Seguro que desea anular el registro",
                 icon: "warning",

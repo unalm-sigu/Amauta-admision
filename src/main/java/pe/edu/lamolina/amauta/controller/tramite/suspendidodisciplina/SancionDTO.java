@@ -8,8 +8,10 @@ import java.util.List;
 
 @Data
 public class SancionDTO {
-//    private Long idAlumno;
+    private Long id;
     private String motivo;
-    private List<CicloAcademico> cicloAcademico;
-    private Alumno alumno;
+    private List<CicloAcademicoDTO> cicloAcademico;
+    private List<Long> idsCiclos;
+    private AlumnoDTO alumno;
+    private Long alumnoId;
 }

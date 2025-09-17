@@ -208,8 +208,6 @@
                     return;
                 }
 
-                console.log($vue.resolucion);
-
                 if ($vue.resolucion.tipoResolucion.codigo === 'TRAS') {
 
                     bootbox.confirm({

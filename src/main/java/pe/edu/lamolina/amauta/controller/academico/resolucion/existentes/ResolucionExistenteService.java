@@ -109,4 +109,7 @@ public interface ResolucionExistenteService {
 
     public List<TramiteRenunciaAlumno> allRenunciaSolicitadosCarrera(DataSessionPivot ds);
 
+    public void anularSancionDisciplina(Long sancionId);
+
+    List<Alumno> findAlumnosSancionados(String nombre, Long instanciaOficina);
 }

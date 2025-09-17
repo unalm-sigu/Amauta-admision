@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
+import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.SUNDAY;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,16 +23,20 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.d
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.TemaAsistenciaDAO;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
@@ -46,13 +53,19 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
     private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
+    private final HorarioCursoDAO horarioCursoDAO;
     private final TemaAsistenciaDAO temaAsistenciaDAO;
 
     @Override
     public List<CursoNivelacion> allCargaAcademica(DynatableFilter filter, CicloAcademico ciclo, Docente docente) {
         List<CursoNivelacion> secciones = cursoNivelacionDAO.allDocenteByDynatable(filter, ciclo, docente);
 
-        List<HorarioAula> horariosAll = horarioAulaDAO.allByCursosNivelacion(secciones);
+        List<CursoCicloAcademico> cursosCiclo = secciones.stream()
+                .map(cniv -> cniv.getCursoCiclo())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<HorarioCurso> horariosAll = horarioCursoDAO.allByCursosCiclo(cursosCiclo);
         List<TemaAsistencia> leccionesAll = temaAsistenciaDAO.allByCursosNivelaciones(secciones);
 
         List<ExamenCursoNivelacion> examenesSecciones = examenCursoNivelacionDAO.allByCursosNivelaciones(secciones);
@@ -64,11 +77,15 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
                     .filter(lec -> lec.getCursoNivelacion().equals(seccion))
                     .collect(Collectors.toList());
 
-            List<HorarioAula> horarios = horariosAll.stream()
-                    .filter(hor -> hor.getCursoNivelacion().equals(seccion))
+            CursoCicloAcademico cursoCiclo = seccion.getCursoCiclo();
+            GrupoHorasNivelacion gpoHoras = seccion.getGrupoHoras();
+
+            List<HorarioCurso> horarios = horariosAll.stream()
+                    .filter(hor -> hor.getCursoCiclo().getId().equals(cursoCiclo.getId()))
+                    .filter(hor -> gpoHoras != null)
+                    .filter(hor -> hor.getGrupoHoras().getId().equals(gpoHoras.getId()))
                     .collect(Collectors.toList());
 
-            seccion.setHorariosAulas(horarios);
             seccion.setControlesConfigurados(this.getCantidadDias(horarios));
             seccion.setControlesEjecutados(lecciones.size());
 
@@ -85,7 +102,7 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
         return secciones;
     }
 
-    private int getCantidadDias(List<HorarioAula> horarios) {
+    private int getCantidadDias(List<HorarioCurso> horarios) {
         if (horarios.isEmpty()) {
             return 0;
         }
@@ -93,14 +110,18 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
         Map<String, PeriodoDiaDTO> mapPeriodoDias = new HashMap();
         List<PeriodoDiaDTO> periodosDias = new ArrayList();
 
-        for (HorarioAula ha : horarios) {
-            PeriodoDiaDTO item = new PeriodoDiaDTO(ha.getFechaInicio(), ha.getFechaFin(), ha.getDia(), ha.getHora());
+        for (HorarioCurso ha : horarios) {
+            DateTime semana = new DateTime(ha.getSemana());
+            Date lunes = semana.withDayOfWeek(MONDAY).withTimeAtStartOfDay().toDate();
+            Date domingo = semana.withDayOfWeek(SUNDAY).withTimeAtStartOfDay().toDate();
+
+            PeriodoDiaDTO item = new PeriodoDiaDTO(lunes, domingo, ha.getDia(), ha.getHora());
             String key = item.getKey();
             PeriodoDiaDTO previo = mapPeriodoDias.get(key);
 
             if (previo == null) {
-                LocalDate fechaPivote = new LocalDate(ha.getFechaInicio());
-                LocalDate fechaFin = new LocalDate(ha.getFechaFin());
+                LocalDate fechaPivote = new LocalDate(lunes);
+                LocalDate fechaFin = new LocalDate(domingo);
 
                 while (!fechaPivote.isAfter(fechaFin)) {
                     int diaSemana = fechaPivote.getDayOfWeek();
@@ -131,8 +152,33 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
     }
 
     @Override
-    public List<HorarioAula> getHorarioGrupo(Docente docente, CicloAcademico ciclo) {
-        List<HorarioAula> horarios = horarioAulaDAO.allByDocente(docente, ciclo);
+    public List<HorarioCurso> getHorarioGrupo(Docente docente, CicloAcademico ciclo) {
+        List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allByDocenteCiclo(docente, ciclo);
+        List<CursoCicloAcademico> cursosCiclo = cursosNiv.stream()
+                .map(cn -> cn.getCursoCiclo())
+                .distinct()
+                .collect(Collectors.toList());
+        List<HorarioCurso> horariosAll = horarioCursoDAO.allByCursosCiclo(cursosCiclo);
+
+        List<HorarioCurso> horarios = new ArrayList();
+        for (CursoNivelacion cursoNiv : cursosNiv) {
+            CursoCicloAcademico cursoCiclo = cursoNiv.getCursoCiclo();
+            GrupoHorasNivelacion gpoHoras = cursoNiv.getGrupoHoras();
+
+            List<HorarioCurso> horariosCurso = horariosAll.stream()
+                    .filter(hor -> hor.getCursoCiclo().getId().equals(cursoCiclo.getId()))
+                    .filter(hor -> gpoHoras != null)
+                    .filter(hor -> hor.getGrupoHoras().getId().equals(gpoHoras.getId()))
+                    .collect(Collectors.toList());
+
+            horariosCurso.forEach(hcur -> {
+                hcur.setCursoNivelacion(cursoNiv);
+                hcur.setCurso(cursoCiclo.getCurso());
+            });
+
+            horarios.addAll(horariosCurso);
+        }
+
         return horarios;
     }
 
@@ -162,12 +208,17 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
     @Override
     public List<PeriodoDTO> allSemanas(Docente docente, CicloAcademico ciclo) {
         List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allByDocenteCiclo(docente, ciclo);
-        List<HorarioAula> horarios = horarioAulaDAO.allByCursosNivelacion(cursosNiv);
+        List<CursoCicloAcademico> cursosCiclo = cursosNiv.stream()
+                .map(cniv -> cniv.getCursoCiclo())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<HorarioCurso> horarios = horarioCursoDAO.allByCursosCiclo(cursosCiclo);
         log.info("[allSemanas] horarios={}", horarios.size());
 
         List<PeriodoDTO> periodos = horarios.stream()
                 .map(hor -> {
-                    return new PeriodoDTO(hor.getFechaInicio());
+                    return new PeriodoDTO(hor.getSemana());
                 })
                 .distinct()
                 .collect(Collectors.toList());

@@ -63,6 +63,7 @@ public class SancionDisciplinaDAOH extends AbstractEasyDAO<SancionDisciplina> im
                 .join("alumno al", "al.persona per")
                 .join("resolucion re")
                 .filter("re.id", resolucionDB)
+                .filter("sd.estado", ACEP)
                 .orderBy("per.paterno");
         return all(sql);
 
@@ -97,5 +98,16 @@ public class SancionDisciplinaDAOH extends AbstractEasyDAO<SancionDisciplina> im
     public List<SancionDisciplina> findAlumnosSancionadosPorCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia();
         return null;
+    }
+
+    @Override
+    public List<SancionDisciplina> findByResolucionAndEstadoACEP(Resolucion resolucion) {
+        Octavia sql = new Octavia();
+        sql.from(SancionDisciplina.class, "sd")
+                .join("resolucion reso", "tramite tr","tr.alumno al", "al.persona")
+                .filter("sd.estado", ACEP)
+                .filter("reso.id", resolucion);
+
+        return all(sql);
     }
 }

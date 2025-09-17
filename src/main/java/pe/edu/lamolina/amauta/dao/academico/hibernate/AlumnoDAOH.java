@@ -37,6 +37,8 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -61,6 +63,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_SS;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
+import pe.edu.lamolina.model.tramite.SancionDisciplina;
 
 @Slf4j
 @Repository
@@ -394,6 +397,35 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(EPG, PRE, VIS, ESP))
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .orderBy("per.paterno", "per.materno", "per.nombres")
+                .limit(15);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosSancionados(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+
+        Octavia sqlSub = new Octavia()
+                .from(SancionDisciplina.class, "sd")
+                .join("alumno alum")
+                .filter("sd.estado", SOL);
+
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td")
+                .exists(sqlSub)
+                .linkedBy("alu.id", "alum.id")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(EPG, PRE, VIS, ESP))
                 .beginBlock()
