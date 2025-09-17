@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
 @Slf4j
@@ -118,7 +119,7 @@ public class CargaNivelacionController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         Docente docente = ds.getDocente();
 
-        List<HorarioAula> horarios = service.getHorarioGrupo(docente, ciclo);
+        List<HorarioCurso> horarios = service.getHorarioGrupo(docente, ciclo);
         ArrayNode horariosJson = this.createHorariosCursosJson(horarios);
 
         JsonResponse json = new JsonResponse();
@@ -135,25 +136,18 @@ public class CargaNivelacionController {
                 .json();
     }
 
-    private ArrayNode createHorariosCursosJson(List<HorarioAula> horarios) {
+    private ArrayNode createHorariosCursosJson(List<HorarioCurso> horarios) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (HorarioAula horario : horarios) {
+        for (HorarioCurso horario : horarios) {
             ObjectNode node = JaneHelper
                     .from(horario)
-                    .only("id,fechaInicio")
+                    .only("id,semana")
                     .join("aula", "id,codigo,nombre")
                     .join("dia", "id,nombre,simbolo")
                     .join("hora", "id,codigo,numero,descripcion")
                     .join("cursoNivelacion", "id,codigo")
+                    .join("curso", "id,codigo,nombre")
                     .json();
-
-            Curso curso = horario.getCursoNivelacion().getCursoCiclo().getCurso();
-            ObjectNode cursoJson = JaneHelper
-                    .from(curso)
-                    .only("id,codigo,nombre")
-                    .json();
-
-            node.set("curso", cursoJson);
             array.add(node);
         }
 

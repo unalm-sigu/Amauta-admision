@@ -180,7 +180,7 @@
                 }
 
                 const hdia = this.horarios
-                        .filter(hc => hc.fechaInicio === this.semanaActiva.fechaInicio)
+                        .filter(hc => hc.semana === this.semanaActiva.fechaInicio)
                         .filter(hc => hc.dia.id === dia.id)
                         .find(hc => hc.hora.id === hora.id);
 
@@ -202,7 +202,7 @@
                 }
 
                 const hdia = this.horarios
-                        .filter(hc => hc.fechaInicio === this.semanaActiva.fechaInicio)
+                        .filter(hc => hc.semana === this.semanaActiva.fechaInicio)
                         .filter(hc => hc.dia.id === dia.id)
                         .find(hc => hc.hora.id === hora.id);
 
@@ -222,7 +222,7 @@
                 }
 
                 const hdia = this.horarios
-                        .filter(hc => hc.fechaInicio === this.semanaActiva.fechaInicio)
+                        .filter(hc => hc.semana === this.semanaActiva.fechaInicio)
                         .filter(hc => hc.dia.id === dia.id)
                         .find(hc => hc.hora.id === hora.id);
 

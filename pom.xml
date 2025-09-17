@@ -291,7 +291,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>            
             <artifactId>model</artifactId>
-            <version>1.2.73</version>
+            <version>1.2.74</version>
         </dependency>
         
         <dependency>
@@ -328,6 +328,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <addResources>true</addResources>
+                </configuration>
             </plugin>
             
             <plugin>

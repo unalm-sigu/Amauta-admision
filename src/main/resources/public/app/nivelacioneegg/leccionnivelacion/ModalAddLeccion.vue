@@ -32,8 +32,9 @@
                             </template>
 
                             <template slot="option" slot-scope="props">
-                                <span class="block">
+                                <span class="block" v-bind:class="classEstadoFecha(props.option)">
                                     {{ props.option.fecha }} -
+                                    {{ props.option.diaSemana }} -
                                     {{ props.option.estadoEnum.value }}
                                 </span>
                             </template>
@@ -103,6 +104,12 @@
             },
             selectFecha(item) {
                 this.leccion.fecha = item.fecha;
+            },
+            classEstadoFecha(item) {
+                if (item.estado === 'EJECUTADO') {
+                    return "text-success bold";
+                }
+                return "";
             },
 
             saveLeccion() {

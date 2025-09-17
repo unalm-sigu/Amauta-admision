@@ -15,9 +15,11 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
+import static pe.edu.lamolina.model.enums.oficina.OficinaEnum.OERA;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.AulaReservada;
@@ -81,7 +83,6 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .in("ta.codigo", Arrays.asList(TipoAulaEnum.AUL.name(), "AUD"))
                 .filter("os.id", oficina)
-                //                .in("aus.id",Arrays.asList(108L))
                 .orderBy("au.id desc");
 
         return all(sql);
@@ -107,8 +108,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("tipoAula ta", "oficinaSupervisora os")
                 .in("ta.codigo", Arrays.asList(TipoAulaEnum.AUL.name(), "AUD"))
-                .filter("os.codigo", "OERA")
-                //                .in("aus.id",Arrays.asList(108L))
+                .filter("os.codigo", OERA)
                 .orderBy("au.id desc");
 
         return all(sql);
@@ -256,13 +256,17 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
 
     @Override
     public List<Aula> searchByNombreFilter(String nombre, Integer limit) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
-                .join("aulaSuperior aus")
-                .filter("au.estado", EstadoEnum.ACT.name())
+                .join("tipoAula tpa")
+                .leftJoin("aulaSuperior aus")
+                .filter("au.estado", EstadoEnum.ACT)
+                .filter("tpa.tipoAmbiente", TipoAmbienteEnum.AMB)
                 .beginBlock()
-                .__().complexFilter("concat(coalesce(au.codigo,''),' ',coalesce(au.nombre,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(au.nombre,''),' ',coalesce(au.codigo,''))", "like", nombre)
+                .__().filter("au.codigo", "like", nombre)
+                .__().filter("au.nombre", "like", nombre)
                 .endBlock()
                 .orderBy("au.codigo", "au.nombre")
                 .limit(limit);

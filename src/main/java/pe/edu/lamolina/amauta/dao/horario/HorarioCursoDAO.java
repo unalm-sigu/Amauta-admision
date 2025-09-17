@@ -12,4 +12,6 @@ public interface HorarioCursoDAO extends EasyDAO<HorarioCurso> {
     List<HorarioCurso> allByCursoCicloHorario(CursoCicloAcademico cursoCiclo, GrupoHorasNivelacion grupoHoras);
 
     List<HorarioCurso> allByCicloHorario(CicloAcademico ciclo, GrupoHorasNivelacion grupoHoras);
+
+    List<HorarioCurso> allByCursosCiclo(List<CursoCicloAcademico> cursosCiclo);
 }

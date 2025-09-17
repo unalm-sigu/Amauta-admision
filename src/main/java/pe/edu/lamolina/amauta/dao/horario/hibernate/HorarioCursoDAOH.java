@@ -42,4 +42,15 @@ public class HorarioCursoDAOH extends AbstractEasyDAO<HorarioCurso> implements H
         return all(sql);
     }
 
+    @Override
+    public List<HorarioCurso> allByCursosCiclo(List<CursoCicloAcademico> cursosCiclo) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCurso.class, "hc")
+                .join("cursoCiclo cc", "grupoHoras gh", "cc.curso", "cc.cicloAcademico")
+                .in("cc.id", cursosCiclo)
+                .orderBy("hc.semana");
+
+        return all(sql);
+    }
+
 }
