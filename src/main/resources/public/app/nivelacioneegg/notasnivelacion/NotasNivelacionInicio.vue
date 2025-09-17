@@ -75,7 +75,7 @@
                                                 </template>
                                                 <template v-else="">
                                                     <span v-bind:class="classColorNota(getNota(tex,item))">
-                                                    {{commas(getNota(tex,item).notaExamen)}}
+                                                        {{commas(getNota(tex,item).notaExamen)}}
                                                     </span>
                                                 </template>
                                             </template>
@@ -85,7 +85,7 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <span v-if="item.notaCurso" class="h3"
+                                            <span v-if="hayNotaCurso(item)" class="h3"
                                                   v-bind:class="classColorNota(item)">
                                                 {{commas(item.notaCurso)}}
                                             </span>
@@ -245,6 +245,12 @@
                 });
 
                 this.$refs.modalConfirm.open(configModal);
+            },
+            hayNotaCurso(item) {
+                if (item.notaCurso === null) {
+                    return false;
+                }
+                return true;
             },
             existeNota(examen, item) {
                 let nota = item.examenesAlumno.find(exa => exa.examenCursoNivelacion.id === examen.id);

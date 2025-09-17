@@ -7,14 +7,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
 public interface CargaNivelacionService {
 
     List<CursoNivelacion> allCargaAcademica(DynatableFilter filter, CicloAcademico ciclo, Docente docente);
 
-    List<HorarioAula> getHorarioGrupo(Docente docente, CicloAcademico ciclo);
+    List<HorarioCurso> getHorarioGrupo(Docente docente, CicloAcademico ciclo);
 
     List<Dia> allDias();
 

@@ -1,7 +1,9 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,10 +19,15 @@ public class ControlAsistenciaDTO {
     private Date fecha;
 
     private String estado;
+    private String diaSemana;
 
     public ControlAsistenciaDTO(Date fecha, ControlAsistenciaEstadoEnum estado) {
+        Locale localeEspañol = new Locale("es", "ES");
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", localeEspañol);
+
         this.fecha = fecha;
         this.estado = estado.name();
+        this.diaSemana = sdf.format(fecha).toLowerCase();
     }
 
     public ControlAsistenciaEstadoEnum getEstadoEnum() {

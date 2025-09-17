@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -10,6 +11,8 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import static org.joda.time.DateTimeConstants.MONDAY;
+import static org.joda.time.DateTimeConstants.SUNDAY;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,17 +23,21 @@ import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.ControlAsistenciaDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.dto.PeriodoCantidadDiasDTO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.TemaAsistenciaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.dictadoclases.AsistenciaClasesEstadoEnum;
 import pe.edu.lamolina.model.enums.dictadoclases.ControlAsistenciaEstadoEnum;
+import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
@@ -46,6 +53,7 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
     private final AsistenciaNivelacionDAO asistenciaNivelacionDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final HorarioAulaDAO horarioAulaDAO;
+    private final HorarioCursoDAO horarioCursoDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final TemaAsistenciaDAO temaAsistenciaDAO;
 
@@ -85,18 +93,26 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
 
     @Override
     public List<ControlAsistenciaDTO> allFechasLecciones(CursoNivelacion seccion) {
-        List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(seccion);
+        CursoCicloAcademico cursoCiclo = seccion.getCursoCiclo();
+        GrupoHorasNivelacion grupoHoras = seccion.getGrupoHoras();
+        List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, grupoHoras);
         log.info("[allFechasLecciones] horarios.size={}", horarios.size());
 
         Map<String, PeriodoCantidadDiasDTO> mapPeriodos = new HashMap();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
         horarios.forEach(hor -> {
-            String key = new LocalDate(hor.getFechaInicio()).toString("yyyyMMdd") + "-";
-            key += new LocalDate(hor.getFechaFin()).toString("yyyyMMdd");
+            DateTime semana = new DateTime(hor.getSemana());
+            Date lunes = semana.withDayOfWeek(MONDAY).withTimeAtStartOfDay().toDate();
+            Date domingo = semana.withDayOfWeek(SUNDAY).withTimeAtStartOfDay().toDate();
+            log.info("[allFechasLecciones] semana={} lunes={} domingo={}",
+                    sdf.format(semana.toDate()), sdf.format(lunes), sdf.format(domingo));
+
+            String key = sdf.format(lunes) + "-" + sdf.format(domingo);
             PeriodoCantidadDiasDTO periodo = mapPeriodos.get(key);
 
             if (periodo == null) {
-                periodo = new PeriodoCantidadDiasDTO(hor.getFechaInicio(), hor.getFechaFin(), hor.getDia().getNumeroDia());
+                periodo = new PeriodoCantidadDiasDTO(lunes, domingo, hor.getDia().getNumeroDia());
                 mapPeriodos.put(key, periodo);
             } else {
                 periodo.getDiasSemanas().add(hor.getDia().getNumeroDia());
@@ -139,15 +155,19 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
     private List<ControlAsistenciaDTO> crearFechas(List<PeriodoCantidadDiasDTO> periodos) {
         List<ControlAsistenciaDTO> fechas = new ArrayList();
         Map<Date, ControlAsistenciaDTO> mapFecha = new HashMap();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
         for (PeriodoCantidadDiasDTO periodo : periodos) {
-            LocalDate fechaPivote = new LocalDate(periodo.getFechaInicio());
-            LocalDate fechaFin = new LocalDate(periodo.getFechaFin());
+            LocalDate lunes = new LocalDate(periodo.getFechaInicio());
+            LocalDate domingo = new LocalDate(periodo.getFechaFin());
 
-            while (!fechaPivote.isAfter(fechaFin)) {
-                int diaSemana = fechaPivote.getDayOfWeek();
+            log.info("[crearFechas] lunes={} domingo={} dias={}",
+                    sdf.format(lunes.toDate()), sdf.format(domingo.toDate()), periodo.getDiasSemanas());
+
+            while (!lunes.isAfter(domingo)) {
+                int diaSemana = lunes.getDayOfWeek();
                 if (periodo.getDiasSemanas().contains(diaSemana)) {
-                    Date fecha = fechaPivote.toDate();
+                    Date fecha = lunes.toDate();
                     ControlAsistenciaDTO control = mapFecha.get(fecha);
                     if (control == null) {
                         control = new ControlAsistenciaDTO(fecha, ControlAsistenciaEstadoEnum.SIN_CONTROL);
@@ -155,7 +175,7 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
                         fechas.add(control);
                     }
                 }
-                fechaPivote = fechaPivote.plusDays(1);
+                lunes = lunes.plusDays(1);
             }
         }
         return fechas;

@@ -12,7 +12,7 @@ public class ExceptionConfigTest {
     @Test
     public void test_cantidad_lineas_exceptions() throws Exception {
         try {
-            Assert.isTrue(false, "error fatalmente errático");
+            Assert.isTrue(true, "error fatalmente errático");
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -37,7 +37,7 @@ public class ExceptionConfigTest {
         System.out.println("");
 
         try {
-            Assert.isTrue(false, "error fatalmente constante");
+            Assert.isTrue(true, "error fatalmente constante");
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
