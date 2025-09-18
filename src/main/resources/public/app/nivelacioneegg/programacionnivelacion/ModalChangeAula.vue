@@ -77,8 +77,8 @@
                                             <span v-if="props.option.nombre" class=""> - {{ props.option.nombre }} </span>
                                         </span>
                                         <span class="block">
-                                            Cap: {{ props.option.capacidadAula }} - 
-                                            Edif: {{ props.option.aulaSuperior.nombre}}
+                                            <span v-if="props.option.capacidadAula">Cap: {{ props.option.capacidadAula}} - </span>
+                                            <span v-if="props.option.aulaSuperior">Edif: {{ props.option.aulaSuperior.nombre}}</span>
                                         </span>
                                     </template>
 
@@ -91,7 +91,7 @@
                         </div>
 
                         <template v-if="cursoNiv.aula">
-                            <div class="col-md-4">
+                            <div v-if="cursoNiv.aula.aulaSuperior" class="col-md-4">
                                 <label>Edificio / Pabellón</label>
                                 <span class="item-form-control item-form-gray text-primary">
                                     {{ cursoNiv.aula.aulaSuperior.nombre }}
@@ -168,6 +168,7 @@
 
                 this.hayCruceAula = false;
                 this.mensajeCruceAula = null;
+                this.aulas = [];
 
                 this.raptor = raptor;
                 this.cursoNiv = JSON.parse(JSON.stringify(item));

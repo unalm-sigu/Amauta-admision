@@ -219,7 +219,7 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
                 .filter(niv -> mapNivelados.get(niv.getAlumno().getCodigo()) == null)
                 .map(niv -> niv.getAlumno())
                 .collect(Collectors.toList());
-        
+
         for (Alumno alumno : inhabilitados) {
             AlumnoNivelacion alumnoNiv = mapNivelados.get(alumno.getCodigo());
             log.info("[createAlumnos] alumno={} no-existe={}", alumno.getCodigo(), alumnoNiv == null);
@@ -286,12 +286,12 @@ public class AlumnosNivelacionServiceImpl implements AlumnosNivelacionService {
 
         Map<Long, ModalidadTemaCiclo> mapConfigOtro = configuraciones.stream()
                 .filter(mtc -> mtc.getOtrasModalidades())
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         Map<Long, ModalidadTemaCiclo> mapConfigCepre = configuraciones.stream()
                 .filter(mtc -> mtc.getModalidadIngreso() != null)
                 .filter(mtc -> mtc.getModalidadIngreso().getCodigo().equals(CEPRE.getCode()))
-                .collect(Collectors.toMap(mtc -> mtc.getTemaCiclo().getTemaExamen().getId(), Function.identity()));
+                .collect(Collectors.toMap(mtc -> mtc.getTemaExamen().getId(), Function.identity()));
 
         List<NotaAlumnoNivelacion> notasSave = new ArrayList();
         List<NotaAlumnoNivelacion> notasUpdate = new ArrayList();

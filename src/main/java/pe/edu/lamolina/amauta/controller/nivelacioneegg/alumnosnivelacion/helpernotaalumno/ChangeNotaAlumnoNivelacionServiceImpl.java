@@ -34,7 +34,7 @@ public class ChangeNotaAlumnoNivelacionServiceImpl implements ChangeNotaAlumnoNi
                 .join("temaCiclo.temaExamen", "id,codigo,nombre")
                 .join("temaExamen", "id,codigo,nombre")
                 .join("curso", "id,codigo,nombre")
-                .join("cursoNivelacion", "id,codigo,nombre")
+                .join("cursoNivelacion", "id,codigo")
                 .join("userRegistro", "id,google")
                 .join("userRegistro.persona", "id,paterno")
                 .array().toString();
@@ -71,7 +71,7 @@ public class ChangeNotaAlumnoNivelacionServiceImpl implements ChangeNotaAlumnoNi
                 .join("temaCiclo.temaExamen", "id,codigo,nombre")
                 .join("temaExamen", "id,codigo,nombre")
                 .join("curso", "id,codigo,nombre")
-                .join("cursoNivelacion", "id,codigo,nombre")
+                .join("cursoNivelacion", "id,codigo")
                 .join("userRegistro", "id,google")
                 .join("userRegistro.persona", "id,paterno")
                 .array();

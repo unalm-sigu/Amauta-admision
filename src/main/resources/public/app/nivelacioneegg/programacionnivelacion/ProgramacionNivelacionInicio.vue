@@ -57,10 +57,12 @@
                                         </td>
 
                                         <td class="v-middle text-center">
-                                            <template v-if="item.aula">
+                                            <template v-if="item.aula && item.aula.codigo != 'SIN_AULA' ">
                                                 <span class="block bold">{{item.aula.codigo}}</span>
                                                 <span class="block">Cap.: {{item.aula.capacidadAula}}</span>
-
+                                            </template>
+                                            <template v-if="item.aula && item.aula.codigo == 'SIN_AULA' ">
+                                                <span class="block bold text-danger">{{item.aula.codigo}}</span>
                                             </template>
                                         </td>
 
