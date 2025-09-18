@@ -290,11 +290,11 @@ public class ContratoServiceImp implements ContratoService {
                     .compareTo(contratoDocenteForm.getCicloFinContrato().getCodigo()) <= 0, "El ciclo final no puede ser menor que el inicial");
         }
 
-        if (contratoDocente.getEstadoEnum() != ContratoDocenteEstadoEnum.PEND) {
-
-            throw new PhobosException("Solo puede actualizar contratos pendientes");
-
-        }
+//        if (contratoDocente.getEstadoEnum() != ContratoDocenteEstadoEnum.PEND) {
+//
+//            throw new PhobosException("Solo puede actualizar contratos pendientes");
+//
+//        }
 
         contratoDocenteDAO.updateColumns(contratoDocenteForm, "categoria", "situacion", "dedicacion", "cicloInicioContrato", "cicloFinContrato");
 
