@@ -1362,12 +1362,23 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public boolean isAdminNetworking(DataSessionPivot ds) {
+        boolean hasAdminNetworking = false;
+        boolean hasIorea = false;
+
         for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                hasIorea = true;
+            }
             if (rol.getCodigoEnum() == RolEnum.ADMIN_NETWORKING) {
-                return true;
+                hasAdminNetworking = true;
             }
         }
-        return false;
+
+        if (hasIorea) {
+            return false;
+        }
+
+        return hasAdminNetworking;
     }
 
     @Override

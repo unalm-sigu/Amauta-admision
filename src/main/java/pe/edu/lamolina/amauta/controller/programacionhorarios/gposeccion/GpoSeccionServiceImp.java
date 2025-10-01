@@ -2475,6 +2475,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     continue;
                 }
                 for (HorarioSeccion horarioSeccion1 : hdiaGpo) {
+//                    boolean fechasSeSolapan =
+//                            !(horarioSeccion.getFechaFin().before(horarioSeccion1.getFechaInicio()) ||
+//                                    horarioSeccion.getFechaInicio().after(horarioSeccion1.getFechaFin()));
+//
+//                    if (!fechasSeSolapan) {
+//                        continue; // No hay cruce real, aunque el día-hora coincida
+//                    }
                     Dia dia = horarioSeccion1.getDia();
                     Hora hora = horarioSeccion1.getHora();
                     String error = String.format("Cruce Horario, Dia %s, Hora %s, Seccion %s, Alumno %s",
