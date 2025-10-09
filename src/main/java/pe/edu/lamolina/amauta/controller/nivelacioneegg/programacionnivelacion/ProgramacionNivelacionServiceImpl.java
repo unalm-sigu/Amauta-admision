@@ -352,6 +352,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             Dia dia = horario.getDia();
             Hora hora = horario.getHora();
 
+            if (aula.isSinAula()) {
+                continue;
+            }
+
             LocalDate fecha = new LocalDate(horario.getSemana());
             String cruce = this.getCruceAula(mapHorarios, fecha, aula, dia, hora);
             if (cruce != null) {
@@ -480,7 +484,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             examenCursoNivelacionDAO.save(examenCurso);
         });
 
-        if (horarios.isEmpty() || aula == null) {
+        if (horarios.isEmpty() || aula == null || aula.isSinAula()) {
             return;
         }
 
