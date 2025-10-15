@@ -1146,7 +1146,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     private void eliminarCursoNivelacion(CursoNivelacion cursoNiv, DataSessionPivot ds) {
         Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
-        Assert.isNull(cursoNiv.getCambios(), "Esta sección ya tuvo modificaciones, no puede ser eliminado");
+//        Assert.isNull(cursoNiv.getCambios(), "Esta sección ya tuvo modificaciones, no puede ser eliminado");
 
         List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
         for (HorarioAula horario : horarios) {
