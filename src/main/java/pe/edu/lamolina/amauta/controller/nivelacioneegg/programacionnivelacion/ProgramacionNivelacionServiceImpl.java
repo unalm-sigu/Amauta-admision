@@ -1019,7 +1019,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 break;
 
             case ANU:
-                Assert.isTrue(cursoNiv.getEstadoEnum() == CRE, "Solo se puede eliminar secciones es estado CREADO");
+                Assert.isTrue((cursoNiv.getEstadoEnum() == CRE || cursoNiv.getEstadoEnum() == CAN), "Solo se puede eliminar secciones es estado CREADO o CANCELADO");
                 this.eliminarCursoNivelacion(cursoNiv, ds);
                 break;
 
