@@ -73,5 +73,6 @@ public class ResultadoReporteView {
     private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();
     private List<IngresantesMateriasNivelacionDTO> ingresantesMateria = new ArrayList<>();
     private List<IngresantesInscritosNivelacionDTO> ingresantesInscritos = new ArrayList<>();
+    private List<IngresantesNivelacionCarreraDTO>  ingresantesNivelacionCarrera = new ArrayList<>();
 
 }

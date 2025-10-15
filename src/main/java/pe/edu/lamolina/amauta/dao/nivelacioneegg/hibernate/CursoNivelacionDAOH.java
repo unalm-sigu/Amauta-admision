@@ -44,7 +44,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)
-                .notIn("cn.estado", Arrays.asList(SeccionEstadoEnum.CAN.name()))
+//                .notIn("cn.estado", Arrays.asList(SeccionEstadoEnum.CAN.name()))
                 .searchFields("doc.codigo", "cn.codigo", "per.numeroDocIdentidad", "cu.codigo", "cu.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

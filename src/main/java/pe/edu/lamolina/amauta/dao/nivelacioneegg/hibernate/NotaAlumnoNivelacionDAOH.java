@@ -20,11 +20,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.*;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -1107,5 +1103,185 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
 
         query.setParameter("CICLO", cicloAcademico.getId());
         return (List<ResultadoReporteView>) query.list();
+    }
+
+    @Override
+    public List<IngresantesInscritosNivelacionDTO> allInscritosNivelacionByCicloAndCarrera(CicloAcademico cicloAcademico, Long idCarrera) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT    ");
+        sql.append(" REPLACE(cu.nombre, 'Nivelación en ', '') curso,  ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 1 THEN 1 END) AS aprobados,    ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado = 0 THEN 1 END) AS desaprobados,    ");
+        sql.append(" COUNT(CASE WHEN nan.aprobado is null THEN 1 END) AS sinNota,    ");
+        sql.append(" count(nan.id) total    ");
+        sql.append(" FROM eegg_nota_alumno_nivelacion nan    ");
+        sql.append(" JOIN eegg_alumno_nivelacion an ON an.id = nan.id_alumno_nivelacion    ");
+        sql.append(" JOIN aca_alumno a ON a.id = an.id_alumno    ");
+        sql.append(" JOIN aca_carrera car ON a.id_carrera = car.id    ");
+        sql.append(" JOIN gen_persona pe ON pe.id = a.id_persona    ");
+        sql.append(" JOIN eegg_curso_nivelacion cn ON cn.id = nan.id_curso_nivelacion    ");
+        sql.append(" LEFT JOIN aca_docente doc ON cn.id_docente = doc.id    ");
+        sql.append(" LEFT JOIN gen_persona per ON doc.id_persona = per.id    ");
+        sql.append(" JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico    ");
+        sql.append(" JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id    ");
+        sql.append(" JOIN aca_curso cu ON cu.id = cc.id_curso    ");
+        sql.append(" WHERE caa.id = :CICLO  ");
+        sql.append("  AND an.estado IN ('MAT')    ");
+        sql.append("  AND nan.estado IN ('MAT')    ");
+        sql.append("  AND nan.tema_aprobado = false    ");
+        sql.append("  and cn.estado = 'ACT'    ");
+        sql.append("  and car.id = :CARRERA   ");
+        sql.append(" GROUP BY  cu.nombre  ");
+        sql.append("  ORDER BY cu.nombre;  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("aprobados", IntegerType.INSTANCE)
+                .addScalar("desaprobados", IntegerType.INSTANCE)
+                .addScalar("sinNota", IntegerType.INSTANCE)
+                .addScalar("total", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesInscritosNivelacionDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("CARRERA", idCarrera);
+        return (List<IngresantesInscritosNivelacionDTO>) query.list();
+    }
+
+    @Override
+    public List<IngresantesNivelacionCarreraDTO> allIngresantesNivelacionByCicloCarrera(CicloAcademico cicloAcademico, Long idCarrera) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select  car.nombre carrera, fac.nombre facultad, ");
+        sql.append(" a2.codigo matricula, CONCAT(IFNULL(p2.paterno,''), ' ', IFNULL(p2.materno,''), ', ', IFNULL(p2.nombres,'')) ingresante,   ");
+        sql.append(" cu2.nombre curso,nan2.puntaje_examen notaInicial,nan2.nota_curso notaFinal,  ");
+        sql.append(" case nan2.estado  ");
+        sql.append(" when 'MAT' then 'Matriculado'  ");
+        sql.append(" when 'NMAT' then 'No Matriculado'  ");
+        sql.append(" when 'INH' then 'Inhabilitado'  ");
+        sql.append(" else 'otras' end estadoCurso,  ");
+        sql.append(" case an2.estado  ");
+        sql.append(" when 'MAT' then 'Matriculado'  ");
+        sql.append(" when 'NMAT' then 'No Matriculado'  ");
+        sql.append(" when 'INH' then 'Inhabilitado'  ");
+        sql.append(" else 'otras' end estadoAlumno,  ");
+        sql.append("  CASE  ");
+        sql.append("    WHEN doc2.id_persona IS NULL THEN 'DESCONOCIDO'  ");
+        sql.append("    ELSE CONCAT(IFNULL(per2.paterno,''), ' ', IFNULL(per2.materno,''), ', ', IFNULL(per2.nombres,''))   ");
+        sql.append("   END docente,  ");
+        sql.append(" ROUND(SUM(CASE WHEN asn2.estado = 'ASISTIO' THEN 1 ELSE 0 END) * 100.0 / COUNT(asn2.id), 2) porcentajeAsistencia  ");
+        sql.append(" FROM eegg_nota_alumno_nivelacion nan2  ");
+        sql.append(" JOIN eegg_alumno_nivelacion an2 ON an2.id = nan2.id_alumno_nivelacion  ");
+        sql.append(" JOIN aca_alumno a2 ON a2.id = an2.id_alumno  ");
+        sql.append(" JOIN aca_carrera car on a2.id_carrera = car.id  ");
+        sql.append(" JOIN aca_facultad fac on car.id_facultad = fac.id  ");
+        sql.append(" join gen_persona p2 on a2.id_persona = p2.id  ");
+        sql.append(" JOIN eegg_asistencia_nivelacion asn2 ON asn2.id_alumno_nivelacion = an2.id  ");
+        sql.append(" JOIN eegg_tema_asistencia ta2 ON asn2.id_tema_asistencia = ta2.id  ");
+        sql.append(" JOIN eegg_curso_nivelacion cn2 ON cn2.id = nan2.id_curso_nivelacion AND ta2.id_curso_nivelacion = cn2.id  ");
+        sql.append(" JOIN aca_docente doc2 ON cn2.id_docente = doc2.id  ");
+        sql.append(" LEFT JOIN gen_persona per2 ON doc2.id_persona = per2.id  ");
+        sql.append(" JOIN aca_curso_ciclo_academico cc2 ON cc2.id = cn2.id_curso_ciclo_academico  ");
+        sql.append(" JOIN aca_ciclo_academico caa2 ON cc2.id_ciclo_academico = caa2.id  ");
+        sql.append(" join aca_curso cu2 on cc2.id_curso = cu2.id  ");
+        sql.append(" WHERE caa2.id = :CICLO  ");
+        sql.append(" AND an2.estado IN ('NMAT','MAT')  ");
+        sql.append(" AND nan2.estado IN ('NMAT','MAT')  ");
+        sql.append(" AND nan2.tema_aprobado = false  ");
+        sql.append(" AND cn2.estado = 'ACT'  ");
+        sql.append(" and car.id = :CARRERA  ");
+        sql.append(" GROUP BY  car.nombre, fac.nombre,a2.codigo,p2.paterno,p2.materno,p2.nombres,cu2.nombre,nan2.puntaje_examen,nan2.nota_curso,  ");
+        sql.append(" nan2.estado,an2.estado,doc2.id_persona, per2.paterno,per2.materno,per2.nombres  ");
+        sql.append(" order by 4; ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("carrera", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("ingresante", StringType.INSTANCE)
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("notaInicial", StringType.INSTANCE)
+                .addScalar("notaFinal", StringType.INSTANCE)
+                .addScalar("estadoCurso", StringType.INSTANCE)
+                .addScalar("estadoAlumno", StringType.INSTANCE)
+                .addScalar("docente", StringType.INSTANCE)
+                .addScalar("porcentajeAsistencia", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesNivelacionCarreraDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("CARRERA", idCarrera);
+        return (List<IngresantesNivelacionCarreraDTO>) query.list();
+    }
+
+    @Override
+    public List<IngresantesAsistenciaInscritosDTO> allAsistenciasByCicloCarrera(CicloAcademico cicloAcademico, Long idCarrera) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  select t.ciclo,REPLACE(t.curso, 'Nivelación en ', '') curso,  ");
+        sql.append("  sum(t.total) total, sum(t.mayorIgual50Asistencia) mayorIgual50Asistencia,   ");
+        sql.append("  sum(t.menora50Asistencia) menora50Asistencia, sum(t.zeroAsistencia) zeroAsistencia   ");
+        sql.append("  from (   ");
+        sql.append("            WITH asistencias_alumno AS (   ");
+        sql.append("             SELECT   ");
+        sql.append("                 caa.descripcion AS ciclo,   ");
+        sql.append("                 cu.codigo AS cod_curso,   ");
+        sql.append("                 cu.nombre AS curso,   ");
+        sql.append("                 cn.codigo AS seccion,   ");
+        sql.append("                 a.codigo AS matricula,   ");
+        sql.append("                 COUNT(CASE WHEN asn.estado = 'ASISTIO' THEN 1 END) AS clases_asistidas,   ");
+        sql.append("                 COUNT(asn.id) AS clases_totales,   ");
+        sql.append("                 cn.horas_dictado   ");
+        sql.append("             FROM eegg_alumno_nivelacion an   ");
+        sql.append("             JOIN aca_alumno a ON a.id = an.id_alumno   ");
+        sql.append("             JOIN aca_carrera car on a.id_carrera = car.id  ");
+        sql.append("             JOIN eegg_asistencia_nivelacion asn ON asn.id_alumno_nivelacion = an.id   ");
+        sql.append("             JOIN eegg_tema_asistencia ta ON asn.id_tema_asistencia = ta.id   ");
+        sql.append("             JOIN eegg_curso_nivelacion cn ON cn.id = ta.id_curso_nivelacion   ");
+        sql.append("             JOIN aca_curso_ciclo_academico cc ON cc.id = cn.id_curso_ciclo_academico   ");
+        sql.append("             JOIN aca_ciclo_academico caa ON cc.id_ciclo_academico = caa.id   ");
+        sql.append("             JOIN aca_curso cu ON cu.id = cc.id_curso   ");
+        sql.append("             WHERE caa.id = :CICLO  ");
+        sql.append("               AND an.estado = 'MAT'   ");
+        sql.append("               AND cn.estado = 'ACT'   ");
+        sql.append("               AND car.id = :CARRERA  ");
+        sql.append("             GROUP BY caa.descripcion, cu.codigo, cu.nombre, cn.codigo, a.codigo, cn.horas_dictado   ");
+        sql.append("         ),   ");
+        sql.append("         porcentajes AS (   ");
+        sql.append("             SELECT   ");
+        sql.append("                 ciclo,   ");
+        sql.append("                 cod_curso,   ");
+        sql.append("                 curso,   ");
+        sql.append("                 seccion,   ");
+        sql.append("                 matricula,    ");
+        sql.append("                 horas_dictado,   ");
+        sql.append("                 clases_asistidas,   ");
+        sql.append("                 clases_totales,   ");
+        sql.append("                 CASE WHEN clases_totales > 0 THEN (clases_asistidas * 100.0 / clases_totales) ELSE 0 END AS porcentaje_asistencia   ");
+        sql.append("             FROM asistencias_alumno   ");
+        sql.append("         )   ");
+        sql.append("         SELECT   ");
+        sql.append("             ciclo,   ");
+        sql.append("             cod_curso,   ");
+        sql.append("             curso,   ");
+        sql.append("             seccion,   ");
+        sql.append("             COUNT(matricula) AS total,   ");
+        sql.append("             COUNT(CASE WHEN porcentaje_asistencia >= 50 THEN 1 END) AS mayorIgual50Asistencia,   ");
+        sql.append("             COUNT(CASE WHEN porcentaje_asistencia < 50 AND porcentaje_asistencia > 0 THEN 1 END) AS menora50Asistencia,   ");
+        sql.append("             COUNT(CASE WHEN porcentaje_asistencia = 0 THEN 1 END) AS zeroAsistencia   ");
+        sql.append("         FROM porcentajes   ");
+        sql.append("         GROUP BY ciclo, cod_curso, curso, seccion   ");
+        sql.append("         )t   ");
+        sql.append("  group by  t.ciclo,t.curso   ");
+        sql.append("  order by  curso;   ");
+
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("curso", StringType.INSTANCE)
+                .addScalar("total", IntegerType.INSTANCE)
+                .addScalar("mayorIgual50Asistencia", IntegerType.INSTANCE)
+                .addScalar("menora50Asistencia", IntegerType.INSTANCE)
+                .addScalar("zeroAsistencia", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(IngresantesAsistenciaInscritosDTO.class));
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("CARRERA", idCarrera);
+        return (List<IngresantesAsistenciaInscritosDTO>) query.list();
     }
 }

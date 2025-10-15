@@ -4,16 +4,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesAsistenciaInscritosDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesExamenAdmisionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesInscritosNivelacionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.IngresantesMateriasNivelacionDTO;
-import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.*;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -94,5 +91,22 @@ public class ReporteEGServiceImpl implements ReporteEGService {
     @Override
     public List<ResultadoReporteView> cursoNivelacionFormadoByCiclo(CicloAcademico cicloAcademico) {
         return notaAlumnoNivelacionDAO.cursoNivelacionFormadoByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public ResultadoReporteView informeNivelacionByCarrera(CicloAcademico cicloAcademico, Long idCarrera) {
+
+        List<IngresantesNivelacionCarreraDTO> ingresantesNivelacionCarrera = notaAlumnoNivelacionDAO.allIngresantesNivelacionByCicloCarrera(cicloAcademico, idCarrera);
+        List<IngresantesInscritosNivelacionDTO> inscritosNivelacion = notaAlumnoNivelacionDAO.allInscritosNivelacionByCicloAndCarrera(cicloAcademico, idCarrera);
+        List<IngresantesAsistenciaInscritosDTO> asistencias = notaAlumnoNivelacionDAO.allAsistenciasByCicloCarrera(cicloAcademico, idCarrera);
+
+        ResultadoReporteView resultadoReporteView = new ResultadoReporteView();
+        resultadoReporteView.setCarrera(ingresantesNivelacionCarrera.isEmpty() ? "": ingresantesNivelacionCarrera.get(0).getCarrera());
+        resultadoReporteView.setFacultad(ingresantesNivelacionCarrera.isEmpty() ? "": ingresantesNivelacionCarrera.get(0).getFacultad());
+        resultadoReporteView.setIngresantesNivelacionCarrera(ingresantesNivelacionCarrera);
+        resultadoReporteView.setIngresantesInscritos(inscritosNivelacion);
+        resultadoReporteView.setIngresantesAsistencia(asistencias);
+
+        return resultadoReporteView;
     }
 }

@@ -10,13 +10,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+
 import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
+
 import org.joda.time.LocalDate;
 import org.joda.time.Minutes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,19 +54,25 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.DOCENTE_INDETERMINADO;
+
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.PEN;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.RAB;
+
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.BLO;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CAN;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CRE;
+
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -1020,12 +1029,12 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 this.retiroMasivo(cursoNiv, ciclo, ds);
                 Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
-//                int edad = this.getEdadMinutos(cursoNiv);
-//                if (edad < 30) {
-                this.eliminarCursoNivelacion(cursoNiv, ds);
-//                } else {
-                this.registrarCambio(cursoNiv, estadoEnum, ds);
-//                }
+                int edad = this.getEdadMinutos(cursoNiv);
+                if (edad < 30) {
+                    this.eliminarCursoNivelacion(cursoNiv, ds);
+                } else {
+                    this.registrarCambio(cursoNiv, estadoEnum, ds);
+                }
                 break;
 
             default:

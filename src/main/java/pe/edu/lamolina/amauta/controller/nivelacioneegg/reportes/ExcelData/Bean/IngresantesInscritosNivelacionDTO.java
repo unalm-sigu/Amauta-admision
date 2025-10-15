@@ -12,6 +12,7 @@ import lombok.Setter;
 public class IngresantesInscritosNivelacionDTO {
 
     private String carrera;
+    private String curso;
     private Integer aprobados;
     private Integer desaprobados;
     private Integer sinNota;

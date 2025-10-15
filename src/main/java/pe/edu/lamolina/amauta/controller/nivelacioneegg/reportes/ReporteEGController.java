@@ -36,6 +36,8 @@ public class ReporteEGController {
     private final ExcelResultadosPuntajeAdmision excelResultadosPuntajeAdmision;
     private final ExcelResultadosIngresantesGeneral  excelResultadosIngresantesGeneral;
     private final ExcelResultadosCursosNivelacionFormados  excelResultadosCursosNivelacionFormados;
+    private final ExcelReporteNivelacionCarrera excelReporteNivelacionCarrera;
+
 
 
     @RequestMapping(method = RequestMethod.GET)
@@ -162,6 +164,21 @@ public class ReporteEGController {
         model.addAttribute("resultado", resultados);
 
         return new ModelAndView(excelResultadosCursosNivelacionFormados);
+    }
+
+    @RequestMapping("informeNivelacionByCarrera/{idCarrera}")
+    public ModelAndView informeNivelacionByCarrera(@PathVariable("idCarrera") Long idCarrera, HttpSession session, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoNivelacionCarrera.xlsx");
+
+        ResultadoReporteView resultado = service.informeNivelacionByCarrera(ds.getCicloAcademico(),idCarrera);
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("resultado", resultado);
+
+        return new ModelAndView(excelReporteNivelacionCarrera);
     }
 
 
