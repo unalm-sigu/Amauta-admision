@@ -28,6 +28,8 @@ public interface ProfesorService {
 
     public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> facultades, CicloAcademico cicloAcademico, String activo);
 
+    List<Docente> allDocentesCargaByCiclo(DynatableFilter filter, List<DepartamentoAcademico> facultades, CicloAcademico cicloAcademico, String tipoPrograma);
+
     List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania);
 
     Docente find(Docente docente);
