@@ -15,6 +15,18 @@ var app = new Vue({
     }, mounted: function () {
 
     }, methods: {
+        getEstadoNombre(codigo) {
+            const estados = {
+                ACEP: 'Aceptado',
+                ANU: 'Anulado',
+                SOL: 'Solicitado',
+                RCHZ: 'Rechazado'
+            };
+            return estados[codigo] || codigo;
+        },
+        labelColor(estado) {
+            return "label " + APP.getEstadoClass(estado);
+        },
         nuevo() {
             let $vue = this;
             $vue.tramiteBachiller = {};
