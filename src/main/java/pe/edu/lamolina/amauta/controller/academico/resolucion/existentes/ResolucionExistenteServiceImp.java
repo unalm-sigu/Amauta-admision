@@ -2801,7 +2801,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramite.setUserModificacion(ds.getUsuario());
         tramiteDAO.update(tramite);
 
-        tramiteBachillerDB.setEstado(TramiteEstadoEnum.ANU.name());
+//        tramiteBachillerDB.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteBachillerDB.setFechaResolucion(null);
         tramiteBachillerDB.setUsuarioResolucion(null);
         tramiteBachillerDB.setResolucion(null);
@@ -2810,6 +2810,13 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
         tramiteBachillerDB.setMotivo(tramiteBachiller.getMotivo());
         tramiteBachillerDB.setFechaAnulacion(new Date());
         tramiteBachillerDB.setUsuarioAnulaTramite(ds.getUsuario());
+
+        if (resolucion.isTipoTramiteBachillerFacultad()) {
+            tramiteBachillerDB.setEstadofacultad(TramiteEstadoEnum.ANU.name());
+        } else {
+            tramiteBachillerDB.setEstado(TramiteEstadoEnum.ANU.name());
+        }
+
         tramiteBachillerDAO.update(tramiteBachillerDB);
 
         if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {

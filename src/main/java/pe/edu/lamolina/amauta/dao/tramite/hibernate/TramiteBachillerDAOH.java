@@ -99,6 +99,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .join("resolucion ")
                 .filter("tb.estado", TramiteEstadoEnum.ACEP)
+                .filter("tb.estadofacultad","<>", TramiteEstadoEnum.ANU.name())
                 .filter("al.id", alumno);
 
         return find(sql);
@@ -122,7 +123,8 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class)
                 .join("resolucionFacultad res")
                 .join("tramite tr", "tr.alumno al", "al.persona per")
-                .filter("res.id", resolucionDB);
+                .filter("res.id", resolucionDB)
+                .orderBy("per.paterno","per.materno","per.nombres");
 
         return all(sql);
     }
@@ -175,6 +177,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .join("resolucionFacultad")
                 .filter("tb.estadofacultad", ACEP.name())
+                .filter("tb.estado","<>", ANU.name())
                 .filter("al.id", alumno.getId());
         return find(sql);
     }
