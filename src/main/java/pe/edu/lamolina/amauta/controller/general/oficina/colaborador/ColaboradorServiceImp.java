@@ -811,7 +811,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
     @Override
     public List<PerfilCompania> allCargoByOficinaAltoNivel(Oficina oficina, DataSessionPivot ds) {
         List<PerfilCompania> cargos;
-        if (verificadorService.puedeEditarOficinas(ds)) {
+        if (verificadorService.puedeEditarOficinas(ds) || verificadorService.esAdministradorTutoria(ds)) {
             cargos = perfilCompaniaDAO.allCargoByOficinaAltoPerfil(oficina);
 
         } else {
