@@ -1,7 +1,9 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
@@ -18,10 +20,7 @@ import pe.edu.lamolina.amauta.controller.academico.profesor.DocenteCicloCargaBea
 import pe.edu.lamolina.amauta.controller.academico.profesor.HistoricoCargaAcademicoBean;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.FiltroHistoricoCargaAcademicaDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.HorarioDocenteDTO;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.*;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.DocenteEstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
@@ -56,6 +55,35 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         if ("activos".equals(activo)) {
             sql.filter("doc.estado", "ACT");
         }
+        return all(sql);
+    }
+
+    @Override
+    public List<Docente> allDocentesConCargaByCicloAca(DynatableFilter filter, List<DepartamentoAcademico> departamento, CicloAcademico cicloAcademico, String tipoPrograma) {
+        DynatableSql sql = new DynatableSql(filter)
+                .selectDistinct("doc")
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "seccion sec", "sec.grupoSeccion gs")
+                .join("gs.anexoBoletin ab", "ab.anexoSuperior abs", "gs.cicloAcademico ca")
+                .join("doc.persona per", "doc.departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento tdoc", "doc.categoria rrc", "doc.situacion rrs", "doc.dedicacion rrd")
+                .in("da.id", departamento)
+                .searchFields("per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania", "tdoc.simbolo", "doc.codigo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("ca.id", cicloAcademico )
+                .filter("sec.matriculados",">", BigDecimal.ZERO);
+
+        if (tipoPrograma != null && !tipoPrograma.isEmpty()) {
+            if ("PRE".equals(tipoPrograma)) {
+                sql.filter("abs.codigo", "<>", "G04");
+            } else if ("POS".equals(tipoPrograma)) {
+                sql.filter("abs.codigo", "G04");
+            }
+        }
+
+        sql.orderBy("doc.id desc");
+
         return all(sql);
     }
 
