@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.*;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -25,6 +27,8 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
         @Autowired))
 @RequestMapping("nivelacioneegg/reporte")
 public class ReporteEGController {
+    
+    public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final ReporteEGService service;
     private final ExcelResultadosNotasSeccion excelResultadosNotasSeccion;
@@ -46,7 +50,15 @@ public class ReporteEGController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
+        ArrayNode carrerasJson = JaneHelper
+                .from(service.allCarrera())
+                .only("id,nombre,codigo")
+                .array();
+
+        model.addAttribute("carreras", carrerasJson);
+
         model.addAttribute("ciclo", ciclo);
+        model.addAttribute("rutaModulo", rutaModulo);
 
         return "nivelacioneegg/reporte/reporte";
     }

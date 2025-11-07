@@ -5,15 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.*;
+import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AsistenciaNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
 
 @Slf4j
@@ -25,6 +30,7 @@ public class ReporteEGServiceImpl implements ReporteEGService {
 
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final AsistenciaNivelacionDAO asistenciaNivelacionDAO;
+    private final CarreraDAO  carreraDAO;
 
     @Override
     public List<ResultadoReporteView> allNotasGeneralByCiclo(CicloAcademico cicloAcademico) {
@@ -108,5 +114,10 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         resultadoReporteView.setIngresantesAsistencia(asistencias);
 
         return resultadoReporteView;
+    }
+
+    @Override
+    public List<Carrera> allCarrera() {
+        return carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
     }
 }
