@@ -1,0 +1,25 @@
+<modal-vik ref="modalCarrera"
+           v-bind="modalCarrera"
+           v-bind:okaction="generarReporte">
+
+    <div slot="body">
+        <form method="post" id="modalCarreraForm" data-parsley-validate="true">
+            <div class="row">
+                <div class="col-md-12">
+                    <multiselect v-model='carrera'
+                                 label='nombre'
+                                 placeholder="Seleccione una carrera"
+                                 deselect-label=""
+                                 select-label=""
+                                 track-by='id'
+                                 v-bind:allow-empty="true"
+                                 v-bind:options='carreras'
+                                 required=true>
+                    </multiselect>
+                </div>
+            </div>
+            <br/>
+
+        </form>
+    </div>
+</modal-vik>
