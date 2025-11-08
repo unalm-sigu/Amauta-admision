@@ -40,9 +40,10 @@
                                     <thead class="panel panel-heading">
                                         <tr>
                                             <th class="col-md-4" colspan="2"></th>
-                                            <th class="col-md-3">Oficina</th>
+                                            <th class="col-md-2">Oficina</th>
                                             <th class="col-md-3">Descripción</th>
-                                            <th class="col-md-2 text-center">Estado</th>
+                                            <th class="col-md-2">Registro</th>
+                                            <th class="col-md-1 text-center">Estado</th>
                                             <th></th>
                                         </tr> 
                                     </thead>
@@ -89,8 +90,14 @@
                                             <td class="v-middle">
                                                 {{item.descripcion}}
                                             </td>
+                                            <td class="v-middle">
+                                                Usuario: <span class="text-muted">{{ item.userRegistro.persona.nombreCompleto }}</span>
+                                                <br>
+                                                 Fecha: <span class="text-muted">{{ item.fechaRegistro }}</span>
+
+                                            </td>
                                             <td class="v-middle text-center">
-                                                <span class="label " v-bind:class="getClass(item.estado)">{{item.estadoEnum.value}} </span>
+                                                <span class="label " v-bind:class="getClass(item.estado)"> {{ getEstadoTexto(item.estado) }} </span>
                                             </td>
 
                                             <td class="v-middle"> 

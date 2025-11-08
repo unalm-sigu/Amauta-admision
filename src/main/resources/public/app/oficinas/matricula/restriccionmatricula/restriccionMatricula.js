@@ -189,6 +189,12 @@ new Vue({
                     break;
             }
         },
+        getEstadoTexto(estado) {
+            if (estado === 'REST') return 'Deuda'
+            if (estado === 'LEV') return 'Levantado'
+            if (estado === 'ANU') return 'Anulado'
+            return estado
+        },
         save() {
             let $vue = this;
             var form = $("#formNuevo");
