@@ -69,6 +69,11 @@ public interface ResolucionExistenteService {
     List<SancionDisciplina> allSancionDisciplinaByResolucion(Resolucion resolucion);
     List<SancionDisciplinaCiclo> allSancioCicloAlumnoByResolucion(Resolucion resolucion);
 
+    List<DocenteResolucion> allDocenteResolucionConsejoByResolucion(Resolucion resolucion);
+    List<DocenteResolucion> allDocenteResolucionFacultadByResolucion(Resolucion resolucion);
+    List<DocenteResolucion> allDocenteResolucionConsejo();
+    List<DocenteResolucion> allDocenteResolucionFacultad();
+
     List<Reincorporacion> allReincorporacion();
 
     List<Readmision> allReadmision();

@@ -139,6 +139,7 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     private final VisorCalculoNotas visorCalculoNotas;
     private final SituacionAcademicaDAO situacionAcademicaDAO;
     private final FacultadDAO facultadDAO;
+    private final DocenteResolucionDAO docenteResolucionDAO;
 
     private final GrupoSeccionDAO grupoSeccionDAO;
 
@@ -366,6 +367,26 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
     }
 
     @Override
+    public List<DocenteResolucion> allDocenteResolucionConsejoByResolucion(Resolucion resolucion) {
+        return docenteResolucionDAO.allDocenteResolucionConsejoByResolucion(resolucion);
+    }
+
+    @Override
+    public List<DocenteResolucion> allDocenteResolucionFacultadByResolucion(Resolucion resolucion) {
+        return docenteResolucionDAO.allDocenteResolucionFacultadByResolucion(resolucion);
+    }
+
+    @Override
+    public List<DocenteResolucion> allDocenteResolucionConsejo() {
+        return docenteResolucionDAO.allDocenteResolucionConsejo();
+    }
+
+    @Override
+    public List<DocenteResolucion> allDocenteResolucionFacultad() {
+        return docenteResolucionDAO.allDocenteResolucionFacultad();
+    }
+
+    @Override
     public List<Reincorporacion> allReincorporacion() {
         return reincorporacionDAO.allPendientesByCicloReincorporacion();
     }
@@ -527,7 +548,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             case SUSP_DISCIPLI:
                 resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
                 break;
-
+            case DOCENTE_RESOL_FC:
+            case DOCENTE_RESOL_CU:
+//                resolucion.setNumeroVisible(resolucion.getCodigoPracticas());
+                break;
             default:
                 break;
         }
@@ -594,6 +618,10 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
                 break;
             case SUSP_DISCIPLI:
                 this.saveTramiteSancionDisciplina(resolucion, ds);
+                break;
+            case DOCENTE_RESOL_FC:
+            case DOCENTE_RESOL_CU:
+                this.saveDocenteResolucion(resolucion, ds);
                 break;
             default:
                 break;
@@ -1898,6 +1926,53 @@ public class ResolucionExistenteServiceImp implements ResolucionExistenteService
             sancionDisciplina.setFechaRegistro(now);
             sancionDisciplina.setEstadoEnum(TramiteEstadoEnum.ACEP);
             sancionDisciplinaDAO.save(sancionDisciplina);
+        }
+    }
+
+    private void saveDocenteResolucion(Resolucion resolucion, DataSessionPivot ds) {
+        List<DocenteResolucion> docentesSeleccionados = resolucion.getDocenteResolucion()
+                .stream()
+                .filter(DocenteResolucion::isSeleccionado)
+                .collect(Collectors.toList());
+
+        // Validación temprana
+        if (docentesSeleccionados.isEmpty()) {
+            throw new PhobosException("Debe seleccionar al menos un docente.");
+        }
+
+        // Extraer configuración común
+        EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
+        Date now = new Date();
+        boolean esConsejo = resolucion.getTipoResolucion().isTramiteDocenteResolucionConsejo();
+
+        // Procesar cada docente
+        for (DocenteResolucion docenteForm : docentesSeleccionados) {
+            // Buscar docente resolución según tipo
+            DocenteResolucion docenteResolucion = esConsejo
+                    ? docenteResolucionDAO.findByDocenteConsejoAct(docenteForm.getDocente())
+                    : docenteResolucionDAO.findByDocenteFacultadAct(docenteForm.getDocente());
+
+            // Actualizar tramite
+            Tramite tramite = docenteResolucion.getTramite();
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramiteAcep);
+            tramite.setFechaModificacion(now);
+            tramite.setUserModificacion(ds.getUsuario());
+            tramiteDAO.update(tramite);
+
+            // Actualizar docente resolución
+            docenteResolucion.setTramite(tramite);
+            docenteResolucion.setFechaRegistro(now);
+
+            if (esConsejo) {
+                docenteResolucion.setResolucionConsejo(resolucion);
+                docenteResolucion.setEstadoConsejoEnum(TramiteEstadoEnum.ACEP);
+            } else {
+                docenteResolucion.setResolucionFacultad(resolucion);
+                docenteResolucion.setEstadoFacultadEnum(TramiteEstadoEnum.ACEP);
+            }
+
+            docenteResolucionDAO.save(docenteResolucion);
         }
     }
 

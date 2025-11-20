@@ -53,6 +53,12 @@
                         <th>Ciclos Sancionados</th>
                         <th>Estado Sancion</th>
                     </tr>
+                    <tr v-else-if="tipo == 'DOCENTE_RESOL_CU' || tipo == 'DOCENTE_RESOL_FC'">
+                        <th></th>
+                        <th>Apellidos y Nombres</th>
+                        <th>Codigo</th>
+                        <th>Ciclo</th>
+                    </tr>
 
                 </thead>
                 <tbody>
@@ -270,6 +276,26 @@
                         <td>
                             <span class="label" v-bind:class="getEstadoClass(alumno.estadoEnum)">{{alumno.estado}}</span>
                         </td>
+                    </tr>
+
+                    <tr v-if="(tipo === 'DOCENTE_RESOL_FC' || tipo === 'DOCENTE_RESOL_CU')"  v-for="(item, index) in docenteTramiteResolucion" >
+                        <td style="width: 10px;">{{ index + 1 }}</td>
+                        <td class="v-middle">
+                            <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.docente.persona.apellidosNombres"></span>
+                            <span class="block">
+                                <span v-if="item.docente.persona.numeroDocIdentidad != null">
+                                    <strong>{{item.docente.persona.tipoDocumento.simbolo}}</strong>
+                                    {{item.docente.persona.numeroDocIdentidad}}
+                                </span>
+                            </span>
+                        </td>
+                        <td class="v-middle">
+                            <strong>{{item.docente.codigo}}</strong>
+                        </td>
+                        <td class="v-middle">
+                            <strong>{{item.ciclo.descripcion}}</strong>
+                        </td>
+
                     </tr>
 
                 </tbody>
