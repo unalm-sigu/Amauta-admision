@@ -67,6 +67,8 @@ public interface AulaService {
 
     List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula);
 
+    List<HorarioAula> allHorarioLaboratorioByCiclo(CicloAcademico cicloAcademico);
+
     List<Aula> allAulas(CicloAcademico cicloAcademico);
 
     List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado);

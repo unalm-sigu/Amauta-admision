@@ -610,6 +610,79 @@ public class AulaServiceImp implements AulaService {
     }
 
     @Override
+    public List<HorarioAula> allHorarioLaboratorioByCiclo(CicloAcademico cicloAcademico) {
+
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByCiclo(cicloAcademico);
+
+        if (horariosSecciones.size() == 0) {
+            throw new PhobosException("No hay secciones programadas");
+        }
+
+        horariosSecciones = horariosSecciones.stream()
+                .filter(hs -> hs.getAula() != null)
+                .filter(hs -> hs.getAula().getTipoAula() != null && "LAB".equals(hs.getAula().getTipoAula().getCodigo()))
+                .filter(hs -> hs.getAula().getOficinaSupervisora() != null && !hs.getAula().getOficinaSupervisora().isOficinaOera())
+                .filter(hs -> hs.getSeccion() != null
+                        && hs.getSeccion().getGrupoSeccion() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.PRE)
+                .collect(Collectors.toList());
+
+        List<Seccion> seccionesLab = horariosSecciones.stream()
+                .map(hs -> hs.getSeccion())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, EstadoEnum.ACT);
+
+        List<Long> idsSeccionesLab = seccionesLab.stream()
+                .map(s -> s.getId())
+                .collect(Collectors.toList());
+
+        docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
+                .filter(ds -> ds.getSeccion() != null && idsSeccionesLab.contains(ds.getSeccion().getId()))
+                .filter(x -> x.esDocentePrincipal())
+                .collect(Collectors.toList());
+
+        Map<Long, List<DocenteSeccion>> mapDocenteSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
+
+        EventoAcademicoEnum eventoEnum = cicloAcademico.isTipoRegular() ? EventoAcademicoEnum.CLASES_PRE : EventoAcademicoEnum.CLASES_VER;
+        EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+
+        List<HorarioAula> horariosAulasReservas = horarioAulaDAO.allByFechas(
+                        eventoDictado.getFechaInicio(),
+                        eventoDictado.getFechaFin());
+
+        horariosAulasReservas = horariosAulasReservas.stream()
+                .filter(ha -> ha.getReservaAula() != null)
+                .filter(ha -> ha.getAula() != null)
+                .filter(ha -> ha.getAula().getTipoAula() != null && "LAB".equals(ha.getAula().getTipoAula().getCodigo()))
+                .filter(ha -> ha.getAula().getOficinaSupervisora() != null && !ha.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+
+        horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
+
+        for (HorarioSeccion horarioSecc : horariosSecciones) {
+            Seccion seccion = horarioSecc.getSeccion();
+            if (seccion == null) {
+                continue;
+            }
+            List<DocenteSeccion> docentesSecciones = TypesUtil.getListNotNull(mapDocenteSeccionBySeccion.get(seccion.getId()));
+            seccion.setDocenteSeccion(docentesSecciones);
+        }
+
+        for (HorarioSeccion hs : horariosSecciones) {
+            HorarioAula ha = new HorarioAula(hs.getSeccion(), hs.getDia(), hs.getHora(), hs.getAula());
+            ha.setFechaInicio(hs.getFechaInicio());
+            ha.setFechaFin(hs.getFechaFin());
+            horariosAulasReservas.add(ha);
+        }
+
+        return horariosAulasReservas;
+    }
+
+    @Override
     public List<Aula> allAulas(CicloAcademico cicloAcademico) {
         return aulaDAO.allByOficinaSupervisora(OficinaEnum.OBUAE, EstadoEnum.ACT);
     }

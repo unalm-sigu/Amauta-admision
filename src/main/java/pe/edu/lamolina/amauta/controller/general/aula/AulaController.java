@@ -592,8 +592,6 @@ public class AulaController {
         List<Hora> horas = service.allHorasHorario();
 
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
-        System.out.println("-------------");
-        System.out.println(diasHorasGruposByCiclo.size());
 
         List<Aula> aulas = horariosConSeccion.stream()
                 .map(x -> x.getAula())
@@ -604,6 +602,47 @@ public class AulaController {
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
 
+            try {
+                Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+            } catch (Exception e) {
+                logger.error("Error", e);
+            }
+        }
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("aulas", aulas);
+        model.addAttribute("dias", dias);
+        model.addAttribute("horas", horas);
+        model.addAttribute("horariosAulas", horariosConSeccion);
+        model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
+        model.addAttribute("responsablesAulasAsignadas", service.allResponsablesAulasAsignadas(EstadoEnum.ACT));
+        return new ModelAndView(horarioAulaCicloPDF);
+    }
+
+    @RequestMapping("reporteLaboratorios")
+    public ModelAndView reporteLaboratorios(
+            HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<HorarioAula> horariosAulas = service.allHorarioLaboratorioByCiclo(ds.getCicloAcademico());
+
+        List<HorarioAula> horariosConSeccion = horariosAulas.stream()
+                .filter(horario -> horario.getSeccion() != null)
+                .collect(Collectors.toList());
+
+        System.out.println(horariosConSeccion.size());
+
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHorasHorario();
+
+        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
+        List<Aula> aulas = horariosConSeccion.stream()
+                .map(x -> x.getAula())
+                .distinct().collect(Collectors.toList());
+
+        if (!aulas.isEmpty()) {
             try {
                 Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
