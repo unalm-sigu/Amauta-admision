@@ -376,16 +376,19 @@ new Vue({
             let rows = 0;
             for (var i = 0; i < item.secciones.length; i++) {
                 var secc = item.secciones[i];
-                var docs = secc.docenteSeccion.length;
+                var docs = secc.docenteSeccion.filter(d => d.estadoEnum.name === 'ACT').length;
                 rows += (docs == 0) ? 1 : docs;
             }
             rows = (rows == 0) ? 1 : rows;
             return rows;
         },
         getRowspanSecc(item) {
-            let rows = item.docenteSeccion.length;
+            let rows = item.docenteSeccion.filter(d => d.estadoEnum.name === 'ACT').length;
             rows = (rows == 0) ? 1 : rows;
             return rows;
+        },
+        getDocentesActivos(docenteSeccion) {
+            return docenteSeccion.filter(d => d.estadoEnum.name === 'ACT');
         },
         tipoSeccion(item) {
             return item.tipoSeccionEnum.value.replace("Curso", "");
