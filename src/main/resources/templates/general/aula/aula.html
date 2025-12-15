@@ -15,6 +15,7 @@
                         <ul class="dropdown-menu">
                             <li><a type="button" th:href="@{'/general/aula/nuevo'}">Nuevo</a></li>
                             <li><a type="button" th:href="@{'/general/aula/horarios'}">Pantalla Completa</a></li>
+                            <li><a type="button" th:href="@{'/general/aula/reporteAulasLibres'}">Reporte Aulas Libres</a></li>
                             <li><a type="button" v-on:click.prevent="reporteProgramacion({id:0})" th:href="@{'/general/aula/horarios'}">Reporte Aulas Programadas</a></li>
                             <li><a type="button" v-on:click.prevent="reporteLaboratorios({id:0})" th:href="@{'/general/aula/horarios'}">Reporte Laboratorios</a></li>
                         </ul>

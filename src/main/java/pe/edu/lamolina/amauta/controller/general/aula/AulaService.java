@@ -77,4 +77,6 @@ public interface AulaService {
 
     public void agregarZoom(Aula aula, DataSessionPivot ds);
 
+    List<Aula> allAulasActivas(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
 }
