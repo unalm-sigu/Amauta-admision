@@ -883,7 +883,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia dia", "hora hora", "aula aula")
-                .join("cursoNivelacion cn", "cn.plantilla gh")
+                .join("cursoNivelacion cn", "cn.plantilla pl")
                 .in("cn.id", cursosNivelacion)
                 .orderBy("ha.fechaInicio", "hora.numero");
 
