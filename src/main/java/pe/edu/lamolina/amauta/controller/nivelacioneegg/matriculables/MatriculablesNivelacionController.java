@@ -21,10 +21,11 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.BuscarCruceDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculalote.MatriculaLoteService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
@@ -38,13 +39,14 @@ public class MatriculablesNivelacionController {
     public final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     private final MatriculablesNivelacionService service;
+    private final MatriculaLoteService matriculaLoteService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<GrupoHorasNivelacion> gruposHoras = service.allGruposHoras();
+        List<PlantillaNivelacion> gruposHoras = service.allPlantillas();
 
         model.addAttribute("gruposHorasJson", this.createGruposJson(gruposHoras));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
@@ -68,7 +70,7 @@ public class MatriculablesNivelacionController {
                     .join("curso", "id,codigo,nombre")
                     .join("cursoNivelacion", "id,codigo")
                     .join("cursoNivelacion.aula", "id,codigo")
-                    .join("cursoNivelacion.grupoHoras", "id,codigo")
+                    .join("cursoNivelacion.plantilla", "id,codigo")
                     .join("alumnoNivelacion.alumno", "id,codigo")
                     .join("alumnoNivelacion.alumno.modalidadEstudio", "id,codigo,nombre")
                     .join("alumnoNivelacion.alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
@@ -136,6 +138,23 @@ public class MatriculablesNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("matriculaMasivaTipo2")
+    public JsonResponse matriculaMasivaTipo2(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        int nuevos = matriculaLoteService.procesarMatriculaLote(ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        if (nuevos > 0) {
+            json.setMessage("Se realizaron " + nuevos + " inscripciones");
+        } else {
+            json.setMessage("No se encontraron matriculables para inscribir");
+        }
+
+        json.setSuccess(nuevos > 0);
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("infoAlumno")
     public JsonResponse infoAlumno(@RequestBody NotaAlumnoNivelacion form, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -147,7 +166,7 @@ public class MatriculablesNivelacionController {
                 .join("curso", "id,codigo,nombre")
                 .join("temaExamen", "id,codigo,nombre")
                 .join("cursoNivelacion", "id")
-                .join("cursoNivelacion.grupoHoras", "id,codigo")
+                .join("cursoNivelacion.plantilla", "id,codigo")
                 .join("alumnoNivelacion", "id")
                 .join("alumnoNivelacion.alumno", "id,codigo")
                 .join("alumnoNivelacion.alumno.persona", "id,apellidosNombres,numeroDocIdentidad")
@@ -186,7 +205,7 @@ public class MatriculablesNivelacionController {
                 .join("docente.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                 .join("aula", "id,codigo,nombre,capacidadAula,aforo")
                 .join("aula.aulaSuperior", "id,codigo,nombre")
-                .join("grupoHoras", "id,codigo")
+                .join("plantilla", "id,codigo")
                 .join("cursoCiclo", "id,horasCiclo")
                 .join("cursoCiclo.curso", "id,codigo,nombre,horasCiclo")
                 .array();
@@ -228,7 +247,7 @@ public class MatriculablesNivelacionController {
                 .json();
     }
 
-    private ArrayNode createGruposJson(List<GrupoHorasNivelacion> grupos) {
+    private ArrayNode createGruposJson(List<PlantillaNivelacion> grupos) {
         return JaneHelper.from(grupos).array();
     }
 

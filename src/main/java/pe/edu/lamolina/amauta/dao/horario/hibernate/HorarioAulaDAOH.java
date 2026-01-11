@@ -302,7 +302,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
                 .left("gs.cicloAcademico ca")
                 .left("reservaAula ra", "ra.tramite tra")
-                .left("cursoNivelacion cn", "cn.cursoCiclo cc","cc.curso cu","cu.departamentoAcademico", "cn.grupoHoras ghh")
+                .left("cursoNivelacion cn", "cn.cursoCiclo cc","cc.curso cu","cu.departamentoAcademico", "cn.plantilla pl")
                 .left("cn.docente doc", "doc.persona")
                 .left("tra.docente do", "do.persona")
                 .left("tra.alumno al", "al.persona")
@@ -883,7 +883,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia dia", "hora hora", "aula aula")
-                .join("cursoNivelacion cn", "cn.grupoHoras gh")
+                .join("cursoNivelacion cn", "cn.plantilla gh")
                 .in("cn.id", cursosNivelacion)
                 .orderBy("ha.fechaInicio", "hora.numero");
 

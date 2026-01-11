@@ -1,7 +1,7 @@
 <template>
-    <modal-vik ref="modalChangeGrupo"
-               v-bind="modalChangeGrupo"
-               v-bind:okaction="saveChangeGrupo">
+    <modal-vik ref="modalChangePlantilla"
+               v-bind="modalChangePlantilla"
+               v-bind:okaction="saveChangePlantilla">
         <div slot="body">
 
             <h3 class="text-primary block m-b m-t">{{title}} {{ciclo.descripcion}}</h3>
@@ -24,9 +24,9 @@
 
                         <div class="col-md-3">
                             <span class="item-form-control item-form-gray text-primary">
-                                Grupo horario
+                                Plantilla
                                 <br>
-                                {{cursoNiv.grupoHoras.codigo}}
+                                {{cursoNiv.plantilla.codigo}}
                             </span>
                         </div>
                     </div>
@@ -42,13 +42,13 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Grupo horario</label>
-                                <multiselect v-model="cursoNiv.grupoHoras"
-                                             v-bind:options="gruposHoras"
+                                <label>Plantilla</label>
+                                <multiselect v-model="cursoNiv.plantilla"
+                                             v-bind:options="plantillas"
                                              v-bind:allow-empty="false"
-                                             v-on:input="selectGrupo"
+                                             v-on:input="selectPlantilla"
                                              track-by="id"
-                                             placeholder="Seleccione un grupo"
+                                             placeholder="Seleccione una plantilla"
                                              v-bind:showNoOptions="true"
                                              v-bind:show-labels="false">
 
@@ -64,12 +64,12 @@
                                     <template slot="noResult">Sin resultados</template>
 
                                 </multiselect>
-                                <input v-bind:value="getObjectId(cursoNiv.grupoHoras)" required="true" type="text" class="hide"/>
+                                <input v-bind:value="getObjectId(cursoNiv.plantilla)" required="true" type="text" class="hide"/>
                             </div>
                         </div>
 
                         <div class="col-md-4"
-                             v-if="cursoNiv.grupoHoras">
+                             v-if="cursoNiv.plantilla">
                             <label>Horario configurado</label>
                             <template v-if="horarios.length == 0">
                                 <span class="item-form-control item-form-gray text-danger">
@@ -112,12 +112,12 @@
                 cursoNiv: null,
                 raptor: null,
                 horarios: [],
-                gruposHoras: JSON.parse(gruposHorasJson),
+                plantillas: JSON.parse(plantillasJson),
                 ciclo: JSON.parse(cicloJson),
-                form: "id-form-change-grupo",
-                title: "Cambio de grupo horario",
-                modalChangeGrupo: VUE_MODAL.structFormAjax({
-                    id: "id-modal-change-grupo",
+                form: "id-form-change-plantilla",
+                title: "Cambio de plantilla",
+                modalChangePlantilla: VUE_MODAL.structFormAjax({
+                    id: "id-modal-change-plantilla",
                     okbtn: "Guardar cambio",
                     okclass: "btn-primary",
                     modalsize: "modal-lg"
@@ -143,18 +143,18 @@
                 this.raptor = raptor;
                 this.cursoNiv = JSON.parse(JSON.stringify(item));
                 this.visible = true;
-                this.$refs.modalChangeGrupo.open();
+                this.$refs.modalChangePlantilla.open();
 
                 myUtils.activarNumeric();
-                this.selectGrupo(this.cursoNiv.grupoHoras);
+                this.selectPlantilla(this.cursoNiv.plantilla);
             },
 
-            selectGrupo(item) {
+            selectPlantilla(item) {
                 let payload = {
                     cursoCiclo: {
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
-                    grupoHoras: {id: item.id}
+                    plantilla: {id: item.id}
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({
@@ -174,7 +174,7 @@
                 });
             },
 
-            saveChangeGrupo() {
+            saveChangePlantilla() {
                 var form = $("#" + this.form);
                 if (!form.parsley().validate()) {
                     notify("Debe completar los campos obligatorios", "error");
@@ -183,20 +183,20 @@
 
                 const payload = {
                     id: this.cursoNiv.id,
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id},
+                    plantilla: {id: this.cursoNiv.plantilla.id},
                     motivoCambio: this.cursoNiv.motivoCambio
                 };
 
                 myUtils.axios(VUE_AXIOS.structModalClose({
-                    url: `/${rutaModulo}/changeGrupo`,
-                    modal: this.$refs.modalChangeGrupo,
+                    url: `/${rutaModulo}/changePlantilla`,
+                    modal: this.$refs.modalChangePlantilla,
                     raptor: this.raptor,
                     body: payload
                 }));
             },
 
             getModal() {
-                return this.$refs.modalChangeGrupo;
+                return this.$refs.modalChangePlantilla;
             },
 
             // metodos genericos

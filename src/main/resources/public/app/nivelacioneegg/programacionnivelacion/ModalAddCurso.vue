@@ -64,13 +64,13 @@
 
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Grupo horario</label>
-                                    <multiselect v-model="cursoNiv.grupoHoras"
-                                                 v-bind:options="gruposHoras"
+                                    <label>Plantilla</label>
+                                    <multiselect v-model="cursoNiv.plantilla"
+                                                 v-bind:options="plantillas"
                                                  v-bind:allow-empty="false"
-                                                 v-on:input="selectGrupo"
+                                                 v-on:input="selectPlantilla"
                                                  track-by="id"
-                                                 placeholder="Seleccione un grupo"
+                                                 placeholder="Seleccione una plantilla"
                                                  v-bind:showNoOptions="true"
                                                  v-bind:show-labels="false">
 
@@ -86,12 +86,12 @@
                                         <template slot="noResult">Sin resultados</template>
 
                                     </multiselect>
-                                    <input v-bind:value="getObjectId(cursoNiv.grupoHoras)" required="true" type="text" class="hide"/>
+                                    <input v-bind:value="getObjectId(cursoNiv.plantilla)" required="true" type="text" class="hide"/>
                                 </div>
                             </div>
 
                             <div class="col-md-4"
-                                 v-if="cursoNiv.grupoHoras">
+                                 v-if="cursoNiv.plantilla">
                                 <label>Horario configurado</label>
                                 <template v-if="horarios.length == 0">
                                     <span class="item-form-control item-form-gray text-danger">
@@ -108,7 +108,7 @@
                         </div>
 
                         <div class="row"
-                             v-if="cursoNiv.grupoHoras">
+                             v-if="cursoNiv.plantilla">
                             <div class="col-md-4">
                                 <label>Fecha inicio</label>
                                 <template v-if="periodoEditable">
@@ -147,7 +147,7 @@
                         </div>
                     </template>
 
-                    <template v-if="cursoNiv.grupoHoras">
+                    <template v-if="cursoNiv.plantilla">
                         <div class="row m-t-sm">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -173,8 +173,10 @@
                                                 <span v-if="props.option.nombre" class=""> - {{ props.option.nombre }} </span>
                                             </span>
                                             <span class="block">
-                                                Cap: {{ props.option.capacidadAula }} - 
+                                                Cap: {{ props.option.capacidadAula }}
+                                                <template v-if="props.option.aulaSuperior"> -
                                                 Edif: {{ props.option.aulaSuperior.nombre}}
+                                                </template>
                                             </span>
                                         </template>
 
@@ -209,7 +211,7 @@
                         <h4>{{mensajeCruceAula}}</h4>
                     </div>
 
-                    <template v-if="cursoNiv.grupoHoras">
+                    <template v-if="cursoNiv.plantilla">
                         <div class="row">
                             <div class="col-md-10">
                                 <div class="form-group">
@@ -301,7 +303,7 @@
                 cursos: [],
                 horarios: [],
                 docentes: [],
-                gruposHoras: JSON.parse(gruposHorasJson),
+                plantillas: JSON.parse(plantillasJson),
                 ciclo: JSON.parse(cicloJson),
                 form: "id-form-add-curso",
                 title: "Agregar curso de nivelación",
@@ -317,7 +319,7 @@
                 },
                 plantilla: {
                     cursoCiclo: {curso: null},
-                    grupoHoras: null,
+                    plantilla: null,
                     aula: null,
                     docente: null,
                     horasDictado: null,
@@ -403,12 +405,12 @@
                 }
                 myUtils.activarNumeric();
             },
-            selectGrupo(item) {
+            selectPlantilla(item) {
                 let payload = {
                     cursoCiclo: {
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
-                    grupoHoras: {id: item.id}
+                    plantilla: {id: item.id}
                 };
 
                 this.periodoEditable = true;
@@ -436,7 +438,7 @@
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
                     aula: {id: item.id},
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id}
+                    plantilla: {id: this.cursoNiv.plantilla.id}
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({
@@ -455,7 +457,7 @@
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
                     docente: {id: item.id, codigo: item.codigo},
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id}
+                    plantilla: {id: this.cursoNiv.plantilla.id}
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({

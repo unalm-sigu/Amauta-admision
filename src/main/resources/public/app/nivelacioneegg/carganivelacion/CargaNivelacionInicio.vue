@@ -50,7 +50,7 @@
 
                                         <td class="v-middle text-center">
                                             <span class="block">
-                                                Grupo {{item.grupoHoras.codigo}}
+                                                Plantilla {{item.plantilla.codigo}}
                                             </span>
 
                                             <a v-bind:class="classHorario(item)"

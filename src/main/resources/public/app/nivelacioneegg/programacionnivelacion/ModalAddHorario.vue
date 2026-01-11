@@ -22,7 +22,7 @@
 
                         <div class="col-md-3">
                             <span class="item-form-control item-form-gray text-primary">
-                                Grupo horario {{cursoNiv.grupoHoras.codigo}}
+                                Plantilla {{cursoNiv.plantilla.codigo}}
                                 <br>
                                 <span v-bind:class="classHoras()">{{horasTotales}} horas</span>
                             </span>
@@ -179,11 +179,11 @@
             },
             loadHorarios() {
                 const payload = {
-                    id: this.cursoNiv.grupoHoras.id
+                    id: this.cursoNiv.plantilla.id
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({
-                    url: `/${rutaModulo}/getHorarioGrupo`,
+                    url: `/${rutaModulo}/getHorarioPlantilla`,
                     body: payload
                 })).then((resp) => {
                     this.horarios = resp.data.data;
@@ -328,7 +328,7 @@
 
                 const payload = {
                     id: this.cursoNiv.cursoCiclo.id,
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id},
+                    plantilla: {id: this.cursoNiv.plantilla.id},
                     horarios: horariosCurso
                 };
 

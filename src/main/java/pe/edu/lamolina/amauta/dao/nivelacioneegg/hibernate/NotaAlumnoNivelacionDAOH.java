@@ -324,7 +324,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .from(NotaAlumnoNivelacion.class, "nan")
                 .join("alumnoNivelacion an", "an.cicloAcademico ci", "an.alumno alu")
                 .join("temaExamen")
-                .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior")
+                .leftJoin("temaCiclo tc", "tc.temaExamen te", "te.temaSuperior", "curso")
                 .leftJoin("an.prelamolina", "an.evaluado")
                 .in("an.id", alumnosNiv)
                 .orderBy("an.id", "nan.id");
@@ -999,7 +999,6 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         sql.append(" where ci.id = :CICLO ");
         sql.append(" and te.id_tema_superior is null; ");
 //        sql.append(" and nan.tema_aprobado = false; ");
-
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("correlativo", StringType.INSTANCE)

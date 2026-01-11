@@ -7,7 +7,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 
 @Repository
@@ -19,25 +19,25 @@ public class HorarioCursoDAOH extends AbstractEasyDAO<HorarioCurso> implements H
     }
 
     @Override
-    public List<HorarioCurso> allByCursoCicloHorario(CursoCicloAcademico cursoCiclo, GrupoHorasNivelacion grupoHoras) {
+    public List<HorarioCurso> allByCursoCicloPlantilla(CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla) {
         Octavia sql = Octavia.query()
                 .from(HorarioCurso.class, "hc")
-                .join("cursoCiclo cc", "grupoHoras gh", "cc.curso", "cc.cicloAcademico")
+                .join("cursoCiclo cc", "plantilla pl", "cc.curso", "cc.cicloAcademico")
                 .filter("cc.id", cursoCiclo)
-                .filter("gh.id", grupoHoras)
+                .filter("pl.id", plantilla)
                 .orderBy("hc.semana");
 
         return all(sql);
     }
 
     @Override
-    public List<HorarioCurso> allByCicloHorario(CicloAcademico ciclo, GrupoHorasNivelacion grupoHoras) {
+    public List<HorarioCurso> allByCicloPlantilla(CicloAcademico ciclo, PlantillaNivelacion plantilla) {
         Octavia sql = Octavia.query()
                 .from(HorarioCurso.class, "hc")
-                .join("cursoCiclo cc", "grupoHoras gh")
+                .join("cursoCiclo cc", "plantilla pl")
                 .join("cc.curso", "cc.cicloAcademico ci")
                 .filter("ci.id", ciclo)
-                .filter("gh.id", grupoHoras);
+                .filter("pl.id", plantilla);
 
         return all(sql);
     }
@@ -46,9 +46,20 @@ public class HorarioCursoDAOH extends AbstractEasyDAO<HorarioCurso> implements H
     public List<HorarioCurso> allByCursosCiclo(List<CursoCicloAcademico> cursosCiclo) {
         Octavia sql = Octavia.query()
                 .from(HorarioCurso.class, "hc")
-                .join("cursoCiclo cc", "grupoHoras gh", "cc.curso", "cc.cicloAcademico")
+                .join("cursoCiclo cc", "plantilla pl", "cc.curso", "cc.cicloAcademico")
                 .in("cc.id", cursosCiclo)
                 .orderBy("hc.semana");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioCurso> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCurso.class, "hc")
+                .join("cursoCiclo cc", "plantilla pl")
+                .join("cc.curso", "cc.cicloAcademico ci")
+                .filter("ci.id", ciclo);
 
         return all(sql);
     }

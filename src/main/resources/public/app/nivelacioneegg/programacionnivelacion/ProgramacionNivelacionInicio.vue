@@ -68,7 +68,7 @@
 
                                         <td class="v-middle text-center">
                                             <span class="block">
-                                                Grupo {{item.grupoHoras.codigo}}
+                                                Plantilla {{item.plantilla.codigo}}
                                             </span>
 
                                             <a v-bind:class="classHorario(item)"
@@ -157,7 +157,7 @@
                                                     <li class="divider"> </li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeDocente(item)">Cambiar docente</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeAula(item)">Cambiar aula</a></li>
-                                                    <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeGrupoHoras(item)">Cambiar grupo</a></li>
+                                                    <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changePlantilla(item)">Cambiar plantilla</a></li>
                                                     <li v-if="item.estado != 'CAN' " class="pointer"><a v-on:click="changeVacantes(item)">Cambiar vacantes</a></li>
                                                     <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="changeHorasDictado(item)">Cambiar Horas Dictado</a></li>
                                                     <li v-if="item.estadoNotas == 'CER' " class="pointer"><a v-on:click="reabrirNotas(item)">Reabrir notas</a></li>
@@ -183,7 +183,7 @@
         <modal-add-horario ref="modalAddHorario"></modal-add-horario>
         <modal-change-docente ref="modalChangeDocente"></modal-change-docente>
         <modal-change-aula ref="modalChangeAula"></modal-change-aula>
-        <modal-change-grupo ref="modalChangeGrupo"></modal-change-grupo>
+        <modal-change-plantilla ref="modalChangePlantilla"></modal-change-plantilla>
         <modal-change-vacantes ref="modalChangeVacantes"></modal-change-vacantes>
         <modal-change-horas-dictado ref="modalChangeHorasDictado"></modal-change-horas-dictado>
         <modal-cambios ref="modalCambios"></modal-cambios>
@@ -203,7 +203,7 @@
     const ModalAddHorario = httpVueLoader('./ModalAddHorario.vue');
     const ModalChangeDocente = httpVueLoader('./ModalChangeDocente.vue');
     const ModalChangeAula = httpVueLoader('./ModalChangeAula.vue');
-    const ModalChangeGrupo = httpVueLoader('./ModalChangeGrupo.vue');
+    const ModalChangePlantilla = httpVueLoader('./ModalChangePlantilla.vue');
     const ModalChangeVacantes = httpVueLoader('./ModalChangeVacantes.vue');
     const ModalChangeHorasDictado = httpVueLoader('./ModalChangeHorasDictado.vue');
     const ModalCambios = httpVueLoader('./ModalCambios.vue');
@@ -214,7 +214,7 @@
     module.exports = {
         components: {
             ModalConfirm, ModalInfo, ModalAddCurso, ModalAddHorario,
-            ModalChangeDocente, ModalChangeAula, ModalChangeGrupo,
+            ModalChangeDocente, ModalChangeAula, ModalChangePlantilla,
             ModalChangeVacantes, ModalChangeHorasDictado, ModalCambios, ModalCancelar,
             ModalReactivar, ModalReabrirNotas
         },
@@ -384,8 +384,8 @@
             changeAula(item) {
                 this.$refs.modalChangeAula.open(item, this.$refs.raptorCursos);
             },
-            changeGrupoHoras(item) {
-                this.$refs.modalChangeGrupo.open(item, this.$refs.raptorCursos);
+            changePlantilla(item) {
+                this.$refs.modalChangePlantilla.open(item, this.$refs.raptorCursos);
             },
             changeVacantes(item) {
                 this.$refs.modalChangeVacantes.open(item, this.$refs.raptorCursos);

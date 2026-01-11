@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
@@ -21,13 +21,13 @@ public interface ProgramacionNivelacionService {
 
     CursoNivelacion findCursoNivelacion(CursoNivelacion form);
 
-    List<GrupoHorasNivelacion> allGruposHoras();
+    List<PlantillaNivelacion> allPlantillas();
 
     List<CursoNivelacion> allCursosNivelacionByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
     List<Curso> allCursos(String nombre, CicloAcademico ciclo);
 
-    List<HorarioCurso> getHorarioGrupo(GrupoHorasNivelacion gproHoras, CicloAcademico ciclo);
+    List<HorarioCurso> getHorarioPlantilla(PlantillaNivelacion plantilla, CicloAcademico ciclo);
 
     List<HorarioCurso> getHorario(CursoNivelacion cursoNivelacion, CicloAcademico ciclo);
 
@@ -45,7 +45,7 @@ public interface ProgramacionNivelacionService {
 
     void setHorario(CursoCicloAcademico cursoCiclo, CicloAcademico ciclo, DataSessionPivot ds);
 
-    void changeGrupo(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
+    void changePlantilla(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 
     void changeVacantes(CursoNivelacion cursoNivelacion, DataSessionPivot ds);
 

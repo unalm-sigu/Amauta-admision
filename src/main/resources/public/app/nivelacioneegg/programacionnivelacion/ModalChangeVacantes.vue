@@ -24,9 +24,9 @@
 
                         <div class="col-md-3">
                             <span class="item-form-control item-form-gray text-primary">
-                                Grupo horario
+                                Plantilla
                                 <br>
-                                {{cursoNiv.grupoHoras.codigo}}
+                                {{cursoNiv.plantilla.codigo}}
                             </span>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                 curso: null,
                 cursoNiv: null,
                 raptor: null,
-                gruposHoras: JSON.parse(gruposHorasJson),
+                plantillas: JSON.parse(plantillasJson),
                 ciclo: JSON.parse(cicloJson),
                 form: "id-form-change-vacantes",
                 title: "Cambio de vacantes",

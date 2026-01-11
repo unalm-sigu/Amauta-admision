@@ -17,7 +17,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CambioCursoNivevalacionDTO;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
 @Slf4j
@@ -29,21 +29,21 @@ public class ChangeProgramacionNivelacionServiceImpl implements ChangeProgramaci
     public String createCambiosJson(CursoNivelacion cursoNiv) {
         Assert.isNotNull(cursoNiv.getDocente(), "No ha indicado el código del docente en el registro de cambios");
         Assert.isNotNull(cursoNiv.getDocente().getCodigo(), "No ha indicado el código del docente en el registro de cambios");
-        Assert.isNotNull(cursoNiv.getGrupoHoras(), "No ha indicado el grupo de horario en el registro de cambios");
-        Assert.isNotNull(cursoNiv.getGrupoHoras().getCodigo(), "No ha indicado el grupo de horario en el registro de cambios");
+        Assert.isNotNull(cursoNiv.getPlantilla(), "No ha indicado el grupo de horario en el registro de cambios");
+        Assert.isNotNull(cursoNiv.getPlantilla().getCodigo(), "No ha indicado el grupo de horario en el registro de cambios");
         Assert.isNotNull(cursoNiv.getHorasDictado(), "No ha indicado las horas de dictado en el registro de cambios");
         Assert.isNotNull(cursoNiv.getVacantes(), "No ha indicado las vacantes en el registro de cambios");
 
         Docente docente = cursoNiv.getDocente();
         Aula aula = cursoNiv.getAula();
-        GrupoHorasNivelacion gpoHoras = cursoNiv.getGrupoHoras();
+        PlantillaNivelacion plantilla = cursoNiv.getPlantilla();
 
         String cambio = "Creación con ";
         cambio += "docente " + docente.getCodigo() + ", ";
         if (aula != null) {
             cambio += "aula " + aula.getCodigo() + ", ";
         }
-        cambio += "gpo horario " + gpoHoras.getCodigo() + ", ";
+        cambio += "plantilla " + plantilla.getCodigo() + ", ";
         cambio += "horas dictado " + cursoNiv.getHorasDictado() + " y ";
         cambio += "vacantes " + cursoNiv.getVacantes();
 
