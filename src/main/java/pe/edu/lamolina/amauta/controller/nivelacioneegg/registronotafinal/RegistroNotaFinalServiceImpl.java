@@ -217,7 +217,7 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
         CursoNivelacion seccion = this.findSeccion(form, docente, ciclo);
         Assert.isTrue(ESTADOS_ABIERTOS.contains(seccion.getEstadoNotasEnum()), "Ya está cerrado el ingreso de notas");
 
-        List<NotaAlumnoNivelacion> notas = notaAlumnoNivelacionDAO.allByCursoNivelacion(seccion);
+        List<NotaAlumnoNivelacion> notas = notaAlumnoNivelacionDAO.allInscritosByCursoNivelacion(seccion);
         List<NotaAlumnoNivelacion> sinNotas = notas.stream()
                 .filter(nan -> nan.getNotaCurso() == null)
                 .collect(Collectors.toList());

@@ -1006,7 +1006,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 break;
 
             case ANU:
-                Assert.isTrue(cursoNiv.getEstadoEnum() == CRE, "Solo se puede eliminar secciones es estado CREADO");
+                Assert.isTrue(cursoNiv.getEstadoEnum() == CRE, "Solo se puede eliminar secciones en estado CREADO");
                 this.eliminarCursoNivelacion(cursoNiv, ds);
                 break;
 
@@ -1016,12 +1016,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
                 this.retiroMasivo(cursoNiv, ciclo, ds);
                 Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
-//                int edad = this.getEdadMinutos(cursoNiv);
-//                if (edad < 30) {
-                this.eliminarCursoNivelacion(cursoNiv, ds);
-//                } else {
+                this.cancelarCursoNivelacion(cursoNiv, ds);
                 this.registrarCambio(cursoNiv, estadoEnum, ds);
-//                }
                 break;
 
             default:
@@ -1098,7 +1094,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     @Override
     public List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion) {
-        return notaAlumnoNivelacionDAO.allBySeccion(seccion);
+        return notaAlumnoNivelacionDAO.allInscritosByCursoNivelacion(seccion);
     }
 
     private Integer getEdadMinutos(CursoNivelacion cursoNiv) {
@@ -1111,41 +1107,57 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         return Minutes.minutesBetween(fechaRegistro, ahora).getMinutes();
     }
 
-    private void registrarCambio(CursoNivelacion cursoNiv, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
-        if (StringUtils.isBlank(cursoNiv.getCambios())) {
-            String cambios = changeProgramacionNivelacionService.createCambiosJson(cursoNiv);
-            cursoNiv.setCambios(cambios);
+    private void registrarCambio(CursoNivelacion seccion, SeccionEstadoEnum estadoEnum, DataSessionPivot ds) {
+        if (StringUtils.isBlank(seccion.getCambios())) {
+            String cambios = changeProgramacionNivelacionService.createCambiosJson(seccion);
+            seccion.setCambios(cambios);
         }
 
-        String datoAntes = cursoNiv.getEstadoEnum().getValue();
+        String datoAntes = seccion.getEstadoEnum().getValue();
         String datoNuevo = estadoEnum.getValue();
 
-        cursoNiv.setEstadoEnum(estadoEnum);
-        cursoNiv.setUserModificacion(ds.getUsuario());
-        cursoNiv.setFechaModificacion(new Date());
+        seccion.setEstadoEnum(estadoEnum);
+        seccion.setUserModificacion(ds.getUsuario());
+        seccion.setFechaModificacion(new Date());
 
         String cambio = "Cambio de estado de " + datoAntes + " a " + datoNuevo;
 
-        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, cursoNiv.getMotivoCambio(), cursoNiv.getCambios());
-        cursoNiv.setCambios(cambiosTwo);
-        cursoNivelacionDAO.update(cursoNiv);
+        String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(seccion, cambio, seccion.getMotivoCambio(), seccion.getCambios());
+        seccion.setCambios(cambiosTwo);
+        cursoNivelacionDAO.update(seccion);
     }
 
-    private void eliminarCursoNivelacion(CursoNivelacion cursoNiv, DataSessionPivot ds) {
-        Assert.isTrue(cursoNiv.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
-        Assert.isNull(cursoNiv.getCambios(), "Esta sección ya tuvo modificaciones, no puede ser eliminado");
+    private void eliminarCursoNivelacion(CursoNivelacion seccion, DataSessionPivot ds) {
+        Assert.isTrue(seccion.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
-        List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
+        List<NotaAlumnoNivelacion> registrados = notaAlumnoNivelacionDAO.allByCursoNivelacion2(seccion);
+        Assert.isTrue(registrados.isEmpty(),"Este registro está relacionado, no puede ser eliminado sino cancelado");
+
+        List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(seccion);
         for (HorarioAula horario : horarios) {
             horarioAulaDAO.delete(horario);
         }
 
-        List<ExamenCursoNivelacion> examenes = examenCursoNivelacionDAO.allByCursoNivelacion(cursoNiv);
+        List<ExamenCursoNivelacion> examenes = examenCursoNivelacionDAO.allByCursoNivelacion(seccion);
         for (ExamenCursoNivelacion examen : examenes) {
             examenCursoNivelacionDAO.delete(examen);
         }
 
-        cursoNivelacionDAO.delete(cursoNiv);
+        cursoNivelacionDAO.delete(seccion);
+    }
+
+    private void cancelarCursoNivelacion(CursoNivelacion seccion, DataSessionPivot ds) {
+        Assert.isTrue(seccion.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
+
+        List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(seccion);
+        for (HorarioAula horario : horarios) {
+            horarioAulaDAO.delete(horario);
+        }
+
+        List<ExamenCursoNivelacion> examenes = examenCursoNivelacionDAO.allByCursoNivelacion(seccion);
+        for (ExamenCursoNivelacion examen : examenes) {
+            examenCursoNivelacionDAO.delete(examen);
+        }
     }
 
     private void verificarCruceAula(Map<String, List<HorarioAula>> mapHorarios, LocalDate fecha, Aula aula, Dia dia, Hora hora) {
