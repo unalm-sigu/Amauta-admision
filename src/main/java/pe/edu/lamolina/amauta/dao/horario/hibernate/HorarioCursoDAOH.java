@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.horario.hibernate;
 
 import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -22,7 +23,8 @@ public class HorarioCursoDAOH extends AbstractEasyDAO<HorarioCurso> implements H
     public List<HorarioCurso> allByCursoCicloPlantilla(CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla) {
         Octavia sql = Octavia.query()
                 .from(HorarioCurso.class, "hc")
-                .join("cursoCiclo cc", "plantilla pl", "cc.curso", "cc.cicloAcademico")
+                .join("cursoCiclo cc", "cc.curso", "cc.cicloAcademico")
+                .leftJoin("plantilla pl", "grupoNivelacion")
                 .filter("cc.id", cursoCiclo)
                 .filter("pl.id", plantilla)
                 .orderBy("hc.semana");
@@ -57,7 +59,7 @@ public class HorarioCursoDAOH extends AbstractEasyDAO<HorarioCurso> implements H
     public List<HorarioCurso> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(HorarioCurso.class, "hc")
-                .join("cursoCiclo cc", "plantilla pl")
+                .join("cursoCiclo cc", "plantilla pl", "grupoNivelacion")
                 .join("cc.curso", "cc.cicloAcademico ci")
                 .filter("ci.id", ciclo);
 

@@ -1,12 +1,9 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.clonar;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -26,8 +25,10 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 
 @Slf4j
 @Service
@@ -39,6 +40,8 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
     private final CicloAcademicoDAO cicloAcademicoDAO;
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
+    private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
+    private final HorarioAulaDAO horarioAulaDAO;
     private final HorarioCursoDAO horarioCursoDAO;
     private final ModalidadEstudioDAO modalidadEstudioDAO;
 
@@ -65,6 +68,7 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
         List<HorarioCurso> horariosCursos = horarioCursoDAO.allByCiclo(ciclo);
         Map<Long, List<HorarioCurso>> mapHorarioCurso = horariosCursos.stream()
                 .collect(Collectors.groupingBy(hc -> hc.getCursoCiclo().getCurso().getId()));
+
 
         int cambios = 0;
         for (CursoCicloAcademico cursoCicloAntes : cursosCicloAntes) {
@@ -94,8 +98,10 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
                     HorarioCurso horarioCurso = new HorarioCurso();
                     horarioCurso.setCursoCiclo(cursoCiclo);
                     horarioCurso.setPlantilla(horarioCursoAntes.getPlantilla());
+                    horarioCurso.setGrupoNivelacion(horarioCursoAntes.getGrupoNivelacion());
                     horarioCurso.setDia(horarioCursoAntes.getDia());
                     horarioCurso.setHora(horarioCursoAntes.getHora());
+                    horarioCurso.setInmovil(horarioCursoAntes.getInmovil());
 
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(horarioCursoAntes.getSemana());
@@ -113,6 +119,15 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
         List<CursoNivelacion> nuevos = new ArrayList();
 
         List<CursoNivelacion> cursosNivelacion = cursoNivelacionDAO.allByCiclo(cicloAntes);
+
+        List<HorarioAula> horariosAulasAll = horarioAulaDAO.allByCursosNivelacion(cursosNivelacion);
+        Map<Long, List<HorarioAula>> mapHorarioAulas = horariosAulasAll.stream()
+                .collect(Collectors.groupingBy(ha -> ha.getCursoNivelacion().getId()));
+
+        List<ExamenCursoNivelacion> examenesAll = examenCursoNivelacionDAO.allByCursosNivelaciones(cursosNivelacion);
+        Map<Long, List<ExamenCursoNivelacion>> mapExamenes = examenesAll.stream()
+                .collect(Collectors.groupingBy(ecn -> ecn.getCursoNivelacion().getId()));
+
         cursosNivelacion.stream()
                 .filter(cursoNiv -> cursoNiv.getEstadoEnum() == SeccionEstadoEnum.ACT)
                 .forEach(cursoNiv -> {
@@ -128,6 +143,7 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
                     form.setVacantes(cursoNiv.getVacantes());
                     form.setDisponibles(cursoNiv.getVacantes());
                     form.setHorasDictado(cursoNiv.getHorasDictado());
+                    form.setGrupoNivelacion(cursoNiv.getGrupoNivelacion());
 
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(cursoNiv.getFechaInicio());
@@ -144,6 +160,40 @@ public class ClonarProgramacionNivelacionServiceImpl implements ClonarProgramaci
                     form.setUserRegistro(ds.getUsuario());
                     form.setFechaRegistro(new Date());
                     cursoNivelacionDAO.save(form);
+
+                    List<HorarioAula> horariosAulas = mapHorarioAulas.getOrDefault(cursoNiv.getId(), new ArrayList());
+                    for (HorarioAula ha : horariosAulas) {
+                        HorarioAula horaAula = new HorarioAula();
+                        horaAula.setCursoNivelacion(form);
+                        horaAula.setAula(ha.getAula());
+                        horaAula.setDia(ha.getDia());
+                        horaAula.setHora(ha.getHora());
+                        horaAula.setEstado(ha.getEstado());
+                        horaAula.setTipo(ha.getTipo());
+
+                        cal.setTime(ha.getFechaInicio());
+                        cal.add(Calendar.WEEK_OF_YEAR, SEMANAS_MAS);
+                        horaAula.setFechaInicio(cal.getTime());
+
+                        cal.setTime(ha.getFechaFin());
+                        cal.add(Calendar.WEEK_OF_YEAR, SEMANAS_MAS);
+                        horaAula.setFechaFin(cal.getTime());
+
+                        horarioAulaDAO.save(horaAula);
+                    }
+
+                    List<ExamenCursoNivelacion> examenes = mapExamenes.getOrDefault(cursoNiv.getId(), new ArrayList());
+                    for (ExamenCursoNivelacion examen : examenes) {
+                        ExamenCursoNivelacion ecn = new ExamenCursoNivelacion();
+                        ecn.setCursoNivelacion(form);
+                        ecn.setTipoExamenNivelacion(examen.getTipoExamenNivelacion());
+                        ecn.setEstadoEnum(EstadoGrupoSeccionEnum.PEN);
+                        ecn.setOrden(examen.getOrden());
+                        ecn.setFechaRegistro(new Date());
+                        ecn.setUserRegistro(ds.getUsuario());
+
+                        examenCursoNivelacionDAO.save(ecn);
+                    }
 
                     nuevos.add(form);
                 });

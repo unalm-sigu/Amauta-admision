@@ -1,8 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Programación Cursos Nivelación</title>
-        <style>
-        </style>
+        <title>Grupos Horarios de Nivelación</title>
     </head>
     <body>
         <section layout:fragment="main">
@@ -14,12 +12,11 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
                 var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
-                var rutaModuloLeccion = /*[[${rutaModuloLeccion}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:replace="_modules/vue-modal"></div>
             <div th:replace="_modules/vue-raptor-table"></div>
-            <script th:src="@{/app/nivelacioneegg/programacionnivelacion/programacionNivelacion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/nivelacioneegg/gruponivelacion/grupoNivelacion.js}" charset="utf-8"></script>
         </div>
     </body>
 </html>

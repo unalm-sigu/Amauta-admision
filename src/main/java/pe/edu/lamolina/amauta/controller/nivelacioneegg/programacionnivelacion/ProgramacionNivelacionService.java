@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -11,6 +12,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.GrupoNivelacion;
 import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCurso;
@@ -23,13 +25,15 @@ public interface ProgramacionNivelacionService {
 
     List<PlantillaNivelacion> allPlantillas();
 
+    List<GrupoNivelacion> allGrupos(CicloAcademico ciclo);
+
     List<CursoNivelacion> allCursosNivelacionByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
     List<Curso> allCursos(String nombre, CicloAcademico ciclo);
 
     List<HorarioCurso> getHorarioPlantilla(PlantillaNivelacion plantilla, CicloAcademico ciclo);
 
-    List<HorarioCurso> getHorario(CursoNivelacion cursoNivelacion, CicloAcademico ciclo);
+    CursoNivelacionDTO getHorario(CursoNivelacion cursoNivelacion, CicloAcademico ciclo);
 
     PeriodoDTO getPeriodo(CursoNivelacion cursoNivelacion, CicloAcademico ciclo);
 
@@ -68,5 +72,6 @@ public interface ProgramacionNivelacionService {
     List<PeriodoDTO> addSemana(List<PeriodoDTO> semanasForm, String direccion);
 
     List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion);
+
 
 }

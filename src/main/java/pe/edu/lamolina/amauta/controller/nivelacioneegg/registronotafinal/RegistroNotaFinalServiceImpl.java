@@ -1,14 +1,16 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.registronotafinal;
 
 import java.math.BigDecimal;
+
 import static java.math.BigDecimal.ZERO;
+
 import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,24 +21,20 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenAlumnoNivelacionDAO;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
-import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.amauta.dao.nivelacioneegg.*;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.PEN;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.RAB;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
-import pe.edu.lamolina.model.nivelacioneegg.ExamenAlumnoNivelacion;
-import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
-import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
-import pe.edu.lamolina.model.nivelacioneegg.TipoExamenNivelacion;
+
+import pe.edu.lamolina.model.nivelacioneegg.*;
 
 @Slf4j
 @Service
@@ -48,7 +46,9 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final ExamenAlumnoNivelacionDAO examenAlumnoNivelacionDAO;
     private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
+    private final HorarioAulaDAO horarioAulaDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
+    private final TemaAsistenciaDAO temaAsistenciaDAO;
 
     private final BigDecimal VEINTE = new BigDecimal("20");
     private final BigDecimal NOTA_MIN_PARCIAL = new BigDecimal("10.5");
@@ -154,6 +154,34 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
                 .filter(exan -> exan.getNotaExamen() == null)
                 .collect(Collectors.toList());
         Assert.isTrue(examenAlumnos.isEmpty(), "Falta registrar la nota de " + examenAlumnos.size() + " alumnos");
+
+        List<ExamenCursoNivelacion> examenesAll = examenCursoNivelacionDAO.allByCursoNivelacion(cursoNiv);
+        List<ExamenCursoNivelacion> pendientes = examenesAll.stream()
+                .filter(ecn -> ecn.getEstadoEnum() != CER)
+                .collect(Collectors.toList());
+
+        if (pendientes.size() == 1) {
+            List<Date> fechasClases = horarioAulaDAO.allByCursoNivelacion(cursoNiv).stream()
+                    .map(ha -> ha.getFechaInicio())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            List<TemaAsistencia> temasClasesAll = temaAsistenciaDAO.allByCursoNivelacion(cursoNiv);
+            Map<Date, List<TemaAsistencia>> mapTemas = temasClasesAll.stream()
+                    .collect(Collectors.groupingBy(tex -> tex.getFecha()));
+
+            for (Date fecha : fechasClases) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'del' yyyy", new Locale("es", "ES"));
+                String fechaTexto = Instant.ofEpochMilli(fecha.getTime())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .format(formatter);
+
+                List<TemaAsistencia> temasClases = mapTemas.getOrDefault(fecha, new ArrayList());
+                Assert.isFalse(temasClases.isEmpty(), "Falta ingresar la asistencia del " + fechaTexto);
+            }
+
+        }
 
         examen.setEstadoEnum(CER);
         examen.setUserModificacion(ds.getUsuario());

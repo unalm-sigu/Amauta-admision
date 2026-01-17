@@ -112,7 +112,7 @@
                 cursoNiv: null,
                 raptor: null,
                 horarios: [],
-                plantillas: JSON.parse(plantillasJson),
+                plantillas: [],
                 ciclo: JSON.parse(cicloJson),
                 form: "id-form-change-plantilla",
                 title: "Cambio de plantilla",
@@ -139,6 +139,7 @@
                 form.parsley().destroy();
 
                 this.horarios = [];
+                this.loadPlantillas();
 
                 this.raptor = raptor;
                 this.cursoNiv = JSON.parse(JSON.stringify(item));
@@ -147,6 +148,11 @@
 
                 myUtils.activarNumeric();
                 this.selectPlantilla(this.cursoNiv.plantilla);
+            },
+
+            loadPlantillas() {
+                myUtils.axios(VUE_AXIOS.structGetData({url: `/${rutaModulo}/getPlantillas`}))
+                        .then((resp) => this.plantillas = resp.data.data);
             },
 
             selectPlantilla(item) {

@@ -68,6 +68,9 @@
 
                                         <td class="v-middle text-center">
                                             <span class="block">
+                                                Grupo {{item.grupoNivelacion.codigo}}
+                                            </span>
+                                            <span class="block">
                                                 Plantilla {{item.plantilla.codigo}}
                                             </span>
 

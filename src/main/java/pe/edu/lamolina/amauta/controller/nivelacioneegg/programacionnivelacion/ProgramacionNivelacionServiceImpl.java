@@ -1,22 +1,18 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+
 import static org.joda.time.DateTimeConstants.MONDAY;
 import static org.joda.time.DateTimeConstants.SUNDAY;
+
 import org.joda.time.LocalDate;
 import org.joda.time.Minutes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.carganivelacion.dto.PeriodoDiaDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.MatriculablesNivelacionService;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoCicloGrupoDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
@@ -37,9 +34,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.general.AulaDAO;
 import pe.edu.lamolina.amauta.dao.general.DiaDAO;
-import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
-import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
-import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
+import pe.edu.lamolina.amauta.dao.horario.*;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.CursoTipoExamenDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.ExamenCursoNivelacionDAO;
@@ -50,33 +45,37 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.DOCENTE_INDETERMINADO;
+
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.PEN;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.RAB;
+
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.BLO;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CAN;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CRE;
+
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.horario.PlantillaNivelacion;
-import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioAula;
-import pe.edu.lamolina.model.horario.HorarioCurso;
+import pe.edu.lamolina.model.horario.*;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTipoExamen;
 import pe.edu.lamolina.model.nivelacioneegg.ExamenCursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
-import pe.edu.lamolina.amauta.dao.horario.PlantillaNivelacionDAO;
+
+import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
@@ -93,16 +92,21 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     private final DiaDAO diaDAO;
     private final DocenteDAO docenteDAO;
     private final ExamenCursoNivelacionDAO examenCursoNivelacionDAO;
+    private final GrupoNivelacionDAO grupoNivelacionDAO;
     private final PlantillaNivelacionDAO plantillaNivelacionDAO;
     private final HoraDAO horaDAO;
     private final HorarioAulaDAO horarioAulaDAO;
     private final HorarioCursoDAO horarioCursoDAO;
+    private final HorarioGrupoNivelacionDAO horarioGrupoNivelacionDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final TemaAsistenciaDAO temaAsistenciaDAO;
 
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
     private final MatriculablesNivelacionService matriculablesNivelacionService;
     private final VerificadorService verificadorService;
+
+    private static final String SIN_AULA = "SIN_AULA";
+    private static final String ZETA = "Z";
 
     private void verificarPermiso(DataSessionPivot ds) {
         boolean esOperador = verificadorService.esOperadorEEGG(ds);
@@ -117,6 +121,23 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     @Override
     public List<PlantillaNivelacion> allPlantillas() {
         return plantillaNivelacionDAO.all();
+    }
+
+    @Override
+    public List<GrupoNivelacion> allGrupos(CicloAcademico ciclo) {
+        List<GrupoNivelacion> gposConHorario = grupoNivelacionDAO.allByCiclo(ciclo);
+        List<HorarioGrupoNivelacion> horariosAll = horarioGrupoNivelacionDAO.allByGruposCiclo(gposConHorario, ciclo);
+        Map<Long, List<HorarioGrupoNivelacion>> mapHorarios = horariosAll.stream()
+                .collect(Collectors.groupingBy(hor -> hor.getGrupoNivelacion().getId()));
+        for (GrupoNivelacion grupo : gposConHorario) {
+            List<HorarioGrupoNivelacion> horarios = mapHorarios.getOrDefault(grupo.getId(), new ArrayList());
+            grupo.setHorariosGrupo(horarios);
+        }
+
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        gpoZeta.setHorariosGrupo(new ArrayList());
+        gposConHorario.add(gpoZeta);
+        return gposConHorario;
     }
 
     @Override
@@ -271,16 +292,32 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     }
 
     @Override
-    public List<HorarioCurso> getHorario(CursoNivelacion cursoNiv, CicloAcademico ciclo) {
+    public CursoNivelacionDTO getHorario(CursoNivelacion cursoNiv, CicloAcademico ciclo) {
         PlantillaNivelacion plantilla = this.getPlantilla(cursoNiv.getPlantilla());
         Curso curso = this.getCurso(cursoNiv.getCursoCiclo());
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+
+        CursoNivelacionDTO cursoDTO = new CursoNivelacionDTO();
+        cursoDTO.setGrupoNivelacion(gpoZeta);
+        cursoDTO.setHorarios(new ArrayList());
 
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
         if (cursoCiclo == null) {
-            return new ArrayList();
+            return cursoDTO;
         }
 
-        return horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+        List<CursoNivelacion> cursosNiv = cursoNivelacionDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+        if (!cursosNiv.isEmpty()) {
+            GrupoNivelacion grupo = cursosNiv.get(0).getGrupoNivelacion();
+            cursoDTO.setGrupoModificable(false);
+            cursoDTO.setGrupoNivelacion(grupo);
+        }
+
+        cursoDTO.setHorasSemanales(cursoCiclo.getHorasSemanalesTeoria());
+        cursoDTO.setSemanasDictado(cursoCiclo.getSemanasDictado());
+        cursoDTO.setHorarios(horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla));
+
+        return cursoDTO;
     }
 
     @Override
@@ -331,6 +368,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isNotNull(form.getAula().getId(), "No ha indicado el aula");
         Assert.isNotNull(form.getPlantilla(), "No ha indicado la plantilla");
         Assert.isNotNull(form.getPlantilla().getId(), "No ha indicado la plantilla");
+        Assert.isNotNull(form.getGrupoNivelacion(), "No ha indicado el grupo");
+        Assert.isNotNull(form.getGrupoNivelacion().getId(), "No ha indicado el grupo");
 
         Curso curso = this.getCurso(form.getCursoCiclo());
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
@@ -338,8 +377,24 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             return null;
         }
 
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        List<HorarioCurso> horarios = new ArrayList();
         PlantillaNivelacion plantilla = this.getPlantilla(form.getPlantilla());
-        List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+        if (form.getGrupoNivelacion().getId().equals(gpoZeta.getId())) {
+            horarios = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+            log.info("Horarios-curso {}", horarios.size());
+
+        } else {
+            Assert.isNotNull(form.getCursoCiclo().getSemanasDictado(), "No ha indicado la cantidad de semanas de dictado");
+            Assert.isNotNull(form.getFechaInicio(), "No ha indicado la fecha de inicio de clases");
+            int semanas = form.getCursoCiclo().getSemanasDictado();
+            Date fechaInicio = form.getFechaInicio();
+            List<HorarioGrupoNivelacion> horariosGpo = horarioGrupoNivelacionDAO.allByGrupoCiclo(form.getGrupoNivelacion(), ciclo);
+
+            horarios = this.getHorarioGrupo(horariosGpo, fechaInicio, semanas);
+            log.info("Horarios-grupo {}", horarios.size());
+        }
+
         if (horarios.isEmpty()) {
             return null;
         }
@@ -348,12 +403,17 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isNotNull(aula, "El aula que ha indicado, no existe en el sistema");
 
         Map<String, List<HorarioAula>> mapHorarios = this.getMapHorarioAula(horarios, aula);
+        for (Map.Entry<String, List<HorarioAula>> entry : mapHorarios.entrySet()) {
+            log.info("key {} horarios {}", entry.getKey(), entry.getValue().size());
+        }
+
         for (HorarioCurso horario : horarios) {
             Dia dia = horario.getDia();
             Hora hora = horario.getHora();
 
             LocalDate fecha = new LocalDate(horario.getSemana());
             String cruce = this.getCruceAula(mapHorarios, fecha, aula, dia, hora);
+            log.info("Dia {} hora {} cruce {}", dia.getId(), hora.getNumero(), cruce);
             if (cruce != null) {
                 return cruce;
             }
@@ -408,6 +468,9 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isNotNull(form.getFechaFin(), "No ha indicado la fecha final de la semana");
         Assert.isNotNull(form.getHorasDictado(), "No ha indicado la cantidad de horas de dictado");
 
+        Assert.isNotNull(form.getGrupoNivelacion(), "No ha indicado el grupo");
+        Assert.isNotNull(form.getGrupoNivelacion().getId(), "No ha indicado el grupo");
+
         Assert.isNotNull(form.getVacantes(), "No ha indicado las vacantes");
         Assert.isTrue(form.getVacantes() > 0, "Debe indicar las vacantes");
 
@@ -418,6 +481,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         if (aula != null) {
             Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurada su capacidad");
             Assert.isTrue(form.getVacantes() <= aula.getCapacidadAula(), "La cantidad de vacantes no puede ser mayor que la capacidad del aula");
+
+        } else {
+            Aula vacia = aulaDAO.findByCode(SIN_AULA);
+            form.setAula(vacia);
         }
 
         if (curso.getHorasCiclo() == null || (curso.getHorasCiclo() != null && curso.getHorasCiclo() == 0)) {
@@ -425,35 +492,23 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             cursoDAO.update(curso);
         }
 
-        CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
-        if (cursoCiclo == null) {
-            cursoCiclo = new CursoCicloAcademico();
-            cursoCiclo.setCicloAcademico(ciclo);
-            cursoCiclo.setCurso(curso);
-            cursoCiclo.setEstadoEnum(EstadoEnum.ACT);
-            cursoCiclo.setHorasCiclo(form.getHorasDictado());
-            cursoCiclo.setHorasSemanalesTeoria(0);
-            cursoCiclo.setHorasSemanalesPractica(0);
-            cursoCiclo.setCreditos(0);
-            cursoCicloAcademicoDAO.save(cursoCiclo);
-
-        } else {
-            if (cursoCiclo.getHorasCiclo() != form.getHorasDictado().intValue()) {
-                cursoCiclo.setHorasCiclo(form.getHorasDictado());
-                cursoCicloAcademicoDAO.update(cursoCiclo);
-            }
+        GrupoNivelacion gpoForm = form.getGrupoNivelacion();
+        List<HorarioGrupoNivelacion> horariosGpo = horarioGrupoNivelacionDAO.allByGrupoCiclo(gpoForm, ciclo);
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        boolean esGpoZeta = form.getGrupoNivelacion().getId().equals(gpoZeta.getId());
+        if (!esGpoZeta) {
+            Assert.isFalse(horariosGpo.isEmpty(), "El grupo no tiene horario configurado");
+            Assert.isNotNull(form.getCursoCiclo().getSemanasDictado(), "No ha indicado las semanas de dictado");
+            Assert.isTrue(form.getCursoCiclo().getSemanasDictado() > 0, "Las semanas de dictado debe ser mayor a CERO");
         }
 
+        CursoCicloAcademico cursoCiclo = this.getCursoCiclo(form, curso, ciclo, horariosGpo);
         form.setCursoCiclo(cursoCiclo);
 
         Docente docente = this.getDocente(form.getDocente());
         form.setDocente(docente);
 
-        List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
-        if (!horarios.isEmpty()) {
-            Assert.isFalse(form.getHorasDictado() == 0, "La cantidad de horas no puede ser igual a CERO");
-            Assert.isTrue(form.getHorasDictado() + 1 == horarios.size(), "La cantidad de horas no corresponde con el horario");
-        }
+        List<HorarioCurso> horarios = this.crearHorario(form, cursoCiclo, plantilla, horariosGpo, ds);
 
         String codigo = this.getCode(ciclo);
 
@@ -489,12 +544,11 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         for (HorarioCurso horario : horarios) {
             Dia dia = horario.getDia();
             Hora hora = horario.getHora();
+            LocalDate fecha = new LocalDate(horario.getSemana());
+            this.verificarCruce(mapHorarios, fecha, aula, dia, hora);
 
             Date fechaInicio = getLunes(horario.getSemana());
             Date fechaFin = getDomingo(horario.getSemana());
-
-            LocalDate fecha = new LocalDate(horario.getSemana());
-            this.verificarCruce(mapHorarios, fecha, aula, dia, hora);
 
             HorarioAula horarioAula = new HorarioAula();
             horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
@@ -507,6 +561,111 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             horarioAula.setFechaFin(fechaFin);
             horarioAulaDAO.save(horarioAula);
         }
+    }
+
+    private List<HorarioCurso> crearHorario(CursoNivelacion form, CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla, List<HorarioGrupoNivelacion> horariosGpo, DataSessionPivot ds) {
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        GrupoNivelacion gpoForm = form.getGrupoNivelacion();
+        boolean esGpoZeta = gpoForm.getId().equals(gpoZeta.getId());
+        if (!esGpoZeta) {
+            Assert.isFalse(horariosGpo.isEmpty(), "El grupo no tiene horario configurado");
+            Assert.isNotNull(form.getCursoCiclo().getSemanasDictado(), "No ha indicado las semanas de dictado");
+            Assert.isTrue(form.getCursoCiclo().getSemanasDictado() > 0, "Las semanas de dictado debe ser mayor a CERO");
+        }
+
+        List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+        if (esGpoZeta && horariosGpo.isEmpty()) {
+            return new ArrayList();
+        }
+        if (!horariosCurso.isEmpty()) {
+            Assert.isFalse(form.getHorasDictado() == 0, "La cantidad de horas no puede ser igual a CERO");
+            GrupoNivelacion gpoHorarios = horariosCurso.get(0).getGrupoNivelacion();
+            if (gpoHorarios.getId().equals(gpoForm.getId())) {
+                return horariosCurso;
+            }
+
+            List<CursoNivelacion> otras = cursoNivelacionDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+            Assert.isTrue(otras.isEmpty(), "Ya existe otras secciones del mismo curso con diferente grupo");
+            for (HorarioCurso horario : horariosCurso) {
+                horarioCursoDAO.delete(horario);
+            }
+
+        }
+
+        if (esGpoZeta) {
+            return new ArrayList();
+        }
+
+        int semanas = form.getCursoCiclo().getSemanasDictado();
+        List<HorarioCurso> horariosNuevo = this.getHorarioGrupo(horariosGpo, form.getFechaInicio(), semanas);
+        Assert.isFalse(horariosNuevo.isEmpty(), "No se pudo encontrar el horario del grupo");
+        horariosNuevo.forEach(hc -> System.out.println("key-new=" + hc.getKey()));
+
+        List<HorarioCurso> horariosPlantilla = horarioCursoDAO.allByCicloPlantilla(cursoCiclo.getCicloAcademico(), plantilla);
+        horariosPlantilla.forEach(hc -> System.out.println("key-old=" + hc.getKey()));
+        Set<String> clavesOcupadas = horariosPlantilla.stream()
+                .map(HorarioCurso::getKey)
+                .collect(Collectors.toSet());
+
+        List<HorarioCurso> crucesEncontrados = horariosNuevo.stream()
+                .filter(nuevo -> clavesOcupadas.contains(nuevo.getKey()))
+                .collect(Collectors.toList());
+        if (!crucesEncontrados.isEmpty()) {
+            HorarioCurso hcCruce = crucesEncontrados.get(0);
+            String cruce = hcCruce.getDia().getSimbolo() + " a las " + hcCruce.getHora().getCodigo();
+            Assert.isTrue(crucesEncontrados.isEmpty(), "Se han encontrado " + crucesEncontrados.size() + " cruces, como el " + cruce);
+        }
+
+        for (HorarioCurso horario : horariosNuevo) {
+            horario.setGrupoNivelacion(gpoForm);
+            horario.setPlantilla(plantilla);
+            horario.setCursoCiclo(cursoCiclo);
+            horario.setInmovil(true);
+            horario.setUserRegistro(ds.getUsuario());
+            horario.setFechaRegistro(new Date());
+            horarioCursoDAO.save(horario);
+        }
+
+        form.setHorasDictado(horariosNuevo.size());
+
+        return horariosNuevo;
+    }
+
+    private CursoCicloAcademico getCursoCiclo(CursoNivelacion form, Curso curso, CicloAcademico ciclo, List<HorarioGrupoNivelacion> horariosGpo) {
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        boolean esGpoZeta = form.getGrupoNivelacion().getId().equals(gpoZeta.getId());
+
+        CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
+        if (cursoCiclo == null) {
+            cursoCiclo = new CursoCicloAcademico();
+            cursoCiclo.setCicloAcademico(ciclo);
+            cursoCiclo.setCurso(curso);
+            cursoCiclo.setEstadoEnum(EstadoEnum.ACT);
+            cursoCiclo.setHorasCiclo(form.getHorasDictado());
+            cursoCiclo.setHorasSemanalesTeoria(0);
+            cursoCiclo.setHorasSemanalesPractica(0);
+            cursoCiclo.setCreditos(0);
+
+            if (!esGpoZeta) {
+                cursoCiclo.setHorasSemanalesTeoria(horariosGpo.size());
+                cursoCiclo.setSemanasDictado(form.getCursoCiclo().getSemanasDictado());
+            }
+
+            cursoCicloAcademicoDAO.save(cursoCiclo);
+
+        } else {
+            if (esGpoZeta) {
+                cursoCiclo.setHorasCiclo(form.getHorasDictado());
+                cursoCicloAcademicoDAO.update(cursoCiclo);
+
+            } else {
+                cursoCiclo.setHorasSemanalesTeoria(horariosGpo.size());
+                cursoCiclo.setSemanasDictado(form.getCursoCiclo().getSemanasDictado());
+                cursoCicloAcademicoDAO.update(cursoCiclo);
+            }
+        }
+
+        return cursoCiclo;
     }
 
     private String getCode(CicloAcademico ciclo) {
@@ -536,8 +695,21 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isNotNull(plantilla, "No existe la plantilla seleccionada");
 
         Assert.isFalse(horarios.isEmpty(), "El horario está vacío");
+
+        List<HorarioCurso> horariosBD = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+        GrupoNivelacion gpoZeta = grupoNivelacionDAO.findByCodigo(ZETA);
+        GrupoNivelacion gpoCurso = form.getGrupoNivelacion();
+        GrupoNivelacion gpoCursoPlantilla = horariosBD.stream()
+                .map(HorarioCurso::getGrupoNivelacion)
+                .findFirst().orElse(null);
+
         Assert.isFalse(cursoCiclo.getHorasCiclo() == 0, "La cantidad de horas del curso no puede ser igual a CERO");
-        Assert.isTrue(cursoCiclo.getHorasCiclo() + 1 == horarios.size(), "La cantidad de horas no corresponde con el horario");
+        if (gpoZeta.getId().equals(gpoCurso.getId())) {
+            Assert.isTrue(cursoCiclo.getHorasCiclo() + 1 == horarios.size(), "La cantidad de horas no corresponde con el horario");
+        }
+        if (gpoCursoPlantilla != null) {
+            Assert.isTrue(gpoCurso.getId().equals(gpoCursoPlantilla.getId()), "El grupo no corresponde a la plantilla");
+        }
 
         horarios.forEach(hor -> {
             Assert.isNotNull(hor.getDia(), "No ha indicado el día del horario");
@@ -566,7 +738,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             Assert.isNull(hc, "Hay cruce de horario el " + dia.getSimboloAbr() + " a las " + hora.getDescripcion() + " de la semana del " + fecha);
         });
 
-        List<HorarioCurso> horariosBD = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
+
         horariosBD.forEach(hc -> System.out.println("bd-key=" + hc.getKey()));
         horarios.forEach(hc -> System.out.println("form-key=" + hc.getKey()));
 
@@ -609,6 +781,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByCursosNivelacion(cursosNiv);
 
         eliminables.forEach(hor -> {
+            Assert.isFalse(hor.getInmovil(), "El registro " + hor.getKey() + " no puede ser eliminado ");
             List<HorarioAula> horariosAulasDelete = horariosAulas.stream()
                     .filter(ha -> ha.getDia().equals(hor.getDia()))
                     .filter(ha -> ha.getHora().equals(hor.getHora()))
@@ -630,6 +803,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         nuevos.forEach(hc -> {
             hc.setPlantilla(plantilla);
             hc.setCursoCiclo(cursoCiclo);
+            hc.setGrupoNivelacion(gpoCurso);
+            hc.setInmovil(false);
             hc.setUserRegistro(ds.getUsuario());
             hc.setFechaRegistro(new Date());
             horarioCursoDAO.save(hc);
@@ -1131,7 +1306,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Assert.isTrue(seccion.getMatriculados() == 0, "Esta sección tiene matriculados, no puede cancelarse");
 
         List<NotaAlumnoNivelacion> registrados = notaAlumnoNivelacionDAO.allByCursoNivelacion2(seccion);
-        Assert.isTrue(registrados.isEmpty(),"Este registro está relacionado, no puede ser eliminado sino cancelado");
+        Assert.isTrue(registrados.isEmpty(), "Este registro está relacionado, no puede ser eliminado sino cancelado");
 
         List<HorarioAula> horarios = horarioAulaDAO.allByCursoNivelacion(seccion);
         for (HorarioAula horario : horarios) {
@@ -1158,6 +1333,22 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         for (ExamenCursoNivelacion examen : examenes) {
             examenCursoNivelacionDAO.delete(examen);
         }
+    }
+
+    private List<HorarioCurso> getHorarioGrupo(List<HorarioGrupoNivelacion> horariosGpo, Date semana, int semanas) {
+        List<HorarioCurso> horariosEnvio = new ArrayList();
+
+        for (int indexSem = 0; indexSem < semanas; indexSem++) {
+            Date lunes = getLunes(new LocalDate(semana).plusWeeks(indexSem).toDate());
+            for (HorarioGrupoNivelacion horario : horariosGpo) {
+                HorarioCurso hcurso = new HorarioCurso();
+                hcurso.setDia(horario.getDia());
+                hcurso.setHora(horario.getHora());
+                hcurso.setSemana(lunes);
+                horariosEnvio.add(hcurso);
+            }
+        }
+        return horariosEnvio;
     }
 
     private void verificarCruceAula(Map<String, List<HorarioAula>> mapHorarios, LocalDate fecha, Aula aula, Dia dia, Hora hora) {

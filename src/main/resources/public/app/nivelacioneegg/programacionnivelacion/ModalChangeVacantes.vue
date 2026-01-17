@@ -104,7 +104,6 @@
                 curso: null,
                 cursoNiv: null,
                 raptor: null,
-                plantillas: JSON.parse(plantillasJson),
                 ciclo: JSON.parse(cicloJson),
                 form: "id-form-change-vacantes",
                 title: "Cambio de vacantes",

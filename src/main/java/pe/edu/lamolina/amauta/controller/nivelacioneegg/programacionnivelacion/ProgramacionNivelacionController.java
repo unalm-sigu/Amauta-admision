@@ -3,20 +3,12 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -26,22 +18,25 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.alumnado.reporte.ExcelMa
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.leccionnivelacion.LeccionNivelacionController;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.clonar.ClonarProgramacionNivelacionService;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CambioCursoNivevalacionDTO;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.horario.PlantillaNivelacion;
-import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioCurso;
+import pe.edu.lamolina.model.horario.*;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -63,9 +58,7 @@ public class ProgramacionNivelacionController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<PlantillaNivelacion> plantillas = service.allPlantillas();
 
-        model.addAttribute("plantillasJson", this.createPlantillasJson(plantillas));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
         model.addAttribute("rutaModuloLeccion", leccionNivelacionController.rutaModulo);
@@ -114,12 +107,14 @@ public class ProgramacionNivelacionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<HorarioCurso> horarios = service.getHorario(cursoNiv, ciclo);
+        CursoNivelacionDTO cursoDTO = service.getHorario(cursoNiv, ciclo);
         PeriodoDTO periodo = service.getPeriodo(cursoNiv, ciclo);
 
         ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
-        data.set("horario", this.createHorariosCursosJson(horarios));
+        data.set("horario", this.createHorariosCursosJson(cursoDTO.getHorarios()));
         data.set("periodo", JaneHelper.from(periodo).json());
+        data.set("config", JaneHelper.from(cursoDTO).json());
+        data.set("grupo", this.createGrupoJson(cursoDTO.getGrupoNivelacion()));
 
         JsonResponse json = new JsonResponse();
         json.setData(data);
@@ -453,6 +448,35 @@ public class ProgramacionNivelacionController {
     }
 
     @ResponseBody
+    @RequestMapping("getPlantillas")
+    public JsonResponse getPlantillas(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<PlantillaNivelacion> plantillas = service.allPlantillas();
+        ArrayNode data = this.createPlantillasJson(plantillas);
+
+        JsonResponse json = new JsonResponse();
+        json.setData(data);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("getGruposNivelacion")
+    public JsonResponse getGruposNivelacion(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<GrupoNivelacion> grupos = service.allGrupos(ciclo);
+        ArrayNode data = this.createGruposJson(grupos);
+
+        JsonResponse json = new JsonResponse();
+        json.setData(data);
+        json.setSuccess(Boolean.TRUE);
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("clonarPorgramacion")
     public JsonResponse clonarPorgramacion(HttpSession session) {
 
@@ -477,6 +501,19 @@ public class ProgramacionNivelacionController {
         return JaneHelper.from(plantillas).array();
     }
 
+    private ArrayNode createGruposJson(List<GrupoNivelacion> grupos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (GrupoNivelacion grupo : grupos) {
+            ObjectNode node = JaneHelper
+                    .from(grupo)
+                    .only("id,codigo,tipo")
+                    .json();
+            node.set("horarios", this.createHorariosGruposJson(grupo.getHorariosGrupo()));
+            array.add(node);
+        }
+        return array;
+    }
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JaneHelper
                 .from(ciclo)
@@ -484,13 +521,30 @@ public class ProgramacionNivelacionController {
                 .json();
     }
 
+    private ObjectNode createGrupoJson(GrupoNivelacion grupo) {
+        return JaneHelper
+                .from(grupo)
+                .only("id,codigo,tipo")
+                .json();
+    }
+
     private ArrayNode createHorariosCursosJson(List<HorarioCurso> horarios) {
         return JaneHelper
                 .from(horarios)
-                .only("id,semana")
+                .only("id,semana,inmovil")
                 .join("dia", "id,nombre,simbolo")
                 .join("hora", "id,codigo,numero,descripcion")
                 .join("curso", "id,codigo,nombre")
+                .array();
+    }
+
+    private ArrayNode createHorariosGruposJson(List<HorarioGrupoNivelacion> horarios) {
+        return JaneHelper
+                .from(horarios)
+                .only("id")
+                .join("dia", "id,nombre,simbolo")
+                .join("hora", "id,codigo,numero,descripcion")
+                .join("grupoNivelacion", "id,codigo,tipo")
                 .array();
     }
 
@@ -504,7 +558,8 @@ public class ProgramacionNivelacionController {
                     .join("aula", "id,codigo,nombre,capacidadAula,aforo")
                     .join("aula.aulaSuperior", "id,codigo,nombre")
                     .join("plantilla", "id,codigo")
-                    .join("cursoCiclo", "id,horasCiclo")
+                    .join("grupoNivelacion", "id,codigo")
+                    .join("cursoCiclo", "id,horasCiclo,horasSemanalesTeoria,semanasDictado")
                     .join("cursoCiclo.curso", "id,codigo,nombre,horasCiclo")
                     .json();
 

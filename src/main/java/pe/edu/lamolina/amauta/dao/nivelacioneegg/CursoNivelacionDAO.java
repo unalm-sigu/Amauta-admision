@@ -15,7 +15,9 @@ public interface CursoNivelacionDAO extends EasyDAO<CursoNivelacion> {
 
     List<CursoNivelacion> allDocenteByDynatable(DynatableFilter filter, CicloAcademico ciclo, Docente docente);
 
-    List<CursoNivelacion> allByCursoCicloPlantilla(CursoCicloAcademico cursoCiclo, PlantillaNivelacion grupoHoras);
+    List<CursoNivelacion> allByCursoCicloPlantilla(CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla);
+
+    List<CursoNivelacion> allByCicloPlantilla(CicloAcademico ciclo, PlantillaNivelacion plantilla);
 
     List<CursoNivelacion> allByDocenteCiclo(Docente docente, CicloAcademico ciclo);
 

@@ -46,9 +46,9 @@ public class MatriculablesNivelacionController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<PlantillaNivelacion> gruposHoras = service.allPlantillas();
+        List<PlantillaNivelacion> plantillas = service.allPlantillas();
 
-        model.addAttribute("gruposHorasJson", this.createGruposJson(gruposHoras));
+        model.addAttribute("plantillasJson", this.createPlantillasJson(plantillas));
         model.addAttribute("cicloJson", this.createCicloJson(ciclo));
         model.addAttribute("rutaModulo", rutaModulo);
 
@@ -247,8 +247,8 @@ public class MatriculablesNivelacionController {
                 .json();
     }
 
-    private ArrayNode createGruposJson(List<PlantillaNivelacion> grupos) {
-        return JaneHelper.from(grupos).array();
+    private ArrayNode createPlantillasJson(List<PlantillaNivelacion> plantillas) {
+        return JaneHelper.from(plantillas).array();
     }
 
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
 import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -41,6 +42,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .from(CursoNivelacion.class, "cn")
                 .join("docente doc", "cursoCiclo cuci")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .join("plantilla pl", "grupoNivelacion gn")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)
                 .searchFields("doc.codigo", "cn.codigo", "per.numeroDocIdentidad", "cu.codigo", "cu.nombre")
@@ -75,6 +77,19 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .leftJoin("aula", "doc.persona per")
                 .filter("pl.id", plantilla)
                 .filter("cuci.id", cursoCiclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoNivelacion> allByCicloPlantilla(CicloAcademico ciclo, PlantillaNivelacion plantilla) {
+        Octavia sql = Octavia.query()
+                .from(CursoNivelacion.class, "cn")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
+                .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .leftJoin("aula", "doc.persona per")
+                .filter("pl.id", plantilla)
+                .filter("ci.id", ciclo);
 
         return all(sql);
     }
