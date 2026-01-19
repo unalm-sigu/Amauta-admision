@@ -162,16 +162,21 @@ public class RegistroNotaFinalServiceImpl implements RegistroNotaFinalService {
 
         if (pendientes.size() == 1) {
             List<Date> fechasClases = horarioAulaDAO.allByCursoNivelacion(cursoNiv).stream()
-                    .map(ha -> ha.getFechaInicio())
-                    .distinct()
+                    .map(ha -> {
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(ha.getFechaInicio());
+                        cal.add(Calendar.DAY_OF_YEAR, ha.getDia().getNumeroDia() - 1);
+                        return cal.getTime();
+                    })
+                    .distinct().sorted()
                     .collect(Collectors.toList());
 
             List<TemaAsistencia> temasClasesAll = temaAsistenciaDAO.allByCursoNivelacion(cursoNiv);
             Map<Date, List<TemaAsistencia>> mapTemas = temasClasesAll.stream()
                     .collect(Collectors.groupingBy(tex -> tex.getFecha()));
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'del' yyyy", new Locale("es", "ES"));
             for (Date fecha : fechasClases) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'del' yyyy", new Locale("es", "ES"));
                 String fechaTexto = Instant.ofEpochMilli(fecha.getTime())
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()

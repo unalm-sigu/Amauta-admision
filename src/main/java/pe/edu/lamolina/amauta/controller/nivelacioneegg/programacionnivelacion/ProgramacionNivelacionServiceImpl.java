@@ -28,6 +28,7 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.d
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.CursoNivelacionDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.dto.PeriodoDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.helper.ChangeProgramacionNivelacionService;
+import pe.edu.lamolina.amauta.controller.nivelacioneegg.programacionnivelacion.notificarcambio.NotificarCambioService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
@@ -103,9 +104,11 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
 
     private final ChangeProgramacionNivelacionService changeProgramacionNivelacionService;
     private final MatriculablesNivelacionService matriculablesNivelacionService;
+    private final NotificarCambioService notificarCambioService;
     private final VerificadorService verificadorService;
 
     private static final String SIN_AULA = "SIN_AULA";
+    private static final String VACIO = "vacio";
     private static final String ZETA = "Z";
 
     private void verificarPermiso(DataSessionPivot ds) {
@@ -1008,8 +1011,8 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         cursoNiv.setUserModificacion(ds.getUsuario());
         cursoNiv.setFechaModificacion(new Date());
 
-        String datoAntes = aulaBD == null ? "vacio" : aulaBD.getCodigo();
-        String datoNuevo = aula == null ? "vacio" : aula.getCodigo();
+        String datoAntes = aulaBD == null ? VACIO : aulaBD.getCodigo();
+        String datoNuevo = aula == null ? VACIO : aula.getCodigo();
         String cambio = "Cambio de aula de " + datoAntes + " a " + datoNuevo;
 
         String cambiosTwo = changeProgramacionNivelacionService.createCambiosJson(cursoNiv, cambio, form.getMotivoCambio(), cursoNiv.getCambios());
@@ -1019,6 +1022,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         List<HorarioAula> horariosAntes = horarioAulaDAO.allByCursoNivelacion(cursoNiv);
         log.info("[changeAula] horariosAntes.size={}", horariosAntes.size());
         if (aula == null && horariosAntes.isEmpty()) {
+            notificarCambioService.notificaCambioAula(cursoNiv, ds);
             return;
         }
 
@@ -1027,6 +1031,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         }
 
         if (aula == null || aula.isSinAula()) {
+            notificarCambioService.notificaCambioAula(cursoNiv, ds);
             return;
         }
 
@@ -1058,6 +1063,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             horarioAulaDAO.save(horarioAula);
         }
 
+        notificarCambioService.notificaCambioAula(cursoNiv, ds);
     }
 
     @Override

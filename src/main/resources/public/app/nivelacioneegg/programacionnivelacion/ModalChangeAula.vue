@@ -191,7 +191,8 @@
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
                     aula: {id: item.id},
-                    plantilla: {id: this.cursoNiv.plantilla.id}
+                    plantilla: {id: this.cursoNiv.plantilla.id},
+                    grupoNivelacion: {id: this.cursoNiv.grupoNivelacion.id}
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({
