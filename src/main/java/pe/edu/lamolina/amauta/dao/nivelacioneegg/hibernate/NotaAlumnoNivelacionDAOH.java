@@ -1028,7 +1028,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         sql.append("    doc.codigo codDocente,   ");
         sql.append("    au.codigo aula,   ");
         sql.append("    aus.nombre moduloAula,  ");
-        sql.append("    hn.codigo grupo,  ");
+        sql.append("    hn.codigo plantilla,  ");
         sql.append("    hc.semana,  ");
         sql.append("    d.nombre dia,  ");
         sql.append("    CONCAT(  ");
@@ -1053,8 +1053,8 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
         sql.append("  from eegg_curso_nivelacion cn   ");
         sql.append("  join aca_curso_ciclo_academico cc on cc.id = cn.id_curso_ciclo_academico  ");
         sql.append("  join aca_ciclo_academico ca on cc.id_ciclo_academico = ca.id  ");
-        sql.append("  join hor_grupo_horas_nivelacion hn on cn.id_grupo_horas = hn.id  ");
-        sql.append("  join hor_horario_curso hc on hc.id_curso_ciclo = cc.id and hc.id_grupo_horas = hn.id  ");
+        sql.append("  join hor_plantilla_nivelacion hn on cn.id_plantilla = hn.id  ");
+        sql.append("  join hor_horario_curso hc on hc.id_curso_ciclo = cc.id and hc.id_plantilla = hn.id  ");
         sql.append("  join gen_dia d on hc.id_dia = d.id  ");
         sql.append("  join hor_hora h on hc.id_hora = h.id  ");
         sql.append("  left join gen_aula au on cn.id_aula = au.id   ");
@@ -1076,7 +1076,7 @@ public class NotaAlumnoNivelacionDAOH extends AbstractEasyDAO<NotaAlumnoNivelaci
                 .addScalar("codDocente", StringType.INSTANCE)
                 .addScalar("aula", StringType.INSTANCE)
                 .addScalar("moduloAula", StringType.INSTANCE)
-                .addScalar("grupo", StringType.INSTANCE)
+                .addScalar("plantilla", StringType.INSTANCE)
                 .addScalar("semana", DateType.INSTANCE)
                 .addScalar("dia", StringType.INSTANCE)
                 .addScalar("horaDictado", StringType.INSTANCE)
