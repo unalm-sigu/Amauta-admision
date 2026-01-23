@@ -490,6 +490,14 @@
                     this.horarios = data.horario;
                     this.cursoNiv.grupoNivelacion = data.grupo;
                     this.horasGrupoEditables = data.config.grupoModificable;
+                    this.periodoEditable = data.config.grupoModificable;
+
+                    this.cursoNiv.cursoCiclo.horasSemanalesTeoria = data.config.horasSemanales;
+                    this.cursoNiv.cursoCiclo.semanasDictado = data.config.semanasDictado;
+
+                    this.cursoNiv.fechaInicio = data.periodo.fechaInicio;
+                    this.cursoNiv.fechaFin = data.periodo.fechaFin;
+                    this.cursoNiv.fechaReferencia = data.periodo.fechaReferencia;
                 });
             },
             selectGrupo(item) {

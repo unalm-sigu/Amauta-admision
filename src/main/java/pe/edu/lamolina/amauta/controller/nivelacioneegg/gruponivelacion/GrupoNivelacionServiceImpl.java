@@ -49,7 +49,7 @@ public class GrupoNivelacionServiceImpl implements GrupoNivelacionService {
                 .collect(Collectors.groupingBy(hg -> hg.getGrupoNivelacion().getId()));
 
         grupos.forEach(grupo -> {
-            List<HorarioGrupoNivelacion> horarios  = mapHorarios.getOrDefault(grupo.getId(), new ArrayList());
+            List<HorarioGrupoNivelacion> horarios = mapHorarios.getOrDefault(grupo.getId(), new ArrayList());
             log.info("grupo={} horario={}", grupo.getId(), horarios);
             grupo.setHorariosGrupo(horarios);
         });
@@ -67,10 +67,10 @@ public class GrupoNivelacionServiceImpl implements GrupoNivelacionService {
 
         grupo.setTipo(FLEXIBLE);
         grupo.setOrden(2);
-        if(grupo.getCodigo().length()==1) {
+        if (grupo.getCodigo().length() == 1) {
             grupo.setTipo(REGULAR);
             grupo.setOrden(1);
-        } else if(grupo.getCodigo().equals("Z")){
+        } else if (grupo.getCodigo().equals("Z")) {
             grupo.setTipo(ZETA);
             grupo.setOrden(3);
         }
@@ -173,7 +173,7 @@ public class GrupoNivelacionServiceImpl implements GrupoNivelacionService {
             if (noExiste) {
                 horarioGrupoNivelacionDAO.delete(previo);
                 cambios++;
-            };
+            }
         }
 
         // Guardar nuevos horarios
