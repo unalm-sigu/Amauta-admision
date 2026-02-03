@@ -405,6 +405,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
         Aula aula = this.getAula(form);
         Assert.isNotNull(aula, "El aula que ha indicado, no existe en el sistema");
 
+        if (aula.isSinAula()) {
+            return null;
+        }
+
         Map<String, List<HorarioAula>> mapHorarios = this.getMapHorarioAula(horarios, aula);
         for (Map.Entry<String, List<HorarioAula>> entry : mapHorarios.entrySet()) {
             log.info("key {} horarios {}", entry.getKey(), entry.getValue().size());
@@ -538,7 +542,7 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             examenCursoNivelacionDAO.save(examenCurso);
         });
 
-        if (horarios.isEmpty() || aula == null) {
+        if (horarios.isEmpty() || aula == null || aula.isSinAula()) {
             return;
         }
 
@@ -1374,6 +1378,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
     }
 
     private void verificarCruce(Map<String, List<HorarioAula>> mapHorarios, LocalDate fecha, Aula aula, Dia dia, Hora hora) {
+        if (aula.isSinAula()) {
+            return;
+        }
+
         String cruce = this.getCruceAula(mapHorarios, fecha, aula, dia, hora);
         Assert.isNull(cruce, cruce);
     }
