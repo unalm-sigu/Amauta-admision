@@ -36,14 +36,14 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Grupo horario</label>
+                                        <label>Plantilla</label>
                                         <template>
-                                            <multiselect v-model="notaAlumno.grupoHoras"
-                                                         v-bind:options="gruposHoras"
+                                            <multiselect v-model="notaAlumno.plantilla"
+                                                         v-bind:options="plantillas"
                                                          v-bind:allow-empty="false"
                                                          v-on:input="verificarCruce"
                                                          track-by="id"
-                                                         placeholder="Seleccione un grupo"
+                                                         placeholder="Seleccione una plantilla"
                                                          v-bind:showNoOptions="true"
                                                          v-bind:show-labels="false">
 
@@ -59,7 +59,7 @@
                                                 <template slot="noResult">Sin resultados</template>
 
                                             </multiselect>
-                                            <input v-bind:value="getObjectId(notaAlumno.grupoHoras)" required="true" type="text" class="hide"/>
+                                            <input v-bind:value="getObjectId(notaAlumno.plantilla)" required="true" type="text" class="hide"/>
                                         </template>
                                     </div>
                                 </div>
@@ -109,7 +109,7 @@
                                             <template slot="noResult">Sin resultados</template>
 
                                         </multiselect>
-                                        <input v-bind:value="getObjectId(notaAlumno.grupoHoras)" required="true" type="text" class="hide"/>
+                                        <input v-bind:value="getObjectId(notaAlumno.plantilla)" required="true" type="text" class="hide"/>
                                     </div>
                                 </div>
                             </div>
@@ -165,7 +165,7 @@
                 detalleCruce: '',
                 secciones: [],
                 ciclo: JSON.parse(cicloJson),
-                gruposHoras: JSON.parse(gruposHorasJson),
+                plantillas: JSON.parse(plantillasJson),
                 form: "id-form-matricular-alumno",
                 title: "Inscribir alumno en una sección ",
                 modalMatricular: VUE_MODAL.structFormAjax({
@@ -193,11 +193,11 @@
                     body: {id: item.id}
                 })).then((resp) => {
                     let notaAlumno = resp.data.data;
-                    notaAlumno.grupoHorasConfig = null;
-                    notaAlumno.grupoHoras = null;
-                    if (notaAlumno.cursoNivelacion.grupoHoras) {
-                        notaAlumno.grupoHorasConfig = JSON.parse(JSON.stringify(notaAlumno.cursoNivelacion.grupoHoras));
-                        notaAlumno.grupoHoras = JSON.parse(JSON.stringify(notaAlumno.cursoNivelacion.grupoHoras));
+                    notaAlumno.plantillaConfig = null;
+                    notaAlumno.plantilla = null;
+                    if (notaAlumno.cursoNivelacion.plantilla) {
+                        notaAlumno.plantillaConfig = JSON.parse(JSON.stringify(notaAlumno.cursoNivelacion.plantilla));
+                        notaAlumno.plantilla = JSON.parse(JSON.stringify(notaAlumno.cursoNivelacion.plantilla));
                     }
                     notaAlumno.cursoNivelacion = null;
 
@@ -205,8 +205,8 @@
                     this.$refs.modalMatricular.open();
                     this.visible = true;
 
-                    if (this.notaAlumno.grupoHoras) {
-                        this.selectGrupo(this.notaAlumno.grupoHoras);
+                    if (this.notaAlumno.plantilla) {
+                        this.selectPlantilla(this.notaAlumno.plantilla);
                     }
                 });
             },
@@ -217,7 +217,7 @@
                 this.loadingSecciones = true;
 
                 let payload = {
-                    grupoHoras: item,
+                    plantilla: item,
                     cursoCiclo: {curso: {id: this.notaAlumno.curso.id}},
                     alumnoNivelacion: {id: this.notaAlumno.alumnoNivelacion.id}
                 };
@@ -229,19 +229,19 @@
                 })).then((resp) => {
                     this.loadingSecciones = false;
                     if (resp.data.success) {
-                        this.selectGrupo(item);
+                        this.selectPlantilla(item);
                     } else {
                         this.hayCruce = true;
                         this.detalleCruce = resp.data.message;
                     }
                 });
             },
-            selectGrupo(item) {
+            selectPlantilla(item) {
                 this.notaAlumno.cursoNivelacion = null;
                 this.secciones = [];
 
                 let payload = {
-                    grupoHoras: item,
+                    plantilla: item,
                     cursoCiclo: {curso: {id: this.notaAlumno.curso.id}}
                 };
 

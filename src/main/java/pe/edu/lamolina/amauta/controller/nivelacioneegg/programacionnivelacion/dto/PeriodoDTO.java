@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+import pe.edu.lamolina.model.horario.GrupoNivelacion;
 import pe.edu.lamolina.model.zzerializator.DateDeserializer;
 
 @Getter

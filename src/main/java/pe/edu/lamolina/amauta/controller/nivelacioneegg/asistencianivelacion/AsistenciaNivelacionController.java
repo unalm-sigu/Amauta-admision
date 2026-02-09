@@ -152,7 +152,7 @@ public class AsistenciaNivelacionController {
                 .join("cursoNivelacion.docente", "id,codigo")
                 .join("cursoNivelacion.docente.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                 .join("cursoNivelacion.aula", "id,codigo,nombre,capacidadAula,aforo")
-                .join("cursoNivelacion.grupoHoras", "id,codigo")
+                .join("cursoNivelacion.plantilla", "id,codigo")
                 .join("cursoNivelacion.cursoCiclo", "id,horasCiclo")
                 .join("cursoNivelacion.cursoCiclo.curso", "id,codigo,nombre,horasCiclo")
                 .json();

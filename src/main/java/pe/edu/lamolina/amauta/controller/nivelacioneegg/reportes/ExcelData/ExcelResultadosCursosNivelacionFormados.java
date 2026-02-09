@@ -95,7 +95,7 @@ public class ExcelResultadosCursosNivelacionFormados extends AbstractView {
 
             excelUtil.setWidthColumn(col, 2500);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
-            excelUtil.replaceVal(rowCounter.getValor(), col, "Grupo");
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Plantilla");
             col++;
 
             excelUtil.setWidthColumn(col, 5000);
@@ -164,7 +164,7 @@ public class ExcelResultadosCursosNivelacionFormados extends AbstractView {
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, data.getGrupo());
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getPlantilla());
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);

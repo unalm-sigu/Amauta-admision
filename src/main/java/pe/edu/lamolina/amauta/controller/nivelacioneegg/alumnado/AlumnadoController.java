@@ -116,7 +116,7 @@ public class AlumnadoController {
                 .join("docente", "id,codigo")
                 .join("docente.persona", "id,apellidosNombres,numeroDocIdentidad,tipoFoto,rutaFoto")
                 .join("aula", "id,codigo,nombre,capacidadAula,aforo")
-                .join("grupoHoras", "id,codigo")
+                .join("plantilla", "id,codigo")
                 .join("cursoCiclo", "id,horasCiclo")
                 .join("cursoCiclo.curso", "id,codigo,nombre,horasCiclo")
                 .json();
