@@ -86,7 +86,7 @@
                                         </td>
                                         <td class="v-middle">
                                             <template v-if="item.cursoNivelacion">
-                                                <div class="block"><strong>Grupo:</strong> {{item.cursoNivelacion.grupoHoras.codigo}}</div>
+                                                <div class="block"><strong>Plantilla:</strong> {{item.cursoNivelacion.plantilla.codigo}}</div>
                                                 <div class="block"><strong>Sección:</strong> {{item.cursoNivelacion.codigo}}</div>
                                                 <div class="block" v-if="item.cursoNivelacion.aula">
                                                     <strong>Aula:</strong> {{item.cursoNivelacion.aula.codigo}}
@@ -240,7 +240,7 @@
                     okclass: "btn-success",
                     okaction: () => {
                         myUtils.axios(VUE_AXIOS.structModalClose({
-                            url: `/${rutaModulo}/matriculaMasivaTipo1`,
+                            url: `/${rutaModulo}/matriculaMasivaTipo2`,
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptor
                         })).then(() => this.loadResumen());

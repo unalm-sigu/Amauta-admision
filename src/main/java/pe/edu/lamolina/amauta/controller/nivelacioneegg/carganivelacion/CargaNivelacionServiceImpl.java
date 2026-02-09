@@ -33,7 +33,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.TipoHoraEnum;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioCurso;
@@ -78,12 +78,12 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
                     .collect(Collectors.toList());
 
             CursoCicloAcademico cursoCiclo = seccion.getCursoCiclo();
-            GrupoHorasNivelacion gpoHoras = seccion.getGrupoHoras();
+            PlantillaNivelacion plantilla = seccion.getPlantilla();
 
             List<HorarioCurso> horarios = horariosAll.stream()
                     .filter(hor -> hor.getCursoCiclo().getId().equals(cursoCiclo.getId()))
-                    .filter(hor -> gpoHoras != null)
-                    .filter(hor -> hor.getGrupoHoras().getId().equals(gpoHoras.getId()))
+                    .filter(hor -> plantilla != null)
+                    .filter(hor -> hor.getPlantilla().getId().equals(plantilla.getId()))
                     .collect(Collectors.toList());
 
             seccion.setControlesConfigurados(this.getCantidadDias(horarios));
@@ -163,12 +163,12 @@ public class CargaNivelacionServiceImpl implements CargaNivelacionService {
         List<HorarioCurso> horarios = new ArrayList();
         for (CursoNivelacion cursoNiv : cursosNiv) {
             CursoCicloAcademico cursoCiclo = cursoNiv.getCursoCiclo();
-            GrupoHorasNivelacion gpoHoras = cursoNiv.getGrupoHoras();
+            PlantillaNivelacion plantilla = cursoNiv.getPlantilla();
 
             List<HorarioCurso> horariosCurso = horariosAll.stream()
                     .filter(hor -> hor.getCursoCiclo().getId().equals(cursoCiclo.getId()))
-                    .filter(hor -> gpoHoras != null)
-                    .filter(hor -> hor.getGrupoHoras().getId().equals(gpoHoras.getId()))
+                    .filter(hor -> plantilla != null)
+                    .filter(hor -> hor.getPlantilla().getId().equals(plantilla.getId()))
                     .collect(Collectors.toList());
 
             horariosCurso.forEach(hcur -> {

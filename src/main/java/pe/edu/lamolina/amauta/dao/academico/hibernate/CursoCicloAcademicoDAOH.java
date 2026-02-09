@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 @Repository
 public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico> implements CursoCicloAcademicoDAO {
@@ -135,7 +136,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
     }
 
     @Override
-    public List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico cicloAcademico, String nombre) {
+    public List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico ciclo, String nombre) {
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")
                 .leftJoin("tipoCursoCurricula")
@@ -145,8 +146,17 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .__().filter("c.nombre", "like", nombre)
                 .__().filter("c.tipoCurso", "like", nombre)
                 .endBlock()
-                .filter("ca.id", cicloAcademico)
+                .filter("ca.id", ciclo)
                 .limit(20);
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCicloAcademico> allByCicloModalidad(CicloAcademico ciclo, ModalidadEstudio modalidad) {
+        Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
+                .join("curso c", "cicloAcademico ca", "c.modalidadEstudio me")
+                .filter("ca.id", ciclo)
+                .filter("me.id", modalidad);
         return all(sql);
     }
 

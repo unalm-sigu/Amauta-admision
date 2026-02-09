@@ -22,7 +22,7 @@
 
                         <div class="col-md-3">
                             <span class="item-form-control item-form-gray text-primary">
-                                Grupo horario {{cursoNiv.grupoHoras.codigo}}
+                                Plantilla {{cursoNiv.plantilla.codigo}}
                                 <br>
                                 <span v-bind:class="classHoras()">{{horasTotales}} horas</span>
                             </span>
@@ -179,11 +179,11 @@
             },
             loadHorarios() {
                 const payload = {
-                    id: this.cursoNiv.grupoHoras.id
+                    id: this.cursoNiv.plantilla.id
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({
-                    url: `/${rutaModulo}/getHorarioGrupo`,
+                    url: `/${rutaModulo}/getHorarioPlantilla`,
                     body: payload
                 })).then((resp) => {
                     this.horarios = resp.data.data;
@@ -267,6 +267,11 @@
                         return;
                     }
 
+                    if (hdia.inmovil) {
+                        notify("Esta hora no puede ser modificada", "error");
+                        return;
+                    }
+
                     const horasDia = this.horarios
                             .filter(hc => hc.semana === this.semanaActiva.fechaInicio)
                             .filter(hc => hc.curso && hc.curso.id === this.curso.id)
@@ -318,7 +323,9 @@
                     return;
                 }
 
-                if (this.horasTotales !== this.cursoNiv.horasDictado + 1) {
+                console.log(this.cursoNiv.grupoNivelacion)
+                console.log(this.cursoNiv.grupoNivelacion.codigo)
+                if (this.horasTotales !== this.cursoNiv.horasDictado + 1 && this.cursoNiv.grupoNivelacion.codigo === 'Z') {
                     notify("Debe completar las horas de dictado y la hora del examen final", "error");
                     return;
                 }
@@ -328,7 +335,8 @@
 
                 const payload = {
                     id: this.cursoNiv.cursoCiclo.id,
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id},
+                    plantilla: {id: this.cursoNiv.plantilla.id},
+                    grupoNivelacion: {id: this.cursoNiv.grupoNivelacion.id},
                     horarios: horariosCurso
                 };
 
@@ -348,9 +356,9 @@
                 }
                 return "text-danger";
             },
-            getIdCurso(dia, hora) {
+            getInfoCurso(dia, hora) {
                 if (!this.semanaActiva) {
-                    return 900000;
+                    return {idCurso:900000, inmovil:false};
                 }
 
                 const hdia = this.horarios
@@ -359,25 +367,34 @@
                         .find(hc => hc.hora.id === hora.id);
 
                 if (hdia && hdia.curso) {
-                    return hdia.curso.id;
+                    return {idCurso: hdia.curso.id, inmovil: hdia.inmovil};
                 }
 
-                return 900000;
+                return {idCurso:900000, inmovil:false};
             },
             getBgColor(dia, hora) {
-                const cursoId = this.getIdCurso(dia, hora);
-                if (cursoId === this.curso.id) {
-                    return "#28a745";
+                const hdiaCurso = this.getInfoCurso(dia, hora);
+                if (hdiaCurso.idCurso === this.curso.id) {
+                    if (hdiaCurso.inmovil) {
+                        return "#dc3545";
+                    } else {
+                        return "#28a745";
+                    }
                 }
-                const index = cursoId % this.coloresBg.length;
+                const index = hdiaCurso.idCurso % this.coloresBg.length;
                 return this.coloresBg[index];
             },
             getTextColor(dia, hora) {
-                const cursoId = this.getIdCurso(dia, hora);
-                if (cursoId === this.curso.id) {
-                    return "#ffffff";
+                const hdiaCurso = this.getInfoCurso(dia, hora);
+                if (hdiaCurso.idCurso === this.curso.id) {
+                    if (hdiaCurso.inmovil) {
+                        return "#ffff00";
+                    } else {
+                        return "#ffffff";
+                    }
+
                 }
-                const index = cursoId % this.coloresTexto.length;
+                const index = hdiaCurso.idCurso % this.coloresTexto.length;
                 return this.coloresTexto[index];
             },
 
