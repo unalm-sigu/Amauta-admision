@@ -24,9 +24,9 @@
 
                         <div class="col-md-3">
                             <span class="item-form-control item-form-gray text-primary">
-                                Grupo horario
+                                Plantilla
                                 <br>
-                                {{cursoNiv.grupoHoras.codigo}}
+                                {{cursoNiv.plantilla.codigo}}
                             </span>
                         </div>
                     </div>
@@ -175,7 +175,7 @@
                         curso: {id: this.cursoNiv.cursoCiclo.curso.id}
                     },
                     docente: {id: item.id, codigo: item.codigo},
-                    grupoHoras: {id: this.cursoNiv.grupoHoras.id}
+                    plantilla: {id: this.cursoNiv.plantilla.id}
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({

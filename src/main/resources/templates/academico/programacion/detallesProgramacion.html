@@ -335,6 +335,430 @@
             }
         }
 
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .stat-card.primary::before {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(135deg, #5cb85c 0%, #4caf50 100%);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        }
+
+        .stat-card.danger::before {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-card.primary .stat-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.success .stat-icon {
+            background: linear-gradient(135deg, #5cb85c 0%, #4caf50 100%);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        }
+
+        .stat-card.danger .stat-icon {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .stat-card.info .stat-icon {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .stat-detail {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-badge.up {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .stat-badge.down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Filter Checkboxes */
+        .filter-checkbox-container {
+            margin-bottom: 1rem;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-checkbox:hover {
+            background: #e2e8f0;
+        }
+
+        .filter-checkbox input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .filter-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .filter-count {
+            font-size: 0.875rem;
+            color: #6c757d;
+            padding: 0.25rem 0.75rem;
+            margin-left: 2rem;
+            margin-top: -0.25rem;
+            margin-bottom: 0.5rem;
+            background: #e0e7ff;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+
+        /* Clear Filters Button & Active Filters Badge */
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filters-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filters-active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .filters-active-badge .count {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .clear-filters-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .clear-filters-btn:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .clear-filters-btn:active {
+            transform: translateY(0);
+        }
+
+        .clear-filters-btn i {
+            font-size: 1rem;
+        }
+
+        /* Active Filter Tags */
+        .active-filters-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .filter-tag .remove-filter {
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e2e8f0;
+        }
+
+        .filter-tag .remove-filter:hover {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+
+        /* Table Row Highlighting for Problems */
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr.row-sin-docente {
+            background-color: #fef2f2 !important;
+            border-left: 4px solid #dc2626;
+        }
+
+        .table tbody tr.row-poco-matriculados {
+            background-color: #fffbeb !important;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .table tbody tr.row-inactivo {
+            background-color: #f9fafb !important;
+            border-left: 4px solid #9ca3af;
+        }
+
+        .table tbody tr.row-multiples-problemas {
+            background-color: #fee2e2 !important;
+            border-left: 4px solid #dc2626;
+            box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.1);
+        }
+
+        .table tbody tr.row-sin-docente:hover,
+        .table tbody tr.row-poco-matriculados:hover,
+        .table tbody tr.row-inactivo:hover,
+        .table tbody tr.row-multiples-problemas:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Problem Indicators */
+        .problem-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.25rem;
+        }
+
+        .problem-indicator.critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .problem-indicator.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .problem-indicator.info {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        /* Legend */
+        .color-legend {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-color.sin-docente {
+            background-color: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .legend-color.poco-matriculados {
+            background-color: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        .legend-color.inactivo {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .legend-color.multiples {
+            background-color: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .legend-label {
+            color: #6b7280;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .page-title {
@@ -350,6 +774,21 @@
 
             .action-buttons {
                 justify-content: center;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
             }
         }
 
@@ -369,6 +808,52 @@
 
             .action-buttons {
                 flex-direction: column;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-header {
+                margin-bottom: 0.75rem;
+            }
+
+            .filters-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filters-title-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .clear-filters-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filters-active-badge {
+                align-self: flex-start;
+            }
+
+            .legend-items {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .problem-indicator span:not(.d-none) {
+                display: none;
+            }
+
+            .problem-indicator {
+                padding: 0.25rem;
+                min-width: 28px;
+                justify-content: center;
             }
         }
     </style>
@@ -403,11 +888,123 @@
                 </div>
             </div>
 
+            <!-- Panel de Estadísticas -->
+            <div class="stats-container">
+                <!-- Total de Cursos -->
+                <div class="stat-card primary">
+                    <div class="stat-header">
+                        <div class="stat-content">
+                            <div class="stat-label">Total Cursos</div>
+                            <div class="stat-value">{{ estadisticas.totalCursos }}</div>
+                            <div class="stat-detail">
+                                <i class="fa fa-layer-group"></i>
+                                {{ estadisticas.totalSecciones }} secciones
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa fa-book"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docentes Asignados -->
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div class="stat-content">
+                            <div class="stat-label">Docentes Asignados</div>
+                            <div class="stat-value">{{ estadisticas.docentesAsignados }}</div>
+                            <div class="stat-detail">
+                                <i class="fa fa-user-times text-danger"></i>
+                                {{ estadisticas.seccionesSinDocente }} secciones sin docente
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Matriculados -->
+                <div class="stat-card info">
+                    <div class="stat-header">
+                        <div class="stat-content">
+                            <div class="stat-label">Total Matriculados</div>
+                            <div class="stat-value">{{ estadisticas.totalMatriculados }}</div>
+                            <div class="stat-detail">
+                                <i class="fa fa-chart-line"></i>
+                                Promedio: {{ estadisticas.promedioMatriculados }} por sección
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ocupación -->
+                <div class="stat-card" :class="estadisticas.porcentajeOcupacion >= 70 ? 'success' : 'warning'">
+                    <div class="stat-header">
+                        <div class="stat-content">
+                            <div class="stat-label">Ocupación</div>
+                            <div class="stat-value">{{ estadisticas.porcentajeOcupacion }}%</div>
+                            <div class="stat-detail">
+                                <i class="fa fa-chair"></i>
+                                {{ estadisticas.totalVacantes }} vacantes disponibles
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa fa-percent"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secciones con Problemas -->
+                <div class="stat-card danger">
+                    <div class="stat-header">
+                        <div class="stat-content">
+                            <div class="stat-label">Requieren Atención</div>
+                            <div class="stat-value">{{ estadisticas.seccionesConProblemas }}</div>
+                            <div class="stat-detail">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                {{ estadisticas.seccionesPocoMatriculados }} con pocos alumnos
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="filters-container">
-                <h4 class="filters-title">
-                    <i class="fa fa-filter filters-title-icon"></i>
-                    Filtros de Búsqueda
-                </h4>
+                <div class="filters-header">
+                    <div class="filters-title-group">
+                        <h4 class="filters-title mb-0">
+                            <i class="fa fa-filter filters-title-icon"></i>
+                            Filtros de Búsqueda
+                        </h4>
+                        <div class="filters-active-badge" v-if="cantidadFiltrosActivos > 0">
+                            <i class="fa fa-check-circle"></i>
+                            <span class="count">{{ cantidadFiltrosActivos }}</span>
+                            <span>filtro{{ cantidadFiltrosActivos > 1 ? 's' : '' }} activo{{ cantidadFiltrosActivos > 1 ? 's' : '' }}</span>
+                        </div>
+                    </div>
+                    <button class="clear-filters-btn" v-if="hayFiltrosActivos" @click="limpiarFiltros">
+                        <i class="fa fa-times-circle"></i>
+                        Limpiar filtros
+                    </button>
+                </div>
+
+                <!-- Lista de filtros activos como tags -->
+                <div class="active-filters-list" v-if="filtrosActivos.length > 0">
+                    <div class="filter-tag" v-for="filtro in filtrosActivos" :key="filtro.key">
+                        <i :class="filtro.icon"></i>
+                        <span>{{ filtro.label }}</span>
+                        <span class="remove-filter" @click="quitarFiltro(filtro.key)" title="Quitar filtro">
+                            <i class="fa fa-times"></i>
+                        </span>
+                    </div>
+                </div>
 
                 <div class="row g-4">
                     <div class="col-lg-6 col-md-12">
@@ -497,6 +1094,32 @@
 
                 </div>
             </div>
+
+            <!-- Leyenda de Colores -->
+            <div class="color-legend">
+                <div class="legend-title">
+                    <i class="fa fa-info-circle"></i>
+                    Código de colores de secciones
+                </div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color sin-docente"></div>
+                        <span class="legend-label">Sin docente asignado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color poco-matriculados"></div>
+                        <span class="legend-label">Menos de 6 matriculados</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color inactivo"></div>
+                        <span class="legend-label">Sección inactiva</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color multiples"></div>
+                        <span class="legend-label">Múltiples problemas</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="card">
@@ -531,7 +1154,7 @@
                         <tbody>
                         <template v-if="cursosPaginados.length > 0">
                             <template v-for="(item, cursoIndex) in cursosPaginados" :key="'curso-' + item.id">
-                                <tr v-for="(dummy, rowIndex) in getCursoFilas(item)" :key="'curso-' + item.id + '-fila-' + rowIndex">
+                                <tr v-for="(dummy, rowIndex) in getCursoFilas(item)" :key="'curso-' + item.id + '-fila-' + rowIndex" :class="getRowClass(item, rowIndex)">
                                     <td class="v-middle" v-if="rowIndex === 0" :rowspan="getCursoRowspan(item)">
                                         <div class="d-flex align-items-center">
                                             <div>
@@ -568,6 +1191,17 @@
                                             <span v-if="getSeccionParaFila(item, rowIndex).precio" class="badge badge-warning mt-1">
                                                     S/.{{ getSeccionParaFila(item, rowIndex).precioFormato }}
                                                 </span>
+                                            <!-- Indicadores de problemas -->
+                                            <div v-if="getProblemasIndicadores(getSeccionParaFila(item, rowIndex)).length > 0" class="mt-1">
+                                                <span v-for="problema in getProblemasIndicadores(getSeccionParaFila(item, rowIndex))"
+                                                      :key="problema.texto"
+                                                      class="problem-indicator"
+                                                      :class="problema.clase"
+                                                      :title="problema.texto">
+                                                    <i :class="problema.icono"></i>
+                                                    <span class="d-none d-lg-inline">{{ problema.texto }}</span>
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="v-middle text-center">
                                             <div v-if="getSeccionParaFila(item, rowIndex).aula && getSeccionParaFila(item, rowIndex).aula.codigo" class="mb-1">

@@ -19,7 +19,7 @@ public class ResultadoReporteView {
     private String codDocente;
     private String docente;
     private String seccion;
-    private String grupo;
+    private String plantilla;
     private Date semana;
     private String dia;
     private String horaDictado;

@@ -210,6 +210,7 @@ public class AulaServiceImp implements AulaService {
     @Transactional
     public void save(Aula aula, DataSessionPivot ds) {
         boolean esInformativo = verificadorService.esInformaticoOERA(ds);
+        boolean esProgramacionOERA = verificadorService.isEditorProgramacionOera(ds);
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaTmp = aulaDAO.findByCode(aula.getCodigo());
         Assert.isNull(aulaTmp, "Este código ya fue asignado a otro ambiente");
@@ -235,7 +236,7 @@ public class AulaServiceImp implements AulaService {
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
         }
 
-        if (aula.getOficinaSupervisora() != null && !esInformativo) {
+        if (aula.getOficinaSupervisora() != null && !esInformativo && !esProgramacionOERA) {
             Oficina supervisora = oficinaDAO.find(aula.getOficinaSupervisora());
             Assert.isNotNull(supervisora, "No se pudo ubicar a la oficina supervisora");
             Assert.isNotNull(supervisora.getOficinaPrincipal(), "No se pudo ubicar a la oficina principal");
@@ -610,6 +611,79 @@ public class AulaServiceImp implements AulaService {
     }
 
     @Override
+    public List<HorarioAula> allHorarioLaboratorioByCiclo(CicloAcademico cicloAcademico) {
+
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByCiclo(cicloAcademico);
+
+        if (horariosSecciones.size() == 0) {
+            throw new PhobosException("No hay secciones programadas");
+        }
+
+        horariosSecciones = horariosSecciones.stream()
+                .filter(hs -> hs.getAula() != null)
+                .filter(hs -> hs.getAula().getTipoAula() != null && "LAB".equals(hs.getAula().getTipoAula().getCodigo()))
+                .filter(hs -> hs.getAula().getOficinaSupervisora() != null && !hs.getAula().getOficinaSupervisora().isOficinaOera())
+                .filter(hs -> hs.getSeccion() != null
+                        && hs.getSeccion().getGrupoSeccion() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio() != null
+                        && hs.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.PRE)
+                .collect(Collectors.toList());
+
+        List<Seccion> seccionesLab = horariosSecciones.stream()
+                .map(hs -> hs.getSeccion())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, EstadoEnum.ACT);
+
+        List<Long> idsSeccionesLab = seccionesLab.stream()
+                .map(s -> s.getId())
+                .collect(Collectors.toList());
+
+        docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
+                .filter(ds -> ds.getSeccion() != null && idsSeccionesLab.contains(ds.getSeccion().getId()))
+                .filter(x -> x.esDocentePrincipal())
+                .collect(Collectors.toList());
+
+        Map<Long, List<DocenteSeccion>> mapDocenteSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
+
+        EventoAcademicoEnum eventoEnum = cicloAcademico.isTipoRegular() ? EventoAcademicoEnum.CLASES_PRE : EventoAcademicoEnum.CLASES_VER;
+        EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+
+        List<HorarioAula> horariosAulasReservas = horarioAulaDAO.allByFechas(
+                        eventoDictado.getFechaInicio(),
+                        eventoDictado.getFechaFin());
+
+        horariosAulasReservas = horariosAulasReservas.stream()
+                .filter(ha -> ha.getReservaAula() != null)
+                .filter(ha -> ha.getAula() != null)
+                .filter(ha -> ha.getAula().getTipoAula() != null && "LAB".equals(ha.getAula().getTipoAula().getCodigo()))
+                .filter(ha -> ha.getAula().getOficinaSupervisora() != null && !ha.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+
+        horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
+
+        for (HorarioSeccion horarioSecc : horariosSecciones) {
+            Seccion seccion = horarioSecc.getSeccion();
+            if (seccion == null) {
+                continue;
+            }
+            List<DocenteSeccion> docentesSecciones = TypesUtil.getListNotNull(mapDocenteSeccionBySeccion.get(seccion.getId()));
+            seccion.setDocenteSeccion(docentesSecciones);
+        }
+
+        for (HorarioSeccion hs : horariosSecciones) {
+            HorarioAula ha = new HorarioAula(hs.getSeccion(), hs.getDia(), hs.getHora(), hs.getAula());
+            ha.setFechaInicio(hs.getFechaInicio());
+            ha.setFechaFin(hs.getFechaFin());
+            horariosAulasReservas.add(ha);
+        }
+
+        return horariosAulasReservas;
+    }
+
+    @Override
     public List<Aula> allAulas(CicloAcademico cicloAcademico) {
         return aulaDAO.allByOficinaSupervisora(OficinaEnum.OBUAE, EstadoEnum.ACT);
     }
@@ -670,4 +744,74 @@ public class AulaServiceImp implements AulaService {
                 .array().toString();
     }
 
+    @Override
+    public List<Aula> allAulasActivas(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<Oficina> oficinas = getOficinas(ds);
+        Boolean filterObu = this.filterByRol(ds);
+
+        List<String> roles = ds.getRoles().stream().map(b -> b.getCodigo()).collect(Collectors.toList());
+        log.info("[allAulasActivas] roles={}", roles);
+        log.info("[allAulasActivas] oficinas={}", oficinas.size());
+
+        List<Aula> aulas = new ArrayList<>();
+
+        if (roles.contains(OPER_PROGH_OERA.name())) {
+            List<Oficina> oficiAulasLab = oficinaDAO.allByLaboratorios(TIPO_AULA_LABORATORIO);
+            oficinas.addAll(oficiAulasLab);
+
+            List<Aula> pabellones = aulaDAO.allByListOficinaSupervisora(oficiAulasLab);
+            log.info("[allAulasActivas] OPER_PROGH_OERA - pabellones encontrados: {}", pabellones.size());
+
+            aulas = aulaDAO.allByAulasSuperiores(pabellones);
+            log.info("[allAulasActivas] OPER_PROGH_OERA - aulas encontradas: {}", aulas.size());
+
+        } else if (roles.contains(SOPORTE_TECNICO_DERA)) {
+            aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
+            log.info("[allAulasActivas] SOPORTE_TECNICO_DERA - aulas encontradas: {}", aulas.size());
+
+        } else if (!oficinas.isEmpty()) {
+            List<Aula> pabellones = aulaDAO.allByListOficinaSupervisora(oficinas);
+            log.info("[allAulasActivas] Por oficinas - pabellones encontrados: {}", pabellones.size());
+
+            aulas = aulaDAO.allByAulasSuperiores(pabellones);
+            log.info("[allAulasActivas] Por oficinas - aulas encontradas: {}", aulas.size());
+        } else {
+            aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
+            log.info("[allAulasActivas] Por defecto OERA - aulas encontradas: {}", aulas.size());
+        }
+
+        log.info("[allAulasActivas] Total aulas antes de filtros: {}", aulas.size());
+
+        List<Aula> aulasActivas = aulas.stream()
+                .filter(a -> a.getEstadoEnum() != null && a.getEstadoEnum() == EstadoEnum.ACT)
+                .collect(Collectors.toList());
+        log.info("[allAulasActivas] Aulas con estado ACT: {}", aulasActivas.size());
+
+        aulas = aulasActivas.stream()
+                .filter(a -> a.getTipoAmbiente() != null && !"EDI".equals(a.getTipoAmbiente()))
+                .collect(Collectors.toList());
+
+        log.info("[allAulasActivas] Total aulas despues de filtros: {}", aulas.size());
+
+        List<HorarioAula> horariosAulas = horarioAulaDAO.allByCicloAndTipoHorario(
+                cicloAcademico, aulas, TipoHorarioAulaEnum.DICT);
+
+        log.info("[allAulasActivas] Total horarios encontrados: {}", horariosAulas.size());
+
+        Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("aula.id", horariosAulas);
+
+        for (Aula aula : aulas) {
+            List<HorarioAula> horariosAula = mapHorariosAulas.get(aula.getId());
+            if (horariosAula == null) {
+                horariosAula = new ArrayList<>();
+            }
+            aula.setHorariosAula(horariosAula);
+        }
+
+        log.info("[allAulasActivas] Retornando {} aulas con horarios", aulas.size());
+
+        return aulas;
+    }
+
 }
+

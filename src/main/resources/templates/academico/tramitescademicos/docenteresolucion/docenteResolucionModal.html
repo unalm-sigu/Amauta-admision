@@ -1,0 +1,85 @@
+<modal-simple ref="modalNuevo"
+              v-bind:okaction="saveResolucion"
+              v-bind:okbtn="isEditing ? 'Actualizar' : 'Guardar'" >
+
+    <div slot="header">
+        <h1>{{ isEditing ? 'Editar Docente Resolucion' : 'Agregar Docente Resolucion' }}</h1>
+    </div>
+
+    <div slot="body">
+        <div class="modal-body">
+            <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Docente</label>
+                            <multiselect v-model="docenteResolucion.docente"
+                                         v-bind:options='docentes'
+                                         v-on:search-change="loadDocente"
+                                         v-bind:custom-label='customLabel'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         v-bind:disabled="isEditing"
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">
+                                          {{ props.option.nombreCompleto || props.option.persona?.nombreCompleto }}
+                                        </span>
+                                        <span class="option__small">
+                                             DNI - {{ props.option.numeroDocumento || props.option.persona?.numeroDocIdentidad }}
+                                        </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="docenteResolucion.docente" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Ciclo Resolucion</label>
+                            <multiselect v-model="docenteResolucion.ciclo"
+                                         v-bind:options='ciclos'
+                                         v-bind:multiple="false"
+                                         track-by='id'
+                                         v-bind:allow-empty="false"
+                                         v-bind:custom-label='customLabelCiclo'
+                                         placeholder="Seleccione un ciclo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">
+                                          {{ props.option.descripcion }}
+                                        </span>
+                                        <span class="option__small" v-if="props.option.modalidadEstudio">
+                                             {{ props.option.modalidadEstudio.codigo }}
+                                        </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="docenteResolucion.ciclo" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Motivo</label>
+                            <textarea class="form-control textarea" v-model="docenteResolucion.motivo" minlength="15" required=""></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-simple>
+
+<modal-simple ref="modalEliminarTramite"  okbtn="Anular" okclass="btn-danger"
+              v-bind:okaction="anularActionHandler">
+    <div slot="body">
+
+        ¿Desea anular el tramite docente resolucion?
+
+    </div>
+</modal-simple>

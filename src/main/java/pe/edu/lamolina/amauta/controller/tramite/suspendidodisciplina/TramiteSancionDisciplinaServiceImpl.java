@@ -101,7 +101,7 @@ public class TramiteSancionDisciplinaServiceImpl implements TramiteSancionDiscip
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.SUSP_DISCIPLI.name());
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_RETIRO_CICLO);
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_SANCION_DISCIPLINA);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         CicloAcademico cicloSession = ds.getCicloAcademico();
 

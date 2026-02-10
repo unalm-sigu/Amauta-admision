@@ -85,7 +85,11 @@
                         </div>
 
                         <div v-if="resolucion.tipoResolucion.isTramiteSancionDisciplina">
-                          <resolucion-form-details-sancion-disciplina v-model="resolucion"></resolucion-form-details-sancion-disciplina>
+                            <resolucion-form-details-sancion-disciplina v-model="resolucion"></resolucion-form-details-sancion-disciplina>
+                        </div>
+
+                        <div v-if="resolucion.tipoResolucion.isTramiteDocenteResolucionConsejo || resolucion.tipoResolucion.isTramiteDocenteResolucionFacultad">
+                            <resolucion-form-details-docente v-model="resolucion" :key="resolucion.tipoResolucion.id"></resolucion-form-details-docente>
                         </div>
 
                     </div>
@@ -144,6 +148,7 @@
     const ResolucionFormDetailsRenuncia = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenuncia.vue');
     const ResolucionFormDetailsRenunciaCarrera = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsRenunciaCarrera.vue');
     const ResolucionFormDetailsSancionDisciplina = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDetailsSancionDisciplina.vue');
+    const ResolucionFormDetailsDocente = use('/app/academico/resolucion/resolucionexistente/details/ResolucionFormDocente.vue');
 
     const ModalSimple = use("/_vue/modules/ModalSimple.vue");
     module.exports = {
@@ -164,6 +169,7 @@
             resolucionFormDetailsRenuncia: ResolucionFormDetailsRenuncia,
             resolucionFormDetailsRenunciaCarrera: ResolucionFormDetailsRenunciaCarrera,
             resolucionFormDetailsSancionDisciplina: ResolucionFormDetailsSancionDisciplina,
+            resolucionFormDetailsDocente: ResolucionFormDetailsDocente,
             modalSimple: ModalSimple,
         },
         mixins: [VueLoader],
@@ -187,6 +193,7 @@
                     tramiteRenunciaAlumno: [],
                     tramiteRenunciaAlumnoCarrera: [],
                     sancionDisciplina: [],
+                    docenteResolucion: []
 
                 }
             };

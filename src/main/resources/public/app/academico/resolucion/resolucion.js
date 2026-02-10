@@ -52,6 +52,7 @@ var app = new Vue({
         alumnoTramiteCambioPlanCurricular: [],
         alumnoTramiteRenuncia: [],
         alumnoTramiteSancion: [],
+        docenteTramiteResolucion: [],
 
         tipo: "",
         tipoMap: {
@@ -397,9 +398,12 @@ var app = new Vue({
                             $vue.alumnoTramiteReadmision = data;
                         } else if ($vue.tipo == "CAMBIO_PLAN_CURRICULAR") {
                             $vue.alumnoTramiteCambioPlanCurricular = data;
-
                         } else if ($vue.tipo == "SUSP_DISCIPLI") {
                             $vue.alumnoTramiteSancion = data;
+                        } else if ($vue.tipo == 'DOCENTE_RESOL_CU'){
+                            $vue.docenteTramiteResolucion = data;
+                        }else if ($vue.tipo == 'DOCENTE_RESOL_FC'){
+                            $vue.docenteTramiteResolucion = data;
                         }
 
                         $vue.$refs.modalAlumnos.open();

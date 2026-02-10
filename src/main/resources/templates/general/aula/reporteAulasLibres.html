@@ -1,0 +1,536 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Reporte de Aulas Libres</title>
+        <style>
+            /* Estilos personalizados para la matriz de ocupación */
+            .ocupacion-vacio {
+                background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+                color: #999;
+                font-weight: normal;
+            }
+
+            .ocupacion-disponible {
+                background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+                color: #155724;
+                font-weight: bold;
+                border-left: 3px solid #28a745;
+            }
+
+            .ocupacion-moderado {
+                background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+                color: #0c5460;
+                font-weight: bold;
+                border-left: 3px solid #17a2b8;
+            }
+
+            .ocupacion-ocupado {
+                background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+                color: #856404;
+                font-weight: bold;
+                border-left: 3px solid #ffc107;
+            }
+
+            .ocupacion-muy-ocupado {
+                background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+                color: #721c24;
+                font-weight: bold;
+                border-left: 3px solid #dc3545;
+            }
+
+            /* Efecto hover para las celdas de la matriz */
+            .table-bordered tbody tr td.ocupacion-disponible:hover {
+                background: linear-gradient(135deg, #c3e6cb 0%, #b1dfbb 100%);
+                cursor: pointer;
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .table-bordered tbody tr td.ocupacion-moderado:hover {
+                background: linear-gradient(135deg, #bee5eb 0%, #abdde5 100%);
+                cursor: pointer;
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .table-bordered tbody tr td.ocupacion-ocupado:hover {
+                background: linear-gradient(135deg, #ffeaa7 0%, #fde293 100%);
+                cursor: pointer;
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .table-bordered tbody tr td.ocupacion-muy-ocupado:hover {
+                background: linear-gradient(135deg, #f5c6cb 0%, #f1b0b7 100%);
+                cursor: pointer;
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .table-bordered tbody tr td.ocupacion-vacio:hover {
+                background: linear-gradient(135deg, #e8e8e8 0%, #d8d8d8 100%);
+                cursor: default;
+            }
+
+            /* Estilo para los números en las celdas */
+            .ocupacion-disponible strong,
+            .ocupacion-moderado strong,
+            .ocupacion-ocupado strong,
+            .ocupacion-muy-ocupado strong {
+                font-size: 1.1em;
+            }
+
+            .ocupacion-disponible small {
+                color: #0d3d1a;
+                opacity: 0.8;
+            }
+
+            .ocupacion-moderado small {
+                color: #084451;
+                opacity: 0.8;
+            }
+
+            .ocupacion-ocupado small {
+                color: #6c4f03;
+                opacity: 0.8;
+            }
+
+            .ocupacion-muy-ocupado small {
+                color: #5a1520;
+                opacity: 0.8;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="reporteAulasLibresVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-success" v-on:click="exportarExcel">
+                            <i class="fa fa-file-excel-o"></i> Exportar a Excel
+                        </button>
+                        <button type="button" class="btn btn-default" v-on:click="volver">
+                            <i class="fa fa-arrow-left"></i> Volver
+                        </button>
+                    </div>
+
+                    <h2 th:text="${'Reporte de Aulas Libres: '+ ciclo.descripcion}"></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <!-- Filtros -->
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Filtros</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Oficina</label>
+                                    <multiselect v-model='oficinaSeleccionada'
+                                                 track-by='codigo'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='oficinas'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todas las oficinas"
+                                                 label="nombre"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="filtrarAulas"
+                                    >
+                                    </multiselect>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Tipo de Aula</label>
+                                    <multiselect v-model='tipoAulaSeleccionado'
+                                                 track-by='codigo'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='tipoAulas'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todos los tipos"
+                                                 label="nombre"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="filtrarAulas"
+                                    >
+                                    </multiselect>
+                                </div>
+                            </div>
+                            <div class="row m-t-sm" v-if="mostrarFiltrosOera">
+                                <div class="col-md-3">
+                                    <label>Módulo</label>
+                                    <multiselect v-model='moduloSeleccionado'
+                                                 track-by='nombre'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='modulosFiltrados'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todos los módulos"
+                                                 label="nombre"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="onModuloChange"
+                                    >
+                                    </multiselect>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Aula</label>
+                                    <multiselect v-model='aulaSeleccionada'
+                                                 track-by='codigo'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='aulasParaFiltro'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todas las aulas"
+                                                 label="codigo"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="filtrarAulas"
+                                    >
+                                    </multiselect>
+                                </div>
+                            </div>
+                            <div class="row m-t-sm">
+                                <div class="col-md-3">
+                                    <label>Día</label>
+                                    <multiselect v-model='diaSeleccionado'
+                                                 track-by='id'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='dias'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todos los días"
+                                                 label="nombre"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="calcularEstadisticas"
+                                    >
+                                    </multiselect>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Hora</label>
+                                    <multiselect v-model='horaSeleccionada'
+                                                 track-by='id'
+                                                 v-bind:internal-search='true'
+                                                 v-bind:options='horas'
+                                                 v-bind:allow-empty="true"
+                                                 placeholder="Todas las horas"
+                                                 label="descripcion"
+                                                 select-label="Seleccione"
+                                                 deselect-label="Remover"
+                                                 v-on:input="calcularEstadisticas"
+                                    >
+                                    </multiselect>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-warning btn-block" v-on:click="limpiarFiltros">
+                                        <i class="fa fa-eraser"></i> Limpiar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Estadísticas Generales -->
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Resumen General</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-xs m-b-xs">{{estadisticas.totalAulas}}</h3>
+                                            <small>Total de Aulas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <div class="panel panel-success">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-xs m-b-xs">{{estadisticas.aulasLibres}}</h3>
+                                            <small>Horas Libres</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <div class="panel panel-danger">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-xs m-b-xs">{{estadisticas.aulasOcupadas}}</h3>
+                                            <small>Horas Ocupadas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <div class="panel panel-info">
+                                        <div class="panel-body">
+                                            <h3 class="m-t-xs m-b-xs">{{estadisticas.porcentajeOcupacion}}%</h3>
+                                            <small>% de Ocupación</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Aulas Disponibles para Día/Hora Específico -->
+                    <section class="panel panel-success" v-if="diaSeleccionado && horaSeleccionada">
+                        <div class="panel-heading">
+                            <strong>
+                                <i class="fa fa-check-circle"></i>
+                                Aulas Disponibles - {{diaSeleccionado.nombre}} a las {{horaSeleccionada.descripcion}}
+                            </strong>
+                            <span class="pull-right">
+                                <span class="label label-success">{{aulasDisponibles.length}} aulas libres</span>
+                            </span>
+                        </div>
+                        <div class="panel-body">
+                            <div v-if="aulasDisponibles.length === 0" class="alert alert-warning">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                No hay aulas disponibles para este día y hora con los filtros seleccionados.
+                            </div>
+                            <div v-else class="row">
+                                <div class="col-md-4" v-for="aula in aulasDisponibles" :key="aula.id">
+                                    <div class="panel panel-default m-b-sm">
+                                        <div class="panel-body">
+                                            <h4 class="m-t-none text-primary">
+                                                <i class="fa fa-door-open"></i> {{aula.codigo}}
+                                            </h4>
+                                            <div v-if="aula.nombre" class="m-b-xs">
+                                                <small class="text-muted">{{aula.nombre}}</small>
+                                            </div>
+                                            <div class="m-b-xs">
+                                                <span class="label label-info">{{aula.tipoAula.nombre}}</span>
+                                                <span class="label label-default" v-if="aula.capacidadAula">
+                                                    <i class="fa fa-users"></i> {{aula.capacidadAula}} personas
+                                                </span>
+                                            </div>
+                                            <div v-if="aula.aulaSuperior" class="text-muted">
+                                                <small><i class="fa fa-building"></i> {{aula.aulaSuperior.nombre || aula.aulaSuperior.codigo}}</small>
+                                            </div>
+                                            <div class="text-muted">
+                                                <small><i class="fa fa-briefcase"></i> {{aula.oficinaSupervisora.nombre}}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tabla de Ocupación por Día/Hora -->
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Ocupación por Día y Hora</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="text-dark">Hora</th>
+                                            <th v-for="dia in dias" :key="dia.id" class="text-center text-dark">{{dia.nombre}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="hora in horas" :key="hora.id">
+                                            <td class="bg-light text-dark"><strong>{{hora.descripcion}}</strong></td>
+                                            <td v-for="dia in dias" :key="dia.id" class="text-center"
+                                                v-bind:class="getCellClass(dia.id, hora.id)">
+                                                <div>
+                                                    <strong>{{getAulasLibresPorDiaHora(dia.id, hora.id)}}</strong> libres
+                                                </div>
+                                                <small>{{getAulasOcupadasPorDiaHora(dia.id, hora.id)}} ocupadas</small>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Mini leyenda para la matriz -->
+                            <div class="row m-t-sm">
+                                <div class="col-md-12">
+                                    <small class="text-muted">
+                                        <strong>Leyenda de ocupación:</strong>
+                                        <span class="label" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color: #155724; margin-left: 10px;">Disponible (&lt;30%)</span>
+                                        <span class="label" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%); color: #0c5460; margin-left: 5px;">Moderado (30-60%)</span>
+                                        <span class="label" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); color: #856404; margin-left: 5px;">Ocupado (60-80%)</span>
+                                        <span class="label" style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color: #721c24; margin-left: 5px;">Muy Ocupado (≥80%)</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Leyenda de Colores -->
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong><i class="fa fa-info-circle"></i> Leyenda de Estados de Ocupación</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6 m-b-xs">
+                                    <div class="alert alert-success m-b-none text-center" style="padding: 10px;">
+                                        <i class="fa fa-check-circle fa-2x"></i>
+                                        <div class="m-t-xs">
+                                            <strong>Disponible</strong>
+                                        </div>
+                                        <small class="text-muted">Menos de 30% ocupado</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 m-b-xs">
+                                    <div class="alert alert-info m-b-none text-center" style="padding: 10px;">
+                                        <i class="fa fa-info-circle fa-2x"></i>
+                                        <div class="m-t-xs">
+                                            <strong>Moderado</strong>
+                                        </div>
+                                        <small class="text-muted">Entre 30% y 60% ocupado</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 m-b-xs">
+                                    <div class="alert alert-warning m-b-none text-center" style="padding: 10px;">
+                                        <i class="fa fa-exclamation-triangle fa-2x"></i>
+                                        <div class="m-t-xs">
+                                            <strong>Ocupado</strong>
+                                        </div>
+                                        <small class="text-muted">Entre 60% y 80% ocupado</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 m-b-xs">
+                                    <div class="alert alert-danger m-b-none text-center" style="padding: 10px;">
+                                        <i class="fa fa-times-circle fa-2x"></i>
+                                        <div class="m-t-xs">
+                                            <strong>Muy Ocupado</strong>
+                                        </div>
+                                        <small class="text-muted">80% o más ocupado</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tabla de Aulas con Porcentaje de Ocupación -->
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Detalle de Aulas</strong>
+                            <button type="button" class="btn btn-sm btn-success pull-right" v-on:click="exportarExcel">
+                                <i class="fa fa-file-excel-o"></i> Exportar a Excel
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Buscador de Aulas -->
+                            <div class="row m-b">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-search"></i>
+                                        </span>
+                                        <input type="text"
+                                               class="form-control"
+                                               v-model="busquedaAula"
+                                               placeholder="Buscar por código o nombre de aula...">
+                                        <span class="input-group-btn" v-if="busquedaAula">
+                                            <button class="btn btn-default" type="button" v-on:click="busquedaAula = ''">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <span class="text-muted">
+                                        <strong>{{aulasMostradas.length}}</strong> de <strong>{{aulasFiltradas.length}}</strong> aulas
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="text-dark cursor-pointer" v-on:click="ordenarPor('codigo')" style="cursor: pointer;">
+                                                Código
+                                                <i class="fa" v-bind:class="getIconoOrden('codigo')"></i>
+                                            </th>
+                                            <th class="text-dark cursor-pointer" v-on:click="ordenarPor('nombre')" style="cursor: pointer;">
+                                                Nombre
+                                                <i class="fa" v-bind:class="getIconoOrden('nombre')"></i>
+                                            </th>
+                                            <th class="text-dark cursor-pointer" v-on:click="ordenarPor('tipoAula')" style="cursor: pointer;">
+                                                Tipo
+                                                <i class="fa" v-bind:class="getIconoOrden('tipoAula')"></i>
+                                            </th>
+                                            <th class="text-center text-dark cursor-pointer" v-on:click="ordenarPor('capacidadAula')" style="cursor: pointer;">
+                                                Capacidad
+                                                <i class="fa" v-bind:class="getIconoOrden('capacidadAula')"></i>
+                                            </th>
+                                            <th class="text-center text-dark cursor-pointer" v-on:click="ordenarPor('horasOcupadas')" style="cursor: pointer;">
+                                                Horas Ocupadas
+                                                <i class="fa" v-bind:class="getIconoOrden('horasOcupadas')"></i>
+                                            </th>
+                                            <th class="text-center text-dark cursor-pointer" v-on:click="ordenarPor('porcentajeOcupacion')" style="cursor: pointer;">
+                                                % Ocupación
+                                                <i class="fa" v-bind:class="getIconoOrden('porcentajeOcupacion')"></i>
+                                            </th>
+                                            <th class="text-center text-dark">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="aula in aulasMostradas" :key="aula.id">
+                                            <td><strong>{{aula.codigo}}</strong></td>
+                                            <td>{{aula.nombre}}</td>
+                                            <td>{{aula.tipoAula.nombre}}</td>
+                                            <td class="text-center">{{aula.capacidadAula}}</td>
+                                            <td class="text-center">{{aula.horasOcupadas}}</td>
+                                            <td class="text-center">
+                                                <div class="progress" style="margin-bottom: 0;">
+                                                    <div class="progress-bar"
+                                                         v-bind:class="getProgressClass(aula.porcentajeOcupacion)"
+                                                         v-bind:style="{width: aula.porcentajeOcupacion + '%'}">
+                                                        {{aula.porcentajeOcupacion}}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="label" v-bind:class="getStatusClass(aula.porcentajeOcupacion)">
+                                                    {{getStatusText(aula.porcentajeOcupacion)}}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="aulasMostradas.length === 0">
+                                            <td colspan="7" class="text-center text-muted">
+                                                <i class="fa fa-info-circle"></i> No se encontraron aulas con los criterios de búsqueda
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                </section>
+            </div>
+
+            <div th:replace="templates/modal"/>
+        </div>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'general/aula';
+                var diasJson = /*[[${diasJson}]]*/ {};
+                var horasJson = /*[[${horasJson}]]*/ {};
+                var aulasJson = /*[[${aulasJson}]]*/ {};
+                var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
+                var oficinasJson = /*[[${oficinasJson}]]*/ {};
+                var modulosJson = /*[[${modulosJson}]]*/ {};
+                /*]]>*/
+            </script>
+
+            <script th:src="@{/app/general/aula/reporteAulasLibres.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

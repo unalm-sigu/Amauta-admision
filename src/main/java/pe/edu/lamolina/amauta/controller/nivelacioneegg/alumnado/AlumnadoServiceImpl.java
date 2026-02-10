@@ -48,7 +48,7 @@ public class AlumnadoServiceImpl implements AlumnadoService {
 
     @Override
     public List<NotaAlumnoNivelacion> allAlumnadoBySeccion(CursoNivelacion seccion) {
-        return notaAlumnoNivelacionDAO.allBySeccion(seccion);
+        return notaAlumnoNivelacionDAO.allInscritosByCursoNivelacion(seccion);
     }
 
 }

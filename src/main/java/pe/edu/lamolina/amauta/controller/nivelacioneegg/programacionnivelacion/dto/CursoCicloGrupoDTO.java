@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 
 @Getter
 @Setter
@@ -12,11 +12,11 @@ import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
 public class CursoCicloGrupoDTO {
 
     private CursoCicloAcademico cursoCiclo;
-    private GrupoHorasNivelacion grupoHoras;
+    private PlantillaNivelacion plantilla;
 
-    public CursoCicloGrupoDTO(CursoCicloAcademico cursoCiclo, GrupoHorasNivelacion grupoHoras) {
+    public CursoCicloGrupoDTO(CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla) {
         this.cursoCiclo = cursoCiclo;
-        this.grupoHoras = grupoHoras;
+        this.plantilla = plantilla;
     }
 
 }
