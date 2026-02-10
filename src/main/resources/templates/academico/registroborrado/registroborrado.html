@@ -1,0 +1,21 @@
+<html layout:decorator="_layout/layout">
+<head>
+    <title>Registros Borrados Histo</title>
+</head>
+<body>
+<section layout:fragment="main">
+    <div id="firstVue"  v-cloak=""></div>
+</section>
+
+<div layout:fragment="js" th:remove="tag">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var rutaModulo = /*[[${rutaModulo}]]*/ 'json';
+        /*]]>*/
+    </script>
+    <div th:replace="_modules/vue-modal"></div>
+    <div th:replace="_modules/vue-raptor-table"></div>
+    <script th:src="@{/app/academico/registroborrado/registroborrado.js}" charset="utf-8"></script>
+</div>
+</body>
+</html>

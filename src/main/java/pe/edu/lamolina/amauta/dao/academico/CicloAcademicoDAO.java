@@ -146,4 +146,5 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allByYearModalidadEnum(int year, ModalidadEstudioEnum modalidadEnum);
 
+    List<CicloAcademico> allMayorPregradoByCicloIngreso(CicloAcademico cicloIngreso);
 }

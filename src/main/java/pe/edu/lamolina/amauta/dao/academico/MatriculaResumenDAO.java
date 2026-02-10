@@ -128,4 +128,5 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     Long countNoMatriculableByConsejeroCarrera(Persona persona, CicloAcademico ciclo, Carrera carrera);
 
+    MatriculaResumen findByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAfectado);
 }

@@ -1,10 +1,13 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.Arrays;
+
 import static java.util.Arrays.asList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +26,11 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CAPA_ULTIMO_CICLO;
+
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
@@ -36,9 +42,11 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
@@ -1171,4 +1179,15 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return all(sql);
     }
 
+    @Override
+    public MatriculaResumen findByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAfectado) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.situacionAcademica ")
+                .filter("alu.id", alumno)
+                .filter("ca.id", cicloAfectado.getId());
+
+        return find(sql);
+
+    }
 }
