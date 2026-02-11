@@ -12,6 +12,8 @@ import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface MatriculablesNivelacionService {
 
+    CicloAcademico findCiclo(CicloAcademico ciclo);
+
     List<PlantillaNivelacion> allPlantillas();
 
     List<NotaAlumnoNivelacion> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico ciclo);

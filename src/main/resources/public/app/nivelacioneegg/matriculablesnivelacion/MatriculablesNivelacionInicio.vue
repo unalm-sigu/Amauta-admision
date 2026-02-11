@@ -10,6 +10,9 @@
                     <ul class="dropdown-menu dropdown-menu-right">
                         <li><a v-on:click.prevent="crear" class="dropdown-item pointer">Generar matriculables</a></li>
                         <li><a v-on:click.prevent="inscribirMasivo" class="dropdown-item pointer">Matricular por lote</a></li>
+                        <li v-if="ciclo.fechaMatriculaNivelacion">
+                            <a v-on:click.prevent="inscribirParcial" class="dropdown-item pointer">Matricular por partes</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -86,8 +89,9 @@
                                         </td>
                                         <td class="v-middle">
                                             <template v-if="item.cursoNivelacion">
-                                                <div class="block"><strong>Plantilla:</strong> {{item.cursoNivelacion.plantilla.codigo}}</div>
                                                 <div class="block"><strong>Sección:</strong> {{item.cursoNivelacion.codigo}}</div>
+                                                <div class="block"><strong>Grupo:</strong> {{item.cursoNivelacion.grupoNivelacion.codigo}}</div>
+                                                <div class="block"><strong>Plantilla:</strong> {{item.cursoNivelacion.plantilla.codigo}}</div>
                                                 <div class="block" v-if="item.cursoNivelacion.aula">
                                                     <strong>Aula:</strong> {{item.cursoNivelacion.aula.codigo}}
                                                 </div>
@@ -241,6 +245,23 @@
                     okaction: () => {
                         myUtils.axios(VUE_AXIOS.structModalClose({
                             url: `/${rutaModulo}/matriculaMasivaTipo2`,
+                            modal: this.$refs.modalConfirm.getModal(),
+                            raptor: this.$refs.raptor
+                        })).then(() => this.loadResumen());
+                    }
+                });
+
+                this.$refs.modalConfirm.open(config);
+            },
+            inscribirParcial() {
+                let config = VUE_MODAL.structConfirm({
+                    id: this.idModalConfirm,
+                    message: `¿Seguro que desea inscribir en los cursos que haya espacio a los matriculables de nivelación del ${this.ciclo.descripcion}?`,
+                    okbtn: "Si, buscar espacios",
+                    okclass: "btn-danger",
+                    okaction: () => {
+                        myUtils.axios(VUE_AXIOS.structModalClose({
+                            url: `/${rutaModulo}/matriculaMasivaTipo3`,
                             modal: this.$refs.modalConfirm.getModal(),
                             raptor: this.$refs.raptor
                         })).then(() => this.loadResumen());

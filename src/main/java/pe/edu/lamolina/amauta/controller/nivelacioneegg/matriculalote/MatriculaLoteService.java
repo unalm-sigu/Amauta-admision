@@ -7,4 +7,5 @@ public interface MatriculaLoteService {
 
     int procesarMatriculaLote(CicloAcademico ciclo, DataSessionPivot ds);
 
+    int procesarMatriculaParcial(CicloAcademico ciclo, DataSessionPivot ds);
 }
