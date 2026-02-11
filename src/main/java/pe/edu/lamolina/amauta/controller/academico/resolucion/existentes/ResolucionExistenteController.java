@@ -71,7 +71,9 @@ public class ResolucionExistenteController {
             TipoResolucionEnum.TITULBAC,
             TipoResolucionEnum.ALUMRENUNCIA,
             TipoResolucionEnum.RENUNCIA_CAR,
-            TipoResolucionEnum.SUSP_DISCIPLI
+            TipoResolucionEnum.SUSP_DISCIPLI,
+            TipoResolucionEnum.DOCENTE_RESOL_CU,
+            TipoResolucionEnum.DOCENTE_RESOL_FC
     );
 
     @RequestMapping(method = RequestMethod.GET)
@@ -350,6 +352,14 @@ public class ResolucionExistenteController {
                 }
                 break;
             case SUSP_DISCIPLI:
+                if (this.contieneMensaje(respuesta)) {
+                    response.setSuccess(Boolean.FALSE);
+                    response.setMessage(respuesta.get(0));
+                    return response;
+                }
+                break;
+            case DOCENTE_RESOL_FC:
+            case DOCENTE_RESOL_CU:
                 if (this.contieneMensaje(respuesta)) {
                     response.setSuccess(Boolean.FALSE);
                     response.setMessage(respuesta.get(0));
@@ -683,6 +693,24 @@ public class ResolucionExistenteController {
                     .join("sancionDisciplina.alumno.persona")
                     .join("sancionDisciplina. alumno.persona.tipoDocumento")
                     .array();
+        } else if (tipoResolucionEnum == DOCENTE_RESOL_CU){
+            List<DocenteResolucion> docenteResolucions = service.allDocenteResolucionConsejoByResolucion(resolucion);
+            return JaneHelper.from(docenteResolucions)
+                    .join("tramite")
+                    .join("ciclo")
+                    .join("docente")
+                    .join("docente.persona")
+                    .join("docente.persona.tipoDocumento")
+                    .array();
+        } else if (tipoResolucionEnum == DOCENTE_RESOL_FC){
+            List<DocenteResolucion> docenteResolucions = service.allDocenteResolucionFacultadByResolucion(resolucion);
+            return JaneHelper.from(docenteResolucions)
+                    .join("tramite")
+                    .join("ciclo")
+                    .join("docente")
+                    .join("docente.persona")
+                    .join("docente.persona.tipoDocumento")
+                    .array();
         }
 
         return new ArrayNode(JsonNodeFactory.instance);
@@ -878,6 +906,36 @@ public class ResolucionExistenteController {
                     .array();
 
             objectNode.set("sancionDisciplina", array);
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(DOCENTE_RESOL_CU.name())) {
+            List<DocenteResolucion> docenteResolucions = service.allDocenteResolucionConsejoByResolucion(resolucion);
+
+            for (DocenteResolucion docenteResolucion : docenteResolucions) {
+                docenteResolucion.setDocente(docenteResolucion.getTramite().getDocente());
+            }
+
+            ArrayNode array = JaneHelper.from(docenteResolucions).only("id")
+                    .join("docente","id,codigo")
+                    .join("docente.persona","id,apellidosNombres,numeroDocIdentidad")
+                    .join("docente.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("docenteResolucion",array);
+        } else if (resolucion.getTipoResolucion().getCodigo().equals(DOCENTE_RESOL_FC.name())) {
+            List<DocenteResolucion> docenteResolucions = service.allDocenteResolucionFacultadByResolucion(resolucion);
+
+            for (DocenteResolucion docenteResolucion : docenteResolucions) {
+                docenteResolucion.setDocente(docenteResolucion.getTramite().getDocente());
+            }
+
+            ArrayNode array = JaneHelper.from(docenteResolucions).only("id")
+                    .join("docente","id,codigo")
+                    .join("docente.persona","id,apellidosNombres,numeroDocIdentidad")
+                    .join("docente.persona.tipoDocumento", "id,simbolo")
+                    .join("tramite", "id")
+                    .array();
+
+            objectNode.set("docenteResolucion",array);
         }
 
         return objectNode;
@@ -1096,6 +1154,46 @@ public class ResolucionExistenteController {
                 .join("alumno.carrera.facultad")
                 .join("alumno.persona")
                 .join("alumno.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allDocenteResolucionConsejo")
+    public ArrayNode allDocenteResolucionConsejo(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<DocenteResolucion> docentes = service.allDocenteResolucionConsejo();
+
+        for (DocenteResolucion docente : docentes) {
+            docente.setDocente(docente.getTramite().getDocente());
+            docente.setSeleccionado(Boolean.FALSE);
+        }
+
+        return JaneHelper.from(docentes)
+                .join("docente")
+                .join("docente.persona")
+                .join("docente.persona.tipoDocumento")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("allDocenteResolucionFacultad")
+    public ArrayNode allDocenteResolucionFacultad(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<DocenteResolucion> docentes = service.allDocenteResolucionFacultad();
+
+        for (DocenteResolucion docente : docentes) {
+            docente.setDocente(docente.getTramite().getDocente());
+            docente.setSeleccionado(Boolean.FALSE);
+        }
+
+        return JaneHelper.from(docentes)
+                .join("docente")
+                .join("docente.persona")
+                .join("docente.persona.tipoDocumento")
                 .array();
     }
 

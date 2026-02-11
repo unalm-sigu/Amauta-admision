@@ -1,0 +1,70 @@
+<html layout:decorator="_layout/layout">
+<head>
+    <title>Docentes Carga</title>
+</head>
+
+<body>
+<div layout:fragment="main">
+
+    <div id="main" v-cloak="">
+
+        <header class="header b-b padder-lg" >
+
+            <h2>Docentes Con Carga | Ciclo <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
+
+<!--            <div class="btn-group pull-right" th:if="${!isRevisorDocente}">-->
+<!--                <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">-->
+<!--                    Acciones &nbsp; <span class="caret"></span>-->
+<!--                </button>-->
+<!--                <ul class="dropdown-menu">-->
+<!--                    <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>-->
+<!--                </ul>-->
+<!--            </div>-->
+
+        </header>
+
+        <section class="wrapper-lg">
+            <section class="panel">
+
+                <section class="panel-body">
+
+                    <profesor-list></profesor-list>
+
+                </section>
+            </section>
+
+        </section>
+    </div>
+
+</div>
+
+<div layout:fragment="js">
+    <script th:inline="javascript">
+        var jFacultades = /*[[${jFacultades}]]*/ {};
+        var jDepartamentos = /*[[${jDepartamentos}]]*/ {};
+        var jCicloAcademicos = /*[[${jCicloAcademicos}]]*/ {};
+        var jCicloAcademicosNivelacion = /*[[${jCicloAcademicosNivelacion}]]*/ {};
+        var PUEDE_ACTIVAR = /*[[${puedeActivar}]]*/ {};
+        var LOGIN_DOCENTE = /*[[${loginDocente}]]*/ {};
+        var IS_PRODUCTION = /*[[${isProduction}]]*/ {};
+        var CICLO_ACADEMICO_DESCRIPCION = /*[[${session["SESSION_USUARIO"].cicloAcademico.descripcion}]]*/ {};
+    </script>
+
+    <script>
+        Vue.component("multiselect", window.VueMultiselect.default);
+        const ProfesorList = httpVueLoader('/app/academico/profesor/DocenteCargaList.vue');
+
+        var root = new Vue({
+            el: '#main',
+            components: {
+                profesorList: ProfesorList,
+
+            },
+            methods: {
+            }
+        });
+    </script>
+</div>
+
+</body>
+</html>

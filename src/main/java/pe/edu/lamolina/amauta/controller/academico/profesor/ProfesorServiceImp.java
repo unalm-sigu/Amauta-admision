@@ -4,12 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
@@ -129,6 +124,11 @@ public class ProfesorServiceImp implements ProfesorService {
             docente.setCantSeccionesPre(seccionesPreCount);
         }
         return docentes;
+    }
+
+    @Override
+    public List<Docente> allDocentesCargaByCiclo(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademico, String tipoPrograma) {
+        return docenteDAO.allDocentesConCargaByCicloAca(filter, departament,cicloAcademico,tipoPrograma);
     }
 
     @Override

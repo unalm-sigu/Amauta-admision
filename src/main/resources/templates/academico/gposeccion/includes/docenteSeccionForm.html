@@ -25,7 +25,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr v-for="(docSeccion, index) in docentesSeccion">
+        <tr v-for="(docSeccion, index) in docentesSeccion" v-if="docSeccion.estado != 'INA'">
             <td class="v-middle">
                 <div class="col-md-12" v-if="docSeccion.docenteNN">
                     <multiselect  

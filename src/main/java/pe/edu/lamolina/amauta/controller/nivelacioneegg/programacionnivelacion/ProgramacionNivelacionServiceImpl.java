@@ -418,6 +418,10 @@ public class ProgramacionNivelacionServiceImpl implements ProgramacionNivelacion
             Dia dia = horario.getDia();
             Hora hora = horario.getHora();
 
+            if (aula.isSinAula()) {
+                continue;
+            }
+
             LocalDate fecha = new LocalDate(horario.getSemana());
             String cruce = this.getCruceAula(mapHorarios, fecha, aula, dia, hora);
             log.info("Dia {} hora {} cruce {}", dia.getId(), hora.getNumero(), cruce);

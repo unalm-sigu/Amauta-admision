@@ -68,10 +68,13 @@ public class ResultadoReporteView {
     private String estado;
     private String estadoCursoNivelacion;
     private String temaAprobado;
+    private String vacMat;
+    private String motivoReserva;
     private List<AsistenciaNivelacion> asistencias;
     private List<IngresantesExamenAdmisionDTO> ingresantesExamene = new ArrayList<>();
     private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();
     private List<IngresantesMateriasNivelacionDTO> ingresantesMateria = new ArrayList<>();
     private List<IngresantesInscritosNivelacionDTO> ingresantesInscritos = new ArrayList<>();
+    private List<IngresantesNivelacionCarreraDTO>  ingresantesNivelacionCarrera = new ArrayList<>();
 
 }

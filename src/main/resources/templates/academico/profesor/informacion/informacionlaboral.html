@@ -68,25 +68,29 @@
                                     <a href="#" v-on:click="addVistoBueno(item)">Visto bueno de Estudios</a>
                                 </li>
                                 <li role="presentation" v-if="!item.resolucionFacultad">
-                                    <a href="#" v-on:click="addResolucionFacultad(item)">Agregar Resolución de Facultad</a>
+                                    <a href="#" v-on:click="addResolucionFacultad(item)">Insertar Resolución de Facultad</a>
                                 </li>
                                 <li role="presentation" v-if="!item.resolucionConsejo">
-                                    <a href="#" v-on:click="addResolucionConsejo(item)">Agregar Resolución de CUN</a>
+                                    <a href="#" v-on:click="addResolucionConsejo(item)">Insertar Resolución de CUN</a>
                                 </li>
                                 <li role="presentation" v-if="item.estadoEnum.name === 'ACT'">
                                     <a href="#" v-on:click="finalizar(item)">Finalizar Contrato</a>
                                 </li>
 
+                                <li>
+                                    <a href="#" v-on:click.prevent="registrarResolucion(item)">Registrar Resolucion</a>
+                                </li>
+
                                 <li role="presentation" class="divider"></li>
 
-                                <li role="presentation" v-if="item.estadoEnum.name === 'PEND'">
-                                    <a href="#" v-on:click.prevente="actualizarContratoDocente(item)">Actualizar Registro</a>
+                                <li role="presentation">
+                                    <a href="#" v-on:click.prevent="actualizarContratoDocente(item)">Actualizar Registro</a>
                                 </li>
 
                                 <li role="presentation" class="divider"></li>
 
                                 <li role="presentation" v-if="item.estadoEnum.name === 'PEND'">
-                                    <a href="#" v-on:click.prevente="eliminarContratoDocente(item)">Eliminar Registro</a>
+                                    <a href="#" v-on:click.prevent="eliminarContratoDocente(item)">Eliminar Registro</a>
                                 </li>
                             </ul>
 

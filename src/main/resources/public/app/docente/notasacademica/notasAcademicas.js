@@ -689,6 +689,36 @@ $(function () {
         },
         cerrarActa: function ($this, e) {
 
+            // var esPregrado = false;
+            // for (var key in alumnos) {
+            //     if (alumnos[key].modalidadEstudio && alumnos[key].modalidadEstudio.operativePRE) {
+            //         esPregrado = true;
+            //         break;
+            //     }
+            // }
+
+            // var fechaActual = new Date();
+            // var fechaLimite = new Date(fechaActual.getFullYear(), 11, 22); // 22 de diciembre (mes 11 = diciembre)
+
+            // if (esPregrado && fechaActual < fechaLimite) {
+            //     bootbox.alert({
+            //         title: "Entrega de Acta - Pregrado",
+            //         message: "<div style='text-align: center; padding: 20px;'>" +
+            //                  "<i class='fa fa-calendar' style='font-size: 48px; color: #f0ad4e; margin-bottom: 15px;'></i>" +
+            //                  "<h4 style='margin-bottom: 15px;'>Entrega de Actas de Pregrado</h4>" +
+            //                  "<p style='font-size: 16px;'>Las actas de cursos de <strong>pregrado</strong> podrán ser entregadas a partir del <strong>22 de diciembre de " + fechaActual.getFullYear() + "</strong>.</p>" +
+            //                  "</div>",
+            //         className: 'cerrar-acta-cls',
+            //         buttons: {
+            //             ok: {
+            //                 label: 'Entendido',
+            //                 className: 'btn-primary'
+            //             }
+            //         }
+            //     });
+            //     return;
+            // }
+
             var mibox = bootbox.prompt({
                 title: "Entregar acta",
                 message: "adad",
@@ -894,3 +924,4 @@ $(function () {
     });
 
 });
+

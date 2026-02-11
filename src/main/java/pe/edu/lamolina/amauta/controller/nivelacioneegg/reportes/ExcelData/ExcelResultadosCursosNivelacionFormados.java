@@ -125,6 +125,11 @@ public class ExcelResultadosCursosNivelacionFormados extends AbstractView {
 
             excelUtil.setWidthColumn(col, 5000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Vac / Mat");
+            col++;
+
+            excelUtil.setWidthColumn(col, 5000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Estado");
             col++;
 
@@ -168,7 +173,7 @@ public class ExcelResultadosCursosNivelacionFormados extends AbstractView {
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-            excelUtil.replaceVal(rowCounter.getValor(), col, TypesUtil.getStringDate(data.getSemana(),"dd/MM/yyyy"));
+            excelUtil.replaceVal(rowCounter.getValor(), col, TypesUtil.getStringDate(data.getSemana(), "dd/MM/yyyy"));
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
@@ -185,6 +190,10 @@ public class ExcelResultadosCursosNivelacionFormados extends AbstractView {
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getActasEntregadas());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getVacMat());
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);

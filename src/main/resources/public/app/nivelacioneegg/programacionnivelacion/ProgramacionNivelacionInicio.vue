@@ -152,7 +152,7 @@
                                                 </a>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="activar(item)">Activar</a></li>
-                                                    <li v-if="item.estado == 'CRE' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
+                                                    <li v-if="item.estado == 'CRE' || item.estado == 'CAN' " class="pointer"><a v-on:click="eliminar(item)">Eliminar</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="bloquear(item)">Bloquear</a></li>
                                                     <li v-if="item.estado == 'ACT' " class="pointer"><a v-on:click="cancelar(item)">Cancelar</a></li>
                                                     <li v-if="item.estado == 'CAN' " class="pointer"><a v-on:click="reactivar(item)">Reactivar</a></li>

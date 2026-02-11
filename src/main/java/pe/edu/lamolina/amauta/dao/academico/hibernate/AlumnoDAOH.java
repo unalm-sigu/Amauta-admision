@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
@@ -29,16 +30,20 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -48,6 +53,7 @@ import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableResumen;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_00;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
@@ -62,6 +68,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_RA;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_SS;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
+
 import pe.edu.lamolina.model.enums.persona.PersonaEstadoEnum;
 import pe.edu.lamolina.model.tramite.SancionDisciplina;
 

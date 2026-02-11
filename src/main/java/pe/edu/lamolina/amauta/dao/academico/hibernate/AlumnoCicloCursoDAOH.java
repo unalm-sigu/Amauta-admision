@@ -823,5 +823,32 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         return all(sql);
     }
 
+    @Override
+    public List<AlumnoCicloCurso> allByAlumnoAndCicloAcademico(Long idAlumno, Long idCicloEstudiado) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio", "al.modalidadEstudio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
+                .filter("al.id", idAlumno)
+                .filter("ca.id", idCicloEstudiado)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .orderBy("cu.nombre", "ca.codigo DESC");
 
+        return all(sql);
+    }
+    @Override
+    public List<AlumnoCicloCurso> allEliminadosByAlumnoAndCicloAcademico(Long idAlumno, Long idCicloEstudiado) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio", "al.modalidadEstudio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
+                .filter("al.id", idAlumno)
+                .filter("ca.id", idCicloEstudiado)
+                .filter("acc.registroActivo", BigDecimal.ZERO.intValue())
+                .orderBy("cu.nombre", "ca.codigo DESC");
+
+        return all(sql);
+    }
 }

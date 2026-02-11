@@ -300,10 +300,10 @@
 
                                             </td>
 
-                                            <template v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                            <template v-for="(profeSecc,idx) in getDocentesActivos(secc.docenteSeccion)"
                                                       v-if="idx==0">
                                                 <td class="v-middle text-center td-vacio" >
-                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i>
                                                 </td>
                                                 <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
                                                 <td class="v-middle">
@@ -317,7 +317,7 @@
                                                 </td>
                                             </template>
 
-                                            <template v-if="secc.docenteSeccion.length == 0">
+                                            <template v-if="getDocentesActivos(secc.docenteSeccion).length == 0">
                                                 <td class="v-middle text-center td-vacio" ></td>
                                                 <td class="v-middle text-center td-vacio"></td>
                                                 <td class="v-middle"></td>
@@ -345,10 +345,10 @@
 
                                         <template v-for="secc in item.secciones"
                                                   v-if="secc.tipoSeccionEnum.name != 'PCUR' ">
-                                            <tr v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                            <tr v-for="(profeSecc,idx) in getDocentesActivos(secc.docenteSeccion)"
                                                 v-if="idx>0">
                                                 <td class="v-middle text-center td-vacio" >
-                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i>
                                                 </td>
                                                 <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
                                                 <td class="v-middle">
@@ -389,10 +389,10 @@
                                                     </span>
                                                 </td>
 
-                                            <template v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                            <template v-for="(profeSecc,idx) in getDocentesActivos(secc.docenteSeccion)"
                                                       v-if="idx==0">
                                                 <td class="v-middle text-center td-vacio" >
-                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i>
                                                 </td>
                                                 <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
                                                 <td class="v-middle">
@@ -406,7 +406,7 @@
                                                 </td>
                                             </template>
 
-                                            <template v-if="secc.docenteSeccion.length == 0">
+                                            <template v-if="getDocentesActivos(secc.docenteSeccion).length == 0">
                                                 <td class="v-middle text-center td-vacio" ></td>
                                                 <td class="v-middle text-center td-vacio"></td>
                                                 <td class="v-middle"></td>
@@ -431,10 +431,10 @@
                                             </td>
                                             </tr>
 
-                                            <tr v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                            <tr v-for="(profeSecc,idx) in getDocentesActivos(secc.docenteSeccion)"
                                                 v-if="idx>0">
                                                 <td class="v-middle text-center td-vacio" >
-                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i>
                                                 </td>
                                                 <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
                                                 <td class="v-middle">

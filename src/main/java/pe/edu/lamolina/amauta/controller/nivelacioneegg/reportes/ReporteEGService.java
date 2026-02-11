@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes;
 
 import java.util.List;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 
 public interface ReporteEGService {
@@ -23,4 +24,8 @@ public interface ReporteEGService {
     List<ResultadoReporteView> ingresantesGeneraByCiclol(CicloAcademico cicloAcademico);
 
     List<ResultadoReporteView> cursoNivelacionFormadoByCiclo(CicloAcademico cicloAcademico);
+
+    ResultadoReporteView informeNivelacionByCarrera(CicloAcademico cicloAcademico, Long idCarrera);
+
+    List<Carrera> allCarrera();
 }

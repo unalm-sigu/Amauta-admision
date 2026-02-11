@@ -149,6 +149,23 @@ new Vue({
                 }
             });
         },
+        reporteLaboratorios(item) {
+            $.fileDownload("/general/aula/reporteLaboratorios", {
+                httpMethod: "POST",
+                data: {
+                    strAula: JSON.stringify({id: item.id})
+                },
+                successCallback: function (responseHtml, url) {
+
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(Messages.errorComunicacion, 'error')
+                }
+            });
+        },
         openModal(tipoModal) {
             let $vue = this;
 

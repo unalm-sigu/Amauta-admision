@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -45,6 +46,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .join("plantilla pl", "grupoNivelacion gn")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)
+//                .notIn("cn.estado", Arrays.asList(SeccionEstadoEnum.CAN.name()))
                 .searchFields("doc.codigo", "cn.codigo", "per.numeroDocIdentidad", "cu.codigo", "cu.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

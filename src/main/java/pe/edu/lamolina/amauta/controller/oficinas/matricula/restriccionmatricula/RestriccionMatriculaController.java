@@ -75,7 +75,8 @@ public class RestriccionMatriculaController {
                 "alumno.modalidadEstudio.*",
                 "alumno.persona.*",
                 "alumno.persona.tipoDocumento.*",
-                "oficina.*",});
+                "oficina.*",
+                "userRegistro.persona.*"});
 
             array.add(node);
         }

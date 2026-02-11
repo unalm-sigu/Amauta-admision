@@ -144,6 +144,11 @@ public class ExcelResultadosIngresantesGeneral extends AbstractView {
 
             excelUtil.setWidthColumn(col, 6000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
+            excelUtil.replaceVal(rowCounter.getValor(), col, "Motivo Reserva");
+            col++;
+
+            excelUtil.setWidthColumn(col, 6000);
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Usuario");
             col++;
 
@@ -221,6 +226,10 @@ public class ExcelResultadosIngresantesGeneral extends AbstractView {
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getEstado());
+            col++;
+
+            excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
+            excelUtil.replaceVal(rowCounter.getValor(), col, data.getMotivoReserva());
             col++;
 
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);

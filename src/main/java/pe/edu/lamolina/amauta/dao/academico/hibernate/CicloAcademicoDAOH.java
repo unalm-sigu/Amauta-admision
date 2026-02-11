@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cache.annotation.Cacheable;
@@ -935,6 +936,20 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .join("modalidadEstudio me")
                 .filter("me.codigo", modalidadEnum)
                 .filter("year", year);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allMayorPregradoByCicloIngreso(CicloAcademico cicloIngreso) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("me.codigo", PRE)
+                .filter("ca.tipo", REG)
+                .filter("ca.codigo", ">=", cicloIngreso.getCodigo())
+                .orderBy("ca.year ASC", "ca.numeroCiclo ASC")
+                .limit(2);
 
         return all(sql);
     }

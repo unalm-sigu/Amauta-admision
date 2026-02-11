@@ -407,6 +407,10 @@ new Vue({
                 }
             });
         },
+        registrarResolucion(item){
+          // Redirigir a la página de resoluciones existentes
+          window.location.href = APP.url('academico/resolucion/existentes');
+        },
         saveResolucionFacultad() {
             let form = $('#formResolucionFacultad');
             if (!form.parsley().validate()) {

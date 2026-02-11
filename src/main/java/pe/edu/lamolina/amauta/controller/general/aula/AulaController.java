@@ -68,6 +68,9 @@ public class AulaController {
     @Autowired
     HorarioAulaCicloPDF horarioAulaCicloPDF;
 
+    @Autowired
+    ReporteAulasLibresExcelView reporteAulasLibresExcelView;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String SOPORTE_TECNICO_DERA = "SOPORTE_TECNICO_DERA";
     private final String PERSONAL_AULA = "PAULA";
@@ -592,8 +595,6 @@ public class AulaController {
         List<Hora> horas = service.allHorasHorario();
 
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
-        System.out.println("-------------");
-        System.out.println(diasHorasGruposByCiclo.size());
 
         List<Aula> aulas = horariosConSeccion.stream()
                 .map(x -> x.getAula())
@@ -604,6 +605,47 @@ public class AulaController {
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
 
+            try {
+                Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+            } catch (Exception e) {
+                logger.error("Error", e);
+            }
+        }
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("aulas", aulas);
+        model.addAttribute("dias", dias);
+        model.addAttribute("horas", horas);
+        model.addAttribute("horariosAulas", horariosConSeccion);
+        model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
+        model.addAttribute("responsablesAulasAsignadas", service.allResponsablesAulasAsignadas(EstadoEnum.ACT));
+        return new ModelAndView(horarioAulaCicloPDF);
+    }
+
+    @RequestMapping("reporteLaboratorios")
+    public ModelAndView reporteLaboratorios(
+            HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        List<HorarioAula> horariosAulas = service.allHorarioLaboratorioByCiclo(ds.getCicloAcademico());
+
+        List<HorarioAula> horariosConSeccion = horariosAulas.stream()
+                .filter(horario -> horario.getSeccion() != null)
+                .collect(Collectors.toList());
+
+        System.out.println(horariosConSeccion.size());
+
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHorasHorario();
+
+        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
+        List<Aula> aulas = horariosConSeccion.stream()
+                .map(x -> x.getAula())
+                .distinct().collect(Collectors.toList());
+
+        if (!aulas.isEmpty()) {
             try {
                 Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
@@ -634,6 +676,181 @@ public class AulaController {
         model.addAttribute("ciclo", ciclo);
 
         return "general/aula/horarioAulaVistaCompleta";
+    }
+
+    @RequestMapping("reporteAulasLibres")
+    public String reporteAulasLibres(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHorasHorario();
+        List<Aula> aulas = service.allAulasActivas(ciclo, ds);
+        List<TipoAula> tiposAulas = service.allTiposAula(ds);
+
+        List<Oficina> oficinas = aulas.stream()
+                .map(a -> a.getOficinaSupervisora())
+                .filter(o -> o != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Aula> modulos = aulas.stream()
+                .map(a -> a.getAulaSuperior())
+                .filter(m -> m != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        ArrayNode jDias = new ArrayNode(JsonNodeFactory.instance);
+        for (Dia dia : dias) {
+            jDias.add(JsonHelper.createJson(dia, JsonNodeFactory.instance, true, new String[]{"*"}));
+        }
+
+        ArrayNode jHoras = new ArrayNode(JsonNodeFactory.instance);
+        for (Hora hora : horas) {
+            jHoras.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
+        }
+
+        ArrayNode jAulas = new ArrayNode(JsonNodeFactory.instance);
+        for (Aula aula : aulas) {
+            ObjectNode node = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre", "capacidadAula", "tipoAmbiente",
+                "tipoAula.id", "tipoAula.nombre", "tipoAula.codigo",
+                "sede.id", "sede.nombre",
+                "oficinaSupervisora.id", "oficinaSupervisora.codigo", "oficinaSupervisora.nombre",
+                "aulaSuperior.id", "aulaSuperior.codigo", "aulaSuperior.nombre"
+            });
+
+            // Agregar horarios del aula
+            ArrayNode jHorarios = new ArrayNode(JsonNodeFactory.instance);
+            if (aula.getHorariosAula() != null) {
+                for (HorarioAula horario : aula.getHorariosAula()) {
+                    ObjectNode hNode = new ObjectNode(JsonNodeFactory.instance);
+                    hNode.put("diaId", horario.getDia() != null ? horario.getDia().getId() : null);
+                    hNode.put("horaId", horario.getHora() != null ? horario.getHora().getId() : null);
+                    hNode.put("ocupado", true);
+                    jHorarios.add(hNode);
+                }
+            }
+            node.set("horarios", jHorarios);
+            jAulas.add(node);
+        }
+
+        ArrayNode jTipoAulas = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoAula tiposAula : tiposAulas) {
+            jTipoAulas.add(JsonHelper.createJson(tiposAula, JsonNodeFactory.instance, false, new String[]{
+                "id", "codigo", "nombre"
+            }));
+        }
+
+        ArrayNode jOficinas = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            jOficinas.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre"
+            }));
+        }
+
+        ArrayNode jModulos = new ArrayNode(JsonNodeFactory.instance);
+        for (Aula modulo : modulos) {
+            jModulos.add(JsonHelper.createJson(modulo, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre"
+            }));
+        }
+
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("diasJson", jDias.toString());
+        model.addAttribute("horasJson", jHoras.toString());
+        model.addAttribute("aulasJson", jAulas.toString());
+        model.addAttribute("tipoAulasJson", jTipoAulas.toString());
+        model.addAttribute("oficinasJson", jOficinas.toString());
+        model.addAttribute("modulosJson", jModulos.toString());
+
+        return "general/aula/reporteAulasLibres";
+    }
+
+    @RequestMapping("exportarReporteAulasLibres")
+    public ModelAndView exportarReporteAulasLibres(
+            @RequestParam(value = "oficinaId", required = false) Long oficinaId,
+            @RequestParam(value = "tipoAulaId", required = false) Long tipoAulaId,
+            @RequestParam(value = "moduloId", required = false) Long moduloId,
+            @RequestParam(value = "aulaId", required = false) Long aulaId,
+            Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<Aula> aulas = service.allAulasActivas(ciclo, ds);
+
+        String filtroOficina = null;
+        String filtroTipoAula = null;
+        String filtroModulo = null;
+        String filtroAula = null;
+
+        // Aplicar filtros
+        if (oficinaId != null) {
+            Oficina oficina = aulas.stream()
+                    .map(a -> a.getOficinaSupervisora())
+                    .filter(o -> o != null && o.getId().equals(oficinaId))
+                    .findFirst()
+                    .orElse(null);
+            filtroOficina = oficina != null ? oficina.getNombre() : "Oficina ID: " + oficinaId;
+
+            aulas = aulas.stream()
+                    .filter(a -> a.getOficinaSupervisora() != null && a.getOficinaSupervisora().getId().equals(oficinaId))
+                    .collect(Collectors.toList());
+        }
+
+        if (tipoAulaId != null) {
+            TipoAula tipoAula = aulas.stream()
+                    .map(a -> a.getTipoAula())
+                    .filter(t -> t != null && t.getId().equals(tipoAulaId))
+                    .findFirst()
+                    .orElse(null);
+            filtroTipoAula = tipoAula != null ? tipoAula.getNombre() : "Tipo Aula ID: " + tipoAulaId;
+
+            aulas = aulas.stream()
+                    .filter(a -> a.getTipoAula() != null && a.getTipoAula().getId().equals(tipoAulaId))
+                    .collect(Collectors.toList());
+        }
+
+        if (moduloId != null) {
+            Aula modulo = aulas.stream()
+                    .map(a -> a.getAulaSuperior())
+                    .filter(m -> m != null && m.getId().equals(moduloId))
+                    .findFirst()
+                    .orElse(null);
+            filtroModulo = modulo != null ? modulo.getNombre() : "Módulo ID: " + moduloId;
+
+            aulas = aulas.stream()
+                    .filter(a -> a.getAulaSuperior() != null && a.getAulaSuperior().getId().equals(moduloId))
+                    .collect(Collectors.toList());
+        }
+
+        if (aulaId != null) {
+            Aula aulaEsp = aulas.stream()
+                    .filter(a -> a.getId().equals(aulaId))
+                    .findFirst()
+                    .orElse(null);
+            filtroAula = aulaEsp != null ? aulaEsp.getCodigo() : "Aula ID: " + aulaId;
+
+            aulas = aulas.stream()
+                    .filter(a -> a.getId().equals(aulaId))
+                    .collect(Collectors.toList());
+        }
+
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHorasHorario();
+        int totalHorasPosibles = dias.size() * horas.size();
+
+        model.addAttribute("aulas", aulas);
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("totalHorasPosibles", totalHorasPosibles);
+        model.addAttribute("filtroOficina", filtroOficina);
+        model.addAttribute("filtroTipoAula", filtroTipoAula);
+        model.addAttribute("filtroModulo", filtroModulo);
+        model.addAttribute("filtroAula", filtroAula);
+        model.addAttribute("usuarioGenerador", ds.getUsuario().getPersona().getNombreCompleto());
+
+        return new ModelAndView(reporteAulasLibresExcelView);
     }
 
     private ArrayNode createListAulaJSON(List<Aula> listAula) {

@@ -67,6 +67,8 @@ public interface AulaService {
 
     List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula);
 
+    List<HorarioAula> allHorarioLaboratorioByCiclo(CicloAcademico cicloAcademico);
+
     List<Aula> allAulas(CicloAcademico cicloAcademico);
 
     List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado);
@@ -74,5 +76,7 @@ public interface AulaService {
     List<ResponsableAulaAsignacion> allResponsablesAulasAsignadas(EstadoEnum... estado);
 
     public void agregarZoom(Aula aula, DataSessionPivot ds);
+
+    List<Aula> allAulasActivas(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }
