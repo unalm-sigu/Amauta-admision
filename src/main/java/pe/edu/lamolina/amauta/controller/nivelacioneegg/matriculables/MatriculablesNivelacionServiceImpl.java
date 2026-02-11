@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.BuscarCruceDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
@@ -31,9 +33,11 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
+
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.PlantillaNivelacion;
@@ -52,6 +56,7 @@ import pe.edu.lamolina.amauta.dao.horario.PlantillaNivelacionDAO;
 public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelacionService {
 
     private final AlumnoNivelacionDAO alumnoNivelacionDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final CursoTemaExamenDAO cursoTemaExamenDAO;
@@ -64,6 +69,11 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     private void verificarPermiso(DataSessionPivot ds) {
         boolean esOperador = verificadorService.esOperadorEEGG(ds);
         Assert.isTrue(esOperador, "No tiene permiso para ejecutar esta operación");
+    }
+
+    @Override
+    public CicloAcademico findCiclo(CicloAcademico ciclo) {
+        return cicloAcademicoDAO.findByCiclo(ciclo);
     }
 
     @Override
@@ -476,7 +486,9 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(form.getCursoCiclo().getCurso(), ciclo);
         Assert.isNotNull(cursoCiclo, "Este curso programado no está programado en este ciclo");
 
-        return cursoNivelacionDAO.allByCursoCicloPlantilla(cursoCiclo, form.getPlantilla());
+        return cursoNivelacionDAO.allByCursoCicloPlantilla(cursoCiclo, form.getPlantilla()).stream()
+                .filter(cn -> cn.getEstadoEnum() == SeccionEstadoEnum.ACT)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -563,6 +575,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         List<NotaAlumnoNivelacion> matriculados = notasAll.stream()
                 .filter(nan -> nan.getEstadoEnum() == MAT)
                 .collect(Collectors.toList());
+        log.info("[retirarCurso] alumnoNiv.id={} matriculados={}", alumnoNiv.getId(), matriculados.size());
 
         if (matriculados.isEmpty() && alumnoNiv.getEstadoEnum() != NMAT) {
             alumnoNiv.setEstadoEnum(NMAT);

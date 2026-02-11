@@ -45,7 +45,7 @@ public class MatriculablesNivelacionController {
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
+        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
         List<PlantillaNivelacion> plantillas = service.allPlantillas();
 
         model.addAttribute("plantillasJson", this.createPlantillasJson(plantillas));
@@ -71,6 +71,7 @@ public class MatriculablesNivelacionController {
                     .join("cursoNivelacion", "id,codigo")
                     .join("cursoNivelacion.aula", "id,codigo")
                     .join("cursoNivelacion.plantilla", "id,codigo")
+                    .join("cursoNivelacion.grupoNivelacion", "id,codigo")
                     .join("alumnoNivelacion.alumno", "id,codigo")
                     .join("alumnoNivelacion.alumno.modalidadEstudio", "id,codigo,nombre")
                     .join("alumnoNivelacion.alumno.carrera", "id,codigo,nombre,tipo,tipoEnum")
@@ -142,6 +143,23 @@ public class MatriculablesNivelacionController {
     public JsonResponse matriculaMasivaTipo2(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         int nuevos = matriculaLoteService.procesarMatriculaLote(ds.getCicloAcademico(), ds);
+
+        JsonResponse json = new JsonResponse();
+        if (nuevos > 0) {
+            json.setMessage("Se realizaron " + nuevos + " inscripciones");
+        } else {
+            json.setMessage("No se encontraron matriculables para inscribir");
+        }
+
+        json.setSuccess(nuevos > 0);
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("matriculaMasivaTipo3")
+    public JsonResponse matriculaMasivaTipo3(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        int nuevos = matriculaLoteService.procesarMatriculaParcial(ds.getCicloAcademico(), ds);
 
         JsonResponse json = new JsonResponse();
         if (nuevos > 0) {
@@ -243,7 +261,7 @@ public class MatriculablesNivelacionController {
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JaneHelper
                 .from(ciclo)
-                .only("id,descripcion,descripcion2")
+                .only("id,descripcion,descripcion2,fechaMatriculaNivelacion")
                 .json();
     }
 
