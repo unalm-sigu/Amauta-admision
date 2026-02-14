@@ -295,8 +295,8 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .join("doc.persona per", "per.tipoDocumento")
                 .filter("sec.id", seccion)
-                .filter("doc.id", docente)
-                .filter("ds.estado", ACT);
+                .filter("doc.id", docente);
+   //             .filter("ds.estado", ACT);
 
         return find(sql);
     }
@@ -781,4 +781,5 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
 }
+
 
