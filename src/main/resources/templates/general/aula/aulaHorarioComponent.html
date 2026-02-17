@@ -169,9 +169,15 @@
                                                 <strong> Sección </strong> {{ dia.mainHorarioAula.cursoNivelacion.codigo }}
                                             </span>
 
-                                        <span v-if="dia.mainHorarioAula.cursoNivelacion.grupoHoras.codigo" class="block">
+                                        <span v-if="dia.mainHorarioAula.cursoNivelacion.plantilla.codigo" class="block">
+                                                <strong> Horario </strong>  {{
+                                                dia.mainHorarioAula.cursoNivelacion.plantilla.codigo
+                                            }}
+                                        </span>
+
+                                        <span v-if="dia.mainHorarioAula.cursoNivelacion.grupoNivelacion.codigo" class="block">
                                                 <strong> Grupo </strong>  {{
-                                                dia.mainHorarioAula.cursoNivelacion.grupoHoras.codigo
+                                                dia.mainHorarioAula.cursoNivelacion.grupoNivelacion.codigo
                                             }}
                                         </span>
 
