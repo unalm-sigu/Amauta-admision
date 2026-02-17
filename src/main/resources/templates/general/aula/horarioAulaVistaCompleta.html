@@ -148,17 +148,18 @@
 
                                             <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)"
                                                class="dropdown-toggle"
-                                               v-bind:class="classByTipo(dia.mainHorarioAula.tipo,dia.mainHorarioAula.cursoNivelacion)" href="#"
+                                               v-bind:class="classByTipo(dia.mainHorarioAula.tipo,dia.mainHorarioAula.cursoNivelacion)"
+                                               href="#"
                                                data-toggle="dropdown">
                                                 <strong v-if="dia.mainHorarioAula.cursoMasivoExamen.curso.codigo">{{
-                                                        dia.mainHorarioAula.cursoMasivoExamen.curso.codigo
+                                                    dia.mainHorarioAula.cursoMasivoExamen.curso.codigo
                                                     }}</strong>
                                                 <strong v-else-if="dia.mainHorarioAula.seccion.codigo2">{{
-                                                        dia.mainHorarioAula.seccion.codigo2
+                                                    dia.mainHorarioAula.seccion.codigo2
                                                     }}</strong>
                                                 <strong v-else-if="dia.mainHorarioAula.reservaAula.estado">
                                                     {{
-                                                        dia.mainHorarioAula.reservaAula.tramite.numero
+                                                    dia.mainHorarioAula.reservaAula.tramite.numero
                                                     }}/{{ dia.mainHorarioAula.reservaAula.tramite.serie }}</strong>
                                                 <strong v-else-if="dia.mainHorarioAula.cursoNivelacion.codigo">
                                                     {{ dia.mainHorarioAula.cursoNivelacion.codigo }}</strong>
@@ -276,10 +277,17 @@
                                                                     }}
                                                    </span>
 
-                                                   <span v-if="dia.mainHorarioAula.cursoNivelacion.grupoHoras.codigo"
-                                                                      class="block">
+                                                    <span v-if="dia.mainHorarioAula.cursoNivelacion.plantilla.codigo"
+                                                          class="block">
+                                                            <strong> Horario </strong>  {{
+                                                                        dia.mainHorarioAula.cursoNivelacion.plantilla.codigo
+                                                                    }}
+                                                    </span>
+
+                                                    <span v-if="dia.mainHorarioAula.cursoNivelacion.grupoNivelacion.codigo"
+                                                          class="block">
                                                             <strong> Grupo </strong>  {{
-                                                                        dia.mainHorarioAula.cursoNivelacion.grupoHoras.codigo
+                                                                        dia.mainHorarioAula.cursoNivelacion.grupoNivelacion.codigo
                                                                     }}
                                                     </span>
 
