@@ -323,6 +323,18 @@ public class ExcelHelper {
         cell.setCellStyle(cellStyle);
     }
 
+    public void replaceVal(int nroRow, int nroCell, Date valor, CellStyle cellStyle, String formato) {
+        Cell cell = findCell(nroRow, nroCell);
+        if (valor != null) {
+            replaceVal(nroRow, nroCell, valor);
+        }
+
+        String tipo = createTipo(Date.class, null);
+        DataFormat df = this.createDataFormat(tipo);
+        cellStyle.setDataFormat(df.getFormat(formato));
+        cell.setCellStyle(cellStyle);
+    }
+
     public void replaceVal(int nroRow, int nroCell, Integer valor, String formato) {
         Cell cell = findCell(nroRow, nroCell);
         cell.setBlank();

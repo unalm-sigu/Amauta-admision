@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
 
 @Setter
 @Getter
@@ -70,7 +71,7 @@ public class ResultadoReporteView {
     private String temaAprobado;
     private String vacMat;
     private String motivoReserva;
-    private List<AsistenciaNivelacion> asistencias;
+    private List<TemaAsistencia> asistencias;
     private List<IngresantesExamenAdmisionDTO> ingresantesExamene = new ArrayList<>();
     private List<IngresantesAsistenciaInscritosDTO> ingresantesAsistencia = new ArrayList<>();
     private List<IngresantesMateriasNivelacionDTO> ingresantesMateria = new ArrayList<>();
