@@ -381,7 +381,7 @@
     <div slot="body">
         <form class="panel-body" id="formLinkZoom"  data-parsley-validate="true">            
             <div class="form-group">
-                <label> Link Zoom </label>
+                <label>{{ esLinkTeams(seccionLink.linkZoom) ? 'Link Teams' : 'Link Teams' }}</label>
                 <input class="form-control" v-model="seccionLink.linkZoom" required=""/>
             </div>
         </form>

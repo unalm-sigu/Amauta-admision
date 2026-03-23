@@ -67,7 +67,7 @@ var app = new Vue({
         modalLinkZoom: {
             id: 'modalLinkZoom',
             header: true,
-            title: 'Link Zoom',
+            title: 'Link Teams',
             okbtn: 'Aceptar',
             showaccept: true,
             modalsize: 'modal-md'
@@ -207,7 +207,8 @@ var app = new Vue({
         descuentoSeccion: {},
         alumnoPagoVerano: {},
         modosDictados: [],
-        seccionLink: {}
+        seccionLink: {},
+        seccionesSeleccionadas: []
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -2366,6 +2367,92 @@ var app = new Vue({
                 return true;
             }
             return false;
+        },
+        esLinkTeams(linkZoom) {
+            return linkZoom && linkZoom.includes('teams.microsoft.com');
+        },
+        crearReunionTeams(seccion) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Seguro que desea crear una reunión de Teams para esta sección?",
+                buttons: {
+                    confirm: {label: 'Sí, Crear', className: "btn-info btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/crearReunionTeams'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify(seccion),
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.loadGpoSeccionFlash();
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        crearReunionesTeamsBatch() {
+            let $vue = this;
+            let ids = $vue.seccionesSeleccionadas.map(function (s) { return s.id; });
+            if (ids.length === 0) {
+                notify("Seleccione al menos una sección", "warning");
+                return;
+            }
+            bootbox.confirm({
+                message: "¿Seguro que desea crear reuniones de Teams para " + ids.length + " secciones?",
+                buttons: {
+                    confirm: {label: 'Sí, Crear', className: "btn-info btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/crearReunionesTeamsBatch'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify(ids),
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.seccionesSeleccionadas = [];
+                                    $vue.loadGpoSeccionFlash();
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        toggleSeleccionSeccion(seccion) {
+            let $vue = this;
+            let idx = $vue.seccionesSeleccionadas.findIndex(function (s) { return s.id === seccion.id; });
+            if (idx >= 0) {
+                $vue.seccionesSeleccionadas.splice(idx, 1);
+            } else {
+                $vue.seccionesSeleccionadas.push(seccion);
+            }
         }
     }
 });

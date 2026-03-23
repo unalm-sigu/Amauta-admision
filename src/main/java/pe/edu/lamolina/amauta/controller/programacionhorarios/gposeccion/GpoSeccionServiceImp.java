@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,6 +24,12 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +58,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.amauta.config.MicrosoftGraphConfig;
 import pe.edu.lamolina.amauta.config.ZoomConfig;
 import pe.edu.lamolina.amauta.controller.log.UsuarioProgramacionService;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -241,6 +249,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     private final UsuarioProgramacionService usuarioProgramacionService;
 
     private final ZoomConfig zoomConfig;
+    private final MicrosoftGraphConfig microsoftGraphConfig;
 
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
@@ -254,6 +263,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public static String DOMINIO_LA_MOLINA = "@lamolina.edu.pe";
 
     public static String tokenZoom = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImtRMElGWlp6UzZ1MzY0dktXWmhKYnciLCJleHAiOjE2OTM1NDQzNDAsImlhdCI6MTY4OTYxMjMyNH0.UUXu0L2xHeVHJl7fav_Jni20ZrQ-h0qrCTZhw825lng";
+
+    public static String PATH_GRAPH_ONLINE_MEETINGS = "https://graph.microsoft.com/v1.0/users/";
+    public static final int CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS = 201;
 
     @Override
     public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
@@ -2301,17 +2313,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionUpd.setAula(aula);
 
         if (aula.getAulaSuperior().getCodigo().equals(CODIGO_MODULO_DE_AULAS_VIRTUALES)) {
-            String codigoAulaZoom = zoomConfig.validaAulaZoom(aula.getCodigo());
-            boolean sinLink = (Objects.equals("", seccion.getLinkZoom()) || Objects.isNull(seccion.getLinkZoom()));
-            boolean conAula = (!Objects.equals("", codigoAulaZoom) && Objects.nonNull(codigoAulaZoom));
-            DocenteSeccion docenteSeccion = docenteSeccionDAO.findBySeccion(seccion, cicloAcademico);
-            String nombreDocente = docenteSeccion.getDocente().getPersona().getNombreCompleto();
-            String topic = seccion.getGrupoSeccion().getCurso().getNombre().concat("-").concat(seccion.getCodigo2()).concat("-").concat(seccion.getGrupoHoras().getCodigo());
-            Map<Object, Object> map = (sinLink && conAula) ? crearLinkZoom(codigoAulaZoom, nombreDocente, topic) : actualizarLinkZoom(codigoAulaZoom, nombreDocente, topic, seccion);
-            if (Objects.nonNull(map) && !map.isEmpty()) {
-                seccionUpd.setIdZoom((Long) map.get("idZoom"));
-                seccionUpd.setLinkZoom((String) map.get("linkZoom"));
-                seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+            if (aula.getUsuarioZoom() != null && !aula.getUsuarioZoom().isEmpty()) {
+                String codigoAulaZoom = zoomConfig.validaAulaZoom(aula.getCodigo());
+                boolean sinLink = (Objects.equals("", seccion.getLinkZoom()) || Objects.isNull(seccion.getLinkZoom()));
+                boolean conAula = (!Objects.equals("", codigoAulaZoom) && Objects.nonNull(codigoAulaZoom));
+                DocenteSeccion docenteSeccion = docenteSeccionDAO.findBySeccion(seccion, cicloAcademico);
+                String nombreDocente = docenteSeccion.getDocente().getPersona().getNombreCompleto();
+                String topic = seccion.getGrupoSeccion().getCurso().getNombre().concat("-").concat(seccion.getCodigo2()).concat("-").concat(seccion.getGrupoHoras().getCodigo());
+                Map<Object, Object> map = (sinLink && conAula) ? crearLinkZoom(codigoAulaZoom, nombreDocente, topic) : actualizarLinkZoom(codigoAulaZoom, nombreDocente, topic, seccion);
+                if (Objects.nonNull(map) && !map.isEmpty()) {
+                    seccionUpd.setIdZoom((Long) map.get("idZoom"));
+                    seccionUpd.setLinkZoom((String) map.get("linkZoom"));
+                    seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+                }
+            } else {
+                crearReunionTeamsParaSeccion(seccion, cicloAcademico);
             }
         } else {
             if (seccionUpd.getIdZoom() != null && seccionUpd.getLinkZoom() != null) {
@@ -2442,6 +2458,266 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("ERROR", e.getCause());
         }
         return esBorrado;
+    }
+
+    public Map<Object, Object> crearLinkTeams(String emailDocente, String topic) {
+        return crearLinkTeams(emailDocente, topic, null, null);
+    }
+
+    public Map<Object, Object> crearLinkTeams(String emailDocente, String topic, Date fechaInicio, Date fechaFin) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String token = microsoftGraphConfig.obtenerAccessToken();
+            String body = (fechaInicio != null && fechaFin != null)
+                    ? microsoftGraphConfig.buildJsonTeamsEvent(topic, fechaInicio, fechaFin)
+                    : microsoftGraphConfig.buildJsonTeamsEvent(topic);
+            String url = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events";
+            HttpResponse<String> crearReunion = Unirest.post(url)
+                    .header("content-type", "application/json")
+                    .header("authorization", "Bearer " + token)
+                    .body(body)
+                    .asString();
+            if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
+                JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
+                String joinUrl = extraerJoinUrlDeEvento(jsonNode);
+
+                // Si el POST ignoró isOnlineMeeting (ocurre con app-only tokens),
+                // hacer PATCH inmediato para forzar la reunión Teams
+                if (joinUrl == null) {
+                    String eventId = jsonNode.get("id").asText();
+                    String patchUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events/" + eventId;
+                    String patchBody = microsoftGraphConfig.buildJsonPatchOnlineMeeting();
+                    HttpResponse<String> patchResponse = Unirest.patch(patchUrl)
+                            .header("content-type", "application/json")
+                            .header("authorization", "Bearer " + token)
+                            .body(patchBody)
+                            .asString();
+                    if (patchResponse.getStatus() == 200) {
+                        JsonNode patchNode = objectMapper.readTree(patchResponse.getBody());
+                        joinUrl = extraerJoinUrlDeEvento(patchNode);
+                    } else {
+                        log.error("PATCH para agregar Teams falló. email: {}, status: {}, body: {}", emailDocente, patchResponse.getStatus(), patchResponse.getBody());
+                    }
+                }
+
+                if (joinUrl == null) {
+                    throw new PhobosException("No se pudo obtener el link de la reunión Teams. Verifique que el docente tenga licencia de Microsoft Teams activa.");
+                }
+                final String link = joinUrl;
+                return new HashMap<Object, Object>() {
+                    {
+                        put("linkZoom", link);
+                    }
+                };
+            } else {
+                log.error("Error al crear reunión Teams para email: {}, status: {}, body: {}", emailDocente, crearReunion.getStatus(), crearReunion.getBody());
+                throw new PhobosException("No se pudo crear reunión Teams para %s. Verifique que el email del docente exista en Azure AD y tenga licencia de Teams. (HTTP %s)", emailDocente, crearReunion.getStatus());
+            }
+        } catch (UnirestException | IOException e) {
+            throw new PhobosException("ERROR al crear reunión Teams", e.getCause());
+        }
+    }
+
+    private String extraerJoinUrlDeEvento(JsonNode jsonNode) {
+        if (jsonNode.has("onlineMeeting") && !jsonNode.get("onlineMeeting").isNull()) {
+            JsonNode onlineMeeting = jsonNode.get("onlineMeeting");
+            if (onlineMeeting.has("joinUrl") && !onlineMeeting.get("joinUrl").isNull()) {
+                return onlineMeeting.get("joinUrl").asText();
+            }
+        }
+        if (jsonNode.has("onlineMeetingUrl") && !jsonNode.get("onlineMeetingUrl").isNull()) {
+            String val = jsonNode.get("onlineMeetingUrl").asText();
+            if (!val.isEmpty()) return val;
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void crearReunionTeamsParaSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
+        Seccion seccionDB = seccionDAO.find(seccion);
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.findBySeccion(seccionDB, cicloAcademico);
+        if (docenteSeccion == null || docenteSeccion.getDocente() == null) {
+            throw new PhobosException("La sección no tiene docente asignado");
+        }
+        String email = docenteSeccion.getDocente().getEmailMicrosoft();
+        if (email == null || email.isEmpty()) {
+            throw new PhobosException("El docente no tiene email microsoft configurado");
+        }
+        String topic = seccionDB.getGrupoSeccion().getCurso().getNombre()
+                .concat("-").concat(seccionDB.getCodigo2())
+                .concat("-").concat(seccionDB.getGrupoHoras().getCodigo());
+
+        AnexoBoletin anexoSup = seccionDB.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+        EventoCicloAcademico evento = getEventoDictadoClases(cicloAcademico, anexoSup);
+        Date fechaInicio = evento != null ? evento.getFechaInicio() : null;
+        Date fechaFin = evento != null ? evento.getFechaFin() : null;
+
+        Map<Object, Object> result = crearLinkTeams(email, topic, fechaInicio, fechaFin);
+        if (Objects.nonNull(result) && !result.isEmpty()) {
+            String linkTeams = (String) result.get("linkZoom");
+            Seccion seccionUpd = new Seccion(seccionDB.getId());
+            seccionUpd.setLinkZoom(linkTeams);
+            seccionUpd.setIdZoom(null);
+            seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<Map<String, Object>> crearReunionesTeamsBatch(List<Long> seccionIds, CicloAcademico cicloAcademico) {
+        List<Map<String, Object>> resultados = new ArrayList<>();
+        for (Long seccionId : seccionIds) {
+            Map<String, Object> resultado = new HashMap<>();
+            resultado.put("seccionId", seccionId);
+            try {
+                Seccion seccion = seccionDAO.find(new Seccion(seccionId));
+                crearReunionTeamsParaSeccion(seccion, cicloAcademico);
+                resultado.put("success", true);
+                resultado.put("message", "Reunión Teams creada exitosamente");
+            } catch (Exception e) {
+                resultado.put("success", false);
+                resultado.put("message", e.getMessage());
+                log.error("Error al crear reunión Teams para sección {}: {}", seccionId, e.getMessage());
+            }
+            resultados.add(resultado);
+        }
+        return resultados;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> cargarReunionesTeamsDesdeExcel(MultipartFile file, CicloAcademico cicloAcademico) {
+        List<String> observaciones = new ArrayList<>();
+        List<Map<String, String>> exitosos = new ArrayList<>();
+        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            java.util.Iterator<Row> rowIterator = sheet.iterator();
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                int fila = row.getRowNum() + 1;
+                if (row.getRowNum() < 1) continue;
+
+                String email = getCellValueAsString(row, 0);
+                String codigoCurso = getCellValueAsString(row, 1);
+                String codigoSeccion = getCellValueAsString(row, 2);
+
+                if (StringUtils.isBlank(email) && StringUtils.isBlank(codigoCurso) && StringUtils.isBlank(codigoSeccion)) {
+                    continue;
+                }
+
+                if (StringUtils.isBlank(email)) {
+                    observaciones.add("Fila " + fila + ": Email vacío");
+                    continue;
+                }
+                if (StringUtils.isBlank(codigoCurso)) {
+                    observaciones.add("Fila " + fila + ": Código de curso vacío");
+                    continue;
+                }
+                if (StringUtils.isBlank(codigoSeccion)) {
+                    observaciones.add("Fila " + fila + ": Código de sección vacío");
+                    continue;
+                }
+
+                email = email.trim();
+                codigoCurso = codigoCurso.trim();
+                codigoSeccion = codigoSeccion.trim();
+
+                try {
+                    Curso curso = cursoDAO.findByCode(codigoCurso);
+                    if (curso == null) {
+                        observaciones.add("Fila " + fila + ": Curso '" + codigoCurso + "' no encontrado");
+                        continue;
+                    }
+
+                    List<GrupoSeccion> grupos = grupoSeccionDAO.allActivoByCursoCiclo(curso, cicloAcademico);
+                    if (grupos == null || grupos.isEmpty()) {
+                        observaciones.add("Fila " + fila + ": No se encontró grupo de sección para el curso '" + codigoCurso + "' en el ciclo actual");
+                        continue;
+                    }
+
+                    Seccion seccionEncontrada = null;
+                    for (GrupoSeccion grupo : grupos) {
+                        List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupo);
+                        for (Seccion sec : secciones) {
+                            if (codigoSeccion.equalsIgnoreCase(sec.getCodigo2())) {
+                                seccionEncontrada = sec;
+                                break;
+                            }
+                        }
+                        if (seccionEncontrada != null) break;
+                    }
+
+                    if (seccionEncontrada == null) {
+                        observaciones.add("Fila " + fila + ": Sección '" + codigoSeccion + "' no encontrada para el curso '" + codigoCurso + "'");
+                        continue;
+                    }
+
+                    String topic = curso.getNombre()
+                            .concat("-").concat(seccionEncontrada.getCodigo2())
+                            .concat("-").concat(seccionEncontrada.getGrupoHoras() != null ? seccionEncontrada.getGrupoHoras().getCodigo() : "");
+
+                    AnexoBoletin anexoSup = seccionEncontrada.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+                    EventoCicloAcademico evento = getEventoDictadoClases(cicloAcademico, anexoSup);
+                    Date fechaInicio = evento != null ? evento.getFechaInicio() : null;
+                    Date fechaFin = evento != null ? evento.getFechaFin() : null;
+
+                    Map<Object, Object> result = crearLinkTeams(email, topic, fechaInicio, fechaFin);
+                    if (Objects.nonNull(result) && !result.isEmpty()) {
+                        String linkTeams = (String) result.get("linkZoom");
+                        if (StringUtils.isNotBlank(linkTeams)) {
+                            Seccion seccionUpd = new Seccion(seccionEncontrada.getId());
+                            seccionUpd.setLinkZoom(linkTeams);
+                            seccionUpd.setIdZoom(null);
+                            seccionDAO.updateColumns(seccionUpd, "idZoom", "linkZoom");
+
+                            Map<String, String> exitoso = new HashMap<>();
+                            exitoso.put("curso", codigoCurso);
+                            exitoso.put("seccion", codigoSeccion);
+                            exitoso.put("email", email);
+                            exitoso.put("link", linkTeams);
+                            exitosos.add(exitoso);
+                        } else {
+                            observaciones.add("Fila " + fila + ": Reunión creada pero no se obtuvo el link para '" + email + "'. Revise los logs del servidor.");
+                        }
+                    } else {
+                        observaciones.add("Fila " + fila + ": No se obtuvo respuesta de Teams para '" + email + "'");
+                    }
+                } catch (PhobosException e) {
+                    observaciones.add("Fila " + fila + ": " + e.getMessage());
+                } catch (Exception e) {
+                    observaciones.add("Fila " + fila + ": Error inesperado - " + e.getMessage());
+                    log.error("Error procesando fila {} del Excel de carga masiva Teams", fila, e);
+                }
+            }
+        } catch (IOException e) {
+            throw new PhobosException("Error al leer el archivo Excel: " + e.getMessage());
+        }
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("exitosos", exitosos);
+        resultado.put("observaciones", observaciones);
+        return resultado;
+    }
+
+    private String getCellValueAsString(Row row, int cellIndex) {
+        Cell cell = row.getCell(cellIndex);
+        if (cell == null) return null;
+        org.apache.poi.ss.usermodel.DataFormatter formatter = new org.apache.poi.ss.usermodel.DataFormatter();
+        return formatter.formatCellValue(cell);
+    }
+
+    @Override
+    public byte[] getPlantillaTeams() throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reuniones Teams");
+        Row row = sheet.createRow(0);
+        row.createCell(0).setCellValue("Email");
+        row.createCell(1).setCellValue("CodigoCurso");
+        row.createCell(2).setCellValue("Codigo2Sección");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
     }
 
     public void validarCruceAlumnos(Seccion seccion) {

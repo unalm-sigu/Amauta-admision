@@ -24,17 +24,26 @@
               v-bind:showaccept='false'>
 
     <div slot="header">
-        <h4 class="modal-title">Link Zoom</h4>
+        <h4 class="modal-title"><i class="fa fa-video-camera"></i> Reuni&oacute;n Teams</h4>
     </div>
-    
-    <div slot="body" >
-        
-        <p class="bold" v-text="seccionMain.linkZoom"></p>
-        
-        <a href="#" v-on:click.prevent="copiarLink()" class="btn btn-link"> <i class="fa fa-copy"></i> Copiar</a>
-        
-        <a v-bind:href="seccionMain.linkZoom" target="_blank" class="btn btn-link"> <i class="fa fa-external-link"></i> Abrir</a>
-        
+
+    <div slot="body">
+        <div class="panel panel-default m-b-sm">
+            <div class="panel-body" style="word-break: break-all;">
+                <small class="text-muted block m-b-xs">Link de la reuni&oacute;n</small>
+                <span v-text="seccionMain.linkZoom"></span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="#" v-on:click.prevent="copiarLink()" class="btn btn-sm btn-default">
+                <i class="fa fa-copy"></i> Copiar link
+            </a>
+
+            <a v-bind:href="seccionMain.linkZoom" target="_blank" class="btn btn-sm btn-primary">
+                <i class="fa fa-external-link"></i> Abrir reuni&oacute;n
+            </a>
+        </div>
     </div>
-    
+
 </modal-simple>

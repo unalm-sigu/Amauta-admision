@@ -8,6 +8,7 @@ new Vue({
         cursos: [],
         aulaDataZoom: {},
         seccionMain: {},
+        creandoTeamsId: null,
         isCongCicloPre: false,
         iddocente: iddocente,
         codigoDocente: codigoDocente,
@@ -19,6 +20,7 @@ new Vue({
     methods: {
         loadData() {
             let $vue = this;
+            $vue.cursos = [];
             axios.get('/docente/cargaacademica/list')
                     .then(({data}) => {
 
@@ -71,7 +73,6 @@ new Vue({
                     notify(Messages.errorComunicacion, 'error')
                 }
             });
-//            location.href = APP.url('academico/profesor/reporteHorarioDocente/' + item)
         },
         dataZoomModal(item) {
             let $vue = this;
@@ -86,6 +87,25 @@ new Vue({
         copiarLink() {
             let $vue = this;
             navigator.clipboard.writeText($vue.seccionMain.linkZoom);
+            notify('Link copiado al portapapeles', 'success');
+        },
+        crearReunionTeams(seccion) {
+            let $vue = this;
+            if ($vue.creandoTeamsId) return;
+            $vue.creandoTeamsId = seccion.id;
+            axios.post('/docente/cargaacademica/crearReunionTeams', {id: seccion.id})
+                .then(({data}) => {
+                    if (data.success) {
+                        notify(data.message, 'success');
+                        $vue.loadData();
+                    } else {
+                        notify(data.message, 'error');
+                    }
+                    $vue.creandoTeamsId = null;
+                }).catch(() => {
+                    notify(Messages.errorComunicacion, 'error');
+                    $vue.creandoTeamsId = null;
+                });
         },
         calcularCreditoCarga(item) {
 
