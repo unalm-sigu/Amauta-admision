@@ -18,4 +18,6 @@ public interface TramiteRenunciaAlumnoService {
 
     public void saveAlumnoRenunciaCarrera(TramiteRenunciaAlumno tramiteRenunciaAlumno, DataSessionPivot ds);
 
+    public void anular(TramiteRenunciaAlumno tramiteRenunciaAlumno, DataSessionPivot ds);
+
 }
