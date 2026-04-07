@@ -1,11 +1,42 @@
 Vue.component("aula-horario-component", {
     template: "#aulaHorarioComp",
     props: {
-        dias: {type: Array, default: []},
-        horas: {type: Array, default: []},
-        jsonaulahorario: {type: Array, default: []},
-        validarrangofecha: {type: Function, default: () => {
-            }},
+        dias: {type: Array, default: function() { return []; }},
+        horas: {type: Array, default: function() { return []; }},
+        jsonaulahorario: {default: function() { return []; }},
+        validarrangofecha: {type: Boolean, default: false},
+    },
+    data: function() {
+        return {
+            horariosSeleccionados: [],
+            horasLoaded: false,
+            diasActivos: []   // nombres normalizados de los días válidos según la fecha; vacío = todos activos
+        };
+    },
+    watch: {
+        jsonaulahorario: {
+            immediate: true,
+            deep: true,
+            handler: function(newVal) {
+                let $vue = this;
+                try {
+                    if (typeof newVal === 'string' && newVal !== '{}' && newVal !== '' && newVal !== '[]') {
+                        let parsed = JSON.parse(newVal);
+                        $vue.horariosSeleccionados = Array.isArray(parsed) ? parsed : [];
+                    } else if (Array.isArray(newVal)) {
+                        $vue.horariosSeleccionados = newVal;
+                    } else {
+                        $vue.horariosSeleccionados = [];
+                    }
+
+                    if ($vue.horasLoaded) {
+                        $vue.marcarHorariosSeleccionados();
+                    }
+                } catch (e) {
+                    $vue.horariosSeleccionados = [];
+                }
+            }
+        }
     },
     mounted: function () {
         let $vue = this;
@@ -13,6 +44,32 @@ Vue.component("aula-horario-component", {
 
         $global.$on("clearhorario", function () {
             $vue.clearhorario();
+        });
+
+        $global.$on("get-horarios-seleccionados", function (callback) {
+            if (typeof callback === 'function') {
+                callback($vue.horariosSeleccionados);
+            }
+        });
+
+        $global.$on("set-dias-activos", function (dias) {
+            $vue.diasActivos = dias || [];
+            // Deseleccionar horas que ya no corresponden al día activo
+            if ($vue.diasActivos.length > 0) {
+                $vue.horas.forEach(function(hora) {
+                    if (hora.dias) {
+                        hora.dias.forEach(function(dia) {
+                            if (!$vue.isDiaActivo(dia) && dia.selecionado) {
+                                dia.selecionado = false;
+                            }
+                        });
+                    }
+                });
+                $vue.horariosSeleccionados = $vue.horariosSeleccionados.filter(function(h) {
+                    let dia = $vue.dias.find(function(d) { return d.id === h.dia; });
+                    return dia ? $vue.isDiaActivo(dia) : false;
+                });
+            }
         });
     },
     methods: {
@@ -24,6 +81,11 @@ Vue.component("aula-horario-component", {
                     if (response.success) {
                         $vue.dias = response.data.dias;
                         $vue.horas = response.data.horas;
+                        $vue.horasLoaded = true;
+
+                        $vue.$nextTick(function() {
+                            $vue.marcarHorariosSeleccionados();
+                        });
                     } else {
                         notify(response.message, "error");
                     }
@@ -33,35 +95,70 @@ Vue.component("aula-horario-component", {
                 }
             });
         },
-        selectHora(dia, hora) {
+        marcarHorariosSeleccionados() {
             let $vue = this;
-            let estado = $vue.validarrangofecha(dia, hora);
-            if (estado) {
+
+            if (!$vue.horas || !$vue.horariosSeleccionados || !Array.isArray($vue.horariosSeleccionados)) {
                 return;
             }
+
+            // Limpiar selecciones previas
+            $vue.horas.forEach(function(hora) {
+                if (hora.dias) {
+                    hora.dias.forEach(function(dia) {
+                        dia.selecionado = false;
+                    });
+                }
+            });
+
+            $vue.horariosSeleccionados.forEach(function(horario) {
+                let hora = $vue.horas.find(h => h.id === horario.hora);
+                if (hora && hora.dias) {
+                    let dia = hora.dias.find(d => d.id === horario.dia);
+                    if (dia) {
+                        dia.selecionado = true;
+                    }
+                }
+            });
+        },
+        normalizarNombre(str) {
+            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        },
+        isDiaActivo(dia) {
+            if (!this.diasActivos || this.diasActivos.length === 0) return true;
+            let nombre = this.normalizarNombre(dia.nombre);
+            return this.diasActivos.indexOf(nombre) !== -1;
+        },
+        selectHora(dia, hora) {
+            let $vue = this;
+
+            if (!$vue.isDiaActivo(dia)) return;
+
             if (dia.selecionado) {
                 dia.selecionado = false;
+                $vue.horariosSeleccionados = $vue.horariosSeleccionados.filter(function(h) {
+                    return !(h.dia === dia.id && h.hora === hora.id);
+                });
             } else {
                 dia.selecionado = true;
+                $vue.horariosSeleccionados.push({
+                    dia: dia.id,
+                    hora: hora.id
+                });
             }
-            let idd = dia.id + "-" + hora.id
-            let item = $vue.jsonaulahorario.find(x => x.id == idd);
-            if (item != null) {
-                let indexx = $vue.jsonaulahorario.indexOf(item);
-                $vue.jsonaulahorario.splice(indexx, 1);
-            } else {
-                $vue.jsonaulahorario.push({id: idd, dia: {id: dia.id}, hora: {id: hora.id}});
-            }
-            $global.$emit('changehorario');
+
+            $global.$emit('changehorario', $vue.horariosSeleccionados);
         },
         clearhorario() {
             let $vue = this;
-            $vue.horas.map(function (vall, inx) {
-                vall.dias.map(function (valll, inx) {
-                    valll.selecionado = false;
-                });
+            $vue.horas.forEach(function(hora) {
+                if (hora.dias) {
+                    hora.dias.forEach(function(dia) {
+                        dia.selecionado = false;
+                    });
+                }
             });
-            $vue.jsonaulahorario = [];
+            $vue.horariosSeleccionados = [];
         }
     }
 });

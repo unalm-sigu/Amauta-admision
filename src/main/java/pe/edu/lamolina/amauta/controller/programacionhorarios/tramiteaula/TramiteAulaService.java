@@ -1,9 +1,12 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.tramiteaula;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.tramite.AulaReservada;
 import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.model.general.Aula;
@@ -57,5 +60,21 @@ public interface TramiteAulaService {
     public List<Empresa> allEmpresaByName(Pais pais, String nombre);
 
     public void regularizarTramite(ReservaAula reservaAula);
+
+    List<ReservaAula> allByDocente(DynatableFilter filter, Docente docente);
+
+    List<Curso> allCursosByDocente(Docente docente, DataSessionPivot ds);
+
+    List<Map<String, Object>> verificarCruceAlumnos(Long cursoId, List<DiaHora> diahoras, DataSessionPivot ds);
+
+    List<java.util.Map<String, Object>> filtrarAulasConDisponibilidad(
+        DynatableFilter filter,
+        String fechaInicio,
+        String fechaFin,
+        String horarios,
+        Boolean soloDisponibles,
+        Boolean soloOera,
+        DataSessionPivot ds
+    );
 
 }

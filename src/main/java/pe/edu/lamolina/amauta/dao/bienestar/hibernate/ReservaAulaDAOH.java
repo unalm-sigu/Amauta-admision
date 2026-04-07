@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.tramiteaula.ReservaAulaBean;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.tramite.ReservaAula;
 import pe.edu.lamolina.amauta.dao.bienestar.ReservaAulaDAO;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -159,5 +160,21 @@ public class ReservaAulaDAOH extends AbstractEasyDAO<ReservaAula> implements Res
                 .setResultTransformer(Transformers.aliasToBean(ReservaAulaBean.class));
 
         return (List<ReservaAulaBean>) query.list();
+    }
+
+    @Override
+    public List<ReservaAula> allByDocente(DynatableFilter filter, Docente docente) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(ReservaAula.class, "ra")
+                .join("tramite tra", "tra.tipoTramite", "tra.cicloAcademico ca")
+                .join("tra.docente doc")
+                .leftJoin("doc.persona per")
+                .filter("doc.id", docente)
+                .filter("tra.tipoSolicitante", TipoSolicitanteEnum.DOC.name())
+                .searchFields("motivo", "tra.numero")
+                .orderBy("ra.id desc");
+
+        return all(sql);
     }
 }
