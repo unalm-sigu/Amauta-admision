@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -33,9 +34,12 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.constantines.BienestarConstantine;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum;
+
 import static pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum.ENVIADO;
 import static pe.edu.lamolina.model.enums.mensajeria.EstadoMensajeEnum.LEIDO;
+
 import pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum;
+
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR_ANULADA;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.CITA_TUTOR_POSTERGADA;
@@ -47,10 +51,12 @@ import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIV
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_SEMINARIO;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_CULTURAL;
 import static pe.edu.lamolina.model.enums.mensajeria.TipoAsuntoMensajeEnum.DERIVA_TUTOR_TALLER_VIVENCIAL;
+
 import pe.edu.lamolina.model.enums.mensajeria.TipoSistemaEnum;
 import pe.edu.lamolina.model.enums.mensajeria.TipoUserMensajeriaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 import pe.edu.lamolina.model.social.AsuntoMensaje;
 import pe.edu.lamolina.model.social.AsuntoMensajeUsuario;
 import pe.edu.lamolina.model.social.MensajeSistema;
@@ -175,6 +181,34 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
 
     @Override
     @Transactional
+    public MensajeSistema crearMensaje(AsuntoMensaje asunto, String contenido, Persona persona, Alumno alumno, DataSessionPivot ds) {
+        UsuarioMensajeria userGenerico = this.getUsuario(persona, ds);
+        UsuarioMensajeria userAlumno = this.getUsuario(alumno, ds);
+
+        AsuntoMensaje asuntoBD = this.getAsunto(asunto, ds);
+
+        MensajeSistema mensaje = new MensajeSistema();
+        mensaje.setAsuntoMensaje(asuntoBD);
+        mensaje.setMensaje(contenido);
+        mensaje.setDestinatario(userAlumno);
+        mensaje.setRemitente(userGenerico);
+        mensaje.setEstadoEnum(EstadoMensajeEnum.ENVIADO);
+        mensaje.setSistemaOrigenEnum(TipoSistemaEnum.AMAUTA);
+        mensaje.setSistemaDestinoEnum(TipoSistemaEnum.MAIPI);
+        mensaje.setUserRegistro(ds.getUsuario());
+        mensaje.setFechaRegistro(new Date());
+        mensajeSistemaDAO.save(mensaje);
+
+        this.createAsuntoUsuario(asuntoBD, userAlumno, ds);
+
+        userAlumno.setPendientesLeer(userAlumno.getPendientesLeer() + 1);
+        usuarioMensajeriaDAO.update(userAlumno);
+
+        return mensaje;
+    }
+
+    @Override
+    @Transactional
     public UsuarioMensajeria getUsuario(Docente docenteForm, DataSessionPivot ds) {
         Docente docente = docenteDAO.find(docenteForm.getId());
         Assert.isNotNull(docente, "No se ha ubicado el registro del docente");
@@ -189,6 +223,13 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
         Assert.isNotNull(alumno, "No se ha ubicado el registro del alumno");
         TipoUserMensajeriaEnum tipoUsuario = TipoUserMensajeriaEnum.ALUMNO;
         return this.createUsuario(alumno, null, alumno.getPersona(), tipoUsuario, ds);
+    }
+
+    @Override
+    @Transactional
+    public UsuarioMensajeria getUsuario(Persona persona, DataSessionPivot ds) {
+        TipoUserMensajeriaEnum tipoUsuario = TipoUserMensajeriaEnum.GENERICO;
+        return this.createUsuario(null, null, persona, tipoUsuario, ds);
     }
 
     private UsuarioMensajeria createUsuario(Alumno alumno, Docente docente, Persona persona, TipoUserMensajeriaEnum tipoUsuario, DataSessionPivot ds) {
@@ -324,6 +365,22 @@ public class ChatUnalmServiceImp implements ChatUnalmService {
         }
 
         return null;
+    }
+
+    @Override
+    public String crearContenido(TipoAsuntoMensajeEnum tipoAsunto, NotaAlumnoNivelacion inscrito) {
+        ContenidoCarta carta = contenidoCartaDAO.findByCodigo(tipoAsunto.name());
+        if (carta == null) {
+            return null;
+        }
+
+        String contenido = carta.getContenido();
+        Alumno alumno = inscrito.getAlumnoNivelacion().getAlumno();
+        contenido = contenido.replaceAll("PRM_ESTIMADO", this.getEstimado(alumno.getPersona()));
+
+        Curso curso = inscrito.getCurso();
+        contenido = contenido.replaceAll("PRM_CURSO", curso.getNombre());
+        return contenido;
     }
 
     private String getEstimado(Persona persona) {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.BuscarCruceDTO;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCicloAcademicoDAO;
-import pe.edu.lamolina.amauta.dao.horario.GrupoHorasNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioCursoDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.AlumnoNivelacionDAO;
 import pe.edu.lamolina.amauta.dao.nivelacioneegg.NotaAlumnoNivelacionDAO;
@@ -32,17 +33,20 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.calificacion.TemaExamen;
+
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCurso;
 import pe.edu.lamolina.model.nivelacioneegg.AlumnoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
+import pe.edu.lamolina.amauta.dao.horario.PlantillaNivelacionDAO;
 
 @Slf4j
 @Service
@@ -52,10 +56,11 @@ import pe.edu.lamolina.model.nivelacioneegg.CursoTemaExamen;
 public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelacionService {
 
     private final AlumnoNivelacionDAO alumnoNivelacionDAO;
+    private final CicloAcademicoDAO cicloAcademicoDAO;
     private final CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     private final CursoNivelacionDAO cursoNivelacionDAO;
     private final CursoTemaExamenDAO cursoTemaExamenDAO;
-    private final GrupoHorasNivelacionDAO grupoHorasNivelacionDAO;
+    private final PlantillaNivelacionDAO plantillaNivelacionDAO;
     private final HorarioCursoDAO horarioCursoDAO;
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
 
@@ -67,8 +72,13 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
     }
 
     @Override
-    public List<GrupoHorasNivelacion> allGruposHoras() {
-        return grupoHorasNivelacionDAO.all();
+    public CicloAcademico findCiclo(CicloAcademico ciclo) {
+        return cicloAcademicoDAO.findByCiclo(ciclo);
+    }
+
+    @Override
+    public List<PlantillaNivelacion> allPlantillas() {
+        return plantillaNivelacionDAO.all();
     }
 
     @Override
@@ -171,11 +181,11 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         }
 
         List<NotaAlumnoNivelacion> matriculados = notaAlumnoNivelacionDAO.allMatriculadosByCiclo(ciclo);
-        Map<Long, List<GrupoHorasNivelacion>> mapaAlumnoGrupo = matriculados.stream()
+        Map<Long, List<PlantillaNivelacion>> mapAlumnoPlantilla = matriculados.stream()
                 .collect(Collectors.groupingBy(
                         mat -> mat.getAlumnoNivelacion().getId(),
                         Collectors.mapping(
-                                mat -> mat.getCursoNivelacion().getGrupoHoras(),
+                                mat -> mat.getCursoNivelacion().getPlantilla(),
                                 Collectors.collectingAndThen(Collectors.toSet(), ArrayList::new)
                         )
                 ));
@@ -199,22 +209,22 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
             }
 
             AlumnoNivelacion alumnoNiv = mtble.getAlumnoNivelacion();
-            List<GrupoHorasNivelacion> gpoHoras = mapaAlumnoGrupo.get(alumnoNiv.getId());
-            boolean procesar = gpoHoras == null ? true : gpoHoras.size() == 1;
+            List<PlantillaNivelacion> plantilla = mapAlumnoPlantilla.get(alumnoNiv.getId());
+            boolean procesar = plantilla == null ? true : plantilla.size() == 1;
             if (!procesar) {
                 faltantes.add(mtble);
                 continue;
             }
 
-            GrupoHorasNivelacion gpoAlumno = null;
-            if (gpoHoras != null) {
-                gpoAlumno = gpoHoras.get(0);
+            PlantillaNivelacion gpoAlumno = null;
+            if (plantilla != null) {
+                gpoAlumno = plantilla.get(0);
             }
 
             boolean registrado = false;
             for (CursoNivelacion cursoNiv : cursosMtbles) {
-                GrupoHorasNivelacion gpoCurso = cursoNiv.getGrupoHoras();
-                boolean registrar = gpoHoras == null || (gpoAlumno != null && gpoCurso.equals(gpoAlumno));
+                PlantillaNivelacion plantillaSeccion = cursoNiv.getPlantilla();
+                boolean registrar = plantilla == null || (gpoAlumno != null && plantillaSeccion.equals(gpoAlumno));
 
                 if (cursoNiv.getDisponibles() > 0 && registrar) {
                     cursoNiv.setDisponibles(cursoNiv.getDisponibles() - 1);
@@ -236,10 +246,10 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
                         alumnoNivelacionDAO.update(alumnoNiv);
                     }
 
-                    if (gpoHoras == null) {
-                        gpoHoras = new ArrayList();
-                        gpoHoras.add(gpoCurso);
-                        mapaAlumnoGrupo.put(alumnoNiv.getId(), gpoHoras);
+                    if (plantilla == null) {
+                        plantilla = new ArrayList();
+                        plantilla.add(plantillaSeccion);
+                        mapAlumnoPlantilla.put(alumnoNiv.getId(), plantilla);
                     }
 
                     break;
@@ -269,9 +279,9 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
             for (CursoNivelacion cursoNiv : cursosMtbles) {
                 if (cursoNiv.getDisponibles() > 0) {
-                    GrupoHorasNivelacion gpoCurso = cursoNiv.getGrupoHoras();
+                    PlantillaNivelacion plantilla = cursoNiv.getPlantilla();
                     CursoCicloAcademico cursoCiclo = cursoNiv.getCursoCiclo();
-                    List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoCurso);
+                    List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
 
                     boolean hayCruce = this.buscandoCruces(horariosExistentes, horariosNuevos);
                     if (hayCruce) {
@@ -357,8 +367,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
         for (NotaAlumnoNivelacion nota : notas) {
             CursoCicloAcademico cursoCiclo = nota.getCursoNivelacion().getCursoCiclo();
-            GrupoHorasNivelacion gpoHoras = nota.getCursoNivelacion().getGrupoHoras();
-            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoHoras);
+            PlantillaNivelacion plantilla = nota.getCursoNivelacion().getPlantilla();
+            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
 
             horariosOtros.addAll(horariosCurso);
         }
@@ -379,15 +389,15 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CursoNivelacion cursoNiv = new CursoNivelacion();
 
         List<NotaAlumnoNivelacion> notas = notaAlumnoNivelacionDAO.allByAlumnoNivelacion(info.getAlumnoNivelacion());
-        List<GrupoHorasNivelacion> grupos = notas.stream()
+        List<PlantillaNivelacion> plantillas = notas.stream()
                 .filter(nan -> nan.getEstadoEnum() == MAT)
                 .filter(nan -> nan.getEsMatriculable())
                 .filter(nan -> nan.getCursoNivelacion() != null)
-                .map(nan -> nan.getCursoNivelacion().getGrupoHoras())
+                .map(nan -> nan.getCursoNivelacion().getPlantilla())
                 .distinct()
                 .collect(Collectors.toList());
-        if (grupos.size() == 1) {
-            cursoNiv.setGrupoHoras(grupos.get(0));
+        if (plantillas.size() == 1) {
+            cursoNiv.setPlantilla(plantillas.get(0));
         }
 
         info.setCursoNivelacion(cursoNiv);
@@ -396,11 +406,11 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
     @Override
     public String verificarCruce(BuscarCruceDTO form, CicloAcademico ciclo, DataSessionPivot ds) {
-        Assert.isNotNull(form.getGrupoHoras(), "No ha indicado el grupo horario");
-        Assert.isNotNull(form.getGrupoHoras().getId(), "No ha indicado el grupo horario");
+        Assert.isNotNull(form.getPlantilla(), "No ha indicado la plantilla");
+        Assert.isNotNull(form.getPlantilla().getId(), "No ha indicado la plantilla");
 
-        GrupoHorasNivelacion gpoHoras = grupoHorasNivelacionDAO.find(form.getGrupoHoras().getId());
-        Assert.isNotNull(gpoHoras, "El grupo horario que ha seleccionado no existe en el sistema");
+        PlantillaNivelacion plantillaBD = plantillaNivelacionDAO.find(form.getPlantilla().getId());
+        Assert.isNotNull(plantillaBD, "La plantilla que ha seleccionado no existe en el sistema");
 
         Assert.isNotNull(form.getCursoCiclo(), "No ha indicado el curso");
         Assert.isNotNull(form.getCursoCiclo().getCurso(), "No ha indicado el curso");
@@ -417,7 +427,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CicloAcademico cicloNiv = alumnoNiv.getCicloAcademico();
         Assert.isTrue(cicloNiv.getId().equals(ciclo.getId()), "El ciclo del alumno no corresponde al ciclo actual");
 
-        List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, gpoHoras);
+        List<HorarioCurso> horariosNuevos = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantillaBD);
         if (horariosNuevos.isEmpty()) {
             return null;
         }
@@ -440,8 +450,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         List<HorarioCurso> horariosOtros = new ArrayList();
         for (NotaAlumnoNivelacion nota : notas) {
             CursoCicloAcademico otroCursoCiclo = nota.getCursoNivelacion().getCursoCiclo();
-            GrupoHorasNivelacion otroGpoHoras = nota.getCursoNivelacion().getGrupoHoras();
-            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloHorario(otroCursoCiclo, otroGpoHoras);
+            PlantillaNivelacion otraPlantilla = nota.getCursoNivelacion().getPlantilla();
+            List<HorarioCurso> horariosCurso = horarioCursoDAO.allByCursoCicloPlantilla(otroCursoCiclo, otraPlantilla);
 
             horariosOtros.addAll(horariosCurso);
         }
@@ -466,8 +476,8 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
 
     @Override
     public List<CursoNivelacion> allSecciones(CursoNivelacion form, CicloAcademico ciclo, DataSessionPivot ds) {
-        Assert.isNotNull(form.getGrupoHoras(), "No ha indicado el grupo horario");
-        Assert.isNotNull(form.getGrupoHoras().getId(), "No ha indicado el grupo horario");
+        Assert.isNotNull(form.getPlantilla(), "No ha indicado la plantilla");
+        Assert.isNotNull(form.getPlantilla().getId(), "No ha indicado la plantilla");
 
         Assert.isNotNull(form.getCursoCiclo(), "No ha indicado el curso");
         Assert.isNotNull(form.getCursoCiclo().getCurso(), "No ha indicado el curso");
@@ -476,7 +486,9 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(form.getCursoCiclo().getCurso(), ciclo);
         Assert.isNotNull(cursoCiclo, "Este curso programado no está programado en este ciclo");
 
-        return cursoNivelacionDAO.allByCursoCiclo(cursoCiclo, form.getGrupoHoras());
+        return cursoNivelacionDAO.allByCursoCicloPlantilla(cursoCiclo, form.getPlantilla()).stream()
+                .filter(cn -> cn.getEstadoEnum() == SeccionEstadoEnum.ACT)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -563,6 +575,7 @@ public class MatriculablesNivelacionServiceImpl implements MatriculablesNivelaci
         List<NotaAlumnoNivelacion> matriculados = notasAll.stream()
                 .filter(nan -> nan.getEstadoEnum() == MAT)
                 .collect(Collectors.toList());
+        log.info("[retirarCurso] alumnoNiv.id={} matriculados={}", alumnoNiv.getId(), matriculados.size());
 
         if (matriculados.isEmpty() && alumnoNiv.getEstadoEnum() != NMAT) {
             alumnoNiv.setEstadoEnum(NMAT);

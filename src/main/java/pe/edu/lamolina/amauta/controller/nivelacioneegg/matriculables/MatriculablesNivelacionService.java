@@ -6,13 +6,15 @@ import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.Buscar
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.matriculables.dto.MatriculablesResumen;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.NotaAlumnoNivelacion;
 
 public interface MatriculablesNivelacionService {
 
-    List<GrupoHorasNivelacion> allGruposHoras();
+    CicloAcademico findCiclo(CicloAcademico ciclo);
+
+    List<PlantillaNivelacion> allPlantillas();
 
     List<NotaAlumnoNivelacion> allMatriculablesByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 

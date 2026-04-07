@@ -1,7 +1,10 @@
 package pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -236,6 +239,14 @@ public interface GpoSeccionService {
 
     public void updateLinkZoom(Seccion seccion, DataSessionPivot ds);
 
+    public void crearReunionTeamsParaSeccion(Seccion seccion, CicloAcademico cicloAcademico);
+
+    public List<Map<String, Object>> crearReunionesTeamsBatch(List<Long> seccionIds, CicloAcademico cicloAcademico);
+
     public void validarHorarioSeccion(Seccion seccion);
+
+    public Map<String, Object> cargarReunionesTeamsDesdeExcel(MultipartFile file, CicloAcademico cicloAcademico);
+
+    public byte[] getPlantillaTeams() throws IOException;
 
 }

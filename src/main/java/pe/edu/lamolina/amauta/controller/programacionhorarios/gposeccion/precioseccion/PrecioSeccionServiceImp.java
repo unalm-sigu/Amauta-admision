@@ -111,6 +111,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
     }
 
     @Override
+    @Transactional
     public void savePrecioSeccion(Seccion seccionForm, DataSessionPivot ds) {
 
         Seccion seccionBD = seccionDAO.find(seccionForm);
@@ -499,3 +500,4 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
     }
 
 }
+

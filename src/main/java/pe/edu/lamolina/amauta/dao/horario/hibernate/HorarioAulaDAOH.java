@@ -1,10 +1,5 @@
 package pe.edu.lamolina.amauta.dao.horario.hibernate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,29 +7,26 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.tramite.ReservaAula;
-import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.TipoAulaEnum;
-import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.*;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
-import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
-import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
-import pe.edu.lamolina.model.rolexamen.RolExamenes;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
-import pe.edu.lamolina.model.rolexamen.SemanaExamen;
-import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
-import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
+import pe.edu.lamolina.model.rolexamen.*;
+import pe.edu.lamolina.model.tramite.ReservaAula;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements HorarioAulaDAO {
@@ -302,7 +294,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
                 .left("gs.cicloAcademico ca")
                 .left("reservaAula ra", "ra.tramite tra")
-                .left("cursoNivelacion cn", "cn.cursoCiclo cc","cc.curso cu","cu.departamentoAcademico", "cn.grupoHoras ghh")
+                .left("cursoNivelacion cn", "cn.cursoCiclo cc", "cc.curso cu", "cu.departamentoAcademico", "cn.plantilla pl", "cn.grupoNivelacion")
                 .left("cn.docente doc", "doc.persona")
                 .left("tra.docente do", "do.persona")
                 .left("tra.alumno al", "al.persona")
@@ -883,7 +875,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia dia", "hora hora", "aula aula")
-                .join("cursoNivelacion cn", "cn.grupoHoras gh")
+                .join("cursoNivelacion cn", "cn.plantilla pl")
                 .in("cn.id", cursosNivelacion)
                 .orderBy("ha.fechaInicio", "hora.numero");
 

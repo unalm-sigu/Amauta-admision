@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -13,7 +14,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.nivelacioneegg.CursoNivelacion;
 
 @Repository
@@ -42,6 +43,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
                 .from(CursoNivelacion.class, "cn")
                 .join("docente doc", "cursoCiclo cuci")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .join("plantilla pl", "grupoNivelacion gn")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)
 //                .notIn("cn.estado", Arrays.asList(SeccionEstadoEnum.CAN.name()))
@@ -69,14 +71,27 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
     }
 
     @Override
-    public List<CursoNivelacion> allByCursoCiclo(CursoCicloAcademico cursoCiclo, GrupoHorasNivelacion grupoHoras) {
+    public List<CursoNivelacion> allByCursoCicloPlantilla(CursoCicloAcademico cursoCiclo, PlantillaNivelacion plantilla) {
         Octavia sql = Octavia.query()
                 .from(CursoNivelacion.class, "cn")
-                .join("docente doc", "cursoCiclo cuci", "grupoHoras gh")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
-                .filter("gh.id", grupoHoras)
+                .filter("pl.id", plantilla)
                 .filter("cuci.id", cursoCiclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoNivelacion> allByCicloPlantilla(CicloAcademico ciclo, PlantillaNivelacion plantilla) {
+        Octavia sql = Octavia.query()
+                .from(CursoNivelacion.class, "cn")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
+                .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .leftJoin("aula", "doc.persona per")
+                .filter("pl.id", plantilla)
+                .filter("ci.id", ciclo);
 
         return all(sql);
     }
@@ -85,7 +100,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
     public List<CursoNivelacion> allByDocenteCiclo(Docente docente, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CursoNivelacion.class, "cn")
-                .join("docente doc", "cursoCiclo cuci", "grupoHoras gh")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("doc.id", docente)
@@ -98,7 +113,7 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
     public List<CursoNivelacion> allActivosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CursoNivelacion.class, "cn")
-                .join("docente doc", "cursoCiclo cuci", "grupoHoras gh")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("cn.estado", SeccionEstadoEnum.ACT)
@@ -109,10 +124,23 @@ public class CursoNivelacionDAOH extends AbstractEasyDAO<CursoNivelacion> implem
     }
 
     @Override
+    public List<CursoNivelacion> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(CursoNivelacion.class, "cn")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
+                .join("cuci.curso cu", "cuci.cicloAcademico ci")
+                .leftJoin("aula", "doc.persona per")
+                .filter("cn.estado", SeccionEstadoEnum.ACT)
+                .filter("ci.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public CursoNivelacion findLastByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CursoNivelacion.class, "cn")
-                .join("docente doc", "cursoCiclo cuci", "grupoHoras gh")
+                .join("docente doc", "cursoCiclo cuci", "plantilla pl")
                 .join("cuci.curso cu", "cuci.cicloAcademico ci")
                 .leftJoin("aula", "doc.persona per")
                 .filter("ci.id", ciclo)

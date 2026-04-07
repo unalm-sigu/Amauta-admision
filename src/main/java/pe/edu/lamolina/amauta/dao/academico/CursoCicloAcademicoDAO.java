@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 
 public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
@@ -30,6 +31,8 @@ public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
     CursoCicloAcademico findByCursoCiclo(Curso curso, CicloAcademico ciclo);
 
     List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico cicloAcademico, String nombre);
+
+    List<CursoCicloAcademico> allByCicloModalidad(CicloAcademico ciclo, ModalidadEstudio modalidad);
 
     int updateList(List<CursoCicloAcademico> cursosCiclos, String... columnas);
 

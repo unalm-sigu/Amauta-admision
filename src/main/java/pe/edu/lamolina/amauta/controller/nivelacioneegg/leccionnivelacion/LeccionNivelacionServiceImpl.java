@@ -34,7 +34,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.dictadoclases.AsistenciaClasesEstadoEnum;
 import pe.edu.lamolina.model.enums.dictadoclases.ControlAsistenciaEstadoEnum;
-import pe.edu.lamolina.model.horario.GrupoHorasNivelacion;
+import pe.edu.lamolina.model.horario.PlantillaNivelacion;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioCurso;
@@ -94,8 +94,8 @@ public class LeccionNivelacionServiceImpl implements LeccionNivelacionService {
     @Override
     public List<ControlAsistenciaDTO> allFechasLecciones(CursoNivelacion seccion) {
         CursoCicloAcademico cursoCiclo = seccion.getCursoCiclo();
-        GrupoHorasNivelacion grupoHoras = seccion.getGrupoHoras();
-        List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloHorario(cursoCiclo, grupoHoras);
+        PlantillaNivelacion plantilla = seccion.getPlantilla();
+        List<HorarioCurso> horarios = horarioCursoDAO.allByCursoCicloPlantilla(cursoCiclo, plantilla);
         log.info("[allFechasLecciones] horarios.size={}", horarios.size());
 
         Map<String, PeriodoCantidadDiasDTO> mapPeriodos = new HashMap();

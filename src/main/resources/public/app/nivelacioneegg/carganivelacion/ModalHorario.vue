@@ -148,7 +148,7 @@
             },
             loadHorarios() {
                 const payload = {
-                    id: this.cursoNiv.grupoHoras.id
+                    id: this.cursoNiv.plantilla.id
                 };
 
                 myUtils.axios(VUE_AXIOS.structGetData({

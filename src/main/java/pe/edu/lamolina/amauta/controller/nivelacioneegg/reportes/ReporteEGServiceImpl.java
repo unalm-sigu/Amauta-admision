@@ -20,6 +20,9 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
+
+import static pe.edu.lamolina.model.enums.dictadoclases.AsistenciaClasesEstadoEnum.ASISTIO;
 
 @Slf4j
 @Service
@@ -30,7 +33,7 @@ public class ReporteEGServiceImpl implements ReporteEGService {
 
     private final NotaAlumnoNivelacionDAO notaAlumnoNivelacionDAO;
     private final AsistenciaNivelacionDAO asistenciaNivelacionDAO;
-    private final CarreraDAO  carreraDAO;
+    private final CarreraDAO carreraDAO;
 
     @Override
     public List<ResultadoReporteView> allNotasGeneralByCiclo(CicloAcademico cicloAcademico) {
@@ -45,13 +48,17 @@ public class ReporteEGServiceImpl implements ReporteEGService {
     @Override
     public List<ResultadoReporteView> allAsistenciaBySeccionAndCiclo(CicloAcademico cicloAcademico, String codSeccion) {
         List<AsistenciaNivelacion> asistencias = asistenciaNivelacionDAO.allByCicloSeccion(cicloAcademico, codSeccion);
-        Map<String, List<AsistenciaNivelacion>> alumnosAsistencias = asistencias.stream().
-                collect(Collectors.groupingBy(x -> x.getAlumnoNivelacion().getAlumno().getCodigo()));
+        Map<String, List<AsistenciaNivelacion>> alumnosAsistencias = asistencias.stream()
+                .collect(Collectors.groupingBy(asiste -> asiste.getAlumnoNivelacion().getAlumno().getCodigo()));
 
         List<ResultadoReporteView> asistenciaSeccion = asistenciaNivelacionDAO.allByCicloAndSeccion(cicloAcademico, codSeccion);
-        asistenciaSeccion.forEach(x -> {
-            List<AsistenciaNivelacion> asistenciaAlumno = alumnosAsistencias.get(x.getMatricula());
-            x.setAsistencias(asistenciaAlumno);
+        asistenciaSeccion.forEach(asiste -> {
+            List<AsistenciaNivelacion> asistenciaAlumno = alumnosAsistencias.get(asiste.getMatricula());
+            List<TemaAsistencia> temasAsistencia = asistenciaAlumno.stream()
+                    .filter(asisteAlu -> asisteAlu.getEstadoEnum() == ASISTIO)
+                    .map(asisteAlu -> asisteAlu.getTemaAsistencia())
+                    .distinct().collect(Collectors.toList());
+            asiste.setAsistencias(temasAsistencia);
         });
 
         return asistenciaSeccion;
@@ -107,8 +114,8 @@ public class ReporteEGServiceImpl implements ReporteEGService {
         List<IngresantesAsistenciaInscritosDTO> asistencias = notaAlumnoNivelacionDAO.allAsistenciasByCicloCarrera(cicloAcademico, idCarrera);
 
         ResultadoReporteView resultadoReporteView = new ResultadoReporteView();
-        resultadoReporteView.setCarrera(ingresantesNivelacionCarrera.isEmpty() ? "": ingresantesNivelacionCarrera.get(0).getCarrera());
-        resultadoReporteView.setFacultad(ingresantesNivelacionCarrera.isEmpty() ? "": ingresantesNivelacionCarrera.get(0).getFacultad());
+        resultadoReporteView.setCarrera(ingresantesNivelacionCarrera.isEmpty() ? "" : ingresantesNivelacionCarrera.get(0).getCarrera());
+        resultadoReporteView.setFacultad(ingresantesNivelacionCarrera.isEmpty() ? "" : ingresantesNivelacionCarrera.get(0).getFacultad());
         resultadoReporteView.setIngresantesNivelacionCarrera(ingresantesNivelacionCarrera);
         resultadoReporteView.setIngresantesInscritos(inscritosNivelacion);
         resultadoReporteView.setIngresantesAsistencia(asistencias);

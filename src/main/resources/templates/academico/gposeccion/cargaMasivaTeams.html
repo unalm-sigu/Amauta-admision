@@ -1,0 +1,114 @@
+<html layout:decorator="_layout/layout3">
+    <head>
+        <title>Carga Masiva Reuniones Teams</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header"> </header>
+            <section class="panel" id="cargaMasivaTeamsVUE">
+                <section class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Carga Masiva de Reuniones Teams</h3>
+                                </div>
+
+                                <div class="panel-body">
+                                    <form id="formLoadFiles" enctype="multipart/form-data" method="POST">
+                                        <div class="row m-b-md">
+                                            <div class="col-md-12">
+
+                                                <span class="block">Descarga la plantilla
+                                                    <strong><a th:href="@{'/academico/gposeccion/download-plantilla-teams'}">aqu&iacute;</a></strong>.
+                                                </span>
+                                                <span class="block">Columnas requeridas: <strong>Email</strong>, <strong>Curso</strong>, <strong>Secci&oacute;n</strong>.</span>
+                                                <span class="block">Seleccionar un archivo y presione el bot&oacute;n <strong>Iniciar Carga</strong>.</span>
+
+                                                <div class="form-group">
+                                                    <br/>
+                                                    <input class="btn btn-default" type="file" v-on:change="getImage" accept=".xlsx" required=""/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="col-md-12 text-center">
+                                            <a class="btn btn-link" th:href="@{'/academico/gposeccion'}">Regresar</a>
+                                            <button type="button" class="btn btn-primary"
+                                                    v-bind:disabled="procesando"
+                                                    v-on:click.prevent="startUpload">
+
+                                                <i v-if="procesando" class="fa fa-spinner fa-pulse fa-fw"></i>
+
+                                                {{btnText}}
+                                            </button>
+                                        </span>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <br/>
+
+                            <div class="panel panel-success" v-if="exitosos.length > 0">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Reuniones creadas ({{exitosos.length}})</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div style="max-height: 40vh; overflow-y: auto;">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Curso</th>
+                                                    <th>Secci&oacute;n</th>
+                                                    <th>Email</th>
+                                                    <th>Link Teams</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in exitosos">
+                                                    <td>{{item.curso}}</td>
+                                                    <td>{{item.seccion}}</td>
+                                                    <td>{{item.email}}</td>
+                                                    <td><a v-bind:href="item.link" target="_blank">{{item.link}}</a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-danger" v-if="observaciones.length > 0">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Observaciones</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div style="max-height: 30vh; overflow-y: auto;">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Detalle</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in observaciones">
+                                                    <td>{{item}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </section>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/app/gposeccion/cargaMasivaTeams.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
