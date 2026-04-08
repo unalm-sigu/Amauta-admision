@@ -2,14 +2,13 @@ new Vue({
     el: '#mainDocente',
     data: {
         urlfilter: APP.url("tramite/aula/listDocente"),
-        reservaActiva: {}
+        reservaActiva: {},
+        dataResumenModal: {id: 'iddataResumenModal', title: 'Resumen Reserva', header: true, modalsize: 'modal-lg', showaccept: false, cancelclass: 'btn-link'},
+        tramiteresumen: {tramite: {}},
+        dias: [],
+        horas: []
     },
     mounted: function() {
-        let $vue = this;
-
-        $global.$on("close-resumen-modal", function() {
-            $vue.recargar();
-        });
     },
     methods: {
         editarReserva(item) {
@@ -18,16 +17,17 @@ new Vue({
         verResumen(item) {
             let $vue = this;
             $vue.reservaActiva = item;
-
-            let params = $.param({id: item.id});
-
             $.ajax({
+                method: 'POST',
+                async: false,
                 url: APP.url('tramite/aula/resumen'),
-                type: 'POST',
-                data: params,
+                data: {id: item.id},
                 success: function(response) {
                     if (response.success) {
-                        $global.$emit("show-resumen-modal", response.data);
+                        $vue.tramiteresumen = response.data.reservaAula;
+                        $vue.dias = response.data.dias;
+                        $vue.horas = response.data.horas;
+                        $vue.$refs.resumenModal.open();
                     } else {
                         notify(response.message, "error");
                     }
