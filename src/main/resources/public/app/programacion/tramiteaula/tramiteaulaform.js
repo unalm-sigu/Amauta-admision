@@ -332,7 +332,9 @@ new Vue({
             $vue.$refs.raptor.querie.push({name: 'modulo', value: ($vue.moduloselecto != null && $vue.moduloselecto.id != null) ? $vue.moduloselecto.id : ''});
 
             var diahora = $vue.jsonaulahorario.map(function (v, i) {
-                return v.id;
+                var diaId = typeof v.dia === 'object' ? v.dia.id : v.dia;
+                var horaId = typeof v.hora === 'object' ? v.hora.id : v.hora;
+                return diaId + '-' + horaId;
             });
 
             $vue.$refs.raptor.querie.push({name: 'diahora', value: diahora.toString()});
