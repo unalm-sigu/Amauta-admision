@@ -47,6 +47,7 @@ new Vue({
         capacidadseleccinado: 0,
         capacidadfaltante: 0,
         totalaulas: 0,
+        isLoadingEdit: false,
     },
     mounted: function () {
 
@@ -54,14 +55,64 @@ new Vue({
 
         if ($vue.reservaaulaedit != null) {
             if ($vue.reservaaulaedit.id != null) {
+                $vue.isLoadingEdit = true;
                 $vue.reservaaula = $vue.reservaaulaedit;
-                $vue.reservados = $vue.reservaaulaedit.reservados;
+
+                if ($vue.reservaaulaedit.reservados && $vue.reservaaulaedit.reservados.length > 0) {
+                    $vue.reservados = $vue.reservaaulaedit.reservados;
+                } else {
+                    if ($vue.reservaaulaedit.aulaReservada && $vue.reservaaulaedit.aulaReservada.length > 0) {
+                        let aulasMap = new Map();
+                        $vue.reservaaulaedit.aulaReservada.forEach(function(ar) {
+                            if (ar.aula && ar.aula.id) {
+                                aulasMap.set(ar.aula.id, ar.aula);
+                            }
+                        });
+                        $vue.reservados = Array.from(aulasMap.values());
+                    } else {
+                        $vue.reservados = [];
+                    }
+                }
+
                 let tipoEnum = $vue.reservaaulaedit.tramite.tipoSolicitanteEnum;
                 $vue.reservaaula.tipoSolicitante = {id: tipoEnum.id, nombre: tipoEnum.value}
+
+                if ($vue.reservaaulaedit.aulaReservada && $vue.reservaaulaedit.aulaReservada.length > 0) {
+                    let horariosMap = new Map();
+                    $vue.reservaaulaedit.aulaReservada.forEach(function(ar) {
+                        let key = ar.dia.id + '-' + ar.hora.id;
+                        if (!horariosMap.has(key)) {
+                            horariosMap.set(key, {
+                                id: ar.id,
+                                dia: ar.dia,
+                                hora: ar.hora
+                            });
+                        }
+                    });
+                    let horariosArray = Array.from(horariosMap.values());
+                    $vue.jsonaulahorario = horariosArray.map(function(h) {
+                        return {
+                            dia: h.dia.id,
+                            hora: h.hora.id
+                        };
+                    });
+                } else {
+                    $vue.jsonaulahorario = [];
+                }
+
+                $vue.$nextTick(function() {
+                    $vue.changeCapacidadSeleccionado();
+                    setTimeout(function() {
+                        $vue.isLoadingEdit = false;
+                    }, 500);
+                });
             }
         }
         $vue.loadModulosByOficina();
-        $global.$on("changehorario", function () {
+        $global.$on("changehorario", function (horariosSeleccionados) {
+            if (horariosSeleccionados && Array.isArray(horariosSeleccionados)) {
+                $vue.jsonaulahorario = horariosSeleccionados;
+            }
             $vue.changehorario();
         });
 
@@ -135,14 +186,18 @@ new Vue({
             if ($vue.reservaaula.fechaFin === undefined) {
                 $vue.reservaaula.fechaFin = $vue.reservaaula.fechaInicio;
             }
-            $vue.reservados = [];
-            $vue.clearHorario();
+            if (!$vue.isLoadingEdit) {
+                $vue.reservados = [];
+                $vue.clearHorario();
+            }
             $vue.changefilteraula();
         },
         changeFechaFin() {
             let $vue = this;
-            $vue.reservados = [];
-            $vue.clearHorario();
+            if (!$vue.isLoadingEdit) {
+                $vue.reservados = [];
+                $vue.clearHorario();
+            }
             $vue.changefilteraula();
         },
         validarDiaSeleccionado(reservaaula) {
@@ -169,16 +224,20 @@ new Vue({
 
             if ($vue.reservaaula.fechaInicio === $vue.reservaaula.fechaFin) {
 
-                // let diaDateJs = $vue.jsonaulahorario[0].dia.id + 1;// se sumas +1 por el date del JS
-                let diaDateJs = ($vue.jsonaulahorario[0].dia.id === 7) ? 1 : $vue.jsonaulahorario[0].dia.id + 1;
+                let getDiaId = function(item) {
+                    return typeof item.dia === 'object' ? item.dia.id : item.dia;
+                };
+
+                let primerDiaId = getDiaId($vue.jsonaulahorario[0]);
+                let diaDateJs = (primerDiaId === 7) ? 1 : primerDiaId + 1;
 
                 let diaSeleccionado = this.validarDiaSeleccionado($vue.reservaaula);
 
-                let diaTmp = $vue.jsonaulahorario[0].dia.id;
+                let diaTmp = primerDiaId;
 
                 for (var i = 0; i < $vue.jsonaulahorario.length; i++) {
 
-                    if (diaTmp !== $vue.jsonaulahorario[i].dia.id) {
+                    if (diaTmp !== getDiaId($vue.jsonaulahorario[i])) {
                         notify("Solo debe seleccionar el día de la fecha " + $vue.reservaaula.fechaInicio + " día " + diaSeleccionado.dia, "error");
                         return;
                     }
@@ -190,10 +249,17 @@ new Vue({
                 }
             }
 
-            $vue.reservaaula.reservados = $vue.reservados;
-            $vue.reservaaula.diahora = $vue.jsonaulahorario;
+            $vue.reservaaula.reservados = $vue.reservados.map(function(aula) {
+                return {id: aula.id};
+            });
+
+            $vue.reservaaula.diahora = $vue.jsonaulahorario.map(function(item) {
+                return {
+                    dia: {id: typeof item.dia === 'object' ? item.dia.id : item.dia},
+                    hora: {id: typeof item.hora === 'object' ? item.hora.id : item.hora}
+                };
+            });
             $vue.isactiveguardar = true;
-            console.log($vue.reservaaula);
             $.ajax({
                 method: 'POST',
                 async: true,
@@ -266,7 +332,9 @@ new Vue({
             $vue.$refs.raptor.querie.push({name: 'modulo', value: ($vue.moduloselecto != null && $vue.moduloselecto.id != null) ? $vue.moduloselecto.id : ''});
 
             var diahora = $vue.jsonaulahorario.map(function (v, i) {
-                return v.id;
+                var diaId = typeof v.dia === 'object' ? v.dia.id : v.dia;
+                var horaId = typeof v.hora === 'object' ? v.hora.id : v.hora;
+                return diaId + '-' + horaId;
             });
 
             $vue.$refs.raptor.querie.push({name: 'diahora', value: diahora.toString()});
@@ -281,7 +349,9 @@ new Vue({
         },
         changehorario() {
             let $vue = this;
-            $vue.reservados = [];
+            if (!$vue.isLoadingEdit) {
+                $vue.reservados = [];
+            }
             $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
         },

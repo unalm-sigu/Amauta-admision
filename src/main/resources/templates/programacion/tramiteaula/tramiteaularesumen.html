@@ -2,46 +2,46 @@
 
     <div slot="body">
 
-        <div class="col-xs-12">
+        <div class="col-xs-12" v-if="tramiteresumen && tramiteresumen.tramite">
 
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='DOC' "><b>Solicitante:</b>  
-                {{tramiteresumen.tramite.docente !==  undefined ? tramiteresumen.tramite.docente.persona.nombreCompleto : ''}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='ALU' "><b>Solicitante:</b>  
-                {{tramiteresumen.tramite.alumno !== undefined ? tramiteresumen.tramite.alumno.persona.nombreCompleto : ''}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='EMP' "><b>Solicitante:</b>  
-                {{tramiteresumen.tramite.empresa !== undefined ? tramiteresumen.tramite.empresa.razonSocial : ''}}</p>                
-            <p v-if="tramiteresumen.tramite.tipoSolicitante=='OFI' "><b>Solicitante:</b>  
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='DOC' "><b>Solicitante:</b>
+                {{tramiteresumen.tramite.docente !==  undefined ? tramiteresumen.tramite.docente.persona.nombreCompleto : ''}}</p>
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='ALU' "><b>Solicitante:</b>
+                {{tramiteresumen.tramite.alumno !== undefined ? tramiteresumen.tramite.alumno.persona.nombreCompleto : ''}}</p>
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='EMP' "><b>Solicitante:</b>
+                {{tramiteresumen.tramite.empresa !== undefined ? tramiteresumen.tramite.empresa.razonSocial : ''}}</p>
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='OFI' "><b>Solicitante:</b>
                 {{tramiteresumen.tramite.oficina !== undefined ? tramiteresumen.tramite.oficina.nombre : ''}}</p>
         </div>
 
 
-        <div class="col-xs-12">
+        <div class="col-xs-12" v-if="tramiteresumen">
             <p><b>Motivo:</b>{{tramiteresumen.motivo}}</p>
         </div>
 
-        <div class="col-xs-12">
+        <div class="col-xs-12" v-if="tramiteresumen">
             <p><b>Fecha:</b>{{tramiteresumen.fechaInicio}} {{tramiteresumen.fechaFin}} </p>
         </div>
 
-        <div class="col-xs-3">
+        <div class="col-xs-3" v-if="tramiteresumen">
             <p><b>Capacidad Total:</b>{{tramiteresumen.aforo}} </p>
         </div>
 
-        <div class="col-xs-3">
+        <div class="col-xs-3" v-if="tramiteresumen">
             <p><b>Cantidad Ambiente:</b>{{tramiteresumen.cantidadAmbiente}} </p>
         </div>
 
-        <div class="col-xs-3">
+        <div class="col-xs-3" v-if="tramiteresumen">
             <p><b>Capacidad Mínima del Ambiente:</b>{{tramiteresumen.capacidadMinimaAmbiente}} </p>
         </div>
 
-        <div class="col-xs-3">
+        <div class="col-xs-3" v-if="tramiteresumen">
             <p><b>Capacidad Máxima del Ambiente:</b>{{tramiteresumen.capacidadMaximaAmbiente}} </p>
         </div>
 
         <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
 
-        <div class="row">
+        <div class="row" v-if="tramiteresumen && tramiteresumen.reservados">
 
             <div v-for="reserva in tramiteresumen.reservados" class="col-sm-2  col-xs-2">
 
@@ -61,12 +61,12 @@
         <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
 
 
-        <table class="table table-bordered" >
+        <table class="table table-bordered" v-if="dias && horas">
 
             <thead>
                 <tr>
                     <th style="width: 12.5%" class="text-center">Hora</th>
-                    <th style="width: 12.5%" class="text-center" 
+                    <th style="width: 12.5%" class="text-center"
                         v-for="dia in dias">
                         {{dia.nombre}}
                     </th>
@@ -83,7 +83,7 @@
                     </td>
 
                     <td  v-for="dia in hora.dias" class="text-center pointer"
-                         v-bind:class="{ 'bg-primary' : dia.selecionado }"  > 
+                         v-bind:class="{ 'bg-primary' : dia.selecionado }"  >
                     </td>
 
                 </tr>

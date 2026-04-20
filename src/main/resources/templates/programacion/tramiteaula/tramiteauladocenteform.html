@@ -1,0 +1,378 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Reserva de Aula - Docente</title>
+        <style>
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="mainFormDocente" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">
+                        <a class="btn btn-default" type="button" th:href="@{/tramite/aula/docente}">Regresar</a>
+                    </div>
+
+                    <h2 v-if="!esEdicion">Nueva Reserva de Aula</h2>
+                    <h2 v-else>Editar Reserva de Aula</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <form method="post" ref="formreserva" data-parsley-validate="true">
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Docente</label>
+                                            <input type="text" class="form-control"
+                                                   v-model="docenteNombre" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <label>Rango de Fecha</label>
+                                        <div>
+                                            <label class="switch">
+                                                <input type="checkbox"
+                                                       v-model="rangofecha"
+                                                       v-on:change="changeRangoFecha()"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label v-if="!rangofecha">Fecha</label>
+                                            <label v-else>Fecha Inicio</label>
+                                            <div class='input-group'>
+                                                <date-picker
+                                                    v-bind:config="{format: 'DD/MM/YYYY', useCurrent: false}"
+                                                    name="fechaInicio"
+                                                    class='form-control'
+                                                    required="true"
+                                                    v-bind:wrap="true"
+                                                    v-model="reserva.fechaInicio"
+                                                    v-on:dp-change="changeFechaInicio()">
+                                                </date-picker>
+                                                <span class="input-group-addon pointer">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="rangofecha" class="col-sm-3">
+                                        <div class="form-group">
+                                            <label>Fecha Fin</label>
+                                            <div class='input-group'>
+                                                <date-picker
+                                                    v-bind:config="{format: 'DD/MM/YYYY', useCurrent: false}"
+                                                    name="fechaFin"
+                                                    class='form-control'
+                                                    required="true"
+                                                    v-bind:wrap="true"
+                                                    v-model="reserva.fechaFin"
+                                                    v-on:dp-change="changeFechaFin()">
+                                                </date-picker>
+                                                <span class="input-group-addon pointer">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+<!--                                    <div class="col-sm-3">-->
+<!--                                        <label>Horario Visible en Reporte</label>-->
+<!--                                        <div>-->
+<!--                                            <label class="switch">-->
+<!--                                                <input type="checkbox"-->
+<!--                                                       v-model="reserva.visibleHorario"/>-->
+<!--                                                <span></span>-->
+<!--                                            </label>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <aula-horario-component
+                                    v-bind:jsonaulahorario="jsonaulahorario"
+                                    v-bind:validarrangofecha="rangofecha">
+                                </aula-horario-component>
+
+                                <div class="clearfix"></div>
+
+                                <div class="row m-t">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Motivo de la Reserva <span class="text-danger">*</span></label>
+                                            <textarea v-model="reserva.motivo"
+                                                      class="form-control"
+                                                      rows="3"
+                                                      required="true"
+                                                      data-parsley-minlength="10"
+                                                      placeholder="Describa el motivo de la reserva (mínimo 10 caracteres)"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+<!--                                <div class="row">-->
+<!--                                    <div class="col-sm-12">-->
+<!--                                        <div class="form-group">-->
+<!--                                            <label>Comentarios (Opcional)</label>-->
+<!--                                            <textarea v-model="reserva.comentario"-->
+<!--                                                      class="form-control"-->
+<!--                                                      rows="2"-->
+<!--                                                      placeholder="Información adicional"></textarea>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+
+                                <div class="row" v-if="aulasSeleccionadas.length > 0">
+                                    <div class="col-sm-12">
+                                        <h4>Aulas Seleccionadas ({{aulasSeleccionadas.length}})</h4>
+                                    </div>
+                                    <div v-for="aula in aulasSeleccionadas" class="col-sm-3 col-xs-4 m-b">
+                                        <div class="panel panel-default" style="position: relative;">
+                                            <button class="btn btn-danger btn-xs close-btn"
+                                                    v-on:click.prevent="eliminarAula(aula)">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                            <div class="panel-body text-center">
+                                                <h5 class="m-t-none"><strong>{{aula.codigo}}</strong></h5>
+                                                <p class="text-xs m-b-none">{{aula.nombre}}</p>
+                                                <p class="text-xs text-muted">Capacidad: {{aula.capacidadAula}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="row m-t">
+                                    <div class="col-sm-12">
+                                        <h4>Seleccionar Aulas</h4>
+                                    </div>
+                                </div>
+
+                                <raptor-table
+                                    v-bind:url="urlFiltroAulas"
+                                    v-bind:paginate="true"
+                                    v-bind:preload="true"
+                                    ref="raptor">
+
+                                    <div slot="header">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <div class="form-group m-b-none">
+                                                    <label>Capacidad mínima</label>
+                                                    <div class="input-group">
+                                                        <input type="number"
+                                                               class="form-control"
+                                                               min="1"
+                                                               placeholder="Ej: 30"
+                                                               v-model="capacidadMinima"
+                                                               v-on:input="filtrarAulas()"/>
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-users"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label>Mostrar solo disponibles</label>
+                                                <div>
+                                                    <label class="switch">
+                                                        <input type="checkbox"
+                                                               v-model="soloDisponibles"
+                                                               v-on:change="filtrarAulas()"/>
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <template scope="props">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-xs-3">Módulo</th>
+                                                    <th class="col-xs-3">Aula</th>
+                                                    <th class="col-xs-2 text-center">Capacidad</th>
+                                                    <th class="col-xs-2 text-center">Tipo</th>
+                                                    <th class="col-xs-1 text-center">Disponible</th>
+                                                    <th class="col-xs-1"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data">
+                                                    <td>
+                                                        <strong>{{item.aulaSuperior ? item.aulaSuperior.nombre : '-'}}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <strong>{{item.nombre}}</strong>
+                                                        <p class="text-xs">{{item.codigo}}</p>
+                                                    </td>
+                                                    <td class="text-center">{{item.capacidadAula}}</td>
+                                                    <td class="text-center">
+                                                        <span class="text-xs">{{item.tipoAula ? item.tipoAula.nombre : '-'}}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="label label-success" v-if="item.isDisponible">
+                                                            <i class="fa fa-check"></i> Sí
+                                                        </span>
+                                                        <span class="label label-danger" v-else>
+                                                            <i class="fa fa-times"></i> No
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button v-if="item.isDisponible && !aulaYaAgregada(item)"
+                                                                class="btn btn-sm btn-primary"
+                                                                v-on:click.prevent="agregarAula(item)">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                        <span v-else-if="aulaYaAgregada(item)" class="text-success">
+                                                            <i class="fa fa-check"></i> Agregada
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+
+                                </raptor-table>
+
+                            </form>
+
+                            <div class="panel panel-default m-t">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title m-n">
+                                        Verificar cruce de alumnos
+                                        <small class="text-muted">(opcional)</small>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group m-b-none">
+                                                <label>Curso a recuperar / dictar</label>
+                                                <select class="form-control"
+                                                        v-model="cursoSeleccionado">
+                                                    <option v-bind:value="null">-- Seleccione un curso --</option>
+                                                    <option v-for="c in cursosDocente"
+                                                            v-bind:value="c">
+                                                        {{c.codigo}} - {{c.nombre}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3" style="padding-top: 25px;">
+                                            <button class="btn btn-info"
+                                                    v-bind:disabled="verificando || !cursoSeleccionado"
+                                                    v-on:click.prevent="verificarCruce()">
+                                                <i v-if="verificando" class="fa fa-spinner fa-spin"></i>
+                                                <i v-else class="fa fa-search"></i>
+                                                Verificar cruce
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="resultadoCruce !== null" class="m-t">
+                                        <div v-if="resultadoCruce.length === 0" class="alert alert-success m-b-none">
+                                            <i class="fa fa-check-circle"></i>
+                                            Ningún alumno del curso tiene cruce con el horario seleccionado.
+                                        </div>
+                                        <div v-else>
+                                            <div class="alert alert-warning m-b-xs">
+                                                <i class="fa fa-exclamation-triangle"></i>
+                                                <strong>{{resultadoCruce.length}} alumno(s)</strong> tienen cruce de horario:
+                                            </div>
+                                            <table class="table table-bordered table-condensed m-b-none">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-sm-2">Código</th>
+                                                        <th class="col-sm-4">Nombre</th>
+                                                        <th>Cruce en</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="a in resultadoCruce">
+                                                        <td>{{a.codigo}}</td>
+                                                        <td>{{a.nombre}}</td>
+                                                        <td>
+                                                            <span v-for="c in a.cruces"
+                                                                  class="label label-warning m-r-xs">
+                                                                {{c.dia}} {{c.hora}}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-lg">
+                                <div class="col-xs-12 text-center">
+                                    <button class="btn btn-lg btn-primary"
+                                            v-bind:disabled="guardando"
+                                            v-on:click.prevent="guardar()">
+                                        <i v-if="guardando" class="fa fa-spinner fa-spin"></i>
+                                        <span v-if="!guardando">Guardar Reserva</span>
+                                        <span v-else>Guardando...</span>
+                                    </button>
+                                    <a class="btn btn-lg btn-default" th:href="@{/tramite/aula/docente}">
+                                        Cancelar
+                                    </a>
+                                </div>
+                            </div>
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var docenteJson = /*[[${docente}]]*/ '{}';
+                var reservaJson = /*[[${reserva}]]*/ null;
+
+                if (typeof docenteJson === 'string') {
+                    docenteJson = JSON.parse(docenteJson);
+                }
+                if (reservaJson && typeof reservaJson === 'string') {
+                    reservaJson = JSON.parse(reservaJson);
+                }
+            </script>
+            <div th:replace="programacion/tramiteaula/tramiteaulahorario"></div>
+
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:replace="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteauladocenteform.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

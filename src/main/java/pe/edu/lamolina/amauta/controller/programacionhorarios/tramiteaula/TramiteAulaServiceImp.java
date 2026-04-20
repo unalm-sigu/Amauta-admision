@@ -16,8 +16,12 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.AulaReservada;
 import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.tramite.ReservaAula;
@@ -45,6 +49,9 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
+import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.AulaReservadaDAO;
 import pe.edu.lamolina.amauta.dao.bienestar.ReservaAulaDAO;
@@ -64,6 +71,7 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ReservaAulaEstadoEnum;
 import static pe.edu.lamolina.model.enums.SexoEnum.F;
 import pe.edu.lamolina.model.enums.tramite.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.oficina.OficinaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -124,6 +132,15 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Autowired
     PaisDAO paisDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Override
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
@@ -367,13 +384,20 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAula.setTipoReserva("PUNT");
         reservaAula.setTipoSolicitud("1");
         reservaAula.setTramite(tramite);
-        reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
+
         List<Aula> aulas = reservaAula.getReservados();
-        if (aulas.isEmpty()) {
+
+
+        if (ds.getDocente() != null) {
             reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
         } else {
-            reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.RES);
+            if (aulas == null || aulas.isEmpty()) {
+                reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
+            } else {
+                reservaAula.setEstadoEnum(ReservaAulaEstadoEnum.RES);
+            }
         }
+
         reservaAulaDAO.save(reservaAula);
 
         List<DiaHora> diaHoras = reservaAula.getDiahora();
@@ -463,7 +487,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         tramiteDAO.update(tramite);
 
         List<Aula> aulas = reservaAulaForm.getReservados();
-        if (aulas.isEmpty()) {
+        if (ds.getDocente() != null || aulas.isEmpty()) {
             reservaAulaForm.setEstadoEnum(ReservaAulaEstadoEnum.PEND);
         } else {
             reservaAulaForm.setEstadoEnum(ReservaAulaEstadoEnum.RES);
@@ -684,6 +708,255 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    public List<ReservaAula> allByDocente(DynatableFilter filter, Docente docente) {
+        List<ReservaAula> reservaAulas = reservaAulaDAO.allByDocente(filter, docente);
+
+        List<AulaReservada> aulaReservadas = aulaReservadaDAO.allByReservaAulas(reservaAulas);
+
+        Map<Long, List<AulaReservada>> mapAulaReservada = aulaReservadas.stream()
+                .collect(Collectors.groupingBy(x -> x.getReservaAula().getId()));
+
+        for (ReservaAula reservaAula : reservaAulas) {
+            reservaAula.setAulaReservada(mapAulaReservada.getOrDefault(reservaAula.getId(), new ArrayList<>()));
+
+            logger.debug("ReservaAula {} aulas {}", reservaAula.getId(), reservaAula.getAulaReservada().size());
+
+            Map<Long, Aula> mapAula = reservaAula.getAulaReservada().stream()
+                    .collect(Collectors.toMap(x -> x.getAula().getId(), x -> x.getAula(), (f, s) -> s));
+
+            reservaAula.setReservados(new ArrayList<>(mapAula.values()));
+        }
+
+        return reservaAulas;
+    }
+
+    @Override
+    public List<Map<String, Object>> filtrarAulasConDisponibilidad(
+            DynatableFilter filter,
+            String fechaInicio,
+            String fechaFin,
+            String horariosJson,
+            Boolean soloDisponibles,
+            Boolean soloOera,
+            DataSessionPivot ds) {
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try {
+            Date dateInicio = null;
+            Date dateFin = null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            if (!Strings.isNullOrEmpty(fechaInicio)) {
+                LocalDate dateTime = LocalDate.parse(fechaInicio, formatter);
+                dateInicio = java.sql.Date.valueOf(dateTime);
+            }
+
+            if (!Strings.isNullOrEmpty(fechaFin)) {
+                LocalDate dateTime = LocalDate.parse(fechaFin, formatter);
+                dateFin = java.sql.Date.valueOf(dateTime);
+            }
+
+            List<String> diasHoras = new ArrayList<>();
+            if (!Strings.isNullOrEmpty(horariosJson)) {
+                try {
+
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    List<Map<String, Object>> horarios = mapper.readValue(horariosJson, List.class);
+
+                    for (Map<String, Object> horario : horarios) {
+                        Object diaObj = horario.get("dia");
+                        Object horaObj = horario.get("hora");
+
+                        if (diaObj != null && horaObj != null) {
+                            String diaId = diaObj.toString();
+                            String horaId = horaObj.toString();
+                            diasHoras.add(diaId + "-" + horaId);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Error al parsear horarios JSON", e);
+                }
+            }
+
+            List<Aula> aulasOcupadas = new ArrayList<>();
+            if (!diasHoras.isEmpty() && dateInicio != null) {
+                List<HorarioAula> horariosOcupados;
+
+                if (dateFin != null && !dateFin.equals(dateInicio)) {
+                    horariosOcupados = horarioAulaDAO.allRangoDiaByDiasHoras(diasHoras, dateInicio, dateFin);
+                } else {
+                    horariosOcupados = horarioAulaDAO.allSoloDiaByDiasHoras(diasHoras, dateInicio);
+                }
+
+                aulasOcupadas = horariosOcupados.stream()
+                        .map(HorarioAula::getAula)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                logger.debug("Aulas ocupadas encontradas: {}", aulasOcupadas.size());
+            }
+
+            List<Aula> aulas;
+
+            Oficina oficina;
+            if (Boolean.TRUE.equals(soloOera)) {
+                oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+            } else {
+                oficina = ds.getOficinaMain();
+                if (oficina == null) {
+                    oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+                    if (oficina == null) {
+                        List<Oficina> oficinas = oficinaDAO.all();
+                        if (!oficinas.isEmpty()) {
+                            oficina = oficinas.get(0);
+                        }
+                    }
+                }
+            }
+
+            if (soloDisponibles != null && soloDisponibles) {
+                aulas = aulaDAO.allByDynatableFilterTramite(filter, aulasOcupadas, oficina);
+            } else {
+                aulas = aulaDAO.allByDynatableFilterTramite(filter, null, oficina);
+            }
+
+            Map<Long, Aula> aulasOcupadasMap = aulasOcupadas.stream()
+                    .collect(Collectors.toMap(Aula::getId, a -> a, (f, s) -> s));
+
+            for (Aula aula : aulas) {
+                Map<String, Object> aulaMap = new HashMap<>();
+                aulaMap.put("aula", aula);
+
+                boolean isDisponible = !aulasOcupadasMap.containsKey(aula.getId());
+                aulaMap.put("isDisponible", isDisponible);
+
+                result.add(aulaMap);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error al filtrar aulas con disponibilidad", e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Curso> allCursosByDocente(Docente docente, DataSessionPivot ds) {
+        List<Seccion> secciones = seccionDAO.allSeccionByCicloDocente(docente, ds.getCicloAcademico());
+        Map<Long, Curso> mapCursos = new LinkedHashMap<>();
+        for (Seccion seccion : secciones) {
+            Curso curso = seccion.getGrupoSeccion().getCurso();
+            mapCursos.putIfAbsent(curso.getId(), curso);
+        }
+        return new ArrayList<>(mapCursos.values());
+    }
+
+    @Override
+    public List<Map<String, Object>> verificarCruceAlumnos(Long cursoId, List<DiaHora> diahoras, DataSessionPivot ds) {
+        Curso curso = new Curso(cursoId);
+
+        // 1. Secciones del curso en el ciclo actual
+        List<Seccion> seccionesCurso = seccionDAO.allByCicloAndCurso(ds.getCicloAcademico(), curso);
+        if (seccionesCurso.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 2. Alumnos matriculados en esas secciones
+        List<MatriculaSeccion> matriculasCurso = matriculaSeccionDAO.allMatriculadosBySecciones(seccionesCurso);
+        if (matriculasCurso.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<Long, Alumno> mapAlumnos = new LinkedHashMap<>();
+        for (MatriculaSeccion ms : matriculasCurso) {
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+            mapAlumnos.putIfAbsent(alumno.getId(), alumno);
+        }
+
+        // 3. Todos los horarios de esos alumnos en el ciclo
+        List<Alumno> alumnos = new ArrayList<>(mapAlumnos.values());
+        List<MatriculaSeccion> todasMatriculas = matriculaSeccionDAO.allMatriculadosByAlumnosCiclo(alumnos, ds.getCicloAcademico());
+
+        // 4. Excluir las secciones del propio curso
+        Set<Long> idsCurso = seccionesCurso.stream().map(Seccion::getId).collect(Collectors.toSet());
+        List<MatriculaSeccion> otrasMatriculas = todasMatriculas.stream()
+                .filter(m -> !idsCurso.contains(m.getSeccion().getId()))
+                .collect(Collectors.toList());
+
+        // 5. Horarios de las otras secciones
+        Map<Long, Seccion> mapOtrasSecciones = new LinkedHashMap<>();
+        for (MatriculaSeccion ms : otrasMatriculas) {
+            Seccion s = ms.getSeccion();
+            mapOtrasSecciones.putIfAbsent(s.getId(), s);
+        }
+
+        List<HorarioSeccion> horarios = new ArrayList<>();
+        if (!mapOtrasSecciones.isEmpty()) {
+            horarios = horarioSeccionDAO.allBySecciones(new ArrayList<>(mapOtrasSecciones.values()));
+        }
+        Map<Long, List<HorarioSeccion>> mapHorPorSeccion = new HashMap<>();
+        for (HorarioSeccion hs : horarios) {
+            mapHorPorSeccion.computeIfAbsent(hs.getSeccion().getId(), k -> new ArrayList<>()).add(hs);
+        }
+
+        // 6. Mapa alumno.id -> horarios de sus otras materias
+        Map<Long, List<HorarioSeccion>> mapHorPorAlumno = new HashMap<>();
+        for (MatriculaSeccion ms : otrasMatriculas) {
+            Long alumnoId = ms.getMatriculaResumen().getAlumno().getId();
+            List<HorarioSeccion> hs = mapHorPorSeccion.getOrDefault(ms.getSeccion().getId(), Collections.emptyList());
+            mapHorPorAlumno.computeIfAbsent(alumnoId, k -> new ArrayList<>()).addAll(hs);
+        }
+
+        // 7. Dias-horas seleccionadas para la reserva
+        Set<String> selectedDiaHoras = diahoras.stream()
+                .map(dh -> dh.getDia().getId() + "_" + dh.getHora().getId())
+                .collect(Collectors.toSet());
+
+        // 8. Detectar cruces por alumno
+        List<Map<String, Object>> result = new ArrayList<>();
+        Set<Long> procesados = new HashSet<>();
+
+        // Cargar alumnos con nombre completo
+        Long[] ids = mapAlumnos.keySet().toArray(new Long[0]);
+        List<Alumno> alumnosConPersona = alumnoDAO.allByIds(ids);
+        Map<Long, Alumno> mapConPersona = new HashMap<>();
+        for (Alumno a : alumnosConPersona) {
+            mapConPersona.put(a.getId(), a);
+        }
+
+        for (MatriculaSeccion ms : matriculasCurso) {
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+            if (procesados.contains(alumno.getId())) continue;
+            procesados.add(alumno.getId());
+
+            List<HorarioSeccion> alumnoHorarios = mapHorPorAlumno.getOrDefault(alumno.getId(), Collections.emptyList());
+            List<Map<String, Object>> cruces = new ArrayList<>();
+
+            for (HorarioSeccion hs : alumnoHorarios) {
+                String key = hs.getDia().getId() + "_" + hs.getHora().getId();
+                if (selectedDiaHoras.contains(key)) {
+                    Map<String, Object> cruce = new HashMap<>();
+                    cruce.put("dia", hs.getDia().getNombre());
+                    cruce.put("hora", hs.getHora().getDescripcion());
+                    cruces.add(cruce);
+                }
+            }
+
+            if (!cruces.isEmpty()) {
+                Alumno alumnoConNombre = mapConPersona.getOrDefault(alumno.getId(), alumno);
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("codigo", alumnoConNombre.getCodigo());
+                entry.put("nombre", alumnoConNombre.getPersona() != null ? alumnoConNombre.getPersona().getNombreCompleto() : "");
+                entry.put("cruces", cruces);
+                result.add(entry);
+            }
+        }
+
+        return result;
     }
 
 }

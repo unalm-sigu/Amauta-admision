@@ -32,9 +32,13 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.*;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.tramite.AulaReservada;
 import pe.edu.lamolina.model.tramite.ReservaAula;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
+import pe.edu.lamolina.model.enums.ReservaAulaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -155,17 +159,23 @@ public class TramiteAulaController {
     public JsonResponse save(@RequestBody ReservaAula reservaAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        ObjectUtil.printAttr(reservaAula);
+//        ObjectUtil.printAttr(reservaAula);
 
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            boolean esDocente = ds.getDocente() != null;
+
             if (reservaAula.getId() != null) {
                 service.update(reservaAula, ds);
                 response.setMessage(GlobalMessages.UPDATED);
             } else {
                 service.save(reservaAula, ds);
                 response.setMessage(GlobalMessages.CREATED);
+            }
+
+            if (esDocente) {
+                response.setData("PENDIENTE_REVISION");
             }
 
             response.setSuccess(true);
@@ -213,7 +223,17 @@ public class TramiteAulaController {
             "tramite.alumno.persona.nombreCompleto",
             "tramite.docente.persona.nombreCompleto",
             "tramite.tipoSolicitanteEnum.*",
-            "reservados.*",});
+            "reservados.id",
+            "reservados.codigo",
+            "reservados.nombre",
+            "reservados.capacidadAula",
+            "aulaReservada.*",
+            "aulaReservada.aula.id",
+            "aulaReservada.aula.codigo",
+            "aulaReservada.aula.nombre",
+            "aulaReservada.aula.capacidadAula",
+            "aulaReservada.dia.*",
+            "aulaReservada.hora.*",});
         model.addAttribute("reservaAula", reservaAulaNode.toString());
         return "programacion/tramiteaula/tramiteaulaform";
     }
@@ -608,6 +628,263 @@ public class TramiteAulaController {
             return new ModelAndView("redirect:/");
         }
         return new ModelAndView(recordFilterTipoReserva);
+    }
+
+    @RequestMapping("docente")
+    public String docenteView(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Docente docente = ds.getDocente();
+
+        if (docente == null) {
+            throw new PhobosException("Acceso denegado: Usuario no es docente");
+        }
+
+        if (!DocenteEstadoEnum.ACT.name().equals(docente.getEstado())) {
+            throw new PhobosException("Docente no está activo");
+        }
+
+        model.addAttribute("docente", docente);
+        return "programacion/tramiteaula/tramiteauladocente";
+    }
+
+    @RequestMapping("docente/nuevo")
+    public String nuevoDocente(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Docente docente = ds.getDocente();
+
+        if (docente == null) {
+            throw new PhobosException("Acceso denegado: Usuario no es docente");
+        }
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ObjectNode docenteNode = JsonHelper.createJson(docente, jFactory, true, new String[]{
+            "id",
+            "codigo",
+            "persona.id",
+            "persona.nombres",
+            "persona.paterno",
+            "persona.materno"
+        });
+
+        model.addAttribute("docente", docenteNode.toString());
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        return "programacion/tramiteaula/tramiteauladocenteform";
+    }
+
+    @RequestMapping("docente/{idtramite}/update")
+    public String updateDocente(@PathVariable Long idtramite, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Docente docente = ds.getDocente();
+
+        if (docente == null) {
+            throw new PhobosException("Acceso denegado: Usuario no es docente");
+        }
+
+        ReservaAula reservaAula = service.findReservaAula(idtramite);
+
+        if (!reservaAula.getTramite().getDocente().getId().equals(docente.getId())) {
+            throw new PhobosException("No tiene permisos para editar esta reserva");
+        }
+
+        if (!ReservaAulaEstadoEnum.PEND.name().equals(reservaAula.getEstado())) {
+            throw new PhobosException("Solo puede editar reservas en estado pendiente");
+        }
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ObjectNode docenteNode = JsonHelper.createJson(docente, jFactory, true, new String[]{
+            "id",
+            "codigo",
+            "persona.id",
+            "persona.nombres",
+            "persona.paterno",
+            "persona.materno"
+        });
+
+        ObjectNode reservaNode = JsonHelper.createJson(reservaAula, jFactory, true, new String[]{
+            "*",
+            "tramite.id",
+            "tramite.serie",
+            "tramite.numero",
+            "reservados.id",
+            "reservados.codigo",
+            "reservados.nombre",
+            "reservados.nombrePublico",
+            "reservados.capacidadAula",
+            "aulaReservada.id",
+            "aulaReservada.dia.id",
+            "aulaReservada.hora.id"
+        });
+
+        model.addAttribute("docente", docenteNode.toString());
+        model.addAttribute("reserva", reservaNode.toString());
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        return "programacion/tramiteaula/tramiteauladocenteform";
+    }
+
+    @ResponseBody
+    @RequestMapping("listDocente")
+    public DynatableResponse listDocente(DynatableFilter filter, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Docente docente = ds.getDocente();
+
+        if (docente == null) {
+            throw new PhobosException("Usuario no es un docente");
+        }
+
+        DynatableResponse json = new DynatableResponse();
+        List<ReservaAula> reservaAulas = service.allByDocente(filter, docente);
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+
+        for (ReservaAula aula : reservaAulas) {
+            ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                "*",
+                "tramite.id",
+                "tramite.serie",
+                "tramite.numero",
+                "tramite.tipoSolicitante",
+                "tramite.docente.id",
+                "tramite.docente.persona.id",
+                "tramite.docente.persona.nombreCompleto",
+                "reservados.id",
+                "reservados.nombrePublico"
+            });
+            array.add(node);
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("filtroAulas")
+    public DynatableResponse filtroAulas(
+            DynatableFilter filter,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(required = false) String horarios,
+            @RequestParam(required = false, defaultValue = "true") Boolean soloDisponibles,
+            @RequestParam(required = false, defaultValue = "false") Boolean soloOera,
+            HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            List<Map<String, Object>> aulasConDisponibilidad = service.filtrarAulasConDisponibilidad(
+                filter, fechaInicio, fechaFin, horarios, soloDisponibles, soloOera, ds
+            );
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+
+            for (Map<String, Object> aulaMap : aulasConDisponibilidad) {
+                Aula aula = (Aula) aulaMap.get("aula");
+                Boolean isDisponible = (Boolean) aulaMap.get("isDisponible");
+
+                ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                    "*",
+                    "aulaSuperior.*",
+                    "tipoAula.*"
+                });
+                node.put("isDisponible", isDisponible);
+
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            logger.error("Error al filtrar aulas", e);
+            json.setTotal(0);
+        }
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("cursosByDocente")
+    public JsonResponse cursosByDocente(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            Docente docente = ds.getDocente();
+
+            if (docente == null) {
+                throw new PhobosException("Acceso denegado: Usuario no es docente");
+            }
+
+            List<Curso> cursos = service.allCursosByDocente(docente, ds);
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (Curso curso : cursos) {
+                ObjectNode node = JsonHelper.createJson(curso, jFactory, true, new String[]{"id", "codigo", "nombre"});
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarCruceAlumnos")
+    public JsonResponse verificarCruceAlumnos(@RequestBody ReservaAula reservaAulaForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            if (reservaAulaForm.getCurso() == null || reservaAulaForm.getCurso().getId() == null) {
+                throw new PhobosException("Debe seleccionar un curso");
+            }
+            if (reservaAulaForm.getDiahora() == null || reservaAulaForm.getDiahora().isEmpty()) {
+                throw new PhobosException("Debe seleccionar al menos un horario");
+            }
+
+            List<Map<String, Object>> alumnos = service.verificarCruceAlumnos(
+                    reservaAulaForm.getCurso().getId(),
+                    reservaAulaForm.getDiahora(),
+                    ds);
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (Map<String, Object> alumnoMap : alumnos) {
+                ObjectNode node = new ObjectNode(jFactory);
+                node.put("codigo", (String) alumnoMap.get("codigo"));
+                node.put("nombre", (String) alumnoMap.get("nombre"));
+
+                ArrayNode crucesArray = new ArrayNode(jFactory);
+                List<Map<String, Object>> cruces = (List<Map<String, Object>>) alumnoMap.get("cruces");
+                for (Map<String, Object> cruce : cruces) {
+                    ObjectNode cruceNode = new ObjectNode(jFactory);
+                    cruceNode.put("dia", (String) cruce.get("dia"));
+                    cruceNode.put("hora", (String) cruce.get("hora"));
+                    crucesArray.add(cruceNode);
+                }
+                node.set("cruces", crucesArray);
+                array.add(node);
+            }
+            response.setData(array);
+            response.setTotal(alumnos.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
