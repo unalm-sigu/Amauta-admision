@@ -71,16 +71,28 @@ public class MicrosoftGraphConfig {
     public String buildJsonTeamsEvent(String subject) throws JsonProcessingException {
         LocalDateTime startDateTime = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0);
         LocalDateTime endDateTime = startDateTime.plusHours(2);
-        return buildJsonTeamsEvent(subject, startDateTime, endDateTime);
+        return buildJsonTeamsEvent(subject, startDateTime, endDateTime, java.util.Collections.emptyList());
+    }
+
+    public String buildJsonTeamsEvent(String subject, java.util.List<String> emailsCoDocentes) throws JsonProcessingException {
+        LocalDateTime startDateTime = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0);
+        LocalDateTime endDateTime = startDateTime.plusHours(2);
+        return buildJsonTeamsEvent(subject, startDateTime, endDateTime, emailsCoDocentes);
     }
 
     public String buildJsonTeamsEvent(String subject, Date fechaInicio, Date fechaFin) throws JsonProcessingException {
         LocalDateTime start = new java.sql.Timestamp(fechaInicio.getTime()).toLocalDateTime().withHour(8).withMinute(0).withSecond(0);
         LocalDateTime end = new java.sql.Timestamp(fechaFin.getTime()).toLocalDateTime().withHour(23).withMinute(0).withSecond(0);
-        return buildJsonTeamsEvent(subject, start, end);
+        return buildJsonTeamsEvent(subject, start, end, java.util.Collections.emptyList());
     }
 
-    private String buildJsonTeamsEvent(String subject, LocalDateTime startDateTime, LocalDateTime endDateTime) throws JsonProcessingException {
+    public String buildJsonTeamsEvent(String subject, Date fechaInicio, Date fechaFin, java.util.List<String> emailsCoDocentes) throws JsonProcessingException {
+        LocalDateTime start = new java.sql.Timestamp(fechaInicio.getTime()).toLocalDateTime().withHour(8).withMinute(0).withSecond(0);
+        LocalDateTime end = new java.sql.Timestamp(fechaFin.getTime()).toLocalDateTime().withHour(23).withMinute(0).withSecond(0);
+        return buildJsonTeamsEvent(subject, start, end, emailsCoDocentes);
+    }
+
+    private String buildJsonTeamsEvent(String subject, LocalDateTime startDateTime, LocalDateTime endDateTime, java.util.List<String> emailsCoDocentes) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("subject", subject);
@@ -98,6 +110,32 @@ public class MicrosoftGraphConfig {
         objectNode.put("isOnlineMeeting", true);
         objectNode.put("onlineMeetingProvider", "teamsForBusiness");
 
+        if (emailsCoDocentes != null && !emailsCoDocentes.isEmpty()) {
+            com.fasterxml.jackson.databind.node.ArrayNode attendeesArray = objectMapper.createArrayNode();
+            for (String email : emailsCoDocentes) {
+                ObjectNode attendee = objectMapper.createObjectNode();
+                ObjectNode emailAddress = objectMapper.createObjectNode();
+                emailAddress.put("address", email);
+                attendee.set("emailAddress", emailAddress);
+                attendee.put("type", "required");
+                attendeesArray.add(attendee);
+            }
+            objectNode.set("attendees", attendeesArray);
+        }
+
+        return objectMapper.writeValueAsString(objectNode);
+    }
+
+    public String buildJsonEventBodyWithJoinUrl(String subject, String joinUrl) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("subject", subject);
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("contentType", "HTML");
+        body.put("content",
+                "<p>Reunión creada automáticamente por el sistema académico.</p>"
+                + "<p><strong>Enlace Teams:</strong> <a href=\"" + joinUrl + "\">" + joinUrl + "</a></p>");
+        objectNode.set("body", body);
         return objectMapper.writeValueAsString(objectNode);
     }
 
@@ -112,21 +150,77 @@ public class MicrosoftGraphConfig {
     public String buildJsonOnlineMeeting(String subject) throws JsonProcessingException {
         LocalDateTime startDateTime = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0);
         LocalDateTime endDateTime = startDateTime.plusHours(2);
-        return buildJsonOnlineMeeting(subject, startDateTime, endDateTime);
+        return buildJsonOnlineMeeting(subject, startDateTime, endDateTime, java.util.Collections.emptyList());
+    }
+
+    public String buildJsonOnlineMeeting(String subject, java.util.List<String> azureIdsCoDocentes) throws JsonProcessingException {
+        LocalDateTime startDateTime = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0);
+        LocalDateTime endDateTime = startDateTime.plusHours(2);
+        return buildJsonOnlineMeeting(subject, startDateTime, endDateTime, azureIdsCoDocentes);
     }
 
     public String buildJsonOnlineMeeting(String subject, Date fechaInicio, Date fechaFin) throws JsonProcessingException {
         LocalDateTime start = new java.sql.Timestamp(fechaInicio.getTime()).toLocalDateTime().withHour(8).withMinute(0).withSecond(0);
         LocalDateTime end = new java.sql.Timestamp(fechaFin.getTime()).toLocalDateTime().withHour(23).withMinute(0).withSecond(0);
-        return buildJsonOnlineMeeting(subject, start, end);
+        return buildJsonOnlineMeeting(subject, start, end, java.util.Collections.emptyList());
     }
 
-    private String buildJsonOnlineMeeting(String subject, LocalDateTime startDateTime, LocalDateTime endDateTime) throws JsonProcessingException {
+    public String buildJsonOnlineMeeting(String subject, Date fechaInicio, Date fechaFin, java.util.List<String> azureIdsCoDocentes) throws JsonProcessingException {
+        LocalDateTime start = new java.sql.Timestamp(fechaInicio.getTime()).toLocalDateTime().withHour(8).withMinute(0).withSecond(0);
+        LocalDateTime end = new java.sql.Timestamp(fechaFin.getTime()).toLocalDateTime().withHour(23).withMinute(0).withSecond(0);
+        return buildJsonOnlineMeeting(subject, start, end, azureIdsCoDocentes);
+    }
+
+    private String buildJsonOnlineMeeting(String subject, LocalDateTime startDateTime, LocalDateTime endDateTime, java.util.List<String> azureIdsCoDocentes) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("subject", subject);
         objectNode.put("startDateTime", startDateTime.format(FORMATTER) + ".0000000Z");
         objectNode.put("endDateTime", endDateTime.format(FORMATTER) + ".0000000Z");
+
+        ObjectNode lobbySettings = objectMapper.createObjectNode();
+        lobbySettings.put("scope", "invited");
+        lobbySettings.put("isDialInBypassEnabled", false);
+        objectNode.set("lobbyBypassSettings", lobbySettings);
+
+        if (azureIdsCoDocentes != null && !azureIdsCoDocentes.isEmpty()) {
+            com.fasterxml.jackson.databind.node.ArrayNode attendeesArray = objectMapper.createArrayNode();
+            for (String azureId : azureIdsCoDocentes) {
+                ObjectNode attendee = objectMapper.createObjectNode();
+                ObjectNode identity = objectMapper.createObjectNode();
+                ObjectNode user = objectMapper.createObjectNode();
+                user.put("id", azureId);
+                identity.set("user", user);
+                attendee.set("identity", identity);
+                attendee.put("role", "presenter");
+                attendeesArray.add(attendee);
+            }
+            ObjectNode participants = objectMapper.createObjectNode();
+            participants.set("attendees", attendeesArray);
+            objectNode.set("participants", participants);
+        }
+
         return objectMapper.writeValueAsString(objectNode);
+    }
+
+    public String obtenerAzureIdPorEmail(String email, String token) {
+        try {
+            String url = "https://graph.microsoft.com/v1.0/users/" + email + "?$select=id";
+            HttpResponse<String> response = Unirest.get(url)
+                    .header("authorization", "Bearer " + token)
+                    .header("accept", "application/json")
+                    .asString();
+            if (response.getStatus() == 200) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode jsonNode = mapper.readTree(response.getBody());
+                return jsonNode.path("id").asText();
+            } else {
+                log.warn("No se pudo obtener Azure ID para email: {}, status: {}", email, response.getStatus());
+                return null;
+            }
+        } catch (Exception e) {
+            log.warn("Error al obtener Azure ID para email {}: {}", email, e.getMessage());
+            return null;
+        }
     }
 }

@@ -72,6 +72,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("ca.id", cicloAcademico )
+                .filter("sec.estado",EstadoEnum.ACT)
                 .filter("sec.matriculados",">", BigDecimal.ZERO);
 
         if (tipoPrograma != null && !tipoPrograma.isEmpty()) {

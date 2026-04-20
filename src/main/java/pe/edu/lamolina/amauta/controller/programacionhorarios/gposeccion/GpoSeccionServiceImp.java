@@ -2461,16 +2461,53 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     public Map<Object, Object> crearLinkTeams(String emailDocente, String topic) {
-        return crearLinkTeams(emailDocente, topic, null, null);
+        return crearLinkTeams(emailDocente, topic, null, null, Collections.emptyList());
     }
 
     public Map<Object, Object> crearLinkTeams(String emailDocente, String topic, Date fechaInicio, Date fechaFin) {
+        return crearLinkTeams(emailDocente, topic, fechaInicio, fechaFin, Collections.emptyList());
+    }
+
+    public Map<Object, Object> crearLinkTeams(String emailDocente, String topic, Date fechaInicio, Date fechaFin, List<String> emailsCoDocentes) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String token = microsoftGraphConfig.obtenerAccessToken();
+
+            // PASO 2: Validar calendario del docente (diagnóstico)
+            try {
+                String calUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente
+                        + "/calendar?$select=id,name,allowedOnlineMeetingProviders,defaultOnlineMeetingProvider";
+                HttpResponse<String> calResponse = Unirest.get(calUrl)
+                        .header("authorization", "Bearer " + token)
+                        .header("accept", "application/json")
+                        .asString();
+                if (calResponse.getStatus() == 200) {
+                    JsonNode calNode = objectMapper.readTree(calResponse.getBody());
+                    log.info("Calendario de {}: allowedProviders={}, defaultProvider={}", emailDocente,
+                            calNode.path("allowedOnlineMeetingProviders").toString(),
+                            calNode.path("defaultOnlineMeetingProvider").asText());
+                } else {
+                    log.warn("No se pudo consultar calendario de {}: HTTP {}", emailDocente, calResponse.getStatus());
+                }
+            } catch (Exception ex) {
+                log.warn("Error consultando calendario de {}: {}", emailDocente, ex.getMessage());
+            }
+
+            // PASO 3: Resolver Azure IDs de co-docentes para el fallback /onlineMeetings
+            List<String> azureIdsCoDocentes = new ArrayList<>();
+            for (String emailCo : emailsCoDocentes) {
+                String azureId = microsoftGraphConfig.obtenerAzureIdPorEmail(emailCo, token);
+                if (azureId != null && !azureId.isEmpty()) {
+                    azureIdsCoDocentes.add(azureId);
+                } else {
+                    log.warn("No se pudo obtener Azure ID para co-docente: {}", emailCo);
+                }
+            }
+
+            // PASO 4: Crear evento en calendario con Teams
             String body = (fechaInicio != null && fechaFin != null)
-                    ? microsoftGraphConfig.buildJsonTeamsEvent(topic, fechaInicio, fechaFin)
-                    : microsoftGraphConfig.buildJsonTeamsEvent(topic);
+                    ? microsoftGraphConfig.buildJsonTeamsEvent(topic, fechaInicio, fechaFin, emailsCoDocentes)
+                    : microsoftGraphConfig.buildJsonTeamsEvent(topic, emailsCoDocentes);
             String url = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events";
             HttpResponse<String> crearReunion = Unirest.post(url)
                     .header("content-type", "application/json")
@@ -2479,29 +2516,50 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     .asString();
             if (crearReunion.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
                 JsonNode jsonNode = objectMapper.readTree(crearReunion.getBody());
+                String eventId = jsonNode.path("id").asText();
                 String joinUrl = extraerJoinUrlDeEvento(jsonNode);
 
-                // Si el POST ignoró isOnlineMeeting (ocurre con app-only tokens),
-                // hacer PATCH inmediato para forzar la reunión Teams
-                if (joinUrl == null) {
-                    String eventId = jsonNode.get("id").asText();
-                    String patchUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events/" + eventId;
-                    String patchBody = microsoftGraphConfig.buildJsonPatchOnlineMeeting();
-                    HttpResponse<String> patchResponse = Unirest.patch(patchUrl)
+                // PASO 5: Fallback con /onlineMeetings si no se obtuvo joinUrl del evento
+                if (joinUrl == null || joinUrl.trim().isEmpty()) {
+                    log.warn("El evento no devolvió joinUrl para {}. Ejecutando fallback /onlineMeetings...", emailDocente);
+                    String fallbackUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/onlineMeetings";
+                    String fallbackBody = (fechaInicio != null && fechaFin != null)
+                            ? microsoftGraphConfig.buildJsonOnlineMeeting(topic, fechaInicio, fechaFin, azureIdsCoDocentes)
+                            : microsoftGraphConfig.buildJsonOnlineMeeting(topic, azureIdsCoDocentes);
+                    HttpResponse<String> fallbackResponse = Unirest.post(fallbackUrl)
                             .header("content-type", "application/json")
                             .header("authorization", "Bearer " + token)
-                            .body(patchBody)
+                            .body(fallbackBody)
                             .asString();
-                    if (patchResponse.getStatus() == 200) {
-                        JsonNode patchNode = objectMapper.readTree(patchResponse.getBody());
-                        joinUrl = extraerJoinUrlDeEvento(patchNode);
+                    if (fallbackResponse.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
+                        JsonNode fallbackNode = objectMapper.readTree(fallbackResponse.getBody());
+                        joinUrl = fallbackNode.path("joinWebUrl").asText();
+                        log.info("Fallback /onlineMeetings exitoso para {}.", emailDocente);
+
+                        // PASO 6: Actualizar evento con joinUrl en el cuerpo
+                        if (joinUrl != null && !joinUrl.trim().isEmpty() && eventId != null && !eventId.trim().isEmpty()) {
+                            try {
+                                String patchUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events/" + eventId;
+                                String patchBody = microsoftGraphConfig.buildJsonEventBodyWithJoinUrl(topic, joinUrl);
+                                HttpResponse<String> patchResponse = Unirest.patch(patchUrl)
+                                        .header("content-type", "application/json")
+                                        .header("authorization", "Bearer " + token)
+                                        .body(patchBody)
+                                        .asString();
+                                if (patchResponse.getStatus() != 200) {
+                                    log.warn("No se pudo actualizar evento con joinUrl. email: {}, status: {}", emailDocente, patchResponse.getStatus());
+                                }
+                            } catch (Exception ex) {
+                                log.warn("Error actualizando evento con joinUrl para {}: {}", emailDocente, ex.getMessage());
+                            }
+                        }
                     } else {
-                        log.error("PATCH para agregar Teams falló. email: {}, status: {}, body: {}", emailDocente, patchResponse.getStatus(), patchResponse.getBody());
+                        log.error("Fallback /onlineMeetings falló para {}. status: {}, body: {}", emailDocente, fallbackResponse.getStatus(), fallbackResponse.getBody());
                     }
                 }
 
-                if (joinUrl == null) {
-                    throw new PhobosException("No se pudo obtener el link de la reunión Teams. Verifique que el docente tenga licencia de Microsoft Teams activa.");
+                if (joinUrl == null || joinUrl.trim().isEmpty()) {
+                    throw new PhobosException("No se pudo obtener el link de la reunión Teams. Verifique que el docente tenga licencia de Microsoft Teams activa y que la aplicación tenga el permiso OnlineMeetings.ReadWrite.All en Azure AD.");
                 }
                 final String link = joinUrl;
                 return new HashMap<Object, Object>() {
@@ -2544,6 +2602,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (email == null || email.isEmpty()) {
             throw new PhobosException("El docente no tiene email microsoft configurado");
         }
+
+        List<String> emailsCoDocentes = docenteSeccionDAO.allByGrupoSeccion(seccionDB.getGrupoSeccion())
+                .stream()
+                .filter(ds -> ds.getDocente() != null
+                        && ds.getDocente().getEmailMicrosoft() != null
+                        && !ds.getDocente().getEmailMicrosoft().isEmpty()
+                        && !ds.getDocente().getEmailMicrosoft().equalsIgnoreCase(email))
+                .map(ds -> ds.getDocente().getEmailMicrosoft())
+                .distinct()
+                .collect(Collectors.toList());
+
         String topic = seccionDB.getGrupoSeccion().getCurso().getNombre()
                 .concat("-").concat(seccionDB.getCodigo2())
                 .concat("-").concat(seccionDB.getGrupoHoras().getCodigo());
@@ -2553,7 +2622,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Date fechaInicio = evento != null ? evento.getFechaInicio() : null;
         Date fechaFin = evento != null ? evento.getFechaFin() : null;
 
-        Map<Object, Object> result = crearLinkTeams(email, topic, fechaInicio, fechaFin);
+        Map<Object, Object> result = crearLinkTeams(email, topic, fechaInicio, fechaFin, emailsCoDocentes);
         if (Objects.nonNull(result) && !result.isEmpty()) {
             String linkTeams = (String) result.get("linkZoom");
             Seccion seccionUpd = new Seccion(seccionDB.getId());
