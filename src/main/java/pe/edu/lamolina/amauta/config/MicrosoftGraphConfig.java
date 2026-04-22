@@ -179,9 +179,15 @@ public class MicrosoftGraphConfig {
         objectNode.put("endDateTime", endDateTime.format(FORMATTER) + ".0000000Z");
 
         ObjectNode lobbySettings = objectMapper.createObjectNode();
-        lobbySettings.put("scope", "invited");
+        lobbySettings.put("scope", "organizer");
         lobbySettings.put("isDialInBypassEnabled", false);
         objectNode.set("lobbyBypassSettings", lobbySettings);
+
+        objectNode.put("allowedPresenters", "roleIsPresenter");
+
+        com.fasterxml.jackson.databind.node.ArrayNode capabilities = objectMapper.createArrayNode();
+        capabilities.add("breakoutRooms");
+        objectNode.set("capabilities", capabilities);
 
         if (azureIdsCoDocentes != null && !azureIdsCoDocentes.isEmpty()) {
             com.fasterxml.jackson.databind.node.ArrayNode attendeesArray = objectMapper.createArrayNode();
