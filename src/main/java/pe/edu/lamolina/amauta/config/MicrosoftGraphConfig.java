@@ -184,10 +184,7 @@ public class MicrosoftGraphConfig {
         objectNode.set("lobbyBypassSettings", lobbySettings);
 
         objectNode.put("allowedPresenters", "roleIsPresenter");
-
-        com.fasterxml.jackson.databind.node.ArrayNode capabilities = objectMapper.createArrayNode();
-        capabilities.add("breakoutRooms");
-        objectNode.set("capabilities", capabilities);
+        objectNode.put("allowBreakoutRooms", true);
 
         if (azureIdsCoDocentes != null && !azureIdsCoDocentes.isEmpty()) {
             com.fasterxml.jackson.databind.node.ArrayNode attendeesArray = objectMapper.createArrayNode();
@@ -226,6 +223,37 @@ public class MicrosoftGraphConfig {
             }
         } catch (Exception e) {
             log.warn("Error al obtener Azure ID para email {}: {}", email, e.getMessage());
+            return null;
+        }
+    }
+
+    public java.util.Map<String, String> resolverUsuarioAzure(String email, String token) {
+        try {
+            String url = "https://graph.microsoft.com/v1.0/users/" + email
+                    + "?$select=id,displayName,mail,userPrincipalName,accountEnabled";
+            HttpResponse<String> response = Unirest.get(url)
+                    .header("authorization", "Bearer " + token)
+                    .header("accept", "application/json")
+                    .asString();
+            if (response.getStatus() == 200) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode node = mapper.readTree(response.getBody());
+                String userId = node.path("id").asText();
+                String mail = node.path("mail").isNull() ? null : node.path("mail").asText(null);
+                String upn = node.path("userPrincipalName").asText(null);
+                String correoCanonico = (mail != null && !mail.trim().isEmpty()) ? mail : upn;
+                boolean accountEnabled = node.path("accountEnabled").asBoolean(true);
+                java.util.Map<String, String> result = new java.util.HashMap<>();
+                result.put("userId", userId);
+                result.put("correoCanonico", correoCanonico);
+                result.put("accountEnabled", String.valueOf(accountEnabled));
+                return result;
+            } else {
+                log.warn("No se pudo resolver usuario Azure para email: {}, status: {}", email, response.getStatus());
+                return null;
+            }
+        } catch (Exception e) {
+            log.warn("Error al resolver usuario Azure para email {}: {}", email, e.getMessage());
             return null;
         }
     }

@@ -2473,9 +2473,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         try {
             String token = microsoftGraphConfig.obtenerAccessToken();
 
-            // PASO 2: Validar calendario del docente (diagnóstico)
+            // PASO 1: Resolver userId, correoCanonico y accountEnabled del organizador en Azure AD
+            java.util.Map<String, String> usuarioAzure = microsoftGraphConfig.resolverUsuarioAzure(emailDocente, token);
+            if (usuarioAzure == null || usuarioAzure.get("userId") == null || usuarioAzure.get("userId").trim().isEmpty()) {
+                throw new PhobosException("No se pudo resolver el usuario de Azure AD para: " + emailDocente
+                        + ". Verifique que el email Microsoft esté configurado correctamente.");
+            }
+            if ("false".equals(usuarioAzure.get("accountEnabled"))) {
+                throw new PhobosException("La cuenta de Azure AD para " + emailDocente + " está deshabilitada. No se puede crear la reunión.");
+            }
+            String userId = usuarioAzure.get("userId");
+            String correoCanonico = usuarioAzure.get("correoCanonico");
+            if (correoCanonico == null || correoCanonico.trim().isEmpty()) {
+                correoCanonico = emailDocente;
+            }
+
+            // PASO 2: Consultar calendario y determinar defaultOnlineMeetingProvider (usar correoCanonico)
+            String defaultProvider = "unknown";
             try {
-                String calUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente
+                String calUrl = PATH_GRAPH_ONLINE_MEETINGS + correoCanonico
                         + "/calendar?$select=id,name,allowedOnlineMeetingProviders,defaultOnlineMeetingProvider";
                 HttpResponse<String> calResponse = Unirest.get(calUrl)
                         .header("authorization", "Bearer " + token)
@@ -2483,53 +2499,26 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         .asString();
                 if (calResponse.getStatus() == 200) {
                     JsonNode calNode = objectMapper.readTree(calResponse.getBody());
-                    log.info("Calendario de {}: allowedProviders={}, defaultProvider={}", emailDocente,
-                            calNode.path("allowedOnlineMeetingProviders").toString(),
-                            calNode.path("defaultOnlineMeetingProvider").asText());
+                    defaultProvider = calNode.path("defaultOnlineMeetingProvider").asText("unknown");
+                    log.info("Calendario de {} (correoCanonico={}): allowedProviders={}, defaultProvider={}",
+                            emailDocente, correoCanonico,
+                            calNode.path("allowedOnlineMeetingProviders").toString(), defaultProvider);
                 } else {
-                    log.warn("No se pudo consultar calendario de {}: HTTP {}", emailDocente, calResponse.getStatus());
+                    log.warn("No se pudo consultar calendario de {} (correoCanonico={}): HTTP {}",
+                            emailDocente, correoCanonico, calResponse.getStatus());
                 }
             } catch (Exception ex) {
-                log.warn("Error consultando calendario de {}: {}", emailDocente, ex.getMessage());
+                log.warn("Error consultando calendario de {} (correoCanonico={}): {}", emailDocente, correoCanonico, ex.getMessage());
             }
 
-            // PASO 3: Resolver Azure IDs de co-docentes para /onlineMeetings
-            List<String> azureIdsCoDocentes = new ArrayList<>();
-            for (String emailCo : emailsCoDocentes) {
-                String azureId = microsoftGraphConfig.obtenerAzureIdPorEmail(emailCo, token);
-                if (azureId != null && !azureId.isEmpty()) {
-                    azureIdsCoDocentes.add(azureId);
-                } else {
-                    log.warn("No se pudo obtener Azure ID para co-docente: {}", emailCo);
-                }
-            }
-
-            // PASO 4: Crear reunión con /onlineMeetings (soporta salas de grupos)
             String joinUrl = null;
-            String onlineMeetingUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/onlineMeetings";
-            String onlineMeetingBody = (fechaInicio != null && fechaFin != null)
-                    ? microsoftGraphConfig.buildJsonOnlineMeeting(topic, fechaInicio, fechaFin, azureIdsCoDocentes)
-                    : microsoftGraphConfig.buildJsonOnlineMeeting(topic, azureIdsCoDocentes);
-            HttpResponse<String> onlineMeetingResponse = Unirest.post(onlineMeetingUrl)
-                    .header("content-type", "application/json")
-                    .header("authorization", "Bearer " + token)
-                    .body(onlineMeetingBody)
-                    .asString();
-            if (onlineMeetingResponse.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
-                JsonNode onlineMeetingNode = objectMapper.readTree(onlineMeetingResponse.getBody());
-                joinUrl = onlineMeetingNode.path("joinWebUrl").asText();
-                log.info("/onlineMeetings exitoso para {}.", emailDocente);
-            } else {
-                log.warn("/onlineMeetings falló para {}. status: {}, body: {}. Ejecutando fallback /events...",
-                        emailDocente, onlineMeetingResponse.getStatus(), onlineMeetingResponse.getBody());
-            }
 
-            // PASO 5: Fallback con /events si /onlineMeetings no devolvió URL
-            if (joinUrl == null || joinUrl.trim().isEmpty()) {
+            if ("teamsForBusiness".equalsIgnoreCase(defaultProvider)) {
+                // PASO 3a: Provider teamsForBusiness → crear evento de calendario con reunión Teams (usar correoCanonico)
                 String eventBody = (fechaInicio != null && fechaFin != null)
                         ? microsoftGraphConfig.buildJsonTeamsEvent(topic, fechaInicio, fechaFin, emailsCoDocentes)
                         : microsoftGraphConfig.buildJsonTeamsEvent(topic, emailsCoDocentes);
-                String eventUrl = PATH_GRAPH_ONLINE_MEETINGS + emailDocente + "/events";
+                String eventUrl = PATH_GRAPH_ONLINE_MEETINGS + correoCanonico + "/calendar/events";
                 HttpResponse<String> eventResponse = Unirest.post(eventUrl)
                         .header("content-type", "application/json")
                         .header("authorization", "Bearer " + token)
@@ -2538,9 +2527,46 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 if (eventResponse.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
                     JsonNode eventNode = objectMapper.readTree(eventResponse.getBody());
                     joinUrl = extraerJoinUrlDeEvento(eventNode);
-                    log.info("Fallback /events exitoso para {}.", emailDocente);
+                    if (joinUrl != null && !joinUrl.trim().isEmpty()) {
+                        log.info("/calendar/events exitoso para {} (correoCanonico={}).", emailDocente, correoCanonico);
+                    } else {
+                        log.warn("/calendar/events respondió 201 para {} pero no contiene joinUrl en la respuesta.", emailDocente);
+                    }
                 } else {
-                    log.error("Fallback /events falló para {}. status: {}, body: {}", emailDocente, eventResponse.getStatus(), eventResponse.getBody());
+                    log.warn("/calendar/events falló para {} (correoCanonico={}). status: {}, body: {}",
+                            emailDocente, correoCanonico, eventResponse.getStatus(), eventResponse.getBody());
+                }
+            } else {
+                // PASO 3b: Provider unknown → /onlineMeetings con userId y allowBreakoutRooms=true
+                List<String> azureIdsCoDocentes = new ArrayList<>();
+                for (String emailCo : emailsCoDocentes) {
+                    String azureId = microsoftGraphConfig.obtenerAzureIdPorEmail(emailCo, token);
+                    if (azureId != null && !azureId.isEmpty()) {
+                        azureIdsCoDocentes.add(azureId);
+                    } else {
+                        log.warn("No se pudo obtener Azure ID para co-docente: {}", emailCo);
+                    }
+                }
+                String onlineMeetingUrl = PATH_GRAPH_ONLINE_MEETINGS + userId + "/onlineMeetings";
+                String onlineMeetingBody = (fechaInicio != null && fechaFin != null)
+                        ? microsoftGraphConfig.buildJsonOnlineMeeting(topic, fechaInicio, fechaFin, azureIdsCoDocentes)
+                        : microsoftGraphConfig.buildJsonOnlineMeeting(topic, azureIdsCoDocentes);
+                HttpResponse<String> onlineMeetingResponse = Unirest.post(onlineMeetingUrl)
+                        .header("content-type", "application/json")
+                        .header("authorization", "Bearer " + token)
+                        .body(onlineMeetingBody)
+                        .asString();
+                if (onlineMeetingResponse.getStatus() == CODIGO_ESTADO_OK_CREATED_MEETING_TEAMS) {
+                    JsonNode onlineMeetingNode = objectMapper.readTree(onlineMeetingResponse.getBody());
+                    joinUrl = onlineMeetingNode.path("joinWebUrl").asText();
+                    if (joinUrl != null && !joinUrl.trim().isEmpty()) {
+                        log.info("/onlineMeetings exitoso para {} (userId={}).", emailDocente, userId);
+                    } else {
+                        log.warn("/onlineMeetings respondió 201 para {} pero no contiene joinWebUrl.", emailDocente);
+                    }
+                } else {
+                    log.warn("/onlineMeetings falló para {}. status: {}, body: {}", emailDocente,
+                            onlineMeetingResponse.getStatus(), onlineMeetingResponse.getBody());
                 }
             }
 
