@@ -42,6 +42,7 @@
                         <th>Carrera Origen</th>
                         <th>Carrera Destino</th>
                         <th>Estado</th>
+                        <th>Ciclo Aplica</th>
                     </tr>
                     <tr v-else-if="tipo == 'RCI' || tipo == 'REIC' || tipo =='INTES'">
                         <th>Apellidos y Nombres</th>
@@ -178,6 +179,9 @@
                             <span class="block" :class="estadoColor(item.estado)">
                               {{ estadoNombre(item.estado) }}
                             </span>
+                        </td>
+                        <td>
+                            <span class="block" v-text="item.tramite.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
                     <tr v-if="(tipo === 'BACHI' || tipo === 'TITULBAC')"  v-for="(item, index) in alumnoTramiteBachiller" >

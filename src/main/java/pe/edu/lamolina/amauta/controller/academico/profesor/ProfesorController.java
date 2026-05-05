@@ -664,6 +664,38 @@ public class ProfesorController {
         return new ModelAndView(reporte);
     }
 
+    @RequestMapping("reporteCargaAcademicaListado")
+    public ModelAndView reporteCargaAcademicaListado(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
+
+        List<Docente> docentes = new ArrayList<>();
+        List<DocenteSeccion> todasDocentesSecciones = new ArrayList<>();
+        List<HorarioSeccion> todosHorarios = new ArrayList<>();
+
+        if (filtro.getDocentes() != null && !filtro.getDocentes().isEmpty()) {
+            for (Long docenteId : filtro.getDocentes()) {
+                Docente docente = service.find(new Docente(docenteId));
+                docentes.add(docente);
+
+                List<DocenteSeccion> seccionesDocente = service.allDocenteSeccionActivosByDocentesCiclos(
+                        Arrays.asList(docente), filtro.getCicloAcademicos());
+                todasDocentesSecciones.addAll(seccionesDocente);
+
+                List<Seccion> seccionesLista = seccionesDocente.stream()
+                        .map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
+                todosHorarios.addAll(service.allHorarioSeccionBySecciones(seccionesLista));
+            }
+        }
+
+        model.addAttribute("cicloAcademicos", filtro.getCicloAcademicos());
+        model.addAttribute("tipoGrado", filtro.getTipoGrado());
+        model.addAttribute("docentes", docentes);
+        model.addAttribute("docentesSecciones", todasDocentesSecciones);
+        model.addAttribute("horarioSecciones", todosHorarios);
+
+        return new ModelAndView(reporte);
+    }
+
     @RequestMapping("reporteDocenteCicloAcademico")
     public ModelAndView reporteDocenteCicloAcademico(@RequestBody FiltroEncuestaCargaAcademicaDTO filtro,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
