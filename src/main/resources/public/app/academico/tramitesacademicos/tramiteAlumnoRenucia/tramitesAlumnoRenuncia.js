@@ -67,6 +67,25 @@ var app = new Vue({
         urlAcademico(item) {
             return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + URL_UTIL.getOrigenURL();
         },
+        anular(item) {
+            let $vue = this;
+            $vue.tramiteAlumnoRenuncia = {...item, motivo: ''};
+            $vue.$refs.modalAnularTramite.open();
+        },
+        anularActionHandler() {
+            let $vue = this;
+            if (!$("#formAnular").parsley().validate()) {
+                return;
+            }
+            axios_.post(APP.url('academico/tramiteacademico/tramitealumnorenuncia/anular'), $vue.tramiteAlumnoRenuncia)
+                    .then(response => {
+                        $vue.$refs.modalAnularTramite.close();
+                        $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                        notify(response.data, "success");
+                    }, () => {
+                        $vue.$refs.modalAnularTramite.stop();
+                    });
+        },
         validarTramiteAnular(item) {
             if (item.tramite.estado == 'ANU' && item.usuarioAnulaTramite != null) {
                 return true;

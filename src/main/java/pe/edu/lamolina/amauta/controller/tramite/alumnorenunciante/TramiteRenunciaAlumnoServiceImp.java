@@ -125,6 +125,32 @@ public class TramiteRenunciaAlumnoServiceImp implements TramiteRenunciaAlumnoSer
 
     @Override
     @Transactional
+    public void anular(TramiteRenunciaAlumno tramiteRenunciaAlumnoForm, DataSessionPivot ds) {
+        TramiteRenunciaAlumno tramiteRenunciaAlumno = tramiteRenunciaAlumnoDAO.find(tramiteRenunciaAlumnoForm.getId());
+
+        if (tramiteRenunciaAlumno == null) {
+            throw new PhobosException("No existe el trámite");
+        }
+
+        if (!TramiteEstadoEnum.SOL.name().equals(tramiteRenunciaAlumno.getEstado())) {
+            throw new PhobosException("Solo puede anular trámites solicitados");
+        }
+
+        tramiteRenunciaAlumno.setEstado(TramiteEstadoEnum.ANU.name());
+        tramiteRenunciaAlumno.setMotivo(tramiteRenunciaAlumnoForm.getMotivo());
+        tramiteRenunciaAlumno.setUsuarioAnulaTramite(ds.getUsuario());
+        tramiteRenunciaAlumno.setFechaAnulacion(new Date());
+        tramiteRenunciaAlumnoDAO.updateColumns(tramiteRenunciaAlumno, "estado", "motivo", "usuarioAnulaTramite", "fechaAnulacion");
+
+        Tramite tramite = tramiteRenunciaAlumno.getTramite();
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.updateEstado(tramite);
+    }
+
+    @Override
+    @Transactional
     public void saveAlumnoRenunciaCarrera(TramiteRenunciaAlumno tramiteRenunciaAlumno, DataSessionPivot ds) {
         LocalDate today = new LocalDate();
 

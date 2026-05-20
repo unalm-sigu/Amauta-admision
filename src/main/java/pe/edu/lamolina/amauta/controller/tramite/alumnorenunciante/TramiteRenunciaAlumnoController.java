@@ -85,6 +85,14 @@ public class TramiteRenunciaAlumnoController {
     }
 
     @ResponseBody
+    @RequestMapping("anular")
+    public String anular(@RequestBody TramiteRenunciaAlumno tramiteRenunciaAlumno, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        tramiteRenunciaService.anular(tramiteRenunciaAlumno, ds);
+        return GlobalMessages.ANNULL;
+    }
+
+    @ResponseBody
     @RequestMapping("save")
     public String Renuncia(@RequestBody TramiteRenunciaAlumno tramiteRenunciaAlumno,
             @RequestParam String tipoTramite,
