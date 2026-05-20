@@ -188,7 +188,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         long t1 = System.currentTimeMillis();
         Insecto sql = Insecto.createInsert()
                 .into(CursoCicloAcademico.class)
-                .columns("estado", "horasSemanalesTeoria", "horasSemanalesPractica", "horasCiclo", "creditos",
+                .columns("estado", "horasSemanalesTeoria", "horasSemanalesPractica","semanasDictado", "horasCiclo", "creditos",
                         "precio", "precioAdicional", "precioPersonalizado", "minimoAlumnos", "fechaPrecio",
                         "curso", "cicloAcademico", "tipoCursoCurricula", "tipoCarpetaTeoria", "tipoCarpetaPractica",
                         "userPrecio")
