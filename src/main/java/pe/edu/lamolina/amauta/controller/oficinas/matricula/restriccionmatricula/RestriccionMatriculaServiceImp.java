@@ -64,6 +64,9 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         if (oficinas.stream().filter(x -> x.isOficinaOera()).findAny().orElse(null) != null) {
             oficinas = this.allOficina();
         }
+        if(oficinas.stream().filter(x -> x.isOficinaOBUAE()).findAny().orElse(null) != null) {
+            oficinas = this.allOficina();
+        }
         return oficinas;
     }
 
