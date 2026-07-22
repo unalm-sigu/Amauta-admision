@@ -48,6 +48,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.PAG;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -867,6 +868,13 @@ public class MatriculableServiceImp implements MatriculableService {
     public String saveMatriculable(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        // Un ingreso anulado no puede hacerse matriculable. La busqueda
+        // allByNameSinMatriculaResumenPRE_VIS ya excluye a los anulados, asi
+        // que no deberian llegar aqui; esta guarda da un mensaje claro si
+        // llegaran por una peticion fabricada, antes de que el trigger de
+        // aca_matricula_resumen aborte con un error tecnico de MySQL.
+        Assert.isFalse(alumno.getEstadoEnum() == AlumnoEstadoEnum.ANU,
+                "No se puede hacer matriculable a un alumno con ingreso anulado.");
         MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         Assert.isNull(resumen, "Este alumno ya es matriculable");
 

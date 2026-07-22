@@ -486,6 +486,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
@@ -530,6 +531,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .join("persona per", "carrera car", "car.facultad fa")
                 .join("situacionAcademica sa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
@@ -666,6 +668,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
