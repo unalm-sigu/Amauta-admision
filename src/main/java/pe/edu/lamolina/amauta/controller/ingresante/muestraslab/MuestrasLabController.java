@@ -56,6 +56,19 @@ public class MuestrasLabController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
+        // Re-sincroniza el correlativo de laboratorio con la BD en cada carga de la pantalla.
+        // El visor es un contador en memoria que solo se inicializa al arrancar la app
+        // (AmautaApplication#main); sin esto se desincroniza en dos formas:
+        //   (A) al cambiar de ciclo de admisión sigue numerando desde el ciclo anterior;
+        //   (B) dentro de la misma campaña puede quedar por debajo del máximo real
+        //       (p. ej. por concurrencia), con riesgo de reasignar un número ya usado.
+        // inicializarVisor() recalcula el siguiente número como MAX(numero_muestra)+1 del
+        // ciclo vigente, dejando el visor consistente con la BD al abrir la pantalla.
+        CicloAcademico cicloActivo = service.findCicloActivoAdmision();
+        if (cicloActivo != null) {
+            service.inicializarVisor();
+        }
+
         ObjectNode jsonLab = new ObjectNode(JsonNodeFactory.instance);
         jsonLab.put("numero", visorMuestrasLab.getNumeroLab());
         jsonLab.put("ciclo", visorMuestrasLab.getCicloAcademico().getDescripcion());

@@ -312,19 +312,27 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     public void deleteLaboratorio(HistoriaLaboratorio laboratorioForm) {
         HistoriaLaboratorio laboratorioBD = historiaLaboratorioDAO.find(laboratorioForm.getId());
         Assert.isNotNull(laboratorioBD, "Ya no existe este registro. Es imposible ejecutar solicitud.");
-        if (laboratorioBD.getNumeroMuestra() + 1 == visorMuestrasLab.getNumeroLab().longValue()) {
-            visorMuestrasLab.decrementaNumLab();
-        }
 
         Date today = new LocalDate().toDate();
         Date fechaMuestra = new DateTime(laboratorioBD.getFechaMuestra()).toLocalDate().toDate();
         Assert.isTrue(today.equals(fechaMuestra), "No puede eliminarse la muestra de una fecha pasada");
+
+        // Se evalúa si es el último número asignado ANTES de borrar, pero el decremento del
+        // contador en memoria se posterga hasta el final: si alguna validación previa rechaza
+        // la operación (p. ej. fecha pasada), la transacción hace rollback en BD, pero el
+        // decremento en memoria NO es transaccional y dejaría el contador desincronizado.
+        boolean eraUltimaMuestra = (laboratorioBD.getNumeroMuestra() + 1 == visorMuestrasLab.getNumeroLab().longValue());
 
         RecorridoIngresante recorrido = recorridoIngresanteDAO.find(laboratorioForm.getIdRecorridoIngresante());
         recorrido.setNumeroMuestraSangre(null);
         recorridoIngresanteDAO.update(recorrido);
 
         historiaLaboratorioDAO.delete(laboratorioBD);
+
+        // Solo se decrementa el correlativo tras completar el borrado con éxito.
+        if (eraUltimaMuestra) {
+            visorMuestrasLab.decrementaNumLab();
+        }
     }
 
     @Override
