@@ -24,7 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -2965,8 +2969,95 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("validarHorarioSeccion")
     public void validarHorarioSeccion(@RequestBody Seccion seccion) {
-        
+
         service.validarHorarioSeccion(seccion);
+    }
+
+    @ResponseBody
+    @RequestMapping("crearReunionTeams")
+    public JsonResponse crearReunionTeams(@RequestBody Seccion seccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            service.crearReunionTeamsParaSeccion(seccion, cicloAcademico);
+
+            response.setMessage("Se creó la reunión de Teams satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("crearReunionesTeamsBatch")
+    public JsonResponse crearReunionesTeamsBatch(@RequestBody List<Long> seccionIds, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            List<Map<String, Object>> resultados = service.crearReunionesTeamsBatch(seccionIds, cicloAcademico);
+
+            long exitosos = resultados.stream().filter(r -> (Boolean) r.get("success")).count();
+            long fallidos = resultados.size() - exitosos;
+
+            response.setData(resultados);
+            response.setMessage(String.format("Reuniones Teams creadas: %d exitosas, %d fallidas", exitosos, fallidos));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @RequestMapping("cargaMasivaTeams")
+    public String cargaMasivaTeams() {
+        return "academico/gposeccion/cargaMasivaTeams";
+    }
+
+    @RequestMapping(value = "/download-plantilla-teams", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> downloadPlantillaTeams() throws Exception {
+        byte[] bytes = service.getPlantillaTeams();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
+        headers.set("Content-Disposition", "attachment; filename=plantilla_reuniones_teams.xlsx");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(bytes);
+    }
+
+    @ResponseBody
+    @RequestMapping("cargarReunionesTeams")
+    public JsonResponse cargarReunionesTeams(@RequestParam("file") MultipartFile file, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            Map<String, Object> data = service.cargarReunionesTeamsDesdeExcel(file, cicloAcademico);
+
+            List<?> exitosos = (List<?>) data.get("exitosos");
+            List<?> observaciones = (List<?>) data.get("observaciones");
+
+            response.setData(data);
+            response.setMessage(String.format("Carga finalizada: %d reuniones creadas, %d observaciones", exitosos.size(), observaciones.size()));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
 }

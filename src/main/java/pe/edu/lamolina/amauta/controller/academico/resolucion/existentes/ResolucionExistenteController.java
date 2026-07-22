@@ -584,6 +584,7 @@ public class ResolucionExistenteController {
                     .join("tramite.alumno")
                     .join("tramite.alumno.persona")
                     .join("tramite.alumno.persona.tipoDocumento")
+                    .join("resolucion.cicloAplica")
                     .array();
         } else if (Arrays.asList(BACHI, OBTE_GRADO).contains(tipoResolucionEnum)) {
             if (resolucion.getOficina().getCodigoEnum() == OficinaEnum.UNA) {

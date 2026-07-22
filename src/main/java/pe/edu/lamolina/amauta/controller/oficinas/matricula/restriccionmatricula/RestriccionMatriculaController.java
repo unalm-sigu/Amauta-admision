@@ -45,7 +45,8 @@ public class RestriccionMatriculaController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Oficina> oficinas = ds.getOficinas();
-        if (oficinas.stream().filter(x -> x.isOficinaOera()).findAny().orElse(null) != null) {
+        boolean soloLectura = oficinas.stream().anyMatch(x -> x.isOficinaOBUAE());
+        if (oficinas.stream().anyMatch(x -> x.isOficinaOera()) || soloLectura) {
             oficinas = service.allOficina();
         }
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -56,6 +57,7 @@ public class RestriccionMatriculaController {
         }
 
         model.addAttribute("oficinas", array);
+        model.addAttribute("soloLectura", soloLectura);
         return "oficinas/matricula/restriccionmatricula/restriccionMatricula";
     }
 

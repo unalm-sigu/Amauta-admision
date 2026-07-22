@@ -180,6 +180,14 @@
                             <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
                         </td>
                     </tr>
+                    <tr>
+                        <td th:if='${alumnoCiclo.creditosConvalidadosAcumulados != 0}'>
+                            <span >TOTAL DE CREDITOS CONVALIDADOS: </span>
+                        </td>
+                        <td th:if='${alumnoCiclo.creditosConvalidadosAcumulados != 0}'>
+                            <span th:text="${alumnoCiclo.creditosConvalidadosAcumulados}"></span>
+                        </td>
+                    </tr>
                     <tr >
                         <td >
                             <span >SITUACIÓN ACADÉMICA: </span>

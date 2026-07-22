@@ -7,6 +7,7 @@ public class FiltroEncuestaCargaAcademicaDTO {
 
     private Long departamento;
     private Long docente;
+    private List<Long> docentes;
     private String tipoGrado;
     private List<CicloAcademico> cicloAcademicos;
     private Long facultad;
@@ -35,6 +36,14 @@ public class FiltroEncuestaCargaAcademicaDTO {
 
     public void setDocente(Long docente) {
         this.docente = docente;
+    }
+
+    public List<Long> getDocentes() {
+        return docentes;
+    }
+
+    public void setDocentes(List<Long> docentes) {
+        this.docentes = docentes;
     }
 
     public String getTipoGrado() {

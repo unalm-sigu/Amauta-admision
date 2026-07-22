@@ -240,10 +240,18 @@
 
 
                                                 </a>
-                                                <div>                                                    
-                                                    <a v-if="seccion.linkZoom " class="pointer"
-                                                       data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion )">
-                                                        <span class="label label-primary" >Link Zoom </span>
+                                                <div>
+                                                    <input v-if="!seccion.linkZoom" type="checkbox" v-on:change="toggleSeleccionSeccion(seccion)" style="margin-right: 4px;"/>
+                                                    <a v-if="seccion.linkZoom &amp;&amp; esLinkTeams(seccion.linkZoom)" class="pointer"
+                                                       data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion)">
+                                                        <span class="label label-info">Link Teams</span>
+                                                    </a>
+                                                    <a v-else-if="seccion.linkZoom" class="pointer"
+                                                       data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion)">
+                                                        <span class="label label-primary">Link Teams</span>
+                                                    </a>
+                                                    <a v-if="!seccion.linkZoom" class="pointer" v-on:click="crearReunionTeams(seccion)">
+                                                        <span class="label label-success">Crear Teams</span>
                                                     </a>
                                                 </div>
                                                 <div>
@@ -538,6 +546,12 @@
                                                                 Asignar Link Zoom
                                                             </a>
                                                         </li>
+                                                        <li role="presentation" v-if="validLinkZoom()">
+                                                            <a href="#"
+                                                               v-on:click="crearReunionTeams(seccion)">
+                                                                Crear Reunión Teams
+                                                            </a>
+                                                        </li>
                                                     </ul>
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"
@@ -571,6 +585,10 @@
                                     </tbody>
                                 </table>
 
+                                <button class="btn btn-info btn-sm pull-right m-t-xs m-r-xs" v-on:click="crearReunionesTeamsBatch()"
+                                        v-if="seccionesSeleccionadas.length > 0">
+                                    <i class="fa fa-video-camera"></i> Crear Reuniones Teams ({{seccionesSeleccionadas.length}})
+                                </button>
                                 <a th:if="${esEditorOera}" class="btn btn-info btn-sm pull-right m-t-xs"
                                    v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' &amp;&amp; grupoSeccion.estado == 'ACT' "
                                    v-on:click="addSeccion">

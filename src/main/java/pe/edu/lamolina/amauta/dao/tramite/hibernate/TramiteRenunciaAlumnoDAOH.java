@@ -16,6 +16,11 @@ import pe.edu.lamolina.model.tramite.TramiteRenunciaAlumno;
 @Repository
 public class TramiteRenunciaAlumnoDAOH extends AbstractEasyDAO<TramiteRenunciaAlumno> implements TramiteRenunciaAlumnoDAO {
 
+    public TramiteRenunciaAlumnoDAOH() {
+        super();
+        setClazz(TramiteRenunciaAlumno.class);
+    }
+
     @Override
     public TramiteRenunciaAlumno findByAlumnoAct(Alumno alumno) {
         Octavia sql = new Octavia();

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.dao.nivelacioneegg.hibernate;
 
 import java.util.List;
+
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.BigDecimalType;
@@ -72,16 +73,17 @@ public class AsistenciaNivelacionDAOH extends AbstractEasyDAO<AsistenciaNivelaci
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT ");
         sql.append("    caa2.descripcion ciclo, ");
-        sql.append("     cu2.codigo codCurso, ");
-        sql.append("     cu2.nombre curso, ");
-        sql.append("     CASE ");
+        sql.append("    cu2.codigo codCurso, ");
+        sql.append("    cu2.nombre curso, ");
+        sql.append("    CASE ");
         sql.append("        WHEN doc2.id_persona IS NULL THEN 'DESCONOCIDO' ");
         sql.append("        ELSE CONCAT(IFNULL(per2.paterno,''), ' ', IFNULL(per2.materno,''), ', ', IFNULL(per2.nombres,''))  ");
         sql.append("    END docente, ");
         sql.append("    CONCAT(IFNULL(p2.paterno,''), ' ', IFNULL(p2.materno,''), ', ', IFNULL(p2.nombres,'')) apellidosNombre,  ");
         sql.append("    a2.codigo matricula, ");
         sql.append("    cn2.codigo seccion, ");
-        sql.append("    ROUND(SUM(CASE WHEN asn2.estado = 'ASISTIO' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) porcentajeAsistencia ");
+        sql.append("    ROUND( COUNT(DISTINCT CASE asn2.estado WHEN 'ASISTIO' THEN ta2.fecha END) ");
+        sql.append("           * 100.0 / COUNT(DISTINCT ta2.fecha), 2) porcentajeAsistencia ");
         sql.append(" FROM eegg_nota_alumno_nivelacion nan2 ");
         sql.append(" JOIN eegg_alumno_nivelacion an2 ON an2.id = nan2.id_alumno_nivelacion ");
         sql.append(" JOIN aca_alumno a2 ON a2.id = an2.id_alumno ");
@@ -102,7 +104,8 @@ public class AsistenciaNivelacionDAOH extends AbstractEasyDAO<AsistenciaNivelaci
             sql.append("    AND cn2.codigo = :SECCION ");
         }
         sql.append("    AND cn2.estado = 'ACT' ");
-        sql.append(" GROUP BY cu2.codigo,cu2.nombre,cn2.codigo,doc2.id_persona, per2.paterno,per2.materno,per2.nombres,p2.paterno,p2.materno,p2.nombres, caa2.descripcion, a2.codigo;  ");
+        sql.append(" GROUP BY cu2.codigo, cu2.nombre, cn2.codigo, doc2.id_persona, per2.paterno, per2.materno,  ");
+        sql.append("          per2.nombres, p2.paterno, p2.materno, p2.nombres, caa2.descripcion, a2.codigo;  ");
 
         Query query = getCurrentSession().createSQLQuery(sql.toString())
                 .addScalar("ciclo", StringType.INSTANCE)

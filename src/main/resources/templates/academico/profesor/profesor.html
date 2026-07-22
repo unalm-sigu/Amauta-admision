@@ -20,6 +20,7 @@
                             <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademica" >Reporte Carga Académica</a></li>
+                            <li><a type="button" href="#" v-on:click.prevent="openModalReporteCargaAcademicaListado" >Reporte Carga Académica por Listado</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporteHistoricoCargaAcademico" >Reporte Historico Carga Académico</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporteCicloAcademica" >Reporte Docente/Ciclo Académica</a></li>
                             <li><a type="button" href="#" v-on:click.prevent="openModalReporteContratoLaboral" >Reporte Contrato Laboral</a></li>
@@ -31,6 +32,8 @@
                     <reporte-materiales ref='reportemateriales'></reporte-materiales>
 
                     <reporte-carga-academica ref='reportecargaacademica'></reporte-carga-academica>
+
+                    <reporte-carga-academica-listado ref='reportecargaacademicalistado'></reporte-carga-academica-listado>
                     
                     <reporte-historico-carga-academica ref='reportehistoricocargaacademica'></reporte-historico-carga-academica>
 
@@ -76,6 +79,7 @@
                 const ProfesorList = httpVueLoader('/app/academico/profesor/ProfesorList.vue');
                 const ReporteMateriales = httpVueLoader('/app/academico/profesor/ReporteMateriales.vue');
                 const ReporteCargaAcademica = httpVueLoader('/app/academico/profesor/ReporteCargaAcademica.vue');
+                const ReporteCargaAcademicaListado = httpVueLoader('/app/academico/profesor/ReporteCargaAcademicaListado.vue');
                 const ReporteHistoricoCargaAcademica = httpVueLoader('/app/academico/profesor/ReporteHistoricoCargaAcademica.vue');
 
                 const ReporteCicloAcademica = httpVueLoader('/app/academico/profesor/ReporteCicloAcademica.vue');
@@ -89,6 +93,7 @@
                         profesorList: ProfesorList,
                         reporteMateriales: ReporteMateriales,
                         reporteCargaAcademica: ReporteCargaAcademica,
+                        reporteCargaAcademicaListado: ReporteCargaAcademicaListado,
                         reporteHistoricoCargaAcademica: ReporteHistoricoCargaAcademica,
                         reporteCicloAcademica: ReporteCicloAcademica,
                         copiarContratoDocente: CopiarContratoDocente,
@@ -101,6 +106,9 @@
                         },
                         openModalReporteCargaAcademica() {
                             this.$refs.reportecargaacademica.open();
+                        },
+                        openModalReporteCargaAcademicaListado() {
+                            this.$refs.reportecargaacademicalistado.open();
                         },
                         openModalReporteHistoricoCargaAcademico() {
                             this.$refs.reportehistoricocargaacademica.open();

@@ -1,11 +1,6 @@
 package pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,10 +12,20 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.nivelacioneegg.reportes.ExcelData.Bean.ResultadoReporteView;
 import pe.edu.lamolina.amauta.zelper.reportes.ExcelHelper;
-import static pe.edu.lamolina.model.enums.dictadoclases.AsistenciaClasesEstadoEnum.ASISTIO;
 import pe.edu.lamolina.model.misc.Acumulador;
-import pe.edu.lamolina.model.nivelacioneegg.AsistenciaNivelacion;
+import pe.edu.lamolina.model.nivelacioneegg.TemaAsistencia;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Component
 public class ExcelAsistenciasPorSeccion extends AbstractView {
 
@@ -59,6 +64,14 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
         CellStyle estiloLeft = excelUtil.getConBordes(HorizontalAlignment.LEFT);
         CellStyle estiloHead = excelUtil.getBgGreenLetraBlanca(HorizontalAlignment.CENTER);
 
+        List<TemaAsistencia> fechas = resultado.stream()
+                .map(ResultadoReporteView::getAsistencias)
+                .flatMap(List::stream)
+                .distinct()
+                .sorted(Comparator.comparing(TemaAsistencia::getFecha))
+                .collect(Collectors.toList());
+        log.info("Fechas de asistencias: {}", fechas.size());
+
         {
 
             int col = 0;
@@ -81,19 +94,19 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
             excelUtil.replaceVal(rowCounter.getValor(), col, "Apellidos Nombres");
             col++;
 
-            List<AsistenciaNivelacion> asistencias = resultado.get(col).getAsistencias();
+            if (fechas.size() > 1) {
+                ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), col, (col + fechas.size() - 1));
+            }
 
-            ExcelHelper.mergeCell(excelUtil.getSheet(), rowCounter.getValor(), rowCounter.getValor(), col, (col + asistencias.size() - 1));
             excelUtil.setWidthColumn(col, 12000);
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloHead);
             excelUtil.replaceVal(rowCounter.getValor(), col, "Clases");
 
             Acumulador numeroAsistencia = new Acumulador(1);
 
-            for (AsistenciaNivelacion asistencia : asistencias) {
-                excelUtil.setWidthColumn(col, 1000);
-                excelUtil.replaceStyle(rowCounter.getValor() + 1, col, estiloHead);
-                excelUtil.replaceVal(rowCounter.getValor() + 1, col, numeroAsistencia.getValor());
+            for (TemaAsistencia fecha : fechas) {
+                excelUtil.setWidthColumn(col, 3000);
+                excelUtil.replaceVal(rowCounter.getValor() + 1, col, fecha.getFecha(), estiloHead, "dd-MMM");
                 numeroAsistencia.incrementar();
                 col++;
             }
@@ -124,10 +137,13 @@ public class ExcelAsistenciasPorSeccion extends AbstractView {
             excelUtil.replaceStyle(rowCounter.getValor(), col, estiloLeft);
             excelUtil.replaceVal(rowCounter.getValor(), col, data.getApellidosNombre());
             col++;
-            List<AsistenciaNivelacion> asistencias = data.getAsistencias();
-            for (AsistenciaNivelacion asistencia : asistencias) {
+            List<TemaAsistencia> asistencias = data.getAsistencias();
+            for (TemaAsistencia fecha : fechas) {
                 excelUtil.replaceStyle(rowCounter.getValor(), col, estiloCenter);
-                excelUtil.replaceVal(rowCounter.getValor(), col, asistencia.getEstadoEnum() == ASISTIO ? "✓" : "");
+                Optional<TemaAsistencia> asistio = asistencias.stream()
+                        .filter(asis -> asis.getFecha().equals(fecha.getFecha()))
+                        .findFirst();
+                excelUtil.replaceVal(rowCounter.getValor(), col, asistio.isPresent() ? "✓" : "");
                 col++;
             }
 

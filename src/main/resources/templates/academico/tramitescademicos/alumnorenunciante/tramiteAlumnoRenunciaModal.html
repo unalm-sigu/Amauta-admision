@@ -57,3 +57,22 @@
         </div>
     </div>
 </modal-simple>
+
+<modal-simple ref="modalAnularTramite" okbtn="Anular" okclass="btn-danger"
+              v-bind:okaction="anularActionHandler">
+    <div slot="header">
+        <h4 class="modal-title">Anular Trámite Alumno Renunciante</h4>
+    </div>
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formAnular" data-parsley-validate="true">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <label>Motivo</label>
+                        <textarea class="form-control textarea" v-model="tramiteAlumnoRenuncia.motivo" minlength="10" required=""></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-simple>

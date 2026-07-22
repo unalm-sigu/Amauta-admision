@@ -10,12 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.json.JaneHelper;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -35,6 +40,9 @@ public class CargaAcademicaController {
 
     @Autowired
     CargaAcademicaService service;
+
+    @Autowired
+    GpoSeccionService gpoSeccionService;
 
     @Autowired
     ReporteAlumnosExcel reporteActasView;
@@ -154,5 +162,26 @@ public class CargaAcademicaController {
         model.addAttribute("matriculados", matriculados);
 
         return new ModelAndView(reporteActasView);
+    }
+
+    @ResponseBody
+    @RequestMapping("crearReunionTeams")
+    public JsonResponse crearReunionTeams(@RequestBody Seccion seccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            gpoSeccionService.crearReunionTeamsParaSeccion(seccion, cicloAcademico);
+
+            response.setMessage("Se creó la reunión de Teams satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 }

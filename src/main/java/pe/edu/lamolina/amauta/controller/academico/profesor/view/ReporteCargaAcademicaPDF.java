@@ -217,13 +217,17 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
                     this.cellFullColumn(tableBody, "Docente sin carga académica");
                 }
 
+                this.addSpace(tableBody);
+                this.addSpace(tableBody);
                 document.add(tableBody);
 
-                document.newPage();
+
+
+//                document.newPage();
 
             }
 
-            document.newPage();
+//            document.newPage();
 
         }
 
@@ -275,7 +279,7 @@ public class ReporteCargaAcademicaPDF extends AbstractOnlyPdfView {
 
     private void textCenter(PdfPTable tableBody, String str) {
 
-        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
+        Font font = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.BOLD);
         PdfPCell cell = new PdfPCell(new Phrase(str, font));
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
         cell.setColspan(7);

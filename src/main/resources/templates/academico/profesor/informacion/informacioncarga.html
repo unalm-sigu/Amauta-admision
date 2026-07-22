@@ -45,14 +45,14 @@
                     <span class="block">{{seccion.codigo2}}</span>
                     <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
 
-                    <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+                    <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Microsoft Teams</span>
 
                 </td>
 
                 <td class="v-middle text-center">
                     <span class="block" v-if="seccion.aula "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                     <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                    <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+<!--                    <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>-->
 
                 </td>
 
@@ -107,12 +107,12 @@
                 <td class="v-middle text-center">
                     <span class="block">{{seccion.codigo2}}</span>
                     <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
-                    <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Zoom</span>
+                    <span v-if="seccion.linkZoom" class="block bold label label-primary pointer" v-on:click="linkZoomModal(seccion)">Link Microsoft Teams</span>
                 </td>
                 <td class="v-middle text-center">
                     <span class="block" v-if="seccion.aula"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                     <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                    <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+<!--                    <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>-->
                 </td>
 
                 <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
