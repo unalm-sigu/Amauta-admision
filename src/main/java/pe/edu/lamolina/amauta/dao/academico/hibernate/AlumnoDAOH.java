@@ -692,7 +692,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("modalidadEstudio me", "situacionAcademica situ", "orientacionCarrera oc")
                 .leftJoin("cicloIngreso cci")
                 .filter("car.id", carrera)
-                .filter("cci.codigo", ">=", codigoCiclo);
+                .filter("cci.codigo", ">=", codigoCiclo)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
         return sql.all(getCurrentSession());
     }
 
@@ -894,6 +895,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("alucar.facultad fac")
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 .filter("alu.promedioProcesado", 0)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
 
         return all(sql);
@@ -910,7 +912,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 //.filter("alu.promedioProcesado", 0)
                 .filter("me.codigo", modalidadEstudioEnum)
-                .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+                .complexFilter("SUBSTRING(alu.codigo,1,4)", year)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
