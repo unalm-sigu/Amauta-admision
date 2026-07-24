@@ -35,9 +35,9 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .filter("ci.codigo", ciclo.getCodigo())
                 .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
                 .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
-                .filter("ci.codigo", ciclo.getCodigo())
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -71,10 +71,10 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .isNotNull("ri.numeroMuestraSangre")
                 .filter("ci.codigo", ciclo.getCodigo())
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -90,10 +90,10 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .isNotNull("ri.numeroMuestraSangre")
                 .filter("ci.codigo", ciclo.getCodigo())
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .orderBy("ri.numeroMuestraSangre");
 
         return all(sql);
@@ -114,12 +114,12 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .isNotNull("ri.numeroMuestraSangre")
                 .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .orderBy("ri.numeroMuestraSangre");
 
         return all(sql);
@@ -140,12 +140,12 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .isNotNull("ri.numeroMuestraSangre")
                 .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -161,9 +161,9 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .in("per.id", personas)
                 .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
                 .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
-                .in("per.id", personas)
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
         return all(sql);
@@ -175,9 +175,9 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
+                .filter("ci.codigo", ciclo.getCodigo())
                 .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
                 .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
-                .filter("ci.codigo", ciclo.getCodigo())
                 .orderBy("ri.numeroAtencion asc");
 
         return all(sql);
@@ -190,10 +190,10 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
                 .filter("tu.id", turno)
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -217,11 +217,11 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno al")
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
                 .linkedBy("per.id", "pp.id")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -236,10 +236,10 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
                 .isNotNull("turnoEntrevistaObuae")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
         return all(sql);
@@ -251,11 +251,11 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
                 .filter("tu.id", turno)
                 .isNotNull("turnoEntrevistaObuae")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
         return all(sql);
@@ -275,11 +275,11 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
                 .exists(subQuery)
-                .linkedBy("per.id", "pp.id");
+                .linkedBy("per.id", "pp.id")
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
@@ -289,10 +289,10 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
         Octavia sql = Octavia.query()
                 .from(RecorridoIngresante.class, "ri")
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
-                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
-                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU)
                 .filter("ci.codigo", ciclo.getCodigo())
-                .filter("a.id", alumno);
+                .filter("a.id", alumno)
+                .filter("ri.estado", "<>", RecorridoIngresanteEstadoEnum.ANU)
+                .filter("a.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return find(sql);
     }
