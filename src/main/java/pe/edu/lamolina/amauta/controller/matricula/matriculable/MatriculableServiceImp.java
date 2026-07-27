@@ -1556,7 +1556,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     allAlumnoCiclos,
                     alumnoCicloCursosActivos,
                     alumnoCicloCursosAll,
-                    reincorporados, ds, token, true, false);
+                    reincorporados, ds, true, false);
                     // reincorporados, ds, token, true, false);
 
             log.info("Alumno codigo {} finalizo CALC-PROM ok", alumno.getCodigo());
