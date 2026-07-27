@@ -929,6 +929,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 .filter("alu.promedioProcesado", 0)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE.name())
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // excluir ingresos anulados
                 .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
 
         return all(sql);
@@ -1181,6 +1182,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per", "situacionAcademica sa")
                 .notIn("sa.codigo", situacionesNoAptas)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // no depender solo de la situación: excluir ingresos anulados
                 .filter("me.codigo", modalidadEnum.name());
 
         return all(sql);
@@ -1205,6 +1207,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("planCurricular pc", "pc.carrera cap")
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .filter("ci.codigo", cicloIngreso.getCodigo()) //                .isNull("pc.id")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // excluir ingresos anulados
                 ;
 
         return all(sql);
