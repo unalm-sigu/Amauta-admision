@@ -1546,7 +1546,8 @@ public class MatriculableServiceImp implements MatriculableService {
             log.info("Alumno codigo {}", alumno.getCodigo());
             log.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 
-            promedioService.promediarAllCicloAsync(
+            // promedioService.promediarAllCicloAsync(
+            promedioService.promediarAllCicloSync(
                     alumno,
                     ciclo,
                     graduado,
@@ -1556,7 +1557,9 @@ public class MatriculableServiceImp implements MatriculableService {
                     alumnoCicloCursosActivos,
                     alumnoCicloCursosAll,
                     reincorporados, ds, token, true, false);
+                    // reincorporados, ds, token, true, false);
 
+            log.info("Alumno codigo {} finalizo CALC-PROM ok", alumno.getCodigo());
         }
 
 //        for (;;) {
