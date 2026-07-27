@@ -1296,6 +1296,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("situacionAcademica sa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
                 .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_8, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
                 .notLike("alu.codigo", "Q")
