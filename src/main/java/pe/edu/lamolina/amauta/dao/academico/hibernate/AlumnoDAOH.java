@@ -18,6 +18,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -226,6 +227,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "modalidadEstudio moe", "ca.facultad fac", "ca.modalidadEstudio")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -247,6 +249,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac", "al.cicloActivo aca")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci")
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -287,6 +290,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
                 .in("ca.id", carreras)
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -334,6 +338,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .join("ca.modalidadEstudio moe", "ca.facultad fac")
                         .leftJoin("cicloIngreso ci", "cicloActivo cia")
                         .filter("cia.id", ciclo)
+                        .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -345,6 +350,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "ca.facultad fac")
                         .filter("cia.id", ciclo)
+                        .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -357,6 +363,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "ca.facultad fac")
                         .filter("cia.id", ciclo)
+                        .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -369,6 +376,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "ca.facultad fac")
                         .filter("cia.id", ciclo)
+                        .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -381,6 +389,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "ca.facultad fac")
                         .filter("cia.id", ciclo)
+                        .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -406,6 +415,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(EPG, PRE, VIS, ESP))
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -454,7 +464,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
-                .filter("per.estado", PersonaEstadoEnum.ACT);
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
         if (facultad != null) {
             sql.filter("fa.id", facultad);
         }
@@ -479,6 +490,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("me.codigo", EPG)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -501,6 +513,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("me.codigo", PRE)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -521,6 +534,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa")
                 .join("situacionAcademica sa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -542,7 +556,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
                 .filter("sa.codigo", SituacionAcademicaEnum.S_8.getValue())
                 .filter("moe.id", modalidad)
-                .filter("ci.id", ciclo);
+                .filter("ci.id", ciclo)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         if (!(existentes == null || existentes.isEmpty())) {
             sql.notIn("alu.id", existentes);
@@ -561,6 +576,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("moe.id", modalidad)
                 //                .filter("ci.id", cicloAcademico)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -604,6 +620,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "orientacionCarrera oc")
                 .in("fa.id", facultad)
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -634,6 +651,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -654,6 +672,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.VIS.name()))
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -673,7 +692,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("modalidadEstudio me", "situacionAcademica situ", "orientacionCarrera oc")
                 .leftJoin("cicloIngreso cci")
                 .filter("car.id", carrera)
-                .filter("cci.codigo", ">=", codigoCiclo);
+                .filter("cci.codigo", ">=", codigoCiclo)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
         return sql.all(getCurrentSession());
     }
 
@@ -875,6 +895,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("alucar.facultad fac")
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 .filter("alu.promedioProcesado", 0)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
 
         return all(sql);
@@ -891,7 +912,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 //.filter("alu.promedioProcesado", 0)
                 .filter("me.codigo", modalidadEstudioEnum)
-                .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+                .complexFilter("SUBSTRING(alu.codigo,1,4)", year)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
@@ -907,6 +929,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 .filter("alu.promedioProcesado", 0)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE.name())
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // excluir ingresos anulados
                 .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
 
         return all(sql);
@@ -938,7 +961,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("me.codigo", modalidad)
                 .in("sa.codigo", Arrays.asList("8", "9"))
-                .in("ci.id", ciclosIngresantes);
+                .in("ci.id", ciclosIngresantes)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
@@ -998,6 +1022,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa", "situacionAcademica sa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -1138,6 +1163,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa")
                 .join("situacionAcademica sa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -1156,6 +1182,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per", "situacionAcademica sa")
                 .notIn("sa.codigo", situacionesNoAptas)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // no depender solo de la situación: excluir ingresos anulados
                 .filter("me.codigo", modalidadEnum.name());
 
         return all(sql);
@@ -1180,6 +1207,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("planCurricular pc", "pc.carrera cap")
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .filter("ci.codigo", cicloIngreso.getCodigo()) //                .isNull("pc.id")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)   // excluir ingresos anulados
                 ;
 
         return all(sql);
@@ -1210,6 +1238,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -1270,6 +1299,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("situacionAcademica sa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .in("me.codigo", Arrays.asList(PRE, VIS))
                 .notIn("sa.id", Arrays.asList(S_XD, S_4U, S_G, S_7, S_8, S_4, S_E, S_D, S_R, S_4T, S_SS, S_00, S_X, S_RA))
                 .notLike("alu.codigo", "Q")
@@ -1358,6 +1388,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("al.carrera car", "car.facultad", "al.modalidadEstudio")
                 .join("al.persona per", "per.tipoDocumento")
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -1396,6 +1427,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "modalidadEstudio moe", "ca.facultad fac", "ca.modalidadEstudio")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .filter("al.estado", "<>", AlumnoEstadoEnum.ANU)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -1440,6 +1472,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("persona per", "carrera car", "car.facultad fa")
                 .join("situacionAcademica sa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -1460,7 +1493,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
                 .filter("moe.id", modalidad)
                 .filter("ci.id", ciclo)
-                .notLike("alu.codigo", "Q%");
+                .notLike("alu.codigo", "Q%")
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
@@ -1470,7 +1504,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("situacionAcademica")
-                .filter("alu.codigo", codigoAlumno);
+                .filter("alu.codigo", codigoAlumno)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return find(sql);
     }
@@ -1495,7 +1530,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("situacionAcademica sa", "cicloIngreso ci")
                 .join("postulantePregrado pp", "pp.modalidadIngreso mi", "pp.cicloPostula cp", "cp.cicloAcademico")
                 .leftJoin("per.tipoDocumento")
-                .filter("ci.id", ciclo);
+                .filter("ci.id", ciclo)
+                .filter("alu.estado", "<>", AlumnoEstadoEnum.ANU);
 
         return all(sql);
     }
