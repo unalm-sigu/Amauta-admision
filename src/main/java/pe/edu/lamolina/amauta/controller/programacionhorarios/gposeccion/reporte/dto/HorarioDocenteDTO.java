@@ -29,7 +29,62 @@ public class HorarioDocenteDTO {
     private String aula_viernes;
     private String aula_sabado;
 
+    private String descansoLunes = "";
+    private String descansoMartes = "";
+    private String descansoMiercoles = "";
+    private String descansoJueves = "";
+    private String descansoViernes = "";
+    private String descansoSabado = "";
+
     public HorarioDocenteDTO() {
+    }
+
+    public String getDescansoLunes() {
+        return descansoLunes;
+    }
+
+    public void setDescansoLunes(String descansoLunes) {
+        this.descansoLunes = descansoLunes;
+    }
+
+    public String getDescansoMartes() {
+        return descansoMartes;
+    }
+
+    public void setDescansoMartes(String descansoMartes) {
+        this.descansoMartes = descansoMartes;
+    }
+
+    public String getDescansoMiercoles() {
+        return descansoMiercoles;
+    }
+
+    public void setDescansoMiercoles(String descansoMiercoles) {
+        this.descansoMiercoles = descansoMiercoles;
+    }
+
+    public String getDescansoJueves() {
+        return descansoJueves;
+    }
+
+    public void setDescansoJueves(String descansoJueves) {
+        this.descansoJueves = descansoJueves;
+    }
+
+    public String getDescansoViernes() {
+        return descansoViernes;
+    }
+
+    public void setDescansoViernes(String descansoViernes) {
+        this.descansoViernes = descansoViernes;
+    }
+
+    public String getDescansoSabado() {
+        return descansoSabado;
+    }
+
+    public void setDescansoSabado(String descansoSabado) {
+        this.descansoSabado = descansoSabado;
     }
 
     public String getLetra() {

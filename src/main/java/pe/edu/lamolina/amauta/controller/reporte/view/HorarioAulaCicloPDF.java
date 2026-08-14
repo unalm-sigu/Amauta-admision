@@ -163,33 +163,79 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
         Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
         Map<String, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("idDiaHora", horariosAulas);
-        for (Hora hora : horas) {
 
-            // primera celda de hora
+        Map<Long, Long> seccionAnteriorPorDia = new java.util.HashMap<>();
+        Map<Long, Integer> largoBloquePorDia = new java.util.HashMap<>();
+
+        for (int h = 0; h < horas.size(); h++) {
+            Hora hora = horas.get(h);
+            Hora horaSiguiente = (h + 1 < horas.size()) ? horas.get(h + 1) : null;
+
             PdfPCell cell = new PdfPCell(new Phrase(hora.getDescripcion2(), timeFont));
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setFixedHeight(35);
+            cell.setFixedHeight(25);
             table.addCell(cell);
 
             for (Dia dia : dias) {
                 String key = dia.getId() + "_" + hora.getId();
-                if (dia.getId().compareTo(7L) == 0 && hora.getId().compareTo(2L) == 0) {
-                    logger.debug("");
-                }
                 List<HorarioAula> horariosAulasByDiaHora = mapHorariosAulas.get(key);
                 List<DiaHoraGrupo> diasHoraGrupo = mapDiasHorasGrupos.get(key);
+
+                String descanso = null;
+
+                Long seccionActual = seccionUnica(horariosAulasByDiaHora);
+                Long seccionAnterior = seccionAnteriorPorDia.get(dia.getId());
+                int largo = largoBloquePorDia.getOrDefault(dia.getId(), 0);
+
+                if (seccionActual != null && seccionActual.equals(seccionAnterior)) {
+                    largo++;
+                } else {
+                    largo = (seccionActual != null) ? 1 : 0;
+                }
+
+                boolean continua = false;
+                if (seccionActual != null && horaSiguiente != null) {
+                    Long seccionSig = seccionUnica(mapHorariosAulas.get(dia.getId() + "_" + horaSiguiente.getId()));
+                    continua = seccionActual.equals(seccionSig);
+                }
+
+                if (seccionActual != null && !continua) {
+                    int finReloj = parseHHmm(hora.getDescripcion2Fin());
+                    int iniDescanso = finReloj - largo * 10;
+                    descanso = "Finalizar clases " + fmt(iniDescanso);
+                }
+
+                seccionAnteriorPorDia.put(dia.getId(), seccionActual);
+                largoBloquePorDia.put(dia.getId(), continua ? largo : 0);
+
                 try {
-                    construccionCeldas(table, bodyFont, letterFont, horariosAulasByDiaHora, diasHoraGrupo);
+                    construccionCeldas(table, bodyFont, letterFont, horariosAulasByDiaHora, diasHoraGrupo, descanso);
                 } catch (Exception e) {
                     e.printStackTrace();
                     logger.error("error", e);
                     throw new PhobosException("Error al generar");
                 }
-
             }
         }
+    }
 
+    private static int parseHHmm(String s) {
+        String[] p = s.trim().split(":");
+        return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+    }
+
+    private Long seccionUnica(List<HorarioAula> lista) {
+        if (lista == null) return null;
+        java.util.Set<Long> ids = new java.util.HashSet<>();
+        for (HorarioAula ha : lista) {
+            if (ha.getSeccion() != null) ids.add(ha.getSeccion().getId());
+        }
+        return ids.size() == 1 ? ids.iterator().next() : null;
+    }
+
+    private static String fmt(int x) {
+        return String.format("%02d:%02d", (x / 60) % 24, x % 60);
     }
 
     private void generateTitulo(String titulo, PdfPTable table) {
@@ -334,7 +380,8 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
     private PdfPTable construccionCeldas(
             PdfPTable table, Font bodyFont, Font letterFont,
             List<HorarioAula> horariosAulasByDiaHora,
-            List<DiaHoraGrupo> diasHoraGrupo) throws DocumentException {
+            List<DiaHoraGrupo> diasHoraGrupo,
+            String descanso) throws DocumentException {
         PdfPTable innerTable = new PdfPTable(1);
         innerTable.getDefaultCell().setBorder(0);
         innerTable.setWidths(new int[]{1});
@@ -348,6 +395,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             }
         }
         if (horariosAulasByDiaHora == null || horariosAulasByDiaHora.isEmpty()) {
+            agregarDescanso(innerTable, descanso);
             table.addCell(innerTable);
             return table;
         }
@@ -363,8 +411,18 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         } else {
             this.agregarCruce(innerTable, horariosConSeccion, bodyFont);
         }
+        agregarDescanso(innerTable, descanso);
         table.addCell(innerTable);
         return table;
+    }
+
+    private void agregarDescanso(PdfPTable innerTable, String descanso) {
+        if (descanso == null) return;
+        Font fontDescanso = new Font(FontFamily.HELVETICA, 7, Font.BOLD, BaseColor.WHITE);
+        Phrase phr = new Phrase(descanso, fontDescanso);
+        PdfPCell cellDescanso = this.getCellLeftBody(phr);
+        cellDescanso.setBackgroundColor(new BaseColor(13, 95, 44));
+        innerTable.addCell(cellDescanso);
     }
 
     public void agregarCruce(PdfPTable innerTable, List<HorarioAula> horariosConSeccion, Font bodyFont) {

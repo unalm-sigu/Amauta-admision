@@ -337,11 +337,105 @@ public class InformacionProfesorController {
 
         List<HorarioDocenteDTO> horarioDocenteDTO = service.horarioDocente(ds.getCicloAcademico(), id);
 
+        anotarDescansos(horarioDocenteDTO);
         model.addAttribute("horarioDocente", horarioDocenteDTO);
-//          List<HorarioDocenteDTO> horarioDocenteDTO = service.horarioDocentes(ds.getCicloAcademico());
-//
-        model.addAttribute("horarioDocente", horarioDocenteDTO);
+
         return new ModelAndView(horarioDocentePDF);
+    }
+
+    private static final String[] DIAS = {"lunes","martes","miercoles","jueves","viernes","sabado"};
+
+    private void anotarDescansos(List<HorarioDocenteDTO> filas) {
+        if (filas == null || filas.isEmpty()) return;
+        for (String dia : DIAS) {
+            int largoBloque = 0;
+            for (int i = 0; i < filas.size(); i++) {
+                HorarioDocenteDTO act = filas.get(i);
+                String curso = getCurso(act, dia);
+
+                if (curso == null || curso.trim().isEmpty()) { largoBloque = 0; continue; }
+
+                largoBloque++;
+
+                boolean continua = false;
+                if (i + 1 < filas.size()) {
+                    HorarioDocenteDTO sig = filas.get(i + 1);
+                    continua = curso.equals(getCurso(sig, dia))
+                            && eq(getAula(act, dia), getAula(sig, dia))
+                            && eq(getGrupo(act, dia), getGrupo(sig, dia));
+                }
+
+                if (!continua) {
+                    int n = parseNum(act.getNumero());
+                    if (n >= 0) {
+                        int finReloj = (n + 1) * 60;
+                        int iniDescanso = finReloj - largoBloque*10;
+                        setDescanso(act, dia, "Finalizar clases " + fmtAmPm(iniDescanso));
+                    }
+                    largoBloque = 0;
+                }
+            }
+        }
+    }
+
+    private static boolean eq(String a, String b) {
+        return (a == null ? "" : a).equals(b == null ? "" : b);
+    }
+
+    private static int parseNum(String s) {
+        try { return Integer.parseInt(s.trim()); } catch (Exception e) { return -1; }
+    }
+
+    private static String fmtAmPm(int x) {
+        int totalMin = x % (24*60);
+        int h = totalMin / 60, m = totalMin % 60;
+        String ap = h < 12 ? "am" : "pm";
+        int h12 = h % 12; if (h12 == 0) h12 = 12;
+        return String.format("%02d:%02d %s", h12, m, ap);
+    }
+
+    private static String getCurso(HorarioDocenteDTO d, String dia) {
+        switch (dia) {
+            case "lunes": return d.getCurso_lunes();
+            case "martes": return d.getCurso_martes();
+            case "miercoles": return d.getCurso_miercoles();
+            case "jueves": return d.getCurso_jueves();
+            case "viernes": return d.getCurso_viernes();
+            case "sabado": return d.getCurso_sabado();
+            default: return "";
+        }
+    }
+    private static String getAula(HorarioDocenteDTO d, String dia) {
+        switch (dia) {
+            case "lunes": return d.getAula_lunes();
+            case "martes": return d.getAula_martes();
+            case "miercoles": return d.getAula_miercoles();
+            case "jueves": return d.getAula_jueves();
+            case "viernes": return d.getAula_viernes();
+            case "sabado": return d.getAula_sabado();
+            default: return "";
+        }
+    }
+    private static String getGrupo(HorarioDocenteDTO d, String dia) {
+        switch (dia) {
+            case "lunes": return d.getGrupo_lunes();
+            case "martes": return d.getGrupo_martes();
+            case "miercoles": return d.getGrupo_miercoles();
+            case "jueves": return d.getGrupo_jueves();
+            case "viernes": return d.getGrupo_viernes();
+            case "sabado": return d.getGrupo_sabado();
+            default:return "";
+        }
+    }
+    private static void setDescanso(HorarioDocenteDTO d, String dia, String v) {
+        switch (dia) {
+            case "lunes": d.setDescansoLunes(v); break;
+            case "martes": d.setDescansoMartes(v); break;
+            case "miercoles": d.setDescansoMiercoles(v); break;
+            case "jueves": d.setDescansoJueves(v); break;
+            case "viernes": d.setDescansoViernes(v); break;
+            case "sabado": d.setDescansoSabado(v); break;
+        }
     }
 
 }

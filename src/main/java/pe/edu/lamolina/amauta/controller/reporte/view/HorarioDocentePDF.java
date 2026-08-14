@@ -131,38 +131,46 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
 
     private void addRows(PdfPTable table, List<HorarioDocenteDTO> horarioDocente) {
         for (HorarioDocenteDTO dto : horarioDocente) {
-            table.addCell(new Phrase(dto.getHora2() == null ? "" : dto.getHora2(), bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_lunes() == null ? "" : dto.getCurso_lunes()) + "\n" +
-                (dto.getAula_lunes() == null ? "" : dto.getAula_lunes()) + "\n" +
-                (dto.getGrupo_lunes() == null ? "" : dto.getGrupo_lunes()), 
-                bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_martes() == null ? "" : dto.getCurso_martes()) + "\n" +
-                (dto.getAula_martes() == null ? "" : dto.getAula_martes()) + "\n" +
-                (dto.getGrupo_martes() == null ? "" : dto.getGrupo_martes()), 
-                bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_miercoles() == null ? "" : dto.getCurso_miercoles()) + "\n" +
-                (dto.getAula_miercoles() == null ? "" : dto.getAula_miercoles()) + "\n" +
-                (dto.getGrupo_miercoles() == null ? "" : dto.getGrupo_miercoles()), 
-                bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_jueves() == null ? "" : dto.getCurso_jueves()) + "\n" +
-                (dto.getAula_jueves() == null ? "" : dto.getAula_jueves()) + "\n" +
-                (dto.getGrupo_jueves() == null ? "" : dto.getGrupo_jueves()), 
-                bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_viernes() == null ? "" : dto.getCurso_viernes()) + "\n" +
-                (dto.getAula_viernes() == null ? "" : dto.getAula_viernes()) + "\n" +
-                (dto.getGrupo_viernes() == null ? "" : dto.getGrupo_viernes()), 
-                bodyTableFont));
-            table.addCell(new Phrase(
-                (dto.getCurso_sabado() == null ? "" : dto.getCurso_sabado()) + "\n" +
-                (dto.getAula_sabado() == null ? "" : dto.getAula_sabado()) + "\n" +
-                (dto.getGrupo_sabado() == null ? "" : dto.getGrupo_sabado()), 
-                bodyTableFont));
+            PdfPCell cHora = new PdfPCell(new Phrase(dto.getHora2() == null ? "" : dto.getHora2(), bodyTableFont));
+            cHora.setMinimumHeight(40f);
+            table.addCell(cHora);
+            table.addCell(celdaDia(dto.getCurso_lunes(),   dto.getAula_lunes(),   dto.getGrupo_lunes(),   dto.getDescansoLunes()));
+            table.addCell(celdaDia(dto.getCurso_martes(),  dto.getAula_martes(),  dto.getGrupo_martes(),  dto.getDescansoMartes()));
+            table.addCell(celdaDia(dto.getCurso_miercoles(),dto.getAula_miercoles(),dto.getGrupo_miercoles(),dto.getDescansoMiercoles()));
+            table.addCell(celdaDia(dto.getCurso_jueves(),  dto.getAula_jueves(),  dto.getGrupo_jueves(),  dto.getDescansoJueves()));
+            table.addCell(celdaDia(dto.getCurso_viernes(), dto.getAula_viernes(), dto.getGrupo_viernes(), dto.getDescansoViernes()));
+            table.addCell(celdaDia(dto.getCurso_sabado(),  dto.getAula_sabado(),  dto.getGrupo_sabado(),  dto.getDescansoSabado()));
         }
+    }
+
+    private PdfPCell celdaDia(String curso, String aula, String grupo, String descanso) {
+        PdfPTable inner = new PdfPTable(1);
+        inner.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+        try { inner.setWidths(new int[]{1}); } catch (DocumentException e) { /* ignore */ }
+        inner.setWidthPercentage(100);
+
+        String contenido =
+                (curso == null ? "" : curso) + "\n" +
+                        (aula  == null ? "" : aula)  + "\n" +
+                        (grupo == null ? "" : grupo);
+        PdfPCell cCont = new PdfPCell(new Phrase(contenido, bodyTableFont));
+        cCont.setBorder(Rectangle.NO_BORDER);
+        cCont.setPadding(2f);
+        cCont.setVerticalAlignment(Element.ALIGN_TOP);
+        inner.addCell(cCont);
+
+        if (descanso != null && !descanso.trim().isEmpty()) {
+            Font fontDescanso = new Font(Font.FontFamily.HELVETICA, 7, Font.BOLD, BaseColor.WHITE);
+            PdfPCell cDesc = new PdfPCell(new Phrase(descanso, fontDescanso));
+            cDesc.setBorder(Rectangle.NO_BORDER);
+            cDesc.setPadding(1f);
+            cDesc.setBackgroundColor(new BaseColor(13, 95, 44));
+            inner.addCell(cDesc);
+        }
+
+        PdfPCell celda = new PdfPCell(inner);
+        celda.setPadding(0f);
+        return celda;
     }
     
     private void generateTitulo(String titulo, PdfPTable table) {
