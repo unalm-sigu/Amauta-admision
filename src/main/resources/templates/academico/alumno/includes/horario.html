@@ -1,3 +1,37 @@
+<style>
+    .schels .curso {
+        position: relative;
+    }
+    .schels .curso .franja-fin-clase {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        padding: 1px 4px;
+        background-color: rgb(13, 95, 44);
+        border-top: 1px solid rgba(255, 255, 255, .35);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 12px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        pointer-events: none;
+    }
+    .schels .curso .data-curso {
+        padding-bottom: 10px;
+    }
+    @media print {
+        .schels .curso .franja-fin-clase {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
 <template id="horarioComponent">
     <section class="panel-body m-t-sm">
         <div class="m-b-sm">        
@@ -35,6 +69,9 @@
                                             <span v-if="seccion.aula.codigo != '' "><small>Aula {{ seccion.aula.codigo }} </small></span>
                                             <span v-if="seccion.grupoHoras.codigo != '' "><small>Gpo {{ seccion.grupoHoras.codigo }}</small></span>
                                         </p>
+                                        <span class="franja-fin-clase" v-if="seccion.finClaseTexto && seccion.horaFinal">
+                                            {{ seccion.finClaseTexto }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -73,6 +110,9 @@
                                             <span v-if="seccion.aula.codigo != '' "><small>Aula {{ seccion.aula.codigo }} </small></span>
                                             <span v-if="seccion.grupoHoras.codigo != '' "><small>Gpo {{ seccion.grupoHoras.codigo }}</small></span>
                                         </p>
+                                        <span class="franja-fin-clase" v-if="seccion.finClaseTexto && seccion.horaFinal">
+                                            {{ seccion.finClaseTexto }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -111,6 +151,9 @@
                                             <span v-if="seccion.aula.codigo != '' "><small>Aula {{ seccion.aula.codigo }} </small></span>
                                             <span v-if="seccion.grupoHoras.codigo != '' "><small>Gpo {{ seccion.grupoHoras.codigo }}</small></span>
                                         </p>
+                                        <span class="franja-fin-clase" v-if="seccion.finClaseTexto && seccion.horaFinal">
+                                            {{ seccion.finClaseTexto }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

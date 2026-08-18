@@ -40,6 +40,8 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 
+import static pe.edu.lamolina.amauta.util.HorarioUtil.*;
+
 @Controller
 @RequestMapping("academico/profesor")
 public class InformacionProfesorController {
@@ -370,28 +372,12 @@ public class InformacionProfesorController {
                     if (n >= 0) {
                         int finReloj = (n + 1) * 60;
                         int iniDescanso = finReloj - largoBloque*10;
-                        setDescanso(act, dia, "Finalizar clases " + fmtAmPm(iniDescanso));
+                        setDescanso(act, dia, "Desplazamiento " + fmtAmPm(iniDescanso));
                     }
                     largoBloque = 0;
                 }
             }
         }
-    }
-
-    private static boolean eq(String a, String b) {
-        return (a == null ? "" : a).equals(b == null ? "" : b);
-    }
-
-    private static int parseNum(String s) {
-        try { return Integer.parseInt(s.trim()); } catch (Exception e) { return -1; }
-    }
-
-    private static String fmtAmPm(int x) {
-        int totalMin = x % (24*60);
-        int h = totalMin / 60, m = totalMin % 60;
-        String ap = h < 12 ? "am" : "pm";
-        int h12 = h % 12; if (h12 == 0) h12 = 12;
-        return String.format("%02d:%02d %s", h12, m, ap);
     }
 
     private static String getCurso(HorarioDocenteDTO d, String dia) {

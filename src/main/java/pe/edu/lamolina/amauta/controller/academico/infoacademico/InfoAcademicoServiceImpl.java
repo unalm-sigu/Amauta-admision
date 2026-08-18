@@ -53,6 +53,8 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
+import static pe.edu.lamolina.amauta.util.HorarioUtil.fmtAmPm;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
@@ -1039,6 +1041,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                     Integer nroHora = mapSeccionHora.get(key);
                     seccionJson.put("horasContinuas", horariosSecc.size());
                     seccionJson.put("horaInicial", nroHora == hora.getNumero());
+
+                    int horasCont = horariosSecc.size();
+                    int finRelojMin = (nroHora + horasCont) * 60;
+                    int finClaseMin = finRelojMin - horasCont * 10;
+                    boolean esUltima = (nroHora + horasCont - 1) == hora.getNumero();
+                    seccionJson.put("horaFinal", esUltima);
+                    seccionJson.put("finClaseTexto", "Desplazamiento " + fmtAmPm(finClaseMin));
 
                     log.debug("idHorario:{}, idSeccion:{}", horarioSeccion.getId(), horarioSeccion.getSeccion().getId());
 

@@ -49,6 +49,9 @@ import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.zelper.pdfgenerator.PdfDocumentGenerator;
 
+import static pe.edu.lamolina.amauta.util.HorarioUtil.fmt;
+import static pe.edu.lamolina.amauta.util.HorarioUtil.parseHHmm;
+
 @Component
 public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
@@ -203,7 +206,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 if (seccionActual != null && !continua) {
                     int finReloj = parseHHmm(hora.getDescripcion2Fin());
                     int iniDescanso = finReloj - largo * 10;
-                    descanso = "Finalizar clases " + fmt(iniDescanso);
+                    descanso = "Desplazamiento " + fmt(iniDescanso);
                 }
 
                 seccionAnteriorPorDia.put(dia.getId(), seccionActual);
@@ -220,11 +223,6 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         }
     }
 
-    private static int parseHHmm(String s) {
-        String[] p = s.trim().split(":");
-        return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
-    }
-
     private Long seccionUnica(List<HorarioAula> lista) {
         if (lista == null) return null;
         java.util.Set<Long> ids = new java.util.HashSet<>();
@@ -232,10 +230,6 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             if (ha.getSeccion() != null) ids.add(ha.getSeccion().getId());
         }
         return ids.size() == 1 ? ids.iterator().next() : null;
-    }
-
-    private static String fmt(int x) {
-        return String.format("%02d:%02d", (x / 60) % 24, x % 60);
     }
 
     private void generateTitulo(String titulo, PdfPTable table) {
