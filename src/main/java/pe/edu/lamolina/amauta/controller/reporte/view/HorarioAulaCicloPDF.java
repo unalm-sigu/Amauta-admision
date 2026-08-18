@@ -49,8 +49,7 @@ import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.zelper.pdfgenerator.PdfDocumentGenerator;
 
-import static pe.edu.lamolina.amauta.util.HorarioUtil.fmt;
-import static pe.edu.lamolina.amauta.util.HorarioUtil.parseHHmm;
+import static pe.edu.lamolina.amauta.util.HorarioUtil.*;
 
 @Component
 public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
@@ -206,7 +205,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 if (seccionActual != null && !continua) {
                     int finReloj = parseHHmm(hora.getDescripcion2Fin());
                     int iniDescanso = finReloj - largo * 10;
-                    descanso = "Desplazamiento " + fmt(iniDescanso);
+                    descanso = "Desplazamiento\n " + fmt(iniDescanso)+"-"+fmtAmPm(finReloj);
                 }
 
                 seccionAnteriorPorDia.put(dia.getId(), seccionActual);
@@ -416,6 +415,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         Phrase phr = new Phrase(descanso, fontDescanso);
         PdfPCell cellDescanso = this.getCellLeftBody(phr);
         cellDescanso.setBackgroundColor(new BaseColor(13, 95, 44));
+        cellDescanso.setHorizontalAlignment(Element.ALIGN_CENTER);
         innerTable.addCell(cellDescanso);
     }
 

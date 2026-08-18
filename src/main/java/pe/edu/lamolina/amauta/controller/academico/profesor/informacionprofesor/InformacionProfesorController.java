@@ -372,7 +372,7 @@ public class InformacionProfesorController {
                     if (n >= 0) {
                         int finReloj = (n + 1) * 60;
                         int iniDescanso = finReloj - largoBloque*10;
-                        setDescanso(act, dia, "Desplazamiento " + fmtAmPm(iniDescanso));
+                        setDescanso(act, dia, "Desplazamiento\n " + fmtAmPm(iniDescanso)+"-"+fmtAmPm(finReloj));
                     }
                     largoBloque = 0;
                 }

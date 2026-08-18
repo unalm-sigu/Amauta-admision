@@ -165,6 +165,7 @@ public class HorarioDocentePDF extends AbstractOnlyPdfView {
             cDesc.setBorder(Rectangle.NO_BORDER);
             cDesc.setPadding(1f);
             cDesc.setBackgroundColor(new BaseColor(13, 95, 44));
+            cDesc.setHorizontalAlignment(Element.ALIGN_CENTER);
             inner.addCell(cDesc);
         }
 

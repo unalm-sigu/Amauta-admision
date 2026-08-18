@@ -1047,7 +1047,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                     int finClaseMin = finRelojMin - horasCont * 10;
                     boolean esUltima = (nroHora + horasCont - 1) == hora.getNumero();
                     seccionJson.put("horaFinal", esUltima);
-                    seccionJson.put("finClaseTexto", "Desplazamiento " + fmtAmPm(finClaseMin));
+                    seccionJson.put("finClaseTexto", "Desplazamiento " + fmtAmPm(finClaseMin)+"-"+fmtAmPm(finRelojMin));
 
                     log.debug("idHorario:{}, idSeccion:{}", horarioSeccion.getId(), horarioSeccion.getSeccion().getId());
 
