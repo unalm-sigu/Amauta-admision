@@ -205,7 +205,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 if (seccionActual != null && !continua) {
                     int finReloj = parseHHmm(hora.getDescripcion2Fin());
                     int iniDescanso = finReloj - largo * 10;
-                    descanso = "Desplazamiento\n " + fmt(iniDescanso)+"-"+fmtAmPm(finReloj);
+                    descanso = "Desplazamiento\n " + fmt(iniDescanso)+"-"+fmt(finReloj);
                 }
 
                 seccionAnteriorPorDia.put(dia.getId(), seccionActual);
