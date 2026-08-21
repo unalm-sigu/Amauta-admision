@@ -161,7 +161,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
     private void generateTable(PdfPTable table, List<Dia> dias, List<Hora> horas, List<HorarioAula> horariosAulas, Map<String, List<DiaHoraGrupo>> mapDiasHorasGrupos) {
 
-        Font bodyFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+        Font bodyFont = new Font(FontFamily.HELVETICA, 6, Font.NORMAL, BaseColor.BLACK);
         Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
         Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
         Map<String, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("idDiaHora", horariosAulas);
@@ -176,7 +176,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             PdfPCell cell = new PdfPCell(new Phrase(hora.getDescripcion2(), timeFont));
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setFixedHeight(25);
+            cell.setFixedHeight(10);
             table.addCell(cell);
 
             for (Dia dia : dias) {
@@ -411,7 +411,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
     private void agregarDescanso(PdfPTable innerTable, String descanso) {
         if (descanso == null) return;
-        Font fontDescanso = new Font(FontFamily.HELVETICA, 7, Font.BOLD, BaseColor.WHITE);
+        Font fontDescanso = new Font(FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.WHITE);
         Phrase phr = new Phrase(descanso, fontDescanso);
         PdfPCell cellDescanso = this.getCellLeftBody(phr);
         cellDescanso.setBackgroundColor(new BaseColor(13, 95, 44));
